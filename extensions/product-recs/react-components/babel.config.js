@@ -19,7 +19,8 @@ const plugins = [
      * See:
      *  https://babeljs.io/docs/en/babel-plugin-proposal-optional-chaining
      */
-    ['@babel/plugin-proposal-optional-chaining']
+    ['@babel/plugin-proposal-optional-chaining'],
+    ['formatjs', { ast: true }]
 ];
 
 const presets = [['@babel/preset-react']];

@@ -16,7 +16,7 @@
 import React from 'react';
 import { func, shape, string } from 'prop-types';
 import { Form } from 'informed';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import combine from '../../utils/combineValidators';
 import { isRequired, validateEmail } from '../../utils/formValidators';
@@ -28,13 +28,13 @@ import defaultClasses from './forgotPasswordForm.css';
 
 const ForgotPasswordForm = props => {
     const { handleFormSubmit, handleCancel } = props;
-    const [t] = useTranslation('account');
+    const intl = useIntl();
 
     const classes = Object.assign({}, defaultClasses, props.classes || {});
 
     return (
         <Form className={classes.root} onSubmit={handleFormSubmit}>
-            <Field label={t('account:email', 'Email address')} required={true}>
+            <Field label={intl.formatMessage({ id: 'account:email', defaultMessage: 'Email address' })} required={true}>
                 <TextInput
                     autoComplete="email"
                     field="email"
@@ -44,11 +44,11 @@ const ForgotPasswordForm = props => {
             </Field>
             <div className={classes.buttonContainer}>
                 <Button disabled={false} type="submit" priority="high" aria-label="submit">
-                    {t('account:forgot-password-submit', 'Submit')}
+                    {intl.formatMessage({ id: 'account:forgot-password-submit', defaultMessage: 'Submit' })}
                 </Button>
                 {handleCancel && (
                     <Button disabled={false} type="button" priority="normal" aria-label="cancel" onClick={handleCancel}>
-                        {t('account:forgot-password-cancel', 'Cancel')}
+                        {intl.formatMessage({ id: 'account:forgot-password-cancel', defaultMessage: 'Cancel' })}
                     </Button>
                 )}
             </div>

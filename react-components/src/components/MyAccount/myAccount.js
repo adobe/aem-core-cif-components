@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import { func } from 'prop-types';
 
 import LoadingIndicator from '../LoadingIndicator';
@@ -27,12 +27,14 @@ import { SignOutLink, AccountInfoLink, AddressBookLink, ChangePasswordLink } fro
 const MyAccount = props => {
     const { showMenu, showChangePassword, showAccountInformation } = props;
     const [{ currentUser, inProgress }] = useUserContext();
-    const [t] = useTranslation('account');
+    const intl = useIntl();
 
     if (inProgress) {
         return (
             <div className={classes.modal_active}>
-                <LoadingIndicator>{t('account:signing-in', 'Signing In')}</LoadingIndicator>
+                <LoadingIndicator>
+                    {intl.formatMessage({ id: 'account:signing-in', defaultMessage: 'Signing In' })}
+                </LoadingIndicator>
             </div>
         );
     }

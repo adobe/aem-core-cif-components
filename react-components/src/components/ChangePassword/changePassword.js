@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import { func } from 'prop-types';
 import { Form } from 'informed';
 import { useMutation } from '@apollo/client';
@@ -35,7 +35,7 @@ const ChangePassword = props => {
     const { showMyAccount, handleCancel } = props;
     const [{ token }] = useUserContext();
     const [doChangePassword, { data, loading, error }] = useMutation(MUTATION_CHANGE_PASSWORD);
-    const [t] = useTranslation(['account', 'common']);
+    const intl = useIntl();
 
     const handleSubmit = formValues => {
         doChangePassword({
@@ -62,10 +62,15 @@ const ChangePassword = props => {
     if (data) {
         return (
             <div className={classes.root}>
-                <p>{t('account:password-was-changed', 'Your password was changed.')}</p>
+                <p>
+                    {intl.formatMessage({
+                        id: 'account:password-was-changed',
+                        defaultMessage: 'Your password was changed.'
+                    })}
+                </p>
                 <div className={classes.actions}>
                     <Button priority="high" onClick={showMyAccount}>
-                        {t('common:back', 'Back')}
+                        {intl.formatMessage({ id: 'common:back', defaultMessage: 'Back' })}
                     </Button>
                 </div>
             </div>
@@ -76,7 +81,12 @@ const ChangePassword = props => {
         return (
             <div className={classes.root}>
                 <Form onSubmit={handleSubmit}>
-                    <Field label={t('account:current-password', 'Current Password')} required={true}>
+                    <Field
+                        label={intl.formatMessage({
+                            id: 'account:current-password',
+                            defaultMessage: 'Current Password'
+                        })}
+                        required={true}>
                         <TextInput
                             field="oldPassword"
                             type="password"
@@ -85,7 +95,9 @@ const ChangePassword = props => {
                             aria-label="old-password"
                         />
                     </Field>
-                    <Field label={t('account:new-password', 'New Password')} required={true}>
+                    <Field
+                        label={intl.formatMessage({ id: 'account:new-password', defaultMessage: 'New Password' })}
+                        required={true}>
                         <TextInput
                             field="password"
                             type="password"
@@ -95,7 +107,12 @@ const ChangePassword = props => {
                             aria-label="password"
                         />
                     </Field>
-                    <Field label={t('account:confirm-new-password', 'Confirm New Password')} required={true}>
+                    <Field
+                        label={intl.formatMessage({
+                            id: 'account:confirm-new-password',
+                            defaultMessage: 'Confirm New Password'
+                        })}
+                        required={true}>
                         <TextInput
                             field="confirm"
                             type="password"
@@ -107,11 +124,11 @@ const ChangePassword = props => {
                     {error && <div className={classes.error}>{parseError(error)}</div>}
                     <div className={classes.actions}>
                         <Button type="submit" priority="high" aria-label="submit">
-                            {t('account:change-password', 'Change Password')}
+                            {intl.formatMessage({ id: 'account:change-password', defaultMessage: 'Change Password' })}
                         </Button>
                         {handleCancel && (
                             <Button type="button" priority="normal" aria-label="cancel" onClick={handleCancel}>
-                                {t('account:change-password-cancel', 'Cancel')}
+                                {intl.formatMessage({ id: 'account:change-password-cancel', defaultMessage: 'Cancel' })}
                             </Button>
                         )}
                     </div>

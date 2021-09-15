@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 
 import { useAwaitQuery } from '../../utils/hooks';
@@ -31,7 +31,7 @@ import useCartOptions from './useCartOptions';
 const CartOptions = () => {
     const [updateCartItemMutation] = useMutation(MUTATION_UPDATE_CART_ITEM);
     const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
-    const [t] = useTranslation(['cart', 'common']);
+    const intl = useIntl();
 
     const [{ editItem }, { dispatch, updateCartItem }] = useCartOptions({
         updateCartItemMutation,
@@ -79,7 +79,7 @@ const CartOptions = () => {
             <div className={classes.form}>
                 <section className={classes.quantity}>
                     <h2 className={classes.quantityTitle}>
-                        <span>{t('cart:quantity', 'Quantity')}</span>
+                        <span>{intl.formatMessage({ id: 'cart:quantity', defaultMessage: 'Quantity' })}</span>
                     </h2>
                     <Select field="quantity" initialValue={quantity} onValueChange={handleOnChange} items={mockQtys} />
                 </section>
@@ -89,10 +89,10 @@ const CartOptions = () => {
                     onClick={() => {
                         dispatch({ type: 'endEditing' });
                     }}>
-                    <span>{t('common:cancel', 'Cancel')}</span>
+                    <span>{intl.formatMessage({ id: 'common:cancel', defaultMessage: 'Cancel' })}</span>
                 </Button>
                 <Button priority="high" onClick={handleUpdateClick}>
-                    <span>{t('cart:update-cart', 'Update Cart')}</span>
+                    <span>{intl.formatMessage({ id: 'cart:update-cart', defaultMessage: 'Update Cart' })}</span>
                 </Button>
             </div>
         </form>

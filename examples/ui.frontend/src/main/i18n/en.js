@@ -1,5 +1,5 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ Copyright 2019 Adobe
+ ~ Copyright 2021 Adobe
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -13,33 +13,8 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
 
-import common from './common.json'
-import productrecs from '../i18n/en/productrecs.json';
+import enMessagesCoreComponents from '@adobe/aem-core-cif-react-components/i18n/en.json'
 
-i18n.use(initReactI18next).init({
-    fallbackLng: 'en',
-    debug: false,
-    lng: 'en',
-
-    interpolation: {
-        escapeValue: false,
-        format: (value, format, lng) => {
-            if (format === 'price') {
-                return new Intl.NumberFormat(lng, { style: 'currency', currency: value.currency }).format(value.value);
-            }
-            return value;
-        }
-    },
-
-    resources: {
-        en: {
-            common,
-            productrecs
-        }
-    }
-});
-
-export default i18n;
+export const messages = { ...enMessagesCoreComponents };
+export const locale = 'en';

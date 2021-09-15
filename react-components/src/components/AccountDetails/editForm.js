@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { Fragment, useEffect } from 'react';
 import { bool, func } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import { useFormApi, useFormState } from 'informed';
 
 import Field from '../Field';
@@ -29,7 +29,7 @@ import classes from './editForm.css';
 
 const EditForm = props => {
     const { shouldShowNewPassword, handleShowNewPasswordField } = props;
-    const [t] = useTranslation('account');
+    const intl = useIntl();
 
     const maybeShowChangePasswordButton = !shouldShowNewPassword && (
         <div className={classes.changePasswordButtonContainer}>
@@ -37,7 +37,7 @@ const EditForm = props => {
                 type="button"
                 classes={{ root: classes.changePasswordButton }}
                 onClick={handleShowNewPasswordField}>
-                {t('account:change-password', 'Change Password')}
+                {intl.formatMessage({ id: 'account:change-password', defaultMessage: 'Change Password' })}
             </LinkButton>
         </div>
     );
@@ -46,7 +46,7 @@ const EditForm = props => {
         <div className={classes.newPassword}>
             <Password
                 fieldName="newPassword"
-                label={t('account:new-password', 'New Password')}
+                label={intl.formatMessage({ id: 'account:new-password', defaultMessage: 'New Password' })}
                 validate={combine([
                     isRequired,
                     [hasLengthAtLeast, 8],
@@ -58,8 +58,8 @@ const EditForm = props => {
         </div>
     ) : null;
     const passwordLabel = shouldShowNewPassword
-        ? t('account:current-password', 'Current Password')
-        : t('account:password', 'Password');
+        ? intl.formatMessage({ id: 'account:current-password', defaultMessage: 'Current Password' })
+        : intl.formatMessage({ id: 'account:password', defaultMessage: 'Password' });
 
     const formState = useFormState();
     const formApi = useFormApi();
@@ -76,17 +76,23 @@ const EditForm = props => {
         <Fragment>
             <div className={classes.root}>
                 <div className={classes.firstname}>
-                    <Field id="firstname" label={t('account:firstname', 'First Name')}>
+                    <Field
+                        id="firstname"
+                        label={intl.formatMessage({ id: 'account:firstname', defaultMessage: 'First Name' })}>
                         <TextInput field="firstname" validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.lastname}>
-                    <Field id="lastname" label={t('account:lastname', 'Last Name')}>
+                    <Field
+                        id="lastname"
+                        label={intl.formatMessage({ id: 'account:lastname', defaultMessage: 'Last Name' })}>
                         <TextInput field="lastname" validate={isRequired} />
                     </Field>
                 </div>
                 <div className={classes.email}>
-                    <Field id="email" label={t('account:email', 'Email address')}>
+                    <Field
+                        id="email"
+                        label={intl.formatMessage({ id: 'account:email', defaultMessage: 'Email address' })}>
                         <TextInput field="email" validate={isRequired} />
                     </Field>
                 </div>

@@ -15,14 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { array, shape, func, bool, number } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 const Select = props => {
     const { item, customization, options, handleSelectionChange } = props;
     const { quantity } = item;
     const { can_change_quantity } =
         customization.length > 0 ? options.find(o => o.id === customization[0].id) : { can_change_quantity: false };
-    const [t] = useTranslation('cart');
+    const intl = useIntl();
 
     const onChange = event => {
         const { value } = event.target;
@@ -88,7 +88,7 @@ const Select = props => {
             </div>
 
             <h2 className="bundleProduct__quantityTitle">
-                <span>{t('cart:quantity', 'Quantity')}</span>
+                <span>{intl.formatMessage({ id: 'cart:quantity', defaultMessage: 'Quantity' })}</span>
             </h2>
             <input
                 type="number"

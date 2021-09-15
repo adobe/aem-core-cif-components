@@ -15,12 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 
-import { I18nextProvider } from 'react-i18next';
+import { IntlProvider } from 'react-intl';
 import { ConfigContextProvider, ResetPassword } from '@adobe/aem-core-cif-react-components';
 import { withQuery } from '@storybook/addon-queryparams';
 import { MockedProvider } from '@apollo/client/testing';
 
-import i18n from './i18n';
 import { generateGithubLink } from './utils';
 import MUTATION_RESET_PASSWORD from 'Queries/mutation_reset_password.graphql';
 
@@ -45,7 +44,7 @@ export default {
 
 const Template = (args, context) => {
     return (
-        <I18nextProvider i18n={i18n} defaultNS="common">
+        <IntlProvider locale="en">
             <ConfigContextProvider
                 config={{
                     storeView: context.parameters.cifConfig.storeView,
@@ -56,7 +55,7 @@ const Template = (args, context) => {
                     <ResetPassword />
                 </MockedProvider>
             </ConfigContextProvider>
-        </I18nextProvider>
+        </IntlProvider>
     );
 };
 

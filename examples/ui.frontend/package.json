@@ -70,17 +70,16 @@
     "@adobe/aem-core-cif-react-components": "^2.0.0",
     "@apollo/client": "^3.2.4",
     "braintree-web-drop-in": "^1.22.1",
+    "core-js": "~3.17.2",
     "graphql": "~15.3.0",
-    "i18next": "^19.5.3",
-    "i18next-browser-languagedetector": "^5.0.0",
-    "i18next-xhr-backend": "^3.2.2",
     "informed": "~3.29.4",
     "prop-types": "^15.7.2",
     "react": "~17.0.1",
     "react-dom": "~17.0.1",
     "react-feather": "^2.0.3",
-    "react-i18next": "^11.7.0",
-    "react-router-dom": "^5.2.0"
+    "react-intl": "~5.20.0",
+    "react-router-dom": "^5.2.0",
+    "regenerator-runtime": "^0.13.9"
   },
   "browserslist": [
     "last 2 version",

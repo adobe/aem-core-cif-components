@@ -16,7 +16,7 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { Form } from 'informed';
 import { array, bool, shape, string, func, number } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import AddressSelect from '../AddressForm/addressSelect';
 import Button from '../Button';
@@ -51,7 +51,7 @@ const PaymentsForm = props => {
         submit
     } = props;
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [t] = useTranslation(['checkout', 'common']);
+    const intl = useIntl();
 
     const anchorRef = useRef(null);
 
@@ -120,34 +120,34 @@ const PaymentsForm = props => {
     const billingAddressFields = differentAddress ? (
         <>
             <div className={classes.firstname}>
-                <Field label={t('checkout:address-firstname', 'First Name')}>
+                <Field label={intl.formatMessage({ id: 'checkout:address-firstname', defaultMessage: 'First Name' })}>
                     <TextInput id={classes.firstname} field="firstname" validate={isRequired} />
                 </Field>
             </div>
             <div className={classes.lastname}>
-                <Field label={t('checkout:address-lastname', 'Last Name')}>
+                <Field label={intl.formatMessage({ id: 'checkout:address-lastname', defaultMessage: 'Last Name' })}>
                     <TextInput id={classes.lastname} field="lastname" validate={isRequired} />
                 </Field>
             </div>
             {showEmailInput && (
                 <div className={classes.email}>
-                    <Field label={t('checkout:address-email', 'E-Mail')}>
+                    <Field label={intl.formatMessage({ id: 'checkout:address-email', defaultMessage: 'E-Mail' })}>
                         <TextInput id={classes.email} field="email" validate={combine([isRequired, validateEmail])} />
                     </Field>
                 </div>
             )}
             <div className={classes.street0}>
-                <Field label={t('checkout:address-street', 'Street')}>
+                <Field label={intl.formatMessage({ id: 'checkout:address-street', defaultMessage: 'Street' })}>
                     <TextInput id={classes.street0} field="street0" validate={isRequired} />
                 </Field>
             </div>
             <div className={classes.city}>
-                <Field label={t('checkout:address-city', 'City')}>
+                <Field label={intl.formatMessage({ id: 'checkout:address-city', defaultMessage: 'City' })}>
                     <TextInput id={classes.city} field="city" validate={isRequired} />
                 </Field>
             </div>
             <div className={classes.region_code}>
-                <Field label={t('checkout:address-state', 'State')}>
+                <Field label={intl.formatMessage({ id: 'checkout:address-state', defaultMessage: 'State' })}>
                     <TextInput
                         id={classes.region_code}
                         field="region_code"
@@ -156,12 +156,12 @@ const PaymentsForm = props => {
                 </Field>
             </div>
             <div className={classes.postcode}>
-                <Field label={t('checkout:address-postcode', 'ZIP')}>
+                <Field label={intl.formatMessage({ id: 'checkout:address-postcode', defaultMessage: 'ZIP' })}>
                     <TextInput id={classes.postcode} field="postcode" validate={isRequired} />
                 </Field>
             </div>
             <div className={classes.telephone}>
-                <Field label={t('checkout:address-phone', 'Phone')}>
+                <Field label={intl.formatMessage({ id: 'checkout:address-phone', defaultMessage: 'Phone' })}>
                     <TextInput id={classes.telephone} field="telephone" validate={isRequired} />
                 </Field>
             </div>
@@ -203,7 +203,10 @@ const PaymentsForm = props => {
                             {allowSame && (
                                 <Checkbox
                                     field="addresses_same"
-                                    label={t('checkout:same-as-shipping', 'Billing address same as shipping address')}
+                                    label={intl.formatMessage({
+                                        id: 'checkout:same-as-shipping',
+                                        defaultMessage: 'Billing address same as shipping address'
+                                    })}
                                     onClick={ev => {
                                         setDifferentAddress(!ev.target.checked);
                                     }}
@@ -212,7 +215,11 @@ const PaymentsForm = props => {
                         </div>
                         {differentAddress && showAddressSelect && (
                             <div className={classes.address_select}>
-                                <Field label={t('checkout:address-use-saved-address', 'Use Saved Address')}>
+                                <Field
+                                    label={intl.formatMessage({
+                                        id: 'checkout:address-use-saved-address',
+                                        defaultMessage: 'Use Saved Address'
+                                    })}>
                                     <AddressSelect
                                         initialValue={initialAddressSelectValue}
                                         onValueChange={value => onAddressSelectValueChange(value, formApi)}
@@ -225,16 +232,24 @@ const PaymentsForm = props => {
                             <div className={classes.save_in_address_book}>
                                 <Checkbox
                                     id={classes.save_in_address_book}
-                                    label={t('checkout:address-save-in-address-book', 'Save in address book')}
+                                    label={intl.formatMessage({
+                                        id: 'checkout:address-save-in-address-book',
+                                        defaultMessage: 'Save in address book'
+                                    })}
                                     field="save_in_address_book"
                                 />
                             </div>
                         )}
                     </div>
                     <div className={classes.footer}>
-                        <Button onClick={cancel}>{t('common:cancel', 'Cancel')}</Button>
+                        <Button onClick={cancel}>
+                            {intl.formatMessage({ id: 'common:cancel', defaultMessage: 'Cancel' })}
+                        </Button>
                         <Button priority="high" type="submit" disabled={isSubmitting}>
-                            {t('checkout:use-payment-method', 'Use Payment Method')}
+                            {intl.formatMessage({
+                                id: 'checkout:use-payment-method',
+                                defaultMessage: 'Use Payment Method'
+                            })}
                         </Button>
                     </div>
                 </>
