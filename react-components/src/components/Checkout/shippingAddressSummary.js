@@ -15,19 +15,22 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { Fragment } from 'react';
 import { shape, string } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import { useCheckoutState } from './checkoutContext';
 
 const ShippingAddressSummary = props => {
     const { classes } = props;
     const [{ shippingAddress }] = useCheckoutState();
-    const [t] = useTranslation('checkout');
+    const intl = useIntl();
 
     if (!shippingAddress) {
         return (
             <span className={classes.informationPrompt}>
-                {t('checkout:add-shipping-information', 'Add Shipping Information')}
+                {intl.formatMessage({
+                    id: 'checkout:add-shipping-information',
+                    defaultMessage: 'Add Shipping Information'
+                })}
             </span>
         );
     }

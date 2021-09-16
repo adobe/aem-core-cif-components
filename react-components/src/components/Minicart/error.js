@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import Button from '../Button';
 
@@ -23,7 +23,7 @@ import { useCartState } from './cartContext';
 
 const Error = () => {
     const [{ errorMessage }, dispatch] = useCartState();
-    const [t] = useTranslation('common');
+    const intl = useIntl();
 
     return (
         <div className={classes.root}>
@@ -35,7 +35,7 @@ const Error = () => {
                     onClick={() => {
                         dispatch({ type: 'discardError' });
                     }}>
-                    <span>{t('common:close', 'Close')}</span>
+                    <span>{intl.formatMessage({ id: 'common:close', defaultMessage: 'Close' })}</span>
                 </Button>
             </div>
         </div>

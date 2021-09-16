@@ -16,9 +16,9 @@
 package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.settings.SlingSettingsService;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -58,7 +59,6 @@ import com.adobe.cq.dam.cfm.content.FragmentRenderService;
 import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.WCMMode;
 
 @Component(service = { UrlProvider.class, UrlProviderImpl.class })
 @Designate(ocd = UrlProviderConfiguration.class)
@@ -115,13 +115,18 @@ public class UrlProviderImpl implements UrlProvider {
         target = "(" + UrlFormat.PROP_USE_AS + "=" + UrlFormat.CATEGORY_PAGE_URL_FORMAT + ")")
     private UrlFormat categoryPageUrlFormat;
 
+    @Reference
+    private SlingSettingsService slingSettingsService;
+
     @Activate
     public void activate(UrlProviderConfiguration conf) {
         if (productPageUrlFormat == null) {
-            productPageUrlFormat = DEFAULT_PRODUCT_URL_FORMATS.get(conf.productPageUrlFormat());
+            productPageUrlFormat = DEFAULT_PRODUCT_URL_FORMATS
+                .getOrDefault(conf.productPageUrlFormat(), ProductPageWithUrlKey.INSTANCE);
         }
         if (categoryPageUrlFormat == null) {
-            categoryPageUrlFormat = DEFAULT_CATEGORY_URL_FORMATS.get(conf.categoryPageUrlFormat());
+            categoryPageUrlFormat = DEFAULT_CATEGORY_URL_FORMATS
+                .getOrDefault(conf.categoryPageUrlFormat(), CategoryPageWithUrlPath.INSTANCE);
         }
     }
 
@@ -190,18 +195,19 @@ public class UrlProviderImpl implements UrlProvider {
 
     private String toUrl(SlingHttpServletRequest request, Page page, Map<String, String> params, UrlFormat urlFormat) {
         if (page != null) {
-            Resource pageResource = page.adaptTo(Resource.class);
-            boolean deepLink = request == null || !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
-            Set<String> selectorValues = new HashSet<>(params.values());
+            String pagePath = page.getPath();
+            // enable rendering of deep links only on author
+            boolean deepLinkSpecificPages = slingSettingsService.getRunModes().contains("author");
 
-            if (deepLink) {
-                Resource subPageResource = toSpecificPage(pageResource, selectorValues, request, params);
+            if (deepLinkSpecificPages) {
+                Set<String> selectorValues = new HashSet<>(params.values());
+                Resource subPageResource = toSpecificPage(page.adaptTo(Resource.class), selectorValues, request, params);
                 if (subPageResource != null) {
-                    pageResource = subPageResource;
+                    pagePath = subPageResource.getPath();
                 }
             }
 
-            params.put(PAGE_PARAM, pageResource.getPath());
+            params.put(PAGE_PARAM, pagePath);
         }
 
         String url = urlFormat.format(params);
@@ -247,9 +253,8 @@ public class UrlProviderImpl implements UrlProvider {
         ProductList productList = null;
         String currentUrlPath = null;
 
-        Iterator<Resource> children = page.listChildren();
-        while (children.hasNext()) {
-            Resource child = children.next();
+        Iterable<Resource> children = page != null ? page.getChildren() : Collections.emptyList();
+        for (Resource child : children) {
             if (!NameConstants.NT_PAGE.equals(child.getResourceType())) {
                 continue;
             }
@@ -324,6 +329,7 @@ public class UrlProviderImpl implements UrlProvider {
                 }
             }
         }
+
         return null;
     }
 

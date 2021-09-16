@@ -15,11 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 
-import { I18nextProvider } from 'react-i18next';
+import { IntlProvider } from 'react-intl';
 import { MockedProvider } from '@apollo/client/testing';
 import { CartTrigger, ConfigContextProvider, CartProvider } from '@adobe/aem-core-cif-react-components';
 
-import i18n from './i18n';
 import { generateGithubLink } from './utils';
 
 export default {
@@ -40,7 +39,7 @@ export default {
 
 const Template = (args, context) => {
     return (
-        <I18nextProvider i18n={i18n} defaultNS="common">
+        <IntlProvider locale="en">
             <ConfigContextProvider
                 config={{
                     storeView: context.parameters.cifConfig.storeView,
@@ -53,7 +52,7 @@ const Template = (args, context) => {
                     </CartProvider>
                 </MockedProvider>
             </ConfigContextProvider>
-        </I18nextProvider>
+        </IntlProvider>
     );
 };
 

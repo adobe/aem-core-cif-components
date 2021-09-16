@@ -15,17 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { number, string } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 const Price = props => {
     const { value, currencyCode, className } = props;
-    const [t] = useTranslation(['common']);
+    const intl = useIntl();
 
-    return (
-        <span className={className}>
-            {t('common:formattedPrice', { price: { currency: currencyCode, value: value } })}
-        </span>
-    );
+    return <span className={className}>{intl.formatNumber(value, { style: 'currency', currency: currencyCode })}</span>;
 };
 
 Price.propTypes = {
