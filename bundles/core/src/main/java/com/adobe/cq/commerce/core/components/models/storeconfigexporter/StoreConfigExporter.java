@@ -15,9 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.storeconfigexporter;
 
-import com.drew.lang.annotations.Nullable;
-
 import org.osgi.annotation.versioning.ProviderType;
+
+import com.drew.lang.annotations.Nullable;
 
 /**
  * This model gives access to the cif cloud service configuration of a given Page.
