@@ -34,6 +34,7 @@ import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -190,10 +191,13 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         }
 
         this.httpHeaders = headers;
+        // In certain situations resource.getResourceType() returns an enforced resource type.
+        // We prefer the resource type of the component proxy for the cache name.
+        String cacheName = resource.getValueMap().get(ResourceResolver.PROPERTY_RESOURCE_TYPE, String.class);
         this.requestOptions = new RequestOptions()
             .withGson(QueryDeserializer.getGson())
             .withCachingStrategy(new CachingStrategy()
-                .withCacheName(resource.getResourceType())
+                .withCacheName(cacheName)
                 .withDataFetchingPolicy(DataFetchingPolicy.CACHE_FIRST))
             .withHeaders(headers.size() > 0 ? headers : null)
             .withHttpMethod(httpMethod);
