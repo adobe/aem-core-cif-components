@@ -15,18 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { X as CloseIcon } from 'react-feather';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import classes from './header.css';
 import { useCartState } from './cartContext';
 
 const Header = () => {
     const [, dispatch] = useCartState();
-    const [t] = useTranslation('cart');
+    const intl = useIntl();
 
     return (
         <div className={classes.root}>
-            <h2 className={classes.title}>{t('cart:shopping-cart', 'Shopping Cart')}</h2>
+            <h2 className={classes.title}>
+                {intl.formatMessage({ id: 'cart:shopping-cart', defaultMessage: 'Shopping Cart' })}
+            </h2>
             <button
                 onClick={() => {
                     dispatch({ type: 'close' });

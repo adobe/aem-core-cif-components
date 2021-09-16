@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import LoadingIndicator from '../LoadingIndicator';
 
@@ -30,9 +30,13 @@ import { useCartState } from './cartContext';
 import DiscountList from './discountList';
 
 const CartLoadingIndicator = () => {
-    const [t] = useTranslation('cart');
+    const intl = useIntl();
 
-    return <LoadingIndicator>{t('cart:fetching-data', 'Fetching cart data...')}</LoadingIndicator>;
+    return (
+        <LoadingIndicator>
+            {intl.formatMessage({ id: 'cart:fetching-data', defaultMessage: 'Fetching cart data...' })}
+        </LoadingIndicator>
+    );
 };
 
 const Body = () => {

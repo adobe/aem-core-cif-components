@@ -15,11 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.storeconfigexporter;
 
+import com.drew.lang.annotations.Nullable;
+
 public interface StoreConfigExporter {
 
     /**
      * @return The Magento store view identifier.
      */
+    @Nullable
     String getStoreView();
 
     /**

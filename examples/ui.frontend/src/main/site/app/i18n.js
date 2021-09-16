@@ -13,50 +13,40 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
 
-import Backend from 'i18next-xhr-backend';
-import LanguageDetector from 'i18next-browser-languagedetector';
+ const supportedLanguages = ['en'];
 
-i18n.use(Backend)
-    .use(LanguageDetector)
-    .use(initReactI18next)
+// detect locale
+let language;
+// 1. <html> lang attribute
+if (document && document.documentElement && typeof document.documentElement.getAttribute === 'function') {
+    language = document.documentElement.getAttribute('lang');
+}
+// 2. path (index = 1)
+if (!language && window) {
+    const matches = window.location.pathname.match(/\/([a-zA-Z-]*)/g);
+    if (matches instanceof Array && typeof matches[1] === 'string') {
+        language = matches[1].replace('/', '');
+    }
+}
+// 3. subdomain (index = 0)
+if (!language && window) {
+    const matches = window.location.href.match(/(?:http[s]*\:\/\/)*(.*?)\.(?=[^\/]*\..{2,5})/gi);
+    if (matches instanceof Array && typeof matches[0] === 'string') {
+        language = matches[0].replace('http://', '').replace('https://', '').replace('.', '');
+    }
+}
+// check compatibility
+if (language) {
+    while (supportedLanguages.indexOf(language) < 0 && language.indexOf('-') > 0) {
+        language = language.substr(0, language.lastIndexOf('-'));
+    }
+}
+// fallback
+if (supportedLanguages.indexOf(language) < 0) {
+    language = 'en';
+}
 
-    .init({
-        fallbackLng: 'en',
-        debug: true,
-
-        load: 'currentOnly',
-        defaultNS: 'common',
-        ns: [],
-
-        interpolation: {
-            escapeValue: false,
-            format: (value, format, lng) => {
-                if (format === 'price') {
-                    return new Intl.NumberFormat(lng, {
-                        style: 'currency',
-                        currency: value.currency
-                    }).format(value.value);
-                }
-                return value;
-            }
-        },
-
-        detection: {
-            order: ['htmlTag', 'path', 'subdomain'],
-
-            lookupFromPathIndex: 1,
-            lookupFromSubdomainIndex: 0
-        },
-
-        backend: {
-            loadPath:
-                '/etc.clientlibs/cif-components-examples/clientlibs/cif-examples-react/resources/i18n/{{lng}}/{{ns}}.json',
-            allowMultiLoading: false,
-            withCredentials: true
-        }
-    });
-
-export default i18n;
+export default async function () {
+    return import( /* webpackChunkName: "i18n/[request]" */ `../../i18n/${language}`);
+}

@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import LoadingIndicator from '../LoadingIndicator';
 import Button from '../Button';
 
@@ -27,7 +27,6 @@ import classes from './accountDetails.css';
 import EditModal from './editModal';
 
 const AccountDetails = () => {
-    const [t] = useTranslation('account');
     const {
         initialValues,
         isSignedIn,
@@ -44,11 +43,15 @@ const AccountDetails = () => {
         setCustomerInformationMutation: UPDATE_CUSTOMER_INFORMATION,
         changeCustomerPasswordMutation: CHANGE_CUSTOMER_PASSWORD
     });
+    const intl = useIntl();
 
     if (!isSignedIn) {
         return (
             <div className={classes.messageText}>
-                {t('account:account-details-sign-in-text', 'Please sign in to see the account details.')}
+                {intl.formatMessage({
+                    id: 'account:account-details-sign-in-text',
+                    defaultMessage: 'Please sign in to see the account details.'
+                })}
             </div>
         );
     }
@@ -61,21 +64,27 @@ const AccountDetails = () => {
     return (
         <div className={classes.accountDetails}>
             <div className={classes.lineItems}>
-                <span className={classes.lineItemLabel}>{t('account:name', 'Name')}</span>
+                <span className={classes.lineItemLabel}>
+                    {intl.formatMessage({ id: 'account:name', defaultMessage: 'Name' })}
+                </span>
                 <span className={classes.lineItemValue} aria-label="name">
                     {`${customer.firstname} ${customer.lastname}`}
                 </span>
-                <span className={classes.lineItemLabel}>{t('account:email', 'Email address')}</span>
+                <span className={classes.lineItemLabel}>
+                    {intl.formatMessage({ id: 'account:email', defaultMessage: 'Email address' })}
+                </span>
                 <span className={classes.lineItemValue} aria-label="email">
                     {customer.email}
                 </span>
-                <span className={classes.lineItemLabel}>{t('account:password', 'Password')}</span>
+                <span className={classes.lineItemLabel}>
+                    {intl.formatMessage({ id: 'account:password', defaultMessage: 'Password' })}
+                </span>
                 <span className={classes.lineItemValue} aria-label="password">
                     {`*******`}
                 </span>
                 <span className={classes.lineItemButton}>
                     <Button className={classes.editInformationButton} onClick={showEditForm}>
-                        {t('common', 'Edit')}
+                        {intl.formatMessage({ id: 'common', defaultMessage: 'Edit' })}
                     </Button>
                 </span>
             </div>

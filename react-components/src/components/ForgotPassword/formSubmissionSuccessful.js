@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { string, func, shape } from 'prop-types';
-import { useTranslation, Trans } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import Button from '../Button';
 
@@ -24,21 +24,25 @@ import mergeClasses from '../../utils/mergeClasses';
 
 const FormSubmissionSuccessful = props => {
     const { email, onContinue } = props;
-    const [t] = useTranslation('account');
+    const intl = useIntl();
 
     const classes = mergeClasses(defaultClasses, props.classes || {});
 
     return (
         <div className={classes.root}>
             <p className={classes.text}>
-                <Trans i18nKey="account:forget-password-confirmation">
-                    If there is an account associated with {{ email }}, you will receive an email with a link to change
-                    your password.
-                </Trans>
+                {intl.formatMessage(
+                    {
+                        id: 'account:forget-password-confirmation',
+                        defaultMessage:
+                            'If there is an account associated with {email}, you will receive an email with a link to change your password.'
+                    },
+                    { email }
+                )}
             </p>
             <div className={classes.buttonContainer}>
                 <Button aria-label="continue-shopping" onClick={onContinue}>
-                    {t('account:continue-shopping', 'Continue Shopping')}
+                    {intl.formatMessage({ id: 'account:continue-shopping', defaultMessage: 'Continue Shopping' })}
                 </Button>
             </div>
         </div>

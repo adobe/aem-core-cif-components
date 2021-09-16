@@ -30,8 +30,8 @@ import org.mockito.Mockito;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-import com.adobe.cq.commerce.core.MockLaunch;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.testing.MockLaunch;
 import com.adobe.cq.launches.api.Launch;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;

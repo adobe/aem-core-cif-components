@@ -1,0 +1,14 @@
+{
+  "productrecs:add-to-cart": [
+    {
+      "type": 0,
+      "value": "Add to cart"
+    }
+  ],
+  "productrecs:price-from": [
+    {
+      "type": 0,
+      "value": "from"
+    }
+  ]
+}

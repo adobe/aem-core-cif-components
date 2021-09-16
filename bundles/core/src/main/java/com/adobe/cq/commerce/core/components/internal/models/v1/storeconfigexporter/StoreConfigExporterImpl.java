@@ -38,6 +38,7 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.day.cq.wcm.api.Page;
+import com.drew.lang.annotations.Nullable;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -57,7 +58,6 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     private static final String GRAPHQL_ENDPOINT_PROPERTY = "magentoGraphqlEndpoint";
 
     private static final String DEFAULT_GRAPHQL_ENDPOINT = "/api/graphql";
-    private static final String DEFAULT_STORE_VIEW = "default";
 
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -68,7 +68,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     @SlingObject
     private Resource resource;
 
-    private String storeView = DEFAULT_STORE_VIEW;
+    private String storeView;
     private String graphqlEndpoint = DEFAULT_GRAPHQL_ENDPOINT;
     private HttpMethod method = HttpMethod.POST;
     private Page storeRootPage;
@@ -79,8 +79,10 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
         // Get configuration from CIF Sling CA config
         Resource configResource = currentPage.getContentResource();
         ComponentsConfiguration properties = configResource.adaptTo(ComponentsConfiguration.class);
-        storeView = properties.get(STORE_CODE_PROPERTY, DEFAULT_STORE_VIEW);
-        graphqlEndpoint = properties.get(GRAPHQL_ENDPOINT_PROPERTY, DEFAULT_GRAPHQL_ENDPOINT);
+        if (properties != null) {
+            storeView = properties.get(STORE_CODE_PROPERTY, String.class);
+            graphqlEndpoint = properties.get(GRAPHQL_ENDPOINT_PROPERTY, DEFAULT_GRAPHQL_ENDPOINT);
+        }
 
         if (magentoGraphqlClient != null) {
             GraphqlClientConfiguration graphqlClientConfiguration = magentoGraphqlClient.getConfiguration();
@@ -90,6 +92,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     }
 
     @Override
+    @Nullable
     public String getStoreView() {
         return storeView;
     }

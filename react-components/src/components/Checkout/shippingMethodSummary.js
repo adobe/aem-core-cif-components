@@ -16,17 +16,20 @@
 import React, { Fragment } from 'react';
 import { shape, string } from 'prop-types';
 import { useCheckoutState } from './checkoutContext';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 const ShippingMethodSummary = props => {
     const { classes } = props;
     const [{ shippingMethod }] = useCheckoutState();
-    const [t] = useTranslation('checkout');
+    const intl = useIntl();
 
     if (!shippingMethod) {
         return (
             <span className={classes.informationPrompt}>
-                {t('checkout:specify-shipping-method', 'Specify Shipping Method')}
+                {intl.formatMessage({
+                    id: 'checkout:specify-shipping-method',
+                    defaultMessage: 'Specify Shipping Method'
+                })}
             </span>
         );
     }

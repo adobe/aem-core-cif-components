@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { object, bool, func, array } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import { useConfigContext } from '../../context/ConfigContext';
 import Dialog from '../Dialog';
 import FormError from '../FormError';
@@ -33,7 +33,7 @@ const EditModal = props => {
         shouldShowNewPassword,
         formErrors
     } = props;
-    const [t] = useTranslation('account');
+    const intl = useIntl();
 
     const {
         mountingPoints: { accountDetails: rootSelector }
@@ -50,7 +50,7 @@ const EditModal = props => {
             onConfirm={onSubmit}
             shouldDisableAllButtons={isDisabled}
             shouldDisableConfirmButton={isDisabled}
-            title={t('account:edit-account-info', 'Edit account information')}
+            title={intl.formatMessage({ id: 'account:edit-account-info', defaultMessage: 'Edit account information' })}
             rootContainerSelector={rootSelector}
             isModal={true}>
             <FormError errors={formErrors} />

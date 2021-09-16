@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { useMemo, useCallback } from 'react';
 import { number, shape, object, string } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import classes from './product.css';
 
@@ -32,7 +32,7 @@ const imageHeight = 100;
 
 const Product = props => {
     const { item } = props;
-    const [t] = useTranslation('cart');
+    const intl = useIntl();
 
     const { product = {}, quantity = 0, uid = '', prices, bundle_options = [] } = item;
     const { thumbnail, name, __typename } = product;
@@ -82,8 +82,16 @@ const Product = props => {
                 </div>
             </div>
             <Kebab>
-                <Section text={t('cart:edit-item', 'Edit item')} onClick={editItem} icon="Edit2" />
-                <Section text={t('cart:remove-item', 'Remove item')} onClick={handleRemoveItem} icon="Trash" />
+                <Section
+                    text={intl.formatMessage({ id: 'cart:edit-item', defaultMessage: 'Edit item' })}
+                    onClick={editItem}
+                    icon="Edit2"
+                />
+                <Section
+                    text={intl.formatMessage({ id: 'cart:remove-item', defaultMessage: 'Remove item' })}
+                    onClick={handleRemoveItem}
+                    icon="Trash"
+                />
             </Kebab>
         </li>
     );

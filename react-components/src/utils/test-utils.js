@@ -16,11 +16,10 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { MockedProvider, MockLink } from '@apollo/client/testing';
-import { I18nextProvider } from 'react-i18next';
+import { IntlProvider } from 'react-intl';
 import { onError } from '@apollo/client/link/error';
 import { ApolloLink, from } from '@apollo/client';
 
-import i18n from '../../__mocks__/i18nForTests';
 import ConfigContextProvider from '../context/ConfigContext';
 import UserContextProvider from '../context/UserContext';
 
@@ -41,6 +40,7 @@ import queryCustomerDetails from './mocks/queryCustomerDetails';
 import queryCustomerInformation from './mocks/queryCustomerInformation';
 import queryEmptyCart from './mocks/queryEmptyCart';
 import queryNewCart from './mocks/queryNewCart';
+import i18nMessages from '../../i18n/en.json';
 
 const debugGraphQL = process.env.DEBUG_GRAPHQL !== undefined && process.env.DEBUG_GRAPHQL !== null ? true : false;
 
@@ -100,7 +100,9 @@ const allProviders = (config, userContext, mocks) => ({ children }) => {
         <MockedProvider addTypename={false} link={link}>
             <ConfigContextProvider config={config || defaultConfig}>
                 <UserContextProvider initialState={userContext}>
-                    <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+                    <IntlProvider locale="en" messages={i18nMessages}>
+                        {children}
+                    </IntlProvider>
                 </UserContextProvider>
             </ConfigContextProvider>
         </MockedProvider>

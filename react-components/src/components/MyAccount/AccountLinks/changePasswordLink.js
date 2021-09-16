@@ -16,18 +16,18 @@
 import { func } from 'prop-types';
 import React from 'react';
 import { Lock as PasswordIcon } from 'react-feather';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import AccountLink from '../accountLink';
 
 const ChangePasswordLink = props => {
     const { showChangePassword } = props;
-    const [t] = useTranslation('account');
+    const intl = useIntl();
 
     return (
         <AccountLink onClick={showChangePassword}>
             <PasswordIcon size={18} />
-            {t('account:change-password', 'Change Password')}
+            {intl.formatMessage({ id: 'account:change-password', defaultMessage: 'Change Password' })}
         </AccountLink>
     );
 };

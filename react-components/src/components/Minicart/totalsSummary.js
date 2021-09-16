@@ -15,14 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { number, string, shape } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import Price from '../Price';
 
 import classes from './totalsSummary.css';
 
 const TotalsSummary = props => {
-    const [t] = useTranslation(['cart', 'common']);
+    const intl = useIntl();
 
     // Props.
     const { numItems, subtotal, subtotalDiscount } = props;
@@ -38,7 +38,7 @@ const TotalsSummary = props => {
                 <dl className={classes.totals}>
                     <dt className={classes.subtotalLabel}>
                         <span>
-                            {`${t('cart:total', 'Cart Total:')} `}
+                            {intl.formatMessage({ id: 'cart:total', defaultMessage: 'Cart Total:' })}{' '}
                             <Price
                                 className={hasDiscount ? classes.discounted : ''}
                                 currencyCode={subtotal.currency}
@@ -47,7 +47,13 @@ const TotalsSummary = props => {
                         </span>
                     </dt>
                     <dd className={classes.subtotalValue}>
-                        {t('cart:itemsWithCount', { defaultValue: '{{count}} items', count: numItems })}
+                        {intl.formatMessage(
+                            {
+                                id: 'cart:itemsWithCount',
+                                defaultMessage: '{count, plural, one {# item} other {# items}}'
+                            },
+                            { count: numItems }
+                        )}
                     </dd>
                 </dl>
             )}
@@ -55,12 +61,18 @@ const TotalsSummary = props => {
                 <dl className={classes.totalsDiscount}>
                     <dt className={classes.subtotalLabel}>
                         <span>
-                            {`${t('cart:new-total', 'New Cart Total:')} `}
+                            {intl.formatMessage({ id: 'cart:new-total', defaultMessage: 'New Cart Total:' })}{' '}
                             <Price currencyCode={subtotalDiscount.currency} value={subtotalDiscount.value} />
                         </span>
                     </dt>
                     <dd className={classes.subtotalValue}>
-                        {t('cart:itemsWithCount', { defaultValue: '{{count}} items', count: numItems })}
+                        {intl.formatMessage(
+                            {
+                                id: 'cart:itemsWithCount',
+                                defaultMessage: '{count, plural, one {# item} other {# items}}'
+                            },
+                            { count: numItems }
+                        )}
                     </dd>
                 </dl>
             )}

@@ -14,6 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 const path = require('path');
+const custom = require('../webpack.common.js');
 
 module.exports = {
     stories: ['../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
@@ -36,7 +37,7 @@ module.exports = {
         });
         config.resolve.alias = {
             ...config.resolve.alias,
-            'react-i18next': path.resolve('./node_modules/react-i18next'),
+            ...custom.resolve.alias,
             'core-js': path.resolve('./node_modules/core-js'),
             Queries: path.resolve('../../react-components/src/queries/')
         };
