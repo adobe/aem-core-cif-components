@@ -193,7 +193,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         this.httpHeaders = headers;
         // In certain situations resource.getResourceType() returns an enforced resource type.
         // We prefer the resource type of the component proxy for the cache name.
-        String cacheName = resource.getValueMap().get(ResourceResolver.PROPERTY_RESOURCE_TYPE, String.class);
+        String cacheName = resource.getValueMap().get(ResourceResolver.PROPERTY_RESOURCE_TYPE, resource.getResourceType());
         this.requestOptions = new RequestOptions()
             .withGson(QueryDeserializer.getGson())
             .withCachingStrategy(new CachingStrategy()
