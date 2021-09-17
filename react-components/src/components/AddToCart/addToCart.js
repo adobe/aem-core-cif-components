@@ -21,6 +21,7 @@ import { useCartContext } from '@magento/peregrine/lib/context/cart';
 import { productMapper, bundledProductMapper } from '../Minicart/useMinicart';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 import MUTATION_ADD_BUNDLE_TO_CART  from '../../queries/mutation_add_bundle_to_cart.graphql';
+import MUTATION_ADD_VIRTUAL_TO_CART from '../../queries/mutation_add_virtual_to_cart.graphql';
 
 const PRODUCT_DATA_UPDATE = 'aem.cif.internal.add-to-cart.state-changed';
 
@@ -51,6 +52,7 @@ const AddToCart = props => {
     const [{ cartId }] = useCartContext();
     const [addToCartMutation] = useMutation(MUTATION_ADD_TO_CART);
     const [addBundleItemMutation] = useMutation(MUTATION_ADD_BUNDLE_TO_CART);
+    const [addVirtualItemMutation] = useMutation(MUTATION_ADD_VIRTUAL_TO_CART);
     const buttonContent = props.children 
         ? props.children 
         : <span>{intl.formatMessage({ id: 'add-to-cart:label', defaultMessage: 'Add to Cart' })}</span>;
@@ -58,10 +60,12 @@ const AddToCart = props => {
     const handleAddToCart = useCallback(async () => {
         const physicalCartItems = items.filter(item => !item.virtual).map(productMapper);
         // TODO: handle other kinds of mutations
-        // const virtualCartItems = items.filter(item => item.virtual).map(productMapper);
+        const virtualCartItems = items.filter(item => item.virtual).map(productMapper);
         const bundleCartItems = items.filter(item => item.bundle).map(bundledProductMapper);
         if (bundleCartItems.length > 0) {
             await addBundleItemMutation({ variables: { cartId, cartItems: bundleCartItems }});
+        } else if (virtualCartItems.length > 0) {
+            await addVirtualItemMutation({ variables: { cartId, cartItems: virtualCartItems }});
         } else {
             await addToCartMutation({ variables: { cartId, cartItems: physicalCartItems } });
         }
@@ -69,7 +73,7 @@ const AddToCart = props => {
         if (props.onAddToCart) {
             props.onAddToCart(items);
         }
-    }, [props.onAddToCart, items]);
+    }, [props.onAddToCart, items, cartId]);
 
     useEffect(() => {
         const newItems = typeof props.items === 'string' ? JSON.parse(props.items) : props.items;
