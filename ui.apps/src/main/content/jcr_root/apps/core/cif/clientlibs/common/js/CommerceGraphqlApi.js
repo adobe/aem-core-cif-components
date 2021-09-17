@@ -24,7 +24,7 @@ class CommerceGraphqlApi {
             );
         }
 
-        this.endpoint = props.endpoint;
+        this.endpoint = props.graphqlEndpoint;
         this.storeView = props.storeView;
         this.method = props.graphqlMethod;
         this.headers = props.headers;
@@ -178,7 +178,7 @@ class CommerceGraphqlApi {
             // TODO: deprecated - the store configuration on the <body> has been deprecated and will be removed
             const { storeView, graphqlEndpoint, graphqlMethod, httpHeaders } = document.body.dataset;
             window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({
-                endpoint: graphqlEndpoint,
+                graphqlEndpoint,
                 storeView,
                 graphqlMethod,
                 headers: httpHeaders ? JSON.parse(httpHeaders) : {}

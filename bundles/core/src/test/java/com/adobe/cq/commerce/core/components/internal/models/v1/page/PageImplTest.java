@@ -161,7 +161,7 @@ public class PageImplTest extends AbstractPageDelegatorTest {
         String content = attributes.getOrDefault("content", "{}");
         ObjectMapper mapper = new ObjectMapper();
         JsonNode expected = mapper.readTree("{"
-            + "\"endpoint\": \"/my/api/graphql\","
+            + "\"graphqlEndpoint\": \"/my/api/graphql\","
             + "\"storeView\": \"my-magento-store\","
             + "\"graphqlMethod\": \"GET\","
             + "\"storeRootUrl\": \"/content/pageH.html\","

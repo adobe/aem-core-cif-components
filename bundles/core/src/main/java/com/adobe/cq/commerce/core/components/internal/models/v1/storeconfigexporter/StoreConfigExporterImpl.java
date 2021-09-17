@@ -104,7 +104,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     }
 
     @Override
-    @JsonProperty("endpoint")
+    @JsonProperty("graphqlEndpoint")
     public String getGraphqlEndpoint() {
         return graphqlEndpoint;
     }
