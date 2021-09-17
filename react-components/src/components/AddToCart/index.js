@@ -13,27 +13,5 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import { gql } from '@apollo/client';
-import { MiniCartFragment } from '@magento/peregrine/lib/talons/MiniCart/miniCartFragments.gql';
 
-export default gql`
-    mutation addSimpleProductToCart($cartId: String!, $cartItems: [SimpleProductCartItemInput]!) {
-        addSimpleProductsToCart(input: { cart_id: $cartId, cart_items: $cartItems }) {
-            cart {
-                id
-                items {
-                    uid
-                    quantity
-                    product {
-                        name
-                        thumbnail {
-                            url
-                        }
-                    }
-                }
-                ...MiniCartFragment
-            }
-        }
-    }
-    ${MiniCartFragment}
-`;
+export { default } from './addToCart';
