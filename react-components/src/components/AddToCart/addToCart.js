@@ -23,31 +23,31 @@ import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 
 const PRODUCT_DATA_UPDATE = 'aem.cif.internal.add-to-cart.state-changed';
 
-const AddToCart = props => {
-    const intl = useIntl();
-    const buttonRef = useRef(null);
-    const setButtonRef = useCallback(node => {
+const useEventListener = props => {
+    const { eventName, eventListener } = props;
+    const ref = useRef(null);
+    const callback = useCallback(node => {
         // remove listener from previous ref, if any
-        if (buttonRef.current) {
-            buttonRef.current.removeEventListener(PRODUCT_DATA_UPDATE, handleProductDataUpdate);
+        if (ref.current) {
+            ref.current.removeEventListener(eventName, eventListener);
         }
         // add listner to new ref, if any
         if (node) {
-            node.addEventListener(PRODUCT_DATA_UPDATE, handleProductDataUpdate);
+            node.addEventListener(eventName, eventListener);
         }
         // setRef
-        buttonRef.current = node;
-    }, []);
-    const [items, setItems] = useState(props.items || []);
+        ref.current = node;
+    });
+    return [callback];
+};
+
+const AddToCart = props => {
+    const intl = useIntl();
+    const [items, setItems] = useState(JSON.parse(props.items || '[]'));
+    const handleProductDataUpdate = event => setItems(event.detail);
+    const [buttonRef] = useEventListener({ eventName: PRODUCT_DATA_UPDATE, eventListener: handleProductDataUpdate});
     const [{ cartId }] = useCartContext();
     const [addToCartMutation] = useMutation(MUTATION_ADD_TO_CART);
-
-    const handleProductDataUpdate = event => {
-        console.log('received event: ');
-        console.log(event);
-        setItems(event.detail);
-        return;
-    }
 
     const handleAddToCart = async () => {
         const physicalCartItems = items.filter(item => !item.virtual).map(productMapper);
@@ -59,7 +59,7 @@ const AddToCart = props => {
 
     return (
         <button 
-            ref={setButtonRef}
+            ref={buttonRef}
             className="button__root_highPriority button__root clickable__root button__filled" 
             type="button"
             onClick={handleAddToCart}

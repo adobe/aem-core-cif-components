@@ -130,9 +130,14 @@ class AddToCart {
      * add-to-cart event would provide it. This is used to update the state of the add to cart react component
      */
     _dispatchStateChangeToButton() {
+        const items = this._getEventDetail();
+        // update the data set of the host, when dispatchStateChangeToButton is called before the portal placer replaced the add to cart
+        // button
+        this._element.parentElement.setAttribute('data-items', JSON.stringify(items));
+        // dispatch the custom event to the button
         this._element.dispatchEvent(
             new CustomEvent(AddToCart.events.stateChanged, {
-                detail: this._getEventDetail()
+                detail: items
             })
         );
     }

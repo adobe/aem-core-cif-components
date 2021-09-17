@@ -83,7 +83,7 @@ module.exports = {
         })
     ],
     devtool: 'source-map',
-    mode: 'development',
+    mode: 'production',
     externals: [
         externals,
         // custom handling for pergrine deep imports
