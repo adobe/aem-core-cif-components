@@ -17,7 +17,9 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
@@ -151,6 +153,8 @@ public class GraphQLCategoryProviderTest {
         // Test category children found
         List<CategoryTree> categories = categoryProvider.getChildCategories("Mg==", 5);
         Assert.assertEquals(6, categories.size());
+        Assert.assertEquals(categories.stream().sorted(Comparator.comparing(CategoryTree::getPosition)).collect(Collectors.toList()),
+            categories);
     }
 
     @Test

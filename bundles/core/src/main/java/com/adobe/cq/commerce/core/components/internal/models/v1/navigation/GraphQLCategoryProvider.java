@@ -16,8 +16,10 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +42,8 @@ class GraphQLCategoryProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphQLCategoryProvider.class);
 
-    private static final Function<CategoryTreeQuery, CategoryTreeQuery> CATEGORIES_QUERY = q -> q.uid().name().urlPath().position();
+    private static final Function<CategoryTreeQuery, CategoryTreeQuery> CATEGORIES_QUERY = q -> q.uid().name().urlPath().position()
+        .includeInMenu();
     private final MagentoGraphqlClient magentoGraphqlClient;
 
     GraphQLCategoryProvider(MagentoGraphqlClient magentoGraphqlClient) {
@@ -80,6 +83,17 @@ class GraphQLCategoryProvider {
         if (children == null) {
             return Collections.emptyList();
         }
+
+        children = children.stream().filter(child -> {
+            if (child == null)
+                return false;
+
+            String name = child.getName();
+            Integer includeInMenu = child.getIncludeInMenu();
+
+            return name != null && (includeInMenu == null || includeInMenu > 0);
+        }).collect(Collectors.toList());
+        children.sort(Comparator.comparing(CategoryTree::getPosition));
 
         return children;
     }

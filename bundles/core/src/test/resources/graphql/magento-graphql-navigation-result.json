@@ -196,6 +196,21 @@
             "url_path": "sale",
             "position": 6,
             "children": []
+          },
+          {
+            "uid": "Mzh=",
+            "name": "Hidden",
+            "url_path": "sale",
+            "include_in_menu": 0,
+            "position": 7,
+            "children": []
+          },
+
+          {
+            "uid": "Mzi=",
+            "url_path": "noname",
+            "position": 8,
+            "children": []
           }
         ]
       }
