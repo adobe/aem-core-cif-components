@@ -187,6 +187,7 @@
             "uid": "Mzk=",
             "name": "What's New",
             "url_path": "what-is-new",
+            "include_in_menu": 1,
             "position": 1,
             "children": []
           },
@@ -200,7 +201,7 @@
           {
             "uid": "Mzh=",
             "name": "Hidden",
-            "url_path": "sale",
+            "url_path": "hidden",
             "include_in_menu": 0,
             "position": 7,
             "children": []
