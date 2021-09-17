@@ -100,6 +100,12 @@ const AddToCart = props => {
 
         if (props.onAddToCart) {
             props.onAddToCart(items);
+        } else if (items.length > 0) {
+            // dispatch the event that other wise the product detail add to cart function would have
+            // fired
+            document.dispatchEvent(new CustomEvent('aem.cif.add-to-cart', {
+                detail: items
+            }));
         }
     }, [props.onAddToCart, items, cartId]);
 
