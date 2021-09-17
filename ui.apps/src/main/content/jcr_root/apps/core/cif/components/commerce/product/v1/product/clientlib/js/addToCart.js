@@ -23,10 +23,11 @@ class AddToCart {
     get _element() {
         // always query the add to cart button, as it may be replaced by react component when the storefront is integrated with peregrine
         // see the addToCart react component
-        return document.querySelector(AddToCart.selectors.self);
+        return this._cartActions.querySelector('button');
     }
 
     constructor(config) {
+        this._cartActions = config.cartActions;
         // Get configuration from product reference
         let configurable = config.product.dataset.configurable !== undefined;
         let virtual = config.product.dataset.virtual !== undefined;
@@ -46,8 +47,9 @@ class AddToCart {
             this._element.disabled = true;
         }
 
+        // init
+        this._onQuantityChanged();
 
-        this._onQuantityChanged(); // init
         // Disable/enable add to cart based on the selected quantities of a grouped product
         document.querySelectorAll(AddToCart.selectors.quantity).forEach(selection => {
             selection.addEventListener('change', this._onQuantityChanged.bind(this));
@@ -58,8 +60,6 @@ class AddToCart {
 
         // Add click handler to add to cart button
         this._element.addEventListener('click', this._onAddToCart.bind(this));
-
-        this._dispatchStateChangeToButton();
     }
 
     /**
@@ -87,10 +87,13 @@ class AddToCart {
 
     _onQuantityChanged() {
         const selections = Array.from(document.querySelectorAll(AddToCart.selectors.quantity));
-        let item = selections.find(selection => {
-            return parseInt(selection.value) > 0;
-        });
-        this._element.disabled = item == null || !this._state.sku;
+        const element = this._element;
+        if (element) {
+            let item = selections.find(selection => {
+                return parseInt(selection.value) > 0;
+            });
+            element.disabled = item == null || !this._state.sku;
+        }
         this._dispatchStateChangeToButton();
     }
 
@@ -108,6 +111,9 @@ class AddToCart {
     }
 
     _getEventDetail() {
+        if (!this._state.sku) {
+            return [];
+        }
         // To support grouped products where multiple products can be put in the cart in one single click,
         // the sku of each product is now read from the 'data-product-sku' attribute of each select element
         const selections = Array.from(document.querySelectorAll(AddToCart.selectors.quantity)).filter(selection => {
@@ -133,7 +139,7 @@ class AddToCart {
         const items = this._getEventDetail();
         // update the data set of the host, when dispatchStateChangeToButton is called before the portal placer replaced the add to cart
         // button
-        this._element.parentElement.setAttribute('data-items', JSON.stringify(items));
+        this._cartActions.setAttribute('data-items', JSON.stringify(items));
         // dispatch the custom event to the button
         this._element.dispatchEvent(
             new CustomEvent(AddToCart.events.stateChanged, {
@@ -144,7 +150,7 @@ class AddToCart {
 }
 
 AddToCart.selectors = {
-    self: '.productFullDetail__cartActions button',
+    cartActions: '.productFullDetail__cartActions',
     sku: '.productFullDetail__details [role=sku]',
     quantity: '.productFullDetail__quantity select',
     product: '[data-cmp-is=product]'
@@ -160,8 +166,9 @@ AddToCart.events = {
     function onDocumentReady() {
         // Initialize AddToCart component
         const productCmp = document.querySelector(AddToCart.selectors.product);
-        if (productCmp) {
-            new AddToCart({ product: productCmp });
+        const cartActions = document.querySelector(AddToCart.selectors.cartActions);
+        if (cartActions && productCmp) {
+            new AddToCart({ cartActions: cartActions, product: productCmp });
         }
     }
 

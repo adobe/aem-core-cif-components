@@ -14,12 +14,13 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import { useCartContext } from '@magento/peregrine/lib/context/cart';
 import { productMapper, bundledProductMapper } from '../Minicart/useMinicart';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
+import MUTATION_ADD_BUNDLE_TO_CART  from '../../queries/mutation_add_bundle_to_cart.graphql';
 
 const PRODUCT_DATA_UPDATE = 'aem.cif.internal.add-to-cart.state-changed';
 
@@ -43,19 +44,41 @@ const useEventListener = props => {
 
 const AddToCart = props => {
     const intl = useIntl();
-    const [items, setItems] = useState(JSON.parse(props.items || '[]'));
+    const [items, setItems] = useState([]);
+    const [disabled, setDisabled] = useState(true);
     const handleProductDataUpdate = event => setItems(event.detail);
     const [buttonRef] = useEventListener({ eventName: PRODUCT_DATA_UPDATE, eventListener: handleProductDataUpdate});
     const [{ cartId }] = useCartContext();
     const [addToCartMutation] = useMutation(MUTATION_ADD_TO_CART);
+    const [addBundleItemMutation] = useMutation(MUTATION_ADD_BUNDLE_TO_CART);
+    const buttonContent = props.children 
+        ? props.children 
+        : <span>{intl.formatMessage({ id: 'add-to-cart:label', defaultMessage: 'Add to Cart' })}</span>;
 
-    const handleAddToCart = async () => {
+    const handleAddToCart = useCallback(async () => {
         const physicalCartItems = items.filter(item => !item.virtual).map(productMapper);
         // TODO: handle other kinds of mutations
         // const virtualCartItems = items.filter(item => item.virtual).map(productMapper);
-        // const bundleCartItems = items.filter(item => item.bundle).map(bundledProductMapper);
-        await addToCartMutation({ variables: { cartId, cartItems: physicalCartItems } });
-    }
+        const bundleCartItems = items.filter(item => item.bundle).map(bundledProductMapper);
+        if (bundleCartItems.length > 0) {
+            await addBundleItemMutation({ variables: { cartId, cartItems: bundleCartItems }});
+        } else {
+            await addToCartMutation({ variables: { cartId, cartItems: physicalCartItems } });
+        }
+
+        if (props.onAddToCart) {
+            props.onAddToCart(items);
+        }
+    }, [props.onAddToCart, items]);
+
+    useEffect(() => {
+        const newItems = typeof props.items === 'string' ? JSON.parse(props.items) : props.items;
+        setItems(newItems);
+    }, [props.items]);
+
+    useEffect(() => {
+        setDisabled(props.disabled || items.length === 0)
+    }, [props.disabled, items]);
 
     return (
         <button 
@@ -63,10 +86,10 @@ const AddToCart = props => {
             className="button__root_highPriority button__root clickable__root button__filled" 
             type="button"
             onClick={handleAddToCart}
-            disabled={items.length === 0}
+            disabled={disabled}
         >
             <span className="button__content">
-                <span>{intl.formatMessage({ id: 'add-to-cart:label', defaultMessage: 'Add to Cart' })}</span>
+                {buttonContent}
             </span>
         </button>
     )
