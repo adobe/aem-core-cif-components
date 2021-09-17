@@ -20,8 +20,9 @@ import { useMutation } from '@apollo/client';
 import { useCartContext } from '@magento/peregrine/lib/context/cart';
 import { productMapper, bundledProductMapper } from '../Minicart/useMinicart';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
-import MUTATION_ADD_BUNDLE_TO_CART  from '../../queries/mutation_add_bundle_to_cart.graphql';
+import MUTATION_ADD_BUNDLE_TO_CART from '../../queries/mutation_add_bundle_to_cart.graphql';
 import MUTATION_ADD_VIRTUAL_TO_CART from '../../queries/mutation_add_virtual_to_cart.graphql';
+import MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART from '../../queries/mutation_add_simple_and_virtual_to_cart.graphql';
 
 const PRODUCT_DATA_UPDATE = 'aem.cif.internal.add-to-cart.state-changed';
 
@@ -48,26 +49,53 @@ const AddToCart = props => {
     const [items, setItems] = useState([]);
     const [disabled, setDisabled] = useState(true);
     const handleProductDataUpdate = event => setItems(event.detail);
-    const [buttonRef] = useEventListener({ eventName: PRODUCT_DATA_UPDATE, eventListener: handleProductDataUpdate});
+    const [buttonRef] = useEventListener({ eventName: PRODUCT_DATA_UPDATE, eventListener: handleProductDataUpdate });
     const [{ cartId }] = useCartContext();
     const [addToCartMutation] = useMutation(MUTATION_ADD_TO_CART);
     const [addBundleItemMutation] = useMutation(MUTATION_ADD_BUNDLE_TO_CART);
     const [addVirtualItemMutation] = useMutation(MUTATION_ADD_VIRTUAL_TO_CART);
-    const buttonContent = props.children 
-        ? props.children 
-        : <span>{intl.formatMessage({ id: 'add-to-cart:label', defaultMessage: 'Add to Cart' })}</span>;
+    const [addSimpleAndVirtualItemMutation] = useMutation(MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART);
+
+    const buttonContent = props.children ? (
+        props.children
+    ) : (
+        <span>{intl.formatMessage({ id: 'add-to-cart:label', defaultMessage: 'Add to Cart' })}</span>
+    );
 
     const handleAddToCart = useCallback(async () => {
         const physicalCartItems = items.filter(item => !item.virtual).map(productMapper);
-        // TODO: handle other kinds of mutations
         const virtualCartItems = items.filter(item => item.virtual).map(productMapper);
         const bundleCartItems = items.filter(item => item.bundle).map(bundledProductMapper);
+
         if (bundleCartItems.length > 0) {
-            await addBundleItemMutation({ variables: { cartId, cartItems: bundleCartItems }});
+            await addBundleItemMutation({
+                variables: {
+                    cartId,
+                    cartItems: bundleCartItems
+                }
+            });
+        } else if (virtualCartItems.length > 0 && physicalCartItems.length > 0) {
+            await addSimpleAndVirtualItemMutation({
+                variables: {
+                    cartId,
+                    virtualCartItems: virtualCartItems,
+                    simpleCartItems: physicalCartItems
+                }
+            });
         } else if (virtualCartItems.length > 0) {
-            await addVirtualItemMutation({ variables: { cartId, cartItems: virtualCartItems }});
-        } else {
-            await addToCartMutation({ variables: { cartId, cartItems: physicalCartItems } });
+            await addVirtualItemMutation({
+                variables: {
+                    cartId,
+                    cartItems: virtualCartItems
+                }
+            });
+        } else if (physicalCartItems.length > 0) {
+            await addToCartMutation({
+                variables: {
+                    cartId,
+                    cartItems: physicalCartItems
+                }
+            });
         }
 
         if (props.onAddToCart) {
@@ -81,22 +109,19 @@ const AddToCart = props => {
     }, [props.items]);
 
     useEffect(() => {
-        setDisabled(props.disabled || items.length === 0)
+        setDisabled(props.disabled || items.length === 0);
     }, [props.disabled, items]);
 
     return (
-        <button 
+        <button
             ref={buttonRef}
-            className="button__root_highPriority button__root clickable__root button__filled" 
+            className="button__root_highPriority button__root clickable__root button__filled"
             type="button"
             onClick={handleAddToCart}
-            disabled={disabled}
-        >
-            <span className="button__content">
-                {buttonContent}
-            </span>
+            disabled={disabled}>
+            <span className="button__content">{buttonContent}</span>
         </button>
-    )
-}
+    );
+};
 
 export default AddToCart;

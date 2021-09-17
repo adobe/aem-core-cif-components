@@ -33,7 +33,7 @@ const productOptionMapper = option => ({
     id: option.option_id,
     quantity: option.quantity,
     value: option.customization.map(c => c.id.toString())
-})
+});
 
 const BundleProductOptions = () => {
     const bundleProductQuery = useAwaitQuery(BUNDLE_PRODUCT_QUERY);
@@ -265,10 +265,7 @@ const BundleProductOptions = () => {
                 </div>
             </section>
             <section className="productFullDetail__cartActions productFullDetail__section">
-                <AddToCart 
-                    items={[productData]} 
-                    disabled={!canAddToCart()} 
-                    onAddToCart={items => addToCart(items)}/>
+                <AddToCart items={[productData]} disabled={!canAddToCart()} onAddToCart={items => addToCart(items)} />
             </section>
         </>
     );
