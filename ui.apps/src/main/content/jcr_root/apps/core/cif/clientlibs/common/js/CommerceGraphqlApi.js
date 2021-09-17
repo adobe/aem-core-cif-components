@@ -18,7 +18,7 @@
 window.CIF = window.CIF || {};
 class CommerceGraphqlApi {
     constructor(props) {
-        if (!props || !props.endpoint) {
+        if (!props || !props.graphqlEndpoint) {
             throw new Error(
                 'The commerce API is not properly initialized. A required property is missing from the initialization object'
             );
