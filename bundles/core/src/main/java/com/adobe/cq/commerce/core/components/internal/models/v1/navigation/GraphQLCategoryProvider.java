@@ -57,7 +57,7 @@ class GraphQLCategoryProvider {
         }
 
         if (StringUtils.isBlank(categoryIdentifier)) {
-            LOGGER.debug("Empty category identifier");
+            LOGGER.debug("Empty results identifier");
             return Collections.emptyList();
         }
 
@@ -73,15 +73,23 @@ class GraphQLCategoryProvider {
         }
 
         Query rootQuery = response.getData();
-        List<CategoryTree> category = rootQuery.getCategoryList();
-        if (category.isEmpty() || category.get(0) == null) {
+        List<CategoryTree> results = rootQuery.getCategoryList();
+        if (results.isEmpty() || results.get(0) == null) {
             LOGGER.warn("Category not found for identifier: {}", categoryIdentifier);
             return Collections.emptyList();
         }
 
-        List<CategoryTree> children = category.get(0).getChildren();
+        CategoryTree category = results.get(0);
+
+        prepareChildren(category);
+
+        return category.getChildren();
+    }
+
+    private void prepareChildren(CategoryTree category) {
+        List<CategoryTree> children = category.getChildren();
         if (children == null) {
-            return Collections.emptyList();
+            children = Collections.emptyList();
         }
 
         children = children.stream().filter(child -> {
@@ -92,10 +100,9 @@ class GraphQLCategoryProvider {
             Integer includeInMenu = child.getIncludeInMenu();
 
             return name != null && (includeInMenu == null || includeInMenu > 0);
-        }).collect(Collectors.toList());
-        children.sort(Comparator.comparing(CategoryTree::getPosition));
+        }).peek(this::prepareChildren).sorted(Comparator.comparing(CategoryTree::getPosition)).collect(Collectors.toList());
 
-        return children;
+        category.setChildren(children);
     }
 
     static CategoryTreeQueryDefinition defineCategoriesQuery(int depth) {

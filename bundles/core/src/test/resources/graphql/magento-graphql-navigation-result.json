@@ -41,13 +41,7 @@
                 "url_path": "women/tops-women",
                 "position": 1,
                 "children": [
-                  {
-                    "uid": "MjQ=",
-                    "name": "Jackets",
-                    "url_path": "women/tops-women/jackets-women",
-                    "position": 1,
-                    "children": []
-                  },
+
                   {
                     "uid": "MjU=",
                     "name": "Hoodies & Sweatshirts",
@@ -63,9 +57,17 @@
                     "children": []
                   },
                   {
+                    "uid": "MjQ=",
+                    "name": "Jackets",
+                    "url_path": "women/tops-women/jackets-women",
+                    "position": 1,
+                    "children": []
+                  },
+                  {
                     "uid": "Mjc=",
                     "name": "Bras & Tanks",
                     "url_path": "women/tops-women/tanks-women",
+                    "include_in_menu": 0,
                     "position": 4,
                     "children": []
                   }
