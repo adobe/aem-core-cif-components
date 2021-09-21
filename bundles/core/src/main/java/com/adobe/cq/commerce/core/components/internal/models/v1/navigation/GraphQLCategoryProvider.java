@@ -57,7 +57,7 @@ class GraphQLCategoryProvider {
         }
 
         if (StringUtils.isBlank(categoryIdentifier)) {
-            LOGGER.debug("Empty results identifier");
+            LOGGER.debug("Empty category identifier");
             return Collections.emptyList();
         }
 
