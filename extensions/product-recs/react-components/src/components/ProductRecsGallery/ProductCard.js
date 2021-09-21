@@ -17,7 +17,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { useIntl } from 'react-intl';
-import { useStorefrontEvents, Price, Trigger, createProductPageUrl } from '@adobe/aem-core-cif-react-components';
+import { useStorefrontEvents, Price, AddToCart, createProductPageUrl } from '@adobe/aem-core-cif-react-components';
 
 import classes from './ProductCard.css';
 
@@ -29,13 +29,18 @@ const ProductCard = props => {
         unit: { unitId },
         product: { sku, name, type, productId, currency, prices, smallImage }
     } = props;
+    const item = { 
+        sku: product.sku, 
+        quantity: 1, 
+        virtual: product.type === 'virtual' 
+    }
 
-    const addToCart = (unit, product) => {
-        const { sku, type, productId } = product;
+    const addToCart = (items) => {
+        const { productId } = product;
         const { unitId } = unit;
-
+        
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: [{ sku, quantity: 1, virtual: type === 'virtual' }]
+            detail: items
         });
         document.dispatchEvent(customEvent);
 
@@ -72,11 +77,11 @@ const ProductCard = props => {
             </a>
             {// Only display add to cart button for products that can be added to cart without further customization
             ['simple', 'virtual', 'downloadable'].includes(type) && (
-                <Trigger action={() => addToCart(props.unit, props.product)}>
+                <AddToCart items={[item]} onAddToCart={addToCart}>
                     <span className={classes.addToCart}>
                         {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to cart' })}
                     </span>
-                </Trigger>
+                </AddToCart>
             )}
         </div>
     );

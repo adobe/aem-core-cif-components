@@ -43,6 +43,10 @@ const Portal = props => {
 
     if (elem) {
         // Only render children if mounting point is available
+        // Remove any node in the host element first
+        while (elem.hasChildNodes()) {
+            elem.childNodes[0].remove();
+        }
         return ReactDOM.createPortal(children, elem);
     }
 
