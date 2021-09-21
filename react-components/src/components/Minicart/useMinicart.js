@@ -24,12 +24,12 @@ export const productMapper = item => ({
         sku: item.sku,
         quantity: parseFloat(item.quantity)
     }
-})
+});
 
 export const bundledProductMapper = item => ({
     ...productMapper(item),
     bundle_options: item.options
-})
+});
 
 export default ({ queries }) => {
     const {

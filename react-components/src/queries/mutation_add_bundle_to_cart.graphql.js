@@ -20,7 +20,7 @@ export default gql`
     mutation addBundleProductToCart($cartId: String!, $cartItems: [BundleProductCartItemInput]!) {
         addBundleProductsToCart(input: { cart_id: $cartId, cart_items: $cartItems }) {
             cart {
-                id,
+                id
                 ...MiniCartFragment
             }
         }
