@@ -203,9 +203,6 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        children = children.stream().filter(c -> c != null && c.getName() != null).collect(Collectors.toList());
-        children.sort(Comparator.comparing(CategoryTree::getPosition));
-
         for (CategoryTree child : children) {
             Map<String, String> params = new ParamsBuilder()
                 .uid(child.getUid().toString())
