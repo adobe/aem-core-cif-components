@@ -18,6 +18,7 @@ import { object, func } from 'prop-types';
 
 import { useCookieValue, useAwaitQuery, useStorefrontEvents } from '../utils/hooks';
 import { useMutation } from '@apollo/client';
+import BrowserPersistence from '@magento/peregrine/lib/util/simplePersistence';
 import parseError from '../utils/parseError';
 import {
     resetCustomerCart as resetCustomerCartAction,
@@ -251,6 +252,9 @@ const UserContextProvider = props => {
 
     const { isSignedIn, currentUser } = userState;
 
+    // Storage as used by Peregrine components
+    const storage = new BrowserPersistence();
+
     useEffect(() => {
         if (!isSignedIn) {
             mse && mse.context.setShopper({ shopperId: 'guest' });
@@ -266,6 +270,9 @@ const UserContextProvider = props => {
         dataLayerUtils.pushEvent('cif:userSignIn');
         mse && mse.context.setShopper({ shopperId: 'logged-in' });
         mse && mse.publish.signIn();
+
+        storage.setItem('signin_token', token, 3600);
+
         dispatch({ type: 'setToken', token });
     };
 
@@ -281,6 +288,10 @@ const UserContextProvider = props => {
         dataLayerUtils.pushEvent('cif:userSignOut', null, { user: null });
         mse && mse.context.setShopper({ shopperId: 'guest' });
         mse && mse.publish.signOut();
+
+        storage.removeItem('signin_token');
+        storage.removeItem('cartId');
+
         await signOutUserAction({ revokeCustomerToken, setCartCookie, setUserCookie, dispatch });
     };
 
