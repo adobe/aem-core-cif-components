@@ -19,7 +19,6 @@
  * Add to cart button component.
  */
 class AddToCart {
-
     get _element() {
         // always query the add to cart button, as it may be replaced by react component when the storefront is integrated with peregrine
         // see the addToCart react component
