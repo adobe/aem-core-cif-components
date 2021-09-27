@@ -33,9 +33,9 @@ const ProductCard = props => {
         sku: sku,
         quantity: 1,
         virtual: type === 'virtual'
-    }
+    };
 
-    const addToCart = (items) => {
+    const addToCart = items => {
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
             detail: items
         });
@@ -73,13 +73,11 @@ const ProductCard = props => {
                 <div className={classes.price}>{renderPrice()}</div>
             </a>
             {// Only display add to cart button for products that can be added to cart without further customization
-                ['simple', 'virtual', 'downloadable'].includes(type) && (
-                    <AddToCart items={[item]} onAddToCart={addToCart}>
-                        <span>
-                            {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to cart' })}
-                        </span>
-                    </AddToCart>
-                )}
+            ['simple', 'virtual', 'downloadable'].includes(type) && (
+                <AddToCart items={[item]} onAddToCart={addToCart}>
+                    <span>{intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to cart' })}</span>
+                </AddToCart>
+            )}
         </div>
     );
 };
