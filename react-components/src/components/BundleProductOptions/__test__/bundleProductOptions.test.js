@@ -14,21 +14,23 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { fireEvent, waitForDomChange } from '@testing-library/react';
+import { fireEvent, waitForDomChange, wait } from '@testing-library/react';
 import { render } from 'test-utils';
 import * as hooks from '../../../utils/hooks';
 import BundleProductOptions from '../bundleProductOptions';
 import mockResponse from './graphQlMockReponse';
+import mockAddToCartMutation from './graphqlMockAddToCartMutation';
 
 const config = {
     storeView: 'default',
     graphqlEndpoint: 'endpoint',
+    graphqlMethod: 'GET',
     mountingPoints: {
         bundleProductOptionsContainer: '#bundle-product-options'
     }
 };
 
-describe('<BundleProductOptions>', () => {
+describe('BundleProductOptions', () => {
     it('renders the component with no sku', () => {
         const { asFragment } = render(<BundleProductOptions />, { config: config });
         expect(asFragment()).toMatchInlineSnapshot(`<DocumentFragment />`);
@@ -67,7 +69,8 @@ describe('<BundleProductOptions>', () => {
 
         const { asFragment, container, getByRole } = render(<BundleProductOptions />, {
             config: config,
-            container: document.body.appendChild(bundleProductOptionsContainer)
+            container: document.body.appendChild(bundleProductOptionsContainer),
+            mocks: [mockAddToCartMutation]
         });
 
         fireEvent.click(getByRole('button', { name: 'Customize' }));
@@ -82,7 +85,7 @@ describe('<BundleProductOptions>', () => {
         fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
 
         // Add to cart should be called just once since the second click was on a disabled button
-        expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
+        await wait(() => expect(dispatchEventSpy).toHaveBeenCalledTimes(1));
 
         // The mock dispatchEvent function returns the CustomEvent detail
         expect(dispatchEventSpy).toHaveReturnedWith([
