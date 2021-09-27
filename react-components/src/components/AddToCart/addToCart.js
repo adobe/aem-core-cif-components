@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 import { useCartContext } from '@magento/peregrine/lib/context/cart';
@@ -46,8 +47,7 @@ const useEventListener = props => {
 
 const AddToCart = props => {
     const intl = useIntl();
-    const [items, setItems] = useState([]);
-    const [disabled, setDisabled] = useState(true);
+    const [items, setItems] = useState(props.items);
     const handleProductDataUpdate = event => setItems(event.detail);
     const [buttonRef] = useEventListener({ eventName: PRODUCT_DATA_UPDATE, eventListener: handleProductDataUpdate });
     const [{ cartId }] = useCartContext();
@@ -111,25 +111,28 @@ const AddToCart = props => {
         }
     }, [props.onAddToCart, items, cartId]);
 
-    useEffect(() => {
-        const newItems = typeof props.items === 'string' ? JSON.parse(props.items) : props.items;
-        setItems(newItems);
-    }, [props.items]);
-
-    useEffect(() => {
-        setDisabled(props.disabled || items.length === 0);
-    }, [props.disabled, items]);
-
     return (
         <button
             ref={buttonRef}
             className="button__root_highPriority button__root clickable__root button__filled"
             type="button"
             onClick={handleAddToCart}
-            disabled={disabled}>
+            disabled={props.disabled || items.length === 0}>
             <span className="button__content">{buttonContent}</span>
         </button>
     );
+};
+
+AddToCart.propTypes = {
+    items: PropTypes.arrayOf(
+        PropTypes.shape({
+            sku: PropTypes.string.isRequired,
+            quantity: PropTypes.number.isRequired,
+            options: PropTypes.array
+        })
+    ).isRequired,
+    disabled: PropTypes.bool,
+    onAddToCart: PropTypes.func
 };
 
 export default AddToCart;
