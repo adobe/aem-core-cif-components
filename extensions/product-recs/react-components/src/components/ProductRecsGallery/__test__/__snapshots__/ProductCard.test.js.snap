@@ -27,7 +27,7 @@ exports[`ProductCard renders a product card 1`] = `
         <span
           class=""
         >
-          CHF 342.23
+          common:formattedPrice
         </span>
       </div>
     </a>
@@ -73,7 +73,7 @@ exports[`ProductCard renders a product card with a price range 1`] = `
         <span
           class=""
         >
-          CHF 342.23
+          common:formattedPrice
         </span>
       </div>
     </a>

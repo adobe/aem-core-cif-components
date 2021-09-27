@@ -21,6 +21,20 @@ import ProductCard from '../ProductCard';
 import mockMagentoStorefrontEvents from '../../../__test__/mockMagentoStorefrontEvents';
 import ContextWrapper from '../../../__test__/context-wrapper';
 
+jest.mock('@adobe/aem-core-cif-react-components', () => ({
+    ...jest.requireActual('@adobe/aem-core-cif-react-components'),
+    AddToCart: jest.fn().mockImplementation(props => (
+        <button
+            onClick={props.onAddToCart}
+            className="cmp-Trigger__trigger__root cmp-components__clickable__root"
+            type="button">
+            <span className="addToCart">Add to cart</span>
+        </button>
+    )
+
+    )
+}));
+
 describe('ProductCard', () => {
     let mse;
     let product;
