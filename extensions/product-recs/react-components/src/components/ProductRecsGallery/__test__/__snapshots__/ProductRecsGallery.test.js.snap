@@ -37,7 +37,7 @@ exports[`ProductRecsGallery renders a list of products 1`] = `
             <span
               class=""
             >
-              common:formattedPrice
+              CHF 342.23
             </span>
           </div>
         </a>
@@ -73,11 +73,11 @@ exports[`ProductRecsGallery renders a list of products 1`] = `
           <div
             class="price"
           >
-            from 
+            from
             <span
               class=""
             >
-              common:formattedPrice
+              CHF 342.23
             </span>
           </div>
         </a>
