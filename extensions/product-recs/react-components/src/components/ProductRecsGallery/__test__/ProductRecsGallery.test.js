@@ -40,9 +40,7 @@ jest.mock('@adobe/aem-core-cif-react-components', () => ({
             type="button">
             <span className="addToCart">Add to cart</span>
         </button>
-    )
-
-    )
+    ))
 }));
 
 describe('ProductRecsGallery', () => {
