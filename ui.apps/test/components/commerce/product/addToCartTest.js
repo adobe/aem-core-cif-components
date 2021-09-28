@@ -20,7 +20,7 @@ import AddToCart from '../../../../src/main/content/jcr_root/apps/core/cif/compo
 describe('Product', () => {
     describe('AddToCart', () => {
         let productRoot;
-        let addToCartRoot;
+        let cartActions;
         let pageRoot;
 
         before(() => {
@@ -54,31 +54,31 @@ describe('Product', () => {
                 </div>`
             );
 
-            addToCartRoot = pageRoot.querySelector(AddToCart.selectors.self);
+            cartActions = pageRoot.querySelector(AddToCart.selectors.cartActions);
             productRoot = pageRoot.querySelector(AddToCart.selectors.product);
         });
 
         it('initializes an AddToCart component for a configurable product', () => {
             productRoot.dataset.configurable = true;
 
-            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
+            let addToCart = new AddToCart({ cartActions, product: productRoot });
 
             assert.isTrue(addToCart._state.configurable);
             assert.isNull(addToCart._state.sku);
-            assert.isTrue(addToCartRoot.disabled);
+            assert.isTrue(addToCart._element.disabled);
         });
 
         it('initializes an AddToCart component for a simple product', () => {
-            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
+            let addToCart = new AddToCart({ cartActions, product: productRoot });
 
             assert.isFalse(addToCart._state.configurable);
             assert.equal(addToCart._state.sku, 'my-sample-sku');
-            assert.isFalse(addToCartRoot.disabled);
+            assert.isFalse(addToCart._element.disabled);
         });
 
         it('is disabled on invalid variant', () => {
             productRoot.dataset.configurable = true;
-            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
+            let addToCart = new AddToCart({ cartActions, product: productRoot });
 
             // Send event
             let changeEvent = new CustomEvent(AddToCart.events.variantChanged, {
@@ -87,12 +87,12 @@ describe('Product', () => {
             });
             productRoot.dispatchEvent(changeEvent);
 
-            assert.isTrue(addToCartRoot.disabled);
+            assert.isTrue(addToCart._element.disabled);
         });
 
         it('reacts to a variantchanged event', () => {
             productRoot.dataset.configurable = true;
-            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
+            let addToCart = new AddToCart({ cartActions, product: productRoot });
 
             // Send event
             let changeEvent = new CustomEvent(AddToCart.events.variantChanged, {
@@ -110,15 +110,15 @@ describe('Product', () => {
 
             assert.equal(addToCart._state.sku, 'variant-sku');
             assert.deepEqual(addToCart._state.attributes, { color: 'red' });
-            assert.isFalse(addToCartRoot.disabled);
+            assert.isFalse(addToCart._element.disabled);
         });
 
         it('dispatches an event on click', () => {
             let spy = sinon.spy();
             let _originalDispatch = document.dispatchEvent;
             document.dispatchEvent = spy;
-            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
-            addToCartRoot.click();
+            let addToCart = new AddToCart({ cartActions, product: productRoot });
+            addToCart._element.click();
             sinon.assert.calledOnce(spy);
             assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-cart');
             assert.equal(spy.getCall(0).args[0].detail[0].sku, addToCart._state.sku);
@@ -148,14 +148,14 @@ describe('Product', () => {
                 </div>`
             );
 
-            addToCartRoot = pageRoot.querySelector(AddToCart.selectors.self);
+            cartActions = pageRoot.querySelector(AddToCart.selectors.cartActions);
             productRoot = pageRoot.querySelector(AddToCart.selectors.product);
 
             let spy = sinon.spy();
             let _originalDispatch = document.dispatchEvent;
             document.dispatchEvent = spy;
-            new AddToCart({ element: addToCartRoot, product: productRoot });
-            addToCartRoot.click();
+            let addToCart = new AddToCart({ cartActions, product: productRoot });
+            addToCart._element.click();
             sinon.assert.calledOnce(spy);
             assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-cart');
             assert.equal(spy.getCall(0).args[0].detail[0].quantity, 4);
