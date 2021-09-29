@@ -41,13 +41,7 @@
                 "url_path": "women/tops-women",
                 "position": 1,
                 "children": [
-                  {
-                    "uid": "MjQ=",
-                    "name": "Jackets",
-                    "url_path": "women/tops-women/jackets-women",
-                    "position": 1,
-                    "children": []
-                  },
+
                   {
                     "uid": "MjU=",
                     "name": "Hoodies & Sweatshirts",
@@ -63,9 +57,17 @@
                     "children": []
                   },
                   {
+                    "uid": "MjQ=",
+                    "name": "Jackets",
+                    "url_path": "women/tops-women/jackets-women",
+                    "position": 1,
+                    "children": []
+                  },
+                  {
                     "uid": "Mjc=",
                     "name": "Bras & Tanks",
                     "url_path": "women/tops-women/tanks-women",
+                    "include_in_menu": 0,
                     "position": 4,
                     "children": []
                   }
@@ -187,6 +189,7 @@
             "uid": "Mzk=",
             "name": "What's New",
             "url_path": "what-is-new",
+            "include_in_menu": 1,
             "position": 1,
             "children": []
           },
@@ -195,6 +198,21 @@
             "name": "Sale",
             "url_path": "sale",
             "position": 6,
+            "children": []
+          },
+          {
+            "uid": "Mzh=",
+            "name": "Hidden",
+            "url_path": "hidden",
+            "include_in_menu": 0,
+            "position": 7,
+            "children": []
+          },
+
+          {
+            "uid": "Mzi=",
+            "url_path": "noname",
+            "position": 8,
             "children": []
           }
         ]

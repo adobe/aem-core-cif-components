@@ -16,8 +16,10 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +42,8 @@ class GraphQLCategoryProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphQLCategoryProvider.class);
 
-    private static final Function<CategoryTreeQuery, CategoryTreeQuery> CATEGORIES_QUERY = q -> q.uid().name().urlPath().position();
+    private static final Function<CategoryTreeQuery, CategoryTreeQuery> CATEGORIES_QUERY = q -> q.uid().name().urlPath().position()
+        .includeInMenu();
     private final MagentoGraphqlClient magentoGraphqlClient;
 
     GraphQLCategoryProvider(MagentoGraphqlClient magentoGraphqlClient) {
@@ -70,18 +73,36 @@ class GraphQLCategoryProvider {
         }
 
         Query rootQuery = response.getData();
-        List<CategoryTree> category = rootQuery.getCategoryList();
-        if (category.isEmpty() || category.get(0) == null) {
+        List<CategoryTree> results = rootQuery.getCategoryList();
+        if (results.isEmpty() || results.get(0) == null) {
             LOGGER.warn("Category not found for identifier: {}", categoryIdentifier);
             return Collections.emptyList();
         }
 
-        List<CategoryTree> children = category.get(0).getChildren();
+        CategoryTree category = results.get(0);
+
+        prepareChildren(category);
+
+        return category.getChildren();
+    }
+
+    private void prepareChildren(CategoryTree category) {
+        List<CategoryTree> children = category.getChildren();
         if (children == null) {
-            return Collections.emptyList();
+            children = Collections.emptyList();
         }
 
-        return children;
+        children = children.stream().filter(child -> {
+            if (child == null)
+                return false;
+
+            String name = child.getName();
+            Integer includeInMenu = child.getIncludeInMenu();
+
+            return name != null && (includeInMenu == null || includeInMenu > 0);
+        }).peek(this::prepareChildren).sorted(Comparator.comparing(CategoryTree::getPosition)).collect(Collectors.toList());
+
+        category.setChildren(children);
     }
 
     static CategoryTreeQueryDefinition defineCategoriesQuery(int depth) {
