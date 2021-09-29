@@ -27,23 +27,25 @@ import { useMutation } from '@apollo/client';
 
 const simpleItem = {
     sku: 'simple-sku',
-    quantity: 1,
-}
+    quantity: 1
+};
 
 const bundleItem = {
     sku: 'bundle-sku',
     quantity: 2,
     bundle: true,
-    options: [{
-        foo: 'bar'
-    }]
-}
+    options: [
+        {
+            foo: 'bar'
+        }
+    ]
+};
 
 const virtualItem = {
     sku: 'virtual-sku',
     quantity: 3,
     virtual: true
-}
+};
 
 const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent');
 
@@ -70,7 +72,7 @@ useMutation.mockImplementation(mutation => {
     } else {
         return actualUseMutation(mutation);
     }
-})
+});
 
 describe('<AddToCart>', () => {
     afterEach(() => {
@@ -110,17 +112,19 @@ describe('<AddToCart>', () => {
         expect(addToCartMutationMock).toHaveBeenCalledWith({
             variables: {
                 cartId: null,
-                cartItems: [{
-                    data: {
-                        sku: simpleItem.sku,
-                        quantity: parseFloat(simpleItem.quantity)
+                cartItems: [
+                    {
+                        data: {
+                            sku: simpleItem.sku,
+                            quantity: parseFloat(simpleItem.quantity)
+                        }
                     }
-                }]
+                ]
             }
         });
         await wait(() => {
             expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
-            expect(dispatchEventSpy).toHaveBeenCalledWith(new CustomEvent('aem.cif.after-add-to-cart'))
+            expect(dispatchEventSpy).toHaveBeenCalledWith(new CustomEvent('aem.cif.after-add-to-cart'));
         });
     });
 
@@ -132,18 +136,20 @@ describe('<AddToCart>', () => {
         expect(addBundleToCartMutationMock).toHaveBeenCalledWith({
             variables: {
                 cartId: null,
-                cartItems: [{
-                    data: {
-                        sku: bundleItem.sku,
-                        quantity: parseFloat(bundleItem.quantity)
-                    },
-                    bundle_options: bundleItem.options
-                }]
+                cartItems: [
+                    {
+                        data: {
+                            sku: bundleItem.sku,
+                            quantity: parseFloat(bundleItem.quantity)
+                        },
+                        bundle_options: bundleItem.options
+                    }
+                ]
             }
         });
         await wait(() => {
             expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
-            expect(dispatchEventSpy).toHaveBeenCalledWith(new CustomEvent('aem.cif.after-add-to-cart'))
+            expect(dispatchEventSpy).toHaveBeenCalledWith(new CustomEvent('aem.cif.after-add-to-cart'));
         });
     });
 
@@ -155,17 +161,19 @@ describe('<AddToCart>', () => {
         expect(addVirtualToCartMutationMock).toHaveBeenCalledWith({
             variables: {
                 cartId: null,
-                cartItems: [{
-                    data: {
-                        sku: virtualItem.sku,
-                        quantity: parseFloat(virtualItem.quantity)
+                cartItems: [
+                    {
+                        data: {
+                            sku: virtualItem.sku,
+                            quantity: parseFloat(virtualItem.quantity)
+                        }
                     }
-                }]
+                ]
             }
         });
         await wait(() => {
             expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
-            expect(dispatchEventSpy).toHaveBeenCalledWith(new CustomEvent('aem.cif.after-add-to-cart'))
+            expect(dispatchEventSpy).toHaveBeenCalledWith(new CustomEvent('aem.cif.after-add-to-cart'));
         });
     });
 
@@ -177,23 +185,27 @@ describe('<AddToCart>', () => {
         expect(addSimpleAndVirtualToCartMutationMock).toHaveBeenCalledWith({
             variables: {
                 cartId: null,
-                virtualCartItems: [{
-                    data: {
-                        sku: virtualItem.sku,
-                        quantity: parseFloat(virtualItem.quantity)
+                virtualCartItems: [
+                    {
+                        data: {
+                            sku: virtualItem.sku,
+                            quantity: parseFloat(virtualItem.quantity)
+                        }
                     }
-                }],
-                simpleCartItems: [{
-                    data: {
-                        sku: simpleItem.sku,
-                        quantity: parseFloat(simpleItem.quantity)
+                ],
+                simpleCartItems: [
+                    {
+                        data: {
+                            sku: simpleItem.sku,
+                            quantity: parseFloat(simpleItem.quantity)
+                        }
                     }
-                }]
+                ]
             }
         });
         await wait(() => {
             expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
-            expect(dispatchEventSpy).toHaveBeenCalledWith(new CustomEvent('aem.cif.after-add-to-cart'))
+            expect(dispatchEventSpy).toHaveBeenCalledWith(new CustomEvent('aem.cif.after-add-to-cart'));
         });
     });
 
@@ -208,5 +220,4 @@ describe('<AddToCart>', () => {
             expect(onAddToCartMock).toHaveBeenCalledWith([simpleItem]);
         });
     });
-
 });

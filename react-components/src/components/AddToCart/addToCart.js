@@ -102,9 +102,7 @@ const AddToCart = props => {
             props.onAddToCart(items);
         } else if (items.length > 0) {
             // dispatch the event for Minicart to refresh the state (if in use)
-            document.dispatchEvent(
-                new CustomEvent('aem.cif.after-add-to-cart')
-            );
+            document.dispatchEvent(new CustomEvent('aem.cif.after-add-to-cart'));
         }
     }, [props.onAddToCart, items, cartId]);
 

@@ -54,7 +54,7 @@ export default ({ queries }) => {
 
     const refreshCart = async () => {
         await getCartDetails({ cartDetailsQuery, dispatch, cartId });
-    }
+    };
 
     const addItem = async event => {
         if (!event.detail) return;
