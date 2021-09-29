@@ -29,16 +29,13 @@ const ProductCard = props => {
         unit: { unitId },
         product: { sku, name, type, productId, currency, prices, smallImage }
     } = props;
-    const item = { 
-        sku: product.sku, 
-        quantity: 1, 
-        virtual: product.type === 'virtual' 
-    }
+    const item = {
+        sku: sku,
+        quantity: 1,
+        virtual: type === 'virtual'
+    };
 
-    const addToCart = (items) => {
-        const { productId } = product;
-        const { unitId } = unit;
-        
+    const addToCart = items => {
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
             detail: items
         });
@@ -47,7 +44,7 @@ const ProductCard = props => {
         mse && mse.publish.recsItemAddToCartClick(unitId, productId);
     };
 
-    const renderPrice = (prices, currency) => {
+    const renderPrice = () => {
         const { minimum, maximum } = prices;
         const isRange = Math.round(minimum.final * 100) !== Math.round(maximum.final * 100);
 
@@ -73,14 +70,12 @@ const ProductCard = props => {
                     <img className={classes.productImage} src={smallImage.url} alt={name} />
                 </div>
                 <div>{name}</div>
-                <div className={classes.price}>{renderPrice(prices, currency)}</div>
+                <div className={classes.price}>{renderPrice()}</div>
             </a>
             {// Only display add to cart button for products that can be added to cart without further customization
             ['simple', 'virtual', 'downloadable'].includes(type) && (
                 <AddToCart items={[item]} onAddToCart={addToCart}>
-                    <span className={classes.addToCart}>
-                        {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to cart' })}
-                    </span>
+                    <span>{intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to cart' })}</span>
                 </AddToCart>
             )}
         </div>

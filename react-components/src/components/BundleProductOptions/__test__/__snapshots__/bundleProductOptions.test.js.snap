@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<BundleProductOptions> renders the component with full options 1`] = `
+exports[`BundleProductOptions renders the component with full options 1`] = `
 <DocumentFragment>
   <section
     class="productFullDetail__section productFullDetail__bundleProduct"
@@ -373,7 +373,7 @@ exports[`<BundleProductOptions> renders the component with full options 1`] = `
 </DocumentFragment>
 `;
 
-exports[`<BundleProductOptions> renders the component with sku 1`] = `
+exports[`BundleProductOptions renders the component with sku 1`] = `
 <DocumentFragment>
   <section
     class="productFullDetail__section productFullDetail__customizeBundle"

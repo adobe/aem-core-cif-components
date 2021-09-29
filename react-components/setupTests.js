@@ -13,21 +13,4 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import React from 'react';
-
-import { IntlProvider } from 'react-intl';
-
-import i18nMessagesProductRecs from '../../i18n/en.json';
-import i18nMessagesCoreComps from '../../../../../react-components/i18n/en.json';
-
-const i18nMessages = { ...i18nMessagesCoreComps, ...i18nMessagesProductRecs };
-
-const ContextWrapper = ({ children }) => {
-    return (
-        <IntlProvider locale="en" messages={i18nMessages}>
-            {children}
-        </IntlProvider>
-    );
-};
-
-export default ContextWrapper;
+import '@testing-library/jest-dom';

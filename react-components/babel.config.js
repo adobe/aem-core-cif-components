@@ -32,8 +32,11 @@ module.exports = function(api) {
             presets: [...presets, ['@babel/preset-env', { modules: false, targets: 'last 2 Chrome versions' }]]
         },
         test: {
-            plugins: [...plugins, ['babel-plugin-dynamic-import-node']],
-            presets: [...presets, ['@babel/preset-env', { modules: 'commonjs', targets: 'node 10' }]]
+            plugins: [...plugins, ['babel-plugin-dynamic-import-node'], ['@babel/plugin-proposal-class-properties']],
+            presets: [...presets, ['@babel/preset-env', { modules: 'commonjs', targets: 'node 10' }]],
+            exclude: [
+                /node_modules\/(?!@magento\/)/
+            ]
         }
     };
 
