@@ -101,12 +101,9 @@ const AddToCart = props => {
         if (props.onAddToCart) {
             props.onAddToCart(items);
         } else if (items.length > 0) {
-            // dispatch the event that other wise the product detail add to cart function would have
-            // fired
+            // dispatch the event for Minicart to refresh the state (if in use)
             document.dispatchEvent(
-                new CustomEvent('aem.cif.add-to-cart', {
-                    detail: items
-                })
+                new CustomEvent('aem.cif.after-add-to-cart')
             );
         }
     }, [props.onAddToCart, items, cartId]);

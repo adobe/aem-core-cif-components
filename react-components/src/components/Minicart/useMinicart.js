@@ -52,6 +52,10 @@ export default ({ queries }) => {
         fn();
     }, [cartId]);
 
+    const refreshCart = async () => {
+        await getCartDetails({ cartDetailsQuery, dispatch, cartId });
+    }
+
     const addItem = async event => {
         if (!event.detail) return;
 
@@ -104,7 +108,7 @@ export default ({ queries }) => {
     };
 
     const data = { cartId, cart, isOpen, isLoading, isEditing, errorMessage };
-    const api = { addItem, dispatch };
+    const api = { addItem, refreshCart, dispatch };
 
     return [data, api];
 };

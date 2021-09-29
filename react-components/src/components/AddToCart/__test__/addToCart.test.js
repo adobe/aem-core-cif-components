@@ -19,7 +19,7 @@ jest.mock('@apollo/client', () => ({
 }));
 
 import React from 'react';
-import { render, fireEvent } from 'test-utils';
+import { render, fireEvent, wait } from 'test-utils';
 
 import AddToCart from '../addToCart';
 
@@ -45,9 +45,7 @@ const virtualItem = {
     virtual: true
 }
 
-const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation(event => {
-    return event.detail;
-});
+const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent');
 
 const addToCartMutationMock = jest.fn();
 const addBundleToCartMutationMock = jest.fn();
@@ -104,7 +102,7 @@ describe('<AddToCart>', () => {
         expect(getByRole('button')).not.toBeDisabled();
     });
 
-    it('add a simple product to cart', () => {
+    it('add a simple product to cart', async () => {
         const { getByRole } = render(<AddToCart items={[simpleItem]} />);
 
         fireEvent.click(getByRole('button'));
@@ -120,9 +118,13 @@ describe('<AddToCart>', () => {
                 }]
             }
         });
+        await wait(() => {
+            expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
+            expect(dispatchEventSpy).toHaveBeenCalledWith(new CustomEvent('aem.cif.after-add-to-cart'))
+        });
     });
 
-    it('add a bundle product to cart', () => {
+    it('add a bundle product to cart', async () => {
         const { getByRole } = render(<AddToCart items={[bundleItem]} />);
 
         fireEvent.click(getByRole('button'));
@@ -139,9 +141,13 @@ describe('<AddToCart>', () => {
                 }]
             }
         });
+        await wait(() => {
+            expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
+            expect(dispatchEventSpy).toHaveBeenCalledWith(new CustomEvent('aem.cif.after-add-to-cart'))
+        });
     });
 
-    it('add a virtual product to cart', () => {
+    it('add a virtual product to cart', async () => {
         const { getByRole } = render(<AddToCart items={[virtualItem]} />);
 
         fireEvent.click(getByRole('button'));
@@ -157,9 +163,13 @@ describe('<AddToCart>', () => {
                 }]
             }
         });
+        await wait(() => {
+            expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
+            expect(dispatchEventSpy).toHaveBeenCalledWith(new CustomEvent('aem.cif.after-add-to-cart'))
+        });
     });
 
-    it('add a simple product and a virtual product to cart', () => {
+    it('add a simple product and a virtual product to cart', async () => {
         const { getByRole } = render(<AddToCart items={[simpleItem, virtualItem]} />);
 
         fireEvent.click(getByRole('button'));
@@ -180,6 +190,22 @@ describe('<AddToCart>', () => {
                     }
                 }]
             }
+        });
+        await wait(() => {
+            expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
+            expect(dispatchEventSpy).toHaveBeenCalledWith(new CustomEvent('aem.cif.after-add-to-cart'))
+        });
+    });
+
+    it('add a simple product and provides callback', async () => {
+        const onAddToCartMock = jest.fn();
+        const { getByRole } = render(<AddToCart items={[simpleItem]} onAddToCart={onAddToCartMock} />);
+
+        fireEvent.click(getByRole('button'));
+        await wait(() => {
+            expect(dispatchEventSpy).toHaveBeenCalledTimes(0);
+            expect(onAddToCartMock).toHaveBeenCalledTimes(1);
+            expect(onAddToCartMock).toHaveBeenCalledWith([simpleItem]);
         });
     });
 
