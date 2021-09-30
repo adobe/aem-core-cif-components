@@ -701,6 +701,12 @@
       "value": "Save"
     }
   ],
+  "product:add-item": [
+    {
+      "type": 0,
+      "value": "Add to Cart"
+    }
+  ],
   "product:customization-price": [
     {
       "type": 0,
