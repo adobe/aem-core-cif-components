@@ -27,6 +27,9 @@ import { isRequired } from '../../utils/formValidators';
 
 import defaultClasses from './password.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Password = props => {
     const {
         classes: propClasses,

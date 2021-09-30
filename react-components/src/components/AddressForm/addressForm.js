@@ -31,6 +31,9 @@ import Checkbox from '../Checkbox';
 import Field from '../Field';
 import TextInput from '../TextInput';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AddressForm = props => {
     const { parseAddressFormValues } = useAddressForm({});
     const [submitting, setIsSubmitting] = useState(false);

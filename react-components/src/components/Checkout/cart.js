@@ -21,6 +21,9 @@ import useCart from './useCart';
 import CheckoutButton from './checkoutButton';
 import classes from './cart.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Cart = props => {
     const { ready, submitting } = props;
     const { beginCheckout } = useCart();

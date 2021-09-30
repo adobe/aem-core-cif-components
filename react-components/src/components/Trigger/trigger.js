@@ -18,6 +18,9 @@ import { func, node } from 'prop-types';
 
 import classes from './trigger.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Trigger = props => {
     const { action, children } = props;
 

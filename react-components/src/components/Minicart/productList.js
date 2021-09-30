@@ -19,6 +19,9 @@ import { array, shape, string } from 'prop-types';
 import Product from './product';
 import classes from './productList.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const ProductList = props => {
     const { cartItems } = props;
 

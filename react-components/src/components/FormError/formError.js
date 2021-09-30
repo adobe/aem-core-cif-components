@@ -20,6 +20,9 @@ import defaultClasses from './formError.css';
 import mergeClasses from '../../utils/mergeClasses';
 import { deriveErrorMessage } from '../../utils/deriveErrorMessage';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const FormError = props => {
     const { classes: propClasses, errors, scrollOnError } = props;
 

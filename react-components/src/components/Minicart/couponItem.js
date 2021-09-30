@@ -22,6 +22,9 @@ import Section from './section';
 import classes from './couponItem.css';
 import useCouponItem from './useCouponItem';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CouponItem = () => {
     const [{ appliedCoupon }, { removeCouponFromCart }] = useCouponItem();
     const intl = useIntl();

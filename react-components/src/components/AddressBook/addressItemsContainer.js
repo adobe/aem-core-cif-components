@@ -22,6 +22,9 @@ import AddAddressButton from './addAddressButton';
 
 import classes from './addressItemsContainer.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AddressItems = props => {
     const { displayType } = props;
     const [{ currentUser }] = useUserContext();

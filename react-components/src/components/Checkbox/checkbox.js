@@ -22,6 +22,9 @@ import Icon from '../Icon';
 import { Check as CheckIcon } from 'react-feather';
 import classes from './checkbox.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Checkbox = props => {
     const { fieldState, id, label, message, ...rest } = props;
     const { value: checked } = fieldState;

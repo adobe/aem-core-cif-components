@@ -35,6 +35,9 @@ import defaultClasses from './createAccount.css';
 import useCreateAccount from './useCreateAccount';
 import LoadingIndicator from '../LoadingIndicator';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CreateAccount = props => {
     const { showAccountCreated, handleCancel } = props;
     const [{ createAccountError, inProgress }, { createAccount }] = useCreateAccount({

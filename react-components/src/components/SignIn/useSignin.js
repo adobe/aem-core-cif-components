@@ -25,6 +25,9 @@ import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
 import MUTATION_GENERATE_TOKEN from '../../queries/mutation_generate_token.graphql';
 import QUERY_CART_DETAILS from '../../queries/query_cart_details.graphql';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const useSignin = props => {
     const { showMyAccount } = props;
     const [{ cartId }, cartDispatch] = useCartState();

@@ -26,6 +26,9 @@ import CHANGE_CUSTOMER_PASSWORD from '../../queries/mutation_change_password.gra
 import classes from './accountDetails.css';
 import EditModal from './editModal';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AccountDetails = () => {
     const {
         initialValues,

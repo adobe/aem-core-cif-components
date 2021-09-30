@@ -25,6 +25,9 @@ import { ChevronDown as ChevronDownIcon } from 'react-feather';
 
 const arrow = <Icon src={ChevronDownIcon} size={18} />;
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Select = props => {
     const { fieldState, items, message, ...rest } = props;
     const options = items.map(({ label, value }) => (

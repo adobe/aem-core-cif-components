@@ -19,6 +19,9 @@ import classes from './userChip.css';
 import Icon from '../Icon';
 import { shape, string, func } from 'prop-types';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const UserChip = props => {
     const { currentUser, showMyAccount } = props;
     const { email, firstname, lastname } = currentUser;

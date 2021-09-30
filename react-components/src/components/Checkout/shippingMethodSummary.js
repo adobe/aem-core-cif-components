@@ -18,6 +18,9 @@ import { shape, string } from 'prop-types';
 import { useCheckoutState } from './checkoutContext';
 import { useIntl } from 'react-intl';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const ShippingMethodSummary = props => {
     const { classes } = props;
     const [{ shippingMethod }] = useCheckoutState();
