@@ -15,8 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.storeconfigexporter;
 
+import org.osgi.annotation.versioning.ProviderType;
+
 import com.drew.lang.annotations.Nullable;
 
+/**
+ * This model gives access to the cif cloud service configuration of a given Page.
+ * <p>
+ * Its implementation is an adapter of {@link org.apache.sling.api.SlingHttpServletRequest} with the resourceType of a cif page.
+ * <p>
+ */
+@ProviderType
 public interface StoreConfigExporter {
 
     /**
