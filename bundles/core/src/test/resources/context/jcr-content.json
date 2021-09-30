@@ -365,7 +365,8 @@
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent",
-      "cq:conf": "/conf/testing"
+      "cq:conf": "/conf/testing",
+      "sling:resourceType": "core/cif/components/structure/page/v1/page"
     }
   },
   "product-page": {

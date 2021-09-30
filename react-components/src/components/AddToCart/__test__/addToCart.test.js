@@ -84,7 +84,7 @@ describe('<AddToCart>', () => {
     });
 
     it('renders the component for empty items', () => {
-        const { asFragment, getByRole } = render(<AddToCart items={[]} />);
+        const { asFragment, getByRole } = render(<AddToCart items={'[]'} />);
 
         expect(asFragment()).toMatchSnapshot();
         expect(getByRole('button')).toBeDisabled();
@@ -98,7 +98,7 @@ describe('<AddToCart>', () => {
     });
 
     it('renders the component with simple item', () => {
-        const { asFragment, getByRole } = render(<AddToCart items={[simpleItem]} />);
+        const { asFragment, getByRole } = render(<AddToCart items={JSON.stringify([simpleItem])} />);
 
         expect(asFragment()).toMatchSnapshot();
         expect(getByRole('button')).not.toBeDisabled();
@@ -218,6 +218,38 @@ describe('<AddToCart>', () => {
             expect(dispatchEventSpy).toHaveBeenCalledTimes(0);
             expect(onAddToCartMock).toHaveBeenCalledTimes(1);
             expect(onAddToCartMock).toHaveBeenCalledWith([simpleItem]);
+        });
+    });
+
+    it('fires state change event', async () => {
+        const { getByRole } = render(<AddToCart items={'[]'} />);
+        const button = getByRole('button');
+        fireEvent(
+            button,
+            new CustomEvent('aem.cif.internal.add-to-cart.state-changed', {
+                detail: [simpleItem]
+            })
+        );
+
+        await wait(() => {
+            expect(button).not.toBeDisabled();
+        });
+
+        fireEvent.click(button);
+
+        expect(addToCartMutationMock).toHaveBeenCalledTimes(1);
+        expect(addToCartMutationMock).toHaveBeenCalledWith({
+            variables: {
+                cartId: null,
+                cartItems: [
+                    {
+                        data: {
+                            sku: simpleItem.sku,
+                            quantity: parseFloat(simpleItem.quantity)
+                        }
+                    }
+                ]
+            }
         });
     });
 });

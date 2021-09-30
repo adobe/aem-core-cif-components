@@ -47,8 +47,9 @@ const useEventListener = props => {
 
 const AddToCart = props => {
     const intl = useIntl();
-    const [items, setItems] = useState(props.items);
-    const handleProductDataUpdate = event => setItems(event.detail);
+    const [items, setItems] = useState(typeof props.items === 'string' ? JSON.parse(props.items) : props.items);
+    const handleProductDataUpdate = event =>
+        setItems(typeof event.detail === 'string' ? JSON.parse(event.detail) : event.detail);
     const [buttonRef] = useEventListener({ eventName: PRODUCT_DATA_UPDATE, eventListener: handleProductDataUpdate });
     const [{ cartId }] = useCartContext();
     const [addToCartMutation] = useMutation(MUTATION_ADD_TO_CART);
@@ -119,13 +120,16 @@ const AddToCart = props => {
 };
 
 AddToCart.propTypes = {
-    items: PropTypes.arrayOf(
-        PropTypes.shape({
-            sku: PropTypes.string.isRequired,
-            quantity: PropTypes.number.isRequired,
-            options: PropTypes.array
-        })
-    ).isRequired,
+    items: PropTypes.oneOfType([
+        PropTypes.arrayOf(
+            PropTypes.shape({
+                sku: PropTypes.string.isRequired,
+                quantity: PropTypes.number.isRequired,
+                options: PropTypes.array
+            })
+        ),
+        PropTypes.string
+    ]).isRequired,
     disabled: PropTypes.bool,
     onAddToCart: PropTypes.func
 };
