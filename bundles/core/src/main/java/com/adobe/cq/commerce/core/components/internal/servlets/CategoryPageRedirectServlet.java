@@ -27,6 +27,7 @@ import org.apache.sling.api.servlets.ServletResolverConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
@@ -39,14 +40,16 @@ import com.day.cq.wcm.api.PageManagerFactory;
     immediate = true,
     property = {
         ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_GET,
-        ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "=" + CategoryPageRedirectServlet.RESOURCE_TYPE,
+        ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "="
+            + com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl.RESOURCE_TYPE,
+        ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "="
+            + com.adobe.cq.commerce.core.components.internal.models.v2.page.PageImpl.RESOURCE_TYPE,
         ServletResolverConstants.SLING_SERVLET_SELECTORS + "=" + CategoryPageRedirectServlet.SELECTOR,
         ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=" + CategoryPageRedirectServlet.EXTENSION
     })
 public class CategoryPageRedirectServlet extends AbstractCommerceRedirectServlet {
     protected static final String SELECTOR = "cifcategoryredirect";
     protected static final String EXTENSION = "html";
-    protected static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
 
     @Reference
     protected UrlProvider urlProvider;
