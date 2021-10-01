@@ -89,6 +89,7 @@
                         <Import-Package>
                             javax.annotation;version=0.0.0,
                             org.apache.sling.sitemap.*;resolution:=optional,
+                            com.adobe.aem.wcm.seo.*;resolution:=optional,
                             *
                         </Import-Package>
                     </instructions>
@@ -381,6 +382,12 @@
             <!-- TODO: remove when the API is provided by the sdk/uber-jar -->
             <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.sitemap</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.adobe.cq.wcm</groupId>
+            <artifactId>com.adobe.aem.wcm.seo</artifactId>
+            <version>1.0.5-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

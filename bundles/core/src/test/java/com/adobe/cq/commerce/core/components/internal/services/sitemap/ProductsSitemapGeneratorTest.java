@@ -84,6 +84,7 @@ public class ProductsSitemapGeneratorTest {
 
         aemContext.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
         aemContext.registerService(SitemapLinkExternalizer.class, externalizer);
+        aemContext.registerInjectActivateService(new SitemapLinkExternalizerProvider());
         aemContext.registerInjectActivateService(graphqlClient);
         aemContext.registerInjectActivateService(urlProvider);
         aemContext.registerInjectActivateService(new ProductsSitemapGenerator(), "pageSize", 2);

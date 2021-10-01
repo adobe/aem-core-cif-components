@@ -28,10 +28,10 @@ import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.sitemap.SitemapException;
 import org.apache.sling.sitemap.SitemapService;
 import org.apache.sling.sitemap.builder.Sitemap;
-import org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer;
 import org.apache.sling.sitemap.spi.generator.SitemapGenerator;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Component;
@@ -73,7 +73,7 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
     @Reference
     private UrlProvider urlProvider;
     @Reference
-    private SitemapLinkExternalizer externalizer;
+    private SitemapLinkExternalizerProvider externalizerProvider;
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
     private SitemapCategoryFilter categoryFilter;
 
@@ -96,8 +96,9 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
             throw new SitemapException("Failed to build category sitemap at: " + sitemapRoot.getPath());
         }
 
-        // parameter map to be reused while iterating
-        UrlProvider.ParamsBuilder paramsBuilder = new UrlProvider.ParamsBuilder().page(externalizer.externalize(sitemapRoot));
+        ResourceResolver resourceResolver = sitemapRoot.getResourceResolver();
+        ;
+        SitemapLinkExternalizer externalizer = externalizerProvider.getExternalizer();
 
         String rootCategoryIdentifier = configuration.get(PN_MAGENTO_ROOT_CATEGORY_ID, String.class);
         Deque<String> categoryUids = new LinkedList<>(Arrays.asList(
@@ -133,12 +134,14 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
 
                 if (!categoryId.equals(rootCategoryIdentifier) && !ignoredByFilter) {
                     // skip root category, and ignored categories
-                    Map<String, String> params = paramsBuilder
+                    Map<String, String> params = new UrlProvider.ParamsBuilder()
+                        .page(categoryPage.getPath())
                         .uid(category.getUid().toString())
                         .urlKey(category.getUrlKey())
                         .urlPath(category.getUrlPath())
                         .map();
-                    sitemap.addUrl(urlProvider.toCategoryUrl(null, null, params));
+                    String url = externalizer.externalize(resourceResolver, params, map -> urlProvider.toCategoryUrl(null, null, map));
+                    sitemap.addUrl(url);
                 } else if (ignoredByFilter && LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Ignore category {}, not allowed by filter: {}", category.getUid(),
                         categoryFilter.getClass().getSimpleName());
