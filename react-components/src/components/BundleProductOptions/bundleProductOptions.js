@@ -177,9 +177,9 @@ const BundleProductOptions = () => {
             return (
                 acc +
                 selection.quantity *
-                selection.customization.reduce((a, c) => {
-                    return a + c.price * (['checkbox', 'multi'].includes(selection.type) ? c.quantity : 1);
-                }, 0)
+                    selection.customization.reduce((a, c) => {
+                        return a + c.price * (['checkbox', 'multi'].includes(selection.type) ? c.quantity : 1);
+                    }, 0)
             );
         }, 0);
 
