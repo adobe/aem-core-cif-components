@@ -17,7 +17,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { useIntl } from 'react-intl';
-import { useStorefrontEvents, Price, AddToCart, createProductPageUrl } from '@adobe/aem-core-cif-react-components';
+import { useStorefrontEvents, Price, Trigger, createProductPageUrl } from '@adobe/aem-core-cif-react-components';
 
 import classes from './ProductCard.css';
 
@@ -29,22 +29,20 @@ const ProductCard = props => {
         unit: { unitId },
         product: { sku, name, type, productId, currency, prices, smallImage }
     } = props;
-    const item = {
-        sku: sku,
-        quantity: 1,
-        virtual: type === 'virtual'
-    };
 
-    const addToCart = items => {
+    const addToCart = (unit, product) => {
+        const { sku, type, productId } = product;
+        const { unitId } = unit;
+
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: items
+            detail: [{ sku, quantity: 1, virtual: type === 'virtual' }]
         });
         document.dispatchEvent(customEvent);
 
         mse && mse.publish.recsItemAddToCartClick(unitId, productId);
     };
 
-    const renderPrice = () => {
+    const renderPrice = (prices, currency) => {
         const { minimum, maximum } = prices;
         const isRange = Math.round(minimum.final * 100) !== Math.round(maximum.final * 100);
 
@@ -70,13 +68,15 @@ const ProductCard = props => {
                     <img className={classes.productImage} src={smallImage.url} alt={name} />
                 </div>
                 <div>{name}</div>
-                <div className={classes.price}>{renderPrice()}</div>
+                <div className={classes.price}>{renderPrice(prices, currency)}</div>
             </a>
             {// Only display add to cart button for products that can be added to cart without further customization
             ['simple', 'virtual', 'downloadable'].includes(type) && (
-                <AddToCart items={[item]} onAddToCart={addToCart}>
-                    <span>{intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to cart' })}</span>
-                </AddToCart>
+                <Trigger action={() => addToCart(props.unit, props.product)}>
+                    <span className={classes.addToCart}>
+                        {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to cart' })}
+                    </span>
+                </Trigger>
             )}
         </div>
     );

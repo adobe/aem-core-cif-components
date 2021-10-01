@@ -27,13 +27,6 @@ import Button from '../Button';
 
 import BUNDLE_PRODUCT_QUERY from '../../queries/query_bundle_product.graphql';
 import Price from '../Price';
-import AddToCart from '../AddToCart/addToCart';
-
-const productOptionMapper = option => ({
-    id: option.option_id,
-    quantity: option.quantity,
-    value: option.customization.map(c => c.id.toString())
-});
 
 const BundleProductOptions = () => {
     const bundleProductQuery = useAwaitQuery(BUNDLE_PRODUCT_QUERY);
@@ -44,14 +37,6 @@ const BundleProductOptions = () => {
     const productId = document.querySelector('[data-cmp-is=product]')?.id;
     const [bundleState, setBundleState] = useState(null);
     const intl = useIntl();
-    const productData = bundleState && {
-        productId,
-        sku,
-        virtual: false,
-        bundle: true,
-        quantity: bundleState.quantity,
-        options: bundleState.selections.map(productOptionMapper)
-    };
 
     const fetchBundleDetails = async sku => {
         const { data, error } = await bundleProductQuery({ variables: { sku }, fetchPolicy: 'network-only' });
@@ -164,9 +149,24 @@ const BundleProductOptions = () => {
         }, true);
     };
 
-    const addToCart = items => {
+    const addToCart = () => {
+        const { selections, quantity } = bundleState;
+        const productData = {
+            productId,
+            sku,
+            virtual: false,
+            bundle: true,
+            quantity: quantity,
+            options: selections.map(s => {
+                return {
+                    id: s.option_id,
+                    quantity: s.quantity,
+                    value: s.customization.map(c => c.id.toString())
+                };
+            })
+        };
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: items
+            detail: [productData]
         });
         document.dispatchEvent(customEvent);
     };
@@ -265,7 +265,15 @@ const BundleProductOptions = () => {
                 </div>
             </section>
             <section className="productFullDetail__cartActions productFullDetail__section">
-                <AddToCart items={[productData]} disabled={!canAddToCart()} onAddToCart={items => addToCart(items)} />
+                <button
+                    className="button__root_highPriority button__root clickable__root button__filled"
+                    type="button"
+                    disabled={!canAddToCart()}
+                    onClick={addToCart}>
+                    <span className="button__content">
+                        <span>{intl.formatMessage({ id: 'product:add-item', defaultMessage: 'Add to Cart' })}</span>
+                    </span>
+                </button>
             </section>
         </>
     );

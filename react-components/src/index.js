@@ -26,7 +26,6 @@ export { default as ResetPassword } from './components/ResetPassword';
 export { default as Price } from './components/Price';
 export { default as Trigger } from './components/Trigger';
 export { default as LoadingIndicator } from './components/LoadingIndicator';
-export { default as AddToCart } from './components/AddToCart';
 
 export { default as ConfigContextProvider, useConfigContext } from './context/ConfigContext';
 export { default as UserContextProvider, useUserContext } from './context/UserContext';
