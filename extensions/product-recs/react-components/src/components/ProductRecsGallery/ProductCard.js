@@ -71,13 +71,13 @@ const ProductCard = props => {
                 <div className={classes.price}>{renderPrice(prices, currency)}</div>
             </a>
             {// Only display add to cart button for products that can be added to cart without further customization
-                ['simple', 'virtual', 'downloadable'].includes(type) && (
-                    <Trigger action={() => addToCart(props.unit, props.product)}>
-                        <span className={classes.addToCart}>
-                            {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to cart' })}
-                        </span>
-                    </Trigger>
-                )}
+            ['simple', 'virtual', 'downloadable'].includes(type) && (
+                <Trigger action={() => addToCart(props.unit, props.product)}>
+                    <span className={classes.addToCart}>
+                        {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to cart' })}
+                    </span>
+                </Trigger>
+            )}
         </div>
     );
 };
