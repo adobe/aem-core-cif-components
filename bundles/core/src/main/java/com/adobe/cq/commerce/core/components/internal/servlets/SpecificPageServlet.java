@@ -1,5 +1,5 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ Copyright 2019 Adobe
+ ~ Copyright 2021 Adobe
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.request.RequestDispatcherOptions;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.servlets.ServletResolverConstants;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
@@ -39,10 +40,13 @@ import com.day.cq.wcm.api.WCMMode;
     service = Servlet.class,
     immediate = true,
     property = {
-        "sling.servlet.methods=GET",
-        "sling.servlet.resourceTypes=core/cif/components/structure/page/v1/page",
-        "sling.servlet.extensions=html",
-        "sling.servlet.selectors=" + SpecificPageServlet.SELECTOR
+        ServletResolverConstants.SLING_SERVLET_METHODS + "=GET",
+        ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "="
+            + com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl.RESOURCE_TYPE,
+        ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "="
+            + com.adobe.cq.commerce.core.components.internal.models.v2.page.PageImpl.RESOURCE_TYPE,
+        ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=html",
+        ServletResolverConstants.SLING_SERVLET_SELECTORS + "=" + SpecificPageServlet.SELECTOR
     })
 public class SpecificPageServlet extends SlingSafeMethodsServlet {
 

@@ -36,7 +36,7 @@
 
 {categoryList(filters:{url_key:{eq:"uid"}}){uid}}
 
-{categoryList(filters:{category_uid:{eq:"Mg=="}}){uid,name,url_path,position,children{uid,name,url_path,position,children{uid,name,url_path,position,children{uid,name,url_path,position,children{uid,name,url_path,position,children{uid,name,url_path,position}}}}}}}
+{categoryList(filters:{category_uid:{eq:"Mg=="}}){uid,name,url_path,position,include_in_menu,children{uid,name,url_path,position,include_in_menu,children{uid,name,url_path,position,include_in_menu,children{uid,name,url_path,position,include_in_menu,children{uid,name,url_path,position,include_in_menu,children{uid,name,url_path,position,include_in_menu}}}}}}}
 
 {products(filter:{sku:{eq:"MJ01"}}){items{__typename,name,image{url,label},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,image{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
 

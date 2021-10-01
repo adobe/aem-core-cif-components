@@ -13,32 +13,29 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+package com.adobe.cq.commerce.core.components.internal.models.v1.page;
 
-.cmp-teaser__editor-action {
-    display: block;
-    box-sizing: border-box;
-    border: solid lightgray;
-    padding-right: 1rem;
-}
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.models.annotations.Model;
+import org.mockito.Mockito;
 
-.cmp-teaser__editor-action .coral-Form-fieldwrapper label {
-    padding-left: 12px;
-}
+import com.adobe.cq.wcm.core.components.models.Page;
 
-.cmp-teaser__editor-action .cmp-teaser__editor-actionField.coral-Form-field {
-    width: 100%;
-}
+@Model(
+    adaptables = SlingHttpServletRequest.class,
+    adapters = Page.class,
+    resourceType = "mock")
+public class MockPage extends AbstractPageDelegator {
 
-.cmp-teaser__editor-multifield_actions .coral3-Multifield-remove {
-    right: 0.1rem;
-    top: -0.1rem;
-}
+    private final Page delegate;
 
-.cmp-teaser__editor-multifield_actions .coral3-Multifield-move {
-    right: 0.1rem;
-    top: 2rem;
-}
+    public MockPage(SlingHttpServletRequest request) {
+        Page mock = (Page) request.getAttribute(MockPage.class.getName());
+        delegate = mock != null ? mock : Mockito.mock(Page.class);
+    }
 
-.cmp-teaser__editor-action .cmp-teaser__editor-actionField .coral-Form-field {
-    margin-left: 10px;
+    @Override
+    protected Page getDelegate() {
+        return delegate;
+    }
 }
