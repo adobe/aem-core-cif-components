@@ -31,18 +31,6 @@ jest.mock('../../../hooks/useVisibilityObserver', () => ({
     useVisibilityObserver: () => ({ observeElement: jest.fn() })
 }));
 
-jest.mock('@adobe/aem-core-cif-react-components', () => ({
-    ...jest.requireActual('@adobe/aem-core-cif-react-components'),
-    AddToCart: jest.fn().mockImplementation(props => (
-        <button
-            onClick={props.onAddToCart}
-            className="cmp-Trigger__trigger__root cmp-components__clickable__root"
-            type="button">
-            <span className="addToCart">Add to cart</span>
-        </button>
-    ))
-}));
-
 describe('ProductRecsGallery', () => {
     let mse;
 

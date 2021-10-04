@@ -43,7 +43,7 @@ const MiniCart = () => {
     const cartDetailsQuery = useAwaitQuery(QUERY_CART_DETAILS);
     const [{ flowState }] = useCheckoutState();
 
-    const [{ cart, isOpen, isLoading, isEditing, errorMessage }, { addItem, refreshCart, dispatch }] = useMinicart({
+    const [{ cart, isOpen, isLoading, isEditing, errorMessage }, { addItem, dispatch }] = useMinicart({
         queries: {
             createCartMutation,
             addToCartMutation,
@@ -58,7 +58,6 @@ const MiniCart = () => {
         dispatch({ type: 'open' });
     });
     useEventListener(document, 'aem.cif.add-to-cart', addItem);
-    useEventListener(document, 'aem.cif.after-add-to-cart', refreshCart);
 
     const rootClass = isOpen ? classes.root_open : classes.root;
     const isEmpty = cart && Object.entries(cart).length > 0 ? cart.items.length === 0 : true;
