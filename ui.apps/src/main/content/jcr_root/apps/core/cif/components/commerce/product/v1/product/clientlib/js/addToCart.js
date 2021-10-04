@@ -19,7 +19,6 @@
  * Add to cart button component.
  */
 class AddToCart {
-
     constructor(config) {
         this._element = config.element;
         // Get configuration from product reference
