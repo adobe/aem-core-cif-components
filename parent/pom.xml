@@ -362,9 +362,6 @@
                         <exclude>**/*.lst</exclude>
                         <exclude>**/.project</exclude>
                         <exclude>**/.settings</exclude>
-
-                        <!-- Storybook build -->
-                        <exclude>**/storybook-static/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
