@@ -20,7 +20,7 @@ import AddToCart from '../../../../src/main/content/jcr_root/apps/core/cif/compo
 describe('GroupedProduct', () => {
     describe('AddToCart', () => {
         let productRoot;
-        let cartActions;
+        let addToCartRoot;
         let pageRoot;
 
         before(() => {
@@ -67,28 +67,28 @@ describe('GroupedProduct', () => {
                 </div>`
             );
 
-            cartActions = pageRoot.querySelector(AddToCart.selectors.cartActions);
+            addToCartRoot = pageRoot.querySelector(AddToCart.selectors.self);
             productRoot = pageRoot.querySelector(AddToCart.selectors.product);
         });
 
         it('initializes an AddToCart component for a grouped product', () => {
-            let addToCart = new AddToCart({ cartActions, product: productRoot });
-            assert.isTrue(addToCart._element.disabled);
+            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
+            assert.isTrue(addToCartRoot.disabled);
         });
 
         it('enables/disables AddToCart button based on quantity selection', () => {
-            let addToCart = new AddToCart({ cartActions, product: productRoot });
+            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
             let selections = Array.from(pageRoot.querySelectorAll(AddToCart.selectors.quantity));
 
             // Select quantity "1" for first product
             selections[0].selectedIndex = 1;
             selections[0].dispatchEvent(new Event('change'));
-            assert.isFalse(addToCart._element.disabled);
+            assert.isFalse(addToCartRoot.disabled);
 
             // Select quantity "0" for first product
             selections[0].selectedIndex = 0;
             selections[0].dispatchEvent(new Event('change'));
-            assert.isTrue(addToCart._element.disabled);
+            assert.isTrue(addToCartRoot.disabled);
         });
 
         it('dispatches add-to-cart event on click', () => {
@@ -96,15 +96,15 @@ describe('GroupedProduct', () => {
             let _originalDispatch = document.dispatchEvent;
             document.dispatchEvent = spy;
 
-            let addToCart = new AddToCart({ cartActions, product: productRoot });
+            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
             let selections = Array.from(pageRoot.querySelectorAll(AddToCart.selectors.quantity));
 
             // Select quantity "1" for two products
             selections[0].selectedIndex = 1;
             selections[2].selectedIndex = 1;
             selections[0].dispatchEvent(new Event('change'));
-            assert.isFalse(addToCart._element.disabled);
-            addToCart._element.click();
+            assert.isFalse(addToCartRoot.disabled);
+            addToCartRoot.click();
 
             sinon.assert.calledOnce(spy);
             let event = spy.getCall(0).args[0];
@@ -123,15 +123,15 @@ describe('GroupedProduct', () => {
             let _originalDispatch = document.dispatchEvent;
             document.dispatchEvent = spy;
 
-            let addToCart = new AddToCart({ cartActions, product: productRoot });
+            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
             let selections = Array.from(pageRoot.querySelectorAll(AddToCart.selectors.quantity));
 
             // Select quantity "1" for two products
             selections[0].selectedIndex = 1;
             selections[3].selectedIndex = 1;
             selections[0].dispatchEvent(new Event('change'));
-            assert.isFalse(addToCart._element.disabled);
-            addToCart._element.click();
+            assert.isFalse(addToCartRoot.disabled);
+            addToCartRoot.click();
 
             sinon.assert.calledOnce(spy);
             let event = spy.getCall(0).args[0];

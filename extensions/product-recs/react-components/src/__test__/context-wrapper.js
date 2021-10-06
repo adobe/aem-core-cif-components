@@ -18,7 +18,7 @@ import React from 'react';
 import { IntlProvider } from 'react-intl';
 
 import i18nMessagesProductRecs from '../../i18n/en.json';
-import i18nMessagesCoreComps from '../../../../../react-components/i18n/en.json';
+import i18nMessagesCoreComps from '@adobe/aem-core-cif-react-components/i18n/en.json';
 
 const i18nMessages = { ...i18nMessagesCoreComps, ...i18nMessagesProductRecs };
 

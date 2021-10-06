@@ -26,7 +26,6 @@ export { default as ResetPassword } from './components/ResetPassword';
 export { default as Price } from './components/Price';
 export { default as Trigger } from './components/Trigger';
 export { default as LoadingIndicator } from './components/LoadingIndicator';
-export { default as AddToCart } from './components/AddToCart';
 
 export { default as ConfigContextProvider, useConfigContext } from './context/ConfigContext';
 export { default as UserContextProvider, useUserContext } from './context/UserContext';
@@ -42,3 +41,6 @@ export * from './components/MyAccount/AccountLinks';
 export { graphqlAuthLink } from './utils/authUtils';
 export { useAwaitQuery, useStorefrontEvents, usePageType } from './utils/hooks';
 export { createProductPageUrl } from './utils/createProductPageUrl';
+
+// new since CIF-1440
+export { useAddToCart, useAddToCartEvent } from './talons/Cart';
