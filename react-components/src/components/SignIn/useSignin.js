@@ -19,7 +19,7 @@ import { useMutation } from '@apollo/client';
 import { useCartState } from '../Minicart/cartContext';
 import { useAwaitQuery, useCookieValue } from '../../utils/hooks';
 import { mergeCarts } from '../../actions/cart';
-import BrowserPersistence from '@magento/peregrine/lib/util/simplePersistence';
+import { retrieveCartId, saveCartId } from '@magento/peregrine/lib/store/actions/cart/asyncActions';
 
 import MUTATION_MERGE_CARTS from '../../queries/mutation_merge_carts.graphql';
 import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
@@ -38,9 +38,6 @@ export const useSignin = props => {
     const fetchCustomerCart = useAwaitQuery(QUERY_CUSTOMER_CART);
     const cartDetailsQuery = useAwaitQuery(QUERY_CART_DETAILS);
     const [generateCustomerToken] = useMutation(MUTATION_GENERATE_TOKEN);
-
-    // Storage as used by Peregrine components
-    const storage = new BrowserPersistence();
 
     let errorMessage = '';
     if (userState.signInError && userState.signInError.length > 0) {
@@ -71,7 +68,7 @@ export const useSignin = props => {
             let mergedCartId;
 
             // Get cartId from localStorage, not from cookie
-            const cartId = storage.getItem('cartId');
+            const cartId = await retrieveCartId();
             if (cartId) {
                 mergedCartId = await mergeCarts({
                     mergeCartsMutation,
@@ -86,7 +83,7 @@ export const useSignin = props => {
             //4. set the cart id in the cookie and localStorage
             setCartCookie(mergedCartId);
             setCustomerCart(mergedCartId);
-            storage.setItem('cartId', mergedCartId);
+            await saveCartId(mergedCartId);
 
             //5. show my account view in account dropdown or navigation side panel after sign in
             showMyAccount();

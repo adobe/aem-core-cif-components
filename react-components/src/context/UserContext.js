@@ -19,6 +19,8 @@ import { object, func } from 'prop-types';
 import { useCookieValue, useAwaitQuery, useStorefrontEvents } from '../utils/hooks';
 import { useMutation } from '@apollo/client';
 import BrowserPersistence from '@magento/peregrine/lib/util/simplePersistence';
+import { clearCartId } from '@magento/peregrine/lib/store/actions/cart/asyncActions';
+
 import parseError from '../utils/parseError';
 import {
     resetCustomerCart as resetCustomerCartAction,
@@ -290,7 +292,7 @@ const UserContextProvider = props => {
         mse && mse.publish.signOut();
 
         storage.removeItem('signin_token');
-        storage.removeItem('cartId');
+        await clearCartId();
 
         await signOutUserAction({ revokeCustomerToken, setCartCookie, setUserCookie, dispatch });
     };
