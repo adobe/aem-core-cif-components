@@ -94,14 +94,6 @@ public class CifLinksTransformerFactory implements TransformerFactory {
                         attributesImpl = new AttributesImpl(attributes);
                         attributesImpl.addAttribute("", ATTR_HREF, ATTR_HREF, "CDATA", newHref);
                     }
-                    int index = attributesImpl.getIndex(ATTR_CATEGORY_UID);
-                    if (index > -1) {
-                        attributesImpl.removeAttribute(index);
-                    }
-                    index = attributesImpl.getIndex(ATTR_PRODUCT_SKU);
-                    if (index > -1) {
-                        attributesImpl.removeAttribute(index);
-                    }
                     super.startElement(uri, localName, qName, attributesImpl);
                 } else {
                     super.startElement(uri, localName, qName, attributes);

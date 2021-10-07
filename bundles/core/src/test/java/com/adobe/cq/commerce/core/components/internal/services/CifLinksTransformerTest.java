@@ -49,7 +49,6 @@ import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -100,29 +99,33 @@ public class CifLinksTransformerTest {
         Elements anchors = document.select(ELEMENT_ANCHOR);
 
         assertEquals(6, anchors.size());
-        checkAnchor(anchors.get(0), "/content/category-page.html/equipment.html");
-        checkAnchor(anchors.get(1), "/content/category-page.html/equipment.html");
-        checkAnchor(anchors.get(2), null);
-        checkAnchor(anchors.get(3), "href");
-        checkAnchor(anchors.get(4), "/content/product-page.html/beaumont-summit-kit.html");
-        checkAnchor(anchors.get(5), "/content/product-page.html/beaumont-summit-kit.html");
+        checkAnchor(anchors.get(0), "uid-5", "/content/category-page.html/equipment.html");
+        checkAnchor(anchors.get(1), "uid-5", "/content/category-page.html/equipment.html");
+        checkAnchor(anchors.get(2), null, null);
+        checkAnchor(anchors.get(3), null, "href");
+        checkAnchor(anchors.get(4), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
+        checkAnchor(anchors.get(5), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
     }
 
-    private void checkAnchor(Element anchor, String href) {
+    private void checkAnchor(Element anchor, String value, String href) {
         // id (arbitrary attributes) preserved
         assertTrue(isNotBlank(anchor.attr("id")));
+
         // text preserved
         assertEquals(1, anchor.childNodeSize());
         assertTrue(anchor.childNode(0) instanceof TextNode);
         assertTrue(isNotBlank(((TextNode) anchor.childNode(0)).getWholeText()));
-        // CifLinks attributes removed
-        assertFalse(anchor.hasAttr(ATTR_PRODUCT_SKU));
-        assertFalse(anchor.hasAttr(ATTR_CATEGORY_UID));
+
         // href matched
         if (href == null) {
             assertTrue(isBlank(anchor.attr(ATTR_HREF)));
         } else {
             assertEquals(href, anchor.attr(ATTR_HREF));
+        }
+
+        // category uid or product sku matched
+        if (value != null) {
+            assertTrue(value.equals(anchor.attr(ATTR_CATEGORY_UID)) ^ value.equals(anchor.attr(ATTR_PRODUCT_SKU)));
         }
     }
 }
