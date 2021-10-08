@@ -41,20 +41,16 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
-import static com.adobe.cq.commerce.core.components.internal.services.CifLinksTransformerFactory.ATTR_CATEGORY_UID;
-import static com.adobe.cq.commerce.core.components.internal.services.CifLinksTransformerFactory.ATTR_HREF;
-import static com.adobe.cq.commerce.core.components.internal.services.CifLinksTransformerFactory.ATTR_PRODUCT_SKU;
-import static com.adobe.cq.commerce.core.components.internal.services.CifLinksTransformerFactory.ELEMENT_ANCHOR;
+import static com.adobe.cq.commerce.core.components.internal.services.CommerceLinksTransformerFactory.*;
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class CifLinksTransformerTest {
+public class CommerceLinksTransformerTest {
     private static final String TEST_PAGE = "/content/pageA";
     private static final String TEST_HTML = "rewriter/ciflinks.html";
     @Rule
@@ -79,7 +75,7 @@ public class CifLinksTransformerTest {
         mockRequest.setResource(context.resourceResolver().getResource(TEST_PAGE));
         ProcessingContext mockProcessingContext = mock(ProcessingContext.class);
         when(mockProcessingContext.getRequest()).thenReturn(mockRequest);
-        CifLinksTransformerFactory factory = new CifLinksTransformerFactory();
+        CommerceLinksTransformerFactory factory = new CommerceLinksTransformerFactory();
         context.registerInjectActivateService(factory);
         transformer = factory.createTransformer();
         transformer.init(mockProcessingContext, null);
@@ -98,16 +94,22 @@ public class CifLinksTransformerTest {
         Document document = Jsoup.parse(html);
         Elements anchors = document.select(ELEMENT_ANCHOR);
 
-        assertEquals(6, anchors.size());
-        checkAnchor(anchors.get(0), "uid-5", "/content/category-page.html/equipment.html");
-        checkAnchor(anchors.get(1), "uid-5", "/content/category-page.html/equipment.html");
-        checkAnchor(anchors.get(2), null, null);
-        checkAnchor(anchors.get(3), null, "href");
-        checkAnchor(anchors.get(4), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
+        assertEquals(12, anchors.size());
+        checkAnchor(anchors.get(0), null, null);
+        checkAnchor(anchors.get(1), null, "any");
+        checkAnchor(anchors.get(2), "uid-5", "/content/category-page.html/equipment.html");
+        checkAnchor(anchors.get(3), null, null);
+        checkAnchor(anchors.get(4), null, "any");
         checkAnchor(anchors.get(5), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
+        checkAnchor(anchors.get(6), null, null);
+        checkAnchor(anchors.get(7), null, "any");
+        checkAnchor(anchors.get(8), null, MARKER_COMMERCE_LINKS);
+        checkAnchor(anchors.get(9), null, null);
+        checkAnchor(anchors.get(10), null, "any");
+        checkAnchor(anchors.get(11), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
     }
 
-    private void checkAnchor(Element anchor, String value, String href) {
+    private void checkAnchor(Element anchor, String commerceIdentifier, String href) {
         // id (arbitrary attributes) preserved
         assertTrue(isNotBlank(anchor.attr("id")));
 
@@ -124,8 +126,12 @@ public class CifLinksTransformerTest {
         }
 
         // category uid or product sku matched
-        if (value != null) {
-            assertTrue(value.equals(anchor.attr(ATTR_CATEGORY_UID)) ^ value.equals(anchor.attr(ATTR_PRODUCT_SKU)));
+        if (commerceIdentifier != null) {
+            assertTrue(commerceIdentifier.equals(anchor.attr(ATTR_CATEGORY_UID)) ^ commerceIdentifier.equals(anchor.attr(
+                ATTR_PRODUCT_SKU)));
+        } else {
+            assertFalse(anchor.hasAttr(ATTR_CATEGORY_UID));
+            assertFalse(anchor.hasAttr(ATTR_PRODUCT_SKU));
         }
     }
 }

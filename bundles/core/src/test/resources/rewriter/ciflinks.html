@@ -1,10 +1,16 @@
 <html>
     <body>
         <a id="link1" data-category-uid="uid-5">Test category link without href.</a>
-        <a id="link2" data-category-uid="uid-5" href="any">Test category link with href.</a>
-        <a id="link3">Test normal link without href.</a>
-        <a id="link4" href="href">Test normal link with href.</a>
-        <a id="link5" data-product-sku="MJ01">Test product link without href.</a>
-        <a id="link6" data-product-sku="MJ01" href="any">Test product link with href.</a>
+        <a id="link2" data-category-uid="uid-5" href="any">Test category link with arbitrary href.</a>
+        <a id="link3" data-category-uid="uid-5" href="#CommerceLinks">Test category link with marker href.</a>
+        <a id="link7" data-product-sku="MJ01">Test product link without href.</a>
+        <a id="link8" data-product-sku="MJ01" href="any">Test product link with arbitrary href.</a>
+        <a id="link9" data-product-sku="MJ01" href="#CommerceLinks">Test product link with marker href.</a>
+        <a id="link4">Test normal link without href.</a>
+        <a id="link5" href="any">Test normal link with arbitrary href.</a>
+        <a id="link6" href="#CommerceLinks">Test normal link with marker href.</a>
+        <a id="link10" data-category-uid="uid-5" data-product-sku="MJ01">Test product and category link without href.</a>
+        <a id="link11" data-category-uid="uid-5" data-product-sku="MJ01" href="any">Test product and category link with arbitrary href.</a>
+        <a id="link12" data-category-uid="uid-5" data-product-sku="MJ01" href="#CommerceLinks">Test product and category link with marker href.</a>
     </body>
 </html>
