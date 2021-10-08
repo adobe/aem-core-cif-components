@@ -25,36 +25,6 @@
     height: 243px;
 }
 
-.addToCart {
-    align-items: center;
-    cursor: pointer;
-    display: inline-flex;
-    justify-content: center;
-    line-height: 1;
-    pointer-events: auto;
-    text-align: center;
-    white-space: nowrap;
-    background: none;
-    border: 1px solid rgb(var(--color));
-    border-radius: 1.5rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    height: 2rem;
-    min-width: 7.5rem;
-    padding: 0 1rem;
-    transition-duration: 384ms;
-    transition-property: background-color, color;
-    transition-timing-function: var(--venia-anim-standard);
-    --color: var(--venia-text);
-    color: white;
-    background-color: rgb(var(--color));
-}
-
-.addToCart:hover {
-    color: white;
-    background-color: rgb(var(--venia-teal));
-}
-
 .productImage {
     max-width: 240px;
     max-height: 240px;
