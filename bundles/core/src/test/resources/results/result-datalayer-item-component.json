@@ -5,7 +5,6 @@
         "repo:id": "category-081706ccee",
         "xdm:name": "Category 1",
         "xdm:asset": {
-          "xdm:tags": [],
           "repo:path": "/url/to/img1",
           "@type": "image",
           "repo:id": "image-8787af1144"
@@ -15,7 +14,6 @@
         "repo:id": "category-ec53d7b8d4",
         "xdm:name": "Category 2",
         "xdm:asset": {
-          "xdm:tags": [],
           "repo:path": "/url/to/img2",
           "@type": "image",
           "repo:id": "image-ba99e900d5"
