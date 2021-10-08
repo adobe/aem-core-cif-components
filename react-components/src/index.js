@@ -41,3 +41,6 @@ export * from './components/MyAccount/AccountLinks';
 export { graphqlAuthLink } from './utils/authUtils';
 export { useAwaitQuery, useStorefrontEvents, usePageType } from './utils/hooks';
 export { createProductPageUrl } from './utils/createProductPageUrl';
+
+// new since CIF-1440
+export { useAddToCart, useAddToCartEvent } from './talons/Cart';

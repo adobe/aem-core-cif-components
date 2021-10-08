@@ -13,17 +13,27 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import { gql } from '@apollo/client';
-import { MiniCartFragment } from '@magento/peregrine/lib/talons/MiniCart/miniCartFragments.gql';
 
-export default gql`
-    mutation addBundleProductToCart($cartId: String!, $cartItems: [BundleProductCartItemInput]!) {
-        addBundleProductsToCart(input: { cart_id: $cartId, cart_items: $cartItems }) {
-            cart {
-                id
-                ...MiniCartFragment
-            }
+import MUTATION_ADD_BUNDLE_TO_CART from '../../../queries/mutation_add_bundle_to_cart.graphql';
+import mockResponse from './graphQlMockReponse';
+
+export default {
+    request: {
+        query: MUTATION_ADD_BUNDLE_TO_CART,
+        variables: {
+            cartId: null,
+            cartItems: [
+                {
+                    data: { sku: 'VA24', quantity: 1 },
+                    bundle_options: [
+                        { id: 1, quantity: 1, value: ['1'] },
+                        { id: 2, quantity: 1, value: ['3'] },
+                        { id: 3, quantity: 1, value: ['5'] },
+                        { id: 4, quantity: 1, value: ['7', '8'] }
+                    ]
+                }
+            ]
         }
-    }
-    ${MiniCartFragment}
-`;
+    },
+    result: mockResponse
+};

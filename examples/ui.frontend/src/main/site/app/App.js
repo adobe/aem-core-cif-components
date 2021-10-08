@@ -21,6 +21,7 @@ import { CommerceApp, Portal, ConfigContextProvider, BundleProductOptions } from
 
 import loadLocaleData from './i18n';
 import partialConfig from './config';
+import PeregrineContextProvider from './peregrineContextProvider';
 
 const App = props => {
     const { storeView, graphqlEndpoint, graphqlMethod } = document.querySelector('body').dataset;
@@ -40,9 +41,11 @@ const App = props => {
         <IntlProvider locale={locale} messages={messages}>
             <ConfigContextProvider config={config}>
                 <CommerceApp>
-                    <Portal selector={mountingPoints.bundleProductOptionsContainer}>
-                        <BundleProductOptions />
-                    </Portal>
+                    <PeregrineContextProvider>
+                        <Portal selector={mountingPoints.bundleProductOptionsContainer}>
+                            <BundleProductOptions />
+                        </Portal>
+                    </PeregrineContextProvider>
                 </CommerceApp>
             </ConfigContextProvider>
         </IntlProvider>
