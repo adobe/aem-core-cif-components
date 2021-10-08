@@ -47,6 +47,7 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 - [Commerce Content Fragment](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/contentfragment/v1/contentfragment)
 - [Commerce Content Fragment](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/contentfragment/v1/contentfragment)
 - [Cart Details](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/cartdetails/v1/cartdetails)
+- [Checkout Page](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/checkoutpage/v1/checkoutpage)
 
 ### Extension Components
 
