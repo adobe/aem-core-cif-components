@@ -44,7 +44,6 @@
           "repo:id": "category-2193ce7b11",
           "xdm:name": "Equipment",
           "xdm:asset": {
-            "xdm:tags": [],
             "repo:path": "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg",
             "@type": "image",
             "repo:id": "image-b22e8ff83b"
@@ -54,7 +53,6 @@
           "repo:id": "category-0ca108fa0f",
           "xdm:name": "Running",
           "xdm:asset": {
-            "xdm:tags": [],
             "repo:path": "/content/dam/venia/landing_page_image4.web.jpg",
             "@type": "image",
             "repo:id": "image-e17a63b160"
@@ -64,7 +62,6 @@
           "repo:id": "category-4e437c752c",
           "xdm:name": "Bike",
           "xdm:asset": {
-            "xdm:tags": [],
             "repo:path": "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg",
             "@type": "image",
             "repo:id": "image-b22e8ff83b"
