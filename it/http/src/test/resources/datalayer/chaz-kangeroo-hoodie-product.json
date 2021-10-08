@@ -5,19 +5,16 @@
     "xdm:assets": [
       {
         "repo:path": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg",
-        "xdm:tags": [],
         "repo:id": "image-1b75bd4564",
         "@type": "image"
       },
       {
         "repo:path": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_alt1_2.jpg",
-        "xdm:tags": [],
         "repo:id": "image-72c282d214",
         "@type": "image"
       },
       {
         "repo:path": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_back_2.jpg",
-        "xdm:tags": [],
         "repo:id": "image-b01e75ba46",
         "@type": "image"
       }
@@ -29,7 +26,6 @@
         "xdm:name": "category-1",
         "xdm:asset": {
           "repo:path": "/url/to/image",
-          "xdm:tags": [],
           "repo:id": "image-5e4329fc2c",
           "@type": "image"
         }
