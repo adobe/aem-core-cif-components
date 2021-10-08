@@ -33,6 +33,8 @@ import combine from '../../utils/combineValidators';
 /**
  * A wrapper around the payment form. This component's purpose is to maintain
  * the submission state as well as prepare/set initial values.
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 const PaymentsForm = props => {
     const {

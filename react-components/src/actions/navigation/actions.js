@@ -52,6 +52,9 @@ const stepTitles = {
     SIGN_IN: intl => intl.formateMessage({ id: 'account:sign-in', defaultMessage: 'Sign In' })
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const showSignIn = ({ dispatch, intl }) => {
     const view = 'SIGN_IN';
     dispatchEvent(startAccMgEvent);
@@ -59,11 +62,17 @@ export const showSignIn = ({ dispatch, intl }) => {
     dispatch({ type: 'changeView', view });
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const showMenu = ({ dispatch }) => {
     dispatch({ type: 'changeView', view: 'MENU' });
     dispatchEvent(exitAccMgEvent);
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const showMyAccount = ({ dispatch, intl }) => {
     const view = 'MY_ACCOUNT';
     dispatchEvent(startAccMgEvent);
@@ -71,6 +80,9 @@ export const showMyAccount = ({ dispatch, intl }) => {
     dispatch({ type: 'changeView', view });
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const showChangePassword = ({ dispatch, intl }) => {
     const view = 'CHANGE_PASSWORD';
     dispatchEvent(startAccMgEvent);
@@ -78,24 +90,36 @@ export const showChangePassword = ({ dispatch, intl }) => {
     dispatch({ type: 'changeView', view });
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const showForgotPassword = ({ dispatch, intl }) => {
     const view = 'FORGOT_PASSWORD';
     dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view](intl) } }));
     dispatch({ type: 'changeView', view });
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const showCreateAccount = ({ dispatch, intl }) => {
     const view = 'CREATE_ACCOUNT';
     dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view](intl) } }));
     dispatch({ type: 'changeView', view });
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const showAccountCreated = ({ dispatch, intl }) => {
     const view = 'ACCOUNT_CREATED';
     dispatchEvent(new CustomEvent('aem.accmg.step', { detail: { title: stepTitles[view](intl) } }));
     dispatch({ type: 'changeView', view });
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const showView = ({ dispatch, intl, view }) => {
     const title = stepTitles[view];
     if (title) {

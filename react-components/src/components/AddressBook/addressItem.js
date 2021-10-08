@@ -23,6 +23,9 @@ import AddressDeleteModal from './addressDeleteModal';
 
 import classes from './addressItem.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AddressItem = props => {
     const { address, displayType } = props;
     const [{ deleteAddress }, { dispatch }] = useUserContext();

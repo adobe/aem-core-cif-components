@@ -27,6 +27,9 @@ import classes from './signIn.css';
 import { useSignin } from './useSignin';
 import LoadingIndicator from '../LoadingIndicator';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const SignIn = props => {
     const { showMyAccount, showForgotPassword, showCreateAccount } = props;
     const { errorMessage, handleSubmit, inProgress } = useSignin({ showMyAccount });

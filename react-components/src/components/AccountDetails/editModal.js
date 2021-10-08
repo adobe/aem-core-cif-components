@@ -22,6 +22,9 @@ import FormError from '../FormError';
 
 import EditForm from './editForm';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const EditModal = props => {
     const {
         initialValues,

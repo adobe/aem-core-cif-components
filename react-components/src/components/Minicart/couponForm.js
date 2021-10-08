@@ -20,6 +20,9 @@ import Button from '../Button';
 import classes from './couponForm.css';
 import useCouponForm from './useCouponForm';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CouponForm = () => {
     const [{ couponError }, { addCouponToCart }] = useCouponForm();
     const [couponCode, setCouponCode] = useState('');

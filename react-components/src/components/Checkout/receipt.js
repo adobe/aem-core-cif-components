@@ -20,6 +20,10 @@ import classes from './receipt.css';
 import Trigger from '../Trigger';
 
 import useReceipt from './useReceipt';
+
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Receipt = () => {
     const [{ orderId }, continueShopping] = useReceipt();
     const intl = useIntl();

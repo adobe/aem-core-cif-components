@@ -18,6 +18,9 @@ import { useCartState } from './cartContext';
 import { useCookieValue } from '../../utils/hooks';
 import { useUserContext } from '../../context/UserContext';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CartInitializer = props => {
     const [{ cartId: stateCartId }, dispatch] = useCartState();
     const [{ cartId: registeredCartId }] = useUserContext();

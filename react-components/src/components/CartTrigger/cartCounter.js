@@ -18,6 +18,9 @@ import PropTypes from 'prop-types';
 
 import classes from './cartCounter.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CartCounter = props => {
     const { counter } = props;
     return counter > 0 ? (

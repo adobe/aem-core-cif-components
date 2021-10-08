@@ -26,6 +26,9 @@ import { getCartDetails } from '../../actions/cart';
 import MUTATION_SET_SHIPPING_ADDRESS from '../../queries/mutation_set_shipping_address.graphql';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export default () => {
     const { parseAddress, isSameAddress } = useAddressForm();
     const [{ cartId, cart }, cartDispatch] = useCartState();

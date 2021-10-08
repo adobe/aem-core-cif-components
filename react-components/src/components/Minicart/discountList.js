@@ -20,6 +20,9 @@ import Price from '../Price';
 
 import classes from './discountList.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const DiscountList = props => {
     let _renderDiscounts = () => {
         return props.discounts.map(discount => {

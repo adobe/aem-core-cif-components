@@ -31,6 +31,9 @@ import LoadingIndicator from '../LoadingIndicator';
 
 import MUTATION_CHANGE_PASSWORD from '../../queries/mutation_change_password.graphql';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const ChangePassword = props => {
     const { showMyAccount, handleCancel } = props;
     const [{ token }] = useUserContext();

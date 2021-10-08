@@ -19,6 +19,9 @@ import { useAddressForm } from './useAddressForm';
 import { useCheckoutState } from '../Checkout/checkoutContext';
 import { useUserContext } from '../../context/UserContext';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const useAddressSelect = (props = { initialAddress: undefined }) => {
     const { initialAddress } = props;
     const intl = useIntl();

@@ -21,6 +21,9 @@ import Button from '../Button';
 
 import classes from './addressDeleteModal.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AddressDeleteModal = () => {
     const [{ deleteAddress: address }, { deleteAddress, dispatch }] = useUserContext();
     const intl = useIntl();

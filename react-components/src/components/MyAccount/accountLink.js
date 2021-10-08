@@ -20,6 +20,9 @@ import Button from '../Button';
 
 import defaultClasses from './accountLink.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AccountLink = props => {
     const { children, onClick } = props;
     const [icon, text] = children;

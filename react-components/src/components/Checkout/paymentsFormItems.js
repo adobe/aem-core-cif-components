@@ -29,6 +29,8 @@ import combine from '../../util/combineValidators';
 /**
  * This component is meant to be nested within an `informed` form. It utilizes
  * form state to do conditional rendering and submission.
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 const PaymentsFormItems = props => {
     const [isReady, setIsReady] = useState(false);
