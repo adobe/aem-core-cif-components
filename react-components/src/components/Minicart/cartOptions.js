@@ -28,6 +28,9 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_UPDATE_CART_ITEM from '../../queries/mutation_update_cart_item.graphql';
 import useCartOptions from './useCartOptions';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CartOptions = () => {
     const [updateCartItemMutation] = useMutation(MUTATION_UPDATE_CART_ITEM);
     const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);

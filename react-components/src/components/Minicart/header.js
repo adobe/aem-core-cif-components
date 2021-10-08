@@ -20,6 +20,9 @@ import { useIntl } from 'react-intl';
 import classes from './header.css';
 import { useCartState } from './cartContext';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Header = () => {
     const [, dispatch] = useCartState();
     const intl = useIntl();

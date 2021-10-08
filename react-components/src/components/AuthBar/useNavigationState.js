@@ -47,6 +47,9 @@ const stepTitles = {
 const startAccMgEvent = new CustomEvent(events.START_ACC_MANAGEMENT);
 const exitAccMgEvent = new CustomEvent(events.EXIT_ACC_MANAGEMENT);
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const useNavigationState = (props = { view: 'MENU' }) => {
     const [currentView, setCurrentView] = useState(props.view);
     const intl = useIntl();

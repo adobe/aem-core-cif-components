@@ -23,6 +23,9 @@ import { ShoppingCart as ShoppingCartIcon } from 'react-feather';
 import classes from './cartTrigger.css';
 import { useCartState } from '../Minicart/cartContext';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Trigger = () => {
     const [{ cart }, dispatch] = useCartState();
     let cartQuantity = cart && Object.entries(cart).length > 0 ? cart.total_quantity : 0;

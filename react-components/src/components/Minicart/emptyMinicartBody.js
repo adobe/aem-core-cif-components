@@ -19,6 +19,9 @@ import Trigger from '../Trigger';
 import classes from './emptyMiniCartBody.css';
 import { useCartState } from './cartContext';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const EmptyMinicartBody = () => {
     const [, dispatch] = useCartState();
     const intl = useIntl();

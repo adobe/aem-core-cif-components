@@ -18,6 +18,9 @@ import { object, func } from 'prop-types';
 import { useCookieValue, useStorefrontEvents } from '../../utils/hooks';
 import { transformCart, transformGraphqlResponse } from '../../utils/dataLayerUtils';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const initialState = {
     isOpen: false,
     isRegistered: false,
@@ -30,6 +33,9 @@ export const initialState = {
     couponError: null
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const reducerFactory = (setCartCookie, mse) => {
     return (state, action) => {
         switch (action.type) {
@@ -117,8 +123,14 @@ export const reducerFactory = (setCartCookie, mse) => {
     };
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const CartContext = createContext();
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const CartProvider = props => {
     const factory = props.reducerFactory || reducerFactory;
     const state = props.initialState || initialState;
@@ -135,4 +147,7 @@ CartProvider.propTypes = {
     initialState: object
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const useCartState = () => useContext(CartContext);

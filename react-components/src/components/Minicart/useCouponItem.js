@@ -22,6 +22,9 @@ import { useAwaitQuery } from '../../utils/hooks';
 import MUTATION_REMOVE_COUPON from '../../queries/mutation_remove_coupon.graphql';
 import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export default () => {
     const [{ cartId, cart }, dispatch] = useCartState();
     const [removeCouponMutation] = useMutation(MUTATION_REMOVE_COUPON);

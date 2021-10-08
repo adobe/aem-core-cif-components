@@ -25,6 +25,8 @@ import { useCheckoutState } from './checkoutContext';
 /**
  * The Form component is similar to Flow in that it renders either the overview
  * or the editable form based on the 'editing' state value.
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 const Form = () => {
     const { parseAddress } = useAddressForm();

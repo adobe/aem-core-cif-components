@@ -23,6 +23,9 @@ import { useCartState } from './cartContext';
 import { useAwaitQuery, useStorefrontEvents } from '../../utils/hooks';
 import * as dataLayerUtils from '../../utils/dataLayerUtils';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export default props => {
     const { item } = props;
     const [{ cartId }, dispatch] = useCartState();

@@ -16,6 +16,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Option = props => {
     const { disabled, item, selected } = props;
     const { label, value } = item;

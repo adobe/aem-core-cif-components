@@ -25,6 +25,9 @@ const isCartReady = cart => {
     return cart && cart.items.length > 0;
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Flow = () => {
     const [{ cart }] = useCartState();
     const [{ flowState }] = useCheckoutState();

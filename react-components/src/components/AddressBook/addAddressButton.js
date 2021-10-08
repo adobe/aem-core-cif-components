@@ -22,6 +22,9 @@ import { useUserContext } from '../../context/UserContext';
 
 import classes from './addAddressButton.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AddAddressButton = props => {
     const { displayType } = props;
     const [, { dispatch }] = useUserContext();

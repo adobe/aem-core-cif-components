@@ -24,6 +24,9 @@ import LoadingIndicator from '../LoadingIndicator';
 
 import classes from './forgotPassword.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const ForgotPassword = props => {
     const { onClose, onCancel } = props;
 

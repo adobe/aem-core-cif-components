@@ -18,6 +18,9 @@ import { useMutation } from '@apollo/client';
 
 import MUTATION_RESET_PASSWORD from '../../queries/mutation_reset_password.graphql';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const useResetPassword = () => {
     const [status, setStatus] = useState('new');
 

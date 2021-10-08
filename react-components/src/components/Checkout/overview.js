@@ -30,6 +30,8 @@ import useOverview from './useOverview';
 /**
  * The Overview component renders summaries for each section of the editable
  * form.
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 const Overview = props => {
     const { classes } = props;

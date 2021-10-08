@@ -22,6 +22,9 @@ import { useUserContext } from '../../context/UserContext';
 import UserChip from './userChip';
 import { func } from 'prop-types';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AuthBar = ({ showMyAccount, showSignIn }) => {
     const [{ currentUser, isSignedIn }, { getUserDetails }] = useUserContext();
     const intl = useIntl();
