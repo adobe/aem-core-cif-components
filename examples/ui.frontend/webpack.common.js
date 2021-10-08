@@ -1,6 +1,6 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const pkg = require('./package.json');
 
 const SOURCE_ROOT = `${__dirname}/src/main`;
@@ -21,6 +21,11 @@ module.exports = {
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
+                loader: ['babel-loader'],
+            },
+            {
+                test: /\.jsx?$/,
+                exclude: /node_modules\/(?!@magento\/)/,
                 loader: ['babel-loader'],
             },
             {
@@ -62,7 +67,7 @@ module.exports = {
     // or `npm install <file dir>`. Those dependencies will bring *all* their dependencies along, because
     // in that case npm ignores the "devDependencies" setting.
     // In that case, we need to make sure that this project using its own version of React libraries.
-    resolve: { 
+    resolve: {
         alias: {
             ...alias,
             // messages are all in ast already, so we can save some bytes like that

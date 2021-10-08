@@ -154,7 +154,7 @@ describe('Product', () => {
             let spy = sinon.spy();
             let _originalDispatch = document.dispatchEvent;
             document.dispatchEvent = spy;
-            new AddToCart({ element: addToCartRoot, product: productRoot });
+            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
             addToCartRoot.click();
             sinon.assert.calledOnce(spy);
             assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-cart');

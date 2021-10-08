@@ -19,6 +19,18 @@ import { useCartState } from '../Minicart/cartContext';
 import * as dataLayerUtils from '../../utils/dataLayerUtils';
 import { useStorefrontEvents } from '../../utils/hooks';
 
+export const productMapper = item => ({
+    data: {
+        sku: item.sku,
+        quantity: parseFloat(item.quantity)
+    }
+});
+
+export const bundledProductMapper = item => ({
+    ...productMapper(item),
+    bundle_options: item.options
+});
+
 export default ({ queries }) => {
     const {
         createCartMutation,
@@ -40,28 +52,16 @@ export default ({ queries }) => {
         fn();
     }, [cartId]);
 
+    const refreshCart = async () => {
+        await getCartDetails({ cartDetailsQuery, dispatch, cartId });
+    };
+
     const addItem = async event => {
         if (!event.detail) return;
 
-        const mapper = item => {
-            return {
-                data: {
-                    sku: item.sku,
-                    quantity: parseFloat(item.quantity)
-                }
-            };
-        };
-
-        const bundleMapper = item => {
-            return {
-                ...mapper(item),
-                bundle_options: item.options
-            };
-        };
-
-        let physicalCartItems = event.detail.filter(item => !item.virtual).map(mapper);
-        let virtualCartItems = event.detail.filter(item => item.virtual).map(mapper);
-        let bundleCartItems = event.detail.filter(item => item.bundle).map(bundleMapper);
+        let physicalCartItems = event.detail.filter(item => !item.virtual).map(productMapper);
+        let virtualCartItems = event.detail.filter(item => item.virtual).map(productMapper);
+        let bundleCartItems = event.detail.filter(item => item.bundle).map(bundledProductMapper);
 
         dispatch({ type: 'open' });
         dispatch({ type: 'beginLoading' });
@@ -108,7 +108,7 @@ export default ({ queries }) => {
     };
 
     const data = { cartId, cart, isOpen, isLoading, isEditing, errorMessage };
-    const api = { addItem, dispatch };
+    const api = { addItem, refreshCart, dispatch };
 
     return [data, api];
 };

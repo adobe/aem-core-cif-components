@@ -22,9 +22,11 @@ import mockMagentoStorefrontEvents from '../../../__test__/mockMagentoStorefront
 import ContextWrapper from '../../../__test__/context-wrapper';
 
 const mockUseRecommendationsValue = jest.fn();
+
 jest.mock('../../../hooks/useRecommendations', () => ({
     useRecommendations: () => mockUseRecommendationsValue()
 }));
+
 jest.mock('../../../hooks/useVisibilityObserver', () => ({
     useVisibilityObserver: () => ({ observeElement: jest.fn() })
 }));

@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 const path = require('path');
 const custom = require('../webpack.common.js');
+const peregrine = require('@magento/babel-preset-peregrine');
 
 module.exports = {
     stories: ['../src/**/*.stories.mdx', '../src/**/*.stories.@(js|jsx|ts|tsx)'],
@@ -31,6 +32,11 @@ module.exports = {
             include: path.resolve(__dirname, '../')
         });
         config.module.rules.push({
+            test: /\.jsx?$/,
+            exclude: /node_modules\/(?!@magento\/)/,
+            use: ['babel-loader'],
+        });
+        config.module.rules.push({
             test: /\.graphql$/,
             exclude: /node_modules/,
             use: ['graphql-tag/loader']
@@ -43,5 +49,43 @@ module.exports = {
         };
 
         return config;
-    }
+    },
+    babel: async () => ({
+        "plugins": [
+            [
+                "@babel/plugin-proposal-class-properties"
+            ],
+            [
+                "@babel/plugin-proposal-object-rest-spread"
+            ],
+            [
+                "@babel/plugin-syntax-dynamic-import"
+            ],
+            [
+                "@babel/plugin-syntax-jsx"
+            ],
+            [
+                "@babel/plugin-transform-react-jsx"
+            ],
+            [
+                "babel-plugin-graphql-tag"
+            ],
+            [
+                "formatjs",
+                {
+                    "ast": true
+                }
+            ]
+        ],
+        "presets": [
+            [
+                "@babel/preset-env",
+                {
+                    "modules": false,
+                    "targets": "last 2 Chrome versions"
+                }
+            ]
+        ],
+        "sourceType": "unambiguous"
+    })
 };
