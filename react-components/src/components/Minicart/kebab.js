@@ -21,6 +21,9 @@ import classes from './kebab.css';
 import Icon from '../Icon';
 import { useEventListener } from '../../utils/hooks';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Kebab = props => {
     const { children } = props;
 

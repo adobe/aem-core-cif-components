@@ -20,6 +20,9 @@ import { BasicText, asField } from 'informed';
 import { FieldIcons, Message } from '../Field';
 import classes from './textInput.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const TextInput = props => {
     const { after, before, fieldState, message, ...rest } = props;
 

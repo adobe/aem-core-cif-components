@@ -26,6 +26,9 @@ const editIconAttrs = {
 };
 const EDIT_ICON = <Icon src={EditIcon} attrs={editIconAttrs} />;
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Section = props => {
     const { children, label, showEditIcon = false, ...restProps } = props;
 

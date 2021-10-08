@@ -31,6 +31,9 @@ export const bundledProductMapper = item => ({
     bundle_options: item.options
 });
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export default ({ queries }) => {
     const {
         createCartMutation,

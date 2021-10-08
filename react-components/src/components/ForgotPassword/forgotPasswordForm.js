@@ -26,6 +26,9 @@ import Button from '../Button';
 
 import defaultClasses from './forgotPasswordForm.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const ForgotPasswordForm = props => {
     const { handleFormSubmit, handleCancel } = props;
     const intl = useIntl();

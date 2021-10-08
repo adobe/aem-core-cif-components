@@ -17,6 +17,9 @@ import { useCartState } from './cartContext';
 import { updateCartItem } from '../../actions/cart';
 import { useStorefrontEvents } from '../../utils/hooks';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const useCartOptions = ({ updateCartItemMutation, cartDetailsQuery }) => {
     const [{ editItem, cartId }, dispatch] = useCartState();
     const mse = useStorefrontEvents();

@@ -21,6 +21,9 @@ import Price from '../Price';
 
 import classes from './totalsSummary.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const TotalsSummary = props => {
     const intl = useIntl();
 
