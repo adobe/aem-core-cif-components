@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
@@ -26,6 +27,7 @@ import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.via.ResourceSuperType;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter.StoreConfigExporterImpl;
+import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.wcm.core.components.models.HtmlPageItem;
 import com.adobe.cq.wcm.core.components.models.Page;
 
@@ -44,11 +46,38 @@ public class PageImpl extends AbstractPageDelegator implements Page {
     @Self
     private StoreConfigExporterImpl storeConfigExporter;
 
+    @Self
+    private PageMetadata pageMetadata;
+
     private List<HtmlPageItem> htmlPageItems;
 
     @Override
     protected Page getDelegate() {
         return page;
+    }
+
+    @Override
+    public String getTitle() {
+        String title = pageMetadata.getMetaTitle();
+        return StringUtils.isNotEmpty(title) ? title : page.getTitle();
+    }
+
+    @Override
+    public String getDescription() {
+        String description = pageMetadata.getMetaDescription();
+        return StringUtils.isNotEmpty(description) ? description : page.getDescription();
+    }
+
+    @Override
+    public String[] getKeywords() {
+        String keywords = pageMetadata.getMetaKeywords();
+        return StringUtils.isNotEmpty(keywords) ? keywords.split(",") : page.getKeywords();
+    }
+
+    @Override
+    public String getCanonicalLink() {
+        String canonicalLink = pageMetadata.getCanonicalUrl();
+        return StringUtils.isNotEmpty(canonicalLink) ? canonicalLink : page.getCanonicalLink();
     }
 
     @Override

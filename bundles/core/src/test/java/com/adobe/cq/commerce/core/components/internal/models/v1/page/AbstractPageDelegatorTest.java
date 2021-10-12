@@ -15,8 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.page;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.Test;
@@ -26,6 +28,7 @@ import com.adobe.cq.wcm.core.components.models.HtmlPageItem;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.adobe.cq.wcm.core.components.models.Page;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.google.common.collect.ImmutableMap;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -132,5 +135,18 @@ public class AbstractPageDelegatorTest {
 
         when(mock.getAppliedCssClasses()).thenReturn("my-page__root");
         assertEquals("my-page__root", subject.getAppliedCssClasses());
+
+        when(mock.getDescription()).thenReturn("description");
+        assertEquals("description", subject.getDescription());
+
+        when(mock.getCanonicalLink()).thenReturn("canonicalLink");
+        assertEquals("canonicalLink", subject.getCanonicalLink());
+
+        Map<Locale, String> alternateLanguageLinks = ImmutableMap.of(Locale.CANADA, "http://venia.ca/en.html");
+        when(mock.getAlternateLanguageLinks()).thenReturn(alternateLanguageLinks);
+        assertThat(subject.getAlternateLanguageLinks()).containsExactly(alternateLanguageLinks.entrySet().toArray(new Map.Entry[0]));
+
+        when(mock.getRobotsTags()).thenReturn(Arrays.asList("noindex", "nofollow"));
+        assertThat(subject.getRobotsTags()).containsExactly("noindex", "nofollow");
     }
 }
