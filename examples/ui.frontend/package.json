@@ -10,15 +10,13 @@
   "main": "src/main/site/index.js",
   "license": "SEE LICENSE IN LICENSE.txt",
   "scripts": {
-    "dev": "webpack -d --env dev --config ./webpack.dev.js && build-storybook --quiet && clientlib --verbose",
-    "prod": "webpack -p --config ./webpack.prod.js && build-storybook --quiet && clientlib --verbose",
+    "dev": "webpack -d --env dev --config ./webpack.dev.js && clientlib --verbose",
+    "prod": "webpack -p --config ./webpack.prod.js --quiet && clientlib --verbose",
     "start": "webpack-dev-server --open --config ./webpack.dev.js",
     "sync": "aemsync -d -p ../ui.apps/src/main/content",
     "watch": "webpack-dev-server --config ./webpack.dev.js --env.writeToDisk & watch 'clientlib' ./dist & aemsync -w ../ui.apps/src/main/content",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook --quiet",
-    "prettier:check": "prettier --check '{src,.storybook}/**/*.{js,css}' --config ./.prettierrc",
-    "prettier:fix": "prettier --write '{src,.storybook}/**/*.{js,css}' --config ./.prettierrc"
+    "prettier:check": "prettier --check 'src/**/*.{js,css}' --config ./.prettierrc",
+    "prettier:fix": "prettier --write 'src/**/*.{js,css}' --config ./.prettierrc"
   },
   "devDependencies": {
     "@babel/core": "^7.3.4",
@@ -32,12 +30,6 @@
     "@babel/preset-react": "^7.10.4",
     "@babel/preset-typescript": "^7.10.4",
     "@magento/babel-preset-peregrine": "~1.1.0",
-    "@storybook/addon-actions": "~6.2.0",
-    "@storybook/addon-essentials": "~6.2.0",
-    "@storybook/addon-links": "~6.2.0",
-    "@storybook/addon-queryparams": "~6.2.0",
-    "@storybook/addon-storysource": "~6.2.0",
-    "@storybook/react": "~6.2.0",
     "@typescript-eslint/eslint-plugin": "^2.14.0",
     "@typescript-eslint/parser": "^2.14.0",
     "acorn": "^6.1.0",
