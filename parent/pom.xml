@@ -23,7 +23,7 @@
     <groupId>com.adobe.commerce.cif</groupId>
     <artifactId>core-cif-components-parent</artifactId>
     <packaging>pom</packaging>
-    <version>2.2.1-SNAPSHOT</version>
+    <version>2.3.3-SNAPSHOT</version>
 
     <name>AEM CIF Core Components - Parent</name>
     <description>Parent POM for AEM CIF Core Components</description>
@@ -110,7 +110,7 @@
         <graphql.client.version>1.7.4</graphql.client.version>
         <magento.graphql.version>9.0.0-magento242ee</magento.graphql.version>
 
-        <core.wcm.components.version>2.17.2</core.wcm.components.version>
+        <core.wcm.components.version>2.17.10</core.wcm.components.version>
         <core.wcm.components.library.version>2.9.0</core.wcm.components.library.version>
 
         <!-- By default, webpack will build in development mode -->
@@ -362,9 +362,6 @@
                         <exclude>**/*.lst</exclude>
                         <exclude>**/.project</exclude>
                         <exclude>**/.settings</exclude>
-
-                        <!-- Storybook build -->
-                        <exclude>**/storybook-static/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

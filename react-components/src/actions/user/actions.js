@@ -19,6 +19,8 @@
  * @param {Object} payload a parameters object with the following structure:
  *     fetchCustomerCartQuery - the query object to execute to retrieve the cart details
  *     dispatch - the dispatch callback for the user context
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 export const resetCustomerCart = async ({ dispatch, fetchCustomerCartQuery }) => {
     const { data } = await fetchCustomerCartQuery({
@@ -28,6 +30,9 @@ export const resetCustomerCart = async ({ dispatch, fetchCustomerCartQuery }) =>
     dispatch({ type: 'setCartId', cartId });
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const signOutUser = async ({ revokeCustomerToken, setCartCookie, setUserCookie, dispatch }) => {
     try {
         await revokeCustomerToken();
@@ -40,6 +45,9 @@ export const signOutUser = async ({ revokeCustomerToken, setCartCookie, setUserC
     }
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const createAddress = async ({ createCustomerAddress, variables, resetFields, dispatch }) => {
     try {
         const { data } = await createCustomerAddress({ variables: variables });
@@ -50,6 +58,9 @@ export const createAddress = async ({ createCustomerAddress, variables, resetFie
     }
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const updateAddress = async ({ updateCustomerAddress, variables, resetFields, dispatch }) => {
     try {
         const { data } = await updateCustomerAddress({ variables: variables });
@@ -60,6 +71,9 @@ export const updateAddress = async ({ updateCustomerAddress, variables, resetFie
     }
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const deleteAddress = async ({ deleteCustomerAddress, address, dispatch }) => {
     try {
         await deleteCustomerAddress({ variables: { id: address.id } });

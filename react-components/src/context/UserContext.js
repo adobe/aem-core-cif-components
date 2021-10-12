@@ -18,6 +18,9 @@ import { object, func } from 'prop-types';
 
 import { useCookieValue, useAwaitQuery, useStorefrontEvents } from '../utils/hooks';
 import { useMutation } from '@apollo/client';
+import BrowserPersistence from '@magento/peregrine/lib/util/simplePersistence';
+import { clearCartId } from '@magento/peregrine/lib/store/actions/cart/asyncActions';
+
 import parseError from '../utils/parseError';
 import {
     resetCustomerCart as resetCustomerCartAction,
@@ -214,6 +217,9 @@ const reducerFactory = () => {
     };
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
     const [, setCartCookie] = useCookieValue('cif.cart');
@@ -251,6 +257,9 @@ const UserContextProvider = props => {
 
     const { isSignedIn, currentUser } = userState;
 
+    // Storage as used by Peregrine components
+    const storage = new BrowserPersistence();
+
     useEffect(() => {
         if (!isSignedIn) {
             mse && mse.context.setShopper({ shopperId: 'guest' });
@@ -266,6 +275,9 @@ const UserContextProvider = props => {
         dataLayerUtils.pushEvent('cif:userSignIn');
         mse && mse.context.setShopper({ shopperId: 'logged-in' });
         mse && mse.publish.signIn();
+
+        storage.setItem('signin_token', token, 3600);
+
         dispatch({ type: 'setToken', token });
     };
 
@@ -281,6 +293,10 @@ const UserContextProvider = props => {
         dataLayerUtils.pushEvent('cif:userSignOut', null, { user: null });
         mse && mse.context.setShopper({ shopperId: 'guest' });
         mse && mse.publish.signOut();
+
+        storage.removeItem('signin_token');
+        await clearCartId();
+
         await signOutUserAction({ revokeCustomerToken, setCartCookie, setUserCookie, dispatch });
     };
 
@@ -359,4 +375,7 @@ UserContextProvider.propTypes = {
 };
 export default UserContextProvider;
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const useUserContext = () => useContext(UserContext);

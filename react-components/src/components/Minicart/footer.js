@@ -19,6 +19,9 @@ import classes from './footer.css';
 import TotalsSummary from './totalsSummary';
 import { useCartState } from './cartContext';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Footer = () => {
     const [{ isOpen, cart }] = useCartState();
     const footerClassName = isOpen ? classes.root_open : classes.root;

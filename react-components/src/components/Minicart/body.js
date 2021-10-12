@@ -29,6 +29,9 @@ import CouponItem from './couponItem';
 import { useCartState } from './cartContext';
 import DiscountList from './discountList';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CartLoadingIndicator = () => {
     const intl = useIntl();
 

@@ -24,6 +24,9 @@ import Button from '../Button';
 
 import classes from './dialog.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Dialog = props => {
     const {
         cancelText,

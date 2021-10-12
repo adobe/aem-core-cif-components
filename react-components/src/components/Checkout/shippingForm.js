@@ -23,6 +23,9 @@ import Select from '../Select';
 
 import classes from './shippingForm.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const ShippingForm = props => {
     const { availableShippingMethods, cancel, shippingMethod, submit, submitting } = props;
     const intl = useIntl();

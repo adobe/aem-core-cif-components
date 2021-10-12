@@ -34,6 +34,9 @@ import { useEventListener, useAwaitQuery } from '../../utils/hooks';
 
 import classes from './minicart.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const MiniCart = () => {
     const [createCartMutation] = useMutation(MUTATION_CREATE_CART);
     const [addToCartMutation] = useMutation(MUTATION_ADD_TO_CART);

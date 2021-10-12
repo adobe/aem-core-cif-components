@@ -14,11 +14,16 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
+import { combineReducers, createStore, applyMiddleware } from 'redux';
+import { Provider as ReduxProvider } from 'react-redux';
 import { render } from '@testing-library/react';
 import { MockedProvider, MockLink } from '@apollo/client/testing';
 import { IntlProvider } from 'react-intl';
 import { onError } from '@apollo/client/link/error';
 import { ApolloLink, from } from '@apollo/client';
+import { default as thunkMiddleware } from '@magento/peregrine/lib/store/middleware/thunk';
+import { default as cartReducer } from '@magento/peregrine/lib/store/reducers/cart';
+import CartContextProvider from '@magento/peregrine/lib/context/cart';
 
 import ConfigContextProvider from '../context/ConfigContext';
 import UserContextProvider from '../context/UserContext';
@@ -70,6 +75,17 @@ const defaultConfig = {
     graphqlMethod: 'GET'
 };
 
+// create a limited subset of reducers of peregrine
+const store = createStore(
+    combineReducers({
+        // mock user state
+        user: () => ({ isSignedIn: false }),
+        // real cart reducer
+        cart: cartReducer
+    }),
+    applyMiddleware(thunkMiddleware)
+);
+
 // eslint-disable-next-line react/display-name
 const allProviders = (config, userContext, mocks) => ({ children }) => {
     let mockLink = new MockLink(mocks);
@@ -101,7 +117,9 @@ const allProviders = (config, userContext, mocks) => ({ children }) => {
             <ConfigContextProvider config={config || defaultConfig}>
                 <UserContextProvider initialState={userContext}>
                     <IntlProvider locale="en" messages={i18nMessages}>
-                        {children}
+                        <ReduxProvider store={store}>
+                            <CartContextProvider>{children}</CartContextProvider>
+                        </ReduxProvider>
                     </IntlProvider>
                 </UserContextProvider>
             </ConfigContextProvider>

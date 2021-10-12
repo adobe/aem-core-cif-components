@@ -48,6 +48,9 @@ const reducerFactory = () => {
     };
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const NavigationContextProvider = props => {
     const initialState = props.initialState || {
         view: 'MENU'
@@ -131,4 +134,7 @@ const withSuspense = NavigationContextProvider => {
 
 export default withSuspense(NavigationContextProvider);
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const useNavigationContext = () => useContext(NavigationContext);

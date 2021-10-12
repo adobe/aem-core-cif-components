@@ -21,6 +21,9 @@ import Button from '../Button';
 import classes from './error.css';
 import { useCartState } from './cartContext';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Error = () => {
     const [{ errorMessage }, dispatch] = useCartState();
     const intl = useIntl();

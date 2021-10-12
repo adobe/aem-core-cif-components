@@ -21,6 +21,9 @@ import Select from '../Select';
 
 import classes from './addressSelect.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AddressSelect = props => {
     const { initialValue, onValueChange } = props;
     const { addressSelectItems } = useAddressSelect();

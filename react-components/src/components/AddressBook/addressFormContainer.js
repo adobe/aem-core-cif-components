@@ -22,6 +22,9 @@ import AddressForm from '../AddressForm';
 import classes from './addressFormContainer.css';
 import { useIntl } from 'react-intl';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AddressFormContainer = () => {
     const [{ isShowAddressForm }] = useUserContext();
     const { countries, handleSubmit, handleCancel, errorMessage, updateAddress } = useAddressForm();

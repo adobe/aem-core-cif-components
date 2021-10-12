@@ -19,6 +19,9 @@ import { shape, string, func, bool } from 'prop-types';
 import defaultClasses from './mask.css';
 import mergeClasses from '../../utils/mergeClasses';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Mask = ({ onClickHandler, isOpen, customClasses }) => {
     const classes = mergeClasses(defaultClasses, customClasses);
     const className = isOpen ? classes.root_active : classes.root;

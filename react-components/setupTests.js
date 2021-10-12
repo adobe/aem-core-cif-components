@@ -13,16 +13,4 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-.cmp-Mask__mask__root {
-    display: none;
-}
-
-.cmp-Minicart__minicart__root {
-    position: static;
-    top: auto;
-    right: auto;
-    min-height: 500px;
-}
-.cmp-Checkout__receipt__root {
-    height: 500px;
-}
+import '@testing-library/jest-dom';

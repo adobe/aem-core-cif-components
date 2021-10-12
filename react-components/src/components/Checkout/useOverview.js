@@ -26,6 +26,9 @@ import { useCheckoutState } from './checkoutContext';
 import { useUserContext } from '../../context/UserContext';
 import * as dataLayerUtils from '../../utils/dataLayerUtils';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export default () => {
     const [
         { shippingAddress, billingAddress, billingAddressSameAsShippingAddress, shippingMethod, paymentMethod },

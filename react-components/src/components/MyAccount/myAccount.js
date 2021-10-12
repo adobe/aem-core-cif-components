@@ -24,6 +24,9 @@ import { useUserContext } from '../../context/UserContext';
 
 import { SignOutLink, AccountInfoLink, AddressBookLink, ChangePasswordLink } from './AccountLinks';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const MyAccount = props => {
     const { showMenu, showChangePassword, showAccountInformation } = props;
     const [{ currentUser, inProgress }] = useUserContext();

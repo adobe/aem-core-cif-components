@@ -30,6 +30,9 @@ import useProduct from './useProduct';
 const imageWidth = 80;
 const imageHeight = 100;
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Product = props => {
     const { item } = props;
     const intl = useIntl();

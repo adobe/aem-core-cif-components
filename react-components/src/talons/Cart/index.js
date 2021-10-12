@@ -1,5 +1,5 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ Copyright 2020 Adobe
+ ~ Copyright 2021 Adobe
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -13,13 +13,5 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import '../src/stories/styles/main.scss';
-
-export const parameters = {
-    actions: { argTypesRegex: '^on[A-Z].*' },
-    cifConfig: {
-        storeView: 'default',
-        graphqlEndpoint: '/apps/cif-components-examples/graphql',
-        graphqlMethod: 'GET'
-    }
-};
+export { default as useAddToCart } from './useAddToCart';
+export { default as useAddToCartEvent } from './useAddToCartEvent';

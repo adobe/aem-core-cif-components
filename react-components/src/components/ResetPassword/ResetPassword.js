@@ -34,6 +34,9 @@ import LoadingIndicator from '../LoadingIndicator';
 
 import classes from './ResetPassword.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const ResetPassword = () => {
     const intl = useIntl();
     const queryParams = useQueryParams();

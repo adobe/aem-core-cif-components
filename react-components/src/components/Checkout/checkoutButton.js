@@ -21,6 +21,9 @@ import Button from '../Button';
 import Icon from '../Icon';
 import { Lock as LockIcon } from 'react-feather';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CheckoutButton = ({ disabled, onClick }) => {
     const intl = useIntl();
 
