@@ -46,9 +46,7 @@ import com.day.cq.wcm.api.PageManager;
  * Sling rewriter for transforming commerce links to PDP or PLP links according to the UrlProvider configuration.
  *
  * A commerce link has a {@code href} with the value {@code #CommerceLinks} and is tagged with a commerce attribute
- * {@code data-category-uid} or {@code data-product-sku}. The commerce attribute is preserved on the link where the
- * {@code href} was successfully transformed and it's removed where the transformation was not performed. If a link
- * has both commerce attributes then {@code data-product-sku} is honored and {@code data-category-uid} is removed.
+ * {@code data-category-uid} or {@code data-product-sku}. The commerce attributes are preserved on the links.
  */
 @Component(
     immediate = true,
@@ -113,18 +111,6 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
 
             String href = StringUtils.trim(attributes.getValue(ATTR_HREF));
             if (!MARKER_COMMERCE_LINKS.equals(href)) {
-                // remove commerce attributes if any
-                AttributesImpl attributesImpl = new AttributesImpl(attributes);
-                int index = attributesImpl.getIndex(ATTR_CATEGORY_UID);
-                if (index > -1) {
-                    attributesImpl.removeAttribute(index);
-                    attributes = attributesImpl;
-                }
-                index = attributesImpl.getIndex(ATTR_PRODUCT_SKU);
-                if (index > -1) {
-                    attributesImpl.removeAttribute(index);
-                    attributes = attributesImpl;
-                }
                 super.startElement(uri, localName, qName, attributes);
                 return;
             }
@@ -137,11 +123,6 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
                 Page productPage = SiteNavigation.getProductPage(currentPage);
                 String newHref = urlProvider.toProductUrl(request, productPage, productSku);
                 attributesImpl.setValue(attributes.getIndex(ATTR_HREF), newHref);
-                // remove category attribute if exists (on a malformed URL)
-                int index = attributesImpl.getIndex(ATTR_CATEGORY_UID);
-                if (index > -1) {
-                    attributesImpl.removeAttribute(index);
-                }
             } else {
                 String categoryUid = attributes.getValue(ATTR_CATEGORY_UID);
                 if (StringUtils.isNotBlank(categoryUid)) {

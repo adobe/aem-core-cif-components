@@ -113,17 +113,17 @@ public class CommerceLinksTransformerTest {
         Elements anchors = document.select(ELEMENT_ANCHOR);
 
         assertEquals(12, anchors.size());
-        checkAnchor(anchors.get(0), null, null);
-        checkAnchor(anchors.get(1), null, "any");
+        checkAnchor(anchors.get(0), "uid-5", null);
+        checkAnchor(anchors.get(1), "uid-5", "any");
         checkAnchor(anchors.get(2), "uid-5", "/content/category-page.html/equipment.html");
-        checkAnchor(anchors.get(3), null, null);
-        checkAnchor(anchors.get(4), null, "any");
+        checkAnchor(anchors.get(3), "MJ01", null);
+        checkAnchor(anchors.get(4), "MJ01", "any");
         checkAnchor(anchors.get(5), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
         checkAnchor(anchors.get(6), null, null);
         checkAnchor(anchors.get(7), null, "any");
         checkAnchor(anchors.get(8), null, MARKER_COMMERCE_LINKS);
-        checkAnchor(anchors.get(9), null, null);
-        checkAnchor(anchors.get(10), null, "any");
+        checkAnchor(anchors.get(9), "MJ01", null);
+        checkAnchor(anchors.get(10), "MJ01", "any");
         checkAnchor(anchors.get(11), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
     }
 
