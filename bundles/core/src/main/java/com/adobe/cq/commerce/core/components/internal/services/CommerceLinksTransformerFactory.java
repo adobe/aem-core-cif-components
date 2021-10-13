@@ -24,8 +24,15 @@ import org.apache.sling.rewriter.ProcessingComponentConfiguration;
 import org.apache.sling.rewriter.ProcessingContext;
 import org.apache.sling.rewriter.Transformer;
 import org.apache.sling.rewriter.TransformerFactory;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -47,9 +54,22 @@ import com.day.cq.wcm.api.PageManager;
     immediate = true,
     service = TransformerFactory.class,
     property = {
-        "pipeline.type=commercelinks"
+        "pipeline.mode=global",
+        "pipeline.type=commercelinks",
+        "service.ranking=-500"
     })
+@Designate(ocd = CommerceLinksTransformerFactory.Configuration.class)
 public class CommerceLinksTransformerFactory implements TransformerFactory {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommerceLinksTransformerFactory.class);
+
+    @ObjectClassDefinition(name = "Adobe CQ Commerce Links Transformer")
+    @interface Configuration {
+        @AttributeDefinition(
+            name = "Enabled",
+            description = "If enabled, links edited with the Commerce Links RTE plugin are transformed to real links.")
+        boolean isEnabled() default true;
+    }
+
     static final String MARKER_COMMERCE_LINKS = "#CommerceLinks";
     static final String ATTR_CATEGORY_UID = "data-category-uid";
     static final String ATTR_PRODUCT_SKU = "data-product-sku";
@@ -57,11 +77,23 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
     static final String ELEMENT_ANCHOR = "a";
 
     @Reference
-    UrlProvider urlProvider;
+    private UrlProvider urlProvider;
+    private boolean enabled;
+
+    @Activate
+    @Modified
+    protected void activate(Configuration config) {
+        enabled = config.isEnabled();
+        if (enabled) {
+            LOGGER.info("Commerce links transformer enabled.");
+        } else {
+            LOGGER.info("Commerce links transformer disabled.");
+        }
+    }
 
     @Override
     public Transformer createTransformer() {
-        return new CommerceLinksTransformer();
+        return enabled ? new CommerceLinksTransformer() : new DefaultTransformer();
     }
 
     class CommerceLinksTransformer extends DefaultTransformer {

@@ -16,6 +16,11 @@
 package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.io.StringWriter;
+import java.lang.annotation.Annotation;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -53,9 +58,21 @@ import static org.mockito.Mockito.when;
 public class CommerceLinksTransformerTest {
     private static final String TEST_PAGE = "/content/pageA";
     private static final String TEST_HTML = "rewriter/ciflinks.html";
+    public static final Configuration CONFIG_DISABLED = new Configuration() {
+        @Override
+        public boolean isEnabled() {
+            return false;
+        }
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return null;
+        }
+    };
     @Rule
     public final AemContext context = newAemContext("/context/jcr-content.json");
-    private Transformer transformer;
+    private CommerceLinksTransformerFactory transformerFactory;
+    private ProcessingContext mockProcessingContext;
 
     @Before
     public void before() throws Exception {
@@ -73,21 +90,22 @@ public class CommerceLinksTransformerTest {
         // setup UrlRewriterTransformer
         MockSlingHttpServletRequest mockRequest = context.request();
         mockRequest.setResource(context.resourceResolver().getResource(TEST_PAGE));
-        ProcessingContext mockProcessingContext = mock(ProcessingContext.class);
+        mockProcessingContext = mock(ProcessingContext.class);
         when(mockProcessingContext.getRequest()).thenReturn(mockRequest);
-        CommerceLinksTransformerFactory factory = new CommerceLinksTransformerFactory();
-        context.registerInjectActivateService(factory);
-        transformer = factory.createTransformer();
-        transformer.init(mockProcessingContext, null);
+        transformerFactory = new CommerceLinksTransformerFactory();
+        context.registerInjectActivateService(transformerFactory);
     }
 
     @Test
-    public void testTransformer() throws Exception {
+    public void testTransformerEnabled() throws Exception {
+        Transformer transformer = transformerFactory.createTransformer();
+        transformer.init(mockProcessingContext, null);
+
         // read and transform HTML
         StringWriter writer = new StringWriter();
         transformer.setContentHandler(new ToXmlContentHandler(writer));
         ParsingContentHandler parsingContentHandler = new ParsingContentHandler(transformer);
-        parsingContentHandler.parse(Utils.class.getClassLoader().getResourceAsStream(TEST_HTML));
+        parsingContentHandler.parse(this.getClass().getClassLoader().getResourceAsStream(TEST_HTML));
 
         // verify transformed HTML
         String html = writer.toString();
@@ -107,6 +125,29 @@ public class CommerceLinksTransformerTest {
         checkAnchor(anchors.get(9), null, null);
         checkAnchor(anchors.get(10), null, "any");
         checkAnchor(anchors.get(11), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
+    }
+
+    @Test
+    public void testTransformerDisabled() throws Exception {
+        transformerFactory.activate(CONFIG_DISABLED);
+
+        Transformer transformer = transformerFactory.createTransformer();
+        transformer.init(mockProcessingContext, null);
+
+        // read and transform HTML
+        StringWriter writer = new StringWriter();
+        transformer.setContentHandler(new ToXmlContentHandler(writer));
+        ParsingContentHandler parsingContentHandler = new ParsingContentHandler(transformer);
+        ClassLoader classLoader = this.getClass().getClassLoader();
+        parsingContentHandler.parse(classLoader.getResourceAsStream(TEST_HTML));
+
+        // verify transformed HTML
+        String transformedHtml = writer.toString();
+
+        Path filePath = Paths.get(classLoader.getResource(TEST_HTML).getPath());
+        String originalHtml = Files.lines(filePath).collect(Collectors.joining(System.lineSeparator()));
+
+        assertTrue(transformedHtml.endsWith(originalHtml));
     }
 
     private void checkAnchor(Element anchor, String commerceIdentifier, String href) {
