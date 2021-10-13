@@ -187,6 +187,8 @@ public class CategoriesSitemapGenerator extends SitemapGeneratorBase implements 
                     .urlKey()
                     .urlPath()
                     .uid()
+                    .createdAt()
+                    .updatedAt()
                     .children(child -> child.uid())));
     }
 }

@@ -130,27 +130,27 @@
 
 {products(search:"",pageSize:2,currentPage:999){total_count,items{__typename,url_key,sku,updated_at,created_at}}}
 
-{categories(filters:{category_uid:{eq:"UID2"}}){items{url_key,url_path,uid,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID2"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
 
-{categories(filters:{category_uid:{eq:"UID3"}}){items{url_key,url_path,uid,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID3"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
 
-{categories(filters:{category_uid:{eq:"UID31"}}){items{url_key,url_path,uid,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID31"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
 
-{categories(filters:{category_uid:{eq:"UID32"}}){items{url_key,url_path,uid,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID32"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
 
-{categories(filters:{category_uid:{eq:"UID4"}}){items{url_key,url_path,uid,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID4"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
 
-{categories(filters:{category_uid:{eq:"UID41"}}){items{url_key,url_path,uid,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID41"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
 
-{categories(filters:{category_uid:{eq:"UID42"}}){items{url_key,url_path,uid,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID42"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
 
-{categories(filters:{category_uid:{eq:"UID5"}}){items{url_key,url_path,uid,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID5"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
 
-{categories(filters:{category_uid:{eq:"UID51"}}){items{url_key,url_path,uid,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID51"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
 
-{categories(filters:{category_uid:{eq:"UID52"}}){items{url_key,url_path,uid,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID52"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
 
-{categories(filters:{category_uid:{eq:"ERROR"}}){items{url_key,url_path,uid,children{uid}}}}
+{categories(filters:{category_uid:{eq:"ERROR"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
 
 {products(filter:{sku:{eq:"MJ02"}}){items{__typename,url_key,url_path}}}
 
