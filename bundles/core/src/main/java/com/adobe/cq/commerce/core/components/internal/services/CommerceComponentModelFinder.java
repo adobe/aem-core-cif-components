@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -26,6 +27,10 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl;
+import com.adobe.cq.commerce.core.components.models.product.Product;
+import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.drew.lang.annotations.Nullable;
 
 /**
@@ -33,13 +38,38 @@ import com.drew.lang.annotations.Nullable;
  * found adapting them to given adapter type. This helps for example finding the product component on the page and return the Product model
  * from it.
  */
-@Component
-public class CommerceModelFinder {
+@Component(
+    service = CommerceComponentModelFinder.class)
+public class CommerceComponentModelFinder {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommerceModelFinder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommerceComponentModelFinder.class);
+    private static final Collection<String> PRODUCT_RTS = Collections.singleton(ProductImpl.RESOURCE_TYPE);
+    private static final Collection<String> PRODUCT_LIST_RTS = Arrays.asList(
+        ProductListImpl.RESOURCE_TYPE,
+        com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl.RESOURCE_TYPE);
 
     @Reference
     private ModelFactory modelFactory;
+
+    @Nullable
+    public Product findProduct(SlingHttpServletRequest request) {
+        return find(request, PRODUCT_RTS, Product.class);
+    }
+
+    @Nullable
+    public Product findProduct(SlingHttpServletRequest request, Resource root) {
+        return find(request, root, PRODUCT_RTS, Product.class);
+    }
+
+    @Nullable
+    public ProductList findProductList(SlingHttpServletRequest request) {
+        return find(request, PRODUCT_LIST_RTS, ProductList.class);
+    }
+
+    @Nullable
+    public ProductList findProductList(SlingHttpServletRequest request, Resource root) {
+        return find(request, root, PRODUCT_LIST_RTS, ProductList.class);
+    }
 
     @Nullable
     public <T> T find(SlingHttpServletRequest request, String resourceType, Class<T> adapterType) {
@@ -67,6 +97,10 @@ public class CommerceModelFinder {
     }
 
     private Resource findChildResourceWithType(Resource fromResource, Collection<String> resourceTypes) {
+        if (fromResource == null) {
+            return null;
+        }
+
         LOGGER.debug("Looking for child resource type '{}' from {}", resourceTypes, fromResource.getPath());
 
         for (Resource child : fromResource.getChildren()) {

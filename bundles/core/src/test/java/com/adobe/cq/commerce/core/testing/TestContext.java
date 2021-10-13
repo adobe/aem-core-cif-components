@@ -15,14 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.testing;
 
-import org.apache.sling.models.factory.ModelFactory;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
-import org.mockito.internal.util.reflection.Whitebox;
+import org.apache.sling.xss.XSSAPI;
+import org.mockito.Mockito;
 
-import com.adobe.cq.commerce.core.components.internal.services.CommerceModelFinder;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.day.cq.commons.Externalizer;
+import com.day.cq.wcm.api.PageManagerFactory;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextBuilder;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TestContext {
 
@@ -55,13 +59,16 @@ public class TestContext {
         return new AemContextBuilder()
             .resourceResolverType(ResourceResolverType.JCR_MOCK)
             .<AemContext>afterSetUp(context -> {
-                // register commonly required services
-                context.registerInjectActivateService(new UrlProviderImpl());
+                // register commonly required ootb services
+                context.registerService(PageManagerFactory.class, rr -> context.pageManager());
+                context.registerService(Externalizer.class, new MockExternalizer());
 
-                // TODO: CIF-2469
-                CommerceModelFinder commerceModelFinder = new CommerceModelFinder();
-                Whitebox.setInternalState(commerceModelFinder, "modelFactory", context.getService(ModelFactory.class));
-                context.registerService(CommerceModelFinder.class, commerceModelFinder);
+                XSSAPI xssApi = mock(XSSAPI.class);
+                when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
+                context.registerService(XSSAPI.class, xssApi);
+
+                // register commonly used cif services
+                context.registerInjectActivateService(new UrlProviderImpl());
             });
     }
 }

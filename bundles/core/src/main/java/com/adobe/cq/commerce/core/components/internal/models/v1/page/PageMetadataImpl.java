@@ -15,8 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.page;
 
-import java.util.Arrays;
-
 import javax.annotation.PostConstruct;
 
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -27,12 +25,8 @@ import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl;
-import com.adobe.cq.commerce.core.components.internal.services.CommerceModelFinder;
+import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
-import com.adobe.cq.commerce.core.components.models.product.Product;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.Page;
@@ -52,7 +46,7 @@ public class PageMetadataImpl implements PageMetadata {
     private Page currentPage;
 
     @OSGiService
-    private CommerceModelFinder componentFinder;
+    private CommerceComponentModelFinder componentFinder;
 
     private PageMetadata provider;
 
@@ -63,14 +57,9 @@ public class PageMetadataImpl implements PageMetadata {
         // We hence use a dedicated method in modelFactory to inject the right component resource.
 
         if (SiteNavigation.isProductPage(currentPage)) {
-            provider = componentFinder.find(request, ProductImpl.RESOURCE_TYPE, Product.class);
+            provider = componentFinder.findProduct(request);
         } else if (SiteNavigation.isCategoryPage(currentPage)) {
-            provider = componentFinder.find(
-                request,
-                Arrays.asList(
-                    ProductListImpl.RESOURCE_TYPE,
-                    com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl.RESOURCE_TYPE),
-                ProductList.class);
+            provider = componentFinder.findProductList(request);
         }
     }
 
