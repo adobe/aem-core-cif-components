@@ -15,8 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.testing;
 
+import org.apache.sling.models.factory.ModelFactory;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
+import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.internal.services.CommerceModelFinder;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextBuilder;
@@ -54,6 +57,11 @@ public class TestContext {
             .<AemContext>afterSetUp(context -> {
                 // register commonly required services
                 context.registerInjectActivateService(new UrlProviderImpl());
+
+                // TODO: CIF-2469
+                CommerceModelFinder commerceModelFinder = new CommerceModelFinder();
+                Whitebox.setInternalState(commerceModelFinder, "modelFactory", context.getService(ModelFactory.class));
+                context.registerService(CommerceModelFinder.class, commerceModelFinder);
             });
     }
 }
