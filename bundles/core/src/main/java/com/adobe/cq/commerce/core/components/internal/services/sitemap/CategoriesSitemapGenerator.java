@@ -97,7 +97,6 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
         }
 
         ResourceResolver resourceResolver = sitemapRoot.getResourceResolver();
-        ;
         SitemapLinkExternalizer externalizer = externalizerProvider.getExternalizer();
 
         String rootCategoryIdentifier = configuration.get(PN_MAGENTO_ROOT_CATEGORY_ID, String.class);

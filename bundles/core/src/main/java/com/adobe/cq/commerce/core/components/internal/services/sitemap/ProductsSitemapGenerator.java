@@ -110,7 +110,6 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
         int maxPages = Integer.MAX_VALUE;
         SitemapLinkExternalizer externalizer = externalizerProvider.getExternalizer();
         ResourceResolver resourceResolver = sitemapRoot.getResourceResolver();
-        ;
 
         while (currentPageIndex <= maxPages) {
             String query = Operations.query(productsQueryFor(currentPageIndex, pageSize)).toString();
