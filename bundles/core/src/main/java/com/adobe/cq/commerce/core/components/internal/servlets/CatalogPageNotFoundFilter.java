@@ -27,7 +27,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.api.scripting.SlingScriptHelper;
 import org.apache.sling.engine.EngineConstants;
+import org.apache.sling.scripting.core.ScriptHelper;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -69,6 +75,13 @@ public class CatalogPageNotFoundFilter implements Filter {
     @Reference
     private CommerceComponentModelFinder commerceModelFinder;
 
+    private BundleContext bundleContext;
+
+    @Activate
+    protected void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {}
 
@@ -89,12 +102,14 @@ public class CatalogPageNotFoundFilter implements Filter {
 
         if (currentPage != null) {
             if (SiteNavigation.isProductPage(currentPage)) {
+                addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
                 Product product = commerceModelFinder.findProduct(slingRequest, currentPage.getContentResource());
                 if (product != null && !product.getFound()) {
                     slingResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
                     return;
                 }
             } else if (SiteNavigation.isCategoryPage(currentPage)) {
+                addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
                 ProductList productList = commerceModelFinder.findProductList(slingRequest, currentPage.getContentResource());
                 if (productList != null) {
                     AbstractCategoryRetriever categoryRetriever = productList.getCategoryRetriever();
@@ -111,4 +126,28 @@ public class CatalogPageNotFoundFilter implements Filter {
 
     @Override
     public void destroy() {}
+
+    /**
+     * The {@link CommerceComponentModelFinder} uses
+     * {@link org.apache.sling.models.factory.ModelFactory#getModelFromWrappedRequest(SlingHttpServletRequest, Resource, Class)}
+     * to obtain the model of either {@link Product} or {@link ProductList}. That method invokes all
+     * {@link org.apache.sling.scripting.api.BindingsValuesProvider}
+     * while creating the wrapped request. In AEM 6.5 they are not executed lazily and depend on some existing bindings on construction of
+     * which one requires the SlingScriptHelper.
+     *
+     * @param slingRequest
+     */
+    private void addSlingScriptHelperIfNeeded(SlingHttpServletRequest slingRequest, SlingHttpServletResponse slingResponse) {
+        Object attr = slingRequest.getAttribute(SlingBindings.class.getName());
+        if (attr == null) {
+            attr = new SlingBindings();
+            slingRequest.setAttribute(SlingBindings.class.getName(), attr);
+        }
+        if (attr instanceof SlingBindings) {
+            SlingBindings slingBindings = (SlingBindings) attr;
+            if (slingBindings.getSling() == null) {
+                slingBindings.put("sling", new ScriptHelper(bundleContext, null, slingRequest, slingResponse));
+            }
+        }
+    }
 }
