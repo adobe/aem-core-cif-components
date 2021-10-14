@@ -88,10 +88,19 @@
                         <_metatypeannotations>*</_metatypeannotations>
                         <Import-Package>
                             javax.annotation;version=0.0.0,
-                            org.apache.sling.sitemap.*;resolution:=optional,
-                            com.adobe.aem.wcm.seo.*;resolution:=optional,
+                            !org.apache.sling.sitemap.*,
+                            !com.adobe.aem.wcm.seo.*,
                             *
                         </Import-Package>
+                        <DynamicImport-Package>
+                            <!-- Dynamically import the following, optional packages. optional imports do not necessarily resolve even
+                            when the package is actually available -->
+                            org.apache.sling.sitemap;version="[1.0, 2)",
+                            org.apache.sling.sitemap.builder;version="[1.0, 2)",
+                            org.apache.sling.sitemap.spi.common;version="[1.0, 2)",
+                            org.apache.sling.sitemap.spi.generator;version="[1.0, 1.1)",
+                            com.adobe.aem.wcm.seo.sitemap.externalizer;version="[1.0, 2)",
+                        </DynamicImport-Package>
                     </instructions>
                 </configuration>
                 <dependencies>

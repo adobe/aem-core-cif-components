@@ -20,7 +20,6 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import org.apache.sling.api.resource.ResourceResolver;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -43,24 +42,23 @@ public class SitemapLinkExternalizerProvider {
 
     private SitemapLinkExternalizer externalizer;
 
-    @Activate
-    protected void activate() {
-        // try to use the Sites SEO SitemapLinkExternalizer
-        try {
-            if (externalizerService instanceof com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer) {
-                externalizer = new SeoSitemapLinkExternalizer(
-                    (com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer) externalizerService);
-                return;
+    SitemapLinkExternalizer getExternalizer() {
+        if (externalizer == null) {
+            // try to use the Sites SEO SitemapLinkExternalizer
+            try {
+                if (externalizerService instanceof com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer) {
+                    externalizer = new SeoSitemapLinkExternalizer(
+                        (com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer) externalizerService);
+                    return externalizer;
+                }
+            } catch (NoClassDefFoundError ex) {
+                LOGGER.debug("Could not load com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer", ex);
             }
-        } catch (NoClassDefFoundError ex) {
-            LOGGER.debug("Could not load com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer", ex);
+
+            // fallback to sling's SitemapLinkExternalizer
+            externalizer = new SlingSitemapLinkExternalizer(externalizerService);
         }
 
-        // fallback to sling's SitemapLinkExternalizer
-        externalizer = new SlingSitemapLinkExternalizer(externalizerService);
-    }
-
-    SitemapLinkExternalizer getExternalizer() {
         return externalizer;
     }
 
