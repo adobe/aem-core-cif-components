@@ -90,7 +90,7 @@ public class CommerceTestBase {
      * @return The PID of the first configuration found for factory PID.
      * @throws ClientException
      */
-    private static String WCMScriptHelpergetConfigurationPid(OsgiConsoleClient osgiClient, String factoryPID) throws ClientException {
+    private static String getConfigurationPid(OsgiConsoleClient osgiClient, String factoryPID) throws ClientException {
         SlingHttpResponse resp = osgiClient.doGet(CONFIGURATION_CONSOLE_URL + "/*.json");
         JsonNode json = JsonUtils.getJsonNodeFromString(resp.getContent());
         Iterator<JsonNode> it = json.getElements();
