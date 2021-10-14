@@ -121,7 +121,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                 } catch (IOException e) {
                     LOGGER.warn("Cannot use placeholder data", e);
                 }
-            } else { // There isn't any selector on publish instance
+            } else {
+                // There isn't any selector on publish instance
                 searchResultsSet = new SearchResultsSetImpl();
                 categorySearchResultsSet = Pair.of(null, searchResultsSet);
                 return;
