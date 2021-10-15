@@ -87,7 +87,8 @@ public class CommerceComponentModelFinder {
     }
 
     @Nullable
-    public <T> T findComponentModel(SlingHttpServletRequest request, Resource root, Collection<String> resourceTypes, Class<T> adapterType) {
+    public <T> T findComponentModel(SlingHttpServletRequest request, Resource root, Collection<String> resourceTypes,
+        Class<T> adapterType) {
         Resource componentResource = findChildResourceWithType(root, resourceTypes);
         if (componentResource != null) {
             return modelFactory.getModelFromWrappedRequest(request, componentResource, adapterType);

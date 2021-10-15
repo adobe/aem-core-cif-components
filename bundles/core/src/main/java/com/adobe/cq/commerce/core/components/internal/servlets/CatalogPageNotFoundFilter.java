@@ -100,15 +100,16 @@ public class CatalogPageNotFoundFilter implements Filter {
         LOGGER.debug("Check if content on catalog page exists: {}", slingRequest.getRequestURI());
 
         if (currentPage != null) {
+            boolean removeSlingScriptHelperFromBindings = false;
             if (SiteNavigation.isProductPage(currentPage)) {
-                addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
+                removeSlingScriptHelperFromBindings = addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
                 Product product = commerceModelFinder.findProductComponentModel(slingRequest, currentPage.getContentResource());
                 if (product != null && !product.getFound()) {
                     slingResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
                     return;
                 }
             } else if (SiteNavigation.isCategoryPage(currentPage)) {
-                addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
+                removeSlingScriptHelperFromBindings = addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
                 ProductList productList = commerceModelFinder.findProductListComponentModel(slingRequest, currentPage.getContentResource());
                 if (productList != null) {
                     AbstractCategoryRetriever categoryRetriever = productList.getCategoryRetriever();
@@ -116,6 +117,14 @@ public class CatalogPageNotFoundFilter implements Filter {
                         slingResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Category not found");
                         return;
                     }
+                }
+            }
+
+            if (removeSlingScriptHelperFromBindings) {
+                // remove the ScriptHelper if we added it before
+                SlingBindings slingBindings = getSlingBindings(slingRequest);
+                if (slingBindings != null) {
+                    slingBindings.remove("sling");
                 }
             }
         }
@@ -136,17 +145,21 @@ public class CatalogPageNotFoundFilter implements Filter {
      *
      * @param slingRequest
      */
-    private void addSlingScriptHelperIfNeeded(SlingHttpServletRequest slingRequest, SlingHttpServletResponse slingResponse) {
+    private boolean addSlingScriptHelperIfNeeded(SlingHttpServletRequest slingRequest, SlingHttpServletResponse slingResponse) {
+        SlingBindings slingBindings = getSlingBindings(slingRequest);
+        if (slingBindings != null && slingBindings.getSling() == null) {
+            slingBindings.put("sling", new ScriptHelper(bundleContext, null, slingRequest, slingResponse));
+            return true;
+        }
+        return false;
+    }
+
+    private static SlingBindings getSlingBindings(SlingHttpServletRequest slingRequest) {
         Object attr = slingRequest.getAttribute(SlingBindings.class.getName());
         if (attr == null) {
             attr = new SlingBindings();
             slingRequest.setAttribute(SlingBindings.class.getName(), attr);
         }
-        if (attr instanceof SlingBindings) {
-            SlingBindings slingBindings = (SlingBindings) attr;
-            if (slingBindings.getSling() == null) {
-                slingBindings.put("sling", new ScriptHelper(bundleContext, null, slingRequest, slingResponse));
-            }
-        }
+        return attr instanceof SlingBindings ? (SlingBindings) attr : null;
     }
 }
