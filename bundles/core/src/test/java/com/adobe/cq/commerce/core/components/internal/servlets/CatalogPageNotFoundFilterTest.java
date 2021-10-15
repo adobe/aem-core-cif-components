@@ -116,8 +116,8 @@ public class CatalogPageNotFoundFilterTest {
         subject.doFilter(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        verify(contentModelFinder, never()).findProduct(any(), any());
-        verify(contentModelFinder, never()).findProductList(any(), any());
+        verify(contentModelFinder, never()).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
         assertEquals(200, response.getStatus());
     }
 
@@ -128,8 +128,8 @@ public class CatalogPageNotFoundFilterTest {
         subject.doFilter(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        verify(contentModelFinder, never()).findProduct(any(), any());
-        verify(contentModelFinder, never()).findProductList(any(), any());
+        verify(contentModelFinder, never()).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
     }
 
     @Test
@@ -140,8 +140,8 @@ public class CatalogPageNotFoundFilterTest {
         subject.doFilter(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        verify(contentModelFinder).findProduct(any(), any());
-        verify(contentModelFinder, never()).findProductList(any(), any());
+        verify(contentModelFinder).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
         assertEquals(200, response.getStatus());
     }
 
@@ -153,8 +153,8 @@ public class CatalogPageNotFoundFilterTest {
         subject.doFilter(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        verify(contentModelFinder, never()).findProduct(any(), any());
-        verify(contentModelFinder).findProductList(any(), any());
+        verify(contentModelFinder, never()).findProductComponentModel(any(), any());
+        verify(contentModelFinder).findProductListComponentModel(any(), any());
         assertEquals(200, response.getStatus());
     }
 
@@ -166,8 +166,8 @@ public class CatalogPageNotFoundFilterTest {
         subject.doFilter(request, response, filterChain);
 
         verify(filterChain, never()).doFilter(request, response);
-        verify(contentModelFinder).findProduct(any(), any());
-        verify(contentModelFinder, never()).findProductList(any(), any());
+        verify(contentModelFinder).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
         assertEquals(404, response.getStatus());
     }
 
@@ -179,8 +179,8 @@ public class CatalogPageNotFoundFilterTest {
         subject.doFilter(request, response, filterChain);
 
         verify(filterChain, never()).doFilter(request, response);
-        verify(contentModelFinder, never()).findProduct(any(), any());
-        verify(contentModelFinder).findProductList(any(), any());
+        verify(contentModelFinder, never()).findProductComponentModel(any(), any());
+        verify(contentModelFinder).findProductListComponentModel(any(), any());
         assertEquals(404, response.getStatus());
     }
 
@@ -193,8 +193,8 @@ public class CatalogPageNotFoundFilterTest {
         subject.doFilter(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        verify(contentModelFinder).findProduct(any(), any());
-        verify(contentModelFinder, never()).findProductList(any(), any());
+        verify(contentModelFinder).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
         assertEquals(200, response.getStatus());
     }
 
@@ -207,8 +207,8 @@ public class CatalogPageNotFoundFilterTest {
         subject.doFilter(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
-        verify(contentModelFinder, never()).findProduct(any(), any());
-        verify(contentModelFinder).findProductList(any(), any());
+        verify(contentModelFinder, never()).findProductComponentModel(any(), any());
+        verify(contentModelFinder).findProductListComponentModel(any(), any());
         assertEquals(200, response.getStatus());
     }
 }

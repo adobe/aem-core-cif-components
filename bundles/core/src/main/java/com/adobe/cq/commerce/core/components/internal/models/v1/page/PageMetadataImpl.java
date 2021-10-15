@@ -57,9 +57,9 @@ public class PageMetadataImpl implements PageMetadata {
         // We hence use a dedicated method in modelFactory to inject the right component resource.
 
         if (SiteNavigation.isProductPage(currentPage)) {
-            provider = componentFinder.findProduct(request);
+            provider = componentFinder.findProductComponentModel(request);
         } else if (SiteNavigation.isCategoryPage(currentPage)) {
-            provider = componentFinder.findProductList(request);
+            provider = componentFinder.findProductListComponentModel(request);
         }
     }
 

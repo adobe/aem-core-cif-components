@@ -52,42 +52,42 @@ public class CommerceComponentModelFinder {
     private ModelFactory modelFactory;
 
     @Nullable
-    public Product findProduct(SlingHttpServletRequest request) {
-        return find(request, PRODUCT_RTS, Product.class);
+    public Product findProductComponentModel(SlingHttpServletRequest request) {
+        return findComponentModel(request, PRODUCT_RTS, Product.class);
     }
 
     @Nullable
-    public Product findProduct(SlingHttpServletRequest request, Resource root) {
-        return find(request, root, PRODUCT_RTS, Product.class);
+    public Product findProductComponentModel(SlingHttpServletRequest request, Resource root) {
+        return findComponentModel(request, root, PRODUCT_RTS, Product.class);
     }
 
     @Nullable
-    public ProductList findProductList(SlingHttpServletRequest request) {
-        return find(request, PRODUCT_LIST_RTS, ProductList.class);
+    public ProductList findProductListComponentModel(SlingHttpServletRequest request) {
+        return findComponentModel(request, PRODUCT_LIST_RTS, ProductList.class);
     }
 
     @Nullable
-    public ProductList findProductList(SlingHttpServletRequest request, Resource root) {
-        return find(request, root, PRODUCT_LIST_RTS, ProductList.class);
+    public ProductList findProductListComponentModel(SlingHttpServletRequest request, Resource root) {
+        return findComponentModel(request, root, PRODUCT_LIST_RTS, ProductList.class);
     }
 
     @Nullable
-    public <T> T find(SlingHttpServletRequest request, String resourceType, Class<T> adapterType) {
-        return find(request, Collections.singletonList(resourceType), adapterType);
+    public <T> T findComponentModel(SlingHttpServletRequest request, String resourceType, Class<T> adapterType) {
+        return findComponentModel(request, Collections.singletonList(resourceType), adapterType);
     }
 
     @Nullable
-    public <T> T find(SlingHttpServletRequest request, Collection<String> resourceTypes, Class<T> adapterType) {
-        return find(request, request.getResource(), resourceTypes, adapterType);
+    public <T> T findComponentModel(SlingHttpServletRequest request, Collection<String> resourceTypes, Class<T> adapterType) {
+        return findComponentModel(request, request.getResource(), resourceTypes, adapterType);
     }
 
     @Nullable
-    public <T> T find(SlingHttpServletRequest request, Resource root, String resourceType, Class<T> adapterType) {
-        return find(request, root, Collections.singletonList(resourceType), adapterType);
+    public <T> T findComponentModel(SlingHttpServletRequest request, Resource root, String resourceType, Class<T> adapterType) {
+        return findComponentModel(request, root, Collections.singletonList(resourceType), adapterType);
     }
 
     @Nullable
-    public <T> T find(SlingHttpServletRequest request, Resource root, Collection<String> resourceTypes, Class<T> adapterType) {
+    public <T> T findComponentModel(SlingHttpServletRequest request, Resource root, Collection<String> resourceTypes, Class<T> adapterType) {
         Resource componentResource = findChildResourceWithType(root, resourceTypes);
         if (componentResource != null) {
             return modelFactory.getModelFromWrappedRequest(request, componentResource, adapterType);

@@ -29,7 +29,6 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
-import org.apache.sling.api.scripting.SlingScriptHelper;
 import org.apache.sling.engine.EngineConstants;
 import org.apache.sling.scripting.core.ScriptHelper;
 import org.osgi.framework.BundleContext;
@@ -103,14 +102,14 @@ public class CatalogPageNotFoundFilter implements Filter {
         if (currentPage != null) {
             if (SiteNavigation.isProductPage(currentPage)) {
                 addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
-                Product product = commerceModelFinder.findProduct(slingRequest, currentPage.getContentResource());
+                Product product = commerceModelFinder.findProductComponentModel(slingRequest, currentPage.getContentResource());
                 if (product != null && !product.getFound()) {
                     slingResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
                     return;
                 }
             } else if (SiteNavigation.isCategoryPage(currentPage)) {
                 addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
-                ProductList productList = commerceModelFinder.findProductList(slingRequest, currentPage.getContentResource());
+                ProductList productList = commerceModelFinder.findProductListComponentModel(slingRequest, currentPage.getContentResource());
                 if (productList != null) {
                     AbstractCategoryRetriever categoryRetriever = productList.getCategoryRetriever();
                     if (categoryRetriever == null || categoryRetriever.fetchCategory() == null) {
