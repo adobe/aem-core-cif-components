@@ -32,14 +32,17 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.sitemap.SitemapException;
 import org.apache.sling.sitemap.SitemapService;
 import org.apache.sling.sitemap.builder.Sitemap;
+import org.apache.sling.sitemap.builder.Url;
 import org.apache.sling.sitemap.spi.generator.SitemapGenerator;
 import org.osgi.framework.Constants;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -63,12 +66,22 @@ import com.shopify.graphql.support.ID;
     property = {
         Constants.SERVICE_RANKING + ":Integer=100"
     })
-public class CategoriesSitemapGenerator implements SitemapGenerator {
+@Designate(ocd = CategoriesSitemapGenerator.Configuration.class)
+public class CategoriesSitemapGenerator extends SitemapGeneratorBase implements SitemapGenerator {
+
+    @ObjectClassDefinition(name = "CIF Category Sitemap Generator")
+    @interface Configuration {
+
+        @AttributeDefinition(
+            name = "Add Last Modified",
+            description = "If enabled, a Category's last update date will be set as last "
+                + "modified date to an url entry. This does not take into account any associated/referenced content on the category page nor "
+                + "the last modified date know to AEM.")
+        boolean enableLastModified() default true;
+    }
 
     static final String PN_PENDING_CATEGORIES = "pendingCategories";
     static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CategoriesSitemapGenerator.class);
 
     @Reference
     private UrlProvider urlProvider;
@@ -76,6 +89,13 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
     private SitemapLinkExternalizerProvider externalizerProvider;
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
     private SitemapCategoryFilter categoryFilter;
+
+    private boolean addLastModified;
+
+    @Activate
+    protected void activate(Configuration configuration) {
+        this.addLastModified = configuration.enableLastModified();
+    }
 
     @Override
     public Set<String> getNames(Resource sitemapRoot) {
@@ -139,10 +159,13 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
                         .urlKey(category.getUrlKey())
                         .urlPath(category.getUrlPath())
                         .map();
-                    String url = externalizer.externalize(resourceResolver, params, map -> urlProvider.toCategoryUrl(null, null, map));
-                    sitemap.addUrl(url);
-                } else if (ignoredByFilter && LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Ignore category {}, not allowed by filter: {}", category.getUid(),
+                    String urlStr = externalizer.externalize(resourceResolver, params, map -> urlProvider.toCategoryUrl(null, null, map));
+                    Url url = sitemap.addUrl(urlStr);
+                    if (addLastModified) {
+                        addLastModified(url, category);
+                    }
+                } else if (ignoredByFilter && logger.isDebugEnabled()) {
+                    logger.debug("Ignore category {}, not allowed by filter: {}", category.getUid(),
                         categoryFilter.getClass().getSimpleName());
                 }
 
@@ -150,7 +173,7 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
             }
 
             if (it.hasNext()) {
-                LOGGER.warn("More the one category returned for '{}': {}", categoryId, it.next().getUrlPath());
+                logger.warn("More the one category returned for '{}': {}", categoryId, it.next().getUrlPath());
             }
         }
     }
@@ -166,6 +189,8 @@ public class CategoriesSitemapGenerator implements SitemapGenerator {
                     .urlKey()
                     .urlPath()
                     .uid()
+                    .createdAt()
+                    .updatedAt()
                     .children(child -> child.uid())));
     }
 }
