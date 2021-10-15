@@ -92,6 +92,7 @@ public class CategoriesSitemapGeneratorTest {
         aemContext.registerInjectActivateService(graphqlClient);
         aemContext.registerService(SitemapCategoryFilter.class, categoryFilter);
         aemContext.registerService(SitemapLinkExternalizer.class, externalizer);
+        aemContext.registerInjectActivateService(new SitemapLinkExternalizerProvider());
         aemContext.registerInjectActivateService(urlProvider);
         aemContext.registerInjectActivateService(subject);
 
