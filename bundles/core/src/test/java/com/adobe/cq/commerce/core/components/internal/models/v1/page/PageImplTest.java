@@ -28,13 +28,17 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.models.factory.ModelFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter.StoreConfigExporterImpl;
+import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.testing.TestContext;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
@@ -45,7 +49,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertArrayEquals;
@@ -66,9 +69,7 @@ public class PageImplTest extends AbstractPageDelegatorTest {
     static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
-    public final AemContext context = new AemContext((AemContextCallback) context -> {
-        context.load().json("/context/jcr-content.json", "/content");
-    });
+    public final AemContext context = TestContext.newAemContext("/context/jcr-content.json");
 
     protected final String pagePath = "/content/pageH";
 
@@ -92,6 +93,11 @@ public class PageImplTest extends AbstractPageDelegatorTest {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, context.currentPage(pagePath));
         slingBindings.setResource(context.currentPage().getContentResource());
+
+        // provide the CommerceComponentModelFinder, TODO: CIF-2469
+        CommerceComponentModelFinder commerceModelFinder = new CommerceComponentModelFinder();
+        Whitebox.setInternalState(commerceModelFinder, "modelFactory", context.getService(ModelFactory.class));
+        context.registerService(CommerceComponentModelFinder.class, commerceModelFinder);
 
         // provide a graphql client
         GraphqlClient graphqlClient = mock(GraphqlClient.class);
