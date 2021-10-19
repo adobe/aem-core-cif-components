@@ -1,23 +1,26 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 /**
  * Re-fetches a customer cart.
  *
  * @param {Object} payload a parameters object with the following structure:
  *     fetchCustomerCartQuery - the query object to execute to retrieve the cart details
  *     dispatch - the dispatch callback for the user context
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 export const resetCustomerCart = async ({ dispatch, fetchCustomerCartQuery }) => {
     const { data } = await fetchCustomerCartQuery({
@@ -27,6 +30,9 @@ export const resetCustomerCart = async ({ dispatch, fetchCustomerCartQuery }) =>
     dispatch({ type: 'setCartId', cartId });
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const signOutUser = async ({ revokeCustomerToken, setCartCookie, setUserCookie, dispatch }) => {
     try {
         await revokeCustomerToken();
@@ -39,6 +45,9 @@ export const signOutUser = async ({ revokeCustomerToken, setCartCookie, setUserC
     }
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const createAddress = async ({ createCustomerAddress, variables, resetFields, dispatch }) => {
     try {
         const { data } = await createCustomerAddress({ variables: variables });
@@ -49,6 +58,9 @@ export const createAddress = async ({ createCustomerAddress, variables, resetFie
     }
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const updateAddress = async ({ updateCustomerAddress, variables, resetFields, dispatch }) => {
     try {
         const { data } = await updateCustomerAddress({ variables: variables });
@@ -59,6 +71,9 @@ export const updateAddress = async ({ updateCustomerAddress, variables, resetFie
     }
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const deleteAddress = async ({ deleteCustomerAddress, address, dispatch }) => {
     try {
         await deleteCustomerAddress({ variables: { id: address.id } });

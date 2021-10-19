@@ -1,23 +1,25 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.common;
 
 import javax.annotation.Nullable;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 
 @ConsumerType
@@ -28,18 +30,16 @@ public interface ProductListItem extends ListItem {
      *
      * @return the product SKU of this list item or {@code null}
      */
-    default String getSKU() {
-        throw new UnsupportedOperationException();
-    }
+    @Nullable
+    String getSKU();
 
     /**
      * Returns the product slug of this {@code ProductListItem}.
      *
      * @return the product slug of this list item or {@code null}
      */
-    default String getSlug() {
-        throw new UnsupportedOperationException();
-    }
+    @Nullable
+    String getSlug();
 
     /**
      * Returns the product image URL of this {@code ProductListItem}.
@@ -47,9 +47,15 @@ public interface ProductListItem extends ListItem {
      * @return the product image URL of this list item or {@code null}
      */
     @Nullable
-    default String getImageURL() {
-        throw new UnsupportedOperationException();
-    }
+    String getImageURL();
+
+    /**
+     * Returns the product image alt text of this {@code ProductListItem}.
+     *
+     * @return the product image alt text of this list item or {@code null}
+     */
+    @Nullable
+    String getImageAlt();
 
     /**
      * Returns the identifier of this product.
@@ -72,4 +78,11 @@ public interface ProductListItem extends ListItem {
     default Boolean isStaged() {
         return false;
     };
+
+    /**
+     * Returns the backend product using the GraphQL {@code ProductInterface}.
+     *
+     * @return The product.
+     */
+    ProductInterface getProduct();
 }

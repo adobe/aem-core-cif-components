@@ -72,7 +72,7 @@ executors:
     docker:
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-azul-jdk11
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:5343-azul
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:5852-azul
         <<: *docker_auth
   test_executor_655:
     docker:
@@ -164,6 +164,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
           name: Provision
           command: |
             node -v
@@ -181,18 +184,44 @@ jobs:
       - codecov/upload:
           flags: jest
 
+  jest-extension:
+    docker:
+      - image: circleci/node:lts-browsers
+    steps:
+      - checkout
+      - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
+          name: Provision (Core)
+          command: |
+            node -v
+            npm -v
+            npm install
+            npm run webpack:dev
+            npm link
+          working_directory: ./react-components
+      - run:
+          name: Provision (Extension)
+          command: |
+            npm install
+            npm link @adobe/aem-core-cif-react-components
+          working_directory: ./extensions/product-recs/react-components
+      - run:
+          name: Run Unit Tests (Jest)
+          command: npm run ci
+          working_directory: ./extensions/product-recs/react-components
+      - store_test_results:
+          path: ./extensions/product-recs/react-components/test-results
+      - store_artifacts:
+          path: ./extensions/product-recs/react-components/test-results
+      - codecov/upload:
+          flags: jest
+
   integration-test-655:
     executor: test_executor_655
     environment:
       AEM: classic
-      TYPE: integration
-    resource_class: large
-    working_directory: /home/circleci/build
-    <<: *integration_test_steps
-
-  integration-test-cloudready:
-    executor: test_executor_cloudready
-    environment:
       TYPE: integration
     resource_class: large
     working_directory: /home/circleci/build
@@ -270,6 +299,10 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - jest-extension:
+          filters:
+            tags:
+              only: /.*/
       - integration-test-655:
           context:
             - CIF Artifactory Cloud
@@ -281,17 +314,7 @@ workflows:
             - build-java-8
             - karma
             - jest
-      - integration-test-cloudready:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - build-java-8
-            - karma
-            - jest
+            - jest-extension
       - integration-test-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -303,6 +326,7 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - selenium-chrome-655:
           context:
             - CIF Artifactory Cloud
@@ -314,6 +338,7 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - selenium-chrome-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -325,6 +350,7 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - release:
           context:
             - CIF Artifactory Cloud

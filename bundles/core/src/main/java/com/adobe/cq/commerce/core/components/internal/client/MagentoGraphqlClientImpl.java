@@ -1,22 +1,25 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.client;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,6 +34,7 @@ import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -187,10 +191,13 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         }
 
         this.httpHeaders = headers;
+        // In certain situations resource.getResourceType() returns an enforced resource type.
+        // We prefer the resource type of the component proxy for the cache name.
+        String cacheName = resource.getValueMap().get(ResourceResolver.PROPERTY_RESOURCE_TYPE, resource.getResourceType());
         this.requestOptions = new RequestOptions()
             .withGson(QueryDeserializer.getGson())
             .withCachingStrategy(new CachingStrategy()
-                .withCacheName(resource.getResourceType())
+                .withCacheName(cacheName)
                 .withDataFetchingPolicy(DataFetchingPolicy.CACHE_FIRST))
             .withHeaders(headers.size() > 0 ? headers : null)
             .withHttpMethod(httpMethod);
@@ -198,18 +205,27 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
     @Override
     public GraphqlResponse<Query, Error> execute(String query) {
-        return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, requestOptions);
+        try {
+            return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, requestOptions);
+        } catch (RuntimeException ex) {
+            LOGGER.error("Failed to execute query: {}", query, ex);
+            return newErrorResponse(ex);
+        }
     }
 
     @Override
     public GraphqlResponse<Query, Error> execute(String query, HttpMethod httpMethod) {
+        try {
+            // We do not set the HTTP method in 'this.requestOptions' to avoid setting it as the new default
+            RequestOptions options = new RequestOptions().withGson(requestOptions.getGson())
+                .withHeaders(requestOptions.getHeaders())
+                .withHttpMethod(httpMethod);
 
-        // We do not set the HTTP method in 'this.requestOptions' to avoid setting it as the new default
-        RequestOptions options = new RequestOptions().withGson(requestOptions.getGson())
-            .withHeaders(requestOptions.getHeaders())
-            .withHttpMethod(httpMethod);
-
-        return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
+            return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
+        } catch (RuntimeException ex) {
+            LOGGER.error("Failed to execute query: {}", query, ex);
+            return newErrorResponse(ex);
+        }
     }
 
     @Override
@@ -266,6 +282,15 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             throw new IllegalStateException("GraphQL client not available for resource " + resource.getPath());
         }
         return graphqlClient;
+    }
+
+    private static GraphqlResponse<Query, Error> newErrorResponse(Throwable throwable) {
+        GraphqlResponse<Query, Error> response = new GraphqlResponse<>();
+        Error error = new Error();
+        error.setMessage(throwable.getMessage());
+        error.setCategory(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
+        response.setErrors(Collections.singletonList(error));
+        return response;
     }
 
     private static String readFallBackConfiguration(Resource resource, String propertyName) {

@@ -1,28 +1,30 @@
-/*******************************************************************************
- *
- *     Copyright 2019 Adobe. All rights reserved.
- *     This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *     you may not use this file except in compliance with the License. You may obtain a copy
- *     of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *     Unless required by applicable law or agreed to in writing, software distributed under
- *     the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *     OF ANY KIND, either express or implied. See the License for the specific language
- *     governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
 window.CIF = window.CIF || {};
 class CommerceGraphqlApi {
     constructor(props) {
-        if (!props || !props.endpoint || !props.storeView) {
+        if (!props || !props.graphqlEndpoint) {
             throw new Error(
                 'The commerce API is not properly initialized. A required property is missing from the initialization object'
             );
         }
 
-        this.endpoint = props.endpoint;
+        this.endpoint = props.graphqlEndpoint;
         this.storeView = props.storeView;
         this.method = props.graphqlMethod;
         this.headers = props.headers;
@@ -49,10 +51,13 @@ class CommerceGraphqlApi {
             method: this.method === 'GET' && !ignoreCache ? 'GET' : 'POST',
             headers: {
                 ...this.headers,
-                'Content-Type': 'application/json',
-                Store: this.storeView
+                'Content-Type': 'application/json'
             }
         };
+
+        if (this.storeView) {
+            params.headers['Store'] = this.storeView;
+        }
 
         let url = this.endpoint;
         if (params.method === 'POST') {
@@ -166,13 +171,19 @@ class CommerceGraphqlApi {
 
 (function() {
     function onDocumentReady() {
-        const { storeView, graphqlEndpoint, graphqlMethod, httpHeaders } = document.querySelector('body').dataset;
-        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({
-            endpoint: graphqlEndpoint,
-            storeView,
-            graphqlMethod,
-            headers: httpHeaders ? JSON.parse(httpHeaders) : {}
-        });
+        const storeConfigEl = document.querySelector('meta[name="store-config"]');
+        if (storeConfigEl) {
+            window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi(JSON.parse(storeConfigEl.content));
+        } else {
+            // TODO: deprecated - the store configuration on the <body> has been deprecated and will be removed
+            const { storeView, graphqlEndpoint, graphqlMethod, httpHeaders } = document.body.dataset;
+            window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({
+                graphqlEndpoint,
+                storeView,
+                graphqlMethod,
+                headers: httpHeaders ? JSON.parse(httpHeaders) : {}
+            });
+        }
     }
 
     if (document.readyState !== 'loading') {

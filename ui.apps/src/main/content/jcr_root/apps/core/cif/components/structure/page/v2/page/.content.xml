@@ -3,5 +3,5 @@
           jcr:description="CIF Core Page Component"
           jcr:primaryType="cq:Component"
           jcr:title="CIF Core Page V2"
-          sling:resourceSuperType="core/cif/components/structure/page/v1/page"
+          sling:resourceSuperType="core/wcm/components/page/v2/page"
           componentGroup=".hidden"/>

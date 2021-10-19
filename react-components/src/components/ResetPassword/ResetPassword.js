@@ -1,19 +1,21 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { Form } from 'informed';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import { useQueryParams } from '../../utils/hooks';
 import Field from '../Field';
@@ -32,8 +34,11 @@ import LoadingIndicator from '../LoadingIndicator';
 
 import classes from './ResetPassword.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const ResetPassword = () => {
-    const [t] = useTranslation('account', 'common');
+    const intl = useIntl();
     const queryParams = useQueryParams();
     const token = queryParams.get('token');
     const [status, { handleFormSubmit }] = useResetPassword();
@@ -46,27 +51,41 @@ const ResetPassword = () => {
     if (!token) {
         return (
             <div className={classes.error}>
-                {t('account:reset-password-missing-token', 'Missing or invalid token.')}
+                {intl.formatMessage({
+                    id: 'account:reset-password-missing-token',
+                    defaultMessage: 'Missing or invalid token.'
+                })}
             </div>
         );
     }
 
     if (status === 'loading') {
-        return <LoadingIndicator>{t('common:loading', 'Loading')}</LoadingIndicator>;
+        return (
+            <LoadingIndicator>
+                {intl.formatMessage({ id: 'common:loading', defaultMessage: 'Loading' })}
+            </LoadingIndicator>
+        );
     }
 
     if (status === 'error') {
-        return <div className={classes.error}>{t('account:reset-password-error', 'Could not reset password.')}</div>;
+        return (
+            <div className={classes.error}>
+                {intl.formatMessage({
+                    id: 'account:reset-password-error',
+                    defaultMessage: 'Could not reset password.'
+                })}
+            </div>
+        );
     }
 
     if (status === 'done') {
         return (
             <div className={classes.root}>
                 <p className={classes.lead}>
-                    {t(
-                        'account:reset-password-success',
-                        'Your password was changed. Please log in with your new password.'
-                    )}
+                    {intl.formatMessage({
+                        id: 'account:reset-password-success',
+                        defaultMessage: 'Your password was changed. Please log in with your new password.'
+                    })}
                 </p>
             </div>
         );
@@ -75,10 +94,15 @@ const ResetPassword = () => {
     return (
         <Form className={classes.root} onSubmit={onSubmit}>
             <p className={classes.lead}>
-                {t('account:reset-password-lead', 'Please choose a new password to complete the password reset.')}
+                {intl.formatMessage({
+                    id: 'account:reset-password-lead',
+                    defaultMessage: 'Please choose a new password to complete the password reset.'
+                })}
             </p>
             <div className={classes.fields}>
-                <Field label={t('account:email', 'Email address')} required={true}>
+                <Field
+                    label={intl.formatMessage({ id: 'account:email', defaultMessage: 'Email address' })}
+                    required={true}>
                     <TextInput
                         field="email"
                         autoComplete="email"
@@ -87,7 +111,9 @@ const ResetPassword = () => {
                         aria-label="email"
                     />
                 </Field>
-                <Field label={t('account:new-password', 'New Password')} required={true}>
+                <Field
+                    label={intl.formatMessage({ id: 'account:new-password', defaultMessage: 'New Password' })}
+                    required={true}>
                     <TextInput
                         field="password"
                         type="password"
@@ -97,7 +123,12 @@ const ResetPassword = () => {
                         aria-label="password"
                     />
                 </Field>
-                <Field label={t('account:new-password-confirm', 'Confirm new Password')} required={true}>
+                <Field
+                    label={intl.formatMessage({
+                        id: 'account:new-password-confirm',
+                        defaultMessage: 'Confirm new Password'
+                    })}
+                    required={true}>
                     <TextInput
                         field="confirm"
                         type="password"
@@ -109,7 +140,7 @@ const ResetPassword = () => {
             </div>
             <div className={classes.submit}>
                 <Button type="submit" priority="high" aria-label="submit">
-                    {t('account:reset-password', 'Reset Password')}
+                    {intl.formatMessage({ id: 'account:reset-password', defaultMessage: 'Reset Password' })}
                 </Button>
             </div>
         </Form>

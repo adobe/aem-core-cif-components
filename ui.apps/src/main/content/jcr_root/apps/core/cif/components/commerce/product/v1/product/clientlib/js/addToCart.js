@@ -1,16 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
 /**
@@ -19,7 +21,6 @@
 class AddToCart {
     constructor(config) {
         this._element = config.element;
-
         // Get configuration from product reference
         let configurable = config.product.dataset.configurable !== undefined;
         let virtual = config.product.dataset.virtual !== undefined;
@@ -42,7 +43,9 @@ class AddToCart {
         }
 
         if (grouped) {
-            this._onQuantityChanged(); // init
+            // init
+            this._onQuantityChanged();
+
             // Disable/enable add to cart based on the selected quantities of a grouped product
             document.querySelectorAll(AddToCart.selectors.quantity).forEach(selection => {
                 selection.addEventListener('change', this._onQuantityChanged.bind(this));
@@ -80,19 +83,29 @@ class AddToCart {
 
     _onQuantityChanged() {
         const selections = Array.from(document.querySelectorAll(AddToCart.selectors.quantity));
-        let item = selections.find(selection => {
-            return parseInt(selection.value) > 0;
-        });
-        this._element.disabled = item == null;
+        const item = selections.find(selection => parseInt(selection.value) > 0);
+        this._element.disabled = item == null || !this._state.sku;
     }
 
     /**
      * Click event handler for add to cart button.
      */
     _onAddToCart() {
+        const items = this._getEventDetail();
+        if (items.length > 0 && window.CIF) {
+            const customEvent = new CustomEvent(AddToCart.events.addToCart, {
+                detail: items
+            });
+            document.dispatchEvent(customEvent);
+        }
+    }
+
+    _getEventDetail() {
+        if (!this._state.sku) {
+            return [];
+        }
         // To support grouped products where multiple products can be put in the cart in one single click,
         // the sku of each product is now read from the 'data-product-sku' attribute of each select element
-
         const selections = Array.from(document.querySelectorAll(AddToCart.selectors.quantity)).filter(selection => {
             return parseInt(selection.value) > 0;
         });
@@ -108,7 +121,7 @@ class AddToCart {
             }
         }
 
-        let items = selections.map(selection => {
+        const items = selections.map(selection => {
             return {
                 productId: selection.dataset.productId,
                 sku: selection.dataset.productSku,
@@ -118,12 +131,7 @@ class AddToCart {
             };
         });
 
-        if (items.length > 0 && window.CIF) {
-            const customEvent = new CustomEvent(AddToCart.events.addToCart, {
-                detail: items
-            });
-            document.dispatchEvent(customEvent);
-        }
+        return items;
     }
 
     _validateGiftcardForm() {

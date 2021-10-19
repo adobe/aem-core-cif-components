@@ -1,19 +1,20 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 
 import { useAwaitQuery } from '../../utils/hooks';
@@ -27,10 +28,13 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 import MUTATION_UPDATE_CART_ITEM from '../../queries/mutation_update_cart_item.graphql';
 import useCartOptions from './useCartOptions';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CartOptions = () => {
     const [updateCartItemMutation] = useMutation(MUTATION_UPDATE_CART_ITEM);
     const cartDetailsQuery = useAwaitQuery(CART_DETAILS_QUERY);
-    const [t] = useTranslation(['cart', 'common']);
+    const intl = useIntl();
 
     const [{ editItem }, { dispatch, updateCartItem }] = useCartOptions({
         updateCartItemMutation,
@@ -78,7 +82,7 @@ const CartOptions = () => {
             <div className={classes.form}>
                 <section className={classes.quantity}>
                     <h2 className={classes.quantityTitle}>
-                        <span>{t('cart:quantity', 'Quantity')}</span>
+                        <span>{intl.formatMessage({ id: 'cart:quantity', defaultMessage: 'Quantity' })}</span>
                     </h2>
                     <Select field="quantity" initialValue={quantity} onValueChange={handleOnChange} items={mockQtys} />
                 </section>
@@ -88,10 +92,10 @@ const CartOptions = () => {
                     onClick={() => {
                         dispatch({ type: 'endEditing' });
                     }}>
-                    <span>{t('common:cancel', 'Cancel')}</span>
+                    <span>{intl.formatMessage({ id: 'common:cancel', defaultMessage: 'Cancel' })}</span>
                 </Button>
                 <Button priority="high" onClick={handleUpdateClick}>
-                    <span>{t('cart:update-cart', 'Update Cart')}</span>
+                    <span>{intl.formatMessage({ id: 'cart:update-cart', defaultMessage: 'Update Cart' })}</span>
                 </Button>
             </div>
         </form>

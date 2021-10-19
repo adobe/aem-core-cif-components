@@ -18,6 +18,11 @@
                         fieldDescription="The name of this experience fragment location."
                         fieldLabel="Experience fragment location name."
                         name="./fragmentLocation"/>
+                    <id jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                        fieldDescription="HTML ID attribute to apply to the component."
+                        fieldLabel="ID"
+                        name="./id"/>
                 </items>
             </column>
         </items>

@@ -1,21 +1,23 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.search.internal.converters;
 
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.junit.Before;
@@ -34,6 +36,8 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.wcm.api.Page;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -63,6 +67,7 @@ public class ProductToProductListItemConverterTest {
 
     private static final String URL = "http://store.com";
     private static final String IMAGE_URL = "http://image.com";
+    private static final String IMAGE_LABEL = "Some Image";
     private static final String PRODUCT_NAME = "name";
     private static final Locale PAGE_LOCALE = Locale.GERMANY;
 
@@ -72,6 +77,7 @@ public class ProductToProductListItemConverterTest {
         when(productInterface.getUrlKey()).thenReturn(URL);
         when(productInterface.getName()).thenReturn(PRODUCT_NAME);
         when(productInterface.getSmallImage().getUrl()).thenReturn(IMAGE_URL);
+        when(productInterface.getSmallImage().getLabel()).thenReturn(IMAGE_LABEL);
 
         when(money.getCurrency()).thenReturn(CurrencyEnum.BDT);
 
@@ -95,6 +101,12 @@ public class ProductToProductListItemConverterTest {
 
         assertThat(result).isNotNull();
         assertThat(result).isInstanceOf(ProductListItem.class);
+
+        assertEquals(URL, result.getSlug());
+        assertEquals(IMAGE_LABEL, result.getImageAlt());
+        assertEquals(IMAGE_URL, result.getImageURL());
+        assertNotNull(result.getPriceRange());
+        assertEquals(StringUtils.EMPTY, result.getURL());
     }
 
 }

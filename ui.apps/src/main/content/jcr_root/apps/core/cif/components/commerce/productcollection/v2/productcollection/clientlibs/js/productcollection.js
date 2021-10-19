@@ -1,23 +1,25 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
 class ProductCollection {
     constructor(config) {
         this._element = config.element;
 
-        let sortKeySelect = document.querySelector(ProductCollection.selectors.sortKey);
+        let sortKeySelect = this._element.querySelector(ProductCollection.selectors.sortKey);
         if (sortKeySelect) {
             sortKeySelect.addEventListener('change', () => this._applySortKey(sortKeySelect));
         }
@@ -25,6 +27,21 @@ class ProductCollection {
         let loadMoreButton = this._element.querySelector(ProductCollection.selectors.loadMoreButton);
         if (loadMoreButton) {
             loadMoreButton.addEventListener('click', () => this._loadMore(loadMoreButton));
+        }
+
+        let filters = this._element.querySelector(ProductCollection.selectors.filtersBody);
+        if (filters) {
+            let selectedFilter = null;
+            filters.addEventListener('click', e => {
+                if (e.target.type === 'radio') {
+                    if (selectedFilter && selectedFilter === e.target) {
+                        e.target.checked = false;
+                        selectedFilter = null;
+                    } else if (e.target.checked) {
+                        selectedFilter = e.target;
+                    }
+                }
+            });
         }
 
         // Local state
@@ -215,7 +232,8 @@ ProductCollection.selectors = {
     sortKey: '.productcollection__sort-keys',
     galleryItems: '.productcollection__items',
     loadMoreButton: '.productcollection__loadmore-button',
-    loadMoreSpinner: '.productcollection__loadmore-spinner'
+    loadMoreSpinner: '.productcollection__loadmore-spinner',
+    filtersBody: '.productcollection__filters-body'
 };
 
 (function(document) {

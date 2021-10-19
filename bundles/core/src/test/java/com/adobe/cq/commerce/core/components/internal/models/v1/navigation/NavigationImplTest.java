@@ -1,20 +1,22 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,12 +28,13 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.settings.SlingSettingsService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationModel;
@@ -67,6 +70,7 @@ public class NavigationImplTest {
     NavigationModel navigationModel;
     SlingHttpServletRequest request;
 
+    // TODO: Use aem mocks
     @Before
     public void init() {
         navigation = new NavigationImpl();
@@ -102,8 +106,11 @@ public class NavigationImplTest {
         when(categoryProvider.getChildCategories(any(), any())).thenReturn(categoryList);
 
         // URL provider
+        SlingSettingsService slingSettingsService = mock(SlingSettingsService.class);
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
         UrlProviderImpl urlProvider = new UrlProviderImpl();
-        urlProvider.activate(new MockUrlProviderConfiguration());
+        urlProvider.activate(mock(UrlProviderConfiguration.class));
+        Whitebox.setInternalState(urlProvider, "slingSettingsService", slingSettingsService);
         Whitebox.setInternalState(navigation, "urlProvider", urlProvider);
 
         // current request
@@ -118,7 +125,6 @@ public class NavigationImplTest {
 
     @Test
     public void testStructureDepthProperty() {
-
         // set up
         when(request.getRequestURI()).thenReturn("/page1/page11");
         RequestPathInfo rpi = mock(RequestPathInfo.class);

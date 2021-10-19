@@ -1,16 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import parseError from '../../utils/parseError';
 
 /**
@@ -23,8 +25,9 @@ import parseError from '../../utils/parseError';
  *      dispatch - the dispatch callback for the cart context
  *      cartItems - the items to add to the cart
  *      cartId - the id of the cart in which to add the items. This could be `undefined` or `null`
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
-
 export const addItemToCart = async payload => {
     const {
         createCartMutation,
@@ -69,6 +72,8 @@ export const addItemToCart = async payload => {
  *      cartDetailsQuery - the query object to execute
  *      dispatch - the dispatch callback for the cart context
  *      cartId - the id of the cart
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 export const getCartDetails = async payload => {
     const { cartDetailsQuery, dispatch, cartId } = payload;
@@ -97,6 +102,8 @@ export const getCartDetails = async payload => {
  *      dispatch - the dispatch callback for the cart context
  *      cartId - the id of the cart
  *      itemId - the id of the item to remove
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 export const removeItemFromCart = async payload => {
     const { cartDetailsQuery, removeItemMutation, cartId, itemUid, dispatch } = payload;
@@ -120,6 +127,8 @@ export const removeItemFromCart = async payload => {
  *      dispatch - the dispatch callback for the cart context
  *      cartId - the id of the cart
  *      couponCode - the code of the coupon to be removed
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 export const removeCoupon = async payload => {
     const { cartDetailsQuery, cartId, couponCode, removeCouponMutation, dispatch } = payload;
@@ -142,6 +151,8 @@ export const removeCoupon = async payload => {
  *      dispatch - the dispatch callback for the cart context
  *      cartId - the id of the cart
  *      couponCode - the code of the coupon
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 export const addCoupon = async payload => {
     const { cartDetailsQuery, cartId, couponCode, addCouponMutation, dispatch } = payload;
@@ -164,6 +175,8 @@ export const addCoupon = async payload => {
  *      dispatch - the dispatch callback for the cart context
  *      cartId - the id of the cart to be merged
  *      customerCartId - the id of the cart that the other cart will the merged into (i.e. the customer cart)
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 export const mergeCarts = async payload => {
     const { cartDetailsQuery, mergeCartsMutation, cartId, customerCartId, dispatch } = payload;
@@ -181,6 +194,9 @@ export const mergeCarts = async payload => {
     }
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const updateCartItem = async payload => {
     const { cartDetailsQuery, updateCartItemMutation, cartId, cartItemUid, itemQuantity, dispatch } = payload;
     try {

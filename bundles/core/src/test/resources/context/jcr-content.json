@@ -55,6 +55,10 @@
             "product": {
                 "sling:resourceType": "venia/components/commerce/product"
             },
+            "productwithid": {
+              "sling:resourceType": "venia/components/commerce/product",
+              "id": "custom-id"
+            },
             "productlist": {
                 "loadClientPrice": true,
                 "showImage": true,
@@ -104,6 +108,39 @@
                     "item2": {
                         "categoryId": "uid-6",
                         "productSlug": "beaumont-summit-kit",
+                        "text": "A category"
+                    },
+                    "item3": {
+                        "text": "Some text"
+                    },
+                    "item4": {
+                        "link": "/content/page",
+                        "text": "A page"
+                    }
+                }
+            },
+            "commerceteaser2": {
+                "actionsEnabled": true,
+                "sling:resourceType": "venia/components/content/teaser",
+                "pretitle": "Pretitle",
+                "titleFromPage": "flase",
+                "jcr:title": "Title",
+                "descriptionFromPage": false,
+                "jcr:description": "Description",
+                "id": "id",
+                "fileReference": "/content/dam/image.jpg",
+                "actions": {
+                    "item0": {
+                        "productSku": "MJ01",
+                        "text": "A product"
+                    },
+                    "item1": {
+                        "categoryId": "uid-5",
+                        "text": "A category"
+                    },
+                    "item2": {
+                        "categoryId": "uid-5",
+                        "productSku": "MJ01",
                         "text": "A category"
                     },
                     "item3": {
@@ -328,7 +365,8 @@
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent",
-      "cq:conf": "/conf/testing"
+      "cq:conf": "/conf/testing",
+      "sling:resourceType": "core/cif/components/structure/page/v1/page"
     }
   },
   "product-page": {

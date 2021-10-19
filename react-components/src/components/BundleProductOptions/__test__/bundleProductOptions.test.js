@@ -1,32 +1,36 @@
-/*******************************************************************************
- *
- *    Copyright 2020 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2020 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { fireEvent, waitForDomChange } from '@testing-library/react';
+import { fireEvent, waitForDomChange, wait } from '@testing-library/react';
 import { render } from 'test-utils';
 import * as hooks from '../../../utils/hooks';
 import BundleProductOptions from '../bundleProductOptions';
 import mockResponse from './graphQlMockReponse';
+import mockAddToCartMutation from './graphqlMockAddToCartMutation';
 
 const config = {
     storeView: 'default',
     graphqlEndpoint: 'endpoint',
+    graphqlMethod: 'GET',
     mountingPoints: {
         bundleProductOptionsContainer: '#bundle-product-options'
     }
 };
 
-describe('<BundleProductOptions>', () => {
+describe('BundleProductOptions', () => {
     it('renders the component with no sku', () => {
         const { asFragment } = render(<BundleProductOptions />, { config: config });
         expect(asFragment()).toMatchInlineSnapshot(`<DocumentFragment />`);
@@ -65,7 +69,8 @@ describe('<BundleProductOptions>', () => {
 
         const { asFragment, container, getByRole } = render(<BundleProductOptions />, {
             config: config,
-            container: document.body.appendChild(bundleProductOptionsContainer)
+            container: document.body.appendChild(bundleProductOptionsContainer),
+            mocks: [mockAddToCartMutation]
         });
 
         fireEvent.click(getByRole('button', { name: 'Customize' }));
@@ -80,7 +85,7 @@ describe('<BundleProductOptions>', () => {
         fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
 
         // Add to cart should be called just once since the second click was on a disabled button
-        expect(dispatchEventSpy).toHaveBeenCalledTimes(1);
+        await wait(() => expect(dispatchEventSpy).toHaveBeenCalledTimes(1));
 
         // The mock dispatchEvent function returns the CustomEvent detail
         expect(dispatchEventSpy).toHaveReturnedWith([

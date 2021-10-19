@@ -1,18 +1,20 @@
-/*******************************************************************************
- *
- *    Copyright 2020 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2020 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import LoadingIndicator from '../LoadingIndicator';
 import Button from '../Button';
 
@@ -24,8 +26,10 @@ import CHANGE_CUSTOMER_PASSWORD from '../../queries/mutation_change_password.gra
 import classes from './accountDetails.css';
 import EditModal from './editModal';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AccountDetails = () => {
-    const [t] = useTranslation('account');
     const {
         initialValues,
         isSignedIn,
@@ -42,11 +46,15 @@ const AccountDetails = () => {
         setCustomerInformationMutation: UPDATE_CUSTOMER_INFORMATION,
         changeCustomerPasswordMutation: CHANGE_CUSTOMER_PASSWORD
     });
+    const intl = useIntl();
 
     if (!isSignedIn) {
         return (
             <div className={classes.messageText}>
-                {t('account:account-details-sign-in-text', 'Please sign in to see the account details.')}
+                {intl.formatMessage({
+                    id: 'account:account-details-sign-in-text',
+                    defaultMessage: 'Please sign in to see the account details.'
+                })}
             </div>
         );
     }
@@ -59,21 +67,27 @@ const AccountDetails = () => {
     return (
         <div className={classes.accountDetails}>
             <div className={classes.lineItems}>
-                <span className={classes.lineItemLabel}>{t('account:name', 'Name')}</span>
+                <span className={classes.lineItemLabel}>
+                    {intl.formatMessage({ id: 'account:name', defaultMessage: 'Name' })}
+                </span>
                 <span className={classes.lineItemValue} aria-label="name">
                     {`${customer.firstname} ${customer.lastname}`}
                 </span>
-                <span className={classes.lineItemLabel}>{t('account:email', 'Email address')}</span>
+                <span className={classes.lineItemLabel}>
+                    {intl.formatMessage({ id: 'account:email', defaultMessage: 'Email address' })}
+                </span>
                 <span className={classes.lineItemValue} aria-label="email">
                     {customer.email}
                 </span>
-                <span className={classes.lineItemLabel}>{t('account:password', 'Password')}</span>
+                <span className={classes.lineItemLabel}>
+                    {intl.formatMessage({ id: 'account:password', defaultMessage: 'Password' })}
+                </span>
                 <span className={classes.lineItemValue} aria-label="password">
                     {`*******`}
                 </span>
                 <span className={classes.lineItemButton}>
                     <Button className={classes.editInformationButton} onClick={showEditForm}>
-                        {t('common', 'Edit')}
+                        {intl.formatMessage({ id: 'common', defaultMessage: 'Edit' })}
                     </Button>
                 </span>
             </div>

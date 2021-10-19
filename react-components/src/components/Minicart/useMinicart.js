@@ -1,22 +1,39 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import { useEffect } from 'react';
 import { addItemToCart, getCartDetails } from '../../actions/cart';
 import { useCartState } from '../Minicart/cartContext';
 import * as dataLayerUtils from '../../utils/dataLayerUtils';
 import { useStorefrontEvents } from '../../utils/hooks';
 
+export const productMapper = item => ({
+    data: {
+        sku: item.sku,
+        quantity: parseFloat(item.quantity)
+    }
+});
+
+export const bundledProductMapper = item => ({
+    ...productMapper(item),
+    bundle_options: item.options
+});
+
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export default ({ queries }) => {
     const {
         createCartMutation,
@@ -38,6 +55,10 @@ export default ({ queries }) => {
 
         fn();
     }, [cartId]);
+
+    const refreshCart = async () => {
+        await getCartDetails({ cartDetailsQuery, dispatch, cartId });
+    };
 
     const addItem = async event => {
         if (!event.detail) return;
@@ -71,9 +92,9 @@ export default ({ queries }) => {
                 return addVirtualGiftcardItemMutation;
         };
 
-        let physicalCartItems = event.detail.filter(item => !item.virtual).map(mapper);
-        let virtualCartItems = event.detail.filter(item => item.virtual).map(mapper);
-        let bundleCartItems = event.detail.filter(item => item.bundle).map(bundleMapper);
+        let physicalCartItems = event.detail.filter(item => !item.virtual).map(productMapper);
+        let virtualCartItems = event.detail.filter(item => item.virtual).map(productMapper);
+        let bundleCartItems = event.detail.filter(item => item.bundle).map(bundledProductMapper);
         let giftcardCartItems = event.detail.filter(item => item.giftcard.is_giftcard).map(giftcardMapper);
 
         dispatch({ type: 'open' });
@@ -124,7 +145,7 @@ export default ({ queries }) => {
     };
 
     const data = { cartId, cart, isOpen, isLoading, isEditing, errorMessage };
-    const api = { addItem, dispatch };
+    const api = { addItem, refreshCart, dispatch };
 
     return [data, api];
 };

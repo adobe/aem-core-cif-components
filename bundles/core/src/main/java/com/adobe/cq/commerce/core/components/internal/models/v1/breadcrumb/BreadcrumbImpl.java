@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2020 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2020 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.breadcrumb;
 
 import java.util.ArrayList;
@@ -23,9 +24,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -33,6 +33,7 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.via.ForcedResourceType;
@@ -41,8 +42,8 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.models.breadcrumb.Breadcrumb;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
@@ -70,7 +71,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
 
-    @Inject
+    @OSGiService
     private UrlProvider urlProvider;
 
     @ScriptVariable
@@ -196,9 +197,12 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             .urlPath(urlPath)
             .map();
 
-        String url = urlProvider.toCategoryUrl(request, categoryPage, params);
-        NavigationItemImpl categoryItem = new NavigationItemImpl(name, url, isActive, this.getId(), categoryPage.getContentResource());
-        items.add(categoryItem);
+        // if the dynamic category page is null, the category item is not rendered
+        if (categoryPage != null) {
+            String url = urlProvider.toCategoryUrl(request, categoryPage, params);
+            NavigationItemImpl categoryItem = new NavigationItemImpl(name, url, isActive, this.getId(), categoryPage.getContentResource());
+            items.add(categoryItem);
+        }
     }
 
     /**
@@ -255,10 +259,13 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
 
     private boolean isSpecificPage(Page page) {
         // The product or category page might be in a Launch so we first extract the paths of the production versions
-        String productPagePath = productPage.getPath().substring(productPage.getPath().lastIndexOf("/content/"));
-        String categoryPagePath = categoryPage.getPath().substring(categoryPage.getPath().lastIndexOf("/content/"));
+        String productPagePath = productPage == null ? null
+            : productPage.getPath().substring(productPage.getPath().lastIndexOf("/content/"));
+        String categoryPagePath = categoryPage == null ? null
+            : categoryPage.getPath().substring(categoryPage.getPath().lastIndexOf("/content/"));
 
         String path = page.getPath();
-        return (path.contains(productPagePath + "/") || path.contains(categoryPagePath + "/"));
+        return (productPagePath != null && path.contains(productPagePath + "/") ||
+            categoryPagePath != null && path.contains(categoryPagePath + "/"));
     }
 }

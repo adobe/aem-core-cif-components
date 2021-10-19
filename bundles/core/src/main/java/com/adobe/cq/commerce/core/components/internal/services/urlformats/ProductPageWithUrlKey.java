@@ -1,16 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2021 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2021 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
 import java.util.Collections;
@@ -19,14 +21,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 
-import com.adobe.cq.commerce.core.components.internal.services.UrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.google.common.collect.Sets;
 
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.PAGE_PARAM;
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.URL_KEY_PARAM;
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.VARIANT_SKU_PARAM;
+import static com.adobe.cq.commerce.core.components.services.urls.UrlProvider.PAGE_PARAM;
+import static com.adobe.cq.commerce.core.components.services.urls.UrlProvider.URL_KEY_PARAM;
+import static com.adobe.cq.commerce.core.components.services.urls.UrlProvider.VARIANT_SKU_PARAM;
 
 public class ProductPageWithUrlKey extends AbstractUrlFormat {
     public static final UrlFormat INSTANCE = new ProductPageWithUrlKey();
@@ -46,7 +49,7 @@ public class ProductPageWithUrlKey extends AbstractUrlFormat {
     }
 
     @Override
-    public Map<String, String> parse(RequestPathInfo requestPathInfo) {
+    public Map<String, String> parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap) {
         if (requestPathInfo == null) {
             return Collections.emptyMap();
         }
