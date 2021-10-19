@@ -23,11 +23,11 @@ import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.sitemap.SitemapException;
 import org.apache.sling.sitemap.SitemapService;
 import org.apache.sling.sitemap.builder.Sitemap;
 import org.apache.sling.sitemap.builder.Url;
-import org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer;
 import org.apache.sling.sitemap.spi.generator.SitemapGenerator;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
@@ -82,7 +82,7 @@ public class ProductsSitemapGenerator extends SitemapGeneratorBase implements Si
     @Reference
     private UrlProvider urlProvider;
     @Reference
-    private SitemapLinkExternalizer externalizer;
+    private SitemapLinkExternalizerProvider externalizerProvider;
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
     private SitemapProductFilter productFilter;
 
@@ -116,9 +116,8 @@ public class ProductsSitemapGenerator extends SitemapGeneratorBase implements Si
         int currentIndex = context.getProperty(PN_NEXT_PRODUCT, 0);
         int currentPageIndex = context.getProperty(PN_NEXT_PAGE, 1);
         int maxPages = Integer.MAX_VALUE;
-        // parameter map to be reused while iterating
-        UrlProvider.ParamsBuilder paramsBuilder = new UrlProvider.ParamsBuilder()
-            .page(externalizer.externalize(sitemapRoot));
+        SitemapLinkExternalizer externalizer = externalizerProvider.getExternalizer();
+        ResourceResolver resourceResolver = sitemapRoot.getResourceResolver();
 
         while (currentPageIndex <= maxPages) {
             String query = Operations.query(productsQueryFor(currentPageIndex, pageSize)).toString();
@@ -146,14 +145,15 @@ public class ProductsSitemapGenerator extends SitemapGeneratorBase implements Si
                         .getSimpleName());
                     continue;
                 }
-                Map<String, String> params = paramsBuilder
+                Map<String, String> params = new UrlProvider.ParamsBuilder()
+                    .page(productPage.getPath())
                     .sku(product.getSku())
                     .urlKey(product.getUrlKey())
                     .variantSku(null)
                     .variantUrlKey(null)
                     .map();
-
-                Url url = sitemap.addUrl(urlProvider.toProductUrl(null, null, params));
+                String urlStr = externalizer.externalize(resourceResolver, params, map -> urlProvider.toProductUrl(null, null, map));
+                Url url = sitemap.addUrl(urlStr);
                 if (addLastModified) {
                     addLastModified(url, product);
                 }

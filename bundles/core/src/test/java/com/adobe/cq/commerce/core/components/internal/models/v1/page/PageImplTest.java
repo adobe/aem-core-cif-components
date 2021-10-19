@@ -33,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter.StoreConfigExporterImpl;
+import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
@@ -46,9 +47,10 @@ import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -105,6 +107,102 @@ public class PageImplTest extends AbstractPageDelegatorTest {
 
         context.resourceResolver().commit();
         context.currentResource(context.currentPage().getContentResource());
+    }
+
+    @Test
+    public void testReturnsTitleFromPage() {
+        Page mock = mock(Page.class);
+        context.request().setAttribute(MockPage.class.getName(), mock);
+        when(mock.getTitle()).thenReturn("Mock");
+
+        // with empty PageMetadata returns the title
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals("Mock", subject.getTitle());
+    }
+
+    @Test
+    public void testReturnsTitleFromPageMetadata() {
+        context.addModelsForClasses(MockPageMetadata.class);
+        PageMetadata pageMetadata = mock(PageMetadata.class);
+        context.request().setAttribute(MockPageMetadata.class.getName(), pageMetadata);
+        when(pageMetadata.getMetaTitle()).thenReturn("Self");
+
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals("Self", subject.getTitle());
+    }
+
+    @Test
+    public void testReturnsDescriptionFromPage() {
+        Page mock = mock(Page.class);
+        context.request().setAttribute(MockPage.class.getName(), mock);
+        when(mock.getDescription()).thenReturn("Mock");
+
+        // with empty PageMetadata returns the title
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals("Mock", subject.getDescription());
+    }
+
+    @Test
+    public void testReturnsDescriptionFromPageMetadata() {
+        context.addModelsForClasses(MockPageMetadata.class);
+        PageMetadata pageMetadata = mock(PageMetadata.class);
+        context.request().setAttribute(MockPageMetadata.class.getName(), pageMetadata);
+        when(pageMetadata.getMetaDescription()).thenReturn("Self");
+
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals("Self", subject.getDescription());
+    }
+
+    @Test
+    public void testReturnsKeywordsFromPage() {
+        Page mock = mock(Page.class);
+        context.request().setAttribute(MockPage.class.getName(), mock);
+        when(mock.getKeywords()).thenReturn(new String[] { "foo", "bar", "mock" });
+
+        // with empty PageMetadata returns the title
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertArrayEquals(new String[] { "foo", "bar", "mock" }, subject.getKeywords());
+    }
+
+    @Test
+    public void testReturnsKeywordsFromPageMetadata() {
+        context.addModelsForClasses(MockPageMetadata.class);
+        PageMetadata pageMetadata = mock(PageMetadata.class);
+        context.request().setAttribute(MockPageMetadata.class.getName(), pageMetadata);
+        when(pageMetadata.getMetaKeywords()).thenReturn("foo,bar,self");
+
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertArrayEquals(new String[] { "foo", "bar", "self" }, subject.getKeywords());
+    }
+
+    @Test
+    public void testReturnsCanonicalLinkFromPage() {
+        Page mock = mock(Page.class);
+        context.request().setAttribute(MockPage.class.getName(), mock);
+        when(mock.getCanonicalLink()).thenReturn("/en.html");
+
+        // with empty PageMetadata returns the title
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals("/en.html", subject.getCanonicalLink());
+    }
+
+    @Test
+    public void testReturnsCanonicalLinkFromPageMetadata() {
+        context.addModelsForClasses(MockPageMetadata.class);
+        PageMetadata pageMetadata = mock(PageMetadata.class);
+        context.request().setAttribute(MockPageMetadata.class.getName(), pageMetadata);
+        when(pageMetadata.getCanonicalUrl()).thenReturn("http://venia.us/en.html");
+
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals("http://venia.us/en.html", subject.getCanonicalLink());
     }
 
     @Test
@@ -174,4 +272,5 @@ public class PageImplTest extends AbstractPageDelegatorTest {
         JsonNode actual = mapper.readTree(new StringReader(content));
         assertEquals(expected, actual);
     }
+
 }

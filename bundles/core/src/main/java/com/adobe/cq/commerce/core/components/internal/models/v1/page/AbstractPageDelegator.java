@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.page;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,6 +26,7 @@ import com.adobe.cq.wcm.core.components.models.HtmlPageItem;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.adobe.cq.wcm.core.components.models.Page;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 abstract class AbstractPageDelegator implements Page {
 
@@ -154,5 +156,28 @@ abstract class AbstractPageDelegator implements Page {
     @Override
     public String getAppliedCssClasses() {
         return getDelegate().getAppliedCssClasses();
+    }
+
+    @Override
+    public String getDescription() {
+        return getDelegate().getDescription();
+    }
+
+    @Override
+    @JsonIgnore
+    public String getCanonicalLink() {
+        return getDelegate().getCanonicalLink();
+    }
+
+    @Override
+    @JsonIgnore
+    public Map<Locale, String> getAlternateLanguageLinks() {
+        return getDelegate().getAlternateLanguageLinks();
+    }
+
+    @Override
+    @JsonIgnore
+    public List<String> getRobotsTags() {
+        return getDelegate().getRobotsTags();
     }
 }
