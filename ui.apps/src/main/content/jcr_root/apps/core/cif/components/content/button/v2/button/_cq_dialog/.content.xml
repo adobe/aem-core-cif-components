@@ -4,8 +4,8 @@
     jcr:title="Button"
     sling:resourceType="cq/gui/components/authoring/dialog"
     extraClientlibs="[cif.shell.picker]"
-    helpPath="https://www.adobe.com/go/aem_cmp_button_v1"
-    trackingFeature="cif-core-components:button:v1">
+    helpPath="https://www.adobe.com/go/aem_cmp_button_v2"
+    trackingFeature="cif-core-components:button:v2">
     <content jcr:primaryType="nt:unstructured">
         <items jcr:primaryType="nt:unstructured">
             <tabs jcr:primaryType="nt:unstructured">
