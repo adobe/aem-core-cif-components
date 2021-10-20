@@ -88,8 +88,6 @@ public class ButtonImpl implements Button {
     @OSGiService
     protected ModelFactory modelFactory;
 
-    private Page productPage;
-    private Page categoryPage;
     private Button delegate;
     private ComponentData componentData;
 
@@ -101,9 +99,11 @@ public class ButtonImpl implements Button {
         if (EXTERNAL_LINK.equals(linkType)) {
             link = externalLink;
         } else if (PRODUCT.equals(linkType) && productIdentifier != null) {
-            link = getProductUrl();
+            Page productPage = SiteNavigation.getProductPage(currentPage);
+            link = urlProvider.toProductUrl(request, productPage, productIdentifier);
         } else if (CATEGORY.equals(linkType) && categoryIdentifier != null) {
-            link = getCategoryUrl();
+            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
+            link = urlProvider.toCategoryUrl(request, categoryPage, categoryIdentifier);
         } else if (StringUtils.isNotEmpty(linkTo)) {
             link = linkTo + ".html";
         }
@@ -111,16 +111,6 @@ public class ButtonImpl implements Button {
         allProperties.put(PN_BUTTON_LINK, link);
         Resource delegateResource = new ValueMapResource(resource, SUPER_RESOURCE_TYPE, new ValueMapDecorator(allProperties));
         delegate = modelFactory.getModelFromWrappedRequest(request, delegateResource, Button.class);
-    }
-
-    private String getProductUrl() {
-        productPage = SiteNavigation.getProductPage(currentPage);
-        return urlProvider.toProductUrl(request, productPage, productIdentifier);
-    }
-
-    private String getCategoryUrl() {
-        categoryPage = SiteNavigation.getCategoryPage(currentPage);
-        return urlProvider.toCategoryUrl(request, categoryPage, categoryIdentifier);
     }
 
     /**
