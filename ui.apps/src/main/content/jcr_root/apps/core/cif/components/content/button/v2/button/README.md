@@ -16,8 +16,11 @@ limitations under the License.
 
 # Button(v2) 
 
-Button Component v2 meant to be placed on AEM pages and have the option to link it to 1) AEM pages 2) Product 3) Category
-4) External Link.
+Button Component v2 meant to be placed on AEM pages and have the option to link it to 
+- AEM pages 
+- Product 
+- Category 
+- or an External Link.
 
 ## Features
 

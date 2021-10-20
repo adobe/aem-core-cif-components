@@ -18,6 +18,8 @@ package com.adobe.cq.commerce.core.testing;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.wcm.core.components.internal.link.DefaultPathProcessor;
+import com.day.cq.commons.Externalizer;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextBuilder;
 
@@ -54,6 +56,8 @@ public class TestContext {
             .<AemContext>afterSetUp(context -> {
                 // register commonly required services
                 context.registerInjectActivateService(new UrlProviderImpl());
+                context.registerService(Externalizer.class, new MockExternalizer());
+                context.registerInjectActivateService(new DefaultPathProcessor());
             });
     }
 }
