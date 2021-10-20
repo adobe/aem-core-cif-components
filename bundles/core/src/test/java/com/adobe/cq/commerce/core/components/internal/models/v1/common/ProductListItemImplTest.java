@@ -9,6 +9,9 @@
 
 package com.adobe.cq.commerce.core.components.internal.models.v1.common;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -142,6 +145,29 @@ public class ProductListItemImplTest {
 
             when(product.getSku()).thenReturn(sku);
             item = new ProductListItemImpl(product, productPage, null, null, null, "foobar");
+            assertEquals(expected, item.getId());
+        }
+    }
+
+    @Test
+    public void testGenerateIdForVariantSku() {
+        // test for null empty or blank
+        String baseSku = "foobar";
+        Map<String, String> expectations = new HashMap<>();
+        expectations.put(null, "foobar-item-c3ab8ff137");
+        expectations.put("", "foobar-item-c3ab8ff137");
+        expectations.put("variant", "foobar-item-5643622b76");
+
+        for (Map.Entry<String, String> sku : expectations.entrySet()) {
+            String variant = sku.getKey();
+            String expected = sku.getValue();
+            // test all constructors that support variant sku
+            ProductListItem item = new ProductListItemImpl(baseSku, null, null, null, null, null, productPage, variant, null, null,
+                "foobar", false);
+            assertEquals(expected, item.getId());
+
+            when(product.getSku()).thenReturn(baseSku);
+            item = new ProductListItemImpl(product, productPage, variant, null, null, "foobar");
             assertEquals(expected, item.getId());
         }
     }
