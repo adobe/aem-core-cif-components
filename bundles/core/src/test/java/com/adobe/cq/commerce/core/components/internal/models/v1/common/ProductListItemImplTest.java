@@ -135,14 +135,14 @@ public class ProductListItemImplTest {
             when(commerceIdentifier.getType()).thenReturn(CommerceIdentifier.IdentifierType.SKU);
             when(commerceIdentifier.getValue()).thenReturn(sku);
             ProductListItemImpl item = new ProductListItemImpl(commerceIdentifier, "foobar", productPage);
-            assertEquals(expected, item.generateId());
+            assertEquals(expected, item.getId());
 
             item = new ProductListItemImpl(sku, null, null, null, null, null, productPage, null, null, null, "foobar", false);
-            assertEquals(expected, item.generateId());
+            assertEquals(expected, item.getId());
 
             when(product.getSku()).thenReturn(sku);
             item = new ProductListItemImpl(product, productPage, null, null, null, "foobar");
-            assertEquals(expected, item.generateId());
+            assertEquals(expected, item.getId());
         }
     }
 
