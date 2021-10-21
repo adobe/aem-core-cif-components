@@ -19,7 +19,7 @@ import java.util.Map;
 import com.adobe.cq.commerce.magento.graphql.GiftCardTypeEnum;
 
 /**
- * GiftCardAttribute is a view model interface and representing the attributes 
+ * GiftCardAttribute is a view model interface and representing the attributes
  * for giftcard product type.
  */
 public interface GiftCardAttribute {
