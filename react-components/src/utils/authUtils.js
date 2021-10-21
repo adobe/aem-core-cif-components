@@ -15,9 +15,23 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import { ApolloLink } from '@apollo/client';
 import { checkCookie, cookieValue } from './cookieUtils';
+import { checkItem, getJsonItem } from './localStorageUtils';
+
+const SIGN_IN_TOKEN_KEY = 'M2_VENIA_BROWSER_PERSISTENCE__signin_token';
 
 const authLink = new ApolloLink((operation, forward) => {
     let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
+    if (checkItem(SIGN_IN_TOKEN_KEY)) {
+        const singInTokenJson = getJsonItem(SIGN_IN_TOKEN_KEY);
+
+        if (singInTokenJson) {
+            const timestamp = new Date().getTime();
+            if (timestamp - singInTokenJson.timeStored < singInTokenJson.ttl * 1000) {
+                token = singInTokenJson.value.replaceAll('"', '');
+            }
+        }
+    }
+
     if (token.length > 0) {
         operation.setContext(({ headers }) => ({
             headers: {
