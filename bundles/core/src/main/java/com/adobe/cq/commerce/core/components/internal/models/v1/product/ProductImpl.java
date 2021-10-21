@@ -50,10 +50,8 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.ProductStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
-import com.adobe.cq.commerce.core.components.models.product.GiftCardAmount;
 import com.adobe.cq.commerce.core.components.models.product.GiftCardAttribute;
 import com.adobe.cq.commerce.core.components.models.product.GiftCardOption;
-import com.adobe.cq.commerce.core.components.models.product.GiftCardValue;
 import com.adobe.cq.commerce.core.components.models.product.GroupItem;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
@@ -519,49 +517,30 @@ public class ProductImpl extends DataLayerComponent implements Product {
         giftCardAttribute.setOpenAmountMin(giftCardProduct.getOpenAmountMin());
         giftCardAttribute.setGiftCardOptions(mapGiftCardOptions(giftCardProduct.getGiftCardOptions()));
         giftCardAttribute.setGiftCardAmount(mapGiftCardAmount(giftCardProduct.getGiftcardAmounts()));
-        giftCardAttribute.setOpenAmountRange(getGiftCardPrice(giftCardProduct));
 
         return giftCardAttribute;
     }
 
-    private Map mapGiftCardOptions(List<CustomizableOptionInterface> optionList) {
+    private Map<String, GiftCardOption> mapGiftCardOptions(List<CustomizableOptionInterface> optionList) {
         Map<String, GiftCardOption> giftCardOptionMap = new HashMap<String, GiftCardOption>();
 
-        optionList.stream().forEach(coi -> {
+        for (CustomizableOptionInterface option : optionList) {
             GiftCardOptionImpl giftCardOption = new GiftCardOptionImpl();
-            CustomizableFieldValue cfv = (CustomizableFieldValue) coi.get("value");
-            giftCardOption.setTitle(coi.getTitle());
-            giftCardOption.setValue(this.mapGiftCardValue(cfv));
+            CustomizableFieldValue cfv = (CustomizableFieldValue) option.get("value");
+            giftCardOption.setTitle(option.getTitle());
+            giftCardOption.setValue(new GiftCardValueImpl(cfv.getUid().toString()));
 
-            giftCardOptionMap.put(coi.getTitle(), giftCardOption);
-
-        });
+            giftCardOptionMap.put(option.getTitle(), giftCardOption);
+        }
         return giftCardOptionMap;
     }
 
-    private List<GiftCardAmount> mapGiftCardAmount(List<GiftCardAmounts> giftCardAmountList) {
-        List<GiftCardAmount> amountList = new ArrayList<GiftCardAmount>();
-
-        giftCardAmountList.stream().forEach(gca -> {
-            GiftCardAmountImpl giftCardAmount = new GiftCardAmountImpl();
-            giftCardAmount.setUid(gca.getUid().toString());
-            giftCardAmount.setValue(gca.getValue());
-            amountList.add(giftCardAmount);
-        });
+    private List<Double> mapGiftCardAmount(List<GiftCardAmounts> giftCardAmountList) {
+        List<Double> amountList = new ArrayList<Double>();
+        for (GiftCardAmounts gca : giftCardAmountList) {
+            amountList.add(gca.getValue());
+        }
         return amountList;
-    }
-
-    private GiftCardValue mapGiftCardValue(CustomizableFieldValue value) {
-        GiftCardValueImpl giftCardValue = new GiftCardValueImpl();
-        giftCardValue.setUid(value.getUid().toString());
-
-        return giftCardValue;
-    }
-
-    private Price getGiftCardPrice(GiftCardProduct giftCardProduct) {
-        return new PriceImpl(giftCardProduct.getPriceRange(), locale, giftCardProduct.getAllowOpenAmount(), giftCardProduct
-            .getOpenAmountMin(),
-            giftCardProduct.getOpenAmountMax());
     }
 
     @Override
