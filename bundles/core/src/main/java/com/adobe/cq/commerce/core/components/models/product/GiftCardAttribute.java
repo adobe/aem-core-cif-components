@@ -16,7 +16,6 @@ package com.adobe.cq.commerce.core.components.models.product;
 import java.util.List;
 import java.util.Map;
 
-import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.magento.graphql.GiftCardTypeEnum;
 
 public interface GiftCardAttribute {
@@ -31,7 +30,5 @@ public interface GiftCardAttribute {
 
     Map<String, GiftCardOption> getGiftCardOptions();
 
-    List<GiftCardAmount> getGiftCardAmount();
-
-    Price getOpenAmountRange();
+    List<Double> getGiftCardAmount();
 }

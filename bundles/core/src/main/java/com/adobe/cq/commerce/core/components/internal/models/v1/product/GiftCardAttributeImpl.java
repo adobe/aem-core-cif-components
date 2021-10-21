@@ -16,8 +16,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 import java.util.List;
 import java.util.Map;
 
-import com.adobe.cq.commerce.core.components.models.common.Price;
-import com.adobe.cq.commerce.core.components.models.product.GiftCardAmount;
 import com.adobe.cq.commerce.core.components.models.product.GiftCardAttribute;
 import com.adobe.cq.commerce.core.components.models.product.GiftCardOption;
 import com.adobe.cq.commerce.magento.graphql.GiftCardTypeEnum;
@@ -34,16 +32,14 @@ public class GiftCardAttributeImpl implements GiftCardAttribute {
 
     private Map<String, GiftCardOption> giftCardOptions;
 
-    private List<GiftCardAmount> giftCardAmount;
-
-    private Price openAmountRange;
+    private List<Double> giftCardAmount;
 
     @Override
-    public List<GiftCardAmount> getGiftCardAmount() {
+    public List<Double> getGiftCardAmount() {
         return giftCardAmount;
     }
 
-    public void setGiftCardAmount(List<GiftCardAmount> giftCardAmount) {
+    public void setGiftCardAmount(List<Double> giftCardAmount) {
         this.giftCardAmount = giftCardAmount;
     }
 
@@ -81,15 +77,6 @@ public class GiftCardAttributeImpl implements GiftCardAttribute {
 
     public void setGiftCardOptions(Map<String, GiftCardOption> giftCardOptions) {
         this.giftCardOptions = giftCardOptions;
-    }
-
-    @Override
-    public Price getOpenAmountRange() {
-        return openAmountRange;
-    }
-
-    public void setOpenAmountRange(Price openAmountRange) {
-        this.openAmountRange = openAmountRange;
     }
 
     @Override
