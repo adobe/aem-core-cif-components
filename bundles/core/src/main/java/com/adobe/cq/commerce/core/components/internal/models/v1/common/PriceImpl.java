@@ -49,11 +49,6 @@ public class PriceImpl implements Price {
     private Boolean isRange;
     private boolean isStartPrice;
     private boolean isEmpty = false;
-    private Boolean isMinStartingPrice = false;
-    private Double minStartingPrice;
-
-    private Double openAmountMin;
-    private Double openAmountMax;
 
     public PriceImpl(PriceRange range, Locale locale) {
         this(range, locale, false);
@@ -86,12 +81,12 @@ public class PriceImpl implements Price {
     public PriceImpl(PriceRange range, Locale locale, boolean allowOpenAmount, Double openAmountMin, Double openAmountMax) {
         this(range, locale, false);
 
-        this.openAmountMin = openAmountMin;
-        this.openAmountMax = openAmountMax;
-
-        minStartingPrice = allowOpenAmount ? (BigDecimal.ZERO.compareTo(new BigDecimal(finalPriceMin)) < 0 ? Double.min(finalPriceMin,
-            openAmountMin) : openAmountMin) : finalPriceMin;
-        isMinStartingPrice = true;
+        if (openAmountMin != null) {
+            this.regularPriceMin = this.finalPriceMin = openAmountMin;
+            this.regularPriceMax = this.finalPriceMax = openAmountMax;
+        } else {
+            this.isEmpty = true;
+        }
     }
 
     private NumberFormat getPriceFormatter() {
@@ -212,34 +207,5 @@ public class PriceImpl implements Price {
     @Override
     public Double getDiscountPercentMax() {
         return isRange() ? discountPercentMax : Double.NaN;
-    }
-
-    @Override
-    public String getFormatedMinStartingPrice() {
-        if (minStartingPrice != null) {
-            return getPriceFormatter().format(minStartingPrice);
-        }
-        return StringUtils.EMPTY;
-    }
-
-    @Override
-    public Boolean isMinStartingPrice() {
-        return isMinStartingPrice;
-    }
-
-    @Override
-    public String getOpenAmountMin() {
-        if (openAmountMin != null) {
-            return getPriceFormatter().format(openAmountMin);
-        }
-        return StringUtils.EMPTY;
-    }
-
-    @Override
-    public String getOpenAmountMax() {
-        if (openAmountMax != null) {
-            return getPriceFormatter().format(openAmountMax);
-        }
-        return StringUtils.EMPTY;
     }
 }

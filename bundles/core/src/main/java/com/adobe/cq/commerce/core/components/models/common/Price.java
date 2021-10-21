@@ -21,9 +21,11 @@ package com.adobe.cq.commerce.core.components.models.common;
 public interface Price {
 
     /**
-     * Indicates if a product price is not available. If a product price is not available, most methods return null or an empty string.
+     * Indicates if a product price is not available. If a product price is not
+     * available, most methods return null or an empty string.
      *
-     * @return <code>false</code> if price is available, <code>true</code> if no price is available.
+     * @return <code>false</code> if price is available, <code>true</code> if no
+     *         price is available.
      */
     boolean isEmpty();
 
@@ -58,7 +60,8 @@ public interface Price {
     /**
      * Returns formatted discount amount.
      *
-     * @return formatted discount amount as string, might be empty if no price is available.
+     * @return formatted discount amount as string, might be empty if no price is
+     *         available.
      */
     String getFormattedDiscountAmount();
 
@@ -87,18 +90,10 @@ public interface Price {
     /**
      * Returns formatted maximum discount amount.
      *
-     * @return formatted discount amount as string, might be empty if no price is available.
+     * @return formatted discount amount as string, might be empty if no price is
+     *         available.
      */
     String getFormattedDiscountAmountMax();
 
     Double getDiscountPercentMax();
-
-    String getFormatedMinStartingPrice();
-
-    Boolean isMinStartingPrice();
-
-    String getOpenAmountMin();
-
-    String getOpenAmountMax();
-
 }
