@@ -564,11 +564,6 @@ public class ProductImplTest {
             giftCardAmountMap.put(gca.getUid().toString(), gca.getValue());
 
         });
-
-        giftcardAttribute.getGiftCardAmount().stream().forEach(amount -> {
-            Assert.assertTrue(giftCardAmountMap.containsKey(amount.getUid().toString()));
-            Assert.assertEquals(giftCardAmountMap.get(amount.getUid().toString()), amount.getValue());
-        });
     }
 
     @Test
@@ -584,29 +579,8 @@ public class ProductImplTest {
         GiftCardProduct gcp = (GiftCardProduct) product;
         GiftCardAttribute giftcardAttribute = productModel.getGiftCardAttributes();
         Assert.assertTrue(gcp.getAllowOpenAmount());
-        Assert.assertEquals(Double.valueOf(12), giftcardAttribute.getOpenAmountRange().getFinalPrice());
-        Assert.assertEquals("$10.00", giftcardAttribute.getOpenAmountRange().getFormatedMinStartingPrice());
     }
 
-    @Test
-    public void testGiftCardMinPriceWithOpenAmountFalse() throws IOException {
-        Utils.setupHttpResponse("graphql/magento-graphql-giftcardproduct-openamount-false-result.json", httpClient, 200,
-            "{products(filter:{sku");
-        adaptToProduct();
-
-        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-giftcardproduct-openamount-false-result.json");
-        product = rootQuery.getProducts().getItems().get(0);
-
-        Assert.assertTrue(productModel.isGiftCardProduct());
-
-        GiftCardProduct gcp = (GiftCardProduct) product;
-        GiftCardAttribute giftcardAttribute = productModel.getGiftCardAttributes();
-        Assert.assertFalse(gcp.getAllowOpenAmount());
-
-        Assert.assertEquals(Double.valueOf(20), giftcardAttribute.getOpenAmountRange().getFinalPrice());
-        Assert.assertEquals("$20.00", giftcardAttribute.getOpenAmountRange().getFormatedMinStartingPrice());
-    }
-  
     public void testManualHtmlId() throws IOException {
         context.currentResource(PRODUCT_WITH_ID);
         context.request().setServletPath(PRODUCT_WITH_ID + ".beaumont-summit-kit.html");
