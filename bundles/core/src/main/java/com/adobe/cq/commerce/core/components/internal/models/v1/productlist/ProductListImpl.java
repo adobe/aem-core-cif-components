@@ -17,6 +17,8 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -270,6 +272,12 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             }
         }
         return canonicalUrl;
+    }
+
+    @Override
+    public Map<Locale, String> getAlternateLanguageLinks() {
+        // we don't support alternate language links on categories yet
+        return Collections.emptyMap();
     }
 
     @Override

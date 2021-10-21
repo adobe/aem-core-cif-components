@@ -20,6 +20,7 @@ import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.sling.api.resource.ModifiableValueMap;
@@ -28,6 +29,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.models.factory.ModelFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,6 +42,7 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.wcm.core.components.models.HtmlPageItem;
 import com.adobe.cq.wcm.core.components.models.Page;
+import com.adobe.cq.wcm.core.components.testing.MockStyle;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -89,9 +92,13 @@ public class PageImplTest extends AbstractPageDelegatorTest {
         context.registerAdapter(Resource.class, ComponentsConfiguration.class, MOCK_CONFIGURATION_OBJECT);
         context.addModelsForClasses(MockPage.class);
 
+        ValueMap styleProperties = new ValueMapDecorator(Collections.singletonMap(
+            PageImpl.PN_STYLE_RENDER_ALTERNATE_LANGUAGE_LINKS, Boolean.TRUE));
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, context.currentPage(pagePath));
         slingBindings.setResource(context.currentPage().getContentResource());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE,
+            new MockStyle(context.currentPage().getContentResource(), styleProperties));
 
         // provide a graphql client
         GraphqlClient graphqlClient = mock(GraphqlClient.class);
@@ -203,6 +210,57 @@ public class PageImplTest extends AbstractPageDelegatorTest {
         Page subject = context.request().adaptTo(Page.class);
         assertNotNull(subject);
         assertEquals("http://venia.us/en.html", subject.getCanonicalLink());
+    }
+
+    @Test
+    public void testReturnsAlternateLanguageLinksFromPage() {
+        // this test verifies both cases, with render flag on and off
+        Locale expectedLocale = Locale.US;
+        String expectedLink = "http://venia.us/en.html";
+        Object[][] testParams = new Object[][] {
+            // render alternate language links enabled
+            { Boolean.TRUE, 1, expectedLocale, expectedLink },
+            // render alternate language links disabled
+            { Boolean.FALSE, 0, null, null }
+        };
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        // we use the ModelFactory instead of adaptTo() to circumvent SlingAdaptable caching
+        ModelFactory modelFactory = context.getService(ModelFactory.class);
+        Page mock = mock(Page.class);
+        context.request().setAttribute(MockPage.class.getName(), mock);
+        when(mock.getAlternateLanguageLinks()).thenReturn(Collections.singletonMap(Locale.US, "http://venia.us/en.html"));
+
+        for (Object[] currentTestParams : testParams) {
+            ValueMap styleProperties = new ValueMapDecorator(Collections.singletonMap(
+                PageImpl.PN_STYLE_RENDER_ALTERNATE_LANGUAGE_LINKS, currentTestParams[0]));
+            slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, new MockStyle(context.currentResource(), styleProperties));
+
+            Page subject = modelFactory.createModel(context.request(), Page.class);
+            assertNotNull(subject);
+
+            Map links = subject.getAlternateLanguageLinks();
+            assertEquals(currentTestParams[1], links.size());
+            if (links.size() > 0) {
+                assertThat(links).containsEntry(currentTestParams[2], currentTestParams[3]);
+            }
+        }
+    }
+
+    @Test
+    public void testReturnsAlternateLanguageLinksFromPageMetadata() {
+        ValueMap styleProperties = new ValueMapDecorator(Collections.singletonMap(
+            PageImpl.PN_STYLE_RENDER_ALTERNATE_LANGUAGE_LINKS, Boolean.TRUE));
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, new MockStyle(context.currentResource(), styleProperties));
+        context.addModelsForClasses(MockPageMetadata.class);
+        PageMetadata pageMetadata = mock(PageMetadata.class);
+        context.request().setAttribute(MockPageMetadata.class.getName(), pageMetadata);
+        when(pageMetadata.getAlternateLanguageLinks()).thenReturn(Collections.singletonMap(Locale.US, "http://venia.us/en.html"));
+
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals(1, subject.getAlternateLanguageLinks().size());
+        assertThat(subject.getAlternateLanguageLinks()).containsEntry(Locale.US, "http://venia.us/en.html");
     }
 
     @Test

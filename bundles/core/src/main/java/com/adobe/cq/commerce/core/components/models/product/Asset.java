@@ -15,9 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.product;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
 /**
  * Asset is a view model interface representing a product asset.
  */
+@ConsumerType
 public interface Asset {
     String getLabel();
 

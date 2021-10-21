@@ -17,10 +17,13 @@ package com.adobe.cq.commerce.core.components.models.product;
 
 import java.util.List;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
 /**
  * VariantAttribute is a view model interface and representing a variant axis to
  * enable variant selection for configurable products.
  */
+@ConsumerType
 public interface VariantAttribute {
     String getLabel();
 
