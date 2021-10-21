@@ -29,20 +29,25 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.scripting.SlingScriptHelper;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcollection.ProductCollectionImpl;
+import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.CategoryStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
@@ -52,6 +57,7 @@ import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.day.cq.wcm.api.Page;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -74,12 +80,14 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     // This script variable is not injected when the model is instantiated in SpecificPageServlet
     @ScriptVariable(name = "wcmmode", injectionStrategy = InjectionStrategy.OPTIONAL)
     private SightlyWCMMode wcmMode = null;
-
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
+    @SlingObject
+    private SlingScriptHelper sling;
 
     protected AbstractCategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
+    private boolean isAuthorInstance;
     private String canonicalUrl;
 
     private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
@@ -89,6 +97,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         // read properties
         showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
         showImage = properties.get(PN_SHOW_IMAGE, currentStyle.get(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
+        isAuthorInstance = wcmMode != null && !wcmMode.isDisabled();
 
         String currentPageIndexCandidate = request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID);
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
@@ -98,13 +107,6 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
         // Extract category identifier from URL
         String categoryUid = urlProvider.getCategoryIdentifier(request);
-
-        boolean isAuthorInstance = wcmMode != null && !wcmMode.isDisabled();
-        if (isAuthorInstance) {
-            canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
-        } else {
-            canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
-        }
 
         if (magentoGraphqlClient != null) {
             if (StringUtils.isNotBlank(categoryUid)) {
@@ -242,6 +244,31 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     @Override
     public String getCanonicalUrl() {
+        if (canonicalUrl == null) {
+            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
+            CategoryInterface category = getCategory();
+            SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
+
+            if (category != null && categoryPage != null && sitemapLinkExternalizerProvider != null) {
+                canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer()
+                    .externalize(
+                        resource.getResourceResolver(),
+                        new UrlProvider.ParamsBuilder()
+                            .page(categoryPage.getPath())
+                            .uid(category.getUid().toString())
+                            .urlKey(category.getUrlKey())
+                            .urlPath(category.getUrlPath())
+                            .map(),
+                        params -> urlProvider.toCategoryUrl(request, categoryPage, params));
+            } else {
+                // fallback to legacy logic
+                if (isAuthorInstance) {
+                    canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
+                } else {
+                    canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
+                }
+            }
+        }
         return canonicalUrl;
     }
 

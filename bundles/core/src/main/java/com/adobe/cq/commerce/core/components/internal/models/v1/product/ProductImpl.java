@@ -29,11 +29,13 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.api.scripting.SlingScriptHelper;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.xss.XSSAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,7 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryDataImpl
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
+import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.ProductStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
@@ -56,6 +59,7 @@ import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.BundleProduct;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
@@ -118,6 +122,9 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @ScriptVariable(name = "wcmmode")
     private SightlyWCMMode wcmMode;
 
+    @SlingObject
+    private SlingScriptHelper sling;
+
     @OSGiService
     private XSSAPI xssApi;
 
@@ -164,12 +171,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
         }
 
         locale = currentPage.getLanguage(false);
-
-        if (!wcmMode.isDisabled()) {
-            canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
-        } else {
-            canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
-        }
     }
 
     @Override
@@ -419,6 +420,31 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public String getCanonicalUrl() {
+        if (canonicalUrl == null) {
+            Page productPage = SiteNavigation.getProductPage(currentPage);
+            ProductInterface product = productRetriever != null ? productRetriever.fetchProduct() : null;
+            SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
+
+            if (productPage != null && product != null && sitemapLinkExternalizerProvider != null) {
+                canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer()
+                    .externalize(
+                        resource.getResourceResolver(),
+                        new UrlProvider.ParamsBuilder()
+                            .page(productPage.getPath())
+                            .sku(product.getSku())
+                            .urlKey(product.getUrlKey())
+                            .map(),
+                        urlParams -> urlProvider.toProductUrl(request, productPage, urlParams));
+
+            } else {
+                // fallback to the previous/legacy logic
+                if (!wcmMode.isDisabled()) {
+                    canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
+                } else {
+                    canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
+                }
+            }
+        }
         return canonicalUrl;
     }
 

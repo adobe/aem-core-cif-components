@@ -27,7 +27,7 @@ import com.drew.lang.annotations.NotNull;
  * Sling's SitemapLinkExternalizer or, if available at runtime the Sites SEO's SitemapLinkExternalizer. The latter provides an advanced
  * interface that allows to externalize a path directly.
  */
-interface SitemapLinkExternalizer {
+public interface SitemapLinkExternalizer {
 
     /**
      * Externalizes the url returned by the given urlProvider function. This can either be done by externalizing the page parameter in the
