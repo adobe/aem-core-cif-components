@@ -48,14 +48,24 @@ describe('useAddToCartEvent', () => {
 
         // when
         render(<MockComponet addToCartApi={{ addPhysicalProductItems }} />);
-        dispatchEvent([{ virtual: false, sku: 'sample', quantity: '1.0' }]);
+        dispatchEvent([
+            {
+                virtual: false,
+                sku: 'sample',
+                quantity: '1.0',
+                giftcard: { entered_options: [], is_giftcard: false, type: '' }
+            }
+        ]);
 
         // then
         await wait(() => {
             expect(addPhysicalProductItems).toHaveBeenCalledTimes(1);
             expect(addPhysicalProductItems).toHaveBeenCalledWith([
                 {
-                    data: { sku: 'sample', quantity: 1.0 }
+                    data: {
+                        sku: 'sample',
+                        quantity: 1.0
+                    }
                 }
             ]);
         });
@@ -68,8 +78,18 @@ describe('useAddToCartEvent', () => {
         // when
         render(<MockComponet addToCartApi={{ addPhysicalAndVirtualProductItems }} />);
         dispatchEvent([
-            { virtual: false, sku: 'physical', quantity: '1' },
-            { virtual: true, sku: 'virtual', quantity: '1.5' }
+            {
+                virtual: false,
+                sku: 'physical',
+                quantity: '1',
+                giftcard: { entered_options: [], is_giftcard: false, type: '' }
+            },
+            {
+                virtual: true,
+                sku: 'virtual',
+                quantity: '1.5',
+                giftcard: { entered_options: [], is_giftcard: false, type: '' }
+            }
         ]);
 
         // then
@@ -78,12 +98,18 @@ describe('useAddToCartEvent', () => {
             expect(addPhysicalAndVirtualProductItems).toHaveBeenCalledWith(
                 [
                     {
-                        data: { sku: 'physical', quantity: 1.0 }
+                        data: {
+                            sku: 'physical',
+                            quantity: 1.0
+                        }
                     }
                 ],
                 [
                     {
-                        data: { sku: 'virtual', quantity: 1.5 }
+                        data: {
+                            sku: 'virtual',
+                            quantity: 1.5
+                        }
                     }
                 ]
             );
@@ -96,14 +122,24 @@ describe('useAddToCartEvent', () => {
 
         // when
         render(<MockComponet addToCartApi={{ addVirtualProductItems }} />);
-        dispatchEvent([{ virtual: true, sku: 'virtual', quantity: '1.5' }]);
+        dispatchEvent([
+            {
+                virtual: true,
+                sku: 'virtual',
+                quantity: '1.5',
+                giftcard: { entered_options: [], is_giftcard: false, type: '' }
+            }
+        ]);
 
         // then
         await wait(() => {
             expect(addVirtualProductItems).toHaveBeenCalledTimes(1);
             expect(addVirtualProductItems).toHaveBeenCalledWith([
                 {
-                    data: { sku: 'virtual', quantity: 1.5 }
+                    data: {
+                        sku: 'virtual',
+                        quantity: 1.5
+                    }
                 }
             ]);
         });
@@ -120,6 +156,7 @@ describe('useAddToCartEvent', () => {
                 sku: 'bundle',
                 quantity: '1',
                 bundle: true,
+                giftcard: { entered_options: [], is_giftcard: false, type: '' },
                 options: [
                     {
                         id: 'foo',
@@ -146,6 +183,170 @@ describe('useAddToCartEvent', () => {
                             value: ['1']
                         }
                     ]
+                }
+            ]);
+        });
+    });
+
+    it('calls addToCartApi#addGiftcardProductItems if virtual giftcard product items', async () => {
+        // given
+        const addGiftcardProductItems = jest.fn();
+
+        // when
+        render(<MockComponet addToCartApi={{ addGiftcardProductItems }} />);
+        dispatchEvent([
+            {
+                sku: 'giftcard',
+                virtual: false,
+                giftcard: {
+                    is_giftcard: true,
+                    type: 'VIRTUAL',
+                    entered_options: [
+                        {
+                            uid: 'Z2lmdGNhcmQvY3VzdG9tX2dpZnRjYXJkX2Ftb3VudA==',
+                            value: '10.0'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX25hbWU=',
+                            value: 'Sender'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX2VtYWls',
+                            value: 'sender@example.com'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X25hbWU=',
+                            value: 'Receiver'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X2VtYWls',
+                            value: 'receiver@example.com'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ==',
+                            value: 'Enjoy!!'
+                        }
+                    ]
+                },
+                quantity: 1
+            }
+        ]);
+
+        // then
+        await wait(() => {
+            expect(addGiftcardProductItems).toHaveBeenCalledTimes(1);
+            expect(addGiftcardProductItems).toHaveBeenCalledWith([
+                {
+                    sku: 'giftcard',
+                    entered_options: [
+                        {
+                            uid: 'Z2lmdGNhcmQvY3VzdG9tX2dpZnRjYXJkX2Ftb3VudA==',
+                            value: '10.0'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX25hbWU=',
+                            value: 'Sender'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX2VtYWls',
+                            value: 'sender@example.com'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X25hbWU=',
+                            value: 'Receiver'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X2VtYWls',
+                            value: 'receiver@example.com'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ==',
+                            value: 'Enjoy!!'
+                        }
+                    ],
+                    quantity: 1
+                }
+            ]);
+        });
+    });
+
+    it('calls addToCartApi#addGiftcardProductItems if combined giftcard product items', async () => {
+        // given
+        const addGiftcardProductItems = jest.fn();
+
+        // when
+        render(<MockComponet addToCartApi={{ addGiftcardProductItems }} />);
+        dispatchEvent([
+            {
+                sku: 'giftcard',
+                virtual: false,
+                giftcard: {
+                    is_giftcard: true,
+                    type: 'COMBINED',
+                    entered_options: [
+                        {
+                            uid: 'Z2lmdGNhcmQvY3VzdG9tX2dpZnRjYXJkX2Ftb3VudA==',
+                            value: '20'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX25hbWU=',
+                            value: 'Sender'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX2VtYWls',
+                            value: 'sender@example.com'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X25hbWU=',
+                            value: 'Receiver'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X2VtYWls',
+                            value: 'receiver@example.com'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ==',
+                            value: 'Enjoy!!'
+                        }
+                    ]
+                },
+                quantity: 1
+            }
+        ]);
+
+        // then
+        await wait(() => {
+            expect(addGiftcardProductItems).toHaveBeenCalledTimes(1);
+            expect(addGiftcardProductItems).toHaveBeenCalledWith([
+                {
+                    sku: 'giftcard',
+                    entered_options: [
+                        {
+                            uid: 'Z2lmdGNhcmQvY3VzdG9tX2dpZnRjYXJkX2Ftb3VudA==',
+                            value: '20'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX25hbWU=',
+                            value: 'Sender'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX2VtYWls',
+                            value: 'sender@example.com'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X25hbWU=',
+                            value: 'Receiver'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X2VtYWls',
+                            value: 'receiver@example.com'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ==',
+                            value: 'Enjoy!!'
+                        }
+                    ],
+                    quantity: 1
                 }
             ]);
         });

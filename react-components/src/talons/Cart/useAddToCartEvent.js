@@ -28,6 +28,14 @@ const bundledProductMapper = item => ({
     bundle_options: item.options
 });
 
+const giftcardMapper = item => {
+    return {
+        sku: item.sku,
+        quantity: parseFloat(item.quantity),
+        entered_options: item.giftcard.entered_options
+    };
+};
+
 const useAddToCartEvent = (props = {}) => {
     const { fallbackHandler } = props;
     const [, defaultAddToCartApi] = useAddToCart();
@@ -38,8 +46,11 @@ const useAddToCartEvent = (props = {}) => {
         const physicalCartItems = items.filter(item => !item.virtual).map(productMapper);
         const virtualCartItems = items.filter(item => item.virtual).map(productMapper);
         const bundleCartItems = items.filter(item => item.bundle).map(bundledProductMapper);
+        const giftcardCartItems = items.filter(item => item.giftcard.is_giftcard).map(giftcardMapper);
 
-        if (bundleCartItems.length > 0) {
+        if (giftcardCartItems.length > 0) {
+            await addToCartApi.addGiftcardProductItems(giftcardCartItems);
+        } else if (bundleCartItems.length > 0) {
             await addToCartApi.addBundledProductItems(bundleCartItems);
         } else if (virtualCartItems.length > 0 && physicalCartItems.length > 0) {
             await addToCartApi.addPhysicalAndVirtualProductItems(physicalCartItems, virtualCartItems);

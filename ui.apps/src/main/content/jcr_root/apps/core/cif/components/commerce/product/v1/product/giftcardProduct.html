@@ -16,15 +16,15 @@
    <fieldset class="giftcardProduct__amount">
       <div id="giftcard-amount-box" class="giftcardProduct__field">
          <label for="giftcard-amount-input" id="amount-label-input" class="giftcardProduct__label">
-            <span>Amount</span><span class="field__required">*</span>
+            <span>${'Amount' @i18n}</span><span class="field__required">*</span>
             <input type="hidden" id="giftcard_amount_input_uid" name="giftcard_amount_input_uid" value='${product["giftCardAttributes"]["giftCardOptions"]["Custom Giftcard Amount"]["value"]["uid"]}'>
-            <input data-sly-test='${product["giftCardAttributes"]["allowOpenAmount"]}' type="hidden" id="giftcard_amount_input_min" name="giftcard_amount_input_min" value='${product["giftCardAttributes"]["openAmountRange"]["openAmountMin"]}'>
-            <input data-sly-test='${product["giftCardAttributes"]["allowOpenAmount"]}' type="hidden" id="giftcard_amount_input_max" name="giftcard_amount_input_max" value='${product["giftCardAttributes"]["openAmountRange"]["openAmountMax"]}'>
+            <input data-sly-test='${product["giftCardAttributes"]["openAmountMin"]}' type="hidden" id="giftcard_amount_input_min" name="giftcard_amount_input_min" value='${product["giftCardAttributes"]["openAmountMin"]}'>
+            <input data-sly-test='${product["giftCardAttributes"]["openAmountMax"]}' type="hidden" id="giftcard_amount_input_max" name="giftcard_amount_input_max" value='${product["giftCardAttributes"]["openAmountMax"]}'>
          </label>
          <div>
             <input type="text" id="giftcard_amount_input" name="giftcard_amount_input">
             <p class="note">
-               <span data-sly-test='${product["giftCardAttributes"]["allowOpenAmount"]}'>Minimum: ${product["giftCardAttributes"]["openAmountRange"]["openAmountMin"]} </span> <span data-sly-test='${product["giftCardAttributes"]["allowOpenAmount"]}'>Maximum: ${product["giftCardAttributes"]["openAmountRange"]["openAmountMax"]}</span>
+               <span data-sly-test='${product["giftCardAttributes"]["openAmountMin"]}'>${'Minimum' @i18n}: ${product["giftCardAttributes"]["openAmountMin"]} </span> <span data-sly-test='${product["giftCardAttributes"]["openAmountMax"]}'>${'Maximum' @i18n}: ${product["giftCardAttributes"]["openAmountMax"]}</span>
             </p>
          </div>
       </div>
@@ -33,7 +33,7 @@
   <div data-giftcardtype='${product["giftCardAttributes"]["giftCardType"]}' id="giftcard_form" class="giftCardForm_root">
       <fieldset class="giftcardProduct__fieldset">
          <legend>
-            <span>Gift Card Information</span>
+            <span>${'Gift Card Information' @i18n}</span>
          </legend>
          <br>
          <div class="giftcardProduct__field">
@@ -86,7 +86,7 @@
 
 	<section class="giftcardProduct__section">
 		<h3>
-			<span class="field__required">* Required fields</span>
+			<span class="field__required">* ${'Required fields' @i18n}</span>
 		</h3>
 	</section>
 	<h2 class="productFullDetail__quantityTitle option__title"><span>${'Quantity' @ i18n}</span></h2>

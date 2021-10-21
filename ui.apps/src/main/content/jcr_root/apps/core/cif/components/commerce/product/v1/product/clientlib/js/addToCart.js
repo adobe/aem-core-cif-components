@@ -117,7 +117,7 @@ class AddToCart {
             if (this._validateGiftcardForm()) {
                 this._giftcardOptions();
             } else {
-                return;
+                return [];
             }
         }
 
@@ -173,17 +173,9 @@ class AddToCart {
         let amount_input_max = document.querySelector(AddToCart.giftcard.selectors.amount_input_max);
 
         amount_input_min =
-            amount_input_min !== null
-                ? amount_input_min.value === ''
-                    ? 0.0
-                    : amount_input_min.value.substring(1)
-                : -1.0;
+            amount_input_min !== null ? (amount_input_min.value === '' ? 0.0 : amount_input_min.value) : -1.0;
         amount_input_max =
-            amount_input_max !== null
-                ? amount_input_max.value === ''
-                    ? -1.0
-                    : amount_input_max.value.substring(1)
-                : -1.0;
+            amount_input_max !== null ? (amount_input_max.value === '' ? -1.0 : amount_input_max.value) : -1.0;
 
         var amount = input_element.value;
         if (amount === '') message = 'This is a required field.';

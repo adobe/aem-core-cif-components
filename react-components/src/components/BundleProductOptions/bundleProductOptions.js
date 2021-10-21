@@ -155,8 +155,8 @@ const BundleProductOptions = () => {
             productId,
             sku,
             virtual: false,
-            giftcard: { is_giftcard: false, type: '', entered_options: [] },
             bundle: true,
+            giftcard: { is_giftcard: false, type: '', entered_options: [] },
             quantity: quantity,
             options: selections.map(s => {
                 return {

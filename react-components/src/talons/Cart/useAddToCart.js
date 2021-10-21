@@ -22,12 +22,14 @@ import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 import MUTATION_ADD_BUNDLE_TO_CART from '../../queries/mutation_add_bundle_to_cart.graphql';
 import MUTATION_ADD_VIRTUAL_TO_CART from '../../queries/mutation_add_virtual_to_cart.graphql';
 import MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART from '../../queries/mutation_add_simple_and_virtual_to_cart.graphql';
+import MUTATION_ADD_GIFTCARD_TO_CART from '../../queries/mutation_add_giftcard_to_cart.graphql';
 
 const defaultOperations = {
     addPhysicalProductItemsMutation: MUTATION_ADD_TO_CART,
     addBundledProductItemsMutation: MUTATION_ADD_BUNDLE_TO_CART,
     addVirtualProductItemsMutation: MUTATION_ADD_VIRTUAL_TO_CART,
-    addPhysicalAndVirtualProductItemsMutation: MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART
+    addPhysicalAndVirtualProductItemsMutation: MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART,
+    addGiftcardProductItemsMutation: MUTATION_ADD_GIFTCARD_TO_CART
 };
 
 const useAddToCart = (props = {}) => {
@@ -36,6 +38,8 @@ const useAddToCart = (props = {}) => {
     const [addBundledProductItems] = useMutation(operations.addBundledProductItemsMutation);
     const [addVirtualProductItems] = useMutation(operations.addVirtualProductItemsMutation);
     const [addPhysicalAndVirtualProductItems] = useMutation(operations.addPhysicalAndVirtualProductItemsMutation);
+    const [addGiftcardProductItems] = useMutation(operations.addGiftcardProductItemsMutation);
+
     const [{ cartId }] = useCartContext();
 
     return [
@@ -68,6 +72,12 @@ const useAddToCart = (props = {}) => {
                     await addPhysicalAndVirtualProductItems({
                         variables: { cartId, simpleCartItems, virtualCartItems }
                     });
+                },
+                [cartId]
+            ),
+            addGiftcardProductItems: useCallback(
+                async cartItems => {
+                    await addGiftcardProductItems({ variables: { cartId, cartItems } });
                 },
                 [cartId]
             )
