@@ -16,6 +16,4 @@ package com.adobe.cq.commerce.core.components.models.product;
 public interface GiftCardValue {
 
     String getUid();
-
-    String getValue();
 }

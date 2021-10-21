@@ -17,9 +17,11 @@ import com.adobe.cq.commerce.core.components.models.product.GiftCardValue;
 
 public class GiftCardValueImpl implements GiftCardValue {
 
-    String uid;
+    public GiftCardValueImpl(String uid) {
+        this.uid = uid;
+    }
 
-    String value;
+    String uid;
 
     @Override
     public String getUid() {
@@ -28,14 +30,5 @@ public class GiftCardValueImpl implements GiftCardValue {
 
     public void setUid(String uid) {
         this.uid = uid;
-    }
-
-    @Override
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 }
