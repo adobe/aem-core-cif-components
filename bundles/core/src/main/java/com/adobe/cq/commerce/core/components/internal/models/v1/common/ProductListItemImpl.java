@@ -30,6 +30,7 @@ import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
+import com.adobe.cq.commerce.magento.graphql.GiftCardProduct;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -91,7 +92,10 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         this.productPage = productPage;
         boolean isStartPrice = product instanceof GroupedProduct;
         Locale locale = productPage == null ? Locale.getDefault() : productPage.getLanguage(false);
-        this.price = new PriceImpl(product.getPriceRange(), locale, isStartPrice);
+        this.price = (product instanceof GiftCardProduct)
+            ? new PriceImpl(product.getPriceRange(), locale, ((GiftCardProduct) product).getAllowOpenAmount(),
+                ((GiftCardProduct) product).getOpenAmountMin(), ((GiftCardProduct) product).getOpenAmountMax())
+            : new PriceImpl(product.getPriceRange(), locale, isStartPrice);
 
         this.activeVariantSku = activeVariantSku;
         this.request = request;

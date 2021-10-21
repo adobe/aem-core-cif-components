@@ -25,12 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
-
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.magento.graphql.GiftCardProduct;
-import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
-import com.adobe.cq.commerce.magento.graphql.ProductImage;
-
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.day.cq.wcm.api.Page;
@@ -59,15 +54,6 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
     @Override
     public ProductListItem apply(final ProductInterface product) {
         try {
-            boolean isStartPrice = product instanceof GroupedProduct;
-
-            Price price = (product instanceof GiftCardProduct) ? new PriceImpl(product.getPriceRange(), locale,
-                ((GiftCardProduct) product).getAllowOpenAmount(), ((GiftCardProduct) product).getOpenAmountMin(),
-                ((GiftCardProduct) product).getOpenAmountMax())
-                : new PriceImpl(product.getPriceRange(), locale, isStartPrice);
-
-            final ProductImage smallImage = product.getSmallImage();
-
             String resourceType = parentResource.getResourceType();
             String prefix = StringUtils.substringAfterLast(resourceType, "/");
             String parentId = ComponentUtils.generateId(prefix, parentResource.getPath());
