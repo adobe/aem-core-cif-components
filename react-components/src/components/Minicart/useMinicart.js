@@ -41,8 +41,7 @@ export default ({ queries }) => {
         cartDetailsQuery,
         addVirtualItemMutation,
         addBundleItemMutation,
-        addSimpleAndVirtualItemMutation,
-        addVirtualGiftcardItemMutation
+        addSimpleAndVirtualItemMutation
     } = queries;
 
     const [{ cartId, cart, isOpen, isLoading, isEditing, errorMessage }, dispatch] = useCartState();
@@ -63,47 +62,15 @@ export default ({ queries }) => {
     const addItem = async event => {
         if (!event.detail) return;
 
-        const mapper = item => {
-            return {
-                data: {
-                    sku: item.sku,
-                    quantity: parseFloat(item.quantity)
-                }
-            };
-        };
-
-        const bundleMapper = item => {
-            return {
-                ...mapper(item),
-                bundle_options: item.options
-            };
-        };
-
-        const giftcardMapper = item => {
-            return {
-                sku: item.sku,
-                quantity: parseFloat(item.quantity),
-                entered_options: item.giftcard.entered_options
-            };
-        };
-
-        const giftcardMutationFun = item => {
-            if (item.giftcard.type === 'VIRTUAL' || item.giftcard.type === 'COMBINED')
-                return addVirtualGiftcardItemMutation;
-        };
-
         let physicalCartItems = event.detail.filter(item => !item.virtual).map(productMapper);
         let virtualCartItems = event.detail.filter(item => item.virtual).map(productMapper);
         let bundleCartItems = event.detail.filter(item => item.bundle).map(bundledProductMapper);
-        let giftcardCartItems = event.detail.filter(item => item.giftcard.is_giftcard).map(giftcardMapper);
 
         dispatch({ type: 'open' });
         dispatch({ type: 'beginLoading' });
 
         let addItemFn = addToCartMutation;
-        if (giftcardCartItems.length > 0) {
-            addItemFn = event.detail.filter(item => item.giftcard.is_giftcard).map(giftcardMutationFun)[0];
-        } else if (bundleCartItems.length > 0) {
+        if (bundleCartItems.length > 0) {
             addItemFn = addBundleItemMutation;
         } else if (physicalCartItems.length > 0 && virtualCartItems.length > 0) {
             addItemFn = addSimpleAndVirtualItemMutation;
@@ -120,8 +87,7 @@ export default ({ queries }) => {
             dispatch,
             physicalCartItems,
             virtualCartItems,
-            bundleCartItems,
-            giftcardCartItems
+            bundleCartItems
         });
 
         // Push add to cart dataLayer events

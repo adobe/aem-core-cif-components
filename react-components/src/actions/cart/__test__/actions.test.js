@@ -55,7 +55,6 @@ describe('Cart actions', () => {
         const physicalCartItems = [];
         const virtualCartItems = [];
         const bundleCartItems = [];
-        const giftcardCartItems = [];
         const cart = { cartId: 'guest123' };
 
         await addItemToCart({
@@ -66,7 +65,6 @@ describe('Cart actions', () => {
             physicalCartItems,
             virtualCartItems,
             bundleCartItems,
-            giftcardCartItems,
             cartId: cart.cartId
         });
 
@@ -86,7 +84,6 @@ describe('Cart actions', () => {
         const physicalCartItems = [];
         const virtualCartItems = [];
         const bundleCartItems = [];
-        const giftcardCartItems = [];
         const cart = {};
 
         await addItemToCart({
@@ -97,7 +94,6 @@ describe('Cart actions', () => {
             physicalCartItems,
             virtualCartItems,
             bundleCartItems,
-            giftcardCartItems,
             cart
         });
 

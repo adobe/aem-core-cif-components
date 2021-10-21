@@ -36,7 +36,6 @@ describe('useMinicart', () => {
     const createCartMutation = jest.fn();
     const addSimpleAndVirtualItemMutation = jest.fn();
     const addBundleItemMutation = jest.fn();
-    const addVirtualGiftcardItemMutation = jest.fn();
 
     const queries = {
         cartDetailsQuery,
@@ -44,7 +43,6 @@ describe('useMinicart', () => {
         addVirtualItemMutation,
         addSimpleAndVirtualItemMutation,
         addBundleItemMutation,
-        addVirtualGiftcardItemMutation,
         createCartMutation
     };
 
@@ -77,16 +75,7 @@ describe('useMinicart', () => {
     });
 
     it('adds an item to cart', async () => {
-        const mockEvent = {
-            detail: [
-                {
-                    productId: 'test-id',
-                    sku: '123',
-                    quantity: 2,
-                    giftcard: { entered_options: [], is_giftcard: false, type: '' }
-                }
-            ]
-        };
+        const mockEvent = { detail: [{ productId: 'test-id', sku: '123', quantity: 2 }] };
 
         const { getByRole, getByTestId } = render(
             <CartProvider initialState={{ cartId: 'guest123' }}>
@@ -100,8 +89,6 @@ describe('useMinicart', () => {
         await act(async () => fireEvent.click(getByRole('button')));
 
         expect(addToCartMutation).toHaveBeenCalledTimes(1);
-
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(2);
         expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
             event: 'cif:addToCart',
             eventInfo: {
@@ -116,14 +103,8 @@ describe('useMinicart', () => {
     it('adds multiple items to cart', async () => {
         const mockEvent = {
             detail: [
-                { sku: '4566', quantity: 2, giftcard: { entered_options: [], is_giftcard: false, type: '' } },
-                {
-                    sku: '123',
-                    quantity: 3,
-                    virtual: true,
-                    giftcard: { entered_options: [], is_giftcard: false, type: '' }
-                },
-                { sku: '4566', quantity: 2, giftcard: { entered_options: [], is_giftcard: false, type: '' } }
+                { sku: '4566', quantity: 2 },
+                { sku: '123', quantity: 3, virtual: true }
             ]
         };
 
@@ -145,7 +126,6 @@ describe('useMinicart', () => {
             event: 'cif:addToCart',
             eventInfo: { '@id': undefined, 'xdm:SKU': '123', 'xdm:quantity': 3 }
         });
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(4);
     });
 
     it('adds Bundle Product to cart', async () => {
@@ -156,7 +136,6 @@ describe('useMinicart', () => {
                     sku: '123',
                     virtual: false,
                     bundle: true,
-                    giftcard: { entered_options: [], is_giftcard: false, type: '' },
                     quantity: 1,
                     options: {
                         id: 1,
@@ -176,8 +155,6 @@ describe('useMinicart', () => {
         await act(async () => fireEvent.click(getByRole('button')));
 
         expect(addBundleItemMutation).toHaveBeenCalledTimes(1);
-
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(2);
         expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
             event: 'cif:addToCart',
             eventInfo: {
@@ -185,134 +162,6 @@ describe('useMinicart', () => {
                 'xdm:SKU': '123',
                 'xdm:quantity': 1,
                 bundle: true
-            }
-        });
-        expect(mse.publish.addToCart).toHaveBeenCalledTimes(1);
-    });
-
-    it('adds Virtual Giftcard Product to cart', async () => {
-        const mockEvent = {
-            detail: [
-                {
-                    productId: 'test-id',
-                    sku: '123',
-                    virtual: false,
-                    giftcard: {
-                        is_giftcard: true,
-                        type: 'VIRTUAL',
-                        entered_options: [
-                            {
-                                uid: 'Z2lmdGNhcmQvY3VzdG9tX2dpZnRjYXJkX2Ftb3VudA==',
-                                value: '-10.0'
-                            },
-                            {
-                                uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX25hbWU=',
-                                value: 'Sender'
-                            },
-                            {
-                                uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX2VtYWls',
-                                value: 'sender@example.com'
-                            },
-                            {
-                                uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X25hbWU=',
-                                value: 'Receiver'
-                            },
-                            {
-                                uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X2VtYWls',
-                                value: 'receiver@example.com'
-                            },
-                            {
-                                uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ==',
-                                value: 'Enjoy!!'
-                            }
-                        ]
-                    },
-                    quantity: 1
-                }
-            ]
-        };
-
-        const { getByRole } = render(
-            <CartProvider initialState={{ cartId: 'guest123' }}>
-                <MockComponent event={mockEvent} />
-            </CartProvider>
-        );
-
-        await act(async () => fireEvent.click(getByRole('button')));
-
-        expect(addVirtualGiftcardItemMutation).toHaveBeenCalledTimes(1);
-
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(2);
-        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
-            event: 'cif:addToCart',
-            eventInfo: {
-                '@id': 'test-id',
-                'xdm:SKU': '123',
-                'xdm:quantity': 1
-            }
-        });
-        expect(mse.publish.addToCart).toHaveBeenCalledTimes(1);
-    });
-
-    it('adds COMBINED Giftcard Product to cart', async () => {
-        const mockEvent = {
-            detail: [
-                {
-                    productId: 'test-id',
-                    sku: '123',
-                    virtual: false,
-                    giftcard: {
-                        is_giftcard: true,
-                        type: 'COMBINED',
-                        entered_options: [
-                            {
-                                uid: 'Z2lmdGNhcmQvY3VzdG9tX2dpZnRjYXJkX2Ftb3VudA==',
-                                value: '20'
-                            },
-                            {
-                                uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX25hbWU=',
-                                value: 'Sender'
-                            },
-                            {
-                                uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX2VtYWls',
-                                value: 'sender@example.com'
-                            },
-                            {
-                                uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X25hbWU=',
-                                value: 'Receiver'
-                            },
-                            {
-                                uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X2VtYWls',
-                                value: 'receiver@example.com'
-                            },
-                            {
-                                uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ==',
-                                value: 'Enjoy!!'
-                            }
-                        ]
-                    },
-                    quantity: 1
-                }
-            ]
-        };
-
-        const { getByRole } = render(
-            <CartProvider initialState={{ cartId: 'guest123' }}>
-                <MockComponent event={mockEvent} />
-            </CartProvider>
-        );
-
-        await act(async () => fireEvent.click(getByRole('button')));
-
-        expect(addVirtualGiftcardItemMutation).toHaveBeenCalledTimes(2);
-
-        expect(window.adobeDataLayer.push).toHaveBeenCalledTimes(2);
-        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
-            event: 'cif:addToCart',
-            eventInfo: {
-                '@id': 'test-id',
-                'xdm:SKU': '123',
-                'xdm:quantity': 1
             }
         });
         expect(mse.publish.addToCart).toHaveBeenCalledTimes(1);
