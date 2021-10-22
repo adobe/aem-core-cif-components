@@ -96,15 +96,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-module-link</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>link</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>npm-module-publish</id>
                         <phase>deploy</phase>
                         <goals>
