@@ -63,6 +63,7 @@ public class TestContext {
                 // register commonly required ootb services
                 context.registerService(PageManagerFactory.class, rr -> context.pageManager());
                 context.registerService(Externalizer.class, new MockExternalizer());
+                context.registerInjectActivateService(new DefaultPathProcessor());
 
                 XSSAPI xssApi = mock(XSSAPI.class);
                 when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
@@ -70,8 +71,6 @@ public class TestContext {
 
                 // register commonly used cif services
                 context.registerInjectActivateService(new UrlProviderImpl());
-                context.registerService(Externalizer.class, new MockExternalizer());
-                context.registerInjectActivateService(new DefaultPathProcessor());
             });
     }
 }
