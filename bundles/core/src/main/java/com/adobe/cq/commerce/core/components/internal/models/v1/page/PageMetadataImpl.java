@@ -27,15 +27,9 @@ import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
-import org.apache.sling.models.factory.ModelFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl;
+import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
-import com.adobe.cq.commerce.core.components.models.product.Product;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.Page;
@@ -44,8 +38,6 @@ import com.day.cq.wcm.api.Page;
     adaptables = SlingHttpServletRequest.class,
     adapters = PageMetadata.class)
 public class PageMetadataImpl implements PageMetadata {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PageMetadataImpl.class);
 
     @Self
     private SlingHttpServletRequest request;
@@ -57,7 +49,7 @@ public class PageMetadataImpl implements PageMetadata {
     private Page currentPage;
 
     @OSGiService
-    private ModelFactory modelFactory;
+    private CommerceComponentModelFinder componentFinder;
 
     private PageMetadata provider;
 
@@ -68,37 +60,10 @@ public class PageMetadataImpl implements PageMetadata {
         // We hence use a dedicated method in modelFactory to inject the right component resource.
 
         if (SiteNavigation.isProductPage(currentPage)) {
-            Resource componentResource = findChildResourceWithType(resource, ProductImpl.RESOURCE_TYPE);
-            if (componentResource != null) {
-                Product product = modelFactory.getModelFromWrappedRequest(request, componentResource, Product.class);
-                provider = product;
-            }
+            provider = componentFinder.findProductComponentModel(request);
         } else if (SiteNavigation.isCategoryPage(currentPage)) {
-            Resource componentResource = findChildResourceWithType(resource, ProductListImpl.RESOURCE_TYPE);
-            if (componentResource == null) {
-                componentResource = findChildResourceWithType(resource,
-                    com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl.RESOURCE_TYPE);
-            }
-            if (componentResource != null) {
-                ProductList productList = modelFactory.getModelFromWrappedRequest(request, componentResource, ProductList.class);
-                provider = productList;
-            }
+            provider = componentFinder.findProductListComponentModel(request);
         }
-    }
-
-    private Resource findChildResourceWithType(Resource fromResource, String type) {
-        LOGGER.debug("Looking for child resource type '{}' from {}", type, fromResource.getPath());
-        for (Resource child : fromResource.getChildren()) {
-            if (child.isResourceType(type)) {
-                LOGGER.debug("Found child resource type '{}' at {}", type, child.getPath());
-                return child;
-            }
-            Resource resource = findChildResourceWithType(child, type);
-            if (resource != null) {
-                return resource;
-            }
-        }
-        return null;
     }
 
     @Override

@@ -38,7 +38,6 @@ import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.day.cq.wcm.api.PageManagerFactory;
 import com.shopify.graphql.support.ID;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
@@ -70,7 +69,6 @@ public class CategoryPageRedirectServletTest {
         response = spy(context.response());
         mockRequestPathInfo = context.requestPathInfo();
 
-        context.registerService(PageManagerFactory.class, rr -> context.pageManager());
         context.registerInjectActivateService(servlet);
         context.registerAdapter(SlingHttpServletRequest.class, MagentoGraphqlClient.class, mockClient);
     }

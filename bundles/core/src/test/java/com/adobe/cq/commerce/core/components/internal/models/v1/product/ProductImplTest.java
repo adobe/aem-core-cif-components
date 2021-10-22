@@ -28,7 +28,6 @@ import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
-import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,7 +46,6 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.testing.MockExternalizer;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
@@ -64,7 +62,6 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
-import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -104,16 +101,10 @@ public class ProductImplTest {
                 (Function<Resource, ComponentsConfiguration>) input -> !input.getPath().contains("pageB") ? MOCK_CONFIGURATION_OBJECT
                     : ComponentsConfiguration.EMPTY);
 
-            context.registerService(Externalizer.class, new MockExternalizer());
-
             ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
             Utils.addDataLayerConfig(mockConfigBuilder, true);
             Utils.addStorefrontContextConfig(mockConfigBuilder, true);
             context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
-
-            XSSAPI xssapi = mock(XSSAPI.class);
-            when(xssapi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-            context.registerService(XSSAPI.class, xssapi);
         })
         .build();
 

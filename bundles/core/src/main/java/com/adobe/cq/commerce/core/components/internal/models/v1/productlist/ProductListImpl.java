@@ -89,17 +89,20 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     protected AbstractCategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
-    private boolean isAuthorInstance;
+    private boolean isAuthor;
     private String canonicalUrl;
 
     private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
 
     @PostConstruct
     protected void initModel() {
+        if (properties == null) {
+            properties = request.getResource().getValueMap();
+        }
         // read properties
-        showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
-        showImage = properties.get(PN_SHOW_IMAGE, currentStyle.get(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
-        isAuthorInstance = wcmMode != null && !wcmMode.isDisabled();
+        showTitle = properties.get(PN_SHOW_TITLE, getOptionalStyle(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
+        showImage = properties.get(PN_SHOW_IMAGE, getOptionalStyle(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
+        isAuthor = wcmMode != null && !wcmMode.isDisabled();
 
         String currentPageIndexCandidate = request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID);
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
@@ -114,7 +117,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             if (StringUtils.isNotBlank(categoryUid)) {
                 categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
                 categoryRetriever.setIdentifier(categoryUid);
-            } else if (isAuthorInstance) {
+            } else if (isAuthor) {
                 usePlaceholderData = true;
                 loadClientPrice = false;
                 try {
@@ -122,7 +125,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                 } catch (IOException e) {
                     LOGGER.warn("Cannot use placeholder data", e);
                 }
-            } else { // There isn't any selector on publish instance
+            } else {
+                // There isn't any selector on publish instance
                 searchResultsSet = new SearchResultsSetImpl();
                 categorySearchResultsSet = Pair.of(null, searchResultsSet);
                 return;
@@ -268,7 +272,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                         params -> urlProvider.toCategoryUrl(request, categoryPage, params));
             } else {
                 // fallback to legacy logic
-                if (isAuthorInstance) {
+                if (isAuthor) {
                     canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
                 } else {
                     canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());

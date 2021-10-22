@@ -34,7 +34,6 @@ import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
-import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -59,7 +58,6 @@ import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
-import com.adobe.cq.commerce.core.testing.MockExternalizer;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
@@ -72,7 +70,6 @@ import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
-import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -105,7 +102,6 @@ public class ProductListImplTest {
         .<AemContext>afterSetUp(context -> {
             context.registerInjectActivateService(new SearchFilterServiceImpl());
             context.registerInjectActivateService(new SearchResultsServiceImpl());
-            context.registerService(Externalizer.class, new MockExternalizer());
             ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
             Utils.addDataLayerConfig(mockConfigBuilder, true);
             Utils.addStorefrontContextConfig(mockConfigBuilder, true);
@@ -173,10 +169,6 @@ public class ProductListImplTest {
         slingBindings.setResource(productListResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productListResource.getValueMap());
-
-        XSSAPI xssApi = mock(XSSAPI.class);
-        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-        slingBindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));

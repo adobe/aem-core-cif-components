@@ -35,6 +35,8 @@ import junit.category.IgnoreOnCloud;
 
 import static org.junit.Assert.assertEquals;
 
+import static org.junit.Assert.assertEquals;
+
 public class ProductListComponentIT extends CommerceTestBase {
 
     // Differentiates between the HTML output of the component itself, and the tab displaying the HTML output
@@ -137,5 +139,13 @@ public class ProductListComponentIT extends CommerceTestBase {
         // Component Library > Commerce
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
         assertEquals(2, elements.size());
+    }
+
+    @Test
+    public void testCategoryNotFound() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html?wcmmode=disabled");
+        assertEquals(404, response.getStatusLine().getStatusCode());
+        response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html/unknown-category.html?wcmmode=disabled");
+        assertEquals(404, response.getStatusLine().getStatusCode());
     }
 }
