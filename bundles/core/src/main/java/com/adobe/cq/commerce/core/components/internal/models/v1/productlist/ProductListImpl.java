@@ -246,6 +246,10 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     @Override
     public String getCanonicalUrl() {
+        if (usePlaceholderData) {
+            // placeholder data has no canonical url
+            return null;
+        }
         if (canonicalUrl == null) {
             Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
             CategoryInterface category = getCategory();

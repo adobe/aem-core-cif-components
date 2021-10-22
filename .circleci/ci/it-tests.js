@@ -31,6 +31,8 @@ try {
     let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
     let graphqlClientVersion = ci.sh('mvn help:evaluate -Dexpression=graphql.client.version -q -DforceStdout', true);
+    let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
+
     ci.dir(qpPath, () => {
         // Connect to QP
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
@@ -65,11 +67,14 @@ try {
             --vm-options \\\"-Xmx1536m -XX:MaxPermSize=256m -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
     });
 
+
+
     // Run integration tests
     if (TYPE === 'integration') {
         ci.dir('it/http', () => {
             ci.sh(`mvn clean verify -U -B \
                 -Ptest-all \
+                -Dexclude.category=${excludedCategory}
                 -Dsling.it.instance.url.1=http://localhost:4502 \
                 -Dsling.it.instance.runmode.1=author \
                 -Dsling.it.instances=1`);

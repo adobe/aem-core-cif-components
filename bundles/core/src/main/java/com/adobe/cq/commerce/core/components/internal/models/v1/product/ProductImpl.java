@@ -137,6 +137,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private Boolean isVirtualProduct;
     private Boolean isBundleProduct;
     private Boolean loadClientPrice;
+    private boolean usePlaceholderData = false;
     private String canonicalUrl;
 
     protected AbstractProductRetriever productRetriever;
@@ -167,6 +168,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
                 } catch (IOException e) {
                     LOGGER.warn("Cannot use placeholder data", e);
                 }
+                usePlaceholderData = true;
                 loadClientPrice = false;
             }
         }
@@ -421,6 +423,10 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public String getCanonicalUrl() {
+        if (usePlaceholderData) {
+            // placeholder data has no canonical url
+            return null;
+        }
         if (canonicalUrl == null) {
             Page productPage = SiteNavigation.getProductPage(currentPage);
             ProductInterface product = productRetriever != null ? productRetriever.fetchProduct() : null;
