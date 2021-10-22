@@ -74,7 +74,7 @@ try {
         ci.dir('it/http', () => {
             ci.sh(`mvn clean verify -U -B \
                 -Ptest-all \
-                -Dexclude.category=${excludedCategory}
+                -Dexclude.category=${excludedCategory} \
                 -Dsling.it.instance.url.1=http://localhost:4502 \
                 -Dsling.it.instance.runmode.1=author \
                 -Dsling.it.instances=1`);
