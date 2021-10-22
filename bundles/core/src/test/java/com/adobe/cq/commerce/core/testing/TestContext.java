@@ -16,12 +16,18 @@
 package com.adobe.cq.commerce.core.testing;
 
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
+import org.apache.sling.xss.XSSAPI;
+import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.wcm.core.components.internal.link.DefaultPathProcessor;
 import com.day.cq.commons.Externalizer;
+import com.day.cq.wcm.api.PageManagerFactory;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextBuilder;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class TestContext {
 
@@ -54,7 +60,15 @@ public class TestContext {
         return new AemContextBuilder()
             .resourceResolverType(ResourceResolverType.JCR_MOCK)
             .<AemContext>afterSetUp(context -> {
-                // register commonly required services
+                // register commonly required ootb services
+                context.registerService(PageManagerFactory.class, rr -> context.pageManager());
+                context.registerService(Externalizer.class, new MockExternalizer());
+
+                XSSAPI xssApi = mock(XSSAPI.class);
+                when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
+                context.registerService(XSSAPI.class, xssApi);
+
+                // register commonly used cif services
                 context.registerInjectActivateService(new UrlProviderImpl());
                 context.registerService(Externalizer.class, new MockExternalizer());
                 context.registerInjectActivateService(new DefaultPathProcessor());

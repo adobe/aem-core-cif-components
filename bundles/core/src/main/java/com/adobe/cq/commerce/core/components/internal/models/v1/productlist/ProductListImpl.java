@@ -86,9 +86,12 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     @PostConstruct
     protected void initModel() {
+        if (properties == null) {
+            properties = request.getResource().getValueMap();
+        }
         // read properties
-        showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
-        showImage = properties.get(PN_SHOW_IMAGE, currentStyle.get(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
+        showTitle = properties.get(PN_SHOW_TITLE, getOptionalStyle(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
+        showImage = properties.get(PN_SHOW_IMAGE, getOptionalStyle(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
 
         String currentPageIndexCandidate = request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID);
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
@@ -118,7 +121,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                 } catch (IOException e) {
                     LOGGER.warn("Cannot use placeholder data", e);
                 }
-            } else { // There isn't any selector on publish instance
+            } else {
+                // There isn't any selector on publish instance
                 searchResultsSet = new SearchResultsSetImpl();
                 categorySearchResultsSet = Pair.of(null, searchResultsSet);
                 return;
