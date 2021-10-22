@@ -27,6 +27,8 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import static org.junit.Assert.assertEquals;
+
 public class ProductListComponentIT extends CommerceTestBase {
 
     // Differentiates between the HTML output of the component itself, and the tab displaying the HTML output
@@ -40,34 +42,34 @@ public class ProductListComponentIT extends CommerceTestBase {
 
         // Verify category name
         Elements elements = doc.select(PRODUCTLIST_SELECTOR + ".category__title");
-        Assert.assertEquals("Outdoor Collection", elements.first().html());
+        assertEquals("Outdoor Collection", elements.first().html());
 
         // Check that search filters are displayed
         elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__filters");
-        Assert.assertEquals(1, elements.size());
+        assertEquals(1, elements.size());
 
         // Check that the 6 products are displayed on the first page
         elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__items > .productcollection__item");
-        Assert.assertEquals(6, elements.size());
+        assertEquals(6, elements.size());
 
         // Check the meta data
         elements = doc.select("title");
-        Assert.assertEquals("Meta title for Outdoor Collection", elements.first().html());
+        assertEquals("Meta title for Outdoor Collection", elements.first().html());
 
         elements = doc.select("meta[name=keywords]");
-        Assert.assertEquals("Meta keywords for Outdoor Collection", elements.first().attr("content"));
+        assertEquals("Meta keywords for Outdoor Collection", elements.first().attr("content"));
 
         elements = doc.select("meta[name=description]");
-        Assert.assertEquals("Meta description for Outdoor Collection", elements.first().attr("content"));
+        assertEquals("Meta description for Outdoor Collection", elements.first().attr("content"));
 
         elements = doc.select("link[rel=canonical]");
-        Assert.assertEquals("http://localhost:4502" + pagePath, elements.first().attr("href"));
+        assertEquals("http://localhost:4502" + pagePath, elements.first().attr("href"));
 
         // Verify datalayer attributes
         elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__root");
         JsonNode result = OBJECT_MAPPER.readTree(elements.first().attr("data-cmp-data-layer"));
         JsonNode expected = OBJECT_MAPPER.readTree(getResource("datalayer/outdoor-productlist.json"));
-        Assert.assertEquals(expected, result);
+        assertEquals(expected, result);
 
         // Verify product items datalayer attributes
         elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__items > .productcollection__item");
@@ -76,7 +78,7 @@ public class ProductListComponentIT extends CommerceTestBase {
             .map(e -> e.replaceAll(",\\s*\"repo:modifyDate\":\\s*\"[\\d\\w:-]+\"", ""))
             .collect(Collectors.joining(",", "[", "]")));
         expected = OBJECT_MAPPER.readTree(getResource("datalayer/outdoor-productlist-items.json"));
-        Assert.assertEquals(expected, result);
+        assertEquals(expected, result);
     }
 
     @Test
@@ -86,7 +88,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
         // Verify category name
         Elements elements = doc.select(PRODUCTLIST_SELECTOR + ".category__title");
-        Assert.assertEquals("Category name", elements.first().html());
+        assertEquals("Category name", elements.first().html());
 
         // Check that search filters are NOT displayed
         elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__filters");
@@ -94,7 +96,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
         // Check that the 6 products are displayed on the first page
         elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__items > .productcollection__item");
-        Assert.assertEquals(6, elements.size());
+        assertEquals(6, elements.size());
     }
 
     @Test
@@ -104,7 +106,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
         // Component Library > Commerce > Outdoor > Collection
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        Assert.assertEquals(4, elements.size());
+        assertEquals(4, elements.size());
     }
 
     @Test
@@ -114,6 +116,14 @@ public class ProductListComponentIT extends CommerceTestBase {
 
         // Component Library > Commerce
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        Assert.assertEquals(2, elements.size());
+        assertEquals(2, elements.size());
+    }
+
+    @Test
+    public void testCategoryNotFound() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html?wcmmode=disabled");
+        assertEquals(404, response.getStatusLine().getStatusCode());
+        response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html/unknown-category.html?wcmmode=disabled");
+        assertEquals(404, response.getStatusLine().getStatusCode());
     }
 }

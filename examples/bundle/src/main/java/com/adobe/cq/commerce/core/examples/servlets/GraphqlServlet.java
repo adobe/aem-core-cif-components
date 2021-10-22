@@ -100,6 +100,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String STAGED_PRODUCT_SKU = "MH02";
 
     private static final String PRODUCT_SKU = "MH01";
+    private static final String UNKNOWN_PRODUCT_URL_KEY = "unknown-product";
 
     private static final String GROUPED_PRODUCT_URL_KEY = "set-of-sprite-yoga-straps";
     private static final String GROUPED_PRODUCT_SKU = "24-WG085_Group";
@@ -121,6 +122,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String CATEGORY_UID_JSON = "magento-graphql-category.json";
     private static final String CATEGORY_JSON = "magento-graphql-category.json";
     private static final String CATEGORY_WITH_STAGED_PRODUCTS_JSON = "magento-graphql-category-with-staged-products.json";
+    private static final String UNKNOWN_CATEGORY_JSON = "magento-graphql-category-empty.json";
     private static final String FEATURED_CATEGORY_LIST_JSON = "magento-graphql-featuredcategorylist.json";
     private static final String CATEGORIES_CAROUSEL_JSON = "magento-graphql-categories-carousel.json";
     private static final String PRODUCTS_BREADCRUMB_JSON = "magento-graphql-products-breadcrumb.json";
@@ -128,6 +130,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String BUNDLE_PRODUCT_JSON = "magento-graphql-bundle-product.json";
     private static final String BUNDLE_PRODUCT_ITEMS_JSON = "magento-graphql-bundle-product-items.json";
     private static final String STAGED_PRODUCT_JSON = "magento-graphql-products-staged.json";
+    private static final String UNKNOWN_PRODUCT_JSON = "magento-graphql-products-empty.json";
 
     private Gson gson;
     private GraphQL graphQL;
@@ -323,7 +326,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             public Object get(DataFetchingEnvironment env) {
                 String fieldName = env.getField().getName();
                 String fieldAlias = env.getField().getAlias();
-                LOGGER.debug("Field: {} {}", fieldName, StringUtils.isNotBlank(fieldAlias) ? ("(Alias: " + fieldAlias + ")") : "");
+                LOGGER.debug("Field: {} {}", fieldName, StringUtils.isNotBlank(fieldAlias) ? ("(Alias: " + fieldAlias + ")") : "");
                 Map<String, Object> args = env.getArguments();
                 if (MapUtils.isNotEmpty(args)) {
                     args.forEach((key, value) -> LOGGER.debug("Arg: {} --> {} ({})", key, value, value.getClass()));
@@ -429,6 +432,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                     return readProductsFrom(BUNDLE_PRODUCT_JSON);
                 } else if (STAGED_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
                     return readProductsFrom(STAGED_PRODUCT_JSON);
+                } else if (UNKNOWN_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
+                    return readProductsFrom(UNKNOWN_PRODUCT_JSON);
                 }
             }
         }
@@ -469,29 +474,31 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         // Only category the Breadcrumb components selects this field
         if (selectionSet.contains("breadcrumbs")) {
             graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
-        } else if (filters.containsKey("url_key") && filters.get("url_key").containsKey("eq") &&
-            filters.get("url_key").get("eq").equals("outdoor")) {
-            // The URLProvider example will return category uid
-            graphqlResponse = readGraphqlResponse(CATEGORY_UID_JSON);
-        } else if (filters.containsKey("url_key") && filters.get("url_key").containsKey("eq") &&
-            filters.get("url_key").get("eq").equals("outdoor-staged")) {
-            // The URLProvider example will return category uid
-            graphqlResponse = readGraphqlResponse(CATEGORY_WITH_STAGED_PRODUCTS_JSON);
-        } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("in") && (((List<String>) (filters.get(
-            "category_uid").get("in")))
-                .size() == 4)) {
-            // The CategoriesCarousel example will require 4 items
-            graphqlResponse = readGraphqlResponse(CATEGORIES_CAROUSEL_JSON);
-        } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("eq")) {
-            if (filters.get("category_uid").get("eq").equals("uid-1")) {
-                // The ProductList example will require 1 item
-                graphqlResponse = readGraphqlResponse(CATEGORY_JSON);
-            } else if (filters.get("category_uid").get("eq").equals("uid-2")) {
+        } else if (filters.containsKey("url_key") && filters.get("url_key").containsKey("eq")) {
+            if (filters.get("url_key").get("eq").equals("outdoor")) {
+                // The URLProvider example will return category uid
+                graphqlResponse = readGraphqlResponse(CATEGORY_UID_JSON);
+            } else if (filters.get("url_key").get("eq").equals("outdoor-staged")) {
+                // The URLProvider example will return category uid
                 graphqlResponse = readGraphqlResponse(CATEGORY_WITH_STAGED_PRODUCTS_JSON);
-            } else if (filters.containsKey("category_uid") && filters.get("category_uid").containsKey("eq") &&
-                filters.get("category_uid").get("eq").equals("Mg==")) {
-                // The navigation example will require item "Mg==" as the default root category
-                graphqlResponse = readGraphqlResponse(CATEGORY_LIST_TREE_JSON);
+            } else if (filters.get("url_key").get("eq").equals("unknown-category")) {
+                // return empty response
+                graphqlResponse = readGraphqlResponse(UNKNOWN_CATEGORY_JSON);
+            }
+        } else if (filters.containsKey("category_uid")) {
+            if (filters.get("category_uid").containsKey("in") && (((List<String>) (filters.get("category_uid").get("in"))).size() == 4)) {
+                // The CategoriesCarousel example will require 4 items
+                graphqlResponse = readGraphqlResponse(CATEGORIES_CAROUSEL_JSON);
+            } else if (filters.get("category_uid").containsKey("eq")) {
+                if (filters.get("category_uid").get("eq").equals("uid-1")) {
+                    // The ProductList example will require 1 item
+                    graphqlResponse = readGraphqlResponse(CATEGORY_JSON);
+                } else if (filters.get("category_uid").get("eq").equals("uid-2")) {
+                    graphqlResponse = readGraphqlResponse(CATEGORY_WITH_STAGED_PRODUCTS_JSON);
+                } else if (filters.get("category_uid").get("eq").equals("Mg==")) {
+                    // The navigation example will require item "Mg==" as the default root category
+                    graphqlResponse = readGraphqlResponse(CATEGORY_LIST_TREE_JSON);
+                }
             }
         }
 
