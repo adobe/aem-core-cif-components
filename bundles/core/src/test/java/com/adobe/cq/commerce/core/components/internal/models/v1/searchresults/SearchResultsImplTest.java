@@ -31,7 +31,6 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
-import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,12 +49,10 @@ import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
-import com.adobe.cq.commerce.core.testing.MockExternalizer;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.sightly.SightlyWCMMode;
-import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -89,7 +86,6 @@ public class SearchResultsImplTest {
             context.registerInjectActivateService(new SearchResultsServiceImpl());
             context.registerAdapter(Resource.class, ComponentsConfiguration.class,
                 (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
-            context.registerService(Externalizer.class, new MockExternalizer());
 
             Utils.addDataLayerConfig(mockConfigBuilder, true);
             Utils.addStorefrontContextConfig(mockConfigBuilder, true);
@@ -130,10 +126,6 @@ public class SearchResultsImplTest {
         slingBindings.setResource(searchResultsResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, searchResultsResource.getValueMap());
-
-        XSSAPI xssApi = mock(XSSAPI.class);
-        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-        slingBindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));

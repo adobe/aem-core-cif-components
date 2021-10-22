@@ -104,23 +104,25 @@ public class Utils {
      */
     public static String setupHttpResponse(String filename, CloseableHttpClient httpClient, int httpCode, String contains)
         throws IOException {
-        String json = IOUtils.toString(Utils.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
-
-        HttpEntity mockedHttpEntity = mock(HttpEntity.class);
         CloseableHttpResponse mockedHttpResponse = mock(CloseableHttpResponse.class);
         StatusLine mockedStatusLine = mock(StatusLine.class);
+        String json = null;
 
-        byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
-        when(mockedHttpEntity.getContent()).thenAnswer(inv -> new ByteArrayInputStream(bytes));
-        when(mockedHttpEntity.getContentLength()).thenReturn(new Long(bytes.length));
+        if (httpCode == HttpStatus.SC_OK) {
+            json = IOUtils.toString(Utils.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
+            HttpEntity mockedHttpEntity = mock(HttpEntity.class);
 
-        when(mockedHttpResponse.getEntity()).thenReturn(mockedHttpEntity);
+            byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+            when(mockedHttpEntity.getContent()).thenAnswer(inv -> new ByteArrayInputStream(bytes));
+            when(mockedHttpEntity.getContentLength()).thenReturn(new Long(bytes.length));
+            when(mockedHttpResponse.getEntity()).thenReturn(mockedHttpEntity);
+        }
 
         if (contains != null) {
             GraphqlQueryMatcher matcher = new GraphqlQueryMatcher(contains);
             when(httpClient.execute(Mockito.argThat(matcher))).thenReturn(mockedHttpResponse);
         } else {
-            when(httpClient.execute((HttpUriRequest) Mockito.any())).thenReturn(mockedHttpResponse);
+            when(httpClient.execute(Mockito.any(HttpUriRequest.class))).thenReturn(mockedHttpResponse);
         }
 
         when(mockedStatusLine.getStatusCode()).thenReturn(httpCode);
