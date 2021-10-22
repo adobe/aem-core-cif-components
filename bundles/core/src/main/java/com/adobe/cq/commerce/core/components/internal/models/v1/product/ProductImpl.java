@@ -80,6 +80,7 @@ import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManagerFactory;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -102,25 +103,20 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Self
     private SlingHttpServletRequest request;
-
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
-
-    @ScriptVariable
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     private Page currentPage;
-
     @OSGiService
     private UrlProvider urlProvider;
-
-    @ScriptVariable
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     private Style currentStyle;
-
-    @ScriptVariable(name = "wcmmode")
+    @ScriptVariable(name = "wcmmode", injectionStrategy = InjectionStrategy.OPTIONAL)
     private SightlyWCMMode wcmMode;
-
     @OSGiService
     private XSSAPI xssApi;
-
+    @OSGiService
+    private PageManagerFactory pageManagerFactory;
     @OSGiService
     private Externalizer externalizer;
 
@@ -137,9 +133,14 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @PostConstruct
     protected void initModel() {
+        if (currentPage == null) {
+            currentPage = pageManagerFactory.getPageManager(request.getResourceResolver())
+                .getContainingPage(request.getResource());
+        }
         // Get product selection from dialog
         ValueMap properties = request.getResource().getValueMap();
         String sku = properties.get(SELECTION_PROPERTY, String.class);
+        boolean isAuthor = wcmMode != null && !wcmMode.isDisabled();
 
         if (magentoGraphqlClient != null) {
             // If no product is selected via dialog, extract it from the URL
@@ -151,8 +152,8 @@ public class ProductImpl extends DataLayerComponent implements Product {
             if (StringUtils.isNotBlank(sku)) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
                 productRetriever.setIdentifier(sku);
-                loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
-            } else if (!wcmMode.isDisabled()) {
+                loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, getOptionalStyle(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+            } else if (isAuthor) {
                 // In AEM Sites editor, load some dummy placeholder data for the component.
                 try {
                     productRetriever = new ProductPlaceholderRetriever(magentoGraphqlClient, PLACEHOLDER_DATA);
@@ -165,11 +166,15 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
         locale = currentPage.getLanguage(false);
 
-        if (!wcmMode.isDisabled()) {
+        if (isAuthor) {
             canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
         } else {
             canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
         }
+    }
+
+    protected final <T> T getOptionalStyle(String pn, T defaultValue) {
+        return currentStyle != null ? currentStyle.get(pn, defaultValue) : defaultValue;
     }
 
     @Override
