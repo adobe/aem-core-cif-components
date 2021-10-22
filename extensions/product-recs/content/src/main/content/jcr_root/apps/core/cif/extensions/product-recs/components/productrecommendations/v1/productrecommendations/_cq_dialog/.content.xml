@@ -49,28 +49,9 @@
                                     fieldLabel="Recommendation type"
                                     multiple="{Boolean}false"
                                     name="./recommendationType">
-                                <items jcr:primaryType="nt:unstructured">
-                                    <mostViewed
-                                            jcr:primaryType="nt:unstructured"
-                                            text="Most viewed"
-                                            value="most-viewed"/>
-                                    <mostPurchased
-                                            jcr:primaryType="nt:unstructured"
-                                            text="Most purchased"
-                                            value="most-purchased"/>
-                                    <mostAddedToCart
-                                            jcr:primaryType="nt:unstructured"
-                                            text="Most added to cart"
-                                            value="most-added-to-cart"/>
-                                    <trending
-                                            jcr:primaryType="nt:unstructured"
-                                            text="Trending"
-                                            value="trending"/>
-                                    <justForYou
-                                            jcr:primaryType="nt:unstructured"
-                                            text="Recommended for you"
-                                            value="just-for-you"/>
-                                </items>
+                                    <datasource
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="core/cif/extensions/product-recs/datasources/allowedrectypes/v1"/>
                             </recommendationType>
                             <noFilterContainer
                                     jcr:primaryType="nt:unstructured"
