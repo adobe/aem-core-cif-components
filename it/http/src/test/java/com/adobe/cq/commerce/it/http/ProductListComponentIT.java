@@ -35,8 +35,6 @@ import junit.category.IgnoreOnCloud;
 
 import static org.junit.Assert.assertEquals;
 
-import static org.junit.Assert.assertEquals;
-
 public class ProductListComponentIT extends CommerceTestBase {
 
     // Differentiates between the HTML output of the component itself, and the tab displaying the HTML output
