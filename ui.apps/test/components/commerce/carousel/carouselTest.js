@@ -32,8 +32,8 @@ describe('Carousel', () => {
                 <div class="carousel aem-GridColumn aem-GridColumn--default--12">
                     <div data-comp-is="carousel" class="carousel__container">
                         <h2 class="carousel__title">Shop by category</h2>
-                        <button data-carousel-action="prev" class="carousel__btn carousel__btn--prev" type="button" title="Show previous" aria-label="Show previous" style="display: block;"disabled=""></button>
-                        <button data-carousel-action="next" class="carousel__btn carousel__btn--next" type="button" title="Show next" aria-label="Show next" style="display: block;"></button>
+                        <button data-carousel-action="prev" class="carousel__btn carousel__btn--prev" type="button" title="${'Show previous' @ i18n}" aria-label="${'Show previous' @ i18n}" style="display: block;"disabled=""></button>
+                        <button data-carousel-action="next" class="carousel__btn carousel__btn--next" type="button" title="${'Show next' @ i18n}" aria-label="${'Show next' @ i18n}" style="display: block;"></button>
                         <div class="carousel__cardsroot">
                             <div class="carousel__parent">
                                 <div class="carousel__cardscontainer" style="width: 1440px; transition: margin-left 300ms linear 0ms; margin-left: 0px;">

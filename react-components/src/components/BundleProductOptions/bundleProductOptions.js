@@ -232,7 +232,10 @@ const BundleProductOptions = () => {
                     <span className="fieldIcons__root" style={{ '--iconsBefore': 0, '--iconsAfter': 1 }}>
                         <span className="fieldIcons__input">
                             <select
-                                aria-label="product's quantity"
+                                aria-label={intl.formatMessage({
+                                    id: 'product:quantity-label',
+                                    defaultMessage: 'Product quantity'
+                                })}
                                 className="select__input field__input"
                                 name="quantity"
                                 value={bundleState.quantity}
