@@ -26,6 +26,20 @@
     max-width: 50%;
 }
 
+.cif-demo .carousel__btn--prev,
+.cif-demo .carousel__btn--next,
+.cif-demo .productcarousel__btn--prev,
+.cif-demo .productcarousel__btn--next {
+    border-color: #232323;
+}
+
+.cif-demo .carousel__btn--prev:disabled,
+.cif-demo .carousel__btn--next:disabled,
+.cif-demo .productcarousel__btn--prev:disabled,
+.cif-demo .productcarousel__btn--next:disabled {
+    border-color: #e1e1e1;
+}
+
 .cif-demo .carousel__container {
     max-width: 50%;
 }
