@@ -20,10 +20,11 @@ import org.apache.sling.testing.clients.SlingHttpResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import static org.junit.Assert.assertEquals;
 
 public class ProductComponentIT extends CommerceTestBase {
 
@@ -38,29 +39,29 @@ public class ProductComponentIT extends CommerceTestBase {
 
         // Verify product name
         Elements elements = doc.select(PRODUCT_SELECTOR + ".productFullDetail__productName > span");
-        Assert.assertEquals("Chaz Kangeroo Hoodie", elements.first().html());
+        assertEquals("Chaz Kangeroo Hoodie", elements.first().html());
 
         // Verify that the section for GroupedProduct is NOT displayed
-        Assert.assertEquals(0, doc.select(".productFullDetail__groupedProducts").size());
+        assertEquals(0, doc.select(".productFullDetail__groupedProducts").size());
 
         // Check the meta data
         elements = doc.select("title");
-        Assert.assertEquals("Meta title for Chaz Kangeroo Hoodie", elements.first().html());
+        assertEquals("Meta title for Chaz Kangeroo Hoodie", elements.first().html());
 
         elements = doc.select("meta[name=keywords]");
-        Assert.assertEquals("Meta keywords for Chaz Kangeroo Hoodie", elements.first().attr("content"));
+        assertEquals("Meta keywords for Chaz Kangeroo Hoodie", elements.first().attr("content"));
 
         elements = doc.select("meta[name=description]");
-        Assert.assertEquals("Meta description for Chaz Kangeroo Hoodie", elements.first().attr("content"));
+        assertEquals("Meta description for Chaz Kangeroo Hoodie", elements.first().attr("content"));
 
         elements = doc.select("link[rel=canonical]");
-        Assert.assertEquals("http://localhost:4502" + pagePath, elements.first().attr("href"));
+        assertEquals("http://localhost:4502" + pagePath, elements.first().attr("href"));
 
         // Verify datalayer attributes
         elements = doc.select(PRODUCT_SELECTOR + "> .productFullDetail__root");
         JsonNode result = OBJECT_MAPPER.readTree(elements.first().attr("data-cmp-data-layer"));
         JsonNode expected = OBJECT_MAPPER.readTree(getResource("datalayer/chaz-kangeroo-hoodie-product.json"));
-        Assert.assertEquals(expected, result);
+        assertEquals(expected, result);
     }
 
     @Test
@@ -70,10 +71,10 @@ public class ProductComponentIT extends CommerceTestBase {
 
         // Verify product name
         Elements elements = doc.select(PRODUCT_SELECTOR + ".productFullDetail__productName > span");
-        Assert.assertEquals("Chaz Kangeroo Hoodie", elements.first().html());
+        assertEquals("Chaz Kangeroo Hoodie", elements.first().html());
 
         // Verify that the section for GroupedProduct is NOT displayed
-        Assert.assertEquals(0, doc.select(".productFullDetail__groupedProducts").size());
+        assertEquals(0, doc.select(".productFullDetail__groupedProducts").size());
     }
 
     @Test
@@ -83,10 +84,10 @@ public class ProductComponentIT extends CommerceTestBase {
 
         // Verify product name
         Elements elements = doc.select(PRODUCT_SELECTOR + ".productFullDetail__productName > span");
-        Assert.assertEquals("Set of Sprite Yoga Straps", elements.first().html());
+        assertEquals("Set of Sprite Yoga Straps", elements.first().html());
 
         // Verify that the section for GroupedProduct is displayed
-        Assert.assertEquals(1, doc.select(PRODUCT_SELECTOR + ".productFullDetail__groupedProducts").size());
+        assertEquals(1, doc.select(PRODUCT_SELECTOR + ".productFullDetail__groupedProducts").size());
     }
 
     @Test
@@ -96,7 +97,7 @@ public class ProductComponentIT extends CommerceTestBase {
 
         // Verify product name
         Elements elements = doc.select(PRODUCT_SELECTOR + ".productFullDetail__productName > span");
-        Assert.assertEquals("Product name", elements.first().html());
+        assertEquals("Product name", elements.first().html());
     }
 
     @Test
@@ -106,7 +107,7 @@ public class ProductComponentIT extends CommerceTestBase {
 
         // Component Library > Commerce > Outdoor > Collection > Chaz Kangeroo Hoodie
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        Assert.assertEquals(5, elements.size());
+        assertEquals(5, elements.size());
     }
 
     @Test
@@ -116,6 +117,14 @@ public class ProductComponentIT extends CommerceTestBase {
 
         // Component Library > Commerce
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        Assert.assertEquals(2, elements.size());
+        assertEquals(2, elements.size());
+    }
+
+    @Test
+    public void testProductNotFound() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.html?wcmmode=disabled");
+        assertEquals(404, response.getStatusLine().getStatusCode());
+        response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.html/unknown-product.html?wcmmode=disabled");
+        assertEquals(404, response.getStatusLine().getStatusCode());
     }
 }

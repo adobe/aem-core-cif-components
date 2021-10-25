@@ -51,10 +51,6 @@ function generateBaseConfig() {
                 }
             ]
         },
-        // External libraries from the /lib folder should be excluded from packing and are added manually to the clientlib.
-        externals: {
-            handlebars: 'Handlebars'
-        },
         devtool: 'source-map',
         target: 'web'
     };
