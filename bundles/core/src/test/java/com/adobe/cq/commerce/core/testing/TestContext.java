@@ -20,6 +20,7 @@ import org.apache.sling.xss.XSSAPI;
 import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.wcm.core.components.internal.link.DefaultPathProcessor;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.PageManagerFactory;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -62,6 +63,7 @@ public class TestContext {
                 // register commonly required ootb services
                 context.registerService(PageManagerFactory.class, rr -> context.pageManager());
                 context.registerService(Externalizer.class, new MockExternalizer());
+                context.registerInjectActivateService(new DefaultPathProcessor());
 
                 XSSAPI xssApi = mock(XSSAPI.class);
                 when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
