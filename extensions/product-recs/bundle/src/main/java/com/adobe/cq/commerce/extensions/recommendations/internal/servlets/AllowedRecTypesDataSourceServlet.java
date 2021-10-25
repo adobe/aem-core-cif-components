@@ -78,7 +78,10 @@ public class AllowedRecTypesDataSourceServlet extends SlingSafeMethodsServlet {
                     String[] allowedTypeValues = props.get(PN_ALLOWED_TYPES, String[].class);
                     if (allowedTypeValues != null && allowedTypeValues.length > 0) {
                         for (String allowedTypeValue : allowedTypeValues) {
-                            allowedRecTypes.add(new RecTypeResource(allowedTypeValue, resolver));
+                            RecType recType = RecType.getTypeByValue(allowedTypeValue);
+                            if (recType != null) {
+                                allowedRecTypes.add(new RecTypeResource(recType, resolver));
+                            }
                         }
                     }
                 }
@@ -90,21 +93,16 @@ public class AllowedRecTypesDataSourceServlet extends SlingSafeMethodsServlet {
     /**
      * Synthetic resource for a product recommendation type that can be used by a Granite form select field.
      */
-    private static class RecTypeResource extends SyntheticResource {
+    static class RecTypeResource extends SyntheticResource {
         public static final String PN_VALUE = "value";
         public static final String PN_TEXT = "text";
-        // public static final String PN_SELECTED = "selected";
 
-        private final String value;
-        private final String text;
+        private final RecType recType;
         private ValueMap valueMap;
 
-        RecTypeResource(String value, ResourceResolver resourceResolver) {
+        RecTypeResource(RecType recType, ResourceResolver resourceResolver) {
             super(resourceResolver, StringUtils.EMPTY, RESOURCE_TYPE_NON_EXISTING);
-            this.value = value;
-
-            RecType recType = RecType.getTypeByValue(value);
-            this.text = recType.getText();
+            this.recType = recType;
         }
 
         @Override
@@ -124,28 +122,21 @@ public class AllowedRecTypesDataSourceServlet extends SlingSafeMethodsServlet {
             valueMap = new ValueMapDecorator(new HashMap<String, Object>());
             valueMap.put(PN_VALUE, getValue());
             valueMap.put(PN_TEXT, getText());
-            // valueMap.put(PN_SELECTED, getSelected());
         }
 
         public String getText() {
-            return text;
+            return recType.getText();
         }
 
         public String getValue() {
-            return value;
+            return recType.getValue();
         }
-
-        /*
-         * public boolean getSelected() {
-         * return false;
-         * }
-         */
     }
 
     /**
      * Enum with all available product recommendation types.
      */
-    private enum RecType {
+    enum RecType {
         mostViewed("most-viewed", "Most viewed"),
         mostPurchased("most-purchased", "Most purchased"),
         conversionRatePurchase("purchase-session-conversion-rate", "Conversion rate (purchase)"),
