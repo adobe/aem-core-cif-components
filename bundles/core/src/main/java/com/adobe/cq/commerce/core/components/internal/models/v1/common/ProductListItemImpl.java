@@ -34,11 +34,8 @@ import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
-import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import static com.adobe.cq.wcm.core.components.util.ComponentUtils.ID_SEPARATOR;
 
 public class ProductListItemImpl extends DataLayerListItem implements ProductListItem {
 
@@ -181,9 +178,12 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     }
 
     @Override
-    protected String generateId() {
-        String prefix = StringUtils.join(parentId, ID_SEPARATOR, ITEM_ID_PREFIX);
-        return ComponentUtils.generateId(prefix, StringUtils.defaultIfBlank(getSKU(), StringUtils.EMPTY));
+    protected String getIdentifier() {
+        String itemIdentifier = sku;
+        if (StringUtils.isNotEmpty(activeVariantSku)) {
+            itemIdentifier += "#" + activeVariantSku;
+        }
+        return StringUtils.defaultIfBlank(itemIdentifier, StringUtils.EMPTY);
     }
 
     @Override

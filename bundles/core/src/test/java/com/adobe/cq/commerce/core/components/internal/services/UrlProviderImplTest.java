@@ -72,14 +72,7 @@ public class UrlProviderImplTest {
 
         graphqlClient = spy(new GraphqlClientImpl());
         context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
-        // context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input ->
-        // input.getValueMap().get(
-        // "cq:graphqlClient", String.class) != null ? graphqlClient : null);
         context.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
-
-        // MagentoGraphqlClient mockClient = spy(new MagentoGraphqlClientImpl(request));
-        // Whitebox.setInternalState(mockClient, "graphqlClient", graphqlClient);
-        // context.registerAdapter(SlingHttpServletRequest.class, MagentoGraphqlClient.class, mockClient);
 
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
             "{products(filter:{sku:{eq:\"MJ01\"}}");

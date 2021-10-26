@@ -4,36 +4,22 @@
     jcr:title="Button"
     sling:resourceType="cq/gui/components/authoring/dialog"
     extraClientlibs="[cif.shell.picker]"
-    helpPath="https://www.adobe.com/go/aem_cmp_button_v1"
-    trackingFeature="cif-core-components:button:v1">
-    <content
-        granite:class="cmp-button__editor"
-        jcr:primaryType="nt:unstructured"
-        sling:resourceType="granite/ui/components/coral/foundation/container">
+    helpPath="https://www.adobe.com/go/aem_cmp_button_v2"
+    trackingFeature="cif-core-components:button:v2">
+    <content jcr:primaryType="nt:unstructured">
         <items jcr:primaryType="nt:unstructured">
-            <tabs
-                jcr:primaryType="nt:unstructured"
-                sling:resourceType="granite/ui/components/coral/foundation/tabs"
-                maximized="{Boolean}true">
+            <tabs jcr:primaryType="nt:unstructured">
                 <items jcr:primaryType="nt:unstructured">
-                    <properties
-                        jcr:primaryType="nt:unstructured"
-                        jcr:title="Properties"
-                        sling:resourceType="granite/ui/components/coral/foundation/container"
-                        margin="{Boolean}true">
+                    <properties jcr:primaryType="nt:unstructured">
                         <items jcr:primaryType="nt:unstructured">
-                            <columns
-                                jcr:primaryType="nt:unstructured"
-                                sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
-                                margin="{Boolean}true">
+                            <columns jcr:primaryType="nt:unstructured">
                                 <items jcr:primaryType="nt:unstructured">
-                                    <column
-                                        jcr:primaryType="nt:unstructured"
-                                        sling:resourceType="granite/ui/components/coral/foundation/container">
+                                    <column jcr:primaryType="nt:unstructured">
                                         <items jcr:primaryType="nt:unstructured">
                                             <linkType
                                                 granite:class="cq-dialog-dropdown-showhide"
                                                 jcr:primaryType="nt:unstructured"
+                                                sling:orderBefore="link"
                                                 sling:resourceType="granite/ui/components/coral/foundation/form/select"
                                                 fieldLabel="Select Link Type"
                                                 name="./linkType">
@@ -66,6 +52,7 @@
                                             <setLinkTo
                                                 granite:class="hide list-option-listfrom-showhide-target foundation-layout-util-vmargin"
                                                 jcr:primaryType="nt:unstructured"
+                                                sling:orderBefore="link"
                                                 sling:resourceType="granite/ui/components/coral/foundation/container">
                                                 <granite:data
                                                     jcr:primaryType="nt:unstructured"
@@ -90,6 +77,7 @@
                                             <setProduct
                                                 granite:class="hide list-option-listfrom-showhide-target foundation-layout-util-vmargin"
                                                 jcr:primaryType="nt:unstructured"
+                                                sling:orderBefore="link"
                                                 sling:resourceType="granite/ui/components/coral/foundation/container">
                                                 <granite:data
                                                     jcr:primaryType="nt:unstructured"
@@ -112,6 +100,7 @@
                                             <setCategory
                                                 granite:class="hide list-option-listfrom-showhide-target foundation-layout-util-vmargin"
                                                 jcr:primaryType="nt:unstructured"
+                                                sling:orderBefore="link"
                                                 sling:resourceType="granite/ui/components/coral/foundation/container">
                                                 <granite:data
                                                     jcr:primaryType="nt:unstructured"
@@ -133,6 +122,7 @@
                                             <setExternalLink
                                                 granite:class="hide list-option-listfrom-showhide-target foundation-layout-util-vmargin"
                                                 jcr:primaryType="nt:unstructured"
+                                                sling:orderBefore="link"
                                                 sling:resourceType="granite/ui/components/coral/foundation/container">
                                                 <granite:data
                                                     jcr:primaryType="nt:unstructured"
@@ -154,20 +144,8 @@
                                             <link
                                                 jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="granite/ui/components/coral/foundation/form/hidden"
-                                                fieldDescription="Link to a content page, external URL or page anchor."
-                                                fieldLabel="Link"
-                                                name="./link"/>
-                                            <icon jcr:primaryType="nt:unstructured"
-                                                sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
-                                                fieldDescription="Icon identifier for displaying an icon in the button."
-                                                fieldLabel="Icon"
-                                                name="./icon" />
-                                            <id jcr:primaryType="nt:unstructured"
-                                                sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
-                                                fieldDescription="HTML ID attribute to apply to the component."
-                                                fieldLabel="ID"
-                                                name="./id" />
-
+                                                name="./link@Delete"
+                                                value="true"/>
                                         </items>
                                     </column>
                                 </items>
