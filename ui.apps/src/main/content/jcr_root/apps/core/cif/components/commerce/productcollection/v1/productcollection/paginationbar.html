@@ -53,7 +53,8 @@
 
                 <sly data-sly-test="${page.pageNumber != pager.currentPage} ">
                     <a class="category__pagination_tilebutton"
-                       href="${request.requestURI @ query=page.parameters}">
+                       href="${request.requestURI @ query=page.parameters}"
+                       title="${'Go to page {0}' @ i18n, format=[page.pageNumber]}">
                         <div class="category__pagination_tilebutton-text">
                             ${page.pageNumber}
                         </div>

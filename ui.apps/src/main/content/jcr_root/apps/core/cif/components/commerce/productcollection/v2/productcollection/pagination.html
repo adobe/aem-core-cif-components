@@ -43,7 +43,7 @@
 
             <!--/*Page numbers iterated*/-->
             <sly data-sly-test="${page.pageNumber == pager.currentPage} ">
-                <a class="productcollection__pagination-button productcollection__pagination-button--current" >
+                <a class="productcollection__pagination-button productcollection__pagination-button--current">
                     <div class="productcollection__pagination-button-title">
                         ${page.pageNumber}
                     </div>
@@ -52,7 +52,8 @@
 
             <sly data-sly-test="${page.pageNumber != pager.currentPage} ">
                 <a class="productcollection__pagination-button"
-                   href="${request.requestURI @ query=page.parameters}">
+                   href="${request.requestURI @ query=page.parameters}"
+                   title="${'Go to page {0}' @ i18n, format=[page.pageNumber]}">
                     <div class="productcollection__pagination-button-title">
                         ${page.pageNumber}
                     </div>
