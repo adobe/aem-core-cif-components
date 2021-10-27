@@ -713,6 +713,12 @@
       "value": "Customize"
     }
   ],
+  "product:quantity-label": [
+    {
+      "type": 0,
+      "value": "Product quantity"
+    }
+  ],
   "product:required-fields": [
     {
       "type": 0,
