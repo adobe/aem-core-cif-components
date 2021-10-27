@@ -296,7 +296,7 @@ exports[`BundleProductOptions renders the component with full options 1`] = `
           class="fieldIcons__input"
         >
           <select
-            aria-label="product's quantity"
+            aria-label="Product quantity"
             class="select__input field__input"
             name="quantity"
           >
