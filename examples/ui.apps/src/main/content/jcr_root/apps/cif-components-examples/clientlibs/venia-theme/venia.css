@@ -2528,16 +2528,16 @@
 }
 
 .cif-demo .carousel__btn--next {
-    border-bottom    : 8px solid #aaa;
-    border-right     : 8px solid #aaa;
+    border-bottom    : 8px solid #888;
+    border-right     : 8px solid #888;
     right            : 0;
     -webkit-transform: rotate(315deg);
     transform        : rotate(315deg)
 }
 
 .cif-demo .carousel__btn--prev {
-    border-bottom    : 8px solid #aaa;
-    border-left      : 8px solid #aaa;
+    border-bottom    : 8px solid #888;
+    border-left      : 8px solid #888;
     left             : 0;
     -webkit-transform: rotate(45deg);
     transform        : rotate(45deg)
@@ -3381,16 +3381,16 @@ tr:nth-child(2n) {
 }
 
 .cif-demo .productcarousel__btn--next {
-    border-bottom    : 8px solid #aaa;
-    border-right     : 8px solid #aaa;
+    border-bottom    : 8px solid #888;
+    border-right     : 8px solid #888;
     right            : 0;
     -webkit-transform: rotate(315deg);
     transform        : rotate(315deg)
 }
 
 .cif-demo .productcarousel__btn--prev {
-    border-bottom    : 8px solid #aaa;
-    border-left      : 8px solid #aaa;
+    border-bottom    : 8px solid #888;
+    border-left      : 8px solid #888;
     left             : 0;
     -webkit-transform: rotate(45deg);
     transform        : rotate(45deg)
