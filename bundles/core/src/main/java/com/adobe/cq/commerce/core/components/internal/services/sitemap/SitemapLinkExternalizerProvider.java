@@ -42,7 +42,7 @@ public class SitemapLinkExternalizerProvider {
 
     private SitemapLinkExternalizer externalizer;
 
-    SitemapLinkExternalizer getExternalizer() {
+    public SitemapLinkExternalizer getExternalizer() {
         if (externalizer == null) {
             // try to use the Sites SEO SitemapLinkExternalizer
             try {
