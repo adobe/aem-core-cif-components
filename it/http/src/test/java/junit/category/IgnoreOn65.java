@@ -1,5 +1,5 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ Copyright 2019 Adobe
+ ~ Copyright 2021 Adobe
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -13,36 +13,6 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-package com.adobe.cq.commerce.core.components.models.product;
+package junit.category;
 
-import java.util.List;
-import java.util.Map;
-
-import org.osgi.annotation.versioning.ConsumerType;
-
-import com.adobe.cq.commerce.core.components.models.common.Price;
-
-/**
- * Variant is a view model interface representing a product variant that
- * contains properties specific to a variant in comparison to its base product.
- */
-@ConsumerType
-public interface Variant {
-    String getId();
-
-    String getName();
-
-    String getDescription();
-
-    String getSku();
-
-    Price getPriceRange();
-
-    Boolean getInStock();
-
-    Integer getColor();
-
-    Map<String, Integer> getVariantAttributes();
-
-    List<Asset> getAssets();
-}
+public interface IgnoreOn65 {}

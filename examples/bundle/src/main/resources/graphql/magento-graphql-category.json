@@ -3,6 +3,8 @@
         "categoryList": [
             {
                 "uid": "uid-1",
+                "url_key": "outdoor",
+                "url_path": "outdoor",
                 "description": "A collection of products for outdoor activities",
                 "name": "Outdoor Collection",
                 "image": null,

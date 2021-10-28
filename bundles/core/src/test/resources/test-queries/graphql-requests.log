@@ -128,6 +128,8 @@
 
 {products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged,created_at,stock_status,staged},aggregations{options{count,label,value},attribute_code,count,label}}}
 
+{products(currentPage:3,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged},aggregations{options{count,label,value},attribute_code,count,label}}}
+
 {products(search:"",pageSize:2,currentPage:1){total_count,items{__typename,url_key,sku,updated_at,created_at}}}
 
 {products(search:"",pageSize:2,currentPage:2){total_count,items{__typename,url_key,sku,updated_at,created_at}}}
