@@ -256,7 +256,7 @@
             },
             "buttonDefaultUrl": {
                 "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v2/button"
+                "sling:resourceType": "core/cif/components/content/button/v1/button"
             },
             "button2TypeProduct": {
                 "jcr:primaryType": "nt:unstructured",

@@ -18,8 +18,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.page;
 import javax.annotation.PostConstruct;
 
 import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.wrappers.SlingHttpServletRequestWrapper;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -61,14 +59,7 @@ public class CurrentPageImpl extends AbstractPageDelegator {
 
     @PostConstruct
     protected void postConstruct() {
-        delegate = modelFactory.createModel(
-            new SlingHttpServletRequestWrapper(request) {
-                @Override
-                public Resource getResource() {
-                    return currentPage.getContentResource();
-                }
-            },
-            Page.class);
+        delegate = modelFactory.getModelFromWrappedRequest(request, currentPage.getContentResource(), Page.class);
         request = null;
     }
 
