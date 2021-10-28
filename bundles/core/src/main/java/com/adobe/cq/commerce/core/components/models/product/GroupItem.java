@@ -15,11 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.product;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
 import com.adobe.cq.commerce.core.components.models.common.Price;
 
 /**
  * GroupItem is a view model interface representing the item of a grouped product.
  */
+@ConsumerType
 public interface GroupItem {
 
     String getName();

@@ -15,14 +15,21 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.it.http;
 
+import java.util.Map;
+import java.util.function.Function;
+
 import org.apache.sling.testing.clients.ClientException;
 import org.apache.sling.testing.clients.SlingHttpResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableMap;
+import junit.category.IgnoreOn65;
+import junit.category.IgnoreOnCloud;
 
 import static org.junit.Assert.assertEquals;
 
@@ -32,8 +39,30 @@ public class ProductComponentIT extends CommerceTestBase {
     private static final String PRODUCT_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .product ";
 
     @Test
-    public void testProductPageWithSampleData() throws Exception {
+    @Category({ IgnoreOnCloud.class })
+    public void testProductPageWithSampleData65() throws Exception {
         String pagePath = COMMERCE_LIBRARY_PATH + "/product.html/chaz-kangeroo-hoodie.html";
+        testProductPageWithSampleData(pagePath, ImmutableMap.of(
+            doc -> doc.select("title").first().html(), "Meta title for Chaz Kangeroo Hoodie",
+            doc -> doc.select("meta[name=keywords]").first().attr("content"), "Meta keywords for Chaz Kangeroo Hoodie",
+            doc -> doc.select("meta[name=description]").first().attr("content"), "Meta description for Chaz Kangeroo Hoodie",
+            // 6.5.8 uses the externalizer author link to create the canonical link
+            doc -> doc.select("link[rel=canonical]").first().attr("href"), "http://localhost:4502" + pagePath));
+    }
+
+    @Test
+    @Category({ IgnoreOn65.class })
+    public void testProductPageWithSampleDataCloud() throws Exception {
+        String pagePath = COMMERCE_LIBRARY_PATH + "/product.html/chaz-kangeroo-hoodie.html";
+        testProductPageWithSampleData(pagePath, ImmutableMap.of(
+            doc -> doc.select("title").first().html(), "Meta title for Chaz Kangeroo Hoodie",
+            doc -> doc.select("meta[name=keywords]").first().attr("content"), "Meta keywords for Chaz Kangeroo Hoodie",
+            doc -> doc.select("meta[name=description]").first().attr("content"), "Meta description for Chaz Kangeroo Hoodie",
+            // without mapping rules we expect the SitemapLinkExternalizer to return the path as is
+            doc -> doc.select("link[rel=canonical]").first().attr("href"), pagePath));
+    }
+
+    private void testProductPageWithSampleData(String pagePath, Map<Function<Document, String>, String> expectedMetadata) throws Exception {
         SlingHttpResponse response = adminAuthor.doGet(pagePath, 200);
         Document doc = Jsoup.parse(response.getContent());
 
@@ -45,17 +74,9 @@ public class ProductComponentIT extends CommerceTestBase {
         assertEquals(0, doc.select(".productFullDetail__groupedProducts").size());
 
         // Check the meta data
-        elements = doc.select("title");
-        assertEquals("Meta title for Chaz Kangeroo Hoodie", elements.first().html());
-
-        elements = doc.select("meta[name=keywords]");
-        assertEquals("Meta keywords for Chaz Kangeroo Hoodie", elements.first().attr("content"));
-
-        elements = doc.select("meta[name=description]");
-        assertEquals("Meta description for Chaz Kangeroo Hoodie", elements.first().attr("content"));
-
-        elements = doc.select("link[rel=canonical]");
-        assertEquals("http://localhost:4502" + pagePath, elements.first().attr("href"));
+        for (Map.Entry<Function<Document, String>, String> expectedMetadataPair : expectedMetadata.entrySet()) {
+            assertEquals(expectedMetadataPair.getValue(), expectedMetadataPair.getKey().apply(doc));
+        }
 
         // Verify datalayer attributes
         elements = doc.select(PRODUCT_SELECTOR + "> .productFullDetail__root");

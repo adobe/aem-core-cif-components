@@ -18,11 +18,15 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.page;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.via.ResourceSuperType;
 
@@ -30,6 +34,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexpor
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.wcm.core.components.models.HtmlPageItem;
 import com.adobe.cq.wcm.core.components.models.Page;
+import com.day.cq.wcm.api.designer.Style;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -38,16 +43,17 @@ import com.adobe.cq.wcm.core.components.models.Page;
 public class PageImpl extends AbstractPageDelegator implements Page {
 
     public static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
+    protected static final String PN_STYLE_RENDER_ALTERNATE_LANGUAGE_LINKS = com.adobe.cq.wcm.core.components.internal.models.v2.PageImpl.PN_STYLE_RENDER_ALTERNATE_LANGUAGE_LINKS;
 
     @Self
     @Via(type = ResourceSuperType.class)
     private Page page;
-
     @Self
     private StoreConfigExporterImpl storeConfigExporter;
-
     @Self
     private PageMetadata pageMetadata;
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private Style currentStyle;
 
     private List<HtmlPageItem> htmlPageItems;
 
@@ -78,6 +84,18 @@ public class PageImpl extends AbstractPageDelegator implements Page {
     public String getCanonicalLink() {
         String canonicalLink = pageMetadata.getCanonicalUrl();
         return StringUtils.isNotEmpty(canonicalLink) ? canonicalLink : page.getCanonicalLink();
+    }
+
+    @Override
+    public Map<Locale, String> getAlternateLanguageLinks() {
+        if (currentStyle != null && this.currentStyle.get(PN_STYLE_RENDER_ALTERNATE_LANGUAGE_LINKS, Boolean.FALSE)) {
+            Map<Locale, String> alternateLanguageLinks = pageMetadata.getAlternateLanguageLinks();
+            if (alternateLanguageLinks == null) {
+                alternateLanguageLinks = super.getAlternateLanguageLinks();
+            }
+            return alternateLanguageLinks;
+        }
+        return Collections.emptyMap();
     }
 
     @Override
