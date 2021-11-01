@@ -22,12 +22,6 @@
     border: none !important;
 }
 
-.cif-demo .productteaser .item__name, .cif-demo .productteaser .price {
-    background-color: rgba(0,0,0,0.5);
-    padding: 0.5rem;
-    text-shadow: none !important;
-}
-
 .cif-demo .productcarousel__container {
     max-width: 50%;
 }
