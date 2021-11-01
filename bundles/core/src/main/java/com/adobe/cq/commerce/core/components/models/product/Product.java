@@ -17,6 +17,8 @@ package com.adobe.cq.commerce.core.components.models.product;
 
 import java.util.List;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
@@ -26,6 +28,7 @@ import com.adobe.cq.wcm.core.components.models.Component;
 /**
  * Product is the sling model interface for the CIF core product component.
  */
+@ConsumerType
 public interface Product extends Component, PageMetadata {
 
     /**

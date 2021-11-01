@@ -15,6 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.page;
 
+import java.util.Locale;
+import java.util.Map;
+
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
 
@@ -53,5 +56,10 @@ public class MockPageMetadata implements PageMetadata {
     @Override
     public String getCanonicalUrl() {
         return delegate.getCanonicalUrl();
+    }
+
+    @Override
+    public Map<Locale, String> getAlternateLanguageLinks() {
+        return delegate.getAlternateLanguageLinks();
     }
 }
