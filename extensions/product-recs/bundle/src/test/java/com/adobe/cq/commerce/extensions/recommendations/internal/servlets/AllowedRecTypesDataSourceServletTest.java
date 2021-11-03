@@ -22,15 +22,14 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import org.apache.sling.api.resource.ValueMap;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.extensions.recommendations.testing.TestContext;
 import com.adobe.granite.ui.components.Value;
 import com.adobe.granite.ui.components.ds.DataSource;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -40,14 +39,7 @@ public class AllowedRecTypesDataSourceServletTest {
     private AllowedRecTypesDataSourceServlet dataSourceServlet;
 
     @Rule
-    public final AemContext context = createContext("/context/datasource-content.json");
-
-    private static AemContext createContext(String contentPath) {
-        return new AemContext((AemContextCallback) context -> {
-            // Load page structure
-            context.load().json(contentPath, "/content");
-        }, ResourceResolverType.JCR_MOCK);
-    }
+    public final AemContext context = TestContext.newAemContext("/context/datasource-content.json");
 
     @Before
     public void setUp() {
@@ -106,8 +98,44 @@ public class AllowedRecTypesDataSourceServletTest {
     }
 
     @Test
+    public void testDataSourceWithNoPolicy() throws ServletException, IOException {
+        // Call datasource servlet
+        dataSourceServlet.doGet(context.request(), context.response());
+        DataSource dataSource = (DataSource) context.request().getAttribute(DataSource.class.getName());
+        assertNotNull(dataSource);
+
+        List<AllowedRecTypesDataSourceServlet.RecTypeResource> allowedTypes = new ArrayList<>();
+        dataSource.iterator().forEachRemaining(resource -> {
+            allowedTypes.add((AllowedRecTypesDataSourceServlet.RecTypeResource) resource);
+        });
+
+        // Verify values
+        assertEquals(0, allowedTypes.size());
+    }
+
+    @Test
+    public void testDataSourceWithNoValues() throws ServletException, IOException {
+        // Define policy mapping with no types
+        context.contentPolicyMapping("core/cif/extensions/product-recs/components/productrecommendations/v1/productrecommendations",
+            "something", "value");
+
+        // Call datasource servlet
+        dataSourceServlet.doGet(context.request(), context.response());
+        DataSource dataSource = (DataSource) context.request().getAttribute(DataSource.class.getName());
+        assertNotNull(dataSource);
+
+        List<AllowedRecTypesDataSourceServlet.RecTypeResource> allowedTypes = new ArrayList<>();
+        dataSource.iterator().forEachRemaining(resource -> {
+            allowedTypes.add((AllowedRecTypesDataSourceServlet.RecTypeResource) resource);
+        });
+
+        // Verify values
+        assertEquals(0, allowedTypes.size());
+    }
+
+    @Test
     public void testAdaptsToValueMap() {
-        AllowedRecTypesDataSourceServlet.RecType recType = AllowedRecTypesDataSourceServlet.RecType.boughtBought;
+        AllowedRecTypesDataSourceServlet.RecType recType = AllowedRecTypesDataSourceServlet.RecType.BOUGHT_BOUGHT;
         AllowedRecTypesDataSourceServlet.RecTypeResource resource = new AllowedRecTypesDataSourceServlet.RecTypeResource(recType, context
             .resourceResolver());
 

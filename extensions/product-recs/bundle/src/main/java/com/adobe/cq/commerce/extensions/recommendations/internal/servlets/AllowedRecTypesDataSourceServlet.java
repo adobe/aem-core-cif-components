@@ -17,8 +17,12 @@ package com.adobe.cq.commerce.extensions.recommendations.internal.servlets;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -69,24 +73,22 @@ public class AllowedRecTypesDataSourceServlet extends SlingSafeMethodsServlet {
         ResourceResolver resolver = request.getResourceResolver();
         Resource contentResource = resolver.getResource((String) request.getAttribute(Value.CONTENTPATH_ATTRIBUTE));
         ContentPolicyManager policyManager = resolver.adaptTo(ContentPolicyManager.class);
-        if (contentResource != null && policyManager != null) {
-            ContentPolicy policy = policyManager.getPolicy(contentResource);
-            if (policy != null) {
-                ValueMap props = policy.getProperties();
-                if (props != null) {
-                    // String[] headingElements = props.get(PN_ALLOWED_HEADING_ELEMENTS, String[].class);
-                    String[] allowedTypeValues = props.get(PN_ALLOWED_TYPES, String[].class);
-                    if (allowedTypeValues != null && allowedTypeValues.length > 0) {
-                        for (String allowedTypeValue : allowedTypeValues) {
-                            RecType recType = RecType.getTypeByValue(allowedTypeValue);
-                            if (recType != null) {
-                                allowedRecTypes.add(new RecTypeResource(recType, resolver));
-                            }
-                        }
-                    }
-                }
-            }
+
+        if (contentResource == null || policyManager == null) {
+            return allowedRecTypes;
         }
+
+        Optional
+            .of(contentResource)
+            .map(policyManager::getPolicy)
+            .map(ContentPolicy::getProperties)
+            .map(m -> m.get(PN_ALLOWED_TYPES, String[].class))
+            .map(Arrays::stream)
+            .orElseGet(Stream::empty)
+            .map(RecType::getTypeByValue)
+            .filter(Objects::nonNull)
+            .forEach(t -> allowedRecTypes.add(new RecTypeResource(t, resolver)));
+
         return allowedRecTypes;
     }
 
@@ -137,18 +139,18 @@ public class AllowedRecTypesDataSourceServlet extends SlingSafeMethodsServlet {
      * Enum with all available product recommendation types.
      */
     enum RecType {
-        mostViewed("most-viewed", "Most viewed"),
-        mostPurchased("most-purchased", "Most purchased"),
-        conversionRatePurchase("purchase-session-conversion-rate", "Conversion rate (purchase)"),
-        mostAddedToCart("most-added-to-cart", "Most added to cart"),
-        conversionRateAddToCart("add-to-cart-conversion-rate", "Conversion rate (add-to-cart)"),
-        trending("trending", "Trending"),
-        viewedViewed("viewed-viewed", "Viewed this, viewed that"),
-        viewedBought("viewed-bought", "Viewed this, bought that"),
-        boughtBought("bought-bought", "Bought this, bought that"),
-        moreLikeThis("more-like-this", "More like this"),
-        justForYou("just-for-you", "Recommended for you"),
-        recentlyViewed("recently-viewed", "Recently viewed");
+        MOST_VIEWED("most-viewed", "Most viewed"),
+        MOST_PURCHASED("most-purchased", "Most purchased"),
+        CONVERSION_RATE_PURCHASE("purchase-session-conversion-rate", "Conversion rate (purchase)"),
+        MOST_ADDED_TO_CART("most-added-to-cart", "Most added to cart"),
+        CONVERSION_RATE_ADD_TO_CART("add-to-cart-conversion-rate", "Conversion rate (add-to-cart)"),
+        TRENDING("trending", "Trending"),
+        VIEWED_VIEWED("viewed-viewed", "Viewed this, viewed that"),
+        VIEWED_BOUGHT("viewed-bought", "Viewed this, bought that"),
+        BOUGHT_BOUGHT("bought-bought", "Bought this, bought that"),
+        MORE_LIKE_THIS("more-like-this", "More like this"),
+        JUST_FOR_YOU("just-for-you", "Recommended for you"),
+        RECENTLY_VIEWED("recently-viewed", "Recently viewed");
 
         private String value;
         private String text;
