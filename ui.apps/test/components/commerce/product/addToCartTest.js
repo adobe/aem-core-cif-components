@@ -44,7 +44,7 @@ describe('Product', () => {
                         <span role="sku">my-sample-sku</span>
                     </div>
                     <div class="productFullDetail__cartActions">
-                        <button>
+                        <button class="button__root_highPriority">
                     </div>
                     <div class="productFullDetail__quantity">
                         <select data-product-sku="my-sample-sku">
@@ -138,7 +138,7 @@ describe('Product', () => {
                         <span role="sku">my-sample-sku</span>
                     </div>
                     <div class="productFullDetail__cartActions">
-                        <button>
+                        <button class="button__root_highPriority">
                     </div>
                     <div class="productFullDetail__quantity">
                         <select data-product-sku="my-sample-sku">
