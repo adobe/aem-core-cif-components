@@ -3684,7 +3684,6 @@ tr:nth-child(2n) {
 }
 
 .cif-demo .productteaser .item__image {
-    border                            : 1px solid #3498db;
     display                           : block;
     grid-area                         : main;
     height                            : auto;
@@ -3707,13 +3706,13 @@ tr:nth-child(2n) {
 
 .cif-demo .productteaser .item__name,
 .cif-demo .productteaser .price {
-    position   : absolute;
-    display    : block;
-    left       : 20%;
-    background : unset;
-    color      : #fff;
-    font-weight: 900;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, .9)
+    position        : absolute;
+    display         : block;
+    left            : 20%;
+    color           : #fff;
+    font-weight     : 900;
+    background-color: rgba(0,0,0,0.6);
+    padding         : 0.5rem;
 }
 
 .cif-demo .productteaser .price {
