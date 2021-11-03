@@ -30,7 +30,7 @@ describe('Navigation', () => {
             'afterbegin',
             `
                 <div class="header__primaryActions">
-                    <button class="navTrigger__root clickable__root" aria-label="Toggle navigation panel">
+                    <button class="navTrigger__root clickable__root" aria-label="Toggle navigation">
                         <span class="icon__root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">                                
                             </svg>

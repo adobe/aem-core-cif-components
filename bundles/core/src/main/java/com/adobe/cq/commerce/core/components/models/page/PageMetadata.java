@@ -15,8 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.page;
 
-import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Map;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
+import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
+import com.drew.lang.annotations.Nullable;
+
+@ConsumerType
 public interface PageMetadata {
 
     /**
@@ -32,7 +40,7 @@ public interface PageMetadata {
     /**
      * Although this method refers to "metaTitle", this is used to set the title tag of the HTML page.
      * The method is not called <code>getTitle()</code> to avoid confusion with {@link ProductList#getTitle()}
-     * 
+     *
      * @return The content for the title tag of the HTML page.
      */
     String getMetaTitle();
@@ -41,4 +49,19 @@ public interface PageMetadata {
      * @return The fully-qualified canonical url, to set the canonical link element of the HTML page.
      */
     String getCanonicalUrl();
+
+    /**
+     * This method is used to provide canonical links to the current page in different languages.
+     * <p>
+     * If the implementation returns an empty map, that means no alternative language links are provided. Otherwise, it must contain the
+     * canonical link of the current page associated to the current page's {@link Locale}.
+     * <p>
+     * Implementations may return {@code null} if they want the caller to decide if there are any alternate language links or not.
+     *
+     * @return A {@link Map} of alternate language links.
+     */
+    @Nullable
+    default Map<Locale, String> getAlternateLanguageLinks() {
+        return Collections.emptyMap();
+    }
 }

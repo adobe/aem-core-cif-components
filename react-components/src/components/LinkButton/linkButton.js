@@ -22,6 +22,8 @@ import Button from '../Button';
 
 /**
  * A component for link buttons.
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 const LinkButton = props => {
     const { children, classes: propClasses, type, ...restProps } = props;

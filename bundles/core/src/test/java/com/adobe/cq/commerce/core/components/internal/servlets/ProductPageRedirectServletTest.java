@@ -39,7 +39,6 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.day.cq.wcm.api.PageManagerFactory;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
@@ -69,7 +68,6 @@ public class ProductPageRedirectServletTest {
         response = spy(context.response());
         mockRequestPathInfo = context.requestPathInfo();
 
-        context.registerService(PageManagerFactory.class, rr -> context.pageManager());
         context.registerInjectActivateService(servlet);
         context.registerAdapter(SlingHttpServletRequest.class, MagentoGraphqlClient.class, mockClient);
     }

@@ -21,6 +21,9 @@ import MyAccountPanel from './myAccountPanel';
 import classes from './container.css';
 import useNavigationState from './useNavigationState';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Container = props => {
     const [view, api] = useNavigationState();
 

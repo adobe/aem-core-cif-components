@@ -22,7 +22,7 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>2.2.1-SNAPSHOT</version>
+        <version>2.4.1-SNAPSHOT</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
@@ -88,9 +88,19 @@
                         <_metatypeannotations>*</_metatypeannotations>
                         <Import-Package>
                             javax.annotation;version=0.0.0,
-                            org.apache.sling.sitemap.*;resolution:=optional,
+                            !org.apache.sling.sitemap.*,
+                            !com.adobe.aem.wcm.seo.*,
                             *
                         </Import-Package>
+                        <DynamicImport-Package>
+                            <!-- Dynamically import the following, optional packages. optional imports do not necessarily resolve even
+                            when the package is actually available -->
+                            org.apache.sling.sitemap;version="[1.0, 2)",
+                            org.apache.sling.sitemap.builder;version="[1.0, 2)",
+                            org.apache.sling.sitemap.spi.common;version="[1.0, 2)",
+                            org.apache.sling.sitemap.spi.generator;version="[1.0, 1.1)",
+                            com.adobe.aem.wcm.seo.sitemap.externalizer;version="[1.0, 2)",
+                        </DynamicImport-Package>
                     </instructions>
                 </configuration>
                 <dependencies>
@@ -384,6 +394,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.adobe.cq.wcm</groupId>
+            <artifactId>com.adobe.aem.wcm.seo</artifactId>
+            <version>1.0.6</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.adobe.cq</groupId>
             <artifactId>com.adobe.cq.export.json</artifactId>
             <version>0.1.10</version>
@@ -536,6 +552,12 @@
             <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.testing.hamcrest</artifactId>
             <version>1.0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.14.2</version>
             <scope>test</scope>
         </dependency>
 

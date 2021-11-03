@@ -26,6 +26,9 @@ import CreateAccount, { CreateAccountSuccess } from '../CreateAccount';
 import classes from './accountDropdown.css';
 import Mask from '../Mask';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AccountDropdown = props => {
     const [
         { isAccountDropdownOpen, isSignedIn, accountDropdownView },

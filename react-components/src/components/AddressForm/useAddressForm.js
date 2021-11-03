@@ -23,6 +23,9 @@ import { createAddress, updateAddress } from '../../actions/user';
 import MUTATION_UPDATE_CUSTOMER_ADDRESS from '../../queries/mutation_update_customer_address.graphql';
 import MUTATION_CREATE_CUSTOMER_ADDRESS from '../../queries/mutation_create_customer_address.graphql';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const useAddressForm = () => {
     const [userState, { dispatch }] = useUserContext();
     const { countries } = useCountries();

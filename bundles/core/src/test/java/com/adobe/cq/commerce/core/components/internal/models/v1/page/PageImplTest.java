@@ -20,6 +20,7 @@ import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.sling.api.resource.ModifiableValueMap;
@@ -28,27 +29,33 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.models.factory.ModelFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter.StoreConfigExporterImpl;
+import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
+import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.testing.TestContext;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.wcm.core.components.models.HtmlPageItem;
 import com.adobe.cq.wcm.core.components.models.Page;
+import com.adobe.cq.wcm.core.components.testing.MockStyle;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -64,9 +71,7 @@ public class PageImplTest extends AbstractPageDelegatorTest {
     static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
-    public final AemContext context = new AemContext((AemContextCallback) context -> {
-        context.load().json("/context/jcr-content.json", "/content");
-    });
+    public final AemContext context = TestContext.newAemContext("/context/jcr-content.json");
 
     protected final String pagePath = "/content/pageH";
 
@@ -87,9 +92,18 @@ public class PageImplTest extends AbstractPageDelegatorTest {
         context.registerAdapter(Resource.class, ComponentsConfiguration.class, MOCK_CONFIGURATION_OBJECT);
         context.addModelsForClasses(MockPage.class);
 
+        ValueMap styleProperties = new ValueMapDecorator(Collections.singletonMap(
+            PageImpl.PN_STYLE_RENDER_ALTERNATE_LANGUAGE_LINKS, Boolean.TRUE));
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, context.currentPage(pagePath));
         slingBindings.setResource(context.currentPage().getContentResource());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE,
+            new MockStyle(context.currentPage().getContentResource(), styleProperties));
+
+        // provide the CommerceComponentModelFinder, TODO: CIF-2469
+        CommerceComponentModelFinder commerceModelFinder = new CommerceComponentModelFinder();
+        Whitebox.setInternalState(commerceModelFinder, "modelFactory", context.getService(ModelFactory.class));
+        context.registerService(CommerceComponentModelFinder.class, commerceModelFinder);
 
         // provide a graphql client
         GraphqlClient graphqlClient = mock(GraphqlClient.class);
@@ -105,6 +119,153 @@ public class PageImplTest extends AbstractPageDelegatorTest {
 
         context.resourceResolver().commit();
         context.currentResource(context.currentPage().getContentResource());
+    }
+
+    @Test
+    public void testReturnsTitleFromPage() {
+        Page mock = mock(Page.class);
+        context.request().setAttribute(MockPage.class.getName(), mock);
+        when(mock.getTitle()).thenReturn("Mock");
+
+        // with empty PageMetadata returns the title
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals("Mock", subject.getTitle());
+    }
+
+    @Test
+    public void testReturnsTitleFromPageMetadata() {
+        context.addModelsForClasses(MockPageMetadata.class);
+        PageMetadata pageMetadata = mock(PageMetadata.class);
+        context.request().setAttribute(MockPageMetadata.class.getName(), pageMetadata);
+        when(pageMetadata.getMetaTitle()).thenReturn("Self");
+
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals("Self", subject.getTitle());
+    }
+
+    @Test
+    public void testReturnsDescriptionFromPage() {
+        Page mock = mock(Page.class);
+        context.request().setAttribute(MockPage.class.getName(), mock);
+        when(mock.getDescription()).thenReturn("Mock");
+
+        // with empty PageMetadata returns the title
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals("Mock", subject.getDescription());
+    }
+
+    @Test
+    public void testReturnsDescriptionFromPageMetadata() {
+        context.addModelsForClasses(MockPageMetadata.class);
+        PageMetadata pageMetadata = mock(PageMetadata.class);
+        context.request().setAttribute(MockPageMetadata.class.getName(), pageMetadata);
+        when(pageMetadata.getMetaDescription()).thenReturn("Self");
+
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals("Self", subject.getDescription());
+    }
+
+    @Test
+    public void testReturnsKeywordsFromPage() {
+        Page mock = mock(Page.class);
+        context.request().setAttribute(MockPage.class.getName(), mock);
+        when(mock.getKeywords()).thenReturn(new String[] { "foo", "bar", "mock" });
+
+        // with empty PageMetadata returns the title
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertArrayEquals(new String[] { "foo", "bar", "mock" }, subject.getKeywords());
+    }
+
+    @Test
+    public void testReturnsKeywordsFromPageMetadata() {
+        context.addModelsForClasses(MockPageMetadata.class);
+        PageMetadata pageMetadata = mock(PageMetadata.class);
+        context.request().setAttribute(MockPageMetadata.class.getName(), pageMetadata);
+        when(pageMetadata.getMetaKeywords()).thenReturn("foo,bar,self");
+
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertArrayEquals(new String[] { "foo", "bar", "self" }, subject.getKeywords());
+    }
+
+    @Test
+    public void testReturnsCanonicalLinkFromPage() {
+        Page mock = mock(Page.class);
+        context.request().setAttribute(MockPage.class.getName(), mock);
+        when(mock.getCanonicalLink()).thenReturn("/en.html");
+
+        // with empty PageMetadata returns the title
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals("/en.html", subject.getCanonicalLink());
+    }
+
+    @Test
+    public void testReturnsCanonicalLinkFromPageMetadata() {
+        context.addModelsForClasses(MockPageMetadata.class);
+        PageMetadata pageMetadata = mock(PageMetadata.class);
+        context.request().setAttribute(MockPageMetadata.class.getName(), pageMetadata);
+        when(pageMetadata.getCanonicalUrl()).thenReturn("http://venia.us/en.html");
+
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals("http://venia.us/en.html", subject.getCanonicalLink());
+    }
+
+    @Test
+    public void testReturnsAlternateLanguageLinksFromPage() {
+        // this test verifies both cases, with render flag on and off
+        Locale expectedLocale = Locale.US;
+        String expectedLink = "http://venia.us/en.html";
+        Object[][] testParams = new Object[][] {
+            // render alternate language links enabled
+            { Boolean.TRUE, 1, expectedLocale, expectedLink },
+            // render alternate language links disabled
+            { Boolean.FALSE, 0, null, null }
+        };
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        // we use the ModelFactory instead of adaptTo() to circumvent SlingAdaptable caching
+        ModelFactory modelFactory = context.getService(ModelFactory.class);
+        Page mock = mock(Page.class);
+        context.request().setAttribute(MockPage.class.getName(), mock);
+        when(mock.getAlternateLanguageLinks()).thenReturn(Collections.singletonMap(Locale.US, "http://venia.us/en.html"));
+
+        for (Object[] currentTestParams : testParams) {
+            ValueMap styleProperties = new ValueMapDecorator(Collections.singletonMap(
+                PageImpl.PN_STYLE_RENDER_ALTERNATE_LANGUAGE_LINKS, currentTestParams[0]));
+            slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, new MockStyle(context.currentResource(), styleProperties));
+
+            Page subject = modelFactory.createModel(context.request(), Page.class);
+            assertNotNull(subject);
+
+            Map links = subject.getAlternateLanguageLinks();
+            assertEquals(currentTestParams[1], links.size());
+            if (links.size() > 0) {
+                assertThat(links).containsEntry(currentTestParams[2], currentTestParams[3]);
+            }
+        }
+    }
+
+    @Test
+    public void testReturnsAlternateLanguageLinksFromPageMetadata() {
+        ValueMap styleProperties = new ValueMapDecorator(Collections.singletonMap(
+            PageImpl.PN_STYLE_RENDER_ALTERNATE_LANGUAGE_LINKS, Boolean.TRUE));
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, new MockStyle(context.currentResource(), styleProperties));
+        context.addModelsForClasses(MockPageMetadata.class);
+        PageMetadata pageMetadata = mock(PageMetadata.class);
+        context.request().setAttribute(MockPageMetadata.class.getName(), pageMetadata);
+        when(pageMetadata.getAlternateLanguageLinks()).thenReturn(Collections.singletonMap(Locale.US, "http://venia.us/en.html"));
+
+        Page subject = context.request().adaptTo(Page.class);
+        assertNotNull(subject);
+        assertEquals(1, subject.getAlternateLanguageLinks().size());
+        assertThat(subject.getAlternateLanguageLinks()).containsEntry(Locale.US, "http://venia.us/en.html");
     }
 
     @Test
@@ -174,4 +335,5 @@ public class PageImplTest extends AbstractPageDelegatorTest {
         JsonNode actual = mapper.readTree(new StringReader(content));
         assertEquals(expected, actual);
     }
+
 }

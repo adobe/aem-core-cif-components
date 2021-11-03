@@ -28,15 +28,17 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
+import org.apache.sling.models.factory.ModelFactory;
 import org.apache.sling.scripting.api.BindingsValuesProvider;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
-import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
+import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.product.Product;
@@ -44,7 +46,6 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
-import com.adobe.cq.commerce.core.testing.MockExternalizer;
 import com.adobe.cq.commerce.core.testing.MockLaunch;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -52,7 +53,6 @@ import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.launches.api.Launch;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
-import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
@@ -85,15 +85,14 @@ public class PageMetadataImplTest {
             context.registerAdapter(Resource.class, ComponentsConfiguration.class, MOCK_CONFIGURATION_OBJECT);
             context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
 
-            context.registerService(Externalizer.class, new MockExternalizer());
-
             ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
             Utils.addDataLayerConfig(mockConfigBuilder, true);
             context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
 
-            XSSAPI xssApi = mock(XSSAPI.class);
-            when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-            context.registerService(XSSAPI.class, xssApi);
+            // TODO: CIF-2469
+            CommerceComponentModelFinder commerceModelFinder = new CommerceComponentModelFinder();
+            Whitebox.setInternalState(commerceModelFinder, "modelFactory", context.getService(ModelFactory.class));
+            context.registerService(CommerceComponentModelFinder.class, commerceModelFinder);
         })
         .build();
 
@@ -216,7 +215,7 @@ public class PageMetadataImplTest {
         assertFalse("The category doesn't have staged data", productListModel.isStaged());
 
         // Verify that GraphQL client is only called 5 times, so Sling model caching works as expected
-        // --> see testPageMetadataModelOnCategoryPage() to see why we expect 5 queries
+        // --> see testPageMetadataModelOnCategoryPage(String) to see why we expect 5 queries
         verify(graphqlClient, times(5)).execute(any(), any(), any(), any());
         verify(graphqlClient, never()).execute(any(), any(), any());
 

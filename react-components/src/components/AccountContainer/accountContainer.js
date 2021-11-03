@@ -20,6 +20,9 @@ import { useUserContext } from '../../context/UserContext';
 import AccountTrigger from './accountTrigger';
 import AccountDropdown from './accountDropdown';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AccountContainer = props => {
     const [{ currentUser, isSignedIn }, { getUserDetails }] = useUserContext();
     const intl = useIntl();

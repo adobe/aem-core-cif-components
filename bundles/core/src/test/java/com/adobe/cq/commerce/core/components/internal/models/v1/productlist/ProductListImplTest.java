@@ -34,7 +34,6 @@ import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
-import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,6 +46,8 @@ import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
+import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizer;
+import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -57,7 +58,6 @@ import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
-import com.adobe.cq.commerce.core.testing.MockExternalizer;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
@@ -70,7 +70,6 @@ import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
-import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -80,6 +79,10 @@ import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsMapContaining.hasEntry;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -99,7 +102,6 @@ public class ProductListImplTest {
         .<AemContext>afterSetUp(context -> {
             context.registerInjectActivateService(new SearchFilterServiceImpl());
             context.registerInjectActivateService(new SearchResultsServiceImpl());
-            context.registerService(Externalizer.class, new MockExternalizer());
             ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
             Utils.addDataLayerConfig(mockConfigBuilder, true);
             Utils.addStorefrontContextConfig(mockConfigBuilder, true);
@@ -168,10 +170,6 @@ public class ProductListImplTest {
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productListResource.getValueMap());
 
-        XSSAPI xssApi = mock(XSSAPI.class);
-        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-        slingBindings.put("xssApi", xssApi);
-
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
         slingBindings.put("currentStyle", style);
@@ -217,7 +215,8 @@ public class ProductListImplTest {
         requestPathInfo.setSuffix("/running.html");
         context.request().setServletPath(PAGE + ".html/running.html"); // used by context.request().getRequestURI();
 
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        adaptToProductList();
+
         Assert.assertEquals(category.getName(), productListModel.getTitle());
         Assert.assertEquals(category.getUrlPath(), productListModel.getUrlPath());
         Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
@@ -454,7 +453,9 @@ public class ProductListImplTest {
     @Test
     public void testPagination() {
         context.request().getParameterMap().put("page", new String[] { "3" });
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+
+        adaptToProductList();
+
         productListModel.getProducts();
 
         ArgumentCaptor<GraphqlRequest> captor = ArgumentCaptor.forClass(GraphqlRequest.class);
@@ -500,12 +501,36 @@ public class ProductListImplTest {
 
     @Test
     public void testStorefrontContextRender() throws IOException {
-        productListModel = context.request().adaptTo(ProductListImpl.class);
+        adaptToProductList();
+
         ObjectMapper mapper = new ObjectMapper();
 
         String expected = Utils.getResource("storefront-context/result-storefront-context-productlist-component.json");
         CategoryStorefrontContext storefrontContext = productListModel.getStorefrontContext();
 
         Assert.assertEquals(mapper.readTree(expected), mapper.readTree(storefrontContext.getJson()));
+    }
+
+    @Test
+    public void testCanonicalUrlFromSitemapLinkExternalizer() {
+        SitemapLinkExternalizer externalizer = mock(SitemapLinkExternalizer.class);
+        SitemapLinkExternalizerProvider externalizerProvider = mock(SitemapLinkExternalizerProvider.class);
+        when(externalizerProvider.getExternalizer()).thenReturn(externalizer);
+        when(externalizer.externalize(any(), any(), any())).then(inv -> {
+            // assert the parameters
+            Map<String, String> parameters = (Map<String, String>) inv.getArgumentAt(1, Map.class);
+            assertThat(parameters, allOf(
+                hasEntry("url_key", "running-key"),
+                hasEntry("url_path", "running"),
+                hasEntry("uid", "MTI=="),
+                hasEntry("page", "/content/category-page")));
+            // invoke the callback directly
+            return inv.getArgumentAt(2, java.util.function.Function.class).apply(parameters);
+        });
+        context.registerService(SitemapLinkExternalizerProvider.class, externalizerProvider);
+
+        adaptToProductList();
+
+        assertEquals("/content/category-page.html/running.html", productListModel.getCanonicalUrl());
     }
 }

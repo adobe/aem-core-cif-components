@@ -17,6 +17,9 @@ import { useMemo, useCallback, useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { useUserContext } from '../../context/UserContext';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const useAccountDetails = props => {
     const { getCustomerInformationQuery, setCustomerInformationMutation, changeCustomerPasswordMutation } = props;
     const [{ isSignedIn }] = useUserContext();

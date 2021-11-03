@@ -24,6 +24,9 @@ import ChangePassword from '../ChangePassword';
 import classes from './myAccountPanel.css';
 import { string, shape, func } from 'prop-types';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AuthModal = ({ view = 'MENU', api, children }) => {
     const {
         showSignIn,

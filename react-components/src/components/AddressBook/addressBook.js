@@ -22,6 +22,9 @@ import AddressFormContainer from './addressFormContainer';
 
 import classes from './addressBook.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AddressBook = () => {
     const [{ isSignedIn }] = useUserContext();
     const intl = useIntl();

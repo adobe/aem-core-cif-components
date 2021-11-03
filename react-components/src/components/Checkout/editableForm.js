@@ -40,6 +40,8 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 /**
  * The EditableForm component renders the actual edit forms for the sections
  * within the form.
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 const EditableForm = props => {
     const { submitting, isAddressInvalid, invalidAddressMessage } = props;

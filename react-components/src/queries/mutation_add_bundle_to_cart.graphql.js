@@ -14,13 +14,16 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import { gql } from '@apollo/client';
+import { MiniCartFragment } from '@magento/peregrine/lib/talons/MiniCart/miniCartFragments.gql';
 
 export default gql`
     mutation addBundleProductToCart($cartId: String!, $cartItems: [BundleProductCartItemInput]!) {
         addBundleProductsToCart(input: { cart_id: $cartId, cart_items: $cartItems }) {
             cart {
                 id
+                ...MiniCartFragment
             }
         }
     }
+    ${MiniCartFragment}
 `;

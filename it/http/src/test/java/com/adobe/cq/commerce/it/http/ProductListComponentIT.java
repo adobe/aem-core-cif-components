@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.it.http;
 
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.sling.testing.clients.ClientException;
@@ -24,8 +26,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableMap;
+import junit.category.IgnoreOn65;
+import junit.category.IgnoreOnCloud;
+
+import static org.junit.Assert.assertEquals;
 
 public class ProductListComponentIT extends CommerceTestBase {
 
@@ -33,41 +41,55 @@ public class ProductListComponentIT extends CommerceTestBase {
     private static final String PRODUCTLIST_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .productlist ";
 
     @Test
-    public void testProductListPageWithSampleData() throws Exception {
+    @Category({ IgnoreOnCloud.class })
+    public void testProductListPageWithSampleData65() throws Exception {
         String pagePath = COMMERCE_LIBRARY_PATH + "/productlist.html/outdoor.html";
+        testProductListPageWithSampleData(pagePath, ImmutableMap.of(
+            doc -> doc.select("title").first().html(), "Meta title for Outdoor Collection",
+            doc -> doc.select("meta[name=keywords]").first().attr("content"), "Meta keywords for Outdoor Collection",
+            doc -> doc.select("meta[name=description]").first().attr("content"), "Meta description for Outdoor Collection",
+            // 6.5.8 uses the externalizer author link to create the canonical link
+            doc -> doc.select("link[rel=canonical]").first().attr("href"), "http://localhost:4502" + pagePath));
+    }
+
+    @Test
+    @Category({ IgnoreOn65.class })
+    public void testProductListPageWithSampleDataCloud() throws Exception {
+        String pagePath = COMMERCE_LIBRARY_PATH + "/productlist.html/outdoor.html";
+        testProductListPageWithSampleData(pagePath, ImmutableMap.of(
+            doc -> doc.select("title").first().html(), "Meta title for Outdoor Collection",
+            doc -> doc.select("meta[name=keywords]").first().attr("content"), "Meta keywords for Outdoor Collection",
+            doc -> doc.select("meta[name=description]").first().attr("content"), "Meta description for Outdoor Collection",
+            // without mapping rules we expect the SitemapLinkExternalizer to return the path as is
+            doc -> doc.select("link[rel=canonical]").first().attr("href"), pagePath));
+    }
+
+    private void testProductListPageWithSampleData(String pagePath, Map<Function<Document, String>, String> expectedMeta) throws Exception {
         SlingHttpResponse response = adminAuthor.doGet(pagePath, 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Verify category name
         Elements elements = doc.select(PRODUCTLIST_SELECTOR + ".category__title");
-        Assert.assertEquals("Outdoor Collection", elements.first().html());
+        assertEquals("Outdoor Collection", elements.first().html());
 
         // Check that search filters are displayed
         elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__filters");
-        Assert.assertEquals(1, elements.size());
+        assertEquals(1, elements.size());
 
         // Check that the 6 products are displayed on the first page
         elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__items > .productcollection__item");
-        Assert.assertEquals(6, elements.size());
+        assertEquals(6, elements.size());
 
         // Check the meta data
-        elements = doc.select("title");
-        Assert.assertEquals("Meta title for Outdoor Collection", elements.first().html());
-
-        elements = doc.select("meta[name=keywords]");
-        Assert.assertEquals("Meta keywords for Outdoor Collection", elements.first().attr("content"));
-
-        elements = doc.select("meta[name=description]");
-        Assert.assertEquals("Meta description for Outdoor Collection", elements.first().attr("content"));
-
-        elements = doc.select("link[rel=canonical]");
-        Assert.assertEquals("http://localhost:4502" + pagePath, elements.first().attr("href"));
+        for (Map.Entry<Function<Document, String>, String> testPair : expectedMeta.entrySet()) {
+            assertEquals(testPair.getValue(), testPair.getKey().apply(doc));
+        }
 
         // Verify datalayer attributes
         elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__root");
         JsonNode result = OBJECT_MAPPER.readTree(elements.first().attr("data-cmp-data-layer"));
         JsonNode expected = OBJECT_MAPPER.readTree(getResource("datalayer/outdoor-productlist.json"));
-        Assert.assertEquals(expected, result);
+        assertEquals(expected, result);
 
         // Verify product items datalayer attributes
         elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__items > .productcollection__item");
@@ -76,7 +98,7 @@ public class ProductListComponentIT extends CommerceTestBase {
             .map(e -> e.replaceAll(",\\s*\"repo:modifyDate\":\\s*\"[\\d\\w:-]+\"", ""))
             .collect(Collectors.joining(",", "[", "]")));
         expected = OBJECT_MAPPER.readTree(getResource("datalayer/outdoor-productlist-items.json"));
-        Assert.assertEquals(expected, result);
+        assertEquals(expected, result);
     }
 
     @Test
@@ -86,7 +108,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
         // Verify category name
         Elements elements = doc.select(PRODUCTLIST_SELECTOR + ".category__title");
-        Assert.assertEquals("Category name", elements.first().html());
+        assertEquals("Category name", elements.first().html());
 
         // Check that search filters are NOT displayed
         elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__filters");
@@ -94,7 +116,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
         // Check that the 6 products are displayed on the first page
         elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__items > .productcollection__item");
-        Assert.assertEquals(6, elements.size());
+        assertEquals(6, elements.size());
     }
 
     @Test
@@ -104,7 +126,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
         // Component Library > Commerce > Outdoor > Collection
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        Assert.assertEquals(4, elements.size());
+        assertEquals(4, elements.size());
     }
 
     @Test
@@ -114,6 +136,14 @@ public class ProductListComponentIT extends CommerceTestBase {
 
         // Component Library > Commerce
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        Assert.assertEquals(2, elements.size());
+        assertEquals(2, elements.size());
+    }
+
+    @Test
+    public void testCategoryNotFound() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html?wcmmode=disabled");
+        assertEquals(404, response.getStatusLine().getStatusCode());
+        response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html/unknown-category.html?wcmmode=disabled");
+        assertEquals(404, response.getStatusLine().getStatusCode());
     }
 }

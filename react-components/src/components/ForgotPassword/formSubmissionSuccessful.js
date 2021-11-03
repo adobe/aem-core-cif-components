@@ -22,6 +22,9 @@ import Button from '../Button';
 import defaultClasses from './formSubmissionSuccessful.css';
 import mergeClasses from '../../utils/mergeClasses';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const FormSubmissionSuccessful = props => {
     const { email, onContinue } = props;
     const intl = useIntl();

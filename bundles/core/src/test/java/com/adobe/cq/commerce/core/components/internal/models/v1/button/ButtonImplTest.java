@@ -76,9 +76,9 @@ public class ButtonImplTest {
     }
 
     private void setUpTestResource(final String resourcePath) {
-        context.currentResource(resourcePath);
+        Resource resource = context.currentResource(resourcePath);
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
-        slingBindings.setResource(context.currentResource());
+        slingBindings.setResource(resource);
     }
 
     @Test

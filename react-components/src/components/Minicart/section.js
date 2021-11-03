@@ -35,6 +35,9 @@ const icons = {
     Trash
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Section = props => {
     const { icon, isFilled, onClick, text } = props;
     const attributes = isFilled ? filledIconAttributes : defaultIconAttributes;

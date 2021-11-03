@@ -21,7 +21,6 @@ import java.util.Map;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
-import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,9 +32,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
-import com.adobe.cq.commerce.core.testing.MockExternalizer;
 import com.adobe.cq.sightly.SightlyWCMMode;
-import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -57,7 +54,6 @@ public class ProductCollectionImplTest {
         .<AemContext>afterSetUp(context -> {
             context.registerInjectActivateService(new SearchFilterServiceImpl());
             context.registerInjectActivateService(new SearchResultsServiceImpl());
-            context.registerService(Externalizer.class, new MockExternalizer());
         })
         .build();
 
@@ -72,12 +68,7 @@ public class ProductCollectionImplTest {
         requestPathInfo.setSelectorString("MTI==");
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
-        Resource productCollectionResource = context.resourceResolver().getResource(PRODUCT_COLLECTION);
         SlingBindings slingBindings = getSlingBindings(PRODUCT_COLLECTION);
-
-        XSSAPI xssApi = mock(XSSAPI.class);
-        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-        slingBindings.put("xssApi", xssApi);
 
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));

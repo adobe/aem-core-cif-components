@@ -27,6 +27,9 @@ import { isRequired, validatePassword, hasLengthAtLeast, isNotEqualToField } fro
 
 import classes from './editForm.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const EditForm = props => {
     const { shouldShowNewPassword, handleShowNewPasswordField } = props;
     const intl = useIntl();

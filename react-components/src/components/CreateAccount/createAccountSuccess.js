@@ -21,6 +21,9 @@ import Trigger from '../Trigger';
 import { useUserContext } from '../../context/UserContext';
 import classes from './createAccountSuccess.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CreateAccountSuccess = props => {
     const { showSignIn } = props;
     const [{ createAccountEmail }, { dispatch }] = useUserContext();
