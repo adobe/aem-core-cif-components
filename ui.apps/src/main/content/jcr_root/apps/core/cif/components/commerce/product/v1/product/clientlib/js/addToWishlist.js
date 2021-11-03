@@ -58,7 +58,7 @@ class AddToWishlist {
             };
 
             if (item.sku != this._state.parent_sku) {
-                item.parent_sku = this._state.parent_sku
+                item.parent_sku = this._state.parent_sku;
             }
 
             return item;
@@ -78,7 +78,6 @@ AddToWishlist.selectors = {
 AddToWishlist.events = {
     addToWishlist: 'aem.cif.add-to-wishlist'
 };
-
 
 (function(document) {
     function onDocumentReady() {
