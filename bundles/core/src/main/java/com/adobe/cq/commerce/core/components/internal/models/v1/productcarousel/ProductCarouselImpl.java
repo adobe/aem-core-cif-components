@@ -96,7 +96,6 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
 
     private Page productPage;
     private List<String> baseProductSkus;
-    private Locale locale;
 
     private AbstractProductsRetriever productsRetriever;
 
@@ -112,8 +111,6 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
         if (productPage == null) {
             productPage = currentPage;
         }
-
-        locale = productPage.getLanguage(false);
 
         // Make sure we use the base product sku for each selected product (can be a variant)
         baseProductSkus = productSkus
@@ -169,21 +166,13 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
                 }
 
                 try {
-                    Price price = new PriceImpl(product.getPriceRange(), locale);
-                    ProductImage thumbnail = product.getThumbnail();
-                    carouselProductList.add(new ProductListItemImpl(
-                        skus.getLeft(),
-                        slug,
-                        product.getName(),
-                        price,
-                        thumbnail == null ? null : thumbnail.getUrl(),
-                        thumbnail == null ? null : thumbnail.getLabel(),
-                        productPage,
-                        skus.getRight(),
-                        request,
-                        urlProvider,
-                        this.getId(),
-                        product.getStaged()));
+                    ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), productPage, request, urlProvider)
+                        .product(product)
+                        .image(product.getThumbnail())
+                        .sku(skus.getLeft())
+                        .urlKey(slug)
+                        .variantSku(skus.getRight());
+                    carouselProductList.add(builder.build());
                 } catch (Exception e) {
                     LOGGER.error("Failed to instantiate product " + combinedSku, e);
                 }

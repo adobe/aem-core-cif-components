@@ -94,7 +94,6 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
 
     private Page productPage;
     private AbstractProductsRetriever productsRetriever;
-    private Locale locale;
     private RelationType relationType;
     private String productSku;
 
@@ -108,8 +107,6 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
         if (productPage == null) {
             productPage = currentPage;
         }
-
-        locale = productPage.getLanguage(false);
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
@@ -154,11 +151,10 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
         List<ProductListItem> carouselProductList = new ArrayList<>();
         for (ProductInterface product : products) {
             try {
-                Price price = new PriceImpl(product.getPriceRange(), locale);
-                carouselProductList.add(new ProductListItemImpl(product.getSku(), product.getUrlKey(),
-                    product.getName(), price, product.getThumbnail().getUrl(), product
-                        .getThumbnail().getLabel(), productPage, null, request,
-                    urlProvider, this.getId(), product.getStaged()));
+                ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), productPage, request, urlProvider)
+                    .product(product)
+                    .image(product.getThumbnail());
+                carouselProductList.add(builder.build());
             } catch (Exception e) {
                 LOGGER.error("Failed to instantiate product " + (product != null ? product.getSku() : null), e);
             }
@@ -181,7 +177,7 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     @Override
     public List<ProductListItem> getProductIdentifiers() {
         return getProducts().stream().map(p -> new ProductListItemImpl(
-            CommerceIdentifierImpl.fromProductSku(p.getSKU()), getId(), productPage))
+                CommerceIdentifierImpl.fromProductSku(p.getSKU()), getId(), productPage))
             .collect(Collectors.toList());
     }
 

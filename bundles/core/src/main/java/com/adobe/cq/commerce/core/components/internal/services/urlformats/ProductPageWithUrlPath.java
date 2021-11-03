@@ -31,9 +31,14 @@ public class ProductPageWithUrlPath extends UrlFormatBase implements ProductPage
 
     @Override
     public String format(Params parameters) {
+        String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
+        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey);
+        if (urlPath == null && urlKey != null) {
+            urlPath = urlKey;
+        }
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
             + HTML_EXTENSION_AND_SUFFIX
-            + StringUtils.defaultIfEmpty(parameters.getUrlPath(), "{{url_path}}")
+            + (urlPath != null ? urlPath : "{{url_path}}")
             + HTML_EXTENSION
             + getOptionalAnchor(parameters.getVariantSku());
     }

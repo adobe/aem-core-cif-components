@@ -34,7 +34,7 @@ public class CategoryPageWithUrlKey extends UrlFormatBase implements CategoryPag
     public String format(Params parameters) {
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
             + HTML_EXTENSION_AND_SUFFIX
-            + getUrlKey(parameters.getUrlPath(), parameters.getUrlKey())
+            + StringUtils.defaultIfEmpty(getUrlKey(parameters.getUrlPath(), parameters.getUrlKey()), "{{url_key}}")
             + HTML_EXTENSION;
     }
 

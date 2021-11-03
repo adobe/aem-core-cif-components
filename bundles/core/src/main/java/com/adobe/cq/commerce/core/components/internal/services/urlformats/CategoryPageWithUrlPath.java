@@ -31,9 +31,10 @@ public class CategoryPageWithUrlPath extends UrlFormatBase implements CategoryPa
 
     @Override
     public String format(Params parameters) {
+        String urlKey = StringUtils.defaultIfEmpty(parameters.getUrlKey(), "{{url_path}}");
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
             + HTML_EXTENSION_AND_SUFFIX
-            + StringUtils.defaultIfEmpty(parameters.getUrlPath(), "{{url_path}}")
+            + StringUtils.defaultIfEmpty(parameters.getUrlPath(), urlKey)
             + HTML_EXTENSION;
     }
 

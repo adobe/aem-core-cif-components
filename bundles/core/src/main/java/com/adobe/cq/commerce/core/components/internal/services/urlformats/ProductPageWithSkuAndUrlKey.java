@@ -31,12 +31,12 @@ public class ProductPageWithSkuAndUrlKey extends UrlFormatBase implements Produc
 
     @Override
     public String format(Params parameters) {
+        String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
             + HTML_EXTENSION_AND_SUFFIX
             + StringUtils.defaultIfEmpty(parameters.getSku(), "{{sku}}")
-            + "/"
-            + getUrlKey(parameters.getUrlPath(), parameters.getUrlKey())
-            + HTML_EXTENSION
+            // this url format works also without the url_key
+            + (urlKey != null ? "/" + urlKey + HTML_EXTENSION : HTML_EXTENSION)
             + getOptionalAnchor(parameters.getVariantSku());
     }
 

@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ResourceUtil;
@@ -44,7 +46,7 @@ class UrlFormatBase {
                 }
             }
         }
-        return StringUtils.isNotEmpty(urlKey) ? urlKey : "{{url_key}}";
+        return StringUtils.isNotEmpty(urlKey) ? urlKey : null;
     }
 
     protected static String getOptionalAnchor(String anchor) {
@@ -57,7 +59,24 @@ class UrlFormatBase {
         } else if (JcrConstants.JCR_CONTENT.equals(ResourceUtil.getName(path))) {
             return ResourceUtil.getParent(path);
         } else {
-            return path;
+            return ResourceUtil.normalize(path);
         }
+    }
+
+    protected static String selectUrlPath(String urlPath, List<String> alternatives, String urlKey) {
+        if (StringUtils.isNotEmpty(urlPath)) {
+            return urlPath;
+        }
+
+        String[] candidateParts = new String[0];
+
+        for (String alternative : alternatives) {
+            String[] optionParts = alternative.split("/");
+            if (optionParts.length > candidateParts.length && optionParts[optionParts.length - 1].equals(urlKey)) {
+                candidateParts = optionParts;
+            }
+        }
+
+        return candidateParts.length > 0 ? StringUtils.join(candidateParts, '/') : null;
     }
 }

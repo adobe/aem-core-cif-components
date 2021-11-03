@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.common;
 
-import java.util.Locale;
+import java.util.Objects;
 
 import javax.annotation.Nullable;
 
@@ -34,12 +34,13 @@ import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
+import com.drew.lang.annotations.NotNull;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ProductListItemImpl extends DataLayerListItem implements ProductListItem {
 
     private String sku;
-    private String slug;
+    private String urlKey;
     private String name;
     private String imageURL;
     private String imageAlt;
@@ -52,12 +53,14 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     private Boolean isStaged;
     private ProductInterface product;
 
-    public ProductListItemImpl(String sku, String slug, String name, Price price, String imageURL, String imageAlt, Page productPage,
-                               String activeVariantSku, SlingHttpServletRequest request, UrlProvider urlProvider, String parentId,
-                               Boolean isStaged) {
+    private ProductListItemImpl(ProductInterface product, String sku, String urlKey, String name, Price price, String imageURL,
+        String imageAlt, Page productPage,
+        String activeVariantSku, SlingHttpServletRequest request, UrlProvider urlProvider, String parentId,
+        Boolean isStaged) {
         super(parentId, productPage.getContentResource());
+        this.product = product;
         this.sku = sku;
-        this.slug = slug;
+        this.urlKey = urlKey;
         this.name = name;
         this.imageURL = imageURL;
         this.imageAlt = StringUtils.defaultIfBlank(imageAlt, name);
@@ -67,31 +70,9 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         this.request = request;
         this.urlProvider = urlProvider;
         this.isStaged = isStaged;
-        this.identifier = activeVariantSku != null ? CommerceIdentifierImpl.fromProductSku(activeVariantSku)
+        this.identifier = activeVariantSku != null
+            ? CommerceIdentifierImpl.fromProductSku(activeVariantSku)
             : CommerceIdentifierImpl.fromProductSku(sku);
-    }
-
-    public ProductListItemImpl(ProductInterface product, Page productPage, String activeVariantSku, SlingHttpServletRequest request,
-                               UrlProvider urlProvider, String parentId) {
-        super(parentId, productPage.getContentResource());
-        this.product = product;
-        this.sku = product.getSku();
-        this.slug = product.getUrlKey();
-        this.name = product.getName();
-        this.isStaged = product.getStaged();
-
-        ProductImage productImage = product.getSmallImage();
-        this.imageURL = productImage == null ? null : productImage.getUrl();
-        this.imageAlt = productImage == null ? null : StringUtils.defaultIfBlank(productImage.getLabel(), name);
-
-        this.productPage = productPage;
-        boolean isStartPrice = product instanceof GroupedProduct;
-        Locale locale = productPage == null ? Locale.getDefault() : productPage.getLanguage(false);
-        this.price = new PriceImpl(product.getPriceRange(), locale, isStartPrice);
-
-        this.activeVariantSku = activeVariantSku;
-        this.request = request;
-        this.urlProvider = urlProvider;
     }
 
     public ProductListItemImpl(CommerceIdentifier identifier, String parentId, Page productPage) {
@@ -103,7 +84,80 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
                 this.sku = identifier.getValue();
                 break;
             case URL_KEY:
-                this.slug = identifier.getValue();
+                this.urlKey = identifier.getValue();
+        }
+    }
+
+    public static class Builder {
+
+        private final String parentId;
+        private final Page productPage;
+        private final SlingHttpServletRequest request;
+        private final UrlProvider urlProvider;
+        private ProductInterface product;
+        private ProductImage image;
+        private Price price;
+        private String urlKey;
+        private String sku;
+        private String variantSku;
+        private String name;
+
+        public Builder(String parentId, @NotNull Page productPage, SlingHttpServletRequest request, UrlProvider urlProvider) {
+            this.parentId = parentId;
+            this.productPage = Objects.requireNonNull(productPage, "product page is required");
+            this.request = request;
+            this.urlProvider = urlProvider;
+        }
+
+        public Builder product(ProductInterface product) {
+            this.product = product;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder sku(String sku) {
+            this.sku = sku;
+            return this;
+        }
+
+        public Builder urlKey(String urlKey) {
+            this.urlKey = urlKey;
+            return this;
+        }
+
+        public Builder variantSku(String variantSku) {
+            this.variantSku = variantSku;
+            return this;
+        }
+
+        public Builder image(ProductImage productImage) {
+            this.image = productImage;
+            return this;
+        }
+
+        public Builder price(Price price) {
+            this.price = price;
+            return this;
+        }
+
+        public ProductListItem build() {
+            String sku = this.sku == null && product != null ? product.getSku() : this.sku;
+            String urlKey = this.urlKey == null && product != null ? product.getUrlKey() : this.urlKey;
+            String name = this.name == null && product != null ? product.getName() : this.name;
+            Price price = this.price == null && product != null
+                ? new PriceImpl(product.getPriceRange(), productPage.getLanguage(false), product instanceof GroupedProduct)
+                : this.price;
+            ProductImage image = this.image == null && product != null ? product.getSmallImage() : this.image;
+            String imageUrl = image != null ? image.getUrl() : null;
+            String imageLabel = image != null ? StringUtils.defaultIfBlank(image.getLabel(), name) : null;
+            boolean isStaged = product != null && product.getStaged();
+
+            return new ProductListItemImpl(product, sku, urlKey, name, price, imageUrl, imageLabel, productPage, variantSku, request,
+                urlProvider, parentId, isStaged);
         }
     }
 
@@ -116,7 +170,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     @Override
     @JsonIgnore
     public String getSlug() {
-        return slug;
+        return urlKey;
     }
 
     @Nullable
@@ -143,7 +197,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
 
         ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
         params.setSku(sku);
-        params.setUrlKey(slug);
+        params.setUrlKey(urlKey);
         params.setVariantSku(activeVariantSku);
 
         return urlProvider.toProductUrl(request, productPage, params);

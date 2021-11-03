@@ -44,7 +44,7 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
     private final SlingHttpServletRequest request;
 
     public ProductToProductListItemConverter(final Page productPage, final SlingHttpServletRequest request, final UrlProvider urlProvider,
-                                             Resource parentResource) {
+        Resource parentResource) {
         this.parentResource = parentResource;
         this.productPage = productPage;
         this.request = request;
@@ -58,9 +58,9 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
             String prefix = StringUtils.substringAfterLast(resourceType, "/");
             String parentId = ComponentUtils.generateId(prefix, parentResource.getPath());
 
-            ProductListItem productListItem = new ProductListItemImpl(product, productPage, null, request, urlProvider, parentId);
-
-            return productListItem;
+            return new ProductListItemImpl.Builder(parentId, productPage, request, urlProvider)
+                .product(product)
+                .build();
         } catch (Exception e) {
             LOGGER.error("Failed to instantiate product " + product.getSku(), e);
             return null;

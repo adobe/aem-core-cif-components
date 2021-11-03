@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
+import java.util.Arrays;
+
 import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
 import org.junit.Test;
 
@@ -45,6 +47,20 @@ public class ProductPageWithUrlPathTest {
         params.setVariantSku("variant");
 
         assertEquals("/page/path.html/foo-bar.html#variant", subject.format(params));
+    }
+
+    @Test
+    public void testFormatWithUrlRewrites() {
+        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        params.setPage("/page/path");
+        params.setUrlKey("bar");
+        params.setUrlRewrites(Arrays.asList("foo", "foo/bar"));
+
+        assertEquals("/page/path.html/foo/bar.html", subject.format(params));
+
+        params.setVariantSku("variant");
+
+        assertEquals("/page/path.html/foo/bar.html#variant", subject.format(params));
     }
 
     @Test

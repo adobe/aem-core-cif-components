@@ -15,12 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.services.urls;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.osgi.annotation.versioning.ConsumerType;
 import org.osgi.annotation.versioning.ProviderType;
 
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 
 /**
  * This interface represents a specific implementation of the {@link GenericUrlFormat} for product urls.
@@ -44,6 +50,7 @@ public interface ProductPageUrlFormat extends GenericUrlFormat<ProductPageUrlFor
         private String urlKey;
         private String variantUrlKey;
         private String urlPath;
+        private List<String> urlRewrites = Collections.emptyList();
 
         public Params() {
             super();
@@ -53,6 +60,12 @@ public interface ProductPageUrlFormat extends GenericUrlFormat<ProductPageUrlFor
             this.sku = product.getSku();
             this.urlKey = product.getUrlKey();
             this.urlPath = product.getUrlPath();
+            this.urlRewrites = Optional.ofNullable(product.getUrlRewrites())
+                .map(List::stream)
+                .map(stream -> stream
+                    .map(UrlRewrite::getUrl)
+                    .collect(Collectors.toList()))
+                .orElse(this.urlRewrites);
         }
 
         public Params(Params other) {
@@ -124,6 +137,14 @@ public interface ProductPageUrlFormat extends GenericUrlFormat<ProductPageUrlFor
         @Deprecated
         public void setUrlPath(String urlPath) {
             this.urlPath = urlPath;
+        }
+
+        public List<String> getUrlRewrites() {
+            return Collections.unmodifiableList(urlRewrites);
+        }
+
+        public void setUrlRewrites(List<String> urlRewrites) {
+            this.urlRewrites = new ArrayList<>(urlRewrites);
         }
 
         @Deprecated

@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
+import java.util.Arrays;
+
 import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
 import org.junit.Test;
 
@@ -31,16 +33,27 @@ public class ProductPageWithSkuAndUrlPathTest {
     public void testFormatWithMissingParameters() {
         ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
 
-        assertEquals("{{page}}.html/{{sku}}/{{url_path}}.html", subject.format(params));
+        assertEquals("{{page}}.html/{{sku}}.html", subject.format(params));
     }
 
     @Test
     public void testFormatWithMissingUrlPath() {
         ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
         params.setPage("/page/path");
-        params.setSku(("foo-bar"));
+        params.setSku("foo-bar");
 
-        assertEquals("/page/path.html/foo-bar/{{url_path}}.html", subject.format(params));
+        assertEquals("/page/path.html/foo-bar.html", subject.format(params));
+    }
+
+    @Test
+    public void testFormatWithUrlRewrites() {
+        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        params.setPage("/page/path");
+        params.setSku("foo-bar");
+        params.setUrlKey("bar");
+        params.setUrlRewrites(Arrays.asList("foo", "foo/bar"));
+
+        assertEquals("/page/path.html/foo-bar/foo/bar.html", subject.format(params));
     }
 
     @Test

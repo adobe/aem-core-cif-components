@@ -31,11 +31,12 @@ public class ProductPageWithUrlKey extends UrlFormatBase implements ProductPageU
 
     @Override
     public String format(Params parameters) {
-        return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}") +
-            HTML_EXTENSION_AND_SUFFIX +
-            getUrlKey(parameters.getUrlPath(), parameters.getUrlKey()) +
-            HTML_EXTENSION +
-            getOptionalAnchor(parameters.getVariantSku());
+        ;
+        return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
+            + HTML_EXTENSION_AND_SUFFIX
+            + StringUtils.defaultIfEmpty(getUrlKey(parameters.getUrlPath(), parameters.getUrlKey()), "{{url_key}}")
+            + HTML_EXTENSION
+            + getOptionalAnchor(parameters.getVariantSku());
     }
 
     @Override

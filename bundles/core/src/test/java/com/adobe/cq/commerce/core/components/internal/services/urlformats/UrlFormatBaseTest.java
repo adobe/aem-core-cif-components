@@ -15,9 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class UrlFormatBaseTest {
 
@@ -34,5 +37,55 @@ public class UrlFormatBaseTest {
     @Test
     public void testGetUrlKeyReturnsLastUrlPathSegmentIfNoUrlKey() {
         assertEquals("url_path", UrlFormatBase.getUrlKey("foo/bar/url_path", null));
+    }
+
+    @Test
+    public void testGetUrlKeyReturnsNull() {
+        assertNull(UrlFormatBase.getUrlKey(null, null));
+    }
+
+    @Test
+    public void testRemoveJcrContentReturnsNull() {
+        assertNull(UrlFormatBase.removeJcrContent(null));
+    }
+
+    @Test
+    public void testRemoveJcrContentReturnsParentOfJcrContentResource() {
+        assertEquals("/parent/path", UrlFormatBase.removeJcrContent("/parent/path/jcr:content"));
+    }
+
+    @Test
+    public void testRemoveJcrContentReturnsPathIfNotJcrContentNode() {
+        assertEquals("/parent/path/jcr:content/child/path", UrlFormatBase.removeJcrContent("/parent/path/jcr:content/child/path"));
+        assertEquals("/parent/path", UrlFormatBase.removeJcrContent("/parent/path/"));
+    }
+
+    @Test
+    public void testSelectUrlPathReturnsUrlPathIfKnown() {
+        assertEquals(
+            "foobar/top",
+            UrlFormatBase.selectUrlPath(
+                "foobar/top",
+                Arrays.asList("foobar", "foobar/top"),
+                "top"));
+    }
+
+    @Test
+    public void testSelectUrlPathReturnsFirstLongestOption() {
+        assertEquals(
+            "top/2nd/urlKey",
+            UrlFormatBase.selectUrlPath(
+                null,
+                Arrays.asList("top", "top/urlKey", "top/2nd/urlKey", "other", "other/urlKey", "other/2nd/urlKey"),
+                "urlKey"));
+    }
+
+    @Test
+    public void testSelectUrlPathReturnsPlaceholderIfNoMatch() {
+        assertNull(
+            UrlFormatBase.selectUrlPath(
+                null,
+                Arrays.asList("top", "top/urlKey", "top/2nd/urlKey"),
+                "noKey"));
     }
 }

@@ -31,7 +31,7 @@ public class ProductPageWithSkuAndUrlKeyTest {
     public void testFormatWithMissingParameters() {
         ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
 
-        assertEquals("{{page}}.html/{{sku}}/{{url_key}}.html", subject.format(params));
+        assertEquals("{{page}}.html/{{sku}}.html", subject.format(params));
     }
 
     @Test
