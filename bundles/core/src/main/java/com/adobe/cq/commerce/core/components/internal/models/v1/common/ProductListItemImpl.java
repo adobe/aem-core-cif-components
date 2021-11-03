@@ -54,9 +54,9 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     private ProductInterface product;
 
     private ProductListItemImpl(ProductInterface product, String sku, String urlKey, String name, Price price, String imageURL,
-                                String imageAlt, Page productPage,
-                                String activeVariantSku, SlingHttpServletRequest request, UrlProvider urlProvider, String parentId,
-                                Boolean isStaged) {
+                                String imageAlt, Page productPage, String activeVariantSku, SlingHttpServletRequest request,
+                                UrlProvider urlProvider,
+                                String parentId, Boolean isStaged) {
         super(parentId, productPage.getContentResource());
         this.product = product;
         this.sku = sku;
