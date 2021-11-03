@@ -17,7 +17,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productteaser;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -42,8 +41,8 @@ import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
@@ -187,12 +186,12 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @JsonIgnore
     public String getUrl() {
         if (getProduct() != null) {
-            Map<String, String> params = new ParamsBuilder()
-                .sku(combinedSku.getLeft())
-                .variantSku(combinedSku.getRight())
-                .urlKey(productRetriever.fetchProduct().getUrlKey()) // Get slug from base product
-                .variantUrlKey(getProduct().getUrlKey())
-                .map();
+            ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+            params.setSku(combinedSku.getLeft());
+            params.setVariantSku(combinedSku.getRight());
+            // Get slug from base product
+            params.setUrlKey(productRetriever.fetchProduct().getUrlKey());
+            params.setVariantUrlKey(getProduct().getUrlKey());
 
             return urlProvider.toProductUrl(request, productPage, params);
         }

@@ -44,7 +44,7 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
     private final SlingHttpServletRequest request;
 
     public ProductToProductListItemConverter(final Page productPage, final SlingHttpServletRequest request, final UrlProvider urlProvider,
-        Resource parentResource) {
+                                             Resource parentResource) {
         this.parentResource = parentResource;
         this.productPage = productPage;
         this.request = request;

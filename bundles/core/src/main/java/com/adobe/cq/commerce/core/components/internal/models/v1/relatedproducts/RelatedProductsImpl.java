@@ -18,7 +18,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -39,14 +38,12 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier.EntityType;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier.IdentifierType;
-import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
@@ -177,7 +174,7 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
     @Override
     public List<ProductListItem> getProductIdentifiers() {
         return getProducts().stream().map(p -> new ProductListItemImpl(
-                CommerceIdentifierImpl.fromProductSku(p.getSKU()), getId(), productPage))
+            CommerceIdentifierImpl.fromProductSku(p.getSKU()), getId(), productPage))
             .collect(Collectors.toList());
     }
 
