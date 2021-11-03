@@ -51,7 +51,8 @@
             <span data-sly-unwrap>
                 <ul class="filterList-items" data-sly-list.aggregateOption="${aggregate.options}">
                     <li>
-                        <a href="${request.requestURI @ query=aggregateOption.addFilterMap}">
+                        <a href="${request.requestURI @ query=aggregateOption.addFilterMap}"
+                           title="${'Filter by {0} {1}' @ i18n, format=[aggregate.displayLabel, aggregateOption.displayLabel]}">
                             ${aggregateOption.displayLabel @ context='html'}
                             <em> (${aggregateOption.count})</em>
                         </a>
