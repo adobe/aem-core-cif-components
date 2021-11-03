@@ -701,6 +701,12 @@
       "value": "Add to Cart"
     }
   ],
+  "product:add-item-wishlist": [
+    {
+      "type": 0,
+      "value": "Add to Wish List"
+    }
+  ],
   "product:customization-price": [
     {
       "type": 0,
