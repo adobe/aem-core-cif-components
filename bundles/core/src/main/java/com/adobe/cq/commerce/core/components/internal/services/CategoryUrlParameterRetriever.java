@@ -28,6 +28,8 @@ class CategoryUrlParameterRetriever extends AbstractCategoryRetriever {
 
     @Override
     protected CategoryTreeQueryDefinition generateCategoryQuery() {
-        return (CategoryTreeQuery q) -> q.urlPath().urlKey();
+        return q -> q
+            .urlPath()
+            .urlKey();
     }
 }
