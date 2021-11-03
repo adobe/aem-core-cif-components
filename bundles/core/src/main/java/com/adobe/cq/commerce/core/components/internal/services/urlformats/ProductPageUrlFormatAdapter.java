@@ -15,42 +15,28 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 
-public class CategoryPageWithUrlKey extends UrlFormatBase implements CategoryPageUrlFormat {
+@Deprecated
+public class ProductPageUrlFormatAdapter implements ProductPageUrlFormat {
 
-    public static final CategoryPageUrlFormat INSTANCE = new CategoryPageWithUrlKey();
-    public static final String PATTERN = "{{page}}.html/{{url_key}}.html";
+    private final UrlFormat delegate;
 
-    private CategoryPageWithUrlKey() {
-        super();
+    public ProductPageUrlFormatAdapter(UrlFormat urlFormat) {
+        this.delegate = urlFormat;
     }
 
     @Override
     public String format(Params parameters) {
-        return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
-            + HTML_EXTENSION_AND_SUFFIX
-            + getUrlKey(parameters.getUrlPath(), parameters.getUrlKey())
-            + HTML_EXTENSION;
+        return delegate.format(parameters.asMap());
     }
 
     @Override
     public Params parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap) {
-        Params params = new Params();
-
-        if (requestPathInfo == null) {
-            return params;
-        }
-
-        params.setPage(removeJcrContent(requestPathInfo.getResourcePath()));
-        String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
-        if (StringUtils.isNotBlank(suffix)) {
-            params.setUrlKey(suffix);
-        }
-        return params;
+        return new Params(delegate.parse(requestPathInfo, parameterMap));
     }
 }

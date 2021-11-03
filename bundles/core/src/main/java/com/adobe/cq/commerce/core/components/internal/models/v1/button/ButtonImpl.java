@@ -35,8 +35,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.wcm.core.components.models.Button;
@@ -124,8 +125,10 @@ public class ButtonImpl implements Button {
                     if (productPage == null) {
                         productPage = currentPage;
                     }
-                    ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
-                    url = urlProvider.toProductUrl(request, productPage, params.map());
+
+                    ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+                    params.setUrlKey(productSlug);
+                    url = urlProvider.toProductUrl(request, productPage, params);
                 } else {
                     LOGGER.debug("Can not get Product Slug!");
                 }
@@ -139,18 +142,16 @@ public class ButtonImpl implements Button {
                         categoryPage = currentPage;
                     }
 
-                    ParamsBuilder params = new ParamsBuilder();
+                    CategoryPageUrlFormat.Params params = null;
                     if (magentoGraphqlClient != null) {
                         CategoryRetriever categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
                         categoryRetriever.setIdentifier(categoryId);
                         CategoryInterface category = categoryRetriever.fetchCategory();
                         if (category != null) {
-                            params.urlKey(category.getUrlKey());
-                            params.urlPath(category.getUrlPath());
-                            params.uid(category.getUid().toString());
+                            params = new CategoryPageUrlFormat.Params(category);
                         }
                     }
-                    url = urlProvider.toCategoryUrl(request, categoryPage, params.map());
+                    url = urlProvider.toCategoryUrl(request, categoryPage, params != null ? params : new CategoryPageUrlFormat.Params());
                 } else {
                     LOGGER.debug("Can not get Category identifier!");
                 }

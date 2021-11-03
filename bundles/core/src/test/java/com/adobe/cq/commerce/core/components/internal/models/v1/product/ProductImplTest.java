@@ -17,11 +17,11 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
@@ -46,6 +46,8 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
@@ -71,10 +73,8 @@ import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -546,18 +546,21 @@ public class ProductImplTest {
 
     @Test
     public void testCanonicalUrlFromSitemapLinkExternalizer() {
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
         SitemapLinkExternalizer externalizer = mock(SitemapLinkExternalizer.class);
         SitemapLinkExternalizerProvider externalizerProvider = mock(SitemapLinkExternalizerProvider.class);
-        when(externalizerProvider.getExternalizer()).thenReturn(externalizer);
-        when(externalizer.externalize(any(), any(), any())).then(inv -> {
+        when(externalizerProvider.getExternalizer(any())).thenReturn(externalizer);
+        when(externalizer.toExternalProductUrl(any(), any(), any())).then(inv -> {
             // assert the parameters
-            Map<String, String> parameters = (Map<String, String>) inv.getArgumentAt(1, Map.class);
-            assertThat(parameters, allOf(
-                hasEntry("url_key", "beaumont-summit-kit"),
-                hasEntry("sku", "MJ01"),
-                hasEntry("page", "/content/product-page")));
+            ProductPageUrlFormat.Params parameters = inv.getArgumentAt(2, ProductPageUrlFormat.Params.class);
+            assertNotNull(parameters);
+            assertEquals("beaumont-summit-kit", parameters.getUrlKey());
+            assertEquals("MJ01", parameters.getSku());
+            Page page = inv.getArgumentAt(1, Page.class);
+            assertNotNull(page);
+            assertEquals("/content/product-page", page.getPath());
             // invoke the callback directly
-            return inv.getArgumentAt(2, java.util.function.Function.class).apply(parameters);
+            return urlProvider.toProductUrl(inv.getArgumentAt(0, SlingHttpServletRequest.class), page, parameters);
         });
         context.registerService(SitemapLinkExternalizerProvider.class, externalizerProvider);
 

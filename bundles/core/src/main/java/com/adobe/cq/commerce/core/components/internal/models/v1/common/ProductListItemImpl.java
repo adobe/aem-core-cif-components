@@ -16,7 +16,6 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.common;
 
 import java.util.Locale;
-import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -28,8 +27,8 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -138,15 +137,14 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     @Override
     @JsonIgnore
     public String getURL() {
-
         if (urlProvider == null) {
             return "";
         }
-        Map<String, String> params = new ParamsBuilder()
-            .sku(sku)
-            .urlKey(slug)
-            .variantSku(activeVariantSku)
-            .map();
+
+        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        params.setSku(sku);
+        params.setUrlKey(slug);
+        params.setVariantSku(activeVariantSku);
 
         return urlProvider.toProductUrl(request, productPage, params);
     }

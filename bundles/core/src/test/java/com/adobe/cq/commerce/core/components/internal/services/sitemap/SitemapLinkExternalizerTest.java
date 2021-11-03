@@ -15,12 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.sitemap;
 
-import java.util.Map;
-
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.testing.TestContext;
 import com.day.cq.wcm.api.Page;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
@@ -30,10 +29,10 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class SitemapLinkExternalizerProviderTest {
+public class SitemapLinkExternalizerTest {
 
     @Rule
-    public final AemContext aemContext = new AemContext();
+    public final AemContext aemContext = TestContext.newAemContext();
     private final SitemapLinkExternalizerProvider subject = new SitemapLinkExternalizerProvider();
 
     @Test
@@ -48,15 +47,14 @@ public class SitemapLinkExternalizerProviderTest {
         aemContext.registerInjectActivateService(subject);
 
         // when
-        SitemapLinkExternalizer externalizer = subject.getExternalizer();
-        Map<String, String> params = new UrlProvider.ParamsBuilder().page(page.getPath()).map();
+        SitemapLinkExternalizer externalizer = subject.getExternalizer(aemContext.resourceResolver());
+        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        params.setPage(page.getPath());
+        params.setUrlKey("foobar");
 
         // then
-        externalizer.externalize(aemContext.resourceResolver(), params, map -> {
-            // verify the page parameter got externalized
-            assertEquals("http://venia.local/us/en", map.get(UrlProvider.PAGE_PARAM));
-            return "";
-        });
+        String canonicalUrl = externalizer.toExternalProductUrl(null, null, params);
+        assertEquals("http://venia.local/us/en.html/foobar.html", canonicalUrl);
     }
 
     @Test
@@ -68,15 +66,14 @@ public class SitemapLinkExternalizerProviderTest {
         aemContext.registerInjectActivateService(subject);
 
         // when
-        SitemapLinkExternalizer externalizer = subject.getExternalizer();
-        Map<String, String> params = new UrlProvider.ParamsBuilder().page("/does/not/exist").map();
+        SitemapLinkExternalizer externalizer = subject.getExternalizer(aemContext.resourceResolver());
+        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        params.setPage("/does/not/exist");
+        params.setUrlKey("foobar");
 
         // then
-        externalizer.externalize(aemContext.resourceResolver(), params, map -> {
-            // verify the page parameter got externalized
-            assertEquals("/does/not/exist", map.get(UrlProvider.PAGE_PARAM));
-            return "";
-        });
+        String canonicalUrl = externalizer.toExternalProductUrl(aemContext.request(), null, params);
+        assertEquals("/does/not/exist.html/foobar.html", canonicalUrl);
     }
 
     @Test
@@ -86,16 +83,19 @@ public class SitemapLinkExternalizerProviderTest {
 
         com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer externalizerService = mock(
             com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer.class);
-        when(externalizerService.externalize(aemContext.resourceResolver(), page.getPath())).thenReturn("http://venia.local/us/en");
+        when(externalizerService.externalize(aemContext.resourceResolver(), page.getPath() + ".html/foobar.html"))
+            .thenReturn("http://venia.local/us/en.html/foobar.html");
         aemContext.registerService(org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer.class, externalizerService);
         aemContext.registerInjectActivateService(subject);
 
         // when
-        SitemapLinkExternalizer externalizer = subject.getExternalizer();
-        Map<String, String> params = new UrlProvider.ParamsBuilder().page(page.getPath()).map();
+        SitemapLinkExternalizer externalizer = subject.getExternalizer(aemContext.resourceResolver());
+        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        params.setPage(page.getPath());
+        params.setUrlKey("foobar");
+        String externalUrl = externalizer.toExternalProductUrl(aemContext.request(), null, params);
 
         // then
-        assertEquals("http://venia.local/us/en",
-            externalizer.externalize(aemContext.resourceResolver(), params, map -> map.get(UrlProvider.PAGE_PARAM)));
+        assertEquals("http://venia.local/us/en.html/foobar.html", externalUrl);
     }
 }

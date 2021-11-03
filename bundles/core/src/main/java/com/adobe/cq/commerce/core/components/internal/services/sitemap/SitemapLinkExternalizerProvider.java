@@ -15,17 +15,18 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.sitemap;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
+import com.day.cq.wcm.api.Page;
 
 /**
  * This provider can be used to get an instance of {@link SitemapLinkExternalizer}. It takes into account that the Sites SEO api may not be
@@ -39,65 +40,90 @@ public class SitemapLinkExternalizerProvider {
 
     @Reference
     private org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer externalizerService;
+    @Reference
+    private UrlProvider urlProvider;
 
-    private SitemapLinkExternalizer externalizer;
-
-    public SitemapLinkExternalizer getExternalizer() {
-        if (externalizer == null) {
-            // try to use the Sites SEO SitemapLinkExternalizer
-            try {
-                if (externalizerService instanceof com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer) {
-                    externalizer = new SeoSitemapLinkExternalizer(
-                        (com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer) externalizerService);
-                    return externalizer;
-                }
-            } catch (NoClassDefFoundError ex) {
-                LOGGER.debug("Could not load com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer", ex);
+    public SitemapLinkExternalizer getExternalizer(ResourceResolver resourceResolver) {
+        // try to use the Sites SEO SitemapLinkExternalizer
+        try {
+            if (externalizerService instanceof com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer) {
+                return new SeoSitemapLinkExternalizer(
+                    (com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer) externalizerService, resourceResolver);
             }
-
-            // fallback to sling's SitemapLinkExternalizer
-            externalizer = new SlingSitemapLinkExternalizer(externalizerService);
+        } catch (NoClassDefFoundError ex) {
+            LOGGER.debug("Could not load com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer", ex);
         }
 
-        return externalizer;
+        // fallback to sling's SitemapLinkExternalizer
+        return new SlingSitemapLinkExternalizer(externalizerService, resourceResolver);
     }
 
     private class SeoSitemapLinkExternalizer implements SitemapLinkExternalizer {
 
         private final com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer externalizer;
+        private final ResourceResolver resourceResolver;
 
-        SeoSitemapLinkExternalizer(com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer externalizer) {
+        SeoSitemapLinkExternalizer(com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer externalizer,
+                                   ResourceResolver resourceResolver) {
             this.externalizer = externalizer;
+            this.resourceResolver = resourceResolver;
         }
 
         @Override
-        public String externalize(ResourceResolver resourceResolver, Map<String, String> params,
-            Function<Map<String, String>, String> urlProvider) {
-            // directly invoke the url provider and pass the returned path to the seo externalizer
-            return externalizer.externalize(resourceResolver, urlProvider.apply(params));
+        public String toExternalProductUrl(SlingHttpServletRequest request, Page page, ProductPageUrlFormat.Params params) {
+            return externalizer.externalize(resourceResolver, urlProvider.toProductUrl(request, page, params));
+        }
+
+        @Override
+        public String toExternalCategoryUrl(SlingHttpServletRequest request, Page page, CategoryPageUrlFormat.Params params) {
+            return externalizer.externalize(resourceResolver, urlProvider.toCategoryUrl(request, page, params));
         }
     }
 
     private class SlingSitemapLinkExternalizer implements SitemapLinkExternalizer {
 
         private final org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer externalizer;
+        private final ResourceResolver resourceResolver;
 
-        SlingSitemapLinkExternalizer(org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer externalizer) {
+        SlingSitemapLinkExternalizer(org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer externalizer,
+                                     ResourceResolver resourceResolver) {
             this.externalizer = externalizer;
+            this.resourceResolver = resourceResolver;
         }
 
         @Override
-        public String externalize(ResourceResolver resourceResolver, Map<String, String> params,
-            Function<Map<String, String>, String> urlProvider) {
-            // get the page param, resolve and externalize it, then replace the param and pass it to the resource provider
-            return Optional.ofNullable(params.get(UrlProvider.PAGE_PARAM))
-                .map(resourceResolver::getResource)
-                .map(externalizer::externalize)
-                .map(externalPath -> {
-                    params.put(UrlProvider.PAGE_PARAM, externalPath);
-                    return urlProvider.apply(params);
-                })
-                .orElse(urlProvider.apply(params));
+        public String toExternalProductUrl(SlingHttpServletRequest request, Page page, ProductPageUrlFormat.Params params) {
+            String externalPath = externalize(page, params.getPage());
+            // if externalized we must not pass page to the url provider as this will overwrite the path again. this will break the specific
+            // page selection if enabled but for canonical urls we don't want this to be active anyway
+            if (externalPath != null) {
+                // make a copy
+                params = new ProductPageUrlFormat.Params(params);
+                params.setPage(externalPath);
+                return urlProvider.toProductUrl(request, null, params);
+            } else {
+                return urlProvider.toProductUrl(request, page, params);
+            }
+        }
+
+        @Override
+        public String toExternalCategoryUrl(SlingHttpServletRequest request, Page page, CategoryPageUrlFormat.Params params) {
+            String externalPath = externalize(page, params.getPage());
+            // if externalized we must not pass page to the url provider as this will overwrite the path again. this will break the specific
+            // page selection if enabled but for canonical urls we don't want this to be active anyway
+            if (externalPath != null) {
+                // make a copy
+                params = new CategoryPageUrlFormat.Params(params);
+                params.setPage(externalPath);
+                return urlProvider.toCategoryUrl(request, null, params);
+            } else {
+                return urlProvider.toCategoryUrl(request, page, params);
+            }
+        }
+
+        private String externalize(Page page, String alternativePagePath) {
+            Resource pageResource = page != null ? page.adaptTo(Resource.class) : resourceResolver.getResource(alternativePagePath);
+            return pageResource != null ? externalizer.externalize(pageResource) : null;
         }
     }
 }

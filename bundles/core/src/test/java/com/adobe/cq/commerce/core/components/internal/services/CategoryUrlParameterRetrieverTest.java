@@ -15,7 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -25,6 +24,7 @@ import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
@@ -52,14 +52,14 @@ public class CategoryUrlParameterRetrieverTest {
     }
 
     @Test
-    public void testProductUrlParamaterQuery() {
+    public void testProductUrlParameterQuery() {
         retriever.setIdentifier("uid-5");
         retriever.fetchCategory();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"uid-5\"}}){uid,url_path,url_key}}";
-        Assert.assertTrue(captor.getValue().equals(expectedQuery));
+        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"uid-5\"}}){url_path,url_key}}";
+        assertEquals(expectedQuery, captor.getValue());
     }
 }

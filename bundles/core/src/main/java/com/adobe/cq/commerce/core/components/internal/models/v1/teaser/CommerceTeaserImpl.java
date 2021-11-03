@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -42,8 +43,9 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceI
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
@@ -125,25 +127,31 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 CommerceIdentifier identifier = null;
 
                 if (categoryId != null) {
-                    ParamsBuilder params = new ParamsBuilder().uid(categoryId);
-                    if (categoriesRetriever != null) {
-                        try {
-                            categoriesRetriever.fetchCategories().stream()
-                                .filter(categoryTree -> categoryTree.getUid().toString().equals(categoryId)).findAny()
-                                .ifPresent(categoryTree -> params
-                                    .uid(categoryTree.getUid().toString())
-                                    .urlKey(categoryTree.getUrlKey())
-                                    .urlPath(categoryTree.getUrlPath()));
-                        } catch (RuntimeException x) {
-                            LOGGER.warn("Failed to fetch category for id: {}", categoryId);
-                        }
+                    CategoryPageUrlFormat.Params params = null;
+                    try {
+                        params = Optional.ofNullable(categoriesRetriever)
+                            .map(AbstractCategoriesRetriever::fetchCategories)
+                            .map(List::stream)
+                            .flatMap(categories -> categories
+                                .filter(category -> category.getUid().toString().equals(categoryId))
+                                .findAny())
+                            .map(CategoryPageUrlFormat.Params::new)
+                            .orElse(null);
+
+                    } catch (RuntimeException x) {
+                        LOGGER.warn("Failed to fetch category for id: {}", categoryId);
                     }
-                    actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params.map());
+                    if (params == null) {
+                        params = new CategoryPageUrlFormat.Params();
+                        params.setUid(categoryId);
+                    }
+                    actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params);
                     identifier = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY);
                 } else if (productSlug != null) {
-                    ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
-                    actionUrl = urlProvider.toProductUrl(request, productPage, params.map());
+                    ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+                    params.setUrlKey(productSlug);
+                    actionUrl = urlProvider.toProductUrl(request, productPage, params);
                     identifier = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.URL_KEY,
                         CommerceIdentifier.EntityType.PRODUCT);
                 } else if (link != null) {

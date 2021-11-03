@@ -47,7 +47,7 @@ import com.adobe.cq.commerce.core.components.internal.storefrontcontext.Category
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
@@ -260,16 +260,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
 
             if (category != null && categoryPage != null && sitemapLinkExternalizerProvider != null) {
-                canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer()
-                    .externalize(
-                        resource.getResourceResolver(),
-                        new UrlProvider.ParamsBuilder()
-                            .page(categoryPage.getPath())
-                            .uid(category.getUid().toString())
-                            .urlKey(category.getUrlKey())
-                            .urlPath(category.getUrlPath())
-                            .map(),
-                        params -> urlProvider.toCategoryUrl(request, categoryPage, params));
+                canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
+                    .toExternalCategoryUrl(request, categoryPage, new CategoryPageUrlFormat.Params(category));
             } else {
                 // fallback to legacy logic
                 if (isAuthor) {

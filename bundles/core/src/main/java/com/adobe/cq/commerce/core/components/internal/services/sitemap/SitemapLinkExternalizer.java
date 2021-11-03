@@ -15,31 +15,44 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.sitemap;
 
-import java.util.Map;
-import java.util.function.Function;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.osgi.annotation.versioning.ProviderType;
 
-import org.apache.sling.api.resource.ResourceResolver;
-
+import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.day.cq.wcm.api.Page;
 import com.drew.lang.annotations.NotNull;
+import com.drew.lang.annotations.Nullable;
 
 /**
  * An instance of this interface is provided by the {@link SitemapLinkExternalizerProvider} and implements a compatibility layer for either
  * Sling's SitemapLinkExternalizer or, if available at runtime the Sites SEO's SitemapLinkExternalizer. The latter provides an advanced
  * interface that allows to externalize a path directly.
  */
+@ProviderType
 public interface SitemapLinkExternalizer {
 
     /**
-     * Externalizes the url returned by the given urlProvider function. This can either be done by externalizing the page parameter in the
-     * params map and passing the modified params map to the urlProvider function, or by passing the original params map to the url provider
-     * function and externalizing the result it returns.
+     * This method returns an external, canonical url for the given {@link ProductPageUrlFormat.Params}. It uses the
+     * {@link com.adobe.cq.commerce.core.components.services.urls.UrlProvider} internally.
      *
-     * @param resourceResolver
+     * @param request
+     * @param page
      * @param params
-     * @param urlProvider
      * @return
      */
     @NotNull
-    String externalize(ResourceResolver resourceResolver, Map<String, String> params,
-        Function<Map<String, String>, String> urlProvider);
+    String toExternalProductUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, ProductPageUrlFormat.Params params);
+
+    /**
+     * This method returns an external, canonical url for the given {@link CategoryPageUrlFormat.Params}. It uses the
+     * {@link com.adobe.cq.commerce.core.components.services.urls.UrlProvider} internally.
+     *
+     * @param request
+     * @param page
+     * @param params
+     * @return
+     */
+    @NotNull
+    String toExternalCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, CategoryPageUrlFormat.Params params);
 }

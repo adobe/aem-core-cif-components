@@ -13,21 +13,26 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-package com.adobe.cq.commerce.core.components.internal.services;
+package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
-import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
+import org.junit.Test;
 
-class CategoryUrlParameterRetriever extends AbstractCategoryRetriever {
+import static org.junit.Assert.assertEquals;
 
-    CategoryUrlParameterRetriever(MagentoGraphqlClient client) {
-        super(client);
+public class UrlFormatBaseTest {
+
+    @Test
+    public void testGetUrlKeyReturnsUrlKeyFirst() {
+        assertEquals("url_key", UrlFormatBase.getUrlKey("url_path", "url_key"));
     }
 
-    @Override
-    protected CategoryTreeQueryDefinition generateCategoryQuery() {
-        return (CategoryTreeQuery q) -> q.urlPath().urlKey();
+    @Test
+    public void testGetUrlKeyReturnsUrlPathIfNoUrlKey() {
+        assertEquals("url_path", UrlFormatBase.getUrlKey("url_path", null));
+    }
+
+    @Test
+    public void testGetUrlKeyReturnsLastUrlPathSegmentIfNoUrlKey() {
+        assertEquals("url_path", UrlFormatBase.getUrlKey("foo/bar/url_path", null));
     }
 }

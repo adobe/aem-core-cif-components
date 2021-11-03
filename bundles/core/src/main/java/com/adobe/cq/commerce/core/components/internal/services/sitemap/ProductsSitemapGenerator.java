@@ -17,7 +17,6 @@ package com.adobe.cq.commerce.core.components.internal.services.sitemap;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,6 +40,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.sitemap.SitemapProductFilter;
+import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -116,8 +116,8 @@ public class ProductsSitemapGenerator extends SitemapGeneratorBase implements Si
         int currentIndex = context.getProperty(PN_NEXT_PRODUCT, 0);
         int currentPageIndex = context.getProperty(PN_NEXT_PAGE, 1);
         int maxPages = Integer.MAX_VALUE;
-        SitemapLinkExternalizer externalizer = externalizerProvider.getExternalizer();
         ResourceResolver resourceResolver = sitemapRoot.getResourceResolver();
+        SitemapLinkExternalizer externalizer = externalizerProvider.getExternalizer(resourceResolver);
 
         while (currentPageIndex <= maxPages) {
             String query = Operations.query(productsQueryFor(currentPageIndex, pageSize)).toString();
@@ -145,14 +145,9 @@ public class ProductsSitemapGenerator extends SitemapGeneratorBase implements Si
                         .getSimpleName());
                     continue;
                 }
-                Map<String, String> params = new UrlProvider.ParamsBuilder()
-                    .page(productPage.getPath())
-                    .sku(product.getSku())
-                    .urlKey(product.getUrlKey())
-                    .variantSku(null)
-                    .variantUrlKey(null)
-                    .map();
-                String urlStr = externalizer.externalize(resourceResolver, params, map -> urlProvider.toProductUrl(null, null, map));
+                ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params(product);
+                params.setPage(productPage.getPath());
+                String urlStr = externalizer.toExternalProductUrl(null, null, params);
                 Url url = sitemap.addUrl(urlStr);
                 if (addLastModified) {
                     addLastModified(url, product);

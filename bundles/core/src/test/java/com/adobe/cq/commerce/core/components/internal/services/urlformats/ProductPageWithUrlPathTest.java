@@ -15,33 +15,36 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
-import com.google.common.collect.ImmutableMap;
+import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class ProductPageWithUrlPathTest {
 
-    public final UrlFormat subject = ProductPageWithUrlPath.INSTANCE;
+    public final ProductPageUrlFormat subject = ProductPageWithUrlPath.INSTANCE;
 
     @Test
     public void testFormatWithMissingParameters() {
-        assertEquals("{{page}}.html/{{url_path}}.html", subject.format(Collections.emptyMap()));
+        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+
+        assertEquals("{{page}}.html/{{url_path}}.html", subject.format(params));
     }
 
     @Test
     public void testFormat() {
-        assertEquals("/page/path.html/foo-bar.html", subject.format(ImmutableMap.of(
-            "page", "/page/path",
-            "url_path", "foo-bar")));
+        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        params.setPage("/page/path");
+        params.setUrlPath("foo-bar");
+
+        assertEquals("/page/path.html/foo-bar.html", subject.format(params));
+
+        params.setVariantSku("variant");
+
+        assertEquals("/page/path.html/foo-bar.html#variant", subject.format(params));
     }
 
     @Test
@@ -49,25 +52,28 @@ public class ProductPageWithUrlPathTest {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
         pathInfo.setSuffix("/foo-bar.html");
-        Map<String, String> parameters = subject.parse(pathInfo, null);
+        ProductPageUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
-        assertEquals("/page/path", parameters.get("page"));
-        assertEquals("foo-bar", parameters.get("url_path"));
+        assertEquals("/page/path", parameters.getPage());
+        assertEquals("foo-bar", parameters.getUrlPath());
     }
 
     @Test
     public void testParseNull() {
-        Map<String, String> parameters = subject.parse(null, null);
-        assertTrue(parameters.isEmpty());
+        ProductPageUrlFormat.Params parameters = subject.parse(null, null);
+        assertNull(parameters.getPage());
+        assertNull(parameters.getSku());
+        assertNull(parameters.getUrlKey());
+        assertNull(parameters.getUrlPath());
     }
 
     @Test
     public void testParseNoSuffix() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
-        Map<String, String> parameters = subject.parse(pathInfo, null);
+        ProductPageUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
-        assertEquals("/page/path", parameters.get("page"));
-        assertNull(parameters.get("url_path"));
+        assertEquals("/page/path", parameters.getPage());
+        assertNull(parameters.getUrlPath());
     }
 }

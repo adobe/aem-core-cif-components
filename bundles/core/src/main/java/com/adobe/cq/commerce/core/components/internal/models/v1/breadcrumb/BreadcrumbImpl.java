@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
@@ -42,8 +41,8 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.models.breadcrumb.Breadcrumb;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
@@ -176,7 +175,6 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
                 NavigationItemImpl productItem = new NavigationItemImpl(retriever.fetchProductName(), url, true, this.getId(),
                     productPage.getContentResource());
                 items.add(productItem);
-                return;
             }
         }
     }
@@ -191,14 +189,12 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
     }
 
     private void addCategoryItem(ID uid, String urlKey, String urlPath, String name, boolean isActive) {
-        Map<String, String> params = new ParamsBuilder()
-            .uid(uid.toString())
-            .urlKey(urlKey)
-            .urlPath(urlPath)
-            .map();
-
         // if the dynamic category page is null, the category item is not rendered
         if (categoryPage != null) {
+            CategoryPageUrlFormat.Params params = new CategoryPageUrlFormat.Params();
+            params.setUid(uid.toString());
+            params.setUrlKey(urlKey);
+            params.setUrlPath(urlPath);
             String url = urlProvider.toCategoryUrl(request, categoryPage, params);
             NavigationItemImpl categoryItem = new NavigationItemImpl(name, url, isActive, this.getId(), categoryPage.getContentResource());
             items.add(categoryItem);

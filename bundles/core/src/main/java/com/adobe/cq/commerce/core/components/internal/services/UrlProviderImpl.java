@@ -30,6 +30,7 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.settings.SlingSettingsService;
+import org.jetbrains.annotations.Nullable;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -43,14 +44,18 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageUrlFormatAdapter;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageUrlFormatAdapter;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlPath;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -75,7 +80,7 @@ public class UrlProviderImpl implements UrlProvider {
      * A {@link Map} of default patterns for product pages supported by the default implementation of
      * {@link UrlProvider}.
      */
-    public static final Map<String, UrlFormat> DEFAULT_PRODUCT_URL_FORMATS = new HashMap<String, UrlFormat>() {
+    public static final Map<String, ProductPageUrlFormat> DEFAULT_PRODUCT_URL_FORMATS = new HashMap<String, ProductPageUrlFormat>() {
         {
             put(ProductPageWithSku.PATTERN, ProductPageWithSku.INSTANCE);
             put(ProductPageWithUrlKey.PATTERN, ProductPageWithUrlKey.INSTANCE);
@@ -89,7 +94,7 @@ public class UrlProviderImpl implements UrlProvider {
      * A {@link Map} of default patterns for category pages supported by the default implementation of
      * {@link UrlProvider}.
      */
-    public static final Map<String, UrlFormat> DEFAULT_CATEGORY_URL_FORMATS = new HashMap<String, UrlFormat>() {
+    public static final Map<String, CategoryPageUrlFormat> DEFAULT_CATEGORY_URL_FORMATS = new HashMap<String, CategoryPageUrlFormat>() {
         {
             put(CategoryPageWithUrlPath.PATTERN, CategoryPageWithUrlPath.INSTANCE);
             put(CategoryPageWithUrlKey.PATTERN, CategoryPageWithUrlKey.INSTANCE);
@@ -115,121 +120,150 @@ public class UrlProviderImpl implements UrlProvider {
         target = "(" + UrlFormat.PROP_USE_AS + "=" + UrlFormat.CATEGORY_PAGE_URL_FORMAT + ")")
     private UrlFormat categoryPageUrlFormat;
 
+    @Reference(
+        cardinality = ReferenceCardinality.OPTIONAL,
+        policy = ReferencePolicy.STATIC,
+        policyOption = ReferencePolicyOption.GREEDY)
+    private ProductPageUrlFormat newProductPageUrlFormat;
+
+    @Reference(
+        cardinality = ReferenceCardinality.OPTIONAL,
+        policy = ReferencePolicy.STATIC,
+        policyOption = ReferencePolicyOption.GREEDY)
+    private CategoryPageUrlFormat newCategoryPageUrlFormat;
+
     @Reference
     private SlingSettingsService slingSettingsService;
 
     @Activate
     public void activate(UrlProviderConfiguration conf) {
-        if (productPageUrlFormat == null) {
-            productPageUrlFormat = DEFAULT_PRODUCT_URL_FORMATS
-                .getOrDefault(conf.productPageUrlFormat(), ProductPageWithUrlKey.INSTANCE);
+        if (newProductPageUrlFormat == null) {
+            if (productPageUrlFormat != null) {
+                newProductPageUrlFormat = new ProductPageUrlFormatAdapter(productPageUrlFormat);
+            } else {
+                newProductPageUrlFormat = DEFAULT_PRODUCT_URL_FORMATS
+                    .getOrDefault(conf.productPageUrlFormat(), ProductPageWithUrlKey.INSTANCE);
+            }
         }
-        if (categoryPageUrlFormat == null) {
-            categoryPageUrlFormat = DEFAULT_CATEGORY_URL_FORMATS
-                .getOrDefault(conf.categoryPageUrlFormat(), CategoryPageWithUrlPath.INSTANCE);
+        if (newCategoryPageUrlFormat == null) {
+            if (categoryPageUrlFormat != null) {
+                newCategoryPageUrlFormat = new CategoryPageUrlFormatAdapter(categoryPageUrlFormat);
+            } else {
+                newCategoryPageUrlFormat = DEFAULT_CATEGORY_URL_FORMATS
+                    .getOrDefault(conf.categoryPageUrlFormat(), CategoryPageWithUrlPath.INSTANCE);
+            }
         }
     }
 
     @Deactivate
     protected void deactivate() {
         productPageUrlFormat = null;
+        newProductPageUrlFormat = null;
         categoryPageUrlFormat = null;
+        newCategoryPageUrlFormat = null;
     }
 
     @Override
     public String toProductUrl(SlingHttpServletRequest request, Page page, Map<String, String> params) {
-        return toUrl(request, page, params, productPageUrlFormat);
+        return toProductUrl(request, page, new ProductPageUrlFormat.Params(params));
     }
 
     @Override
     public String toProductUrl(SlingHttpServletRequest request, Page page, String productIdentifier) {
-        ParamsBuilder params = new ParamsBuilder();
+        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
         if (StringUtils.isNotBlank(productIdentifier)) {
-            params.sku(productIdentifier);
-
-            MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
-
-            // for formats that require url_path or url_key we have to lookup them up
-            Set<String> formatParameters = productPageUrlFormat.getParameterNames();
-            if (magentoGraphqlClient != null &&
-                (formatParameters.contains(URL_KEY_PARAM) || formatParameters.contains(URL_PATH_PARAM))) {
-                ProductUrlParameterRetriever retriever = new ProductUrlParameterRetriever(magentoGraphqlClient);
-                retriever.setIdentifier(productIdentifier);
-                ProductInterface product = retriever.fetchProduct();
-                if (product != null) {
-                    params
-                        .urlKey(product.getUrlKey())
-                        .urlPath(product.getUrlPath());
-                } else {
-                    LOGGER.debug("Could not generate product page URL for {}.", productIdentifier);
+            params.setSku(productIdentifier);
+            // assume that any other format then the ProductPageWithSku requires more parameters
+            if (!(newProductPageUrlFormat instanceof ProductPageWithSku)) {
+                MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
+                if (magentoGraphqlClient != null) {
+                    ProductUrlParameterRetriever retriever = new ProductUrlParameterRetriever(magentoGraphqlClient);
+                    retriever.setIdentifier(productIdentifier);
+                    ProductInterface product = retriever.fetchProduct();
+                    if (product != null) {
+                        params.setUrlKey(product.getUrlKey());
+                        params.setUrlPath(product.getUrlPath());
+                    } else {
+                        LOGGER.debug("Could not generate product page URL for {}.", productIdentifier);
+                    }
                 }
             }
         }
-        return toUrl(request, page, params.map(), productPageUrlFormat);
+        return toProductUrl(request, page, params);
+    }
+
+    @Override
+    public String toProductUrl(SlingHttpServletRequest request, Page page, ProductPageUrlFormat.Params params) {
+        if (page != null) {
+            Map<String, String> paramsMap = params.asMap();
+            Set<String> searchValues = new HashSet<>();
+            // compatible to the previous implementation, may be removed
+            searchValues.addAll(paramsMap.values());
+
+            String pageParam = getPageParam(page, searchValues, request, params.asMap());
+            if (!pageParam.equals(params.getPage())) {
+                params = new ProductPageUrlFormat.Params(params);
+                params.setPage(pageParam);
+            }
+        }
+
+        return newProductPageUrlFormat.format(params);
     }
 
     @Override
     public String toCategoryUrl(SlingHttpServletRequest request, Page page, Map<String, String> params) {
-        return toUrl(request, page, params, categoryPageUrlFormat);
+        return toCategoryUrl(request, page, new CategoryPageUrlFormat.Params(params));
     }
 
     @Override
     public String toCategoryUrl(SlingHttpServletRequest request, Page page, String categoryIdentifier) {
-        ParamsBuilder params = new ParamsBuilder().uid(categoryIdentifier);
-        MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
+        CategoryPageUrlFormat.Params params = new CategoryPageUrlFormat.Params();
+        params.setUid(categoryIdentifier);
+
+        MagentoGraphqlClient magentoGraphqlClient = request != null ? request.adaptTo(MagentoGraphqlClient.class) : null;
         if (magentoGraphqlClient != null && StringUtils.isNotBlank(categoryIdentifier)) {
             CategoryUrlParameterRetriever retriever = new CategoryUrlParameterRetriever(magentoGraphqlClient);
             retriever.setIdentifier(categoryIdentifier);
             CategoryInterface category = retriever.fetchCategory();
             if (category != null) {
-                params
-                    .uid(category.getUid().toString())
-                    .urlKey(category.getUrlKey())
-                    .urlPath(category.getUrlPath());
+                params.setUrlKey(category.getUrlKey());
+                params.setUrlPath(category.getUrlPath());
             } else {
                 LOGGER.debug("Could not generate category page URL for {}.", categoryIdentifier);
             }
         }
-        return toUrl(request, page, params.map(), categoryPageUrlFormat);
+        return toCategoryUrl(request, page, params);
     }
 
-    private String toUrl(SlingHttpServletRequest request, Page page, Map<String, String> params, UrlFormat urlFormat) {
+    @Override
+    public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page page, CategoryPageUrlFormat.Params params) {
         if (page != null) {
-            String pagePath = page.getPath();
-            // enable rendering of deep links only on author
-            boolean deepLinkSpecificPages = slingSettingsService.getRunModes().contains("author");
-
-            if (deepLinkSpecificPages) {
-                Set<String> selectorValues = new HashSet<>(params.values());
-                Resource subPageResource = toSpecificPage(page.adaptTo(Resource.class), selectorValues, request, params);
-                if (subPageResource != null) {
-                    pagePath = subPageResource.getPath();
-                }
+            Map<String, String> paramsMap = params.asMap();
+            Set<String> searchValues = new HashSet<>();
+            // compatible to the previous implementation, may be removed
+            searchValues.addAll(paramsMap.values());
+            String pageParam = getPageParam(page, searchValues, request, params.asMap());
+            if (!pageParam.equals(params.getPage())) {
+                params = new CategoryPageUrlFormat.Params(params);
+                params.setPage(pageParam);
             }
-
-            params.put(PAGE_PARAM, pagePath);
         }
 
-        String url = urlFormat.format(params);
-        if (url.contains(UrlFormat.OPENING_BRACKETS) || url.contains(UrlFormat.CLOSING_BRACKETS)) {
-            LOGGER.warn("Missing params for URL substitution. Resulted URL: {}", url);
-        }
-
-        return url;
+        return newCategoryPageUrlFormat.format(params);
     }
 
-    /**
-     * This method checks if any of the children of the given <code>page</code> resource
-     * is a page with a <code>selectorFilter</code> property set with the value
-     * of the given <code>selector</code>.
-     *
-     * @param page The page resource, from where children pages will be checked.
-     * @param selectors The searched value for the <code>selectorFilter</code> property.
-     * @return If found, a child page resource that contains the given <code>selectorFilter</code> value.
-     *         If not found, this method returns null.
-     */
-    public static Resource toSpecificPage(Resource page, Set<String> selectors) {
-        return toSpecificPage(page, selectors, null);
+    private String getPageParam(Page page, Set<String> searchValues, SlingHttpServletRequest request, Map<String, String> params) {
+        // enable rendering of deep links only on author
+        boolean deepLinkSpecificPages = slingSettingsService.getRunModes().contains("author");
+
+        if (deepLinkSpecificPages) {
+            Resource subPageResource = toSpecificPage(page.adaptTo(Resource.class), searchValues, request, params);
+            if (subPageResource != null) {
+                return subPageResource.getPath();
+            }
+        }
+
+        return page.getPath();
     }
 
     /**
@@ -345,29 +379,23 @@ public class UrlProviderImpl implements UrlProvider {
             return identifier;
         }
 
-        Map<String, String> productIdentifiers = productPageUrlFormat.parse(request.getRequestPathInfo(), request.getRequestParameterMap());
+        ProductPageUrlFormat.Params productIdentifiers = newProductPageUrlFormat.parse(request.getRequestPathInfo(),
+            request.getRequestParameterMap());
 
         // if we get the product sku from URL no extra lookup is needed
-        if (productIdentifiers.containsKey(SKU_PARAM)) {
-            identifier = productIdentifiers.get(SKU_PARAM);
-        } else {
-            String urlKey = null;
-            if (productIdentifiers.containsKey(URL_KEY_PARAM)) {
-                urlKey = productIdentifiers.get(URL_KEY_PARAM);
-            }
-
-            if (StringUtils.isNotBlank(urlKey)) {
-                // lookup internal product identifier (sku) based on URL product identifier (url_key)
-                MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
-                if (magentoGraphqlClient != null) {
-                    UrlToProductRetriever productRetriever = new UrlToProductRetriever(magentoGraphqlClient);
-                    productRetriever.setIdentifier(urlKey);
-                    ProductInterface product = productRetriever.fetchProduct();
-                    identifier = product != null ? product.getSku() : null;
-                } else {
-                    LOGGER.warn("No backend GraphQL client provided, cannot retrieve product identifier for {}", request.getRequestURL()
-                        .toString());
-                }
+        if (StringUtils.isNotEmpty(productIdentifiers.getSku())) {
+            identifier = productIdentifiers.getSku();
+        } else if (StringUtils.isNotEmpty(productIdentifiers.getUrlKey())) {
+            // lookup internal product identifier (sku) based on URL product identifier (url_key)
+            MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
+            if (magentoGraphqlClient != null) {
+                UrlToProductRetriever productRetriever = new UrlToProductRetriever(magentoGraphqlClient);
+                productRetriever.setIdentifier(productIdentifiers.getUrlKey());
+                ProductInterface product = productRetriever.fetchProduct();
+                identifier = product != null ? product.getSku() : null;
+            } else {
+                LOGGER.warn("No backend GraphQL client provided, cannot retrieve product identifier for {}", request.getRequestURL()
+                    .toString());
             }
         }
 
@@ -390,17 +418,17 @@ public class UrlProviderImpl implements UrlProvider {
             return identifier;
         }
 
-        Map<String, String> categoryIdentifiers = categoryPageUrlFormat
+        CategoryPageUrlFormat.Params categoryIdentifiers = newCategoryPageUrlFormat
             .parse(request.getRequestPathInfo(), request.getRequestParameterMap());
 
-        if (categoryIdentifiers.containsKey(UID_PARAM)) {
-            identifier = categoryIdentifiers.get(UID_PARAM);
-        } else if (categoryIdentifiers.containsKey(URL_KEY_PARAM)) {
+        if (StringUtils.isNotEmpty(categoryIdentifiers.getUid())) {
+            identifier = categoryIdentifiers.getUid();
+        } else if (StringUtils.isNotEmpty(categoryIdentifiers.getUrlKey())) {
             // lookup internal product identifier (sku) based on URL product identifier (url_key)
             MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
             if (magentoGraphqlClient != null) {
                 UrlToCategoryRetriever categoryRetriever = new UrlToCategoryRetriever(magentoGraphqlClient);
-                categoryRetriever.setIdentifier(categoryIdentifiers.get(URL_KEY_PARAM));
+                categoryRetriever.setIdentifier(categoryIdentifiers.getUrlKey());
                 CategoryInterface category = categoryRetriever.fetchCategory();
                 identifier = category != null ? category.getUid().toString() : null;
             } else {
@@ -460,13 +488,12 @@ public class UrlProviderImpl implements UrlProvider {
      * @return The product sku or url_key from the URL.
      */
     public String parseProductUrlIdentifier(SlingHttpServletRequest request) {
-        Map<String, String> productIdentifiers = productPageUrlFormat.parse(request.getRequestPathInfo(), request.getRequestParameterMap());
-        if (productIdentifiers.containsKey(SKU_PARAM)) {
-            return productIdentifiers.get(SKU_PARAM);
-        } else if (productIdentifiers.containsKey(URL_KEY_PARAM)) {
-            return productIdentifiers.get(URL_PATH_PARAM);
-        } else if (productIdentifiers.containsKey(URL_PATH_PARAM)) {
-            return productIdentifiers.get(URL_PATH_PARAM);
+        ProductPageUrlFormat.Params productIdentifiers = newProductPageUrlFormat.parse(request.getRequestPathInfo(),
+            request.getRequestParameterMap());
+        if (StringUtils.isNotEmpty(productIdentifiers.getSku())) {
+            return productIdentifiers.getSku();
+        } else if (StringUtils.isNotEmpty(productIdentifiers.getUrlKey())) {
+            return productIdentifiers.getUrlKey();
         }
         return null;
     }
@@ -479,8 +506,13 @@ public class UrlProviderImpl implements UrlProvider {
      * @return The category url_path from the URL.
      */
     public String parseCategoryUrlIdentifier(SlingHttpServletRequest request) {
-        Map<String, String> categoryIdentifiers = categoryPageUrlFormat
-            .parse(request.getRequestPathInfo(), request.getRequestParameterMap());
-        return categoryIdentifiers.get(URL_PATH_PARAM);
+        CategoryPageUrlFormat.Params categoryIdentifiers = newCategoryPageUrlFormat.parse(request.getRequestPathInfo(),
+            request.getRequestParameterMap());
+        if (StringUtils.isNotEmpty(categoryIdentifiers.getUrlPath())) {
+            return categoryIdentifiers.getUrlPath();
+        } else if (StringUtils.isNotEmpty(categoryIdentifiers.getUrlKey())) {
+            return categoryIdentifiers.getUrlKey();
+        }
+        return null;
     }
 }
