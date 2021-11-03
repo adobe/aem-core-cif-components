@@ -191,6 +191,8 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
             params.setVariantSku(combinedSku.getRight());
             // Get slug from base product
             params.setUrlKey(productRetriever.fetchProduct().getUrlKey());
+            params.setUrlPath(productRetriever.fetchProduct().getUrlPath());
+            params.setUrlRewrites(productRetriever.fetchProduct().getUrlRewrites());
             params.setVariantUrlKey(getProduct().getUrlKey());
 
             return urlProvider.toProductUrl(request, productPage, params);

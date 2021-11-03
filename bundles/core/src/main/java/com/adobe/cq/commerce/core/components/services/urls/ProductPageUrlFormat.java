@@ -15,13 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.services.urls;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.osgi.annotation.versioning.ConsumerType;
 import org.osgi.annotation.versioning.ProviderType;
 
@@ -60,12 +60,7 @@ public interface ProductPageUrlFormat extends GenericUrlFormat<ProductPageUrlFor
             this.sku = product.getSku();
             this.urlKey = product.getUrlKey();
             this.urlPath = product.getUrlPath();
-            this.urlRewrites = Optional.ofNullable(product.getUrlRewrites())
-                .map(List::stream)
-                .map(stream -> stream
-                    .map(UrlRewrite::getUrl)
-                    .collect(Collectors.toList()))
-                .orElse(this.urlRewrites);
+            this.urlRewrites = convertUrlRewrites(product.getUrlRewrites());
         }
 
         public Params(Params other) {
@@ -75,6 +70,7 @@ public interface ProductPageUrlFormat extends GenericUrlFormat<ProductPageUrlFor
             this.urlKey = other.getUrlKey();
             this.variantUrlKey = other.getVariantUrlKey();
             this.urlPath = other.getUrlPath();
+            this.urlRewrites = other.getUrlRewrites();
         }
 
         @Deprecated
@@ -143,8 +139,8 @@ public interface ProductPageUrlFormat extends GenericUrlFormat<ProductPageUrlFor
             return Collections.unmodifiableList(urlRewrites);
         }
 
-        public void setUrlRewrites(List<String> urlRewrites) {
-            this.urlRewrites = new ArrayList<>(urlRewrites);
+        public void setUrlRewrites(List<UrlRewrite> urlRewrites) {
+            this.urlRewrites = convertUrlRewrites(urlRewrites);
         }
 
         @Deprecated
@@ -159,5 +155,35 @@ public interface ProductPageUrlFormat extends GenericUrlFormat<ProductPageUrlFor
                 .map();
         }
 
+        /**
+         * Flattens the list {@link UrlRewrite} to a list of Strings, also removing the extension if any.
+         * <p>
+         * Converts
+         * 
+         * <pre>
+         *  {@code
+         * [{ url: "bar.html" }, {url: "foo/bar.html" }]
+         * </pre>
+         * 
+         * to
+         * 
+         * <pre>
+         *  {@code
+         * [{ url: "bar" }, {url: "foo/bar" }]
+         * </pre>
+         * 
+         * @param urlRewrites
+         * 
+         * @return
+         */
+        private static List<String> convertUrlRewrites(List<UrlRewrite> urlRewrites) {
+            return Optional.ofNullable(urlRewrites)
+                .map(List::stream)
+                .map(stream -> stream
+                    .map(UrlRewrite::getUrl)
+                    .map(url -> StringUtils.removeEnd(url, ".html"))
+                    .collect(Collectors.toList()))
+                .orElseGet(Collections::emptyList);
+        }
     }
 }

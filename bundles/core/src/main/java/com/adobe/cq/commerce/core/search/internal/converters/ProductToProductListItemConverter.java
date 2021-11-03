@@ -17,9 +17,7 @@ package com.adobe.cq.commerce.core.search.internal.converters;
 
 import java.util.function.Function;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +25,6 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductLi
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.day.cq.wcm.api.Page;
 
 /**
@@ -37,15 +34,14 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductToProductListItemConverter.class);
 
-    private final Resource parentResource;
+    private final String parentId;
     private final Page productPage;
     private final UrlProvider urlProvider;
-
     private final SlingHttpServletRequest request;
 
     public ProductToProductListItemConverter(final Page productPage, final SlingHttpServletRequest request, final UrlProvider urlProvider,
-                                             Resource parentResource) {
-        this.parentResource = parentResource;
+                                             String parentId) {
+        this.parentId = parentId;
         this.productPage = productPage;
         this.request = request;
         this.urlProvider = urlProvider;
@@ -54,10 +50,6 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
     @Override
     public ProductListItem apply(final ProductInterface product) {
         try {
-            String resourceType = parentResource.getResourceType();
-            String prefix = StringUtils.substringAfterLast(resourceType, "/");
-            String parentId = ComponentUtils.generateId(prefix, parentResource.getPath());
-
             return new ProductListItemImpl.Builder(parentId, productPage, request, urlProvider)
                 .product(product)
                 .build();

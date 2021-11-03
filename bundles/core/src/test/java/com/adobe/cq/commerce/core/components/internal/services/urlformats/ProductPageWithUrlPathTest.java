@@ -21,6 +21,7 @@ import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
 import org.junit.Test;
 
 import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -54,7 +55,9 @@ public class ProductPageWithUrlPathTest {
         ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
         params.setPage("/page/path");
         params.setUrlKey("bar");
-        params.setUrlRewrites(Arrays.asList("foo", "foo/bar"));
+        params.setUrlRewrites(Arrays.asList(
+            new UrlRewrite().setUrl("foo"),
+            new UrlRewrite().setUrl("foo/bar")));
 
         assertEquals("/page/path.html/foo/bar.html", subject.format(params));
 

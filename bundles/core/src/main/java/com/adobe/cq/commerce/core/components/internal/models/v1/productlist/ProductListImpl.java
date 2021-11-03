@@ -186,8 +186,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     public Collection<ProductListItem> getProducts() {
         if (usePlaceholderData) {
             CategoryProducts categoryProducts = getCategory().getProducts();
-            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider,
-                resource);
+            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, getId());
             return categoryProducts.getItems().stream()
                 .map(converter)
                 .filter(Objects::nonNull) // the converter returns null if the conversion fails
