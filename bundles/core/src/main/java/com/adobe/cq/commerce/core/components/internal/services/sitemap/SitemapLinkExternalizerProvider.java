@@ -23,8 +23,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
-import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.day.cq.wcm.api.Page;
 
@@ -70,12 +70,12 @@ public class SitemapLinkExternalizerProvider {
         }
 
         @Override
-        public String toExternalProductUrl(SlingHttpServletRequest request, Page page, ProductPageUrlFormat.Params params) {
+        public String toExternalProductUrl(SlingHttpServletRequest request, Page page, ProductUrlFormat.Params params) {
             return externalizer.externalize(resourceResolver, urlProvider.toProductUrl(request, page, params));
         }
 
         @Override
-        public String toExternalCategoryUrl(SlingHttpServletRequest request, Page page, CategoryPageUrlFormat.Params params) {
+        public String toExternalCategoryUrl(SlingHttpServletRequest request, Page page, CategoryUrlFormat.Params params) {
             return externalizer.externalize(resourceResolver, urlProvider.toCategoryUrl(request, page, params));
         }
     }
@@ -92,13 +92,13 @@ public class SitemapLinkExternalizerProvider {
         }
 
         @Override
-        public String toExternalProductUrl(SlingHttpServletRequest request, Page page, ProductPageUrlFormat.Params params) {
+        public String toExternalProductUrl(SlingHttpServletRequest request, Page page, ProductUrlFormat.Params params) {
             String externalPath = externalize(page, params.getPage());
             // if externalized we must not pass page to the url provider as this will overwrite the path again. this will break the specific
             // page selection if enabled but for canonical urls we don't want this to be active anyway
             if (externalPath != null) {
                 // make a copy
-                params = new ProductPageUrlFormat.Params(params);
+                params = new ProductUrlFormat.Params(params);
                 params.setPage(externalPath);
                 return urlProvider.toProductUrl(request, null, params);
             } else {
@@ -107,13 +107,13 @@ public class SitemapLinkExternalizerProvider {
         }
 
         @Override
-        public String toExternalCategoryUrl(SlingHttpServletRequest request, Page page, CategoryPageUrlFormat.Params params) {
+        public String toExternalCategoryUrl(SlingHttpServletRequest request, Page page, CategoryUrlFormat.Params params) {
             String externalPath = externalize(page, params.getPage());
             // if externalized we must not pass page to the url provider as this will overwrite the path again. this will break the specific
             // page selection if enabled but for canonical urls we don't want this to be active anyway
             if (externalPath != null) {
                 // make a copy
-                params = new CategoryPageUrlFormat.Params(params);
+                params = new CategoryUrlFormat.Params(params);
                 params.setPage(externalPath);
                 return urlProvider.toCategoryUrl(request, null, params);
             } else {

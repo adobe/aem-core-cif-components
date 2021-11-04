@@ -41,7 +41,7 @@ import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
-import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -186,7 +186,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @JsonIgnore
     public String getUrl() {
         if (getProduct() != null) {
-            ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+            ProductUrlFormat.Params params = new ProductUrlFormat.Params();
             params.setSku(combinedSku.getLeft());
             params.setVariantSku(combinedSku.getRight());
             // Get slug from base product

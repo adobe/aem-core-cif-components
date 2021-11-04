@@ -46,7 +46,7 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -552,7 +552,7 @@ public class ProductImplTest {
         when(externalizerProvider.getExternalizer(any())).thenReturn(externalizer);
         when(externalizer.toExternalProductUrl(any(), any(), any())).then(inv -> {
             // assert the parameters
-            ProductPageUrlFormat.Params parameters = inv.getArgumentAt(2, ProductPageUrlFormat.Params.class);
+            ProductUrlFormat.Params parameters = inv.getArgumentAt(2, ProductUrlFormat.Params.class);
             assertNotNull(parameters);
             assertEquals("beaumont-summit-kit", parameters.getUrlKey());
             assertEquals("MJ01", parameters.getSku());

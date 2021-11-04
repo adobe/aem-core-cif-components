@@ -42,7 +42,7 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -203,7 +203,7 @@ public class NavigationImpl implements Navigation {
         }
 
         for (CategoryTree child : children) {
-            CategoryPageUrlFormat.Params params = new CategoryPageUrlFormat.Params(child);
+            CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(child);
             String url = urlProvider.toCategoryUrl(request, categoryPage, params);
             boolean active = request.getRequestURI().equals(url);
             CategoryNavigationItem navigationItem = new CategoryNavigationItem(null, child.getName(), url, active, child, request,
@@ -300,7 +300,7 @@ public class NavigationImpl implements Navigation {
             List<NavigationItem> pages = new ArrayList<>();
 
             for (CategoryTree child : children) {
-                CategoryPageUrlFormat.Params params = new CategoryPageUrlFormat.Params(child);
+                CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(child);
                 String url = urlProvider.toCategoryUrl(request, categoryPage, params);
                 boolean active = request.getRequestURI().equals(url);
                 pages.add(new CategoryNavigationItem(this, child.getName(), url, active, child, request, categoryPage));

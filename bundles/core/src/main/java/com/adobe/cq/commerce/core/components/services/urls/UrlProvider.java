@@ -87,7 +87,7 @@ public interface UrlProvider {
      * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
      * @param params The parameters used in the URL template.
      * @return The product URL.
-     * @deprecated use {@link UrlProvider#toProductUrl(SlingHttpServletRequest, Page, ProductPageUrlFormat.Params)} instead
+     * @deprecated use {@link UrlProvider#toProductUrl(SlingHttpServletRequest, Page, ProductUrlFormat.Params)} instead
      */
     @Deprecated
     String toProductUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, Map<String, String> params);
@@ -103,7 +103,7 @@ public interface UrlProvider {
      * @param params The parameters used in the URL template.
      * @return The product URL.
      */
-    String toProductUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, ProductPageUrlFormat.Params params);
+    String toProductUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, ProductUrlFormat.Params params);
 
     /**
      * Returns the product page URL. Only the product identifier must be provided, the implementation will query the needed URL
@@ -128,7 +128,7 @@ public interface UrlProvider {
      * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
      * @param params The parameters used in the URL template.
      * @return The category URL.
-     * @deprecated use {@link UrlProvider#toCategoryUrl(SlingHttpServletRequest, Page, CategoryPageUrlFormat.Params)} instead
+     * @deprecated use {@link UrlProvider#toCategoryUrl(SlingHttpServletRequest, Page, CategoryUrlFormat.Params)} instead
      */
     @Deprecated
     String toCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, Map<String, String> params);
@@ -144,7 +144,7 @@ public interface UrlProvider {
      * @param params The parameters used in the URL template.
      * @return The category URL.
      */
-    String toCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, CategoryPageUrlFormat.Params params);
+    String toCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, CategoryUrlFormat.Params params);
 
     /**
      * Returns the category page URL. Only the category identifier must be provided, the implementation will query the needed URL

@@ -18,8 +18,8 @@ package com.adobe.cq.commerce.core.components.internal.services.sitemap;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.osgi.annotation.versioning.ProviderType;
 
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
-import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.day.cq.wcm.api.Page;
 import com.drew.lang.annotations.NotNull;
 import com.drew.lang.annotations.Nullable;
@@ -33,7 +33,7 @@ import com.drew.lang.annotations.Nullable;
 public interface SitemapLinkExternalizer {
 
     /**
-     * This method returns an external, canonical url for the given {@link ProductPageUrlFormat.Params}. It uses the
+     * This method returns an external, canonical url for the given {@link ProductUrlFormat.Params}. It uses the
      * {@link com.adobe.cq.commerce.core.components.services.urls.UrlProvider} internally.
      *
      * @param request
@@ -42,10 +42,10 @@ public interface SitemapLinkExternalizer {
      * @return
      */
     @NotNull
-    String toExternalProductUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, ProductPageUrlFormat.Params params);
+    String toExternalProductUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, ProductUrlFormat.Params params);
 
     /**
-     * This method returns an external, canonical url for the given {@link CategoryPageUrlFormat.Params}. It uses the
+     * This method returns an external, canonical url for the given {@link CategoryUrlFormat.Params}. It uses the
      * {@link com.adobe.cq.commerce.core.components.services.urls.UrlProvider} internally.
      *
      * @param request
@@ -54,5 +54,5 @@ public interface SitemapLinkExternalizer {
      * @return
      */
     @NotNull
-    String toExternalCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, CategoryPageUrlFormat.Params params);
+    String toExternalCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, CategoryUrlFormat.Params params);
 }

@@ -47,7 +47,7 @@ import com.adobe.cq.commerce.core.components.internal.storefrontcontext.Category
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
@@ -260,7 +260,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
             if (category != null && categoryPage != null && sitemapLinkExternalizerProvider != null) {
                 canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
-                    .toExternalCategoryUrl(request, categoryPage, new CategoryPageUrlFormat.Params(category));
+                    .toExternalCategoryUrl(request, categoryPage, new CategoryUrlFormat.Params(category));
             } else {
                 // fallback to legacy logic
                 if (isAuthor) {

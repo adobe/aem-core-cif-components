@@ -46,7 +46,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.sitemap.SitemapCategoryFilter;
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -153,7 +153,7 @@ public class CategoriesSitemapGenerator extends SitemapGeneratorBase implements 
 
                 if (!categoryId.equals(rootCategoryIdentifier) && !ignoredByFilter) {
                     // skip root category, and ignored categories
-                    CategoryPageUrlFormat.Params params = new CategoryPageUrlFormat.Params(category);
+                    CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(category);
                     params.setPage(categoryPage.getPath());
                     String urlStr = externalizer.toExternalCategoryUrl(null, null, params);
                     Url url = sitemap.addUrl(urlStr);

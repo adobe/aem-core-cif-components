@@ -52,7 +52,7 @@ import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLi
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
@@ -515,7 +515,7 @@ public class ProductListImplTest {
         when(externalizerProvider.getExternalizer(any())).thenReturn(externalizer);
         when(externalizer.toExternalCategoryUrl(any(), any(), any())).then(inv -> {
             // assert the parameters
-            CategoryPageUrlFormat.Params parameters = inv.getArgumentAt(2, CategoryPageUrlFormat.Params.class);
+            CategoryUrlFormat.Params parameters = inv.getArgumentAt(2, CategoryUrlFormat.Params.class);
             assertEquals("running-key", parameters.getUrlKey());
             assertEquals("running", parameters.getUrlPath());
             assertEquals("MTI==", parameters.getUid());

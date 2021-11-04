@@ -19,10 +19,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 
-import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 
-public class ProductPageWithSku extends UrlFormatBase implements ProductPageUrlFormat {
-    public static final ProductPageUrlFormat INSTANCE = new ProductPageWithSku();
+public class ProductPageWithSku extends UrlFormatBase implements ProductUrlFormat {
+    public static final ProductUrlFormat INSTANCE = new ProductPageWithSku();
     public static final String PATTERN = "{{page}}.html/{{sku}}.html#{{variant_sku}}";
 
     private ProductPageWithSku() {

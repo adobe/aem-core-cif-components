@@ -41,7 +41,7 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.models.breadcrumb.Breadcrumb;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -191,7 +191,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
     private void addCategoryItem(ID uid, String urlKey, String urlPath, String name, boolean isActive) {
         // if the dynamic category page is null, the category item is not rendered
         if (categoryPage != null) {
-            CategoryPageUrlFormat.Params params = new CategoryPageUrlFormat.Params();
+            CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
             params.setUid(uid.toString());
             params.setUrlKey(urlKey);
             params.setUrlPath(urlPath);

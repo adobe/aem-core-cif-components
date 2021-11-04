@@ -18,7 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.services.sitemap;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.testing.TestContext;
 import com.day.cq.wcm.api.Page;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -48,7 +48,7 @@ public class SitemapLinkExternalizerTest {
 
         // when
         SitemapLinkExternalizer externalizer = subject.getExternalizer(aemContext.resourceResolver());
-        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
         params.setPage(page.getPath());
         params.setUrlKey("foobar");
 
@@ -67,7 +67,7 @@ public class SitemapLinkExternalizerTest {
 
         // when
         SitemapLinkExternalizer externalizer = subject.getExternalizer(aemContext.resourceResolver());
-        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
         params.setPage("/does/not/exist");
         params.setUrlKey("foobar");
 
@@ -90,7 +90,7 @@ public class SitemapLinkExternalizerTest {
 
         // when
         SitemapLinkExternalizer externalizer = subject.getExternalizer(aemContext.resourceResolver());
-        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
         params.setPage(page.getPath());
         params.setUrlKey("foobar");
         String externalUrl = externalizer.toExternalProductUrl(aemContext.request(), null, params);

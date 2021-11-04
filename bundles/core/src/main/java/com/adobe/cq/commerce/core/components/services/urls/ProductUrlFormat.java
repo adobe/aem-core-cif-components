@@ -36,10 +36,10 @@ import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
  * optional.
  */
 @ConsumerType
-public interface ProductPageUrlFormat extends GenericUrlFormat<ProductPageUrlFormat.Params> {
+public interface ProductUrlFormat extends GenericUrlFormat<ProductUrlFormat.Params> {
 
     /**
-     * Instances of this class hold the parameters used by implementations of the {@link ProductPageUrlFormat}.
+     * Instances of this class hold the parameters used by implementations of the {@link ProductUrlFormat}.
      */
     @ProviderType
     final class Params {

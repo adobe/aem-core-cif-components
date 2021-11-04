@@ -43,8 +43,8 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceI
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
-import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.export.json.ComponentExporter;
@@ -127,7 +127,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 CommerceIdentifier identifier = null;
 
                 if (categoryId != null) {
-                    CategoryPageUrlFormat.Params params = null;
+                    CategoryUrlFormat.Params params = null;
                     try {
                         params = Optional.ofNullable(categoriesRetriever)
                             .map(AbstractCategoriesRetriever::fetchCategories)
@@ -135,21 +135,21 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                             .flatMap(categories -> categories
                                 .filter(category -> category.getUid().toString().equals(categoryId))
                                 .findAny())
-                            .map(CategoryPageUrlFormat.Params::new)
+                            .map(CategoryUrlFormat.Params::new)
                             .orElse(null);
 
                     } catch (RuntimeException x) {
                         LOGGER.warn("Failed to fetch category for id: {}", categoryId);
                     }
                     if (params == null) {
-                        params = new CategoryPageUrlFormat.Params();
+                        params = new CategoryUrlFormat.Params();
                         params.setUid(categoryId);
                     }
                     actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params);
                     identifier = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY);
                 } else if (productSlug != null) {
-                    ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+                    ProductUrlFormat.Params params = new ProductUrlFormat.Params();
                     params.setUrlKey(productSlug);
                     actionUrl = urlProvider.toProductUrl(request, productPage, params);
                     identifier = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.URL_KEY,

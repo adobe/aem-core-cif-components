@@ -19,10 +19,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 
-public class CategoryPageWithUrlPath extends UrlFormatBase implements CategoryPageUrlFormat {
-    public static final CategoryPageUrlFormat INSTANCE = new CategoryPageWithUrlPath();
+public class CategoryPageWithUrlPath extends UrlFormatBase implements CategoryUrlFormat {
+    public static final CategoryUrlFormat INSTANCE = new CategoryPageWithUrlPath();
     public static final String PATTERN = "{{page}}.html/{{url_path}}.html";
 
     private CategoryPageWithUrlPath() {

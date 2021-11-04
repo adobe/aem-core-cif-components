@@ -35,8 +35,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
-import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -126,7 +126,7 @@ public class ButtonImpl implements Button {
                         productPage = currentPage;
                     }
 
-                    ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+                    ProductUrlFormat.Params params = new ProductUrlFormat.Params();
                     params.setUrlKey(productSlug);
                     url = urlProvider.toProductUrl(request, productPage, params);
                 } else {
@@ -142,16 +142,16 @@ public class ButtonImpl implements Button {
                         categoryPage = currentPage;
                     }
 
-                    CategoryPageUrlFormat.Params params = null;
+                    CategoryUrlFormat.Params params = null;
                     if (magentoGraphqlClient != null) {
                         CategoryRetriever categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
                         categoryRetriever.setIdentifier(categoryId);
                         CategoryInterface category = categoryRetriever.fetchCategory();
                         if (category != null) {
-                            params = new CategoryPageUrlFormat.Params(category);
+                            params = new CategoryUrlFormat.Params(category);
                         }
                     }
-                    url = urlProvider.toCategoryUrl(request, categoryPage, params != null ? params : new CategoryPageUrlFormat.Params());
+                    url = urlProvider.toCategoryUrl(request, categoryPage, params != null ? params : new CategoryUrlFormat.Params());
                 } else {
                     LOGGER.debug("Can not get Category identifier!");
                 }

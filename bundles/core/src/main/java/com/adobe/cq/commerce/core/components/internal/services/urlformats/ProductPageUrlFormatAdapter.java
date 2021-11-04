@@ -18,11 +18,11 @@ package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 
-import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 
 @Deprecated
-public class ProductPageUrlFormatAdapter implements ProductPageUrlFormat {
+public class ProductPageUrlFormatAdapter implements ProductUrlFormat {
 
     private final UrlFormat delegate;
 

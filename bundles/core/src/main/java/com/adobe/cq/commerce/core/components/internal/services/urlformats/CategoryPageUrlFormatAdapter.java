@@ -18,11 +18,11 @@ package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 
 @Deprecated
-public class CategoryPageUrlFormatAdapter implements CategoryPageUrlFormat {
+public class CategoryPageUrlFormatAdapter implements CategoryUrlFormat {
 
     private final UrlFormat delegate;
 

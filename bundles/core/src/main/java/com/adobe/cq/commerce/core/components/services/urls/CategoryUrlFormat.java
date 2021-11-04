@@ -30,10 +30,10 @@ import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
  * optional.
  */
 @ConsumerType
-public interface CategoryPageUrlFormat extends GenericUrlFormat<CategoryPageUrlFormat.Params> {
+public interface CategoryUrlFormat extends GenericUrlFormat<CategoryUrlFormat.Params> {
 
     /**
-     * Instances of this class hold the parameters used by implementations of the {@link CategoryPageUrlFormat}.
+     * Instances of this class hold the parameters used by implementations of the {@link CategoryUrlFormat}.
      */
     @ProviderType
     final class Params {

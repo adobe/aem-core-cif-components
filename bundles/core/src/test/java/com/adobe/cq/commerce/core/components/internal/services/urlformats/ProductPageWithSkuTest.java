@@ -18,25 +18,25 @@ package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class ProductPageWithSkuTest {
 
-    public final ProductPageUrlFormat subject = ProductPageWithSku.INSTANCE;
+    public final ProductUrlFormat subject = ProductPageWithSku.INSTANCE;
 
     @Test
     public void testFormatWithMissingParameters() {
-        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
 
         assertEquals("{{page}}.html/{{sku}}.html", subject.format(params));
     }
 
     @Test
     public void testFormat() {
-        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
         params.setPage("/page/path");
         params.setSku("foo-bar");
         assertEquals("/page/path.html/foo-bar.html", subject.format(params));
@@ -51,7 +51,7 @@ public class ProductPageWithSkuTest {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
         pathInfo.setSuffix("/foo-bar.html");
-        ProductPageUrlFormat.Params parameters = subject.parse(pathInfo, null);
+        ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
         assertEquals("/page/path", parameters.getPage());
         assertEquals("foo-bar", parameters.getSku());
@@ -59,7 +59,7 @@ public class ProductPageWithSkuTest {
 
     @Test
     public void testParseNull() {
-        ProductPageUrlFormat.Params parameters = subject.parse(null, null);
+        ProductUrlFormat.Params parameters = subject.parse(null, null);
         assertNull(parameters.getPage());
         assertNull(parameters.getSku());
         assertNull(parameters.getUrlKey());
@@ -70,7 +70,7 @@ public class ProductPageWithSkuTest {
     public void testParseNoSuffix() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
-        ProductPageUrlFormat.Params parameters = subject.parse(pathInfo, null);
+        ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
         assertEquals("/page/path", parameters.getPage());
         assertNull(parameters.getSku());

@@ -18,25 +18,25 @@ package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class CategoryPageWithUrlKeyTest {
 
-    public final CategoryPageUrlFormat subject = CategoryPageWithUrlKey.INSTANCE;
+    public final CategoryUrlFormat subject = CategoryPageWithUrlKey.INSTANCE;
 
     @Test
     public void testFormatWithMissingParameters() {
-        CategoryPageUrlFormat.Params params = new CategoryPageUrlFormat.Params();
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
 
         assertEquals("{{page}}.html/{{url_key}}.html", subject.format(params));
     }
 
     @Test
     public void testFormat() {
-        CategoryPageUrlFormat.Params params = new CategoryPageUrlFormat.Params();
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
         params.setPage("/page/path");
         params.setUrlKey("foo-bar");
 
@@ -45,7 +45,7 @@ public class CategoryPageWithUrlKeyTest {
 
     @Test
     public void testFormatWithUrlKeyAndUrlPath() {
-        CategoryPageUrlFormat.Params params = new CategoryPageUrlFormat.Params();
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
         params.setPage("/page/path");
         params.setUrlKey("foo-bar");
         params.setUrlPath("foo-bar2");
@@ -54,7 +54,7 @@ public class CategoryPageWithUrlKeyTest {
 
     @Test
     public void testFormatWithUrlPath() {
-        CategoryPageUrlFormat.Params params = new CategoryPageUrlFormat.Params();
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
         params.setPage("/page/path");
         params.setUrlPath("foo-bar2");
         assertEquals("/page/path.html/foo-bar2.html", subject.format(params));
@@ -65,7 +65,7 @@ public class CategoryPageWithUrlKeyTest {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
         pathInfo.setSuffix("/foo-bar.html");
-        CategoryPageUrlFormat.Params parameters = subject.parse(pathInfo, null);
+        CategoryUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
         assertEquals("/page/path", parameters.getPage());
         assertEquals("foo-bar", parameters.getUrlKey());
@@ -73,7 +73,7 @@ public class CategoryPageWithUrlKeyTest {
 
     @Test
     public void testParseNull() {
-        CategoryPageUrlFormat.Params parameters = subject.parse(null, null);
+        CategoryUrlFormat.Params parameters = subject.parse(null, null);
         assertNull(parameters.getPage());
         assertNull(parameters.getUid());
         assertNull(parameters.getUrlKey());
@@ -84,7 +84,7 @@ public class CategoryPageWithUrlKeyTest {
     public void testParseNoSuffix() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
-        CategoryPageUrlFormat.Params parameters = subject.parse(pathInfo, null);
+        CategoryUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
         assertEquals("/page/path", parameters.getPage());
         assertNull(parameters.getUrlKey());

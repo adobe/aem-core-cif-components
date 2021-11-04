@@ -28,7 +28,7 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
-import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
@@ -127,7 +127,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
             return "";
         }
 
-        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
         params.setSku(sku);
         params.setUrlKey(urlKey);
         params.setVariantSku(activeVariantSku);

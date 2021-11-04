@@ -40,7 +40,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.sitemap.SitemapProductFilter;
-import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -145,7 +145,7 @@ public class ProductsSitemapGenerator extends SitemapGeneratorBase implements Si
                         .getSimpleName());
                     continue;
                 }
-                ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params(product);
+                ProductUrlFormat.Params params = new ProductUrlFormat.Params(product);
                 params.setPage(productPage.getPath());
                 String urlStr = externalizer.toExternalProductUrl(null, null, params);
                 Url url = sitemap.addUrl(urlStr);

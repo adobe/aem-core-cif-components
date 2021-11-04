@@ -20,7 +20,7 @@ import java.util.Arrays;
 import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.services.urls.ProductPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 
 import static org.junit.Assert.assertEquals;
@@ -28,18 +28,18 @@ import static org.junit.Assert.assertNull;
 
 public class ProductPageWithUrlPathTest {
 
-    public final ProductPageUrlFormat subject = ProductPageWithUrlPath.INSTANCE;
+    public final ProductUrlFormat subject = ProductPageWithUrlPath.INSTANCE;
 
     @Test
     public void testFormatWithMissingParameters() {
-        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
 
         assertEquals("{{page}}.html/{{url_path}}.html", subject.format(params));
     }
 
     @Test
     public void testFormat() {
-        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
         params.setPage("/page/path");
         params.setUrlPath("foo-bar");
 
@@ -52,7 +52,7 @@ public class ProductPageWithUrlPathTest {
 
     @Test
     public void testFormatWithUrlRewrites() {
-        ProductPageUrlFormat.Params params = new ProductPageUrlFormat.Params();
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
         params.setPage("/page/path");
         params.setUrlKey("bar");
         params.setUrlRewrites(Arrays.asList(
@@ -71,7 +71,7 @@ public class ProductPageWithUrlPathTest {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
         pathInfo.setSuffix("/foo-bar.html");
-        ProductPageUrlFormat.Params parameters = subject.parse(pathInfo, null);
+        ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
         assertEquals("/page/path", parameters.getPage());
         assertEquals("foo-bar", parameters.getUrlPath());
@@ -79,7 +79,7 @@ public class ProductPageWithUrlPathTest {
 
     @Test
     public void testParseNull() {
-        ProductPageUrlFormat.Params parameters = subject.parse(null, null);
+        ProductUrlFormat.Params parameters = subject.parse(null, null);
         assertNull(parameters.getPage());
         assertNull(parameters.getSku());
         assertNull(parameters.getUrlKey());
@@ -90,7 +90,7 @@ public class ProductPageWithUrlPathTest {
     public void testParseNoSuffix() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
-        ProductPageUrlFormat.Params parameters = subject.parse(pathInfo, null);
+        ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
         assertEquals("/page/path", parameters.getPage());
         assertNull(parameters.getUrlPath());

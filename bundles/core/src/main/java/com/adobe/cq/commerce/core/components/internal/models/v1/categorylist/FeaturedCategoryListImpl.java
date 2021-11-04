@@ -45,7 +45,7 @@ import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategor
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryListItem;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
-import com.adobe.cq.commerce.core.components.services.urls.CategoryPageUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -153,7 +153,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
         List<CategoryTree> categories = categoriesRetriever.fetchCategories();
         for (CategoryTree category : categories) {
-            CategoryPageUrlFormat.Params params = new CategoryPageUrlFormat.Params(category);
+            CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(category);
             category.setPath(urlProvider.toCategoryUrl(request, categoryPage, params));
 
             // Replace image if there is an asset override
