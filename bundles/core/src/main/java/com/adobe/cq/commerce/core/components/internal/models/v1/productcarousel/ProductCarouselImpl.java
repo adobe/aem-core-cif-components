@@ -52,6 +52,7 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
+import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
 import com.day.cq.wcm.api.Page;
@@ -153,7 +154,10 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
                     continue; // Can happen that a product is not found
                 }
 
-                String slug = product.getUrlKey();
+                // retain urlKey, urlPath and urlRewrites from the base product
+                String urlKey = product.getUrlKey();
+                String urlPath = product.getUrlPath();
+                List<UrlRewrite> urlRewrites = product.getUrlRewrites();
                 if (skus.getRight() != null && product instanceof ConfigurableProduct) {
                     SimpleProduct variant = findVariant((ConfigurableProduct) product, skus.getRight());
                     if (variant != null) {
@@ -166,7 +170,9 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
                         .product(product)
                         .image(product.getThumbnail())
                         .sku(skus.getLeft())
-                        .urlKey(slug)
+                        .urlKey(urlKey)
+                        .urlPath(urlPath)
+                        .urlRewrites(urlRewrites)
                         .variantSku(skus.getRight());
                     carouselProductList.add(builder.build());
                 } catch (Exception e) {
