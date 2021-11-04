@@ -30,6 +30,69 @@
     max-height: 240px;
 }
 
+.card button {
+    margin: 1px;
+}
+
+.addToCart {
+    align-items: center;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    line-height: 1;
+    pointer-events: auto;
+    text-align: center;
+    white-space: nowrap;
+    background: none;
+    border: 1px solid rgb(var(--color));
+    border-radius: 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    height: 2rem;
+    min-width: 7.5rem;
+    padding: 0 1rem;
+    transition-duration: 384ms;
+    transition-property: background-color, color;
+    transition-timing-function: var(--venia-anim-standard);
+    --color: var(--venia-text);
+    color: white;
+    background-color: rgb(var(--color));
+}
+
+.addToCart:hover {
+    color: white;
+    background-color: rgb(var(--venia-teal));
+}
+
+.addToWishlist {
+    align-items: center;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    line-height: 1;
+    pointer-events: auto;
+    text-align: center;
+    white-space: nowrap;
+    background: none;
+    border: 1px solid rgb(var(--venia-text));
+    border-radius: 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    height: 2rem;
+    min-width: 7.5rem;
+    padding: 0 1rem;
+    transition-duration: 384ms;
+    transition-property: background-color, color;
+    transition-timing-function: var(--venia-anim-standard);
+    color: var(--venia-text);
+    background-color: rgb(var(--venia-global-color-gray-50));
+}
+
+.addToWishlist:hover {
+    color: white;
+    background-color: rgb(var(--venia-teal));
+}
+
 .price {
     font-size: 0.875rem;
     line-height: 1rem;

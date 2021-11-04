@@ -74,7 +74,26 @@ describe('ProductCard', () => {
 
         const { queryByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
 
-        fireEvent.click(queryByRole('button'));
+        fireEvent.click(
+            queryByRole('button', {
+                name: /add to cart/i
+            })
+        );
+        expect(eventListener).toHaveBeenCalledTimes(1);
+        expect(mse.publish.recsItemAddToCartClick).toHaveBeenCalledWith(unit.unitId, product.productId);
+    });
+
+    it('triggers an add to wishlist event', () => {
+        const eventListener = jest.fn();
+        document.addEventListener('aem.cif.add-to-wishlist', eventListener);
+
+        const { queryByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
+
+        fireEvent.click(
+            queryByRole('button', {
+                name: /add to wishlist/i
+            })
+        );
         expect(eventListener).toHaveBeenCalledTimes(1);
         expect(mse.publish.recsItemAddToCartClick).toHaveBeenCalledWith(unit.unitId, product.productId);
     });

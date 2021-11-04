@@ -2,7 +2,13 @@
   "productrecs:add-to-cart": [
     {
       "type": 0,
-      "value": "Add to cart"
+      "value": "Add to Cart"
+    }
+  ],
+  "productrecs:add-to-wishlist": [
+    {
+      "type": 0,
+      "value": "Add to Wishlist"
     }
   ],
   "productrecs:price-from": [

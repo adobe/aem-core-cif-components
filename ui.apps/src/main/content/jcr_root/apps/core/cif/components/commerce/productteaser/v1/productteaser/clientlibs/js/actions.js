@@ -26,8 +26,8 @@ class ProductTeaser {
     constructor(element) {
         this.virtual = element.dataset.virtual !== undefined;
 
-        const actionButton = element.querySelector(`.productteaser__cta button`);
-        if (actionButton != null) {
+        const actionButtons = element.querySelectorAll(`.productteaser__cta button`);
+        actionButtons.forEach(actionButton => {
             const action = actionButton.dataset['action'];
             let actionHandler;
             switch (action) {
@@ -37,6 +37,9 @@ class ProductTeaser {
                 case 'details':
                     actionHandler = this._seeDetailsHandler;
                     break;
+                case 'wishlist':
+                    actionHandler = this._addToWishlistHandler.bind(this);
+                    break;
                 default:
                     actionHandler = this._noOpHandler;
             }
@@ -45,7 +48,7 @@ class ProductTeaser {
                 const element = ev.currentTarget;
                 actionHandler(element.dataset);
             });
-        }
+        });
     }
 
     _noOpHandler() {
@@ -56,6 +59,14 @@ class ProductTeaser {
         const sku = dataset['itemSku'];
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
             detail: [{ sku, quantity: 1, virtual: this.virtual }]
+        });
+        document.dispatchEvent(customEvent);
+    }
+
+    _addToWishlistHandler(dataset) {
+        const sku = dataset['itemSku'];
+        const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+            detail: [{ sku, quantity: 1 }]
         });
         document.dispatchEvent(customEvent);
     }
