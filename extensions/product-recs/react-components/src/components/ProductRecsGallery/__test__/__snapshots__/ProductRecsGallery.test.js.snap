@@ -48,7 +48,17 @@ exports[`ProductRecsGallery renders a list of products 1`] = `
           <span
             class="addToCart"
           >
-            Add to cart
+            Add to Cart
+          </span>
+        </button>
+        <button
+          class="cmp-Trigger__trigger__root cmp-components__clickable__root"
+          type="button"
+        >
+          <span
+            class="addToWishlist"
+          >
+            Add to Wishlist
           </span>
         </button>
       </div>
@@ -88,7 +98,17 @@ exports[`ProductRecsGallery renders a list of products 1`] = `
           <span
             class="addToCart"
           >
-            Add to cart
+            Add to Cart
+          </span>
+        </button>
+        <button
+          class="cmp-Trigger__trigger__root cmp-components__clickable__root"
+          type="button"
+        >
+          <span
+            class="addToWishlist"
+          >
+            Add to Wishlist
           </span>
         </button>
       </div>

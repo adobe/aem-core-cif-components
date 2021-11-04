@@ -95,7 +95,6 @@ describe('ProductCard', () => {
             })
         );
         expect(eventListener).toHaveBeenCalledTimes(1);
-        expect(mse.publish.recsItemAddToCartClick).toHaveBeenCalledWith(unit.unitId, product.productId);
     });
 
     it('redirects to the product page', () => {
