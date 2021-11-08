@@ -6,7 +6,8 @@
           "__typename": "SimpleProduct",
           "name": "Summit Watch",
           "image": {
-            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/summit-watch/mg03-br-0.jpg"
+            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/summit-watch/mg03-br-0.jpg",
+            "label": "Summit Watch"
           },
           "url_key": "summit-watch",
           "price_range": {
