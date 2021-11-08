@@ -304,7 +304,7 @@ const BundleProductOptions = () => {
                     <span className="button__content">
                         <span>
                             {intl.formatMessage({
-                                id: 'product:add-item-wishlist',
+                                id: 'product:add-to-wishlist',
                                 defaultMessage: 'Add to Wish List'
                             })}
                         </span>

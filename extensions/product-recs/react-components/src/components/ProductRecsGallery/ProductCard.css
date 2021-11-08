@@ -59,11 +59,6 @@
     background-color: rgb(var(--color));
 }
 
-.addToCart:hover {
-    color: white;
-    background-color: rgb(var(--venia-teal));
-}
-
 .addToWishlist {
     align-items: center;
     cursor: pointer;
@@ -88,6 +83,7 @@
     background-color: rgb(var(--venia-global-color-gray-50));
 }
 
+.addToCart:hover,
 .addToWishlist:hover {
     color: white;
     background-color: rgb(var(--venia-teal));

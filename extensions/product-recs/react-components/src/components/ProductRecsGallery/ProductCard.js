@@ -89,7 +89,7 @@ const ProductCard = props => {
             )}
             <Trigger className={classes.buttonMargin} action={() => addToWishlist(props.product)}>
                 <span className={classes.addToWishlist}>
-                    {intl.formatMessage({ id: 'productrecs:add-to-wishlist', defaultMessage: 'Add to Wishlist' })}
+                    {intl.formatMessage({ id: 'productrecs:add-to-wishlist', defaultMessage: 'Add to Wish List' })}
                 </span>
             </Trigger>
         </div>
