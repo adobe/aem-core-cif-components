@@ -83,7 +83,7 @@ describe('ProductCard', () => {
         expect(mse.publish.recsItemAddToCartClick).toHaveBeenCalledWith(unit.unitId, product.productId);
     });
 
-    it('triggers an add to wishlist event', () => {
+    it('triggers an add to Wish List event', () => {
         const eventListener = jest.fn();
         document.addEventListener('aem.cif.add-to-wishlist', eventListener);
 
@@ -91,7 +91,7 @@ describe('ProductCard', () => {
 
         fireEvent.click(
             queryByRole('button', {
-                name: /add to wishlist/i
+                name: /add to Wish List/i
             })
         );
         expect(eventListener).toHaveBeenCalledTimes(1);

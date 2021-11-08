@@ -58,7 +58,7 @@ exports[`ProductRecsGallery renders a list of products 1`] = `
           <span
             class="addToWishlist"
           >
-            Add to Wishlist
+            Add to Wish List
           </span>
         </button>
       </div>
@@ -108,7 +108,7 @@ exports[`ProductRecsGallery renders a list of products 1`] = `
           <span
             class="addToWishlist"
           >
-            Add to Wishlist
+            Add to Wish List
           </span>
         </button>
       </div>

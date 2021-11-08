@@ -48,7 +48,7 @@ exports[`ProductCard renders a product card 1`] = `
       <span
         class="addToWishlist"
       >
-        Add to Wishlist
+        Add to Wish List
       </span>
     </button>
   </div>
@@ -104,7 +104,7 @@ exports[`ProductCard renders a product card with a price range 1`] = `
       <span
         class="addToWishlist"
       >
-        Add to Wishlist
+        Add to Wish List
       </span>
     </button>
   </div>
