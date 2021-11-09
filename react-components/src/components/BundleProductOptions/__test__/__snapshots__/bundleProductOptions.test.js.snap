@@ -369,6 +369,18 @@ exports[`BundleProductOptions renders the component with full options 1`] = `
         </span>
       </span>
     </button>
+    <button
+      class="button__root_normalPriority button__root clickable__root"
+      type="button"
+    >
+      <span
+        class="button__content"
+      >
+        <span>
+          Add to Wish List
+        </span>
+      </span>
+    </button>
   </section>
 </DocumentFragment>
 `;

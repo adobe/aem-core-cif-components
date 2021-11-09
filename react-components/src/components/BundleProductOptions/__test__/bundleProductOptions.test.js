@@ -87,6 +87,9 @@ describe('BundleProductOptions', () => {
         // Add to cart should be called just once since the second click was on a disabled button
         await wait(() => expect(dispatchEventSpy).toHaveBeenCalledTimes(1));
 
+        // Add to wishlist should be called just once
+        await wait(() => expect(dispatchEventSpy).toHaveBeenCalledTimes(1));
+
         // The mock dispatchEvent function returns the CustomEvent detail
         expect(dispatchEventSpy).toHaveReturnedWith([
             {
@@ -100,6 +103,19 @@ describe('BundleProductOptions', () => {
                 quantity: 1,
                 sku: 'VA24',
                 virtual: false
+            }
+        ]);
+
+        dispatchEventSpy.mockClear();
+
+        fireEvent.click(getByRole('button', { name: 'Add to Wish List' }));
+
+        // The mock dispatchEvent function returns the CustomEvent detail
+        expect(dispatchEventSpy).toHaveReturnedWith([
+            {
+                quantity: 1,
+                selected_options: ['YnVuZGxlLzIvMy8x', 'YnVuZGxlLzMvNS8x', 'YnVuZGxlLzQvNy8x', 'YnVuZGxlLzQvOC8x'],
+                sku: 'VA24'
             }
         ]);
     });

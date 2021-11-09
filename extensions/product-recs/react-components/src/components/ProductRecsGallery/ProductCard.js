@@ -42,6 +42,15 @@ const ProductCard = props => {
         mse && mse.publish.recsItemAddToCartClick(unitId, productId);
     };
 
+    const addToWishlist = product => {
+        const { sku } = product;
+
+        const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+            detail: [{ sku, quantity: 1 }]
+        });
+        document.dispatchEvent(customEvent);
+    };
+
     const renderPrice = (prices, currency) => {
         const { minimum, maximum } = prices;
         const isRange = Math.round(minimum.final * 100) !== Math.round(maximum.final * 100);
@@ -72,12 +81,17 @@ const ProductCard = props => {
             </a>
             {// Only display add to cart button for products that can be added to cart without further customization
             ['simple', 'virtual', 'downloadable'].includes(type) && (
-                <Trigger action={() => addToCart(props.unit, props.product)}>
+                <Trigger className={classes.buttonMargin} action={() => addToCart(props.unit, props.product)}>
                     <span className={classes.addToCart}>
-                        {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to cart' })}
+                        {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to Cart' })}
                     </span>
                 </Trigger>
             )}
+            <Trigger className={classes.buttonMargin} action={() => addToWishlist(props.product)}>
+                <span className={classes.addToWishlist}>
+                    {intl.formatMessage({ id: 'productrecs:add-to-wishlist', defaultMessage: 'Add to Wish List' })}
+                </span>
+            </Trigger>
         </div>
     );
 };

@@ -38,7 +38,17 @@ exports[`ProductCard renders a product card 1`] = `
       <span
         class="addToCart"
       >
-        Add to cart
+        Add to Cart
+      </span>
+    </button>
+    <button
+      class="cmp-Trigger__trigger__root cmp-components__clickable__root"
+      type="button"
+    >
+      <span
+        class="addToWishlist"
+      >
+        Add to Wish List
       </span>
     </button>
   </div>
@@ -84,7 +94,17 @@ exports[`ProductCard renders a product card with a price range 1`] = `
       <span
         class="addToCart"
       >
-        Add to cart
+        Add to Cart
+      </span>
+    </button>
+    <button
+      class="cmp-Trigger__trigger__root cmp-components__clickable__root"
+      type="button"
+    >
+      <span
+        class="addToWishlist"
+      >
+        Add to Wish List
       </span>
     </button>
   </div>

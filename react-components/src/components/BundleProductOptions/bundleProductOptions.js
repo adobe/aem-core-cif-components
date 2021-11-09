@@ -171,6 +171,26 @@ const BundleProductOptions = () => {
         document.dispatchEvent(customEvent);
     };
 
+    const addToWishlist = () => {
+        const { selections, quantity } = bundleState;
+        const selected_options = [];
+        selections.forEach(s => {
+            s.customization.forEach(c => {
+                selected_options.push(btoa(`bundle/${s.option_id}/${c.id}/${s.quantity}`));
+            });
+        });
+        const productData = {
+            sku,
+            quantity: quantity,
+            selected_options
+        };
+
+        const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+            detail: [productData]
+        });
+        document.dispatchEvent(customEvent);
+    };
+
     const getTotalPrice = () => {
         const { selections, currencyCode } = bundleState;
         const price = selections.reduce((acc, selection) => {
@@ -275,6 +295,19 @@ const BundleProductOptions = () => {
                     onClick={addToCart}>
                     <span className="button__content">
                         <span>{intl.formatMessage({ id: 'product:add-item', defaultMessage: 'Add to Cart' })}</span>
+                    </span>
+                </button>
+                <button
+                    className="button__root_normalPriority button__root clickable__root"
+                    type="button"
+                    onClick={addToWishlist}>
+                    <span className="button__content">
+                        <span>
+                            {intl.formatMessage({
+                                id: 'product:add-to-wishlist',
+                                defaultMessage: 'Add to Wish List'
+                            })}
+                        </span>
                     </span>
                 </button>
             </section>
