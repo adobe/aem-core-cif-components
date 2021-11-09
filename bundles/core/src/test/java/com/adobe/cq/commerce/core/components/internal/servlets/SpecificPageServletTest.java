@@ -27,7 +27,6 @@ import org.apache.sling.servlethelpers.MockRequestDispatcherFactory;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
 import org.apache.sling.servlethelpers.MockSlingHttpServletResponse;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,9 +35,9 @@ import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
+import com.adobe.cq.commerce.core.testing.TestContext;
 import com.day.cq.wcm.api.WCMMode;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
@@ -46,16 +45,7 @@ import static org.mockito.Matchers.eq;
 public class SpecificPageServletTest {
 
     @Rule
-    public final AemContext context = createContext("/context/jcr-page-filter.json");
-
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                // Load page structure
-                context.load().json(contentPath, "/content");
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
+    public final AemContext context = TestContext.newAemContext("/context/jcr-page-filter.json");
 
     private SpecificPageServlet servlet;
     private MockSlingHttpServletRequest request;
@@ -73,6 +63,8 @@ public class SpecificPageServletTest {
 
         // The filter only does something on publish, so only when WCMMode is DISABLED
         request.setAttribute(WCMMode.class.getName(), WCMMode.DISABLED);
+
+        context.registerInjectActivateService(servlet);
     }
 
     @Test

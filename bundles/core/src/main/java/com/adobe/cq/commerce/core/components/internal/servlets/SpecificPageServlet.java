@@ -16,8 +16,9 @@
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
@@ -30,10 +31,11 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.servlets.ServletResolverConstants;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.day.cq.wcm.api.WCMMode;
 
 @Component(
@@ -54,9 +56,11 @@ public class SpecificPageServlet extends SlingSafeMethodsServlet {
 
     protected static final String SELECTOR = "cifpage";
 
+    @Reference
+    private SpecificPageStrategy specificPageStrategy;
+
     @Override
     public void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws ServletException, IOException {
-
         // We get two selectors like "cifpage.sku-1" (the 2nd selector is the commerce identifier)
         String[] selectors = request.getRequestPathInfo().getSelectors();
 
@@ -65,7 +69,8 @@ public class SpecificPageServlet extends SlingSafeMethodsServlet {
 
         if (WCMMode.DISABLED.equals(wcmMode)) {
             LOGGER.debug("Checking sub-pages for {} {}", request.getRequestURI(), page.getPath());
-            Resource subPage = UrlProviderImpl.toSpecificPage(page.getParent(), new HashSet<String>(Arrays.asList(selectors[1])), request);
+            Set<String> selectorValues = new HashSet<>(Collections.singletonList(selectors[1]));
+            Resource subPage = specificPageStrategy.getSpecificPage(page.getParent(), selectorValues, request, null);
             if (subPage != null) {
                 page = subPage;
             }
