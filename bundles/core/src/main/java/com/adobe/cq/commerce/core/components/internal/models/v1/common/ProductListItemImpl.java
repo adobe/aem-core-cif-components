@@ -68,8 +68,9 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         this.request = request;
         this.urlProvider = urlProvider;
         this.isStaged = isStaged;
-        this.identifier = activeVariantSku != null ? CommerceIdentifierImpl.fromProductSku(activeVariantSku)
-            : CommerceIdentifierImpl.fromProductSku(sku);
+        this.identifier = activeVariantSku != null
+            ? new CommerceIdentifierImpl(activeVariantSku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT)
+            : new CommerceIdentifierImpl(sku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT);
     }
 
     public ProductListItemImpl(ProductInterface product, Page productPage, String activeVariantSku, SlingHttpServletRequest request,
@@ -95,6 +96,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         this.urlProvider = urlProvider;
     }
 
+    @Deprecated
     public ProductListItemImpl(CommerceIdentifier identifier, String parentId, Page productPage) {
         super(parentId, productPage.getContentResource());
         this.identifier = identifier;

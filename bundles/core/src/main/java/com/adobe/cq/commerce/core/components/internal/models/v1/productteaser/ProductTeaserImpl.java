@@ -143,7 +143,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @Override
     public CommerceIdentifier getCommerceIdentifier() {
         if (getSku() != null) {
-            return CommerceIdentifierImpl.fromProductSku(getSku());
+            return new CommerceIdentifierImpl(getSku(), CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT);
         }
         return null;
     }

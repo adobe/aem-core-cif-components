@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
@@ -41,10 +40,10 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
@@ -61,6 +60,8 @@ import com.adobe.cq.export.json.ExporterConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -69,7 +70,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Exporter(
     name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
     extensions = ExporterConstants.SLING_MODEL_EXTENSION)
-public class ProductCarouselImpl extends DataLayerComponent implements ProductCarousel {
+public class ProductCarouselImpl extends ProductCarouselBase implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
@@ -211,14 +212,24 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
         return TitleTypeProvider.getTitleType(currentStyle, resource.getValueMap());
     }
 
+    @JsonProperty("productIdentifiers")
+    @JsonSerialize(contentUsing = CommerceIdentifierImplSerializer.class)
+    public List<CommerceIdentifier> getProductCommerceIdentifiers() {
+        if (baseProductSkus == null) {
+            return Collections.emptyList();
+        }
+        return baseProductSkus.stream().map(CommerceIdentifierImpl::new).collect(Collectors.toList());
+    }
+
     @Override
-    @Nonnull
+    @JsonIgnore
     public List<ProductListItem> getProductIdentifiers() {
         if (baseProductSkus == null) {
             return Collections.emptyList();
         }
-        return baseProductSkus.stream().map(sku -> new ProductListItemImpl(
-            CommerceIdentifierImpl.fromProductSku(sku), getId(), productPage))
+        return baseProductSkus.stream()
+            .map(CommerceIdentifierImpl::new)
+            .map(id -> new ProductListItemImpl(id, getId(), productPage))
             .collect(Collectors.toList());
     }
 
