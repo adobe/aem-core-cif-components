@@ -43,8 +43,6 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleType
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel.ProductCarouselBase;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
-import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier.EntityType;
-import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier.IdentifierType;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
@@ -158,7 +156,7 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
                 Price price = new PriceImpl(product.getPriceRange(), locale);
                 carouselProductList.add(new ProductListItemImpl(product.getSku(), product.getUrlKey(),
                     product.getName(), price, product.getThumbnail().getUrl(), product
-                    .getThumbnail().getLabel(), productPage, null, request,
+                        .getThumbnail().getLabel(), productPage, null, request,
                     urlProvider, this.getId(), product.getStaged()));
             } catch (Exception e) {
                 LOGGER.error("Failed to instantiate product " + (product != null ? product.getSku() : null), e);
