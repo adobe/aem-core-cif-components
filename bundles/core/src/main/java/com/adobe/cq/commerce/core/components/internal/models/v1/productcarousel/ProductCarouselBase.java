@@ -15,26 +15,34 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel;
 
-import java.io.IOException;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerListItem;
+import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ProductCarouselBase extends DataLayerComponent {
 
-    @JsonSerialize(as = CommerceIdentifier.class)
-    protected class CommerceIdentifierImpl extends DataLayerListItem implements CommerceIdentifier {
+    @Self
+    protected SlingHttpServletRequest request;
 
-        private final String sku;
+    /**
+     * And implementation of {@link CommerceIdentifier} that serializes to the same json format a {@link ProductListItemImpl} would
+     * serialize to given only the {@link CommerceIdentifier}.
+     */
+    protected class ListItemIdentifier extends DataLayerListItem implements CommerceIdentifier {
 
-        public CommerceIdentifierImpl(String sku) {
-            super(ProductCarouselBase.this.getId(), null);
-            this.sku = sku;
+        private final CommerceIdentifier commerceIdentifier;
+
+        public ListItemIdentifier(String sku) {
+            super(ProductCarouselBase.this.getId(), request.getResource());
+            this.commerceIdentifier = new CommerceIdentifierImpl(sku, IdentifierType.SKU, EntityType.PRODUCT);
         }
 
         @Override
@@ -43,34 +51,45 @@ public class ProductCarouselBase extends DataLayerComponent {
         }
 
         @Override
+        @JsonIgnore
         public String getValue() {
-            return sku;
+            return commerceIdentifier.getValue();
         }
 
         @Override
+        @JsonIgnore
         public IdentifierType getType() {
-            return IdentifierType.SKU;
+            return commerceIdentifier.getType();
         }
 
         @Override
+        @JsonIgnore
         public EntityType getEntityType() {
-            return EntityType.PRODUCT;
+            return commerceIdentifier.getEntityType();
         }
-    }
-
-    protected static class CommerceIdentifierImplSerializer extends JsonSerializer<CommerceIdentifierImpl> {
 
         @Override
-        public void serialize(CommerceIdentifierImpl commerceIdentifier, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
-            throws IOException {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("id", commerceIdentifier.getId());
-            jsonGenerator.writeObjectFieldStart("commerceIdentifier");
-            jsonGenerator.writeStringField("entityType", commerceIdentifier.getEntityType().toString());
-            jsonGenerator.writeStringField("value", commerceIdentifier.getValue());
-            jsonGenerator.writeStringField("type", commerceIdentifier.getType().toString());
-            jsonGenerator.writeEndObject();
-            jsonGenerator.writeEndObject();
+        public String getDataLayerType() {
+            return ProductListItemImpl.TYPE;
+        }
+
+        @Override
+        public String getDataLayerSKU() {
+            return this.getValue();
+        }
+
+        @Override
+        protected ComponentData getComponentData() {
+            return new ProductDataImpl(this, resource);
+        }
+
+        /**
+         * Returns the instance itself, used by the JSON Exporter only.
+         *
+         * @return
+         */
+        public CommerceIdentifier getCommerceIdentifier() {
+            return commerceIdentifier;
         }
     }
 }

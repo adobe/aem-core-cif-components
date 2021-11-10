@@ -73,9 +73,6 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
     protected static final String PN_PRODUCT = "product";
     protected static final String PN_RELATION_TYPE = "relationType";
 
-    @Self
-    private SlingHttpServletRequest request;
-
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
 
@@ -177,11 +174,10 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
     }
 
     @JsonProperty("productIdentifiers")
-    @JsonSerialize(contentUsing = CommerceIdentifierImplSerializer.class)
     public List<CommerceIdentifier> getProductCommerceIdentifiers() {
         return getProducts().stream()
             .map(ProductListItem::getSKU)
-            .map(CommerceIdentifierImpl::new)
+            .map(ListItemIdentifier::new)
             .collect(Collectors.toList());
     }
 
@@ -190,7 +186,7 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
     public List<ProductListItem> getProductIdentifiers() {
         return getProducts().stream()
             .map(ProductListItem::getSKU)
-            .map(CommerceIdentifierImpl::new)
+            .map(ListItemIdentifier::new)
             .map(id -> new ProductListItemImpl(id, getId(), productPage))
             .collect(Collectors.toList());
     }
@@ -209,7 +205,8 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
      *
      * @return
      */
+    @JsonSerialize(as = CommerceIdentifier.class)
     public CommerceIdentifier getCommerceIdentifier() {
-        return new CommerceIdentifierImpl(productSku);
+        return new ListItemIdentifier(productSku);
     }
 }

@@ -60,7 +60,6 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -73,9 +72,6 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
-
-    @Self
-    private SlingHttpServletRequest request;
 
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -212,12 +208,11 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
     }
 
     @JsonProperty("productIdentifiers")
-    @JsonSerialize(contentUsing = CommerceIdentifierImplSerializer.class)
     public List<CommerceIdentifier> getProductCommerceIdentifiers() {
         if (baseProductSkus == null) {
             return Collections.emptyList();
         }
-        return baseProductSkus.stream().map(CommerceIdentifierImpl::new).collect(Collectors.toList());
+        return baseProductSkus.stream().map(ListItemIdentifier::new).collect(Collectors.toList());
     }
 
     @Override
@@ -227,7 +222,7 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
             return Collections.emptyList();
         }
         return baseProductSkus.stream()
-            .map(CommerceIdentifierImpl::new)
+            .map(ListItemIdentifier::new)
             .map(id -> new ProductListItemImpl(id, getId(), productPage))
             .collect(Collectors.toList());
     }

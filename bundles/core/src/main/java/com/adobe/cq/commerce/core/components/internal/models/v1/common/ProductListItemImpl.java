@@ -39,6 +39,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ProductListItemImpl extends DataLayerListItem implements ProductListItem {
 
+    public static final String TYPE = "core/cif/components/commerce/productlistitem";
+
     private String sku;
     private String slug;
     private String name;
@@ -190,7 +192,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
 
     @Override
     public String getDataLayerType() {
-        return "core/cif/components/commerce/productlistitem";
+        return TYPE;
     }
 
     @Override
