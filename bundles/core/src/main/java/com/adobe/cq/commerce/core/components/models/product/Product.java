@@ -56,6 +56,8 @@ public interface Product extends Component, PageMetadata {
 
     Boolean isBundleProduct();
 
+    Boolean isGiftCardProduct();
+
     /**
      * The version 1 of the product component always returns <code>false</code> as it does not support this feature.
      * The version 2 of the product component does support this feature but it requires a Magento EE instance with
