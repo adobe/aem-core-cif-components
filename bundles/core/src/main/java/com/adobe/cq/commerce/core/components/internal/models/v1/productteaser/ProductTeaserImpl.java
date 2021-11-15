@@ -46,6 +46,7 @@ import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
+import com.adobe.cq.commerce.magento.graphql.DownloadableProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
@@ -171,6 +172,22 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @Override
     public String getCallToActionText() {
         return ctaText;
+    }
+
+    @Override
+    public String getCallToActionCommand() {
+        String ctaCommand = ProductTeaser.super.getCallToActionCommand();
+        if (CALL_TO_ACTION_COMMAND_ADD_TO_CART.equals(ctaCommand)) {
+            ProductInterface product = getProduct();
+            if (product != null && !oneClickShoppable(product)) {
+                ctaCommand = CALL_TO_ACTION_COMMAND_DETAILS;
+            }
+        }
+        return ctaCommand;
+    }
+
+    private boolean oneClickShoppable(ProductInterface product) {
+        return product instanceof SimpleProduct || product instanceof VirtualProduct || product instanceof DownloadableProduct;
     }
 
     @Override

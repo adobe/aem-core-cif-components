@@ -24,6 +24,10 @@ import com.adobe.cq.wcm.core.components.models.Component;
  * Product Teaser is the sling model interface for the CIF Teaser component.
  */
 public interface ProductTeaser extends Component {
+    String CALL_TO_ACTION_TYPE_ADD_TO_CART = "add-to-cart";
+    String CALL_TO_ACTION_TYPE_DETAILS = "details";
+    String CALL_TO_ACTION_COMMAND_ADD_TO_CART = "addToCart";
+    String CALL_TO_ACTION_COMMAND_DETAILS = CALL_TO_ACTION_TYPE_DETAILS;
 
     /**
      * Returns the identifier of this product.
@@ -83,6 +87,21 @@ public interface ProductTeaser extends Component {
      *         {@code null}
      */
     String getCallToActionText();
+
+    /**
+     * Returns the call to action command for the configured call to action.
+     *
+     * @return "addToCart" or "details" or {@code null} if call to action is not configured
+     */
+    default String getCallToActionCommand() {
+        if (CALL_TO_ACTION_TYPE_DETAILS.equals(getCallToAction())) {
+            return CALL_TO_ACTION_COMMAND_DETAILS;
+        } else if (CALL_TO_ACTION_TYPE_ADD_TO_CART.equals(getCallToAction())) {
+            return CALL_TO_ACTION_COMMAND_ADD_TO_CART;
+        }
+
+        return null;
+    }
 
     /**
      * Returns the price range.
