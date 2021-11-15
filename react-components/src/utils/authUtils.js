@@ -17,7 +17,9 @@ import { ApolloLink } from '@apollo/client';
 import { checkCookie, cookieValue } from './cookieUtils';
 import { checkItem, getJsonItem } from './localStorageUtils';
 
-const SIGN_IN_TOKEN_KEY = 'M2_VENIA_BROWSER_PERSISTENCE__signin_token';
+import BrowserPersistence from '@magento/peregrine/lib/util/simplePersistence';
+
+const SIGN_IN_TOKEN_KEY = BrowserPersistence.KEY + '__signin_token';
 
 const getAuthToken = () => {
     let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
