@@ -2,5 +2,95 @@
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
           jcr:primaryType="nt:unstructured"
           jcr:title="Product Recommendations"
+          sling:resourceType="cq/gui/components/authoring/dialog"
           trackingFeature="cif-core-components:productrecommendations:v1">
+    <content
+        jcr:primaryType="nt:unstructured"
+        sling:resourceType="granite/ui/components/coral/foundation/container">
+        <items jcr:primaryType="nt:unstructured">
+            <tabs
+                jcr:primaryType="nt:unstructured"
+                sling:resourceType="granite/ui/components/coral/foundation/tabs"
+                maximized="{Boolean}true">
+                <items jcr:primaryType="nt:unstructured">
+                    <recTypes
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Recommendation Types"
+                        sling:resourceType="granite/ui/components/coral/foundation/container"
+                        margin="{Boolean}true">
+                        <items jcr:primaryType="nt:unstructured">
+                            <column
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/container">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <allowedRecTypes
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                        fieldDescription="Recommendation types which authors can select when using the component in this template."
+                                        fieldLabel="Allowed Recommendation Types for Authors"
+                                        multiple="{Boolean}true"
+                                        name="./allowedRecTypes">
+                                        <items jcr:primaryType="nt:unstructured">
+                                            <mostViewed
+                                                jcr:primaryType="nt:unstructured"
+                                                text="Most viewed"
+                                                value="most-viewed"/>
+                                            <mostPurchased
+                                                jcr:primaryType="nt:unstructured"
+                                                text="Most purchased"
+                                                value="most-purchased"/>
+                                            <conversionRatePurchase
+                                                jcr:primaryType="nt:unstructured"
+                                                text="Conversion rate (purchase)"
+                                                value="purchase-session-conversion-rate"/>
+                                            <mostAddedToCart
+                                                jcr:primaryType="nt:unstructured"
+                                                text="Most added to cart"
+                                                value="most-added-to-cart"/>
+                                            <conversionRateAddToCart
+                                                jcr:primaryType="nt:unstructured"
+                                                text="Conversion rate (add-to-cart)"
+                                                value="add-to-cart-conversion-rate"/>
+                                            <trending
+                                                jcr:primaryType="nt:unstructured"
+                                                text="Trending"
+                                                value="trending"/>
+                                            <viewedViewed
+                                                jcr:primaryType="nt:unstructured"
+                                                text="Viewed this, viewed that"
+                                                value="viewed-viewed"/>
+                                            <viewedBought
+                                                jcr:primaryType="nt:unstructured"
+                                                text="Viewed this, bought that"
+                                                value="viewed-bought"/>
+                                            <boughtBought
+                                                jcr:primaryType="nt:unstructured"
+                                                text="Bought this, bought that"
+                                                value="bought-bought"/>
+                                            <moreLikeThis
+                                                jcr:primaryType="nt:unstructured"
+                                                text="More like this"
+                                                value="more-like-this"/>
+                                            <justForYou
+                                                jcr:primaryType="nt:unstructured"
+                                                text="Recommended for you"
+                                                value="just-for-you"/>
+                                            <recentlyViewed
+                                                jcr:primaryType="nt:unstructured"
+                                                text="Recently viewed"
+                                                value="recently-viewed"/>
+                                        </items>
+                                    </allowedRecTypes>
+                                </items>
+                            </column>
+                        </items>
+                    </recTypes>
+                    <styletab
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/include"
+                        path="/mnt/overlay/cq/gui/components/authoring/dialog/style/tab_design/styletab"/>
+                </items>
+            </tabs>
+        </items>
+    </content>
 </jcr:root>

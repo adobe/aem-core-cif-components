@@ -15,30 +15,28 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
-import org.junit.Test;
+import org.apache.sling.api.request.RequestParameterMap;
+import org.apache.sling.api.request.RequestPathInfo;
 
-import com.google.common.collect.ImmutableMap;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 
-import static org.junit.Assert.assertEquals;
+@Deprecated
+public class ProductPageUrlFormatAdapter implements ProductUrlFormat {
 
-public class AbstractUrlFormatTest {
+    private final UrlFormat delegate;
 
-    @Test
-    public void testGetUrlKeyReturnsUrlKeyFirst() {
-        assertEquals("url_key", AbstractUrlFormat.getUrlKey(ImmutableMap.of(
-            "url_key", "url_key",
-            "url_path", "url_path")));
+    public ProductPageUrlFormatAdapter(UrlFormat urlFormat) {
+        this.delegate = urlFormat;
     }
 
-    @Test
-    public void testGetUrlKeyReturnsUrlPathIfNoUrlKey() {
-        assertEquals("url_path", AbstractUrlFormat.getUrlKey(ImmutableMap.of(
-            "url_path", "url_path")));
+    @Override
+    public String format(Params parameters) {
+        return delegate.format(parameters.asMap());
     }
 
-    @Test
-    public void testGetUrlKeyReturnsLastUrlPathSegmentIfNoUrlKey() {
-        assertEquals("url_path", AbstractUrlFormat.getUrlKey(ImmutableMap.of(
-            "url_path", "foo/bar/url_path")));
+    @Override
+    public Params parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap) {
+        return new Params(delegate.parse(requestPathInfo, parameterMap));
     }
 }
