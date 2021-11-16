@@ -63,6 +63,10 @@ const GiftCartOptions = () => {
 
     useEffect(() => {
         const fetchGiftCardOptions = async () => {
+            if (!sku) {
+                console.error('SKU is not present in the dataset of mountpoint element');
+                return;
+            }
             const { data, error } = await giftCardProductQuery({ variables: { sku }, fetchPolicy: 'network-only' });
 
             if (error) {
@@ -119,7 +123,6 @@ const GiftCartOptions = () => {
     };
 
     const changeOptionValue = (uid, value) => {
-        console.log('changeOptionValue', uid, value);
         setGiftCardState({
             ...giftCardState,
             giftCardValues: {
@@ -177,7 +180,6 @@ const GiftCartOptions = () => {
         }
 
         for (const option of gift_card_options.filter(o => o.required)) {
-            console.log('option', option);
             if (entered_options[option.value.uid].trim() === '') {
                 return false;
             }
