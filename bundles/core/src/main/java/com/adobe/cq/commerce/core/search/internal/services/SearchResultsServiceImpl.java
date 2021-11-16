@@ -79,6 +79,7 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery.CategoryListArgumentsDefinition;
 import com.adobe.cq.commerce.magento.graphql.SortEnum;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 
@@ -390,6 +391,8 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 .name()
                 .smallImage(i -> i.url())
                 .urlKey()
+                .urlPath()
+                .urlRewrites(uq -> uq.url())
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp
@@ -435,7 +438,10 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         LOGGER.debug("Found {} products for search term", products.size());
 
-        ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, resource);
+        String resourceType = resource.getResourceType();
+        String prefix = StringUtils.substringAfterLast(resourceType, "/");
+        String parentId = ComponentUtils.generateId(prefix, resource.getPath());
+        ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, parentId);
 
         return products.stream()
             .map(converter)
