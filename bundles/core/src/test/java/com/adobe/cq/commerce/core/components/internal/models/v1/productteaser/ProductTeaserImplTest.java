@@ -49,7 +49,9 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
-import static com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser.*;
+import static com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserImpl.CALL_TO_ACTION_TEXT_ADD_TO_CART;
+import static com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserImpl.CALL_TO_ACTION_TYPE_ADD_TO_CART;
+import static com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserImpl.CALL_TO_ACTION_TYPE_DETAILS;
 import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.mockito.Mockito.when;
 
@@ -81,6 +83,7 @@ public class ProductTeaserImplTest {
     private static final String PRODUCTTEASER_NOCLIENT = "/content/pageA/jcr:content/root/responsivegrid/productteaser-noclient";
     private static final String PRODUCTTEASER_FULL = "/content/pageA/jcr:content/root/responsivegrid/productteaser-full";
     private static final String PRODUCTTEASER_CTA_TEST = "/content/pageA/jcr:content/root/responsivegrid/productteaser-cta-test";
+    private static final String PRODUCTTEASER_CTA_TEXT_TEST = "/content/pageA/jcr:content/root/responsivegrid/productteaser-cta-text-test";
 
     private Resource teaserResource;
     private Resource pageResource;
@@ -140,7 +143,6 @@ public class ProductTeaserImplTest {
     public void verifyCtaDetails() throws Exception {
         setUp(PRODUCTTEASER_VARIANT, false);
         Assert.assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
-        Assert.assertEquals(CALL_TO_ACTION_COMMAND_ADD_TO_CART, productTeaser.getCallToActionCommand());
         Assert.assertEquals("MJ01-XS-Orange", productTeaser.getSku());
     }
 
@@ -239,29 +241,43 @@ public class ProductTeaserImplTest {
     @Test
     public void testCtaForConfigurable() throws Exception {
         setUp(PRODUCTTEASER_CTA_TEST, false);
-        Assert.assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
-        Assert.assertEquals(CALL_TO_ACTION_COMMAND_DETAILS, productTeaser.getCallToActionCommand());
+        Assert.assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
+        Assert.assertEquals(CALL_TO_ACTION_TEXT_ADD_TO_CART, productTeaser.getCallToActionText());
+    }
+
+    @Test
+    public void testCtaTextForConfigurable() throws Exception {
+        setUp(PRODUCTTEASER_CTA_TEXT_TEST, false);
+        Assert.assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
+        Assert.assertEquals("custom", productTeaser.getCallToActionText());
     }
 
     @Test
     public void testCtaForVirtual() throws Exception {
         setUp(PRODUCTTEASER_CTA_TEST, "graphql/magento-graphql-virtualproduct-result.json", false);
         Assert.assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
-        Assert.assertEquals(CALL_TO_ACTION_COMMAND_ADD_TO_CART, productTeaser.getCallToActionCommand());
+        Assert.assertEquals(null, productTeaser.getCallToActionText());
+    }
+
+    @Test
+    public void testCtaTextForVirtual() throws Exception {
+        setUp(PRODUCTTEASER_CTA_TEXT_TEST, "graphql/magento-graphql-virtualproduct-result.json", false);
+        Assert.assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
+        Assert.assertEquals("custom", productTeaser.getCallToActionText());
     }
 
     @Test
     public void testCtaForGroup() throws Exception {
         setUp(PRODUCTTEASER_CTA_TEST, "graphql/magento-graphql-groupedproduct-result.json", false);
-        Assert.assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
-        Assert.assertEquals(CALL_TO_ACTION_COMMAND_DETAILS, productTeaser.getCallToActionCommand());
+        Assert.assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
+        Assert.assertEquals(CALL_TO_ACTION_TEXT_ADD_TO_CART, productTeaser.getCallToActionText());
     }
 
     @Test
     public void testCtaForBundle() throws Exception {
         setUp(PRODUCTTEASER_CTA_TEST, "graphql/magento-graphql-bundleproduct-result.json", false);
-        Assert.assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
-        Assert.assertEquals(CALL_TO_ACTION_COMMAND_DETAILS, productTeaser.getCallToActionCommand());
+        Assert.assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
+        Assert.assertEquals(CALL_TO_ACTION_TEXT_ADD_TO_CART, productTeaser.getCallToActionText());
     }
 
     @Test

@@ -45,6 +45,12 @@
               "cta": "add-to-cart",
               "selection": "sku"
             },
+            "productteaser-cta-text-test": {
+              "sling:resourceType": "venia/components/commerce/productteaser",
+              "cta": "add-to-cart",
+              "selection": "sku",
+              "ctaText": "custom"
+            },
             "productcarousel": {
                 "product": [
                     "NOT-FOUND",

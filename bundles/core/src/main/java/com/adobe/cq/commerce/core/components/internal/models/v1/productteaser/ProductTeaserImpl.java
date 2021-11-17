@@ -64,6 +64,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
     name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
     extensions = ExporterConstants.SLING_MODEL_EXTENSION)
 public class ProductTeaserImpl extends DataLayerComponent implements ProductTeaser {
+    static final String CALL_TO_ACTION_TYPE_DETAILS = "details";
+    static final String CALL_TO_ACTION_TYPE_ADD_TO_CART = "add-to-cart";
+    static final String CALL_TO_ACTION_TEXT_ADD_TO_CART = "Add to Cart";
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     private static final String SELECTION_PROPERTY = "selection";
@@ -99,6 +102,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     private Locale locale;
     private Boolean isVirtualProduct;
+    private boolean ctaOverride;
 
     @PostConstruct
     protected void initModel() {
@@ -119,8 +123,13 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
             if (magentoGraphqlClient != null) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
                 productRetriever.setIdentifier(combinedSku.getLeft());
+                ctaOverride = CALL_TO_ACTION_TYPE_ADD_TO_CART.equals(cta) && !oneClickShoppable(getProduct());
             }
         }
+    }
+
+    private boolean oneClickShoppable(ProductInterface product) {
+        return product instanceof SimpleProduct || product instanceof VirtualProduct || product instanceof DownloadableProduct;
     }
 
     @JsonIgnore
@@ -166,28 +175,20 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @Override
     public String getCallToAction() {
+        if (ctaOverride) {
+            return CALL_TO_ACTION_TYPE_DETAILS;
+        }
+
         return cta;
     }
 
     @Override
     public String getCallToActionText() {
-        return ctaText;
-    }
-
-    @Override
-    public String getCallToActionCommand() {
-        String ctaCommand = ProductTeaser.super.getCallToActionCommand();
-        if (CALL_TO_ACTION_COMMAND_ADD_TO_CART.equals(ctaCommand)) {
-            ProductInterface product = getProduct();
-            if (product != null && !oneClickShoppable(product)) {
-                ctaCommand = CALL_TO_ACTION_COMMAND_DETAILS;
-            }
+        if (ctaOverride && StringUtils.isBlank(ctaText)) {
+            return CALL_TO_ACTION_TEXT_ADD_TO_CART;
         }
-        return ctaCommand;
-    }
 
-    private boolean oneClickShoppable(ProductInterface product) {
-        return product instanceof SimpleProduct || product instanceof VirtualProduct || product instanceof DownloadableProduct;
+        return ctaText;
     }
 
     @Override
