@@ -58,6 +58,7 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
@@ -438,16 +439,8 @@ public class ProductImpl extends DataLayerComponent implements Product {
             SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
 
             if (productPage != null && product != null && sitemapLinkExternalizerProvider != null) {
-                canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer()
-                    .externalize(
-                        resource.getResourceResolver(),
-                        new UrlProvider.ParamsBuilder()
-                            .page(productPage.getPath())
-                            .sku(product.getSku())
-                            .urlKey(product.getUrlKey())
-                            .map(),
-                        urlParams -> urlProvider.toProductUrl(request, productPage, urlParams));
-
+                canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
+                    .toExternalProductUrl(request, productPage, new ProductUrlFormat.Params(product));
             } else {
                 // fallback to the previous/legacy logic
                 if (isAuthor) {

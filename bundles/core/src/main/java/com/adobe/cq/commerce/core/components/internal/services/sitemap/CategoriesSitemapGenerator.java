@@ -21,7 +21,6 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,6 +46,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.sitemap.SitemapCategoryFilter;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -117,7 +117,7 @@ public class CategoriesSitemapGenerator extends SitemapGeneratorBase implements 
         }
 
         ResourceResolver resourceResolver = sitemapRoot.getResourceResolver();
-        SitemapLinkExternalizer externalizer = externalizerProvider.getExternalizer();
+        SitemapLinkExternalizer externalizer = externalizerProvider.getExternalizer(resourceResolver);
 
         String rootCategoryIdentifier = configuration.get(PN_MAGENTO_ROOT_CATEGORY_ID, String.class);
         Deque<String> categoryUids = new LinkedList<>(Arrays.asList(
@@ -153,13 +153,9 @@ public class CategoriesSitemapGenerator extends SitemapGeneratorBase implements 
 
                 if (!categoryId.equals(rootCategoryIdentifier) && !ignoredByFilter) {
                     // skip root category, and ignored categories
-                    Map<String, String> params = new UrlProvider.ParamsBuilder()
-                        .page(categoryPage.getPath())
-                        .uid(category.getUid().toString())
-                        .urlKey(category.getUrlKey())
-                        .urlPath(category.getUrlPath())
-                        .map();
-                    String urlStr = externalizer.externalize(resourceResolver, params, map -> urlProvider.toCategoryUrl(null, null, map));
+                    CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(category);
+                    params.setPage(categoryPage.getPath());
+                    String urlStr = externalizer.toExternalCategoryUrl(null, null, params);
                     Url url = sitemap.addUrl(urlStr);
                     if (addLastModified) {
                         addLastModified(url, category);
@@ -178,19 +174,25 @@ public class CategoriesSitemapGenerator extends SitemapGeneratorBase implements 
         }
     }
 
-    private static QueryQueryDefinition categoryQueryFor(String categoryUid) {
+    private QueryQueryDefinition categoryQueryFor(String categoryUid) {
         return q -> q.categories(
             arguments -> arguments
                 .filters(new CategoryFilterInput()
                     .setCategoryUid(new FilterEqualTypeInput()
                         .setEq(categoryUid))),
             resultSet -> resultSet
-                .items(category -> category
-                    .urlKey()
-                    .urlPath()
-                    .uid()
-                    .createdAt()
-                    .updatedAt()
-                    .children(child -> child.uid())));
+                .items(category -> {
+                    category
+                        .urlKey()
+                        .urlPath()
+                        .uid()
+                        .children(child -> child.uid());
+
+                    if (addLastModified) {
+                        category
+                            .createdAt()
+                            .updatedAt();
+                    }
+                }));
     }
 }

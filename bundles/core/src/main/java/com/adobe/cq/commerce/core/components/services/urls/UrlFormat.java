@@ -34,6 +34,7 @@ import org.osgi.annotation.versioning.ConsumerType;
  * implementation. Implementing a {@link UrlFormat} is optional.
  */
 @ConsumerType
+@Deprecated
 public interface UrlFormat {
 
     /**

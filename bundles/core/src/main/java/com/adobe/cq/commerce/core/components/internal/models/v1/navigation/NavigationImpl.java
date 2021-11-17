@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -43,8 +42,8 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
@@ -204,12 +203,7 @@ public class NavigationImpl implements Navigation {
         }
 
         for (CategoryTree child : children) {
-            Map<String, String> params = new ParamsBuilder()
-                .uid(child.getUid().toString())
-                .urlKey(child.getUrlKey())
-                .urlPath(child.getUrlPath())
-                .map();
-
+            CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(child);
             String url = urlProvider.toCategoryUrl(request, categoryPage, params);
             boolean active = request.getRequestURI().equals(url);
             CategoryNavigationItem navigationItem = new CategoryNavigationItem(null, child.getName(), url, active, child, request,
@@ -306,12 +300,7 @@ public class NavigationImpl implements Navigation {
             List<NavigationItem> pages = new ArrayList<>();
 
             for (CategoryTree child : children) {
-                Map<String, String> params = new ParamsBuilder()
-                    .uid(child.getUid().toString())
-                    .urlKey(child.getUrlKey())
-                    .urlPath(child.getUrlPath())
-                    .map();
-
+                CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(child);
                 String url = urlProvider.toCategoryUrl(request, categoryPage, params);
                 boolean active = request.getRequestURI().equals(url);
                 pages.add(new CategoryNavigationItem(this, child.getName(), url, active, child, request, categoryPage));

@@ -96,6 +96,8 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
                 .name()
                 .thumbnail(t -> t.label().url())
                 .urlKey()
+                .urlPath()
+                .urlRewrites(uq -> uq.url())
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp
