@@ -12,7 +12,7 @@
                     <item_1579021109269
                         cq:panelTitle="Commerce"
                         jcr:primaryType="nt:unstructured"
-                        sling:resourceType="core/wcm/components/navigation/v1/navigation"
+                        sling:resourceType="core-components-examples/components/navigation"
                         collectAllPages="false"
                         navigationRoot="/content/core-components-examples/library/commerce"
                         structureDepth="1"
