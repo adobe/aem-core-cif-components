@@ -701,7 +701,7 @@
       "value": "Add to Cart"
     }
   ],
-  "product:add-item-wishlist": [
+  "product:add-to-wishlist": [
     {
       "type": 0,
       "value": "Add to Wish List"
