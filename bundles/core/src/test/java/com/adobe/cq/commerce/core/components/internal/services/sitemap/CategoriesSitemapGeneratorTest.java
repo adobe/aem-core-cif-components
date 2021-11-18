@@ -35,9 +35,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.sitemap.SitemapCategoryFilter;
+import com.adobe.cq.commerce.core.testing.TestContext;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
@@ -57,10 +57,9 @@ import static org.mockito.Mockito.when;
 public class CategoriesSitemapGeneratorTest {
 
     @Rule
-    public final AemContext aemContext = new AemContext();
+    public final AemContext aemContext = TestContext.newAemContext();
 
     private final CategoriesSitemapGenerator subject = new CategoriesSitemapGenerator();
-    private final UrlProviderImpl urlProvider = new UrlProviderImpl();
     private final GraphqlClient graphqlClient = new GraphqlClientImpl();
 
     @Mock
@@ -93,7 +92,6 @@ public class CategoriesSitemapGeneratorTest {
         aemContext.registerService(SitemapCategoryFilter.class, categoryFilter);
         aemContext.registerService(SitemapLinkExternalizer.class, externalizer);
         aemContext.registerInjectActivateService(new SitemapLinkExternalizerProvider());
-        aemContext.registerInjectActivateService(urlProvider);
         aemContext.registerInjectActivateService(subject);
 
         aemContext.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
