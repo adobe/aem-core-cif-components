@@ -1,9 +1,11 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const pkg = require('./package.json');
 
 const SOURCE_ROOT = `${__dirname}/src/main`;
+const alias = Object.keys(pkg.dependencies)
+    .reduce((obj, key) => ({ ...obj, [key]: path.resolve(__dirname, 'node_modules', key) }), {});
 
 module.exports = {
     entry: {
@@ -11,6 +13,7 @@ module.exports = {
     },
     output: {
         filename: 'cif-examples-react/[name].js',
+        chunkFilename: 'cif-examples-react/[name].js',
         path: path.resolve(__dirname, 'dist'),
     },
     module: {
@@ -18,6 +21,11 @@ module.exports = {
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
+                loader: ['babel-loader'],
+            },
+            {
+                test: /\.jsx?$/,
+                exclude: /node_modules\/(?!@magento\/)/,
                 loader: ['babel-loader'],
             },
             {
@@ -61,25 +69,16 @@ module.exports = {
     // In that case, we need to make sure that this project using its own version of React libraries.
     resolve: {
         alias: {
-            react: path.resolve('./node_modules/react'),
-            'react-dom': path.resolve('./node_modules/react-dom'),
-            'react-i18next': path.resolve('./node_modules/react-i18next'),
-        },
+            ...alias,
+            // messages are all in ast already, so we can save some bytes like that
+            '@formatjs/icu-messageformat-parser': '@formatjs/icu-messageformat-parser/no-parser'
+        }
     },
     plugins: [
         new CleanWebpackPlugin(),
         new MiniCssExtractPlugin({
             filename: 'cif-examples-react/[name].css',
-        }),
-        new CopyWebpackPlugin([
-            {
-                from: path.resolve(
-                    __dirname,
-                    'node_modules/@adobe/aem-core-cif-react-components/i18n'
-                ),
-                to: './cif-examples-react/i18n',
-            },
-        ]),
+        })
     ],
     optimization: {
         noEmitOnErrors: true,

@@ -5,6 +5,7 @@
         {
           "__typename": "ConfigurableProduct",
           "sku": "MJ01",
+          "staged": false,
           "name": "Beaumont Summit Kit",
           "description": {
             "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -78,7 +79,7 @@
           "categories": [
             {
               "__typename": "CategoryTree",
-              "id": 10,
+              "uid": "Nw==",
               "name": "category-1",
               "image": "/url/to/image"
             }
@@ -143,6 +144,7 @@
               ],
               "product": {
                 "sku": "MJ01-XS-Orange",
+                "staged": true,
                 "name": "Beaumont Summit Kit-XS-Orange",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -186,7 +188,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -206,6 +208,7 @@
               ],
               "product": {
                 "sku": "MJ01-XS-Red",
+                "staged": false,
                 "name": "Beaumont Summit Kit-XS-Red",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -249,7 +252,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -269,6 +272,7 @@
               ],
               "product": {
                 "sku": "MJ01-XS-Yellow",
+                "staged": false,
                 "name": "Beaumont Summit Kit-XS-Yellow",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -326,7 +330,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -346,6 +350,7 @@
               ],
               "product": {
                 "sku": "MJ01-S-Orange",
+                "staged": false,
                 "name": "Beaumont Summit Kit-S-Orange",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -389,7 +394,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -409,6 +414,7 @@
               ],
               "product": {
                 "sku": "MJ01-S-Red",
+                "staged": false,
                 "name": "Beaumont Summit Kit-S-Red",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -452,7 +458,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -472,6 +478,7 @@
               ],
               "product": {
                 "sku": "MJ01-S-Yellow",
+                "staged": false,
                 "name": "Beaumont Summit Kit-S-Yellow",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -529,7 +536,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -549,6 +556,7 @@
               ],
               "product": {
                 "sku": "MJ01-M-Orange",
+                "staged": false,
                 "name": "Beaumont Summit Kit-M-Orange",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -592,7 +600,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -612,6 +620,7 @@
               ],
               "product": {
                 "sku": "MJ01-M-Red",
+                "staged": false,
                 "name": "Beaumont Summit Kit-M-Red",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -655,7 +664,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -675,6 +684,7 @@
               ],
               "product": {
                 "sku": "MJ01-M-Yellow",
+                "staged": false,
                 "name": "Beaumont Summit Kit-M-Yellow",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -732,7 +742,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -752,6 +762,7 @@
               ],
               "product": {
                 "sku": "MJ01-L-Orange",
+                "staged": false,
                 "name": "Beaumont Summit Kit-L-Orange",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -795,7 +806,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -815,6 +826,7 @@
               ],
               "product": {
                 "sku": "MJ01-L-Red",
+                "staged": false,
                 "name": "Beaumont Summit Kit-L-Red",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -858,7 +870,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -878,6 +890,7 @@
               ],
               "product": {
                 "sku": "MJ01-L-Yellow",
+                "staged": false,
                 "name": "Beaumont Summit Kit-L-Yellow",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -935,7 +948,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -955,6 +968,7 @@
               ],
               "product": {
                 "sku": "MJ01-XL-Orange",
+                "staged": false,
                 "name": "Beaumont Summit Kit-XL-Orange",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -998,7 +1012,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -1018,6 +1032,7 @@
               ],
               "product": {
                 "sku": "MJ01-XL-Red",
+                "staged": false,
                 "name": "Beaumont Summit Kit-XL-Red",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -1061,7 +1076,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }
@@ -1081,6 +1096,7 @@
               ],
               "product": {
                 "sku": "MJ01-XL-Yellow",
+                "staged": false,
                 "name": "Beaumont Summit Kit-XL-Yellow",
                 "description": {
                   "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
@@ -1138,7 +1154,7 @@
                 "categories": [
                   {
                     "__typename": "CategoryTree",
-                    "id": 10,
+                    "uid": "Nw==",
                     "name": "category-1",
                     "image": "/url/to/image"
                   }

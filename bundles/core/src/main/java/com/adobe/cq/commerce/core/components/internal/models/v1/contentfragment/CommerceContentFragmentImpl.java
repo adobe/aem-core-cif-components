@@ -1,16 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2021 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2021 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.contentfragment;
 
 import java.util.Collections;
@@ -19,11 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import javax.jcr.Session;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -31,6 +31,7 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
@@ -40,15 +41,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.contentfragment.CommerceContentFragment;
-import com.adobe.cq.commerce.core.components.models.product.Product;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.dam.cfm.content.FragmentRenderService;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.wcm.core.components.models.contentfragment.ContentFragment;
@@ -81,35 +77,46 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
     static final String RESOURCE_TYPE = "core/cif/components/commerce/contentfragment/v1/contentfragment";
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceContentFragmentImpl.class);
     private static final String CORE_WCM_CONTENTFRAGMENT_RT = "core/wcm/components/contentfragment/v1/contentfragment";
-    private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
     private static final ContentFragment EMPTY_CONTENT_FRAGMENT = new EmptyContentFragment();
+
     @ValueMapValue(name = CommerceContentFragment.PN_MODEL_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String modelPath;
+
     @ValueMapValue(name = CommerceContentFragment.PN_PARENT_PATH, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String parentPath = DamConstants.MOUNTPOINT_ASSETS;
 
-    @Inject
+    @OSGiService
     private ModelFactory modelFactory;
+
     @SlingObject
     private ResourceResolver resourceResolver;
+
     @Self
     private SlingHttpServletRequest request;
-    @Inject
+
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
+    @ScriptVariable
     private Page currentPage;
-    @Inject
+
+    @OSGiService
     private UrlProvider urlProvider;
-    private ContentFragment contentFragment = EMPTY_CONTENT_FRAGMENT;
 
     // needed for rawcontent rendering
     @ValueMapValue(name = ContentFragment.PN_DISPLAY_MODE, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String displayMode;
-    @Inject
+
+    @OSGiService
     private FragmentRenderService renderService;
-    @ScriptVariable
+
+    @SlingObject
     private Resource resource;
+
     @ValueMapValue(name = CommerceContentFragment.PN_LINK_ELEMENT, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String linkElement;
 
+    private ContentFragment contentFragment = EMPTY_CONTENT_FRAGMENT;
     private String modelTitle = "";
 
     @PostConstruct
@@ -182,52 +189,15 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
     }
 
     private String findCategoryIdentifier() {
-        String categoryIdentifier = null;
-        Pair<UrlProvider.CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
-        UrlProvider.CategoryIdentifierType identifierType = identifier.getLeft();
-        if (UrlProvider.CategoryIdentifierType.URL_PATH.equals(identifierType)) {
-            MagentoGraphqlClient graphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
-            AbstractCategoryRetriever categoryRetriever = new AbstractCategoryRetriever(graphqlClient) {
-                @Override
-                protected CategoryTreeQueryDefinition generateCategoryQuery() {
-                    return (CategoryTreeQuery q) -> q.id().uid();
-                }
-            };
-            categoryRetriever.setIdentifier(identifierType, identifier.getRight());
-            Resource configurationResource = currentPage != null ? currentPage.adaptTo(Resource.class) : resource;
-            if (configurationResource != null) {
-                ComponentsConfiguration componentsConfiguration = configurationResource.adaptTo(ComponentsConfiguration.class);
-                if (componentsConfiguration != null) {
-                    CategoryInterface category = categoryRetriever.fetchCategory();
-                    if (category != null) {
-                        boolean uidSupport = Boolean.parseBoolean(componentsConfiguration.get(PN_ENABLE_UID_SUPPORT, String.class));
-                        categoryIdentifier = uidSupport ? category.getUid().toString() : String.valueOf(category.getId());
-                    }
-                }
-            }
-        } else if (UrlProvider.CategoryIdentifierType.ID.equals(identifierType) ||
-            UrlProvider.CategoryIdentifierType.UID.equals(identifierType)) {
-            categoryIdentifier = identifier.getRight();
-        }
-
-        if (StringUtils.isBlank(categoryIdentifier)) {
+        String categoryUid = urlProvider.getCategoryIdentifier(request);
+        if (StringUtils.isBlank(categoryUid)) {
             LOGGER.warn("Cannot find category identifier for current request");
         }
-
-        return categoryIdentifier;
+        return categoryUid;
     }
 
     private String findProductSku() {
-        String sku = null;
-        Pair<UrlProvider.ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
-        if (UrlProvider.ProductIdentifierType.SKU.equals(identifier.getLeft())) {
-            sku = identifier.getRight();
-        } else {
-            Product product = request.adaptTo(Product.class);
-            if (product != null && product.getFound()) {
-                sku = product.getSku();
-            }
-        }
+        String sku = urlProvider.getProductIdentifier(request);
         if (StringUtils.isBlank(sku)) {
             LOGGER.warn("Cannot find sku or product for current request");
         }
@@ -253,23 +223,16 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
             return null;
         }
 
-        Pair<UrlProvider.ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
-        String value = identifier.getRight();
+        String value = urlProvider.getProductIdentifier(request);
         if (StringUtils.isBlank(value)) {
             return null;
         }
 
-        // check for missing selectors (URL suffix is not supported)
-        String[] selectors = request.getRequestPathInfo().getSelectors();
-        if (selectors.length == 0 || selectors.length == 1 && "rawcontent".equals(selectors[0])) {
-            return null;
-        }
-
-        // rawcontent selector first for raw content rendering
-        // CIF product or category selector last as mandated by the CIF URL Provider
-        // suffix is not supported by the rawcontent renderer
+        // we pass the identifier as the FragmentRenderService uses an internal request
+        // that not necessarily supports the format the UrlProvider is configured for
+        // see: com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl#getIdentifierFromFragmentRenderRequest(request)
         ValueMap config = new ValueMapDecorator(new HashMap<>());
-        config.put("dam.cfm.useSelector", "rawcontent." + value);
+        config.put(UrlProviderImpl.CIF_IDENTIFIER_ATTR, value);
 
         // render the fragment
         String content = renderService.render(resource, config);
@@ -349,6 +312,11 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
     @Override
     public String getEditorJSON() {
         return contentFragment.getEditorJSON();
+    }
+
+    @Override
+    public String getId() {
+        return contentFragment.getId();
     }
 
     static class EmptyContentFragment implements ContentFragment {

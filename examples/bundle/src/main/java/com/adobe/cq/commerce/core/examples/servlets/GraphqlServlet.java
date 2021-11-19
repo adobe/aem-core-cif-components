@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2020 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2020 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.examples.servlets;
 
 import java.io.IOException;
@@ -86,14 +87,20 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     private static final String PRODUCTS_FILTER_ARG = "filter";
     private static final String PRODUCTS_SEARCH_ARG = "search";
-    private static final String CATEGORY_ID_ARG = "id";
 
-    private static final String CATEGORY_ID_REGEX = "\\{category_id=\\{eq=.+\\}\\}";
+    private static final Pattern CATEGORY_UID_EQ_PATTERN = Pattern.compile("\\{category_uid=\\{eq=(.+)\\}\\}");
     private static final Pattern SKU_IN_PATTERN = Pattern.compile("\\{sku=\\{in=\\[(.+)\\]\\}\\}");
     private static final Pattern SKU_EQ_PATTERN = Pattern.compile("\\{sku=\\{eq=(.+)\\}\\}");
     private static final Pattern URL_KEY_EQ_PATTERN = Pattern.compile("\\{url_key=\\{eq=(.+)\\}\\}");
 
+    private static final String CATEGORY_UID = "uid-1";
+    private static final String CATEGORY_STAGED_PRODUCTS_UID = "uid-2";
+
+    private static final String STAGED_PRODUCT_URL_KEY = "chaz-crocodile-hoodie";
+    private static final String STAGED_PRODUCT_SKU = "MH02";
+
     private static final String PRODUCT_SKU = "MH01";
+    private static final String UNKNOWN_PRODUCT_URL_KEY = "unknown-product";
 
     private static final String GROUPED_PRODUCT_URL_KEY = "set-of-sprite-yoga-straps";
     private static final String GROUPED_PRODUCT_SKU = "24-WG085_Group";
@@ -108,17 +115,22 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String PRODUCT_CAROUSEL_JSON = "magento-graphql-productcarousel.json";
     private static final String PRODUCT_TEASER_JSON = "magento-graphql-productteaser.json";
     private static final String PRODUCTS_COLLECTION_JSON = "magento-graphql-products-collection.json";
+    private static final String PRODUCTS_COLLECTION_WITH_STAGED_PRODUCTS_JSON = "magento-graphql-products-collection-with-staged-products.json";
     private static final String GROUPED_PRODUCT_JSON = "magento-graphql-grouped-product.json";
     private static final String PRODUCTS_JSON = "magento-graphql-products.json";
-    private static final String CATEGORY_TREE_JSON = "magento-graphql-categories.json";
     private static final String CATEGORY_LIST_TREE_JSON = "magento-graphql-categories-list.json";
+    private static final String CATEGORY_UID_JSON = "magento-graphql-category.json";
     private static final String CATEGORY_JSON = "magento-graphql-category.json";
+    private static final String CATEGORY_WITH_STAGED_PRODUCTS_JSON = "magento-graphql-category-with-staged-products.json";
+    private static final String UNKNOWN_CATEGORY_JSON = "magento-graphql-category-empty.json";
     private static final String FEATURED_CATEGORY_LIST_JSON = "magento-graphql-featuredcategorylist.json";
     private static final String CATEGORIES_CAROUSEL_JSON = "magento-graphql-categories-carousel.json";
     private static final String PRODUCTS_BREADCRUMB_JSON = "magento-graphql-products-breadcrumb.json";
     private static final String CATEGORYLIST_BREADCRUMB_JSON = "magento-graphql-categorylist-breadcrumb.json";
     private static final String BUNDLE_PRODUCT_JSON = "magento-graphql-bundle-product.json";
     private static final String BUNDLE_PRODUCT_ITEMS_JSON = "magento-graphql-bundle-product-items.json";
+    private static final String STAGED_PRODUCT_JSON = "magento-graphql-products-staged.json";
+    private static final String UNKNOWN_PRODUCT_JSON = "magento-graphql-products-empty.json";
 
     private Gson gson;
     private GraphQL graphQL;
@@ -173,7 +185,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Executes the given GraphQL <code>query</code> with the optional <code>operationName</code> and <code>variables</code> parameters.
-     * 
+     *
      * @param query The GraphQL query.
      * @param operationName An optional operation name for that query.
      * @param variables An optional map of variables for the query.
@@ -193,7 +205,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Write the result of a GraphQL query execution in the given Servlet response.
-     * 
+     *
      * @param executionResult The GraphQL query execution result.
      * @param response The Servlet response.
      * @throws IOException If an I/O error occurs.
@@ -207,7 +219,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Reads the given resource file and returns the content.
-     * 
+     *
      * @param filename The name of the file.
      * @return The string content of the file.
      * @throws IOException If an I/O error occurs.
@@ -218,7 +230,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Reads and parses the GraphQL response from the given filename.
-     * 
+     *
      * @param filename The file with the GraphQL JSON response.
      * @return A parsed GraphQL response object.
      */
@@ -242,7 +254,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Initialises and parses the GraphQL schema.
-     * 
+     *
      * @return The registry of type definitions.
      * @throws IOException If an I/O error occurs.
      */
@@ -261,7 +273,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Configures and builds the execution engine of the GraphQL server.
-     * 
+     *
      * @return The runtime wiring of the server.
      * @throws IOException If an I/O error occurs.
      */
@@ -314,7 +326,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             public Object get(DataFetchingEnvironment env) {
                 String fieldName = env.getField().getName();
                 String fieldAlias = env.getField().getAlias();
-                LOGGER.debug("Field: {} {}", fieldName, StringUtils.isNotBlank(fieldAlias) ? ("(Alias: " + fieldAlias + ")") : "");
+                LOGGER.debug("Field: {} {}", fieldName, StringUtils.isNotBlank(fieldAlias) ? ("(Alias: " + fieldAlias + ")") : "");
                 Map<String, Object> args = env.getArguments();
                 if (MapUtils.isNotEmpty(args)) {
                     args.forEach((key, value) -> LOGGER.debug("Arg: {} --> {} ({})", key, value, value.getClass()));
@@ -322,9 +334,6 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                 switch (fieldName) {
                     case "products": {
                         return readProductsResponse(env);
-                    }
-                    case "category": {
-                        return readCategoryResponse(env);
                     }
                     case "categoryList": {
                         return readCategoryListResponse(env);
@@ -342,7 +351,6 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         return RuntimeWiring.newRuntimeWiring()
             .wiringFactory(wiringFactory)
             .type("Query", builder -> builder.dataFetcher("products", staticDataFetcher))
-            .type("Query", builder -> builder.dataFetcher("storeConfig", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("category", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("categoryList", staticDataFetcher))
             .type("Query", builder -> builder.dataFetcher("customAttributeMetadata", staticDataFetcher))
@@ -354,7 +362,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
      * that "matches" the data expected by each CIF component. Each CIF component indeed expects a
      * specific JSON response. Luckily, each GraphQL query sent by each component is different so
      * we can "detect" what response should be returned.
-     * 
+     *
      * @param env The metadata of the GraphQL query.
      * @return A Magento <code>Products</code> object.
      */
@@ -379,6 +387,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             Matcher skuInMatcher = SKU_IN_PATTERN.matcher(filter);
             Matcher skuEqMatcher = SKU_EQ_PATTERN.matcher(filter);
             Matcher urlKeyEqPattern = URL_KEY_EQ_PATTERN.matcher(filter);
+            Matcher uidPattern = CATEGORY_UID_EQ_PATTERN.matcher(filter);
 
             if (skuInMatcher.matches()) {
                 // The filter {sku:{in:[...]}} can be a query for the carousel (3 skus) or a client-side query to fetch prices
@@ -398,18 +407,33 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                 return readProductsFrom(PRODUCT_CAROUSEL_JSON);
             } else if (skuEqMatcher.matches()) {
                 if (skuEqMatcher.group(1).equals(BUNDLE_PRODUCT_SKU)) {
+                    if (selectionSet.contains("items/description")) {
+                        return readProductsFrom(BUNDLE_PRODUCT_JSON);
+                    }
                     return readProductsFrom(BUNDLE_PRODUCT_ITEMS_JSON);
+                } else if (skuEqMatcher.group(1).equals(GROUPED_PRODUCT_SKU)) {
+                    return readProductsFrom(GROUPED_PRODUCT_JSON);
                 } else if (skuEqMatcher.group(1).equals(PRODUCT_SKU)) {
                     return readProductsFrom(PRODUCTS_JSON);
+                } else if (skuEqMatcher.group(1).equals(STAGED_PRODUCT_SKU)) {
+                    return readProductsFrom(STAGED_PRODUCT_JSON);
                 }
                 return readProductsFrom(PRODUCT_TEASER_JSON);
-            } else if (filter.matches(CATEGORY_ID_REGEX)) {
-                return readProductsFrom(PRODUCTS_COLLECTION_JSON);
+            } else if (uidPattern.matches()) {
+                if (CATEGORY_UID.equals(uidPattern.group(1))) {
+                    return readProductsFrom(PRODUCTS_COLLECTION_JSON);
+                } else if (CATEGORY_STAGED_PRODUCTS_UID.equals(uidPattern.group(1))) {
+                    return readProductsFrom(PRODUCTS_COLLECTION_WITH_STAGED_PRODUCTS_JSON);
+                }
             } else if (urlKeyEqPattern.matches()) {
                 if (GROUPED_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
                     return readProductsFrom(GROUPED_PRODUCT_JSON);
                 } else if (BUNDLE_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
                     return readProductsFrom(BUNDLE_PRODUCT_JSON);
+                } else if (STAGED_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
+                    return readProductsFrom(STAGED_PRODUCT_JSON);
+                } else if (UNKNOWN_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
+                    return readProductsFrom(UNKNOWN_PRODUCT_JSON);
                 }
             }
         }
@@ -423,7 +447,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     /**
      * Reads the JSON of the given file and deserialises the content in a Magento <code>Products</code> object.
-     * 
+     *
      * @param filename The file that contains the products JSON response.
      * @return A Magento <code>Products</code> object.
      */
@@ -433,58 +457,52 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     }
 
     /**
-     * Based on the GraphQL query, this method returns a Magento <code>CategoryTree</code> object
-     * that "matches" the data expected by each CIF component. Each CIF component indeed expects a
-     * specific JSON response. Luckily, each GraphQL query sent by each component is different so
-     * we can "detect" what response should be returned.
-     * 
-     * @param env The metadata of the GraphQL query.
-     * @return A Magento <code>CategoryTree</code> object.
-     */
-    private CategoryTree readCategoryResponse(DataFetchingEnvironment env) {
-
-        // Default query is fetching the category tree except if the category id is not "2"
-        String filename = CATEGORY_TREE_JSON;
-        Object id = env.getArgument(CATEGORY_ID_ARG);
-        if (id != null && !id.toString().equals("2")) {
-            filename = CATEGORY_JSON; // Query to only fetch some category data
-        }
-
-        GraphqlResponse<Query, Error> graphqlResponse = readGraphqlResponse(filename);
-        return graphqlResponse.getData().getCategory();
-    }
-
-    /**
      * Based on the GraphQL query, this method returns a list of Magento <code>CategoryTree</code> objects
      * that "matches" the data expected by each CIF component. Each CIF component indeed expects a
      * specific JSON response. Luckily, each GraphQL query sent by each component is different so
      * we can "detect" what response should be returned.
-     * 
+     *
      * @param env The metadata of the GraphQL query.
      * @return A list of Magento <code>CategoryTree</code> objects.
      */
     private List<CategoryTree> readCategoryListResponse(DataFetchingEnvironment env) {
 
-        GraphqlResponse<Query, Error> graphqlResponse;
+        GraphqlResponse<Query, Error> graphqlResponse = null;
         Map<String, Map<String, Object>> filters = env.getArgument("filters");
         DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
 
         // Only category the Breadcrumb components selects this field
         if (selectionSet.contains("breadcrumbs")) {
             graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
-        } else if (filters.containsKey("ids") && filters.get("ids").containsKey("in") && (((List<String>) (filters.get("ids").get("in")))
-            .size() == 4)) {
-            // The CategoriesCarousel example will require 4 items
-            graphqlResponse = readGraphqlResponse(CATEGORIES_CAROUSEL_JSON);
-        } else if (filters.containsKey("ids") && filters.get("ids").containsKey("eq") &&
-            filters.get("ids").get("eq").equals("1")) {
-            // The ProductList example will require 1 item
-            graphqlResponse = readGraphqlResponse(CATEGORY_JSON);
-        } else if (filters.containsKey("ids") && filters.get("ids").containsKey("eq") &&
-            filters.get("ids").get("eq").equals("2")) {
-            // The navigation example will require item 2
-            graphqlResponse = readGraphqlResponse(CATEGORY_LIST_TREE_JSON);
-        } else {
+        } else if (filters.containsKey("url_key") && filters.get("url_key").containsKey("eq")) {
+            if (filters.get("url_key").get("eq").equals("outdoor")) {
+                // The URLProvider example will return category uid
+                graphqlResponse = readGraphqlResponse(CATEGORY_UID_JSON);
+            } else if (filters.get("url_key").get("eq").equals("outdoor-staged")) {
+                // The URLProvider example will return category uid
+                graphqlResponse = readGraphqlResponse(CATEGORY_WITH_STAGED_PRODUCTS_JSON);
+            } else if (filters.get("url_key").get("eq").equals("unknown-category")) {
+                // return empty response
+                graphqlResponse = readGraphqlResponse(UNKNOWN_CATEGORY_JSON);
+            }
+        } else if (filters.containsKey("category_uid")) {
+            if (filters.get("category_uid").containsKey("in") && (((List<String>) (filters.get("category_uid").get("in"))).size() == 4)) {
+                // The CategoriesCarousel example will require 4 items
+                graphqlResponse = readGraphqlResponse(CATEGORIES_CAROUSEL_JSON);
+            } else if (filters.get("category_uid").containsKey("eq")) {
+                if (filters.get("category_uid").get("eq").equals("uid-1")) {
+                    // The ProductList example will require 1 item
+                    graphqlResponse = readGraphqlResponse(CATEGORY_JSON);
+                } else if (filters.get("category_uid").get("eq").equals("uid-2")) {
+                    graphqlResponse = readGraphqlResponse(CATEGORY_WITH_STAGED_PRODUCTS_JSON);
+                } else if (filters.get("category_uid").get("eq").equals("Mg==")) {
+                    // The navigation example will require item "Mg==" as the default root category
+                    graphqlResponse = readGraphqlResponse(CATEGORY_LIST_TREE_JSON);
+                }
+            }
+        }
+
+        if (graphqlResponse == null) {
             graphqlResponse = readGraphqlResponse(FEATURED_CATEGORY_LIST_JSON);
         }
 

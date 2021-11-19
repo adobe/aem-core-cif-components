@@ -1,15 +1,17 @@
 <!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ~ 
-  ~ Copyright 2019 Adobe. All rights reserved.
-  ~ This file is licensed to you under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License. You may obtain a copy
-  ~ of the License at http://www.apache.org/licenses/LICENSE-2.0
-  ~ 
-  ~ Unless required by applicable law or agreed to in writing, software distributed under
-  ~ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
-  ~ OF ANY KIND, either express or implied. See the License for the specific language
-  ~ governing permissions and limitations under the License.
-  ~ 
+  ~ Copyright 2019 Adobe
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.searchResultsSet="${@ searchResultsSet}">
     <div class="category__pagination" data-sly-test.pager="${searchResultsSet.pager}" data-sly-test="${searchResultsSet.pager.pages.size > 1}">
@@ -17,7 +19,7 @@
             <sly data-sly-list.page="${pager.pages}">
                 <!--/*First Page button & Previous page button inactive */-->
                 <sly data-sly-test="${pageList.first && pager.currentPage==1} ">
-                    <a class="category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the previous page">
+                    <a class="category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="${'Show previous' @ i18n}">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                         </span>
@@ -26,8 +28,9 @@
 
                 <!--/*First Page button & Previous page button Active */-->
                 <sly data-sly-test="${pageList.first && pager.currentPage!=1} ">
-                    <a class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the previous page"
-                       href="${request.requestURI @ query=pager.previousPageParameters}">
+                    <a class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="${'Show previous' @ i18n}"
+                       href="${request.requestURI @ query=pager.previousPageParameters}"
+                       title="${'Show previous' @ i18n}">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                         </span>
@@ -51,7 +54,8 @@
 
                 <sly data-sly-test="${page.pageNumber != pager.currentPage} ">
                     <a class="category__pagination_tilebutton"
-                       href="${request.requestURI @ query=page.parameters}">
+                       href="${request.requestURI @ query=page.parameters}"
+                       title="${'Go to page {0}' @ i18n, format=[page.pageNumber]}">
                         <div class="category__pagination_tilebutton-text">
                             ${page.pageNumber}
                         </div>
@@ -67,8 +71,9 @@
 
                 <!--/* Next page button & Last Page button Active */-->
                 <sly data-sly-test="${pageList.last && pager.currentPage!=page.pageNumber}">
-                    <a class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the next page"
-                       href="${request.requestURI @ query=pager.nextPageParameters}">
+                    <a class="category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="${'Show next' @ i18n}"
+                       href="${request.requestURI @ query=pager.nextPageParameters}"
+                       title="${'Show next' @ i18n}">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="9 18 15 12 9 6"></polyline>
@@ -79,7 +84,7 @@
 
                 <!--/* Next page button & Last Page button Inactive */-->
                 <sly data-sly-test="${pageList.last && pager.currentPage==page.pageNumber}">
-                    <a class="category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="move to the next page">
+                    <a class="category__pagination_navbutton-inactive category__pagination_navbutton-arrow category__pagination_tilebutton" aria-label="${'Show next' @ i18n}">
                         <span class="category__pagination_icon-root">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="9 18 15 12 9 6"></polyline>

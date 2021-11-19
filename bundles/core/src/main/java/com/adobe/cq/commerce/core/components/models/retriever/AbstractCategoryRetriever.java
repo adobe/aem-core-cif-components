@@ -1,28 +1,28 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.retriever;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -32,13 +32,10 @@ import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery.CategoryListArgumentsDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public abstract class AbstractCategoryRetriever extends AbstractRetriever {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCategoryRetriever.class);
 
     /**
      * Lambda that extends the category query.
@@ -53,23 +50,12 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     /**
      * Category instance. Is only available after populate() was called.
      */
-    protected CategoryInterface category;
+    protected Optional<CategoryInterface> category;
 
     /**
-     * Media base url from the Magento store info. Is only available after populate() was called.
-     */
-    @Deprecated
-    protected String mediaBaseUrl;
-
-    /**
-     * Identifier of the category that should be fetched. Which kind of identifier is used is specified in {@link #categoryIdentifierType}
+     * Identifier of the category that should be fetched. Categories are identfied by UID.
      */
     protected String identifier;
-
-    /**
-     * The type of the product identifier.
-     */
-    protected CategoryIdentifierType categoryIdentifierType;
 
     /**
      * Current page for pagination of products in a category.
@@ -80,39 +66,6 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * Page size for pagination of products in a category.
      */
     protected int pageSize = 6;
-
-    /**
-     * Generates the filter for a category or categoryList query
-     *
-     * @param identifiersFilter The filter portion to be used by CategoryFilterInput.
-     * @param categoryIdentifierType The category identifiers used byt the identifiersFilter
-     */
-    public static CategoryFilterInput generateCategoryFilter(FilterEqualTypeInput identifiersFilter,
-        UrlProvider.CategoryIdentifierType categoryIdentifierType) {
-        CategoryFilterInput filter;
-
-        if (categoryIdentifierType == null) {
-            LOGGER.error("Category identifier type is not set. Falling back to ID based categoryList query");
-            return new CategoryFilterInput().setIds(identifiersFilter);
-        }
-
-        switch (categoryIdentifierType) {
-            case ID:
-                filter = new CategoryFilterInput().setIds(identifiersFilter);
-                break;
-            case UID:
-                filter = new CategoryFilterInput().setCategoryUid(identifiersFilter);
-                break;
-            case URL_PATH:
-                filter = new CategoryFilterInput().setUrlPath(identifiersFilter);
-                break;
-            default:
-                LOGGER.error("Category identifier type is not supported. Falling back to ID based categoryList query");
-                filter = new CategoryFilterInput().setIds(identifiersFilter);
-        }
-
-        return filter;
-    }
 
     public AbstractCategoryRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -127,7 +80,7 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
         if (this.category == null) {
             populate();
         }
-        return this.category;
+        return this.category.orElse(null);
     }
 
     /**
@@ -149,28 +102,14 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     }
 
     /**
-     * Set the identifier of the product that should be fetched. Which kind of identifier is used (usually id) is implementation
-     * specific and should be checked in subclass implementations. Setting the identifier, removes any cached data.
-     *
-     * @param identifier Category identifier
-     * @deprecated Use {@link #setIdentifier(CategoryIdentifierType, String)} instead.
-     */
-    @Deprecated
-    public void setIdentifier(String identifier) {
-        setIdentifier(CategoryIdentifierType.ID, identifier);
-    }
-
-    /**
      * Set the identifier and the identifier type of the category that should be fetched. Setting the identifier, removes any cached data.
      *
-     * @param categoryIdentifierType The category identifier type.
-     * @param identifier The category identifier.
+     * @param identifier The category UID.
      */
-    public void setIdentifier(CategoryIdentifierType categoryIdentifierType, String identifier) {
+    public void setIdentifier(String identifier) {
         category = null;
         query = null;
         this.identifier = identifier;
-        this.categoryIdentifierType = categoryIdentifierType;
     }
 
     /**
@@ -186,10 +125,16 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * }
      * </pre>
      *
+     * If called multiple times, each hook will be "appended" to the previously registered hook(s).
+     *
      * @param categoryQueryHook Lambda that extends the category query
      */
     public void extendCategoryQueryWith(Consumer<CategoryTreeQuery> categoryQueryHook) {
-        this.categoryQueryHook = categoryQueryHook;
+        if (this.categoryQueryHook == null) {
+            this.categoryQueryHook = categoryQueryHook;
+        } else {
+            this.categoryQueryHook = this.categoryQueryHook.andThen(categoryQueryHook);
+        }
     }
 
     /**
@@ -213,10 +158,16 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * }
      * </pre>
      *
+     * If called multiple times, each hook will be "appended" to the previously registered hook(s).
+     *
      * @param productQueryHook Lambda that extends the product query
      */
     public void extendProductQueryWith(Consumer<ProductInterfaceQuery> productQueryHook) {
-        this.productQueryHook = productQueryHook;
+        if (this.productQueryHook == null) {
+            this.productQueryHook = productQueryHook;
+        } else {
+            this.productQueryHook = this.productQueryHook.andThen(productQueryHook);
+        }
     }
 
     /**
@@ -236,56 +187,25 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     /**
      * Generates a complete category GraphQL query with a selection of the given category identifier.
      *
-     * @param identifier Category identifier, usually the category id
+     * @param identifier Category uid identifier
      * @return GraphQL query as string
      */
     public String generateQuery(String identifier) {
-        CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
         return Operations.query(query -> {
-            FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setEq(identifier);
-            CategoryFilterInput filter = generateCategoryFilter(identifiersFilter, categoryIdentifierType);
-            QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
-            query.categoryList(searchArgs, queryArgs);
+            Pair<CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> categoryQueryArgs = generateCategoryQueryArgs(identifier);
+            query.categoryList(categoryQueryArgs.getLeft(), categoryQueryArgs.getRight());
         }).toString();
     }
 
     /**
      * Generates a pair of args for the category query for a given category identifier;
      *
-     * @param identifier Category identifier, usually the category id
-     * @return GraphQL query as string
-     * @deprecated Use {@link #generateCategoryQueryArgs(String)} to use the GraphQL <code>categoryList</code> field.
-     */
-    @Deprecated
-    public Pair<QueryQuery.CategoryArgumentsDefinition, CategoryTreeQueryDefinition> generateQueryArgs(String identifier) {
-        // Use 'categoryIdentifierType' when we switch to Query.categoryList
-        QueryQuery.CategoryArgumentsDefinition searchArgs = q -> q.id(Integer.parseInt(identifier));
-
-        CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
-
-        return new ImmutablePair<>(searchArgs, queryArgs);
-    }
-
-    /**
-     * Generates a pair of args for the category query for the instance identifier;
-     *
-     * @return GraphQL query as string
-     * @deprecated Use {@link #generateCategoryQueryArgs()} to use the GraphQL <code>categoryList</code> field.
-     */
-    @Deprecated
-    public Pair<QueryQuery.CategoryArgumentsDefinition, CategoryTreeQueryDefinition> generateQueryArgs() {
-        return generateQueryArgs(identifier);
-    }
-
-    /**
-     * Generates a pair of args for the category query for a given category identifier;
-     *
-     * @param identifier Category identifier, usually the category id
+     * @param identifier Category uid identifier
      * @return GraphQL query as string
      */
     public Pair<CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> generateCategoryQueryArgs(String identifier) {
-        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier.replaceAll("_", "/"));
-        CategoryFilterInput filter = generateCategoryFilter(identifierFilter, categoryIdentifierType);
+        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
+        CategoryFilterInput filter = new CategoryFilterInput().setCategoryUid(identifierFilter);
 
         CategoryListArgumentsDefinition searchArgs = q -> q.filters(filter);
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
@@ -317,9 +237,15 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     @Override
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
-        Query rootQuery = response.getData();
-        if (rootQuery.getCategoryList() != null && !rootQuery.getCategoryList().isEmpty()) {
-            category = rootQuery.getCategoryList().get(0);
+        if (CollectionUtils.isEmpty(response.getErrors())) {
+            Query rootQuery = response.getData();
+            if (rootQuery.getCategoryList() != null && !rootQuery.getCategoryList().isEmpty()) {
+                category = Optional.of(rootQuery.getCategoryList().get(0));
+            } else {
+                category = Optional.empty();
+            }
+        } else {
+            category = Optional.empty();
         }
     }
 }

@@ -18,8 +18,7 @@ const config = require('../../lib/config');
 const commons = require('../../lib/commons');
 
 describe('Product component in CIF components library', () => {
-
-    const product_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product.chaz-kangeroo-hoodie.html`;
+    const product_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product.html/chaz-kangeroo-hoodie.html`;
     const product_selector = '.cmp-examples-demo__top .product';
 
     before(() => {
@@ -58,4 +57,11 @@ describe('Product component in CIF components library', () => {
         expect(productName).toHaveText('Chaz Kangeroo Hoodie-L-Gray');
     });
 
+    it('exposes the SKU of the product', () => {
+        // Go to the product page
+        browser.url(product_page);
+        const fullDetailElement = $(`${product_selector} .productFullDetail__root`);
+
+        expect(fullDetailElement).toHaveAttribute('data-product-sku');
+    });
 });

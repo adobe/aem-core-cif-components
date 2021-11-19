@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2020 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2020 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.it.http;
 
 import org.apache.sling.testing.clients.ClientException;
@@ -33,11 +34,11 @@ public class SearchResultsComponentIT extends CommerceTestBase {
         Document doc = Jsoup.parse(response.getContent());
 
         // Check that search filters are displayed
-        Elements elements = doc.select(SEARCHRESULTS_SELECTOR + ".search__filters");
+        Elements elements = doc.select(SEARCHRESULTS_SELECTOR + ".productcollection__filters");
         Assert.assertEquals(1, elements.size());
 
         // Check that the 6 products are displayed on the first page
-        elements = doc.select(SEARCHRESULTS_SELECTOR + ".gallery__items > .item__root");
+        elements = doc.select(SEARCHRESULTS_SELECTOR + ".productcollection__items > .productcollection__item");
         Assert.assertEquals(6, elements.size());
     }
 
@@ -47,7 +48,7 @@ public class SearchResultsComponentIT extends CommerceTestBase {
         Document doc = Jsoup.parse(response.getContent());
 
         // Check that the search doesn't display any product
-        Elements elements = doc.select(SEARCHRESULTS_SELECTOR + ".category__root p");
+        Elements elements = doc.select(SEARCHRESULTS_SELECTOR + ".searchresults_root p");
         Assert.assertEquals("No products to display.", elements.first().html());
     }
 }

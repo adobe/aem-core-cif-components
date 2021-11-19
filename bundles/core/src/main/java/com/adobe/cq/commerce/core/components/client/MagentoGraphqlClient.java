@@ -1,237 +1,54 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2021 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.client;
 
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.Map;
 
-import javax.servlet.http.Cookie;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.osgi.annotation.versioning.ProviderType;
 
-import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.graphql.client.CachingStrategy;
-import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
+import com.adobe.cq.commerce.core.components.internal.client.MagentoGraphqlClientImpl;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
-import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
-import com.adobe.cq.commerce.graphql.client.RequestOptions;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
-import com.adobe.cq.launches.api.Launch;
-import com.adobe.cq.wcm.launches.utils.LaunchUtils;
-import com.adobe.granite.ui.components.ds.ValueMapResource;
-import com.day.cq.commons.inherit.ComponentInheritanceValueMap;
-import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
-import com.day.cq.commons.inherit.InheritanceValueMap;
-import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.PageManager;
 
 /**
- * This is a wrapper class for {@link GraphqlClient}. The constructor adapts a {@link Resource} to
- * the GraphqlClient class and also looks for the <code>magentoStore</code> property on the resource
- * path in order to set the Magento <code>Store</code> HTTP header. This wrapper also sets the custom
- * Magento Gson deserializer from {@link QueryDeserializer}.
+ * This interface gives access to a {@link GraphqlClient} configured for a given context.
+ * <p>
+ * It is implemented as adapter for {@link SlingHttpServletRequest} and {@link Resource} where the full feature set can only be used with
+ * a {@link SlingHttpServletRequest} as an adaptable.
+ *
+ * @see MagentoGraphqlClientImpl for what feature are supported for any of the adaptables
  */
-public class MagentoGraphqlClient {
+@ProviderType
+public interface MagentoGraphqlClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MagentoGraphqlClient.class);
+    String STORE_CODE_PROPERTY = "magentoStore";
 
-    public static final String STORE_CODE_PROPERTY = "magentoStore";
-
-    public static final String CONFIGURATION_NAME = "cloudconfigs/commerce";
-
-    private GraphqlClient graphqlClient;
-
-    private RequestOptions requestOptions;
+    String CONFIGURATION_NAME = "cloudconfigs/commerce";
 
     /**
-     * Instantiates and returns a new MagentoGraphqlClient.
-     * This method returns <code>null</code> if the client cannot be instantiated.<br>
-     * <br>
-     * <b>Important:</b> components defined in a page template should use {@link #create(Resource, Page)}
-     * so the page can be used
-     * to adapt to the lower-level {@link GraphqlClient}, while the component resource can be used for caching purposes.
-     *
-     * @param resource The JCR resource to use to adapt to the lower-level {@link GraphqlClient}. This is used for caching purposes, where
-     *            the resource type is used as the cache key.
-     * @deprecated Use {@link #create(Resource, Page, SlingHttpServletRequest)} to be able to use the Timewarp feature to preview staged
-     *             data.
-     * @return A new MagentoGraphqlClient instance.
+     * A category string used for {@link Error} instances returned by the {@link MagentoGraphqlClient} implementation in case of a
+     * {@link RuntimeException} being caught.
      */
-    @Deprecated
-    public static MagentoGraphqlClient create(Resource resource) {
-        PageManager pageManager = resource.adaptTo(PageManager.class);
-        return create(resource, pageManager != null ? pageManager.getContainingPage(resource) : null, null);
-    }
-
-    /**
-     * Instantiates and returns a new MagentoGraphqlClient.
-     * This method returns <code>null</code> if the client cannot be instantiated.
-     *
-     * @param resource The JCR resource of the component being rendered. This is used for caching purposes, where the resource type is used
-     *            as the cache key. An OSGi service should pass a synthetic resource, where the resource type should be set to the
-     *            fully-qualified class name of the service.
-     * @param page The current AEM page. This is used to adapt to the lower-level {@link GraphqlClient}.
-     *            This is needed because it is not possible to get the current page for components added to the page template.
-     *            If null, the resource will be used to adapt to the client, but this might fail for components defined on page templates.
-     * @return A new MagentoGraphqlClient instance.
-     * @deprecated Use {@link #create(Resource, Page, SlingHttpServletRequest)} to be able to use the Timewarp feature to preview staged
-     *             data.
-     */
-    @Deprecated
-    public static MagentoGraphqlClient create(Resource resource, Page page) {
-        return create(resource, page, null);
-    }
-
-    /**
-     * Instantiates and returns a new MagentoGraphqlClient.
-     * This method returns <code>null</code> if the client cannot be instantiated.
-     *
-     * @param resource The JCR resource of the component being rendered. This is used for caching purposes, where the resource type is used
-     *            as the cache key. An OSGi service should pass a synthetic resource, where the resource type should be set to the
-     *            fully-qualified class name of the service.
-     * @param page The current AEM page. This is used to adapt to the lower-level {@link GraphqlClient}.
-     *            This is needed because it is not possible to get the current page for components added to the page template.
-     *            If null, the resource will be used to adapt to the client, but this might fail for components defined on page templates.
-     * @param request The current AEM Sling HTTP request. This is used to extract a possible TimeWarp timestamp from the request.
-     *            If set and in the future, the client will use the TimeWarp timestamp to set Magento's Preview-Version header.
-     * @return A new MagentoGraphqlClient instance.
-     */
-    public static MagentoGraphqlClient create(Resource resource, Page page, SlingHttpServletRequest request) {
-        try {
-            return new MagentoGraphqlClient(resource, page, request);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-            return null;
-        }
-    }
-
-    private MagentoGraphqlClient(Resource resource, Page page, SlingHttpServletRequest request) {
-
-        Resource configurationResource = page != null ? page.adaptTo(Resource.class) : resource;
-
-        // If the page is an AEM Launch, we get the configuration from the production page
-        Launch launch = null;
-        if (page != null && LaunchUtils.isLaunchBasedPath(page.getPath())) {
-            Resource launchResource = LaunchUtils.getLaunchResource(configurationResource);
-            launch = launchResource.adaptTo(Launch.class);
-        }
-
-        LOGGER.debug("Try to get a graphql client from the resource at {}", configurationResource.getPath());
-
-        ComponentsConfiguration configuration = configurationResource.adaptTo(ComponentsConfiguration.class);
-        if (configuration.size() == 0) {
-            LOGGER.warn("Context configuration not found, attempt to read the configuration from the page");
-            graphqlClient = configurationResource.adaptTo(GraphqlClient.class);
-        } else {
-            LOGGER.debug("Crafting a configuration resource and attempting to get a GraphQL client from it...");
-            // The Context-Aware Configuration API does return a ValueMap with all the collected properties from /conf and /libs,
-            // but if you ask it for a resource via ConfigurationResourceResolver#getConfigurationResource() you get the resource that
-            // resolves first (e.g. /conf/.../settings/cloudonfigs/commerce). This resource might not contain the properties
-            // we need to adapt it to a graphql client so we just craft our own resource using the value map provided above.
-            Resource configResource = new ValueMapResource(configurationResource.getResourceResolver(),
-                configurationResource.getPath(),
-                configurationResource.getResourceType(),
-                configuration.getValueMap());
-
-            graphqlClient = configResource.adaptTo(GraphqlClient.class);
-        }
-        if (graphqlClient == null) {
-            throw new RuntimeException("GraphQL client not available for resource " + configurationResource.getPath());
-        }
-        requestOptions = new RequestOptions().withGson(QueryDeserializer.getGson());
-
-        CachingStrategy cachingStrategy = new CachingStrategy()
-            .withCacheName(resource.getResourceType())
-            .withDataFetchingPolicy(DataFetchingPolicy.CACHE_FIRST);
-        requestOptions.withCachingStrategy(cachingStrategy);
-
-        List<Header> headers = new ArrayList<>();
-
-        String storeCode;
-        if (configuration.size() > 0) {
-            storeCode = configuration.get(STORE_CODE_PROPERTY, String.class);
-            if (storeCode == null) {
-                storeCode = readFallBackConfiguration(configurationResource, STORE_CODE_PROPERTY);
-            }
-        } else {
-            storeCode = readFallBackConfiguration(configurationResource, STORE_CODE_PROPERTY);
-        }
-        if (StringUtils.isNotEmpty(storeCode)) {
-            headers.add(new BasicHeader("Store", storeCode));
-        }
-
-        Long previewVersion = null;
-        if (launch != null) {
-            Calendar liveDate = launch.getLiveDate();
-            if (liveDate != null) {
-                TimeZone timeZone = liveDate.getTimeZone();
-                OffsetDateTime offsetDateTime = OffsetDateTime.ofInstant(liveDate.toInstant(), timeZone.toZoneId());
-                previewVersion = offsetDateTime.toEpochSecond();
-            }
-        } else if (request != null) {
-            Long timewarp = getTimeWarpEpoch(request);
-            if (timewarp != null) {
-                Calendar time = Calendar.getInstance();
-                time.setTimeInMillis(timewarp);
-                if (time.after(Calendar.getInstance())) {
-                    previewVersion = timewarp / 1000; // timewarp is in milliseconds, Magento Preview-Version header is in seconds
-                }
-            }
-        }
-
-        if (previewVersion != null) {
-            headers.add(new BasicHeader("Preview-Version", String.valueOf(previewVersion)));
-
-            // We use POST to ensure that Magento doesn't return a cached response
-            requestOptions.withHttpMethod(HttpMethod.POST);
-        }
-
-        if (!headers.isEmpty()) {
-            requestOptions.withHeaders(headers);
-        }
-    }
-
-    private Long getTimeWarpEpoch(SlingHttpServletRequest request) {
-        String timeWarp = request.getParameter("timewarp");
-        if (timeWarp == null) {
-            Cookie cookie = request.getCookie("timewarp");
-            if (cookie != null) {
-                timeWarp = cookie.getValue();
-            }
-        }
-        try {
-            return timeWarp != null ? Long.valueOf(timeWarp) : null;
-        } catch (NumberFormatException e) {
-            LOGGER.warn("Cannot parse timewarp timestamp '{}'", timeWarp);
-            return null;
-        }
-    }
+    String RUNTIME_ERROR_CATEGORY = RuntimeException.class.getName();
 
     /**
      * Executes the given Magento query and returns the response. This method will use
@@ -241,9 +58,7 @@ public class MagentoGraphqlClient {
      * @param query The GraphQL query.
      * @return The GraphQL response.
      */
-    public GraphqlResponse<Query, Error> execute(String query) {
-        return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, requestOptions);
-    }
+    GraphqlResponse<Query, Error> execute(String query);
 
     /**
      * Executes the given Magento query and returns the response. This method
@@ -253,45 +68,19 @@ public class MagentoGraphqlClient {
      * @param httpMethod The HTTP method that will be used to fetch the data.
      * @return The GraphQL response.
      */
-    public GraphqlResponse<Query, Error> execute(String query, HttpMethod httpMethod) {
-
-        // We do not set the HTTP method in 'this.requestOptions' to avoid setting it as the new default
-        RequestOptions options = new RequestOptions().withGson(requestOptions.getGson())
-            .withHeaders(requestOptions.getHeaders())
-            .withHttpMethod(httpMethod);
-
-        return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
-    }
+    GraphqlResponse<Query, Error> execute(String query, HttpMethod httpMethod);
 
     /**
      * Returns the complete configuration of the GraphQL client.
      *
      * @return GraphQL client configuration.
      */
-    public GraphqlClientConfiguration getConfiguration() {
-        return graphqlClient.getConfiguration();
-    }
+    GraphqlClientConfiguration getConfiguration();
 
-    private String readFallBackConfiguration(Resource resource, String propertyName) {
-
-        InheritanceValueMap properties;
-        String storeCode;
-
-        Page page = resource.getResourceResolver()
-            .adaptTo(PageManager.class)
-            .getContainingPage(resource);
-        if (page != null) {
-            properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());
-        } else {
-            properties = new ComponentInheritanceValueMap(resource);
-        }
-        storeCode = properties.getInherited(propertyName, String.class);
-        if (storeCode == null) {
-            storeCode = properties.getInherited("cq:" + propertyName, String.class);
-            if (storeCode != null) {
-                LOGGER.warn("Deprecated 'cq:magentoStore' still in use for {}. Please update to 'magentoStore'.", resource.getPath());
-            }
-        }
-        return storeCode;
-    }
+    /**
+     * Returns the list of custom HTTP headers used by the GraphQL client.
+     *
+     * @return a {@link Map} with header names as keys and header values as values
+     */
+    Map<String, String> getHttpHeaders();
 }

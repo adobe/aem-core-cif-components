@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.util.Collections;
@@ -22,7 +23,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Query;
 
@@ -65,43 +65,35 @@ public class ProductRetrieverTest {
     public void testExtendedProductQuery() {
         retriever.extendProductQueryWith(p -> p.createdAt()
             .addCustomSimpleField("is_returnable"));
+        retriever.extendProductQueryWith(p -> p.staged()); // use extend method twice to test the "merge" feature
         retriever.fetchProduct();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        Assert.assertTrue(captor.getValue().endsWith("created_at,is_returnable_custom_:is_returnable}}}"));
+        Assert.assertTrue(captor.getValue().endsWith("created_at,is_returnable_custom_:is_returnable,staged}}}"));
     }
 
     @Test
     public void testExtendedVariantQuery() {
         retriever.extendVariantQueryWith(p -> p.weight()
             .addCustomSimpleField("volume"));
+        retriever.extendVariantQueryWith(p -> p.staged()); // use extend method twice to test the "merge" feature
         retriever.fetchProduct();
 
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        Assert.assertTrue(captor.getValue().contains("weight,volume_custom_:volume}}},... on GroupedProduct"));
+        Assert.assertTrue(captor.getValue().contains("weight,volume_custom_:volume,staged}}},... on GroupedProduct"));
     }
 
     @Test
-    public void testSkuIdentifierType() {
-        retriever.setIdentifier(ProductIdentifierType.SKU, "my-sku");
+    public void testIdentifierType() {
+        retriever.setIdentifier("my-sku");
         retriever.fetchProduct();
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
         String queryStartsWith = "{products(filter:{sku:{eq:\"my-sku\"}})";
-        Assert.assertTrue(captor.getValue().startsWith(queryStartsWith));
-    }
-
-    @Test
-    public void testUrlKeyIdentifierType() {
-        retriever.setIdentifier(ProductIdentifierType.URL_KEY, "my-slug");
-        retriever.fetchProduct();
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(mockClient, times(1)).execute(captor.capture());
-        String queryStartsWith = "{products(filter:{url_key:{eq:\"my-slug\"}})";
         Assert.assertTrue(captor.getValue().startsWith(queryStartsWith));
     }
 }

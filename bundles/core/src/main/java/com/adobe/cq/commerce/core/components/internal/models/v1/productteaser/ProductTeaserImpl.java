@@ -1,33 +1,33 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.productteaser;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
@@ -41,12 +41,12 @@ import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
+import com.adobe.cq.commerce.magento.graphql.DownloadableProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
@@ -64,6 +64,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
     name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
     extensions = ExporterConstants.SLING_MODEL_EXTENSION)
 public class ProductTeaserImpl extends DataLayerComponent implements ProductTeaser {
+    static final String CALL_TO_ACTION_TYPE_DETAILS = "details";
+    static final String CALL_TO_ACTION_TYPE_ADD_TO_CART = "add-to-cart";
+    static final String CALL_TO_ACTION_TEXT_ADD_TO_CART = "Add to Cart";
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     private static final String SELECTION_PROPERTY = "selection";
@@ -71,10 +74,13 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @Self
     private SlingHttpServletRequest request;
 
-    @Inject
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
+    @ScriptVariable
     private Page currentPage;
 
-    @Inject
+    @OSGiService
     private UrlProvider urlProvider;
 
     @ScriptVariable
@@ -96,6 +102,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     private Locale locale;
     private Boolean isVirtualProduct;
+    private boolean ctaOverride;
 
     @PostConstruct
     protected void initModel() {
@@ -112,15 +119,17 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
             }
             combinedSku = SiteNavigation.toProductSkus(selection);
 
-            // Get MagentoGraphqlClient from the resource.
-            MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
-
             // Fetch product data
             if (magentoGraphqlClient != null) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
-                productRetriever.setIdentifier(ProductIdentifierType.SKU, combinedSku.getLeft());
+                productRetriever.setIdentifier(combinedSku.getLeft());
+                ctaOverride = CALL_TO_ACTION_TYPE_ADD_TO_CART.equals(cta) && !oneClickShoppable(getProduct());
             }
         }
+    }
+
+    private boolean oneClickShoppable(ProductInterface product) {
+        return product instanceof SimpleProduct || product instanceof VirtualProduct || product instanceof DownloadableProduct;
     }
 
     @JsonIgnore
@@ -143,7 +152,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @Override
     public CommerceIdentifier getCommerceIdentifier() {
         if (getSku() != null) {
-            return CommerceIdentifierImpl.fromProductSku(getSku());
+            return new CommerceIdentifierImpl(getSku(), CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT);
         }
         return null;
     }
@@ -166,11 +175,19 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @Override
     public String getCallToAction() {
+        if (ctaOverride) {
+            return CALL_TO_ACTION_TYPE_DETAILS;
+        }
+
         return cta;
     }
 
     @Override
     public String getCallToActionText() {
+        if (ctaOverride && StringUtils.isBlank(ctaText)) {
+            return CALL_TO_ACTION_TEXT_ADD_TO_CART;
+        }
+
         return ctaText;
     }
 
@@ -185,23 +202,16 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @Override
     @JsonIgnore
-    public String getFormattedPrice() {
-        if (getPriceRange() != null) {
-            return getPriceRange().getFormattedFinalPrice();
-        }
-        return null;
-    }
-
-    @Override
-    @JsonIgnore
     public String getUrl() {
         if (getProduct() != null) {
-            Map<String, String> params = new ParamsBuilder()
-                .sku(combinedSku.getLeft())
-                .variantSku(combinedSku.getRight())
-                .urlKey(productRetriever.fetchProduct().getUrlKey()) // Get slug from base product
-                .variantUrlKey(getProduct().getUrlKey())
-                .map();
+            ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+            params.setSku(combinedSku.getLeft());
+            params.setVariantSku(combinedSku.getRight());
+            // Get slug from base product
+            params.setUrlKey(productRetriever.fetchProduct().getUrlKey());
+            params.setUrlPath(productRetriever.fetchProduct().getUrlPath());
+            params.setUrlRewrites(productRetriever.fetchProduct().getUrlRewrites());
+            params.setVariantUrlKey(getProduct().getUrlKey());
 
             return urlProvider.toProductUrl(request, productPage, params);
         }
@@ -219,6 +229,16 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     public String getImage() {
         if (getProduct() != null) {
             return getProduct().getImage().getUrl();
+        }
+        return null;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getImageAlt() {
+        ProductInterface product = getProduct();
+        if (product != null) {
+            return StringUtils.defaultIfBlank(product.getImage().getLabel(), product.getName());
         }
         return null;
     }
@@ -263,17 +283,11 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @Override
     public Double getDataLayerPrice() {
-        if (getPriceRange() != null) {
-            return getPriceRange().getFinalPrice();
-        }
-        return null;
+        return getPriceRange() != null ? getPriceRange().getFinalPrice() : null;
     }
 
     @Override
     public String getDataLayerCurrency() {
-        if (getPriceRange() != null) {
-            return getPriceRange().getCurrency();
-        }
-        return null;
+        return getPriceRange() != null ? getPriceRange().getCurrency() : null;
     }
 }

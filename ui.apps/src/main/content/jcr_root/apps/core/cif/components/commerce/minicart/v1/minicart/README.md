@@ -18,7 +18,7 @@ This AEM component only renders a container `div` for the [React component](/rea
 
 ### URL routing
 
-This component requires the [AEM Dispatcher with GraphQL routing](/dispatcher) set up. By default Magento GraphQL endpoint will be accessed via relative URL `/magento/graphql`.
+This component requires the [AEM Dispatcher with GraphQL routing](/dispatcher) set up. By default the Magento GraphQL endpoint will be accessed via relative URL `/api/graphql`.
 
 ### Adding a product to cart
 

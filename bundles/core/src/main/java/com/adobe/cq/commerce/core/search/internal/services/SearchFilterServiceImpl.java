@@ -1,22 +1,23 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.search.internal.services;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -52,16 +53,19 @@ public class SearchFilterServiceImpl implements SearchFilterService {
 
     @Override
     public List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(final Page page) {
-
         // This is used to configure the cache in the GraphqlClient with a cache name of
         // --> com.adobe.cq.commerce.core.search.services.SearchFilterService
-        Resource resource = new SyntheticResource(null, (String) null, SearchFilterService.class.getName());
+        return Optional.ofNullable(page.adaptTo(Resource.class))
+            .map(r -> new SyntheticResource(r.getResourceResolver(), r.getPath(), SearchFilterService.class.getName()))
+            .map(r -> r.adaptTo(MagentoGraphqlClient.class))
+            .map(this::retrieveCurrentlyAvailableCommerceFilters)
+            .orElseGet(Collections::emptyList);
+    }
 
+    private List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(MagentoGraphqlClient magentoGraphqlClient) {
         // First we query Magento for the required attribute and filter information
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, page, null);
         final List<__InputValue> availableFilters = fetchAvailableSearchFilters(magentoGraphqlClient);
         final List<Attribute> attributes = fetchAttributeMetadata(magentoGraphqlClient, availableFilters);
-
         // Then we combine this data into a useful set of data usable by other systems
         FilterAttributeMetadataConverter converter = new FilterAttributeMetadataConverter(attributes);
         return availableFilters.stream().map(converter).collect(Collectors.toList());
@@ -72,7 +76,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("MagentoGraphQL client is null, unable to make query to fetch attribute metadata.");
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         List<AttributeInput> attributeInputs = availableFilters.stream().map(inputField -> {
@@ -93,9 +97,9 @@ public class SearchFilterServiceImpl implements SearchFilterService {
 
         // If there are errors we'll log them and return a safe but empty list
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
-            response.getErrors().stream()
+            response.getErrors()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         CustomAttributeMetadata cam = response.getData().getCustomAttributeMetadata();
@@ -112,7 +116,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("MagentoGraphQL client is null, unable to make introspection call to fetch available filter attributes.");
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         __TypeQueryDefinition typeQuery = q -> q
@@ -128,7 +132,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
 
         // If there are errors in the response we'll log them out and return a safe but empty value
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
-            response.getErrors().stream()
+            response.getErrors()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
             return Collections.emptyList();
         }
@@ -136,5 +140,4 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         __Type type = response.getData().__getType();
         return type != null ? type.getInputFields() : Collections.emptyList();
     }
-
 }

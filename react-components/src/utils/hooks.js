@@ -1,20 +1,22 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import { useEffect, useCallback } from 'react';
-import { useQuery } from '@apollo/client';
+import { useQuery, useApolloClient } from '@apollo/client';
 import { checkCookie, cookieValue } from './cookieUtils';
-import { useApolloClient } from '@apollo/client';
+import { isDataLayerEnabled } from './dataLayerUtils';
 
 import QUERY_COUNTRIES from '../queries/query_countries.graphql';
 
@@ -79,4 +81,34 @@ export const useAwaitQuery = query => {
 export const useQueryParams = () => {
     // Better to use useLocation from react router here, but this doesn't work because of dependency mess up.
     return new URLSearchParams(window.location.search);
+};
+
+/**
+ * This hook provides access to the Magento Storefront Events SDK if enabled and available.
+ */
+export const useStorefrontEvents = () => {
+    if (isDataLayerEnabled && window.magentoStorefrontEvents) {
+        return window.magentoStorefrontEvents;
+    }
+    return false;
+};
+
+export const usePageType = () => {
+    // Currently only using CMS, Category and Product. Added other types for completeness
+    // and to be used in the future.
+    const PageTypes = {
+        CMS: 'CMS',
+        CATEGORY: 'Category',
+        PRODUCT: 'Product',
+        CART: 'Cart',
+        CHECKOUT: 'Checkout'
+    };
+
+    if (document.querySelector('[data-cif-product-context]')) {
+        return PageTypes.PRODUCT;
+    }
+    if (document.querySelector('[data-cif-category-context]')) {
+        return PageTypes.CATEGORY;
+    }
+    return PageTypes.CMS;
 };

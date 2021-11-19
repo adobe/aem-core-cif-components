@@ -22,6 +22,7 @@ buildNumber.properties
 # Ignore IDE files
 .idea/
 *.iml
+**/*.iml
 .metadata
 bin/
 tmp/
@@ -50,8 +51,6 @@ frontend-maven-plugin
 
 **/dist
 **/react-components/resources/lang
-**/storybook-static
-**/storybook/resources/**
 
 yarn-error.log
 .env

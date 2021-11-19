@@ -1,24 +1,29 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/react';
 import { render } from 'test-utils';
 import { CartProvider, useCartState } from '../../Minicart/cartContext';
 import { CheckoutProvider, useCheckoutState } from '../checkoutContext';
 import useCart from '../useCart';
+import mockMagentoStorefrontEvents from '../../../utils/mocks/mockMagentoStorefrontEvents';
 
 describe('useCart', () => {
+    let mse;
+
     const mockShippingAddress = {
         city: 'Calder',
         country_code: 'US',
@@ -31,6 +36,19 @@ describe('useCart', () => {
         street: ['cart shipping address'],
         telephone: '(555) 229-3326'
     };
+
+    beforeAll(() => {
+        window.document.body.setAttributeNode(document.createAttribute('data-cmp-data-layer-enabled'));
+        mse = window.magentoStorefrontEvents = mockMagentoStorefrontEvents;
+
+        window.adobeDataLayer = [];
+        window.adobeDataLayer.push = jest.fn();
+    });
+
+    beforeEach(() => {
+        window.adobeDataLayer.push.mockClear();
+        window.magentoStorefrontEvents.mockClear();
+    });
 
     it('begins checkout when shipping address is set on cart', async () => {
         const Wrapper = () => {
@@ -96,6 +114,7 @@ describe('useCart', () => {
         );
         expect(billingAddressSaveAsShippingAddress).not.toBeUndefined();
         expect(billingAddressSaveAsShippingAddress.textContent).toEqual('false');
+        expect(mse.publish.initiateCheckout).toHaveBeenCalledTimes(1);
 
         const flowState = getByTestId('flow-state');
         expect(flowState).not.toBeUndefined();

@@ -1,0 +1,34 @@
+{
+  "name": "extensions.product-recs",
+  "private": true,
+  "version": "0.0.1",
+  "description": "AEM CIF Core Components Products Recommendations ",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run prettier:check",
+    "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
+    "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc",
+    "webpack:dev": "webpack --env.production --mode=development",
+    "webpack:prod": "webpack --env.production --mode=production"
+  },
+  "author": "Adobe",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adobe/aem-core-cif-components.git"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
+    "babel-loader": "^8.0.6",
+    "glob": "^7.1.6",
+    "graphql": "^15.3.0",
+    "prettier": "^1.19.1",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "@adobe/magento-storefront-event-collector": "^1.0.0",
+    "@babel/polyfill": "^7.8.3"
+  }
+}

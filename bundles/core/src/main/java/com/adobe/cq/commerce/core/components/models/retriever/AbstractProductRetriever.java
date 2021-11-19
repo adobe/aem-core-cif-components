@@ -1,24 +1,27 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.retriever;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -51,23 +54,12 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     /**
      * Product instance. Is only available after populate() was called.
      */
-    protected ProductInterface product;
+    protected Optional<ProductInterface> product;
 
     /**
-     * Media base url from the Magento store info. Is only available after populate() was called.
-     */
-    @Deprecated
-    protected String mediaBaseUrl;
-
-    /**
-     * Identifier of the product that should be fetched. Which kind of identifier is used is specified in {@link #productIdentifierType}
+     * SKU identifier of the product that should be fetched.
      */
     protected String identifier;
-
-    /**
-     * The type of the product identifier.
-     */
-    protected ProductIdentifierType productIdentifierType;
 
     public AbstractProductRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -82,46 +74,18 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
         if (this.product == null) {
             populate();
         }
-        return this.product;
+        return this.product.orElse(null);
     }
 
     /**
-     * Executes the GraphQL query and returns the media base url from the store info. For subsequent calls of this method, a cached url is
-     * returned.
+     * Set the identifier of the product that should be fetched. Products are retrieved using the default identifier SKU.
      *
-     * @return Media base url
+     * @param identifier Product SKU identifier
      */
-    @Deprecated
-    public String fetchMediaBaseUrl() {
-        if (this.mediaBaseUrl == null) {
-            populate();
-        }
-        return this.mediaBaseUrl;
-    }
-
-    /**
-     * Set the identifier of the product that should be fetched. Which kind of identifier is used (usually slug or SKU) is implementation
-     * specific and should be checked in subclass implementations. Setting the identifier, removes any cached data.
-     *
-     * @param identifier Product identifier
-     * @deprecated Use {@link #setIdentifier(ProductIdentifierType, String)} instead.
-     */
-    @Deprecated
     public void setIdentifier(String identifier) {
-        setIdentifier(ProductIdentifierType.SKU, identifier); // Backwards compatibility, default identifier was SKU
-    }
-
-    /**
-     * Set the identifier and the identifier type of the product that should be fetched. Setting the identifier, removes any cached data.
-     *
-     * @param productIdentifierType The product identifier type.
-     * @param identifier The product identifier.
-     */
-    public void setIdentifier(ProductIdentifierType productIdentifierType, String identifier) {
         product = null;
         query = null;
         this.identifier = identifier;
-        this.productIdentifierType = productIdentifierType;
     }
 
     /**
@@ -137,10 +101,16 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * }
      * </pre>
      *
+     * If called multiple times, each hook will be "appended" to the previously registered hook(s).
+     *
      * @param productQueryHook Lambda that extends the product query
      */
     public void extendProductQueryWith(Consumer<ProductInterfaceQuery> productQueryHook) {
-        this.productQueryHook = productQueryHook;
+        if (this.productQueryHook == null) {
+            this.productQueryHook = productQueryHook;
+        } else {
+            this.productQueryHook = this.productQueryHook.andThen(productQueryHook);
+        }
     }
 
     /**
@@ -156,10 +126,16 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * }
      * </pre>
      *
+     * If called multiple times, each hook will be "appended" to the previously registered hook(s).
+     *
      * @param variantQueryHook Lambda that extends the product variant query
      */
     public void extendVariantQueryWith(Consumer<SimpleProductQuery> variantQueryHook) {
-        this.variantQueryHook = variantQueryHook;
+        if (this.variantQueryHook == null) {
+            this.variantQueryHook = variantQueryHook;
+        } else {
+            this.variantQueryHook = this.variantQueryHook.andThen(variantQueryHook);
+        }
     }
 
     /**
@@ -170,12 +146,7 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      */
     protected String generateQuery(String identifier) {
         FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
-        ProductAttributeFilterInput filter;
-        if (ProductIdentifierType.URL_KEY.equals(productIdentifierType)) {
-            filter = new ProductAttributeFilterInput().setUrlKey(identifierFilter);
-        } else {
-            filter = new ProductAttributeFilterInput().setSku(identifierFilter);
-        }
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(identifierFilter);
 
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
@@ -213,12 +184,19 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     protected void populate() {
         // Get product list from response
         GraphqlResponse<Query, Error> response = executeQuery();
-        Query rootQuery = response.getData();
-        List<ProductInterface> products = rootQuery.getProducts().getItems();
+        if (CollectionUtils.isEmpty(response.getErrors())) {
+            Query rootQuery = response.getData();
+            List<ProductInterface> products = rootQuery.getProducts().getItems();
 
-        // Return first product in list
-        if (products.size() > 0) {
-            product = products.get(0);
+            // Return first product in list unless the identifier type is 'url_key',
+            // then return the product whose 'url_key' matches the identifier
+            if (products.size() > 0) {
+                product = Optional.of(products.get(0));
+            } else {
+                product = Optional.empty();
+            }
+        } else {
+            product = Optional.empty();
         }
     }
 
@@ -228,5 +206,4 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * @return ProductInterface query definition
      */
     abstract protected ProductInterfaceQueryDefinition generateProductQuery();
-
 }

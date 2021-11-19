@@ -1,16 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2020 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2020 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcollection;
 
 import java.util.Collection;
@@ -19,18 +21,19 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
@@ -39,6 +42,7 @@ import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManagerFactory;
 import com.day.cq.wcm.api.designer.Style;
 
 import static com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl.PAGE_SIZE_DEFAULT;
@@ -48,7 +52,9 @@ import static com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImp
     adapters = ProductCollection.class,
     resourceType = ProductCollectionImpl.RESOURCE_TYPE)
 public class ProductCollectionImpl extends DataLayerComponent implements ProductCollection {
-    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcollection/v1/productcollection";
+
+    public static final String RESOURCE_TYPE = "core/cif/components/commerce/productcollection/v1/productcollection";
+
     protected static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
     protected static final String PAGINATION_TYPE_DEFAULT = "paginationbar";
 
@@ -59,33 +65,47 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
 
     @Self
     protected SlingHttpServletRequest request;
-    @ScriptVariable
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     protected ValueMap properties;
-    @ScriptVariable
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     protected Style currentStyle;
-    @Inject
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     protected Page currentPage;
-    @Inject
+    @OSGiService
     protected SearchResultsService searchResultsService;
-    @Inject
+    @OSGiService
     protected UrlProvider urlProvider;
-    @Inject
+    @OSGiService
     protected Externalizer externalizer;
+    @OSGiService
+    protected PageManagerFactory pageManagerFactory;
 
     protected SearchOptionsImpl searchOptions;
     protected SearchResultsSet searchResultsSet;
 
     @PostConstruct
     private void baseInitModel() {
-        navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
-        loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
-        paginationType = properties.get(PN_PAGINATION_TYPE, currentStyle.get(PN_PAGINATION_TYPE, PAGINATION_TYPE_DEFAULT));
+        if (properties == null) {
+            properties = request.getResource().getValueMap();
+        }
+        if (currentPage == null) {
+            currentPage = pageManagerFactory.getPageManager(request.getResourceResolver())
+                .getContainingPage(request.getResource());
+        }
+
+        navPageSize = properties.get(PN_PAGE_SIZE, getOptionalStyle(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
+        loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, getOptionalStyle(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+        paginationType = properties.get(PN_PAGINATION_TYPE, getOptionalStyle(PN_PAGINATION_TYPE, PAGINATION_TYPE_DEFAULT));
 
         // get product template page
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
         }
+    }
+
+    protected final <T> T getOptionalStyle(String pn, T defaultValue) {
+        return currentStyle != null ? currentStyle.get(pn, defaultValue) : defaultValue;
     }
 
     public Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {

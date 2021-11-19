@@ -1,16 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
 import java.util.Arrays;
@@ -21,7 +23,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -50,7 +51,7 @@ public class CategoriesRetrieverTest {
         when(mockQuery.get(any())).thenReturn(mockCategory);
 
         retriever = new CategoriesRetriever(mockClient);
-        retriever.setIdentifiers(Arrays.asList("5", "6"));
+        retriever.setIdentifiers(Arrays.asList("uid-5", "uid-6"));
     }
 
     @Test
@@ -71,19 +72,8 @@ public class CategoriesRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{ids:{in:[\"5\",\"6\"]}}){id,name,url_path,position,image,children_count,level_custom_:level}}";
+        String expectedQuery = "{categoryList(filters:{category_uid:{in:[\"uid-5\",\"uid-6\"]}}){uid,name,url_key,url_path,position,image,children_count,level_custom_:level}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
-    }
-
-    @Test
-    public void testUsingUID() {
-        retriever.setIdentifiers(Arrays.asList("UID1", "UID2"), UrlProvider.CategoryIdentifierType.UID);
-        retriever.fetchCategories();
-
-        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(mockClient, times(1)).execute(captor.capture());
-
-        Assert.assertTrue(captor.getValue().contains("categoryList(filters:{category_uid:{in:[\"UID1\",\"UID2\"]}})"));
     }
 
     @Test
@@ -93,14 +83,14 @@ public class CategoriesRetrieverTest {
         final ArgumentCaptor<String> firstCaptor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(firstCaptor.capture());
 
-        retriever.setIdentifiers(Arrays.asList("6"));
+        retriever.setIdentifiers(Arrays.asList("uid-6"));
         retriever.fetchCategories();
 
         final ArgumentCaptor<String> secondCaptor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(2)).execute(secondCaptor.capture());
 
-        Assert.assertTrue(firstCaptor.getValue().contains("categoryList(filters:{ids:{in:[\"5\",\"6\"]}})"));
-        Assert.assertTrue(secondCaptor.getValue().contains("categoryList(filters:{ids:{in:[\"6\"]}})"));
+        Assert.assertTrue(firstCaptor.getValue().contains("categoryList(filters:{category_uid:{in:[\"uid-5\",\"uid-6\"]}})"));
+        Assert.assertTrue(secondCaptor.getValue().contains("categoryList(filters:{category_uid:{in:[\"uid-6\"]}})"));
     }
 
 }

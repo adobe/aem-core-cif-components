@@ -1,16 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
 import CommerceGraphqlApi from '../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js';
@@ -28,10 +30,15 @@ describe('CommerceGraphqlApi', () => {
     let graphqlApi;
     let fetchSpy;
     let fetchGraphqlSpy;
-
+    let httpHeaders = '{"custom-1":"one","custom-2":"two"}';
     beforeEach(() => {
         fetchSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetch');
-        graphqlApi = new CommerceGraphqlApi({ endpoint: '/graphql', storeView: 'default', graphqlMethod: 'GET' });
+        graphqlApi = new CommerceGraphqlApi({
+            graphqlEndpoint: '/graphql',
+            storeView: 'default',
+            graphqlMethod: 'GET',
+            headers: JSON.parse(httpHeaders)
+        });
     });
 
     afterEach(() => {
@@ -45,10 +52,6 @@ describe('CommerceGraphqlApi', () => {
 
     it('throws an error if the endpoint property is missing', () => {
         assert.throws(() => new CommerceGraphqlApi({ storeView: 'default' }));
-    });
-
-    it('throws an error if the storeView property is missing', () => {
-        assert.throws(() => new CommerceGraphqlApi({ endpoint: '/graphql' }));
     });
 
     it('fetches an uncached GraphQL query', () => {
@@ -86,6 +89,21 @@ describe('CommerceGraphqlApi', () => {
             let options = fetchSpy.firstCall.args[1];
 
             assert.include(options.headers, { Store: 'my-special-store' });
+        });
+    });
+
+    it('passes the custom headers', () => {
+        const mockResult = { result: 'my-result' };
+        fetchSpy.resolves(mockResult);
+        graphqlApi.storeView = 'my-special-store';
+
+        let query = 'my-sample-query';
+
+        return graphqlApi._fetchGraphql(query, true).then(res => {
+            assert.isTrue(fetchSpy.calledOnce);
+            let options = fetchSpy.firstCall.args[1];
+
+            assert.include(options.headers, { 'custom-1': 'one', 'custom-2': 'two' });
         });
     });
 
@@ -178,7 +196,7 @@ describe('CommerceGraphqlApi', () => {
             };
 
             fetchGraphqlSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetchGraphql').resolves(mockResponse);
-            graphqlApi = new CommerceGraphqlApi({ endpoint: '/graphql', storeView: 'default' });
+            graphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: '/graphql', storeView: 'default' });
 
             return graphqlApi.getProductPrices(['sku-a', 'sku-b'], false).then(res => {
                 assert.isTrue(fetchGraphqlSpy.calledOnce);
@@ -254,7 +272,7 @@ describe('CommerceGraphqlApi', () => {
             };
 
             fetchGraphqlSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetchGraphql').resolves(mockResponse);
-            graphqlApi = new CommerceGraphqlApi({ endpoint: '/graphql', storeView: 'default' });
+            graphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: '/graphql', storeView: 'default' });
 
             return graphqlApi.getProductPrices(['sku-a'], true).then(res => {
                 assert.isTrue(fetchGraphqlSpy.calledOnce);

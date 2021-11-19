@@ -1,27 +1,35 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { fireEvent, waitForElement } from '@testing-library/react';
 import { render } from 'test-utils';
-import { useUserContext } from '../UserContext';
+import { render as renderPure } from '@testing-library/react';
+import UserContextProvider, { useUserContext } from '../UserContext';
 import { useAwaitQuery } from '../../utils/hooks';
+import mockMagentoStorefrontEvents from '../../utils/mocks/mockMagentoStorefrontEvents';
 
 import QUERY_CUSTOMER_CART from '../../queries/query_customer_cart.graphql';
+import { MockedProvider } from '@apollo/client/testing';
 
 describe('UserContext test', () => {
+    let mse;
+
     beforeAll(() => {
         window.document.body.setAttributeNode(document.createAttribute('data-cmp-data-layer-enabled'));
+        mse = window.magentoStorefrontEvents = mockMagentoStorefrontEvents;
 
         window.adobeDataLayer = [];
         window.adobeDataLayer.push = jest.fn();
@@ -29,6 +37,7 @@ describe('UserContext test', () => {
 
     beforeEach(() => {
         window.adobeDataLayer.push.mockClear();
+        window.magentoStorefrontEvents.mockClear();
 
         Object.defineProperty(window.document, 'cookie', {
             writable: true,
@@ -69,6 +78,7 @@ describe('UserContext test', () => {
         expect(window.adobeDataLayer.push).toHaveBeenLastCalledWith({
             event: 'cif:userSignIn'
         });
+        expect(mse.publish.signIn).toHaveBeenCalledTimes(1);
 
         fireEvent.click(getByRole('button'));
         result = await waitForElement(() => getByTestId('user-details'));
@@ -82,6 +92,7 @@ describe('UserContext test', () => {
                 email: 'imccoy@weretail.net'
             }
         });
+        expect(mse.context.setShopper).toHaveBeenCalledWith({ shopperId: 'logged-in' });
     });
 
     it('updates the cart id of the user', async () => {
@@ -169,11 +180,13 @@ describe('UserContext test', () => {
         const expectedCookieValue = 'cif.userToken=;path=/; domain=localhost;Max-Age=0';
         expect(document.cookie).toEqual(expectedCookieValue);
 
-        expect(window.adobeDataLayer.push).toHaveBeenLastCalledWith({
+        expect(window.adobeDataLayer.push).toHaveBeenCalledWith({
             event: 'cif:userSignOut',
             eventInfo: null,
             user: null
         });
+        expect(mse.publish.signOut).toHaveBeenCalledTimes(1);
+        expect(mse.context.setShopper).toHaveBeenCalledWith({ shopperId: 'guest' });
     });
 
     it('opens account dropdown', async () => {
@@ -198,6 +211,65 @@ describe('UserContext test', () => {
         const result = await waitForElement(() => getByTestId('account-dropdown-open'));
         expect(result).not.toBeUndefined();
         expect(result.textContent).toEqual('Account dropdown opened');
+    });
+
+    it('initializes in logged out state', async () => {
+        const ContextWrapper = () => {
+            const [{ isSignedIn }] = useUserContext();
+            if (isSignedIn) {
+                return <div data-testid="status">logged in</div>;
+            }
+            return <div data-testid="status">logged out</div>;
+        };
+
+        const { getByTestId } = renderPure(
+            <MockedProvider>
+                <UserContextProvider>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        let status = await waitForElement(() => getByTestId('status'));
+        expect(status.textContent).toEqual('logged out');
+
+        expect(mse.context.setShopper).toHaveBeenLastCalledWith({ shopperId: 'guest' });
+        expect(window.adobeDataLayer.push).toHaveBeenLastCalledWith({ user: null });
+    });
+
+    it('initializes in logged in state', async () => {
+        const ContextWrapper = () => {
+            const [{ isSignedIn }] = useUserContext();
+            if (isSignedIn) {
+                return <div data-testid="status">logged in</div>;
+            }
+            return <div data-testid="status">logged out</div>;
+        };
+
+        const initialState = {
+            currentUser: {
+                email: 'imccoy@weretail.net'
+            },
+            isSignedIn: true
+        };
+
+        const { getByTestId } = renderPure(
+            <MockedProvider>
+                <UserContextProvider initialState={initialState}>
+                    <ContextWrapper />
+                </UserContextProvider>
+            </MockedProvider>
+        );
+
+        let status = await waitForElement(() => getByTestId('status'));
+        expect(status.textContent).toEqual('logged in');
+
+        expect(mse.context.setShopper).toHaveBeenLastCalledWith({ shopperId: 'logged-in' });
+        expect(window.adobeDataLayer.push).toHaveBeenLastCalledWith({
+            user: {
+                email: 'imccoy@weretail.net'
+            }
+        });
     });
 
     it('shows sign in and forgot password views in account dropdown', async () => {

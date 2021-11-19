@@ -1,20 +1,22 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { useCallback, useMemo, useState } from 'react';
 import { Form, useFieldState } from 'informed';
 import { array, bool, func, object, shape, string, number } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import Button from '../Button';
 import Select from '../Select';
@@ -29,6 +31,9 @@ import Checkbox from '../Checkbox';
 import Field from '../Field';
 import TextInput from '../TextInput';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AddressForm = props => {
     const { parseAddressFormValues } = useAddressForm({});
     const [submitting, setIsSubmitting] = useState(false);
@@ -51,7 +56,7 @@ const AddressForm = props => {
     } = props;
     const validationMessage = isAddressInvalid ? invalidAddressMessage : null;
     const errorMessage = formErrorMessage ? formErrorMessage : null;
-    const [t] = useTranslation(['account', 'checkout', 'common']);
+    const intl = useIntl();
 
     const displayCountries = useMemo(() => {
         if (!countries || countries.length === 0) {
@@ -115,7 +120,11 @@ const AddressForm = props => {
                         <h2 className={classes.heading}>{formHeading}</h2>
                         {showAddressSelect && (
                             <div className={classes.address_select}>
-                                <Field label={t('checkout:address-use-saved-address', 'Use Saved Address')}>
+                                <Field
+                                    label={intl.formatMessage({
+                                        id: 'checkout:address-use-saved-address',
+                                        defaultMessage: 'Use Saved Address'
+                                    })}>
                                     <AddressSelect
                                         initialValue={initialAddressSelectValue}
                                         onValueChange={value => onAddressSelectValueChange(value, formApi)}
@@ -124,7 +133,12 @@ const AddressForm = props => {
                             </div>
                         )}
                         <div className={classes.firstname}>
-                            <Field htmlFor={classes.firstname} label={t('checkout:address-firstname', 'First Name')}>
+                            <Field
+                                htmlFor={classes.firstname}
+                                label={intl.formatMessage({
+                                    id: 'checkout:address-firstname',
+                                    defaultMessage: 'First Name'
+                                })}>
                                 <TextInput
                                     id={classes.firstname}
                                     field="firstname"
@@ -134,7 +148,12 @@ const AddressForm = props => {
                             </Field>
                         </div>
                         <div className={classes.lastname}>
-                            <Field htmlFor={classes.lastname} label={t('checkout:address-lastname', 'Last Name')}>
+                            <Field
+                                htmlFor={classes.lastname}
+                                label={intl.formatMessage({
+                                    id: 'checkout:address-lastname',
+                                    defaultMessage: 'Last Name'
+                                })}>
                                 <TextInput
                                     id={classes.lastname}
                                     field="lastname"
@@ -145,7 +164,12 @@ const AddressForm = props => {
                         </div>
                         {showEmailInput && (
                             <div className={classes.email}>
-                                <Field htmlFor={classes.email} label={t('checkout:address-email', 'E-Mail')}>
+                                <Field
+                                    htmlFor={classes.email}
+                                    label={intl.formatMessage({
+                                        id: 'checkout:address-email',
+                                        defaultMessage: 'E-Mail'
+                                    })}>
                                     <TextInput
                                         id={classes.email}
                                         field="email"
@@ -156,17 +180,23 @@ const AddressForm = props => {
                             </div>
                         )}
                         <div className={classes.street0}>
-                            <Field htmlFor={classes.street0} label={t('checkout:address-street', 'Street')}>
+                            <Field
+                                htmlFor={classes.street0}
+                                label={intl.formatMessage({ id: 'checkout:address-street', defaultMessage: 'Street' })}>
                                 <TextInput id={classes.street0} field="street0" validateOnBlur validate={isRequired} />
                             </Field>
                         </div>
                         <div className={classes.city}>
-                            <Field htmlFor={classes.city} label={t('checkout:address-city', 'City')}>
+                            <Field
+                                htmlFor={classes.city}
+                                label={intl.formatMessage({ id: 'checkout:address-city', defaultMessage: 'City' })}>
                                 <TextInput id={classes.city} field="city" validateOnBlur validate={isRequired} />
                             </Field>
                         </div>
                         <div className={classes.country}>
-                            <Field htmlFor={classes.country} label={t('checkout:country', 'Country')}>
+                            <Field
+                                htmlFor={classes.country}
+                                label={intl.formatMessage({ id: 'checkout:country', defaultMessage: 'Country' })}>
                                 <Select
                                     id={classes.country}
                                     field="country_code"
@@ -180,12 +210,16 @@ const AddressForm = props => {
                             </Field>
                         </div>
                         <div className={classes.region_code}>
-                            <Field htmlFor={classes.region_code} label={t('checkout:address-state', 'State')}>
+                            <Field
+                                htmlFor={classes.region_code}
+                                label={intl.formatMessage({ id: 'checkout:address-state', defaultMessage: 'State' })}>
                                 <Regions />
                             </Field>
                         </div>
                         <div className={classes.postcode}>
-                            <Field htmlFor={classes.postcode} label={t('checkout:address-postcode', 'ZIP')}>
+                            <Field
+                                htmlFor={classes.postcode}
+                                label={intl.formatMessage({ id: 'checkout:address-postcode', defaultMessage: 'ZIP' })}>
                                 <TextInput
                                     id={classes.postcode}
                                     field="postcode"
@@ -195,7 +229,9 @@ const AddressForm = props => {
                             </Field>
                         </div>
                         <div className={classes.telephone}>
-                            <Field htmlFor={classes.telephone} label={t('checkout:address-phone', 'Phone')}>
+                            <Field
+                                htmlFor={classes.telephone}
+                                label={intl.formatMessage({ id: 'checkout:address-phone', defaultMessage: 'Phone' })}>
                                 <TextInput
                                     id={classes.telephone}
                                     field="telephone"
@@ -208,7 +244,10 @@ const AddressForm = props => {
                             <div className={classes.default_shipping}>
                                 <Checkbox
                                     id={classes.default_shipping}
-                                    label={t('checkout:address-default-address', 'Make my default address')}
+                                    label={intl.formatMessage({
+                                        id: 'checkout:address-default-address',
+                                        defaultMessage: 'Make my default address'
+                                    })}
                                     field="default_shipping"
                                 />
                             </div>
@@ -217,7 +256,10 @@ const AddressForm = props => {
                             <div className={classes.save_in_address_book}>
                                 <Checkbox
                                     id={classes.save_in_address_book}
-                                    label={t('checkout:address-save-in-address-book', 'Save in address book')}
+                                    label={intl.formatMessage({
+                                        id: 'checkout:address-save-in-address-book',
+                                        defaultMessage: 'Save in address book'
+                                    })}
                                     field="save_in_address_book"
                                 />
                             </div>
@@ -226,7 +268,9 @@ const AddressForm = props => {
                         <div className={classes.error}>{errorMessage}</div>
                     </div>
                     <div className={classes.footer}>
-                        <Button onClick={cancel}>{t('common:cancel', 'Cancel')}</Button>
+                        <Button onClick={cancel}>
+                            {intl.formatMessage({ id: 'common:cancel', defaultMessage: 'Cancel' })}
+                        </Button>
                         <Button type="submit" priority="high" disabled={submitting}>
                             {submitButtonLabel}
                         </Button>

@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts;
 
 import java.text.NumberFormat;
@@ -21,30 +22,31 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.http.HttpStatus;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
-import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.testing.Utils;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.Money;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -55,8 +57,8 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -64,30 +66,17 @@ import static org.mockito.Mockito.when;
 
 public class RelatedProductsImplTest {
 
-    @Rule
-    public final AemContext context = createContext("/context/jcr-content.json");
-
-    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-            "my-store"));
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+        "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                // Load page structure
-                context.load().json(contentPath, "/content");
-
-                UrlProviderImpl urlProvider = new UrlProviderImpl();
-                urlProvider.activate(new MockUrlProviderConfiguration());
-                context.registerService(UrlProvider.class, urlProvider);
-
-                context.registerAdapter(Resource.class, ComponentsConfiguration.class,
-                    (Function<Resource, ComponentsConfiguration>) item -> MOCK_CONFIGURATION_OBJECT);
-
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
+    @Rule
+    public final AemContext context = buildAemContext("/context/jcr-content.json")
+        .<AemContext>afterSetUp(context -> {
+            context.registerAdapter(Resource.class, ComponentsConfiguration.class,
+                (Function<Resource, ComponentsConfiguration>) item -> MOCK_CONFIGURATION_OBJECT);
+        })
+        .build();
 
     private static final String PRODUCT_PAGE = "/content/product-page";
     private static final String PAGE = "/content/pageA";
@@ -111,6 +100,25 @@ public class RelatedProductsImplTest {
     private Resource relatedProductsResource;
     private RelatedProductsImpl relatedProducts;
     private List<ProductInterface> products;
+    private CloseableHttpClient httpClient;
+    private GraphqlClient graphqlClient;
+
+    @Before
+    public void setUp() throws Exception {
+        httpClient = mock(CloseableHttpClient.class);
+        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
+
+        graphqlClient = Mockito.spy(new GraphqlClientImpl());
+        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200, "{products(filter:{url_key");
+
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        Style style = mock(Style.class);
+        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
+        when(style.get(Title.PN_DESIGN_DEFAULT_TYPE, String.class)).thenReturn("h3");
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
+    }
 
     private void setUp(RelationType relationType, String jsonResponsePath, boolean addSlugInSelector) throws Exception {
         Page page = context.currentPage(PAGE);
@@ -118,34 +126,26 @@ public class RelatedProductsImplTest {
         context.currentResource(resourcePath);
         relatedProductsResource = Mockito.spy(context.resourceResolver().getResource(resourcePath));
 
-        if (addSlugInSelector) {
-            MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-            requestPathInfo.setSelectorString("endurance-watch");
-        }
-
-        GraphqlClient graphqlClient = null;
-        if (jsonResponsePath != null) {
-            Query rootQuery = Utils.getQueryFromResource(jsonResponsePath);
-            ProductInterface product = rootQuery.getProducts().getItems().get(0);
-            products = PRODUCTS_GETTER.get(relationType).apply(product);
-            graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom(jsonResponsePath);
-            GraphqlClient finalGraphqlClient = graphqlClient;
-            context.registerAdapter(Resource.class, GraphqlClient.class,
-                (Function<Resource, GraphqlClient>) input -> input.getValueMap().get("cq:graphqlClient", String.class) != null
-                    ? finalGraphqlClient
-                    : null);
-        }
-
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(relatedProductsResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, relatedProductsResource.getValueMap());
 
-        Style style = mock(Style.class);
-        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
-        when(style.get(Title.PN_DESIGN_DEFAULT_TYPE, String.class)).thenReturn("h3");
-        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
+        if (addSlugInSelector) {
+            MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+            requestPathInfo.setSuffix("/endurance-watch.html");
+        }
+
+        if (jsonResponsePath != null) {
+            Query rootQuery = Utils.getQueryFromResource(jsonResponsePath);
+            ProductInterface product = rootQuery.getProducts().getItems().get(0);
+            products = PRODUCTS_GETTER.get(relationType).apply(product);
+
+            Utils.setupHttpResponse(jsonResponsePath, httpClient, HttpStatus.SC_OK, "{products(filter:{sku");
+            context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap()
+                .get("cq:graphqlClient", String.class) != null ? graphqlClient : null);
+        }
 
         relatedProducts = context.request().adaptTo(RelatedProductsImpl.class);
     }
@@ -204,7 +204,7 @@ public class RelatedProductsImplTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(clientSpy, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{products(filter:{sku:{eq:\"24-MG01\"}}){items{__typename,related_products{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on ConfigurableProduct{variants{product{sku}}},description{html}}}}}";
+        String expectedQuery = "{products(filter:{sku:{eq:\"24-MG01\"}}){items{__typename,related_products{__typename,sku,name,thumbnail{label,url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on ConfigurableProduct{variants{product{sku}}},description{html}}}}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 
@@ -232,19 +232,20 @@ public class RelatedProductsImplTest {
             Assert.assertEquals(product.getName(), item.getTitle());
             Assert.assertEquals(product.getSku(), item.getSKU());
             Assert.assertEquals(product.getUrlKey(), item.getSlug());
-
-            Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
-            SiteNavigation siteNavigation = new SiteNavigation(context.request());
-            Assert.assertEquals(siteNavigation.toPageUrl(productPage, product.getUrlKey()), item.getURL());
+            Assert.assertEquals(toProductUrl(product), item.getURL());
 
             Money amount = product.getPriceRange().getMinimumPrice().getFinalPrice();
-            Assert.assertEquals(amount.getValue(), item.getPrice(), 0);
-            Assert.assertEquals(amount.getCurrency().toString(), item.getCurrency());
+            Assert.assertEquals(amount.getValue(), item.getPriceRange().getFinalPrice(), 0);
+            Assert.assertEquals(amount.getCurrency().toString(), item.getPriceRange().getCurrency());
             priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
-            Assert.assertEquals(priceFormatter.format(amount.getValue()), item.getFormattedPrice());
+            Assert.assertEquals(priceFormatter.format(amount.getValue()), item.getPriceRange().getFormattedFinalPrice());
 
             Assert.assertEquals(product.getThumbnail().getUrl(), item.getImageURL());
         }
     }
 
+    private String toProductUrl(ProductInterface product) {
+        Page productPage = context.pageManager().getPage(PRODUCT_PAGE);
+        return productPage.getPath() + ".html/" + product.getUrlKey() + ".html";
+    }
 }

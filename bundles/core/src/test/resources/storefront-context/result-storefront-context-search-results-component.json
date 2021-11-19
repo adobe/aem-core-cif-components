@@ -1,0 +1,58 @@
+{
+  "products": [
+    {
+      "url": "/content/product-page.html/voyage-yoga-bag.html",
+      "sku": "24-WB01",
+      "name": "Voyage Yoga Bag",
+      "price": 32.0,
+      "rank": 0,
+      "imageUrl": "https://some-hostname.magentosite.cloud/pub/media/catalog/product/cache/cafecb2c660d511e3918d429acdc5ff6/w/b/wb01-black-0.jpg"
+    },
+    {
+      "url": "/content/product-page.html/push-it-messenger-bag.html",
+      "sku": "24-WB04",
+      "name": "Push It Messenger Bag",
+      "price": 45.0,
+      "rank": 0,
+      "imageUrl": "https://some-hostname.magentosite.cloud/pub/media/catalog/product/cache/cafecb2c660d511e3918d429acdc5ff6/w/b/wb04-blue-0.jpg"
+    },
+    {
+      "url": "/content/product-page.html/compete-track-tote.html",
+      "sku": "24-WB02",
+      "name": "Compete Track Tote",
+      "price": 32.0,
+      "rank": 0,
+      "imageUrl": "http://magento2.vagrant78/pub/media/catalog/product/cache/cafecb2c660d511e3918d429acdc5ff6/w/b/wb02-green-0.jpg"
+    },
+    {
+      "url": "/content/product-page.html/set-of-sprite-yoga-straps.html",
+      "sku": "24-WG085_Group",
+      "name": "Set of Sprite Yoga Straps",
+      "price": 14.0,
+      "rank": 0,
+      "imageUrl": "http://some-hostname.magentosite.cloud/media/catalog/product/l/u/luma-yoga-strap-set.jpg"
+    }
+  ],
+  "page": 1,
+  "searchUnitId": "",
+  "searchRequestId": "",
+  "perPage": 6,
+  "suggestions": [],
+  "categories": [
+    {
+      "url": "",
+      "name": "Gear",
+      "rank": 0
+    },
+    {
+      "url": "",
+      "name": "Bags",
+      "rank": 0
+    },
+    {
+      "url": "",
+      "name": "Collections",
+      "rank": 0
+    }
+  ]
+}

@@ -1,28 +1,27 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -30,17 +29,21 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.models.annotations.via.ForcedResourceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
@@ -49,7 +52,6 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.designer.Style;
 
-import static com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType.UID;
 import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DEPTH;
 
 @Model(
@@ -58,15 +60,14 @@ import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DE
     resourceType = NavigationImpl.RESOURCE_TYPE)
 public class NavigationImpl implements Navigation {
 
-    static final String PN_MAGENTO_ROOT_CATEGORY_ID = "magentoRootCategoryId";
-    static final String PN_MAGENTO_ROOT_CATEGORY_ID_TYPE = PN_MAGENTO_ROOT_CATEGORY_ID + "Type";
-    static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
+    static final String PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER = "magentoRootCategoryId";
     static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
     static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
     static final int DEFAULT_STRUCTURE_DEPTH = 2;
     static final int MIN_STRUCTURE_DEPTH = 1;
     static final int MAX_STRUCTURE_DEPTH = 10;
     private static final Logger LOGGER = LoggerFactory.getLogger(NavigationImpl.class);
+
     @ScriptVariable
     private Page currentPage = null;
 
@@ -75,19 +76,22 @@ public class NavigationImpl implements Navigation {
     private com.adobe.cq.wcm.core.components.models.Navigation wcmNavigation = null;
 
     @Self
-    private SlingHttpServletRequest request = null;
+    private SlingHttpServletRequest request;
 
-    @Inject
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
+    @SlingObject
     private Resource resource;
 
-    @Inject
+    @OSGiService
     private UrlProvider urlProvider;
 
     @ScriptVariable
-    private ValueMap properties = null;
+    private ValueMap properties;
 
     @ScriptVariable
-    private Style currentStyle = null;
+    private Style currentStyle;
 
     private GraphQLCategoryProvider graphQLCategoryProvider;
     private List<NavigationItem> items;
@@ -95,7 +99,7 @@ public class NavigationImpl implements Navigation {
 
     @PostConstruct
     void initModel() {
-        graphQLCategoryProvider = new GraphQLCategoryProvider(resource, currentPage, request);
+        graphQLCategoryProvider = new GraphQLCategoryProvider(magentoGraphqlClient);
         structureDepth = properties.get(PN_STRUCTURE_DEPTH, currentStyle.get(PN_STRUCTURE_DEPTH, DEFAULT_STRUCTURE_DEPTH));
         if (structureDepth < MIN_STRUCTURE_DEPTH) {
             LOGGER.warn("Navigation structure depth ({}) is bellow min value ({}). Using min value.", PN_STRUCTURE_DEPTH,
@@ -181,38 +185,25 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        final boolean enableUIDSupport;
-        String rootCategoryIdentifier = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID);
+        String rootCategoryIdentifier = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER);
         if (rootCategoryIdentifier == null || StringUtils.isBlank(rootCategoryIdentifier)) {
             ComponentsConfiguration properties = catalogPage.getContentResource().adaptTo(ComponentsConfiguration.class);
-            rootCategoryIdentifier = properties.get(PN_MAGENTO_ROOT_CATEGORY_ID, String.class);
-            enableUIDSupport = Boolean.parseBoolean(properties.get(PN_ENABLE_UID_SUPPORT, String.class));
-        } else {
-            enableUIDSupport = UID.name().equals(readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_ID_TYPE));
+            rootCategoryIdentifier = properties.get(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
         }
 
         if (rootCategoryIdentifier == null) {
-            LOGGER.warn("Magento root category ID property (" + PN_MAGENTO_ROOT_CATEGORY_ID + ") not found");
+            LOGGER.warn("Magento root category UID property (" + PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER + ") not found");
             return;
         }
 
-        List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryIdentifier, structureDepth, enableUIDSupport);
+        List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryIdentifier, structureDepth);
         if (children == null || children.isEmpty()) {
             LOGGER.warn("Magento top categories not found");
             return;
         }
 
-        children = children.stream().filter(c -> c != null && c.getName() != null).collect(Collectors.toList());
-        children.sort(Comparator.comparing(CategoryTree::getPosition));
-
         for (CategoryTree child : children) {
-            Map<String, String> params = new ParamsBuilder()
-                .id(child.getId().toString())
-                .uid(child.getUid().toString())
-                .urlKey(child.getUrlKey())
-                .urlPath(child.getUrlPath())
-                .map();
-
+            CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(child);
             String url = urlProvider.toCategoryUrl(request, categoryPage, params);
             boolean active = request.getRequestURI().equals(url);
             CategoryNavigationItem navigationItem = new CategoryNavigationItem(null, child.getName(), url, active, child, request,
@@ -309,13 +300,7 @@ public class NavigationImpl implements Navigation {
             List<NavigationItem> pages = new ArrayList<>();
 
             for (CategoryTree child : children) {
-                Map<String, String> params = new ParamsBuilder()
-                    .id(child.getId().toString())
-                    .uid(child.getUid().toString())
-                    .urlKey(child.getUrlKey())
-                    .urlPath(child.getUrlPath())
-                    .map();
-
+                CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(child);
                 String url = urlProvider.toCategoryUrl(request, categoryPage, params);
                 boolean active = request.getRequestURI().equals(url);
                 pages.add(new CategoryNavigationItem(this, child.getName(), url, active, child, request, categoryPage));

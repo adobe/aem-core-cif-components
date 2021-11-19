@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -29,7 +29,11 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.models.annotations.via.ResourceSuperType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +43,10 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceI
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
 import com.adobe.cq.wcm.core.components.models.ListItem;
@@ -65,13 +69,13 @@ public class CommerceTeaserImpl implements CommerceTeaser {
 
     private List<ListItem> actions = new ArrayList<>();
 
-    @Inject
+    @SlingObject
     private Resource resource;
 
-    @Inject
+    @ScriptVariable
     private Page currentPage;
 
-    @Inject
+    @OSGiService
     private UrlProvider urlProvider;
 
     @Self
@@ -80,6 +84,9 @@ public class CommerceTeaserImpl implements CommerceTeaser {
     @Self
     @Via(type = ResourceSuperType.class)
     private Teaser wcmTeaser;
+
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @PostConstruct
     void initModel() {
@@ -100,12 +107,9 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 .distinct().collect(Collectors.toList());
 
             AbstractCategoriesRetriever categoriesRetriever = null;
-            if (categoryIds.size() > 0) {
-                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
-                if (magentoGraphqlClient != null) {
-                    categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
-                    categoriesRetriever.setIdentifiers(categoryIds);
-                }
+            if (categoryIds.size() > 0 && magentoGraphqlClient != null) {
+                categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
+                categoriesRetriever.setIdentifiers(categoryIds);
             }
 
             Page productPage = SiteNavigation.getProductPage(currentPage);
@@ -120,26 +124,35 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 String title = properties.get(PN_ACTION_TEXT, String.class);
 
                 String actionUrl;
-                CommerceIdentifier id = null;
+                CommerceIdentifier identifier = null;
 
                 if (categoryId != null) {
-                    ParamsBuilder params = new ParamsBuilder().id(categoryId);
-                    if (categoriesRetriever != null) {
-                        try {
-                            Optional<CategoryTree> cat = categoriesRetriever.fetchCategories().stream()
-                                .filter(c -> c.getId().equals(Integer.valueOf(categoryId))).findAny();
-                            cat.ifPresent(categoryTree -> params.urlPath(categoryTree.getUrlPath()));
-                        } catch (RuntimeException x) {
-                            LOGGER.warn("Failed to fetch category for id: {}", categoryId);
-                        }
+                    CategoryUrlFormat.Params params = null;
+                    try {
+                        params = Optional.ofNullable(categoriesRetriever)
+                            .map(AbstractCategoriesRetriever::fetchCategories)
+                            .map(List::stream)
+                            .flatMap(categories -> categories
+                                .filter(category -> category.getUid().toString().equals(categoryId))
+                                .findAny())
+                            .map(CategoryUrlFormat.Params::new)
+                            .orElse(null);
+
+                    } catch (RuntimeException x) {
+                        LOGGER.warn("Failed to fetch category for id: {}", categoryId);
                     }
-                    actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params.map());
-                    id = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.ID,
+                    if (params == null) {
+                        params = new CategoryUrlFormat.Params();
+                        params.setUid(categoryId);
+                    }
+                    actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params);
+                    identifier = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY);
                 } else if (productSlug != null) {
-                    ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
-                    actionUrl = urlProvider.toProductUrl(request, productPage, params.map());
-                    id = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.URL_KEY,
+                    ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+                    params.setUrlKey(productSlug);
+                    actionUrl = urlProvider.toProductUrl(request, productPage, params);
+                    identifier = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.URL_KEY,
                         CommerceIdentifier.EntityType.PRODUCT);
                 } else if (link != null) {
                     actionUrl = link + ".html";
@@ -147,7 +160,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                     actionUrl = currentPage.getPath() + ".html";
                 }
 
-                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, id));
+                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, identifier));
             }
         }
     }

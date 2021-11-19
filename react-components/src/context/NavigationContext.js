@@ -1,19 +1,21 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { useCallback, useContext, useReducer, Suspense } from 'react';
 import { object } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import LoadingIndicator from '../components/LoadingIndicator';
 import { useEventListener } from '../utils/hooks';
@@ -46,6 +48,9 @@ const reducerFactory = () => {
     };
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const NavigationContextProvider = props => {
     const initialState = props.initialState || {
         view: 'MENU'
@@ -53,23 +58,23 @@ const NavigationContextProvider = props => {
 
     const [navigationState, dispatch] = useReducer(reducerFactory(), initialState);
     const { view } = navigationState;
-    const [t] = useTranslation('account');
+    const intl = useIntl();
 
-    const showSignIn = () => NavigationActions.showSignIn({ dispatch, t });
+    const showSignIn = () => NavigationActions.showSignIn({ dispatch, intl });
 
     const showMenu = () => NavigationActions.showMenu({ dispatch });
 
-    const showMyAccount = () => NavigationActions.showMyAccount({ dispatch, t });
+    const showMyAccount = () => NavigationActions.showMyAccount({ dispatch, intl });
 
-    const showChangePassword = () => NavigationActions.showChangePassword({ dispatch, t });
+    const showChangePassword = () => NavigationActions.showChangePassword({ dispatch, intl });
 
-    const showForgotPassword = () => NavigationActions.showForgotPassword({ dispatch, t });
+    const showForgotPassword = () => NavigationActions.showForgotPassword({ dispatch, intl });
 
-    const showCreateAccount = () => NavigationActions.showCreateAccount({ dispatch, t });
+    const showCreateAccount = () => NavigationActions.showCreateAccount({ dispatch, intl });
 
-    const showAccountCreated = () => NavigationActions.showAccountCreated({ dispatch, t });
+    const showAccountCreated = () => NavigationActions.showAccountCreated({ dispatch, intl });
 
-    const showView = view => NavigationActions.showView({ dispatch, t, view });
+    const showView = view => NavigationActions.showView({ dispatch, intl, view });
 
     const handleBack = useCallback(() => {
         if (navigationState.view === null) {
@@ -129,4 +134,7 @@ const withSuspense = NavigationContextProvider => {
 
 export default withSuspense(NavigationContextProvider);
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const useNavigationContext = () => useContext(NavigationContext);

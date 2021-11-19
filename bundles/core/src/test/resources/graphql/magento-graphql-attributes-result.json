@@ -13,7 +13,7 @@
           "input_type": "multiselect"
         },
         {
-          "attribute_code": "category_id",
+          "attribute_code": "category_uid",
           "attribute_type": "AnyType",
           "input_type": null
         },

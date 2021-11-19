@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.io.IOException;
@@ -118,12 +119,12 @@ public class SpecificPageServletTest {
         request.setResource(context.resourceResolver().resolve("/content/category-page/jcr:content"));
 
         MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".categoryId2");
+        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".category-uid-2");
 
         servlet.doGet(request, response);
 
         RequestDispatcherOptions options = new RequestDispatcherOptions();
-        options.setReplaceSelectors("categoryId2");
+        options.setReplaceSelectors("category-uid-2");
 
         // Check that the request dispatcher is called for the matching sub-page
         ResourcePathMatcher matcher = new ResourcePathMatcher("/content/category-page/sub-page");
@@ -140,14 +141,14 @@ public class SpecificPageServletTest {
         request.setResource(context.resourceResolver().resolve("/content/category-page/jcr:content"));
 
         MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".categoryId3");
+        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".category-uid-3");
         servlet.doGet(request, response);
 
         // Check that the request dispatcher is called for the matching sub-page
         ResourcePathMatcher matcher = new ResourcePathMatcher("/content/category-page/sub-page-with-urlpath");
 
         RequestDispatcherOptions options = new RequestDispatcherOptions();
-        options.setReplaceSelectors("categoryId3");
+        options.setReplaceSelectors("category-uid-3");
 
         Mockito.verify(requestDispatcherFactory).getRequestDispatcher(argThat(matcher), eq(options));
     }
@@ -155,18 +156,18 @@ public class SpecificPageServletTest {
     @Test
     public void testForwardingWithNonMatchingUrlPath() throws IOException, ServletException {
         ProductListImpl productList = Mockito.mock(ProductListImpl.class);
-        Mockito.when(productList.getUrlPath()).thenReturn("women/tops/shirts");
+        Mockito.when(productList.getUrlPath()).thenReturn("women/accessories");
         context.registerAdapter(SlingHttpServletRequest.class, ProductList.class, productList);
 
         // The Servlet gets the jcr:content under the cq:Page node
         request.setResource(context.resourceResolver().resolve("/content/category-page/jcr:content"));
 
         MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".categoryId3");
+        pathInfo.setSelectorString(SpecificPageServlet.SELECTOR + ".women/accessories");
         servlet.doGet(request, response);
 
         RequestDispatcherOptions options = new RequestDispatcherOptions();
-        options.setReplaceSelectors("categoryId3");
+        options.setReplaceSelectors("women/accessories");
 
         Mockito.verify(requestDispatcherFactory).getRequestDispatcher(eq(request.getResource()), eq(options));
         Mockito.verify(request).adaptTo(ProductList.class); // verify that the model is only adapted once

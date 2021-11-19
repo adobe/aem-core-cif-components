@@ -1,22 +1,25 @@
-/*******************************************************************************
- *
- *    Copyright 2020 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2020 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.common;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.common.Price;
@@ -45,6 +48,7 @@ public class PriceImpl implements Price {
     private Boolean isDiscounted;
     private Boolean isRange;
     private boolean isStartPrice;
+    private boolean isEmpty = false;
 
     public PriceImpl(PriceRange range, Locale locale) {
         this(range, locale, false);
@@ -57,6 +61,12 @@ public class PriceImpl implements Price {
 
         this.regularPriceMin = range.getMinimumPrice().getRegularPrice().getValue();
         this.finalPriceMin = range.getMinimumPrice().getFinalPrice().getValue();
+
+        // Price values could be null, do not display price if they are
+        if (this.regularPriceMin == null || this.finalPriceMin == null) {
+            this.isEmpty = true;
+        }
+
         this.discountAmountMin = range.getMinimumPrice().getDiscount().getAmountOff();
         this.discountPercentMin = range.getMinimumPrice().getDiscount().getPercentOff();
 
@@ -73,6 +83,11 @@ public class PriceImpl implements Price {
             priceFormatter = Utils.buildPriceFormatter(locale, currency);
         }
         return priceFormatter;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return isEmpty;
     }
 
     @Override
@@ -111,7 +126,10 @@ public class PriceImpl implements Price {
 
     @Override
     public String getFormattedRegularPrice() {
-        return getPriceFormatter().format(regularPriceMin);
+        if (regularPriceMin != null) {
+            return getPriceFormatter().format(regularPriceMin);
+        }
+        return StringUtils.EMPTY;
     }
 
     @Override
@@ -121,7 +139,10 @@ public class PriceImpl implements Price {
 
     @Override
     public String getFormattedFinalPrice() {
-        return getPriceFormatter().format(finalPriceMin);
+        if (finalPriceMin != null) {
+            return getPriceFormatter().format(finalPriceMin);
+        }
+        return StringUtils.EMPTY;
     }
 
     @Override
@@ -131,7 +152,10 @@ public class PriceImpl implements Price {
 
     @Override
     public String getFormattedDiscountAmount() {
-        return getPriceFormatter().format(discountAmountMin);
+        if (discountAmountMin != null) {
+            return getPriceFormatter().format(discountAmountMin);
+        }
+        return StringUtils.EMPTY;
     }
 
     @Override
@@ -146,7 +170,7 @@ public class PriceImpl implements Price {
 
     @Override
     public String getFormattedRegularPriceMax() {
-        return isRange() ? getPriceFormatter().format(regularPriceMax) : "";
+        return isRange() && regularPriceMax != null ? getPriceFormatter().format(regularPriceMax) : StringUtils.EMPTY;
     }
 
     @Override
@@ -156,7 +180,7 @@ public class PriceImpl implements Price {
 
     @Override
     public String getFormattedFinalPriceMax() {
-        return isRange() ? getPriceFormatter().format(finalPriceMax) : "";
+        return isRange() && finalPriceMax != null ? getPriceFormatter().format(finalPriceMax) : StringUtils.EMPTY;
     }
 
     @Override
@@ -166,7 +190,7 @@ public class PriceImpl implements Price {
 
     @Override
     public String getFormattedDiscountAmountMax() {
-        return isRange() ? getPriceFormatter().format(discountAmountMax) : "";
+        return isRange() && discountAmountMax != null ? getPriceFormatter().format(discountAmountMax) : StringUtils.EMPTY;
     }
 
     @Override
