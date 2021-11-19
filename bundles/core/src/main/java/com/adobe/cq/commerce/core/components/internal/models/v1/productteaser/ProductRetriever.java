@@ -50,6 +50,8 @@ class ProductRetriever extends AbstractProductRetriever {
             q.name()
                 .image(i -> i.url().label())
                 .urlKey()
+                .urlPath()
+                .urlRewrites(uq -> uq.url())
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp

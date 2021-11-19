@@ -18,7 +18,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -37,13 +36,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel.ProductCarouselBase;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
-import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
@@ -90,7 +87,6 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
 
     private Page productPage;
     private AbstractProductsRetriever productsRetriever;
-    private Locale locale;
     private RelationType relationType;
     private String productSku;
 
@@ -104,8 +100,6 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
         if (productPage == null) {
             productPage = currentPage;
         }
-
-        locale = productPage.getLanguage(false);
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
@@ -150,11 +144,10 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
         List<ProductListItem> carouselProductList = new ArrayList<>();
         for (ProductInterface product : products) {
             try {
-                Price price = new PriceImpl(product.getPriceRange(), locale);
-                carouselProductList.add(new ProductListItemImpl(product.getSku(), product.getUrlKey(),
-                    product.getName(), price, product.getThumbnail().getUrl(), product
-                        .getThumbnail().getLabel(), productPage, null, request,
-                    urlProvider, this.getId(), product.getStaged()));
+                ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), productPage, request, urlProvider)
+                    .product(product)
+                    .image(product.getThumbnail());
+                carouselProductList.add(builder.build());
             } catch (Exception e) {
                 LOGGER.error("Failed to instantiate product " + (product != null ? product.getSku() : null), e);
             }
