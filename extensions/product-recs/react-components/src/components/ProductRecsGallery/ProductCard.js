@@ -42,6 +42,15 @@ const ProductCard = props => {
         mse && mse.publish.recsItemAddToCartClick(unitId, productId);
     };
 
+    const openDetails = (unit, product) => {
+        const { sku, productId } = product;
+        const { unitId } = unit;
+
+        window.location.assign(createProductPageUrl(sku));
+
+        mse && mse.publish.recsItemClick(unitId, productId);
+    };
+
     const renderPrice = (prices, currency) => {
         const { minimum, maximum } = prices;
         const isRange = Math.round(minimum.final * 100) !== Math.round(maximum.final * 100);
@@ -70,14 +79,22 @@ const ProductCard = props => {
                 <div>{name}</div>
                 <div className={classes.price}>{renderPrice(prices, currency)}</div>
             </a>
-            {// Only display add to cart button for products that can be added to cart without further customization
-            ['simple', 'virtual', 'downloadable'].includes(type) && (
-                <Trigger action={() => addToCart(props.unit, props.product)}>
+            {
+                <Trigger
+                    action={() => {
+                        if (['simple', 'virtual', 'downloadable'].includes(type)) {
+                            // Add to cart only products that can be added to cart without further customization
+                            addToCart(props.unit, props.product);
+                        } else {
+                            // Open details for other products
+                            openDetails(props.unit, props.product);
+                        }
+                    }}>
                     <span className={classes.addToCart}>
                         {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to cart' })}
                     </span>
                 </Trigger>
-            )}
+            }
         </div>
     );
 };
