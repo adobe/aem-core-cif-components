@@ -34,6 +34,7 @@ import com.day.cq.wcm.api.Page;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -77,6 +78,48 @@ public class ProductListItemImplTest {
         when(product.getPriceRange()).thenReturn(priceRange);
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testCreateEmptyProductListItem() {
+        assertNotNull(new ProductListItemImpl.Builder(null, null, null, null).build());
+    }
+
+    @Test
+    public void testCreateProductListItemFromProduct() {
+        ProductListItem productListItem = new ProductListItemImpl.Builder("1", productPage, null, null)
+            .product(product)
+            .build();
+
+        Assert.assertEquals(product.getSku(), productListItem.getSKU());
+        Assert.assertEquals(product.getName(), productListItem.getTitle());
+        Assert.assertEquals(product.getUrlKey(), productListItem.getSlug());
+        Assert.assertEquals(imageUrl, productListItem.getImageURL());
+        Assert.assertEquals(imageAlt, productListItem.getImageAlt());
+        Assert.assertTrue(StringUtils.startsWith(productListItem.getId(), "1"));
+        Assert.assertEquals(product, productListItem.getProduct());
+    }
+
+    @Test
+    public void testCreateProductListItemFromProductWithOverwrites() {
+        ProductImage anotherImage = mock(ProductImage.class);
+        when(anotherImage.getUrl()).thenReturn("http://foo.bar/another-image.jpg");
+        ProductListItem productListItem = new ProductListItemImpl.Builder("1", productPage, null, null)
+            .product(product)
+            .sku("my-sku")
+            .urlKey("my-url-key")
+            .variantSku("my-variant-sku")
+            .image(anotherImage)
+            .name("my-name")
+            .build();
+
+        Assert.assertEquals("my-sku", productListItem.getSKU());
+        Assert.assertEquals("my-name", productListItem.getTitle());
+        Assert.assertEquals("my-url-key", productListItem.getSlug());
+        Assert.assertEquals("http://foo.bar/another-image.jpg", productListItem.getImageURL());
+        Assert.assertEquals("my-name", productListItem.getImageAlt());
+        Assert.assertTrue(StringUtils.startsWith(productListItem.getId(), "1"));
+        Assert.assertEquals(product, productListItem.getProduct());
+    }
+
     @Test
     public void testCreateProductListItem() {
         CommerceIdentifier identifier = new CommerceIdentifierImpl(urlKey, CommerceIdentifier.IdentifierType.URL_KEY,
@@ -88,33 +131,6 @@ public class ProductListItemImplTest {
         identifier = new CommerceIdentifierImpl(sku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT);
         productListItem = new ProductListItemImpl(identifier, "", productPage);
         Assert.assertEquals(sku, productListItem.getSKU());
-    }
-
-    @Test
-    public void testCreateProductListItem2() {
-        ProductListItem productListItem = new ProductListItemImpl(sku, urlKey, name, null, imageUrl, imageAlt, productPage, null, null,
-            null, "1", false);
-
-        Assert.assertEquals(name, productListItem.getTitle());
-        Assert.assertEquals(sku, productListItem.getSKU());
-        Assert.assertEquals(urlKey, productListItem.getSlug());
-        Assert.assertEquals(imageUrl, productListItem.getImageURL());
-        Assert.assertEquals(imageAlt, productListItem.getImageAlt());
-        Assert.assertEquals(StringUtils.EMPTY, productListItem.getURL());
-    }
-
-    @Test
-    public void testCreateProductListItem3() {
-        ProductListItem productListItem = new ProductListItemImpl(product, productPage, null, null,
-            null, "1");
-
-        Assert.assertEquals(product.getSku(), productListItem.getSKU());
-        Assert.assertEquals(product.getName(), productListItem.getTitle());
-        Assert.assertEquals(product.getUrlKey(), productListItem.getSlug());
-        Assert.assertEquals(imageUrl, productListItem.getImageURL());
-        Assert.assertEquals(imageAlt, productListItem.getImageAlt());
-        Assert.assertTrue(productListItem.getId().indexOf("1") == 0);
-        Assert.assertEquals(product, productListItem.getProduct());
     }
 
     @Test
@@ -137,14 +153,12 @@ public class ProductListItemImplTest {
             CommerceIdentifier commerceIdentifier = mock(CommerceIdentifier.class);
             when(commerceIdentifier.getType()).thenReturn(CommerceIdentifier.IdentifierType.SKU);
             when(commerceIdentifier.getValue()).thenReturn(sku);
-            ProductListItemImpl item = new ProductListItemImpl(commerceIdentifier, "foobar", productPage);
+            ProductListItem item = new ProductListItemImpl(commerceIdentifier, "foobar", productPage);
             assertEquals(expected, item.getId());
 
-            item = new ProductListItemImpl(sku, null, null, null, null, null, productPage, null, null, null, "foobar", false);
-            assertEquals(expected, item.getId());
-
-            when(product.getSku()).thenReturn(sku);
-            item = new ProductListItemImpl(product, productPage, null, null, null, "foobar");
+            item = new ProductListItemImpl.Builder("foobar", productPage, null, null)
+                .sku(sku)
+                .build();
             assertEquals(expected, item.getId());
         }
     }
@@ -162,12 +176,10 @@ public class ProductListItemImplTest {
             String variant = sku.getKey();
             String expected = sku.getValue();
             // test all constructors that support variant sku
-            ProductListItem item = new ProductListItemImpl(baseSku, null, null, null, null, null, productPage, variant, null, null,
-                "foobar", false);
-            assertEquals(expected, item.getId());
-
-            when(product.getSku()).thenReturn(baseSku);
-            item = new ProductListItemImpl(product, productPage, variant, null, null, "foobar");
+            ProductListItem item = new ProductListItemImpl.Builder("foobar", productPage, null, null)
+                .sku(baseSku)
+                .variantSku(variant)
+                .build();
             assertEquals(expected, item.getId());
         }
     }

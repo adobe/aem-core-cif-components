@@ -15,24 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 
-import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
-import com.google.common.collect.Sets;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 
-import static com.adobe.cq.commerce.core.components.services.urls.UrlProvider.PAGE_PARAM;
-import static com.adobe.cq.commerce.core.components.services.urls.UrlProvider.SKU_PARAM;
-import static com.adobe.cq.commerce.core.components.services.urls.UrlProvider.VARIANT_SKU_PARAM;
-
-public class ProductPageWithSku extends AbstractUrlFormat {
-    public static final UrlFormat INSTANCE = new ProductPageWithSku();
+public class ProductPageWithSku extends UrlFormatBase implements ProductUrlFormat {
+    public static final ProductUrlFormat INSTANCE = new ProductPageWithSku();
     public static final String PATTERN = "{{page}}.html/{{sku}}.html#{{variant_sku}}";
 
     private ProductPageWithSku() {
@@ -40,30 +30,27 @@ public class ProductPageWithSku extends AbstractUrlFormat {
     }
 
     @Override
-    public String format(Map<String, String> parameters) {
-        removeEmptyValues(parameters);
-        return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
-            parameters.getOrDefault(SKU_PARAM, "{{" + SKU_PARAM + "}}") + HTML_EXTENSION +
-            (StringUtils.isNotBlank(parameters.get(VARIANT_SKU_PARAM)) ? "#" + parameters.get(VARIANT_SKU_PARAM) : "");
+    public String format(Params parameters) {
+        return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
+            + HTML_EXTENSION_AND_SUFFIX
+            + StringUtils.defaultIfEmpty(parameters.getSku(), "{{sku}}")
+            + HTML_EXTENSION
+            + getOptionalAnchor(parameters.getVariantSku());
     }
 
     @Override
-    public Map<String, String> parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap) {
+    public Params parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap) {
+        Params params = new Params();
+
         if (requestPathInfo == null) {
-            return Collections.emptyMap();
+            return params;
         }
 
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put(PAGE_PARAM, removeJcrContent(requestPathInfo.getResourcePath()));
+        params.setPage(removeJcrContent(requestPathInfo.getResourcePath()));
         String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
         if (StringUtils.isNotBlank(suffix)) {
-            parameters.put(SKU_PARAM, suffix);
+            params.setSku(suffix);
         }
-        return parameters;
-    }
-
-    @Override
-    public Set<String> getParameterNames() {
-        return Sets.newHashSet(PAGE_PARAM, SKU_PARAM, VARIANT_SKU_PARAM);
+        return params;
     }
 }

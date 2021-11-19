@@ -23,7 +23,7 @@
                     jcr:lastModified="{Date}2019-02-15T19:09:39.787+01:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;h1>Productteaser&lt;sub>v1&lt;/sub>&lt;/h1>"
                     textIsRich="true"/>
                 <text
@@ -33,7 +33,7 @@
                     jcr:lastModified="{Date}2020-05-12T14:45:48.059+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;p>The Product Teaser component is a server side component written in HTL, allowing to display product teasers on any AEM page linking to the product details page. The product data is retrieved from Magento via GraphQL. The component is configured by an author via component dialog or drag &amp;amp; drop.&lt;/p>&#xa;&lt;p>Note: due to the limited amount of sample data available, the link to the product page will always display the same demo product.&lt;/p>&#xa;"
                     textIsRich="true"/>
                 <teaser
@@ -60,7 +60,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     jcr:title="Examples"
-                    sling:resourceType="core/wcm/components/title/v2/title"
+                    sling:resourceType="core-components-examples/components/title"
                     type="h2"/>
                 <title_290384408
                     cq:styleIds="[1544759676459]"
@@ -70,7 +70,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     jcr:title="Standard"
-                    sling:resourceType="core/wcm/components/title/v2/title"
+                    sling:resourceType="core-components-examples/components/title"
                     type="h3"/>
                 <text_1337506761
                     jcr:created="{Date}2018-12-06T19:23:41.968+01:00"
@@ -78,7 +78,7 @@
                     jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;p>The component, simply displaying sample data.&lt;/p>"
                     textIsRich="true"/>
                 <demo
