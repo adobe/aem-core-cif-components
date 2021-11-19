@@ -39,10 +39,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
@@ -58,6 +57,7 @@ import com.adobe.cq.export.json.ExporterConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -66,13 +66,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Exporter(
     name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
     extensions = ExporterConstants.SLING_MODEL_EXTENSION)
-public class ProductCarouselImpl extends DataLayerComponent implements ProductCarousel {
+public class ProductCarouselImpl extends ProductCarouselBase implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
-
-    @Self
-    private SlingHttpServletRequest request;
 
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -92,7 +89,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
     protected Style currentStyle;
 
     private Page productPage;
-    private List<String> baseProductSkus;
+    private List<String> baseProductSkus = Collections.emptyList();
 
     private AbstractProductsRetriever productsRetriever;
 
@@ -132,6 +129,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
 
     @Override
     @JsonIgnore
+    @Nonnull
     public List<ProductListItem> getProducts() {
         if (productsRetriever == null) {
             return Collections.emptyList();
@@ -202,14 +200,19 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
         return TitleTypeProvider.getTitleType(currentStyle, resource.getValueMap());
     }
 
+    @JsonProperty("productIdentifiers")
+    public List<CommerceIdentifier> getProductCommerceIdentifiers() {
+        return baseProductSkus.stream().map(ListItemIdentifier::new).collect(Collectors.toList());
+    }
+
     @Override
+    @Deprecated
+    @JsonIgnore
     @Nonnull
     public List<ProductListItem> getProductIdentifiers() {
-        if (baseProductSkus == null) {
-            return Collections.emptyList();
-        }
-        return baseProductSkus.stream().map(sku -> new ProductListItemImpl(
-            CommerceIdentifierImpl.fromProductSku(sku), getId(), productPage))
+        return baseProductSkus.stream()
+            .map(ListItemIdentifier::new)
+            .map(id -> new ProductListItemImpl(id, getId(), productPage))
             .collect(Collectors.toList());
     }
 

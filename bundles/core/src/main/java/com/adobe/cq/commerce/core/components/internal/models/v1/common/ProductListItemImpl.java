@@ -41,6 +41,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ProductListItemImpl extends DataLayerListItem implements ProductListItem {
 
+    public static final String TYPE = "core/cif/components/commerce/productlistitem";
+
     private String sku;
     private String urlKey;
     private String urlPath;
@@ -76,10 +78,11 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         this.urlProvider = urlProvider;
         this.isStaged = isStaged;
         this.identifier = activeVariantSku != null
-            ? CommerceIdentifierImpl.fromProductSku(activeVariantSku)
-            : CommerceIdentifierImpl.fromProductSku(sku);
+            ? new CommerceIdentifierImpl(activeVariantSku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT)
+            : new CommerceIdentifierImpl(sku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT);
     }
 
+    @Deprecated
     public ProductListItemImpl(CommerceIdentifier identifier, String parentId, Page productPage) {
         super(parentId, productPage.getContentResource());
         this.identifier = identifier;
@@ -174,7 +177,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
 
     @Override
     public String getDataLayerType() {
-        return "core/cif/components/commerce/productlistitem";
+        return TYPE;
     }
 
     @Override

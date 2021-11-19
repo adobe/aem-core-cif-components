@@ -286,7 +286,7 @@ public class Utils {
             mapper.writer().writeValue(writer, model);
         } catch (IOException e) {
             throw new RuntimeException(String.format("Unable to generate JSON export for model %s: %s", model.getClass().getName(), e
-                .getMessage()));
+                .getMessage()), e);
         }
         JsonReader outputReader = Json.createReader(IOUtils.toInputStream(writer.toString(), StandardCharsets.UTF_8));
         InputStream is = Utils.class.getResourceAsStream(expectedJsonResource);
