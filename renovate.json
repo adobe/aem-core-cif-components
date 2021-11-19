@@ -27,6 +27,10 @@
   "separateMinorPatch": true,
   "packageRules": [
     {
+      "matchManagers": ["npm"],
+      "enabled": false
+    },
+    {
       "matchUpdateTypes": ["minor", "patch", "pin"],
       "automerge": true,
       "addLabels": ["automerge"]
