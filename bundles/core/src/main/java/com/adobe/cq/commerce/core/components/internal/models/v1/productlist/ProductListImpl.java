@@ -47,7 +47,7 @@ import com.adobe.cq.commerce.core.components.internal.storefrontcontext.Category
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
@@ -186,8 +186,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     public Collection<ProductListItem> getProducts() {
         if (usePlaceholderData) {
             CategoryProducts categoryProducts = getCategory().getProducts();
-            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider,
-                resource);
+            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, getId());
             return categoryProducts.getItems().stream()
                 .map(converter)
                 .filter(Objects::nonNull) // the converter returns null if the conversion fails
@@ -260,16 +259,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
 
             if (category != null && categoryPage != null && sitemapLinkExternalizerProvider != null) {
-                canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer()
-                    .externalize(
-                        resource.getResourceResolver(),
-                        new UrlProvider.ParamsBuilder()
-                            .page(categoryPage.getPath())
-                            .uid(category.getUid().toString())
-                            .urlKey(category.getUrlKey())
-                            .urlPath(category.getUrlPath())
-                            .map(),
-                        params -> urlProvider.toCategoryUrl(request, categoryPage, params));
+                canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
+                    .toExternalCategoryUrl(request, categoryPage, new CategoryUrlFormat.Params(category));
             } else {
                 // fallback to legacy logic
                 if (isAuthor) {

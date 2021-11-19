@@ -15,48 +15,55 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
-import com.google.common.collect.ImmutableMap;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class ProductPageWithUrlKeyTest {
 
-    public final UrlFormat subject = ProductPageWithUrlKey.INSTANCE;
+    public final ProductUrlFormat subject = ProductPageWithUrlKey.INSTANCE;
 
     @Test
     public void testFormatWithMissingParameters() {
-        assertEquals("{{page}}.html/{{url_key}}.html", subject.format(Collections.emptyMap()));
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+
+        assertEquals("{{page}}.html/{{url_key}}.html", subject.format(params));
     }
 
     @Test
     public void testFormat() {
-        assertEquals("/page/path.html/foo-bar.html", subject.format(ImmutableMap.of(
-            "page", "/page/path",
-            "url_key", "foo-bar")));
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setPage("/page/path");
+        params.setUrlKey("foo-bar");
+
+        assertEquals("/page/path.html/foo-bar.html", subject.format(params));
+
+        params.setVariantSku("variant");
+
+        assertEquals("/page/path.html/foo-bar.html#variant", subject.format(params));
     }
 
     @Test
     public void testFormatWithUrlKeyAndUrlPath() {
-        assertEquals("/page/path.html/foo-bar.html", subject.format(ImmutableMap.of(
-            "page", "/page/path",
-            "url_key", "foo-bar",
-            "url_path", "foo-bar2")));
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setPage("/page/path");
+        params.setUrlKey("foo-bar");
+        params.setUrlPath("foo-bar2");
+
+        assertEquals("/page/path.html/foo-bar.html", subject.format(params));
     }
 
     @Test
     public void testFormatWithUrlPath() {
-        assertEquals("/page/path.html/foo-bar2.html", subject.format(ImmutableMap.of(
-            "page", "/page/path",
-            "url_path", "foo-bar2")));
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setPage("/page/path");
+        params.setUrlPath("foo-bar2");
+
+        assertEquals("/page/path.html/foo-bar2.html", subject.format(params));
     }
 
     @Test
@@ -64,25 +71,28 @@ public class ProductPageWithUrlKeyTest {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
         pathInfo.setSuffix("/foo-bar.html");
-        Map<String, String> parameters = subject.parse(pathInfo, null);
+        ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
-        assertEquals("/page/path", parameters.get("page"));
-        assertEquals("foo-bar", parameters.get("url_key"));
+        assertEquals("/page/path", parameters.getPage());
+        assertEquals("foo-bar", parameters.getUrlKey());
     }
 
     @Test
     public void testParseNull() {
-        Map<String, String> parameters = subject.parse(null, null);
-        assertTrue(parameters.isEmpty());
+        ProductUrlFormat.Params parameters = subject.parse(null, null);
+        assertNull(parameters.getPage());
+        assertNull(parameters.getSku());
+        assertNull(parameters.getUrlKey());
+        assertNull(parameters.getUrlPath());
     }
 
     @Test
     public void testParseNoSuffix() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
-        Map<String, String> parameters = subject.parse(pathInfo, null);
+        ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
-        assertEquals("/page/path", parameters.get("page"));
-        assertNull(parameters.get("url_key"));
+        assertEquals("/page/path", parameters.getPage());
+        assertNull(parameters.getUrlKey());
     }
 }
