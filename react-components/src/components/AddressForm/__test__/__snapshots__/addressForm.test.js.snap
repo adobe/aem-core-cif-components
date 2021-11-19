@@ -28,6 +28,7 @@ exports[`<AddressForm /> renders the component 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -68,6 +69,7 @@ exports[`<AddressForm /> renders the component 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -108,6 +110,7 @@ exports[`<AddressForm /> renders the component 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -148,6 +151,7 @@ exports[`<AddressForm /> renders the component 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -188,6 +192,7 @@ exports[`<AddressForm /> renders the component 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 1;"
           >
             <span
               class="input"
@@ -258,6 +263,7 @@ exports[`<AddressForm /> renders the component 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -298,6 +304,7 @@ exports[`<AddressForm /> renders the component 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -338,6 +345,7 @@ exports[`<AddressForm /> renders the component 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -425,6 +433,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
           >
             <span
               class="root"
+              style="--iconsBefore: 0; --iconsAfter: 1;"
             >
               <span
                 class="input"
@@ -490,6 +499,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -530,6 +540,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -570,6 +581,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -610,6 +622,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -650,6 +663,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 1;"
           >
             <span
               class="input"
@@ -720,6 +734,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -760,6 +775,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -800,6 +816,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -886,6 +903,7 @@ exports[`<AddressForm /> renders the component with address validation message a
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -926,6 +944,7 @@ exports[`<AddressForm /> renders the component with address validation message a
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -966,6 +985,7 @@ exports[`<AddressForm /> renders the component with address validation message a
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1006,6 +1026,7 @@ exports[`<AddressForm /> renders the component with address validation message a
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1046,6 +1067,7 @@ exports[`<AddressForm /> renders the component with address validation message a
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 1;"
           >
             <span
               class="input"
@@ -1116,6 +1138,7 @@ exports[`<AddressForm /> renders the component with address validation message a
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1156,6 +1179,7 @@ exports[`<AddressForm /> renders the component with address validation message a
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1196,6 +1220,7 @@ exports[`<AddressForm /> renders the component with address validation message a
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1282,6 +1307,7 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1322,6 +1348,7 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1362,6 +1389,7 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1402,6 +1430,7 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1442,6 +1471,7 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 1;"
           >
             <span
               class="input"
@@ -1512,6 +1542,7 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1552,6 +1583,7 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1592,6 +1624,7 @@ exports[`<AddressForm /> renders the component with default address checkbox 1`]
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1702,6 +1735,7 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1742,6 +1776,7 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1782,6 +1817,7 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1822,6 +1858,7 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1862,6 +1899,7 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 1;"
           >
             <span
               class="input"
@@ -1932,6 +1970,7 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -1972,6 +2011,7 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -2012,6 +2052,7 @@ exports[`<AddressForm /> renders the component with save in address book checkbo
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
