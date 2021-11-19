@@ -1,23 +1,27 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-import React, { useContext, useReducer, useCallback } from 'react';
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+import React, { useContext, useReducer, useCallback, useEffect } from 'react';
 import { object, func } from 'prop-types';
 
-import { useCookieValue } from '../utils/hooks';
+import { useCookieValue, useAwaitQuery, useStorefrontEvents } from '../utils/hooks';
 import { useMutation } from '@apollo/client';
+import BrowserPersistence from '@magento/peregrine/lib/util/simplePersistence';
+import { clearCartId } from '@magento/peregrine/lib/store/actions/cart/asyncActions';
+
 import parseError from '../utils/parseError';
-import { useAwaitQuery } from '../utils/hooks';
 import {
     resetCustomerCart as resetCustomerCartAction,
     signOutUser as signOutUserAction,
@@ -35,7 +39,6 @@ const reducerFactory = () => {
     return (state, action) => {
         switch (action.type) {
             case 'setUserDetails':
-                dataLayerUtils.pushData({ user: action.userDetails });
                 return {
                     ...state,
                     inProgress: false,
@@ -55,7 +58,6 @@ const reducerFactory = () => {
                 };
             }
             case 'setToken':
-                dataLayerUtils.pushEvent('cif:userSignIn');
                 return {
                     ...state,
                     isSignedIn: true,
@@ -175,7 +177,6 @@ const reducerFactory = () => {
                 };
             }
             case 'signOut':
-                dataLayerUtils.pushEvent('cif:userSignOut', null, { user: null });
                 return {
                     ...state,
                     isSignedIn: false,
@@ -216,10 +217,17 @@ const reducerFactory = () => {
     };
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const UserContextProvider = props => {
     const [userCookie, setUserCookie] = useCookieValue('cif.userToken');
     const [, setCartCookie] = useCookieValue('cif.cart');
-    const isSignedIn = () => !!userCookie;
+    const isSignedInFunc = () => !!userCookie;
+    const mse = useStorefrontEvents();
+    const [deleteCustomerAddress] = useMutation(MUTATION_DELETE_CUSTOMER_ADDRESS);
+    const [revokeCustomerToken] = useMutation(MUTATION_REVOKE_TOKEN);
+    const fetchCustomerDetails = useAwaitQuery(QUERY_CUSTOMER_DETAILS);
 
     const factory = props.reducerFactory || reducerFactory;
     const initialState = props.initialState || {
@@ -230,7 +238,7 @@ const UserContextProvider = props => {
             addresses: []
         },
         token: userCookie,
-        isSignedIn: isSignedIn(),
+        isSignedIn: isSignedInFunc(),
         isAccountDropdownOpen: false,
         isShowAddressForm: false,
         addressFormError: null,
@@ -245,15 +253,31 @@ const UserContextProvider = props => {
         cartId: null,
         accountDropdownView: null
     };
-
     const [userState, dispatch] = useReducer(factory(), initialState);
 
-    const [deleteCustomerAddress] = useMutation(MUTATION_DELETE_CUSTOMER_ADDRESS);
-    const [revokeCustomerToken] = useMutation(MUTATION_REVOKE_TOKEN);
-    const fetchCustomerDetails = useAwaitQuery(QUERY_CUSTOMER_DETAILS);
+    const { isSignedIn, currentUser } = userState;
+
+    // Storage as used by Peregrine components
+    const storage = new BrowserPersistence();
+
+    useEffect(() => {
+        if (!isSignedIn) {
+            mse && mse.context.setShopper({ shopperId: 'guest' });
+            dataLayerUtils.pushData({ user: null });
+        } else if (isSignedIn && currentUser && currentUser.email !== '') {
+            mse && mse.context.setShopper({ shopperId: 'logged-in' });
+            dataLayerUtils.pushData({ user: currentUser });
+        }
+    }, [isSignedIn, currentUser]);
 
     const setToken = token => {
         setUserCookie(token);
+        dataLayerUtils.pushEvent('cif:userSignIn');
+        mse && mse.context.setShopper({ shopperId: 'logged-in' });
+        mse && mse.publish.signIn();
+
+        storage.setItem('signin_token', token, 3600);
+
         dispatch({ type: 'setToken', token });
     };
 
@@ -266,6 +290,13 @@ const UserContextProvider = props => {
     };
 
     const signOut = async () => {
+        dataLayerUtils.pushEvent('cif:userSignOut', null, { user: null });
+        mse && mse.context.setShopper({ shopperId: 'guest' });
+        mse && mse.publish.signOut();
+
+        storage.removeItem('signin_token');
+        await clearCartId();
+
         await signOutUserAction({ revokeCustomerToken, setCartCookie, setUserCookie, dispatch });
     };
 
@@ -344,4 +375,7 @@ UserContextProvider.propTypes = {
 };
 export default UserContextProvider;
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const useUserContext = () => useContext(UserContext);

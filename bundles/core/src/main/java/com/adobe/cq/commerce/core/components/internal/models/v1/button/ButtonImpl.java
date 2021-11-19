@@ -1,21 +1,21 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.button;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -24,16 +24,20 @@ import org.apache.sling.models.annotations.Default;
 import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.apache.sling.models.annotations.via.ResourceSuperType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.wcm.core.components.models.Button;
@@ -73,7 +77,7 @@ public class ButtonImpl implements Button {
     private String categoryId;
 
     @ValueMapValue
-    @Default(values = "id")
+    @Default(values = "uid")
     private String categoryIdType;
 
     @ValueMapValue
@@ -84,19 +88,22 @@ public class ButtonImpl implements Button {
     @Via(type = ResourceSuperType.class)
     private Button button;
 
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
     @ValueMapValue
     private String linkType;
 
     @Self
     private SlingHttpServletRequest request;
 
-    @Inject
+    @OSGiService
     private UrlProvider urlProvider;
 
-    @Inject
+    @ScriptVariable
     private Page currentPage;
 
-    @Inject
+    @SlingObject
     protected Resource resource;
 
     private Page productPage;
@@ -118,9 +125,10 @@ public class ButtonImpl implements Button {
                     if (productPage == null) {
                         productPage = currentPage;
                     }
-                    ParamsBuilder params = new ParamsBuilder().urlKey(productSlug);
-                    url = urlProvider.toProductUrl(request, productPage, params.map());
-                    // url = this.constructUrl(productPage.getPath(), productSlug);
+
+                    ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+                    params.setUrlKey(productSlug);
+                    url = urlProvider.toProductUrl(request, productPage, params);
                 } else {
                     LOGGER.debug("Can not get Product Slug!");
                 }
@@ -134,24 +142,16 @@ public class ButtonImpl implements Button {
                         categoryPage = currentPage;
                     }
 
-                    CategoryIdentifierType categoryIdentifierType = CategoryIdentifierType.ID;
-                    ParamsBuilder params = new ParamsBuilder();
-                    if (StringUtils.equalsIgnoreCase(categoryIdType, "uid")) {
-                        categoryIdentifierType = CategoryIdentifierType.UID;
-                    }
-
-                    MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
+                    CategoryUrlFormat.Params params = null;
                     if (magentoGraphqlClient != null) {
                         CategoryRetriever categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-                        categoryRetriever.setIdentifier(categoryIdentifierType, categoryId);
+                        categoryRetriever.setIdentifier(categoryId);
                         CategoryInterface category = categoryRetriever.fetchCategory();
                         if (category != null) {
-                            params.urlPath(category.getUrlPath());
-                            params.id(category.getId().toString());
-                            params.uid(category.getUid().toString());
+                            params = new CategoryUrlFormat.Params(category);
                         }
                     }
-                    url = urlProvider.toCategoryUrl(request, categoryPage, params.map());
+                    url = urlProvider.toCategoryUrl(request, categoryPage, params != null ? params : new CategoryUrlFormat.Params());
                 } else {
                     LOGGER.debug("Can not get Category identifier!");
                 }

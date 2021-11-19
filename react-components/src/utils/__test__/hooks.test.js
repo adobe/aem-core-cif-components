@@ -1,21 +1,25 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
+
 import { waitForElement } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
+
 import { render } from '../test-utils';
-import { useCountries, useQueryParams } from '../hooks';
+import { useCountries, usePageType, useQueryParams } from '../hooks';
 
 describe('Custom hooks', () => {
     describe('useCountries', () => {
@@ -48,6 +52,38 @@ describe('Custom hooks', () => {
             const queryParams = useQueryParams();
             expect(queryParams.get('token')).toEqual('my-token');
             expect(queryParams.get('page')).toEqual('5');
+        });
+    });
+
+    describe('usePageType', () => {
+        beforeEach(() => {
+            document.body.innerHTML = '';
+        });
+
+        it('detects a product page', () => {
+            const cmp = document.createElement('div');
+            cmp.dataset.cifProductContext = '';
+            document.body.appendChild(cmp);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('Product');
+        });
+
+        it('detects a category page', () => {
+            const cmp = document.createElement('div');
+            cmp.dataset.cifCategoryContext = '';
+            document.body.appendChild(cmp);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('Category');
+        });
+
+        it('detects a CMS page', () => {
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('CMS');
         });
     });
 });

@@ -2,11 +2,11 @@
   "actions": [
     {
       "title": "Find out more",
-      "url": "/content/core-components-examples/library/commerce/product.montana-wind-jacket.html",
+      "url": "/content/core-components-examples/library/commerce/product.html/summit-watch.html",
       "entityIdentifier": {
         "entityType": "PRODUCT",
-        "value": "montana-wind-jacket",
-        "type": "URL_KEY"
+        "value": "24-MG03",
+        "type": "SKU"
       }
     }
   ],
@@ -23,5 +23,5 @@
       "dc:title": "Get ready for the cold !"
     }
   },
-  ":type": "core/cif/components/content/teaser/v1/teaser"
+  ":type": "core/cif/components/content/teaser/v2/teaser"
 }

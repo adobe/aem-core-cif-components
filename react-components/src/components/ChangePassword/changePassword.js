@@ -1,18 +1,20 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import { func } from 'prop-types';
 import { Form } from 'informed';
 import { useMutation } from '@apollo/client';
@@ -29,11 +31,14 @@ import LoadingIndicator from '../LoadingIndicator';
 
 import MUTATION_CHANGE_PASSWORD from '../../queries/mutation_change_password.graphql';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const ChangePassword = props => {
     const { showMyAccount, handleCancel } = props;
     const [{ token }] = useUserContext();
     const [doChangePassword, { data, loading, error }] = useMutation(MUTATION_CHANGE_PASSWORD);
-    const [t] = useTranslation(['account', 'common']);
+    const intl = useIntl();
 
     const handleSubmit = formValues => {
         doChangePassword({
@@ -60,10 +65,15 @@ const ChangePassword = props => {
     if (data) {
         return (
             <div className={classes.root}>
-                <p>{t('account:password-was-changed', 'Your password was changed.')}</p>
+                <p>
+                    {intl.formatMessage({
+                        id: 'account:password-was-changed',
+                        defaultMessage: 'Your password was changed.'
+                    })}
+                </p>
                 <div className={classes.actions}>
                     <Button priority="high" onClick={showMyAccount}>
-                        {t('common:back', 'Back')}
+                        {intl.formatMessage({ id: 'common:back', defaultMessage: 'Back' })}
                     </Button>
                 </div>
             </div>
@@ -74,7 +84,12 @@ const ChangePassword = props => {
         return (
             <div className={classes.root}>
                 <Form onSubmit={handleSubmit}>
-                    <Field label={t('account:current-password', 'Current Password')} required={true}>
+                    <Field
+                        label={intl.formatMessage({
+                            id: 'account:current-password',
+                            defaultMessage: 'Current Password'
+                        })}
+                        required={true}>
                         <TextInput
                             field="oldPassword"
                             type="password"
@@ -83,7 +98,9 @@ const ChangePassword = props => {
                             aria-label="old-password"
                         />
                     </Field>
-                    <Field label={t('account:new-password', 'New Password')} required={true}>
+                    <Field
+                        label={intl.formatMessage({ id: 'account:new-password', defaultMessage: 'New Password' })}
+                        required={true}>
                         <TextInput
                             field="password"
                             type="password"
@@ -93,7 +110,12 @@ const ChangePassword = props => {
                             aria-label="password"
                         />
                     </Field>
-                    <Field label={t('account:confirm-new-password', 'Confirm New Password')} required={true}>
+                    <Field
+                        label={intl.formatMessage({
+                            id: 'account:confirm-new-password',
+                            defaultMessage: 'Confirm New Password'
+                        })}
+                        required={true}>
                         <TextInput
                             field="confirm"
                             type="password"
@@ -105,11 +127,11 @@ const ChangePassword = props => {
                     {error && <div className={classes.error}>{parseError(error)}</div>}
                     <div className={classes.actions}>
                         <Button type="submit" priority="high" aria-label="submit">
-                            {t('account:change-password', 'Change Password')}
+                            {intl.formatMessage({ id: 'account:change-password', defaultMessage: 'Change Password' })}
                         </Button>
                         {handleCancel && (
                             <Button type="button" priority="normal" aria-label="cancel" onClick={handleCancel}>
-                                {t('account:change-password-cancel', 'Cancel')}
+                                {intl.formatMessage({ id: 'account:change-password-cancel', defaultMessage: 'Cancel' })}
                             </Button>
                         )}
                     </div>

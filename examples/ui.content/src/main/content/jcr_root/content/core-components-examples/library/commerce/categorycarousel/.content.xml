@@ -23,7 +23,7 @@
                     jcr:lastModified="{Date}2020-10-14T12:05:03.012+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;h1>Category Carousel&lt;sub>v1&lt;/sub>&lt;/h1>"
                     textIsRich="true"/>
                 <text_description
@@ -33,7 +33,7 @@
                     jcr:lastModified="{Date}2020-10-14T12:05:03.012+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;p>The Category Carousel is a server side component written in HTL, allowing to display a list of categories in a carousel. Authors can configure the categories via&amp;nbsp;Multifield&amp;nbsp;and&amp;nbsp;Category Picker. The image displayed for each category is obtained from the commerce system or can be manually selected by the author.&lt;/p>&#xa;&lt;p>Note: due to the limited amount of sample data available, the link to the category pages will always display the same sample category data.&lt;/p>&#xa;"
                     textIsRich="true"/>
                 <teaser_documentation
@@ -60,7 +60,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     jcr:title="Examples"
-                    sling:resourceType="core/wcm/components/title/v2/title"
+                    sling:resourceType="core-components-examples/components/title"
                     type="h2"/>
                 <title_standard
                     cq:styleIds="[1544759676459]"
@@ -70,7 +70,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     jcr:title="Standard"
-                    sling:resourceType="core/wcm/components/title/v2/title"
+                    sling:resourceType="core-components-examples/components/title"
                     type="h3"/>
                 <text_details
                     jcr:created="{Date}2020-10-14T12:05:03.012+02:00"
@@ -78,7 +78,7 @@
                     jcr:lastModified="{Date}2020-10-14T12:05:03.012+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;p>Category Carousel displaying sample data.&lt;/p>"
                     textIsRich="true"/>
                 <demo
@@ -103,19 +103,19 @@
                                 <item0
                                     jcr:primaryType="nt:unstructured"
                                     asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/bruno-compete-hoodie/mh03-black_main_2.jpg"
-                                    categoryId="15"/>
+                                    categoryId="MTU="/>
                                 <item1
                                     jcr:primaryType="nt:unstructured"
                                     asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-orange_main_2.jpg"
-                                    categoryId="24"/>
+                                    categoryId="MjQ="/>
                                 <item2
                                     jcr:primaryType="nt:unstructured"
                                     asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/fusion-backpack/mb02-gray-0.jpg"
-                                    categoryId="28"/>
+                                    categoryId="NA=="/>
                                 <item3
                                     jcr:primaryType="nt:unstructured"
                                     asset="/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/summit-watch/mg03-br-0.jpg"
-                                    categoryId="32"/>
+                                    categoryId="Ng=="/>
                             </items>
                         </categorycarousel>
                     </component>

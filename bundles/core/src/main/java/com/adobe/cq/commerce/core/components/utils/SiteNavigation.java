@@ -1,22 +1,20 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.utils;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -28,14 +26,11 @@ import org.apache.sling.api.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
 import com.day.cq.commons.inherit.InheritanceValueMap;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
-import com.day.cq.wcm.api.WCMMode;
 
 public class SiteNavigation {
 
@@ -43,7 +38,6 @@ public class SiteNavigation {
     private static final String PN_CIF_CATEGORY_PAGE = "cq:cifCategoryPage";
     private static final String PN_CIF_PRODUCT_PAGE = "cq:cifProductPage";
     private static final String PN_CIF_SEARCH_RESULTS_PAGE = "cq:cifSearchResultsPage";
-    private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
 
     private static final String COMBINED_SKU_SEPARATOR = "#";
 
@@ -53,16 +47,6 @@ public class SiteNavigation {
     static final String PN_NAV_ROOT = "navRoot";
 
     private SlingHttpServletRequest request;
-
-    /**
-     * Based on the request, the SiteNavigation instance might look for specific pages when
-     * returning product and category URLs.
-     * 
-     * @param request The current Sling HTTP request.
-     */
-    public SiteNavigation(SlingHttpServletRequest request) {
-        this.request = request;
-    }
 
     /**
      * Retrieves the generic product page based on the current page or current page ancestors
@@ -131,7 +115,6 @@ public class SiteNavigation {
      */
     @Nullable
     protected static Page getGenericPage(String pageTypeProperty, Page page) {
-
         // We first lookup the property from the current page up the hierarchy
         // If the page is in a Launch, the property can be found if the Launch includes the landing-page
         InheritanceValueMap properties = new HierarchyNodeInheritanceValueMap(page.getContentResource());
@@ -174,37 +157,6 @@ public class SiteNavigation {
     }
 
     /**
-     * Builds and returns a product page URL based on the given page path and slug.
-     * 
-     * @param pagePath The base page path for the URL.
-     * @param slug The slug of the product.
-     * @return The product page URL.
-     * @deprecated Use {@link UrlProvider#toProductUrl(SlingHttpServletRequest, Page, Map)} instead.
-     */
-    @Deprecated
-    public static String toProductUrl(String pagePath, String slug) {
-        return toProductUrl(pagePath, slug, null);
-    }
-
-    /**
-     * Builds and returns a product page URL based on the given page path, slug, and variant sku.
-     * 
-     * @param pagePath The base page path for the URL.
-     * @param slug The slug of the product.
-     * @param variantSku An optional sku of the variant that will be "selected" on the product page, can be null.
-     * @return The product page URL.
-     * @deprecated Use {@link UrlProvider#toProductUrl(SlingHttpServletRequest, Page, Map)} instead.
-     */
-    @Deprecated
-    public static String toProductUrl(String pagePath, String slug, String variantSku) {
-        if (StringUtils.isNotBlank(variantSku)) {
-            return String.format("%s.%s.html%s%s", pagePath, slug, COMBINED_SKU_SEPARATOR, variantSku);
-        } else {
-            return String.format("%s.%s.html", pagePath, slug);
-        }
-    }
-
-    /**
      * Returns the base product sku and variant sku of the given <code>combinedSku</code>.
      * The base product sku is returned in the <code>left</code> element of the pair, while
      * the variant product sku is returned in the <code>right</code> element of the pair.
@@ -219,48 +171,6 @@ public class SiteNavigation {
         String baseSku = StringUtils.substringBefore(combinedSku, COMBINED_SKU_SEPARATOR);
         String variantSku = StringUtils.substringAfter(combinedSku, COMBINED_SKU_SEPARATOR);
         return Pair.of(baseSku, variantSku.isEmpty() ? null : variantSku);
-    }
-
-    /**
-     * Builds and returns a category or product page URL based on the given page and slug.
-     * This method might return the URL of a specific subpage configured for that particular page.
-     * 
-     * @param page The page used to build the URL.
-     * @param slug The slug of the product or the category.
-     * @return The page URL.
-     * @deprecated Use {@link UrlProvider} instead.
-     */
-    @Deprecated
-    public String toPageUrl(Page page, String slug) {
-        return toProductUrl(page, slug, null);
-    }
-
-    /**
-     * Builds and returns a product page URL based on the given page, slug, and variant sku.
-     * This method might return the URL of a specific subpage configured for that particular page.
-     * 
-     * @param page The page used to build the URL.
-     * @param slug The slug of the product.
-     * @param variantSku An optional sku of the variant that will be "selected" on the product page, can be null.
-     * @return The product page URL.
-     * @deprecated Use {@link UrlProvider#toProductUrl(SlingHttpServletRequest, Page, Map)}
-     */
-    @Deprecated
-    public String toProductUrl(Page page, String slug, String variantSku) {
-        Resource pageResource = page.adaptTo(Resource.class);
-        boolean deepLink = !WCMMode.DISABLED.equals(WCMMode.fromRequest(request));
-        if (deepLink) {
-            Resource subPageResource = UrlProviderImpl.toSpecificPage(pageResource, new HashSet<String>(Arrays.asList(slug)));
-            if (subPageResource != null) {
-                pageResource = subPageResource;
-            }
-        }
-
-        if (StringUtils.isNotBlank(variantSku)) {
-            return String.format("%s.%s.html%s%s", pageResource.getPath(), slug, COMBINED_SKU_SEPARATOR, variantSku);
-        } else {
-            return String.format("%s.%s.html", pageResource.getPath(), slug);
-        }
     }
 
     /**

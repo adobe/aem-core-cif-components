@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
@@ -20,19 +21,22 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.api.scripting.SlingScriptHelper;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.xss.XSSAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +48,8 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryDataImpl
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
+import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
+import com.adobe.cq.commerce.core.components.internal.storefrontcontext.ProductStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.GroupItem;
@@ -52,8 +58,10 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
+import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.BundleProduct;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
@@ -71,14 +79,19 @@ import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.adobe.cq.wcm.core.components.models.Component;
 import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManagerFactory;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static com.adobe.cq.wcm.core.components.util.ComponentUtils.ID_SEPARATOR;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -96,26 +109,23 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Self
     private SlingHttpServletRequest request;
-
-    @Inject
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     private Page currentPage;
-
-    @Inject
+    @OSGiService
     private UrlProvider urlProvider;
-
-    @ScriptVariable
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     private Style currentStyle;
-
-    @ScriptVariable
-    private ValueMap properties;
-
-    @ScriptVariable(name = "wcmmode")
+    @ScriptVariable(name = "wcmmode", injectionStrategy = InjectionStrategy.OPTIONAL)
     private SightlyWCMMode wcmMode;
-
-    @Inject
+    @SlingObject
+    private SlingScriptHelper sling;
+    @OSGiService
     private XSSAPI xssApi;
-
-    @Inject
+    @OSGiService
+    private PageManagerFactory pageManagerFactory;
+    @OSGiService
     private Externalizer externalizer;
 
     private Boolean configurable;
@@ -123,51 +133,53 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private Boolean isVirtualProduct;
     private Boolean isBundleProduct;
     private Boolean loadClientPrice;
+    private boolean usePlaceholderData = false;
+    private boolean isAuthor = true;
     private String canonicalUrl;
 
-    private AbstractProductRetriever productRetriever;
+    protected AbstractProductRetriever productRetriever;
 
     private Locale locale;
 
     @PostConstruct
-    private void initModel() {
-        // Get product selection from dialog
-        String selection = properties.get(SELECTION_PROPERTY, String.class);
-
-        // If no product is selected via dialog, take the one from the URL
-        Pair<ProductIdentifierType, String> identifier;
-        if (StringUtils.isEmpty(selection)) {
-            // Parse identifier in URL
-            identifier = urlProvider.getProductIdentifier(request);
-        } else {
-            identifier = Pair.of(ProductIdentifierType.SKU, selection);
+    protected void initModel() {
+        if (currentPage == null) {
+            currentPage = pageManagerFactory.getPageManager(request.getResourceResolver())
+                .getContainingPage(request.getResource());
         }
+        // Get product selection from dialog
+        ValueMap properties = request.getResource().getValueMap();
+        String sku = properties.get(SELECTION_PROPERTY, String.class);
+        isAuthor = wcmMode != null && !wcmMode.isDisabled();
 
-        locale = currentPage.getLanguage(false);
-
-        // Get MagentoGraphqlClient from the resource.
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
         if (magentoGraphqlClient != null) {
-            if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
+            // If no product is selected via dialog, extract it from the URL
+            if (StringUtils.isEmpty(sku)) {
+                sku = urlProvider.getProductIdentifier(request);
+            }
+
+            // Load product data for component
+            if (StringUtils.isNotBlank(sku)) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
-                productRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
-                loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
-            } else if (!wcmMode.isDisabled()) {
+                productRetriever.setIdentifier(sku);
+                loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, getOptionalStyle(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+            } else if (isAuthor) {
                 // In AEM Sites editor, load some dummy placeholder data for the component.
                 try {
                     productRetriever = new ProductPlaceholderRetriever(magentoGraphqlClient, PLACEHOLDER_DATA);
                 } catch (IOException e) {
                     LOGGER.warn("Cannot use placeholder data", e);
                 }
+                usePlaceholderData = true;
                 loadClientPrice = false;
             }
         }
 
-        if (!wcmMode.isDisabled()) {
-            canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
-        } else {
-            canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
-        }
+        locale = currentPage.getLanguage(false);
+    }
+
+    protected final <T> T getOptionalStyle(String pn, T defaultValue) {
+        return currentStyle != null ? currentStyle.get(pn, defaultValue) : defaultValue;
     }
 
     @Override
@@ -188,16 +200,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public String getSku() {
         return productRetriever.fetchProduct().getSku();
-    }
-
-    @Override
-    public String getCurrency() {
-        return getPriceRange().getCurrency();
-    }
-
-    @Override
-    public Double getPrice() {
-        return getPriceRange().getFinalPrice();
     }
 
     @Override
@@ -318,11 +320,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
     }
 
     @Override
-    public String getFormattedPrice() {
-        return getPriceRange().getFormattedFinalPrice();
-    }
-
-    @Override
     public AbstractProductRetriever getProductRetriever() {
         return productRetriever;
     }
@@ -432,7 +429,34 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public String getCanonicalUrl() {
+        if (usePlaceholderData) {
+            // placeholder data has no canonical url
+            return null;
+        }
+        if (canonicalUrl == null) {
+            Page productPage = SiteNavigation.getProductPage(currentPage);
+            ProductInterface product = productRetriever != null ? productRetriever.fetchProduct() : null;
+            SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
+
+            if (productPage != null && product != null && sitemapLinkExternalizerProvider != null) {
+                canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
+                    .toExternalProductUrl(request, productPage, new ProductUrlFormat.Params(product));
+            } else {
+                // fallback to the previous/legacy logic
+                if (isAuthor) {
+                    canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
+                } else {
+                    canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
+                }
+            }
+        }
         return canonicalUrl;
+    }
+
+    @Override
+    public Map<Locale, String> getAlternateLanguageLinks() {
+        // we don't support alternate language links on products yet
+        return Collections.emptyMap();
     }
 
     // DataLayer methods
@@ -444,7 +468,17 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     protected String generateId() {
-        return StringUtils.join("product", ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(getSku()), 0, 10));
+        String id = super.generateId();
+        ValueMap properties = request.getResource().getValueMap();
+        if (StringUtils.isNotBlank(properties.get(Component.PN_ID, String.class))) {
+            // if available use the id provided by the user
+            return id;
+        } else {
+            // otherwise include the product SKU in the id
+            String prefix = StringUtils.substringBefore(id, ID_SEPARATOR);
+            String suffix = StringUtils.substringAfterLast(id, ID_SEPARATOR) + getSku();
+            return ComponentUtils.generateId(prefix, suffix);
+        }
     }
 
     @Override
@@ -459,12 +493,12 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public Double getDataLayerPrice() {
-        return this.getPrice();
+        return this.getPriceRange() != null ? this.getPriceRange().getFinalPrice() : null;
     }
 
     @Override
     public String getDataLayerCurrency() {
-        return this.getCurrency();
+        return this.getPriceRange() != null ? this.getPriceRange().getCurrency() : null;
     }
 
     @Override
@@ -482,12 +516,17 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
         return productRetriever.fetchProduct().getCategories()
             .stream()
-            .map(c -> new CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
+            .map(c -> new CategoryDataImpl(c.getUid().toString(), c.getName(), c.getImage()))
             .toArray(CategoryData[]::new);
     }
 
     @Override
     public AssetData[] getDataLayerAssets() {
         return getAssets().stream().map(AssetDataImpl::new).toArray(AssetData[]::new);
+    }
+
+    @Override
+    public ProductStorefrontContext getStorefrontContext() {
+        return new ProductStorefrontContextImpl(productRetriever.fetchProduct(), resource);
     }
 }

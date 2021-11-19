@@ -1,97 +1,80 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
 import java.util.List;
 
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaserActionItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.core.testing.MockPathProcessor;
+import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.wcm.core.components.models.ListItem;
+import com.adobe.cq.wcm.core.components.services.link.PathProcessor;
 import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.api.components.ComponentManager;
+import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
+import static org.mockito.Mockito.*;
 
 public class CommerceTeaserImplTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-        "my-store"));
-
+        "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
-    public final AemContext context = createContext("/context/jcr-content.json");
-
-    private static AemContext createContext(String contentPath) {
-
-        class MockUrlProviderConfigurationCategory extends MockUrlProviderConfiguration {
-            @Override
-            public String categoryUrlTemplate() {
-                return "${page}.${id}.html/${url_path}";
-            }
-        }
-
-        return new AemContext(
-            (AemContextCallback) context -> {
-                // Load page structure
-                context.load().json(contentPath, "/content");
-
-                UrlProviderImpl urlProvider = new UrlProviderImpl();
-                urlProvider.activate(new MockUrlProviderConfigurationCategory());
-                context.registerService(UrlProvider.class, urlProvider);
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
+    public final AemContext context = newAemContext("/context/jcr-content.json");
 
     private static final String PRODUCT_PAGE = "/content/product-page";
     private static final String PRODUCT_SPECIFIC_PAGE = PRODUCT_PAGE + "/product-specific-page";
     private static final String CATEGORY_PAGE = "/content/category-page";
     private static final String PAGE = "/content/pageA";
     private static final String TEASER = "/content/pageA/jcr:content/root/responsivegrid/commerceteaser";
-    private static final String EXPORTED_TEASER = "/content/pageA/jcr:content/root/responsivegrid/commerceteaser-exported";
 
     private Resource commerceTeaserResource;
     private CommerceTeaser commerceTeaser;
 
     @Before
     public void setup() throws Exception {
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-category-list-result.json");
+        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
+        context.registerInjectActivateService(graphqlClient);
+        Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-category-list-result.json");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
@@ -105,6 +88,7 @@ public class CommerceTeaserImplTest {
         Page page = spy(context.currentPage(PAGE));
         context.currentResource(TEASER);
         context.currentResource(commerceTeaserResource);
+        context.registerService(PathProcessor.class, new MockPathProcessor());
         Resource pageResource = spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
@@ -116,9 +100,12 @@ public class CommerceTeaserImplTest {
         slingBindings.put(WCMBindingsConstants.NAME_PAGE_MANAGER, page.getPageManager());
         ComponentManager componentManager = commerceTeaserResource.getResourceResolver().adaptTo(ComponentManager.class);
         slingBindings.put(WCMBindingsConstants.NAME_COMPONENT, componentManager.getComponent(TEASER));
+        Style style = mock(Style.class);
+        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
+        slingBindings.put("currentStyle", style);
 
         // Configure the component to create deep links to specific pages
-        context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+        context.runMode("author");
     }
 
     @Test
@@ -145,21 +132,21 @@ public class CommerceTeaserImplTest {
         Assert.assertTrue(actionItems.size() == 5);
 
         // Product slug is configured and there is a dedicated specific subpage for that product
-        Assert.assertEquals(PRODUCT_SPECIFIC_PAGE + ".beaumont-summit-kit.html", actionItems.get(0).getURL());
+        Assert.assertEquals(PRODUCT_SPECIFIC_PAGE + ".html/beaumont-summit-kit.html", actionItems.get(0).getURL());
         Assert.assertEquals("A product", actionItems.get(0).getTitle());
         Assert.assertEquals("The action points to the right product slug", "beaumont-summit-kit", ((CommerceTeaserActionItem) actionItems
             .get(0)).getEntityIdentifier().getValue());
 
         // Category id is configured
-        Assert.assertEquals(CATEGORY_PAGE + ".5.html/equipment", actionItems.get(1).getURL());
+        Assert.assertEquals(CATEGORY_PAGE + ".html/equipment.html", actionItems.get(1).getURL());
         Assert.assertEquals("A category", actionItems.get(1).getTitle());
-        Assert.assertEquals("The action points to the right category id", "5",
+        Assert.assertEquals("The action points to the right category id", "uid-5",
             ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getValue());
 
         // Both are configured, category links "wins"
-        Assert.assertEquals(CATEGORY_PAGE + ".6.html/equipment_running", actionItems.get(2).getURL());
+        Assert.assertEquals(CATEGORY_PAGE + ".html/equipment/running.html", actionItems.get(2).getURL());
         Assert.assertEquals("A category", actionItems.get(2).getTitle());
-        Assert.assertEquals("The action points to the right category id", "6", ((CommerceTeaserActionItem) actionItems.get(2))
+        Assert.assertEquals("The action points to the right category id", "uid-6", ((CommerceTeaserActionItem) actionItems.get(2))
             .getEntityIdentifier().getValue());
 
         // Some text is entered, current page is used

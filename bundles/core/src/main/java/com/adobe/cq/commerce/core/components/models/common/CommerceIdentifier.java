@@ -19,7 +19,7 @@ public interface CommerceIdentifier {
      * The type of this identifier
      */
     enum IdentifierType {
-        SKU, URL_KEY, ID
+        SKU, URL_KEY, UID
     }
 
     /**

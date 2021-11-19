@@ -1,21 +1,24 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -28,18 +31,25 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.scripting.SlingScriptHelper;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
+import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcollection.ProductCollectionImpl;
+import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
+import com.adobe.cq.commerce.core.components.internal.storefrontcontext.CategoryStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
@@ -49,6 +59,7 @@ import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.day.cq.wcm.api.Page;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -71,18 +82,27 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     // This script variable is not injected when the model is instantiated in SpecificPageServlet
     @ScriptVariable(name = "wcmmode", injectionStrategy = InjectionStrategy.OPTIONAL)
     private SightlyWCMMode wcmMode = null;
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+    @SlingObject
+    private SlingScriptHelper sling;
 
-    private AbstractCategoryRetriever categoryRetriever;
+    protected AbstractCategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
+    private boolean isAuthor;
     private String canonicalUrl;
 
     private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
 
     @PostConstruct
-    private void initModel() {
+    protected void initModel() {
+        if (properties == null) {
+            properties = request.getResource().getValueMap();
+        }
         // read properties
-        showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
-        showImage = properties.get(PN_SHOW_IMAGE, currentStyle.get(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
+        showTitle = properties.get(PN_SHOW_TITLE, getOptionalStyle(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
+        showImage = properties.get(PN_SHOW_IMAGE, getOptionalStyle(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
+        isAuthor = wcmMode != null && !wcmMode.isDisabled();
 
         String currentPageIndexCandidate = request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID);
         // make sure the current page from the query string is reasonable i.e. numeric and over 0
@@ -90,24 +110,14 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
         Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
 
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
+        // Extract category identifier from URL
+        String categoryUid = urlProvider.getCategoryIdentifier(request);
 
-        // Parse category identifier from URL
-        Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
-        boolean isAuthorInstance = wcmMode != null && !wcmMode.isDisabled();
-
-        if (isAuthorInstance) {
-            canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
-        } else {
-            canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
-        }
-
-        // get GraphQL client and query data
         if (magentoGraphqlClient != null) {
-            if (identifier != null && StringUtils.isNotBlank(identifier.getRight())) {
+            if (StringUtils.isNotBlank(categoryUid)) {
                 categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
-                categoryRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
-            } else if (isAuthorInstance) {
+                categoryRetriever.setIdentifier(categoryUid);
+            } else if (isAuthor) {
                 usePlaceholderData = true;
                 loadClientPrice = false;
                 try {
@@ -115,7 +125,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                 } catch (IOException e) {
                     LOGGER.warn("Cannot use placeholder data", e);
                 }
-            } else { // There isn't any selector on publish instance
+            } else {
+                // There isn't any selector on publish instance
                 searchResultsSet = new SearchResultsSetImpl();
                 categorySearchResultsSet = Pair.of(null, searchResultsSet);
                 return;
@@ -175,8 +186,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     public Collection<ProductListItem> getProducts() {
         if (usePlaceholderData) {
             CategoryProducts categoryProducts = getCategory().getProducts();
-            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider,
-                resource);
+            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, getId());
             return categoryProducts.getItems().stream()
                 .map(converter)
                 .filter(Objects::nonNull) // the converter returns null if the conversion fails
@@ -195,7 +205,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             ((SearchResultsSetImpl) searchResultsSet).setSearchAggregations(
                 searchResultsSet.getSearchAggregations()
                     .stream()
-                    .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_ID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
+                    .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_UID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
                     .collect(Collectors.toList()));
         }
         return searchResultsSet;
@@ -239,6 +249,38 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     @Override
     public String getCanonicalUrl() {
+        if (usePlaceholderData) {
+            // placeholder data has no canonical url
+            return null;
+        }
+        if (canonicalUrl == null) {
+            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
+            CategoryInterface category = getCategory();
+            SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
+
+            if (category != null && categoryPage != null && sitemapLinkExternalizerProvider != null) {
+                canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
+                    .toExternalCategoryUrl(request, categoryPage, new CategoryUrlFormat.Params(category));
+            } else {
+                // fallback to legacy logic
+                if (isAuthor) {
+                    canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
+                } else {
+                    canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
+                }
+            }
+        }
         return canonicalUrl;
+    }
+
+    @Override
+    public Map<Locale, String> getAlternateLanguageLinks() {
+        // we don't support alternate language links on categories yet
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public CategoryStorefrontContext getStorefrontContext() {
+        return new CategoryStorefrontContextImpl(getCategory(), resource);
     }
 }

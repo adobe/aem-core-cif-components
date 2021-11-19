@@ -18,33 +18,48 @@ See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage 
 
 ## Available Components
 
--   [Product](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product)
--   [Product List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/v1/productlist)
--   [Product Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productteaser/v1/productteaser)
--   [Product Carousel](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productcarousel/v1/productcarousel)
--   [Related Products](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/relatedproducts/v1/relatedproducts)
--   [Navigation](ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/navigation/v2/navigation)
--   [Breadcrumb](ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/breadcrumb/v1/breadcrumb)
--   [Search Results](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/searchresults/v1/searchresults)
--   [Searchbar](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/searchbar/v1/searchbar)
--   [Shopping Cart](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/minicart/v1/minicart)
--   [Featured Category List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist)
--   [Commerce Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/teaser/v1/teaser)
--   [Sign In](react-components/src/components/SignIn)
--   [Create Account](react-components/src/components/CreateAccount)
--   [AccountDetails](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/accountdetails/v1/accountdetails)
--   [AddressBook](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/addressbook/v1/addressbook)
--   [ResetPassword](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/resetpassword/v1/resetpassword)
--   [Category Carousel](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/categorycarousel/v1/categorycarousel)
--   [Commerce Experience Fragment](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/experiencefragment/v1/experiencefragment)
+- [Product v1](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product)
+- [Product v2](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v2/product) - Magento EE only with version >= 2.4.2
+- [Product List v1](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/v1/productlist)
+- [Product List v2](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/v2/productlist) - Magento EE only with version >= 2.4.2
+- [Product Collection v1](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v1/productcollection)
+- [Product Collection v2](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v2/productcollection) - Magento EE only with version >= 2.4.2
+- [Product Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productteaser/v1/productteaser)
+- [Product Carousel](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productcarousel/v1/productcarousel)
+- [Related Products](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/relatedproducts/v1/relatedproducts)
+- [Navigation](ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/navigation/v2/navigation)
+- [Breadcrumb](ui.apps/src/main/content/jcr_root/apps/core/cif/components/structure/breadcrumb/v1/breadcrumb)
+- [Search Results v1](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/searchresults/v1/searchresults)
+- [Search Results v2](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/searchresults/v2/searchresults)
+- [Searchbar](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/searchbar/v2/searchbar)
+- [Shopping Cart](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/minicart/v2/minicart)
+- [Featured Category List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist)
+- [Commerce Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/teaser/v2/teaser)
+- [Commerce Button](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/button/v2/button)
+- [Sign In](react-components/src/components/SignIn)
+- [Create Account](react-components/src/components/CreateAccount)
+- [Mini Account](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/miniaccount/v2/miniaccount)
+- [Account Details](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/accountdetails/v2/accountdetails)
+- [Address Book](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/addressbook/v2/addressbook)
+- [Reset Password](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/resetpassword/v2/resetpassword)
+- [Category Carousel](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/categorycarousel/v1/categorycarousel)
+- [Commerce Experience Fragment](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/experiencefragment/v1/experiencefragment)
+- [Commerce Content Fragment](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/contentfragment/v1/contentfragment)
+- [Commerce Content Fragment](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/contentfragment/v1/contentfragment)
+- [Cart Details](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/cartdetails/v1/cartdetails)
+- [Checkout Page](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/checkoutpage/v1/checkoutpage)
+
+### Extension Components
+
+-   [Product Recommendations](extensions/product-recs) - requires [Adobe Commerce Product Recommendations](https://docs.magento.com/user-guide/marketing/product-recommendations.html)
 
 ## System Requirements
 
 The latest version of the AEM CIF Core Components, require the below minimum system requirements:
 
-| CIF Core Components | AEM as a Cloud Service | AEM 6.5 | AEM 6.4 | Magento | Java  |
-| ------------------- | ---------------------- | ------- | ------- | ------- | ----- |
-| 1.10.0              | Continual              | 6.5.7   | 6.4.4.0 | 2.4.2   | 8, 11 |
+| CIF Core Components | AEM as a Cloud Service | AEM 6.5 | AEM 6.4 | Magento  | Java  |
+| ------------------- | ---------------------- | ------- | ------- | -------- | ----- |
+| 2.4.0               | Continual              | 6.5.7   | -       | 2.4.2 ee | 8, 11 |
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 

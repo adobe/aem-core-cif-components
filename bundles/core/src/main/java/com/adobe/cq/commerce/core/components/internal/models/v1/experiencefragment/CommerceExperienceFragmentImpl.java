@@ -1,24 +1,24 @@
-/*******************************************************************************
- *
- *    Copyright 2021 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2021 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RangeIterator;
@@ -29,12 +29,13 @@ import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
+import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
@@ -43,15 +44,8 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragment;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
@@ -69,59 +63,39 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/experiencefragment/v1/experiencefragment";
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceExperienceFragmentImpl.class);
     private static final String XF_ROOT = "/content/experience-fragments/";
-    private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
 
     @Self
     private SlingHttpServletRequest request;
 
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
+
     @ValueMapValue(name = PN_FRAGMENT_LOCATION, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String fragmentLocation;
 
-    @Inject
+    @ScriptVariable
     private Page currentPage;
 
-    @Inject
+    @SlingObject
     protected Resource resource;
 
     @SlingObject
     private ResourceResolver resolver;
 
-    @Inject
+    @OSGiService
     private UrlProvider urlProvider;
 
-    @Inject
+    @OSGiService
     private LanguageManager languageManager;
 
-    @Inject
+    @OSGiService
     private LiveRelationshipManager relationshipManager;
 
     private Resource xfResource;
     private String name;
-    private AbstractCategoryRetriever categoryRetriever;
-    private AbstractProductRetriever productRetriever;
-    private CategoryIdentifierType categoryIdentifierType;
-    private boolean uidSupport;
 
     @PostConstruct
     private void initModel() {
-        uidSupport = false;
-
-        Resource configurationResource = currentPage != null ? currentPage.adaptTo(Resource.class) : resource;
-        if (configurationResource != null) {
-            ComponentsConfiguration componentsConfiguration = configurationResource.adaptTo(ComponentsConfiguration.class);
-            if (componentsConfiguration != null) {
-                uidSupport = Boolean.parseBoolean(componentsConfiguration.get(PN_ENABLE_UID_SUPPORT, String.class));
-            }
-        }
-
-        categoryIdentifierType = uidSupport ? CategoryIdentifierType.UID : CategoryIdentifierType.ID;
-
-        MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
-        if (magentoGraphqlClient != null) {
-            categoryRetriever = new CategoryRetriever(magentoGraphqlClient, uidSupport);
-            productRetriever = new ProductRetriever(magentoGraphqlClient);
-        }
-
         String query = null;
         if (SiteNavigation.isProductPage(currentPage)) {
             query = getQueryForProduct();
@@ -141,24 +115,11 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     }
 
     private String getQueryForProduct() {
-        // Parse product identifier in URL
-        Pair<ProductIdentifierType, String> identifier = urlProvider.getProductIdentifier(request);
-        String sku = null;
-
-        if (identifier.getRight() != null) {
-            if (ProductIdentifierType.SKU.equals(identifier.getLeft())) {
-                sku = identifier.getRight();
-            } else if (productRetriever != null) {
-                productRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
-                ProductInterface product = productRetriever.fetchProduct();
-                if (product != null) {
-                    sku = product.getSku();
-                }
-            }
-        }
+        // Extract product sku from request URL
+        String sku = urlProvider.getProductIdentifier(request);
 
         if (StringUtils.isBlank(sku)) {
-            LOGGER.warn("Cannot find sku or product for current request");
+            LOGGER.warn("Cannot find product for current request");
             return null;
         }
 
@@ -182,33 +143,15 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     }
 
     private String getQueryForCategory() {
-        // Parse category identifier in URL
-        Pair<CategoryIdentifierType, String> identifier = urlProvider.getCategoryIdentifier(request);
-        String categoriesIdentifier = null;
+        // Extract category uid sku from request URL
+        String categoryUid = urlProvider.getCategoryIdentifier(request);
 
-        if (identifier.getRight() != null) {
-            if (categoryIdentifierType.equals(identifier.getLeft())) {
-                categoriesIdentifier = identifier.getRight();
-            } else if (categoryRetriever != null) {
-                categoryRetriever.setIdentifier(identifier.getLeft(), identifier.getRight());
-                CategoryInterface category = categoryRetriever.fetchCategory();
-
-                if (category != null) {
-                    if (uidSupport) {
-                        categoriesIdentifier = category.getUid().toString();
-                    } else {
-                        categoriesIdentifier = category.getId().toString();
-                    }
-                }
-            }
-        }
-
-        if (StringUtils.isBlank(categoriesIdentifier)) {
-            LOGGER.warn("Cannot find category identifier for current request");
+        if (StringUtils.isBlank(categoryUid)) {
+            LOGGER.warn("Cannot find category for current request");
             return null;
         }
 
-        return buildQueryForCategory(categoriesIdentifier);
+        return buildQueryForCategory(categoryUid);
     }
 
     private String buildQueryForCategory(String categoryId) {

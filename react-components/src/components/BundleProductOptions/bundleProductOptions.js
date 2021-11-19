@@ -1,18 +1,20 @@
-/*******************************************************************************
- *
- *    Copyright 2020 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2020 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import { useConfigContext } from '../../context/ConfigContext';
 import Checkbox from './checkbox';
 import Radio from './radio';
@@ -27,7 +29,6 @@ import BUNDLE_PRODUCT_QUERY from '../../queries/query_bundle_product.graphql';
 import Price from '../Price';
 
 const BundleProductOptions = () => {
-    const [t] = useTranslation(['product', 'cart']);
     const bundleProductQuery = useAwaitQuery(BUNDLE_PRODUCT_QUERY);
     const {
         mountingPoints: { bundleProductOptionsContainer }
@@ -35,6 +36,7 @@ const BundleProductOptions = () => {
     const sku = document.querySelector(bundleProductOptionsContainer)?.dataset?.sku;
     const productId = document.querySelector('[data-cmp-is=product]')?.id;
     const [bundleState, setBundleState] = useState(null);
+    const intl = useIntl();
 
     const fetchBundleDetails = async sku => {
         const { data, error } = await bundleProductQuery({ variables: { sku }, fetchPolicy: 'network-only' });
@@ -190,7 +192,7 @@ const BundleProductOptions = () => {
         return (
             <section className="productFullDetail__section productFullDetail__customizeBundle">
                 <Button priority="high" onClick={() => fetchBundleDetails(sku)}>
-                    <span>{t('product:customize-bundle', 'Customize')}</span>
+                    <span>{intl.formatMessage({ id: 'product:customize-bundle', defaultMessage: 'Customize' })}</span>
                 </Button>
             </section>
         );
@@ -210,21 +212,30 @@ const BundleProductOptions = () => {
             ))}
             <section className="productFullDetail__section productFullDetail__bundleProduct">
                 <h3>
-                    <span className="required">* {t('product:required-fields', 'Required fields')}</span>
+                    <span className="required">
+                        * {intl.formatMessage({ id: 'product:required-fields', defaultMessage: 'Required fields' })}
+                    </span>
                     <span className="priceInfo">
-                        {t('product:customization-price', 'Your customization')}: {getTotalPrice()}
+                        {intl.formatMessage({
+                            id: 'product:customization-price',
+                            defaultMessage: 'Your customization'
+                        })}
+                        : {getTotalPrice()}
                     </span>
                 </h3>
             </section>
             <section className="productFullDetail__quantity productFullDetail__section">
                 <h2 className="productFullDetail__quantityTitle option__title">
-                    <span>{t('cart:quantity', 'Quantity')}</span>
+                    <span>{intl.formatMessage({ id: 'cart:quantity', defaultMessage: 'Quantity' })}</span>
                 </h2>
                 <div className="quantity__root">
                     <span className="fieldIcons__root" style={{ '--iconsBefore': 0, '--iconsAfter': 1 }}>
                         <span className="fieldIcons__input">
                             <select
-                                aria-label="product's quantity"
+                                aria-label={intl.formatMessage({
+                                    id: 'product:quantity-label',
+                                    defaultMessage: 'Product quantity'
+                                })}
                                 className="select__input field__input"
                                 name="quantity"
                                 value={bundleState.quantity}
@@ -263,7 +274,7 @@ const BundleProductOptions = () => {
                     disabled={!canAddToCart()}
                     onClick={addToCart}>
                     <span className="button__content">
-                        <span>{t('product:add-item', 'Add to Cart')}</span>
+                        <span>{intl.formatMessage({ id: 'product:add-item', defaultMessage: 'Add to Cart' })}</span>
                     </span>
                 </button>
             </section>

@@ -23,8 +23,8 @@
                     jcr:lastModified="{Date}2019-02-15T19:09:39.787+01:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
-                    text="&lt;h1>Product&lt;sub>v1&lt;/sub>&lt;/h1>"
+                    sling:resourceType="core-components-examples/components/text"
+                    text="&lt;h1>Product&lt;sub>v2&lt;/sub>&lt;/h1>"
                     textIsRich="true"/>
                 <text
                     cq:styleIds="[1544762734201]"
@@ -33,8 +33,8 @@
                     jcr:lastModified="{Date}2020-10-08T15:16:08.696+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
-                    text="&lt;p>The product component is a server side component written in HTL, allowing to display product details. The product details are retrieved from Magento via GraphQL using the product identifier provided in the URL selector.&lt;/p>&#xd;&#xa;&lt;p>On an author instance, when the page URL does not contain any selector, like for example when the page is edited in the AEM Sites editor, the component displays some placeholder data. On a publish instance, not setting any selector displays a &amp;quot;Product not found&amp;quot; message.&lt;br>&#xd;&#xa;&lt;/p>&#xd;&#xa;&lt;p>Note that when a selector is set, this example page always displays the same product data based on some sample data. Try different options:&lt;/p>&#xd;&#xa;&lt;ul>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.chaz-kangeroo-hoodie.html&quot;>Showing sample data (selector is set in URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.set-of-sprite-yoga-straps.html&quot;>Showing sample data for a grouped product (only for this particular selector in the URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.sprite-yoga-companion-kit.html&quot;>Showing sample data for a bundle product (only for this particular selector in the URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.html&quot;>Showing placeholder data on author instance (no selector in URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/manual-product.html&quot;>Showing sample data (manual product selection)&lt;/a>&lt;/li>&#xd;&#xa;&lt;/ul>&#xd;&#xa;&lt;p>For the three examples with sample data, the clientlib part of the component will also issue a client-side GraphQL query to refetch the product prices on page load. This demonstrates how prices can be refreshed upon page load even if the rest of the page data may be cached in the AEM dispatcher.&lt;/p>&#xd;&#xa;&lt;p>In addition, the example showing a bundle product includes a small React application that is activated when clicking on the &amp;quot;Customize&amp;quot; button. It is used to fetch the bundle options with a client-side GraphQL request and to calculcate and prepare the product data for the cart when selecting the options of the bundle product.&lt;br>&#xd;&#xa;&lt;/p>&#xd;&#xa;"
+                    sling:resourceType="core-components-examples/components/text"
+                    text="&lt;p>The product component is a server side component written in HTL, allowing to display product details. The product details are retrieved from Magento via GraphQL using the product identifier provided in the URL selector.&lt;/p>&#xd;&#xa;&lt;p>On an author instance, when the page URL does not contain any selector, like for example when the page is edited in the AEM Sites editor, the component displays some placeholder data. On a publish instance, not setting any selector displays a &amp;quot;Product not found&amp;quot; message.&lt;br>&#xd;&#xa;&lt;/p>&#xd;&#xa;&lt;p>Note that when a selector is set, this example page always displays the same product data based on some sample data. Try different options:&lt;/p>&#xd;&#xa;&lt;ul>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.html/chaz-kangeroo-hoodie.html&quot;>Showing sample data (selector is set in URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.html/chaz-crocodile-hoodie.html&quot;>Showing sample data for a staged product (selector is set in URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.html/set-of-sprite-yoga-straps.html&quot;>Showing sample data for a grouped product (only for this particular selector in the URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.html/sprite-yoga-companion-kit.html&quot;>Showing sample data for a bundle product (only for this particular selector in the URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product.html&quot;>Showing placeholder data on author instance (no selector in URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/manual-product.html&quot;>Showing sample data (manual product selection)&lt;/a>&lt;/li>&#xd;&#xa;&lt;/ul>&#xd;&#xa;&lt;p>For the three examples with sample data, the clientlib part of the component will also issue a client-side GraphQL query to refetch the product prices on page load. This demonstrates how prices can be refreshed upon page load even if the rest of the page data may be cached in the AEM dispatcher.&lt;/p>&#xd;&#xa;&lt;p>In addition, the example showing a bundle product includes a small React application that is activated when clicking on the &amp;quot;Customize&amp;quot; button. It is used to fetch the bundle options with a client-side GraphQL request and to calculcate and prepare the product data for the cart when selecting the options of the bundle product.&lt;br>&#xd;&#xa;&lt;/p>&#xd;&#xa;"
                     textIsRich="true"/>
                 <teaser
                     cq:styleIds="[1550165685463]"
@@ -60,7 +60,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     jcr:title="Examples"
-                    sling:resourceType="core/wcm/components/title/v2/title"
+                    sling:resourceType="core-components-examples/components/title"
                     type="h2"/>
                 <title_290384408
                     cq:styleIds="[1544759676459]"
@@ -70,7 +70,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     jcr:title="Standard"
-                    sling:resourceType="core/wcm/components/title/v2/title"
+                    sling:resourceType="core-components-examples/components/title"
                     type="h3"/>
                 <text_1337506761
                     jcr:created="{Date}2018-12-06T19:23:41.968+01:00"
@@ -78,7 +78,7 @@
                     jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;p>The component, simply displaying placeholder data.&lt;/p>"
                     textIsRich="true"/>
                 <demo
@@ -121,7 +121,7 @@
                     jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;p>In addition to the product component, this demonstrates the breadcrumb component displaying page content and commerce data up to the product page.&lt;/p>"
                     textIsRich="true"/>
                 <breadcrumb-demo
@@ -165,7 +165,7 @@
                     jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;p>In addition to the product component, this demonstrates the commerce experience fragment component displaying its content dynamically based on both the &quot;fragmentLocation&quot; property and the SKU of the product currently being displayed. This is empty unless the product SKU matches MH01.&lt;/p>"
                     textIsRich="true"/>
                 <xf-demo
@@ -202,6 +202,52 @@
                             reference="../../component"/>
                     </info>
                 </xf-demo>
+                <text_cf
+                        jcr:created="{Date}2018-12-06T19:23:41.968+01:00"
+                        jcr:createdBy="admin"
+                        jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00"
+                        jcr:lastModifiedBy="admin"
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="core-components-examples/components/text"
+                        text="&lt;p>In addition to the product component, this demonstrates the Commerce Content Fragment component displaying its content dynamically based on the &quot;modePath&quot; property and the SKU of the product currently being displayed. This is empty unless the product SKU matches MH01.&lt;/p>"
+                        textIsRich="true"/>
+                <cf-demo
+                        jcr:created="{Date}2018-12-07T12:55:03.496+01:00"
+                        jcr:createdBy="admin"
+                        jcr:lastModified="{Date}2018-12-07T12:55:03.496+01:00"
+                        jcr:lastModifiedBy="admin"
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="cif-components-examples/components/demo">
+                    <component
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core-components-examples/components/demo/component">
+                        <cf
+                                jcr:created="{Date}2020-08-17T16:22:56.378+02:00"
+                                jcr:createdBy="admin"
+                                jcr:lastModified="{Date}2020-08-17T16:22:56.378+02:00"
+                                jcr:lastModifiedBy="admin"
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="cif-components-examples/components/contentfragment"
+                                displayMode="multi"
+                                elementNames="productSpecs"
+                                modelPath="/conf/core-components-examples/settings/dam/cfm/models/product-specs"
+                                linkElement="productSku"/>
+                    </component>
+                    <info
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core-components-examples/components/tabs">
+                        <properties
+                                cq:panelTitle="Properties"
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="core-components-examples/components/demo/properties"
+                                reference="../../component"/>
+                        <markup
+                                cq:panelTitle="Markup"
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="core-components-examples/components/demo/markup"
+                                reference="../../component"/>
+                    </info>
+                </cf-demo>
             </responsivegrid>
         </root>
     </jcr:content>

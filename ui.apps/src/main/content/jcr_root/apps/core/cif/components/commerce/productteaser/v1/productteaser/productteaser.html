@@ -1,37 +1,37 @@
-<!--/*
-    Copyright 2019 Adobe Systems Incorporated
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-*/-->
-
+<!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ Copyright 2019 Adobe
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <sly data-sly-use.product="com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser"
     data-sly-use.templates="core/wcm/components/commons/v1/templates.html"
     data-sly-use.imageTpl="image.html"
     data-sly-use.titleTpl="title.html"
     data-sly-use.actionsTpl="actions.html"
     data-sly-test.isConfigured="${properties.selection}"
-    data-sly-test.hasProduct="${product.url}" />
+    data-sly-test.hasProduct="${product.url}"/>
 
 <div data-sly-test="${isConfigured && hasProduct}"
      id="${product.id}"
      class="item__root"
      data-cmp-is="productteaser"
      data-cmp-data-layer="${product.data.json}"
-     data-virtual="${product.virtualProduct}">
-    <sly data-sly-call="${imageTpl.actions @ product=product}" />
-    <sly data-sly-call="${titleTpl.actions @ product=product}" />
+     data-virtual="${product.virtualProduct}"
+     data-product-sku="${product.commerceIdentifier.value}">
+    <sly data-sly-call="${imageTpl.actions @ product=product}"/>
+    <sly data-sly-call="${titleTpl.actions @ product=product}"/>
     <sly data-sly-use.template="core/cif/components/commons/v1/price.html"
-        data-sly-call="${template.price @ priceRange=product.priceRange, displayYouSave=false}"/>
+         data-sly-call="${template.price @ priceRange=product.priceRange, displayYouSave=false}"/>
     <sly data-sly-call="${actionsTpl.actions @ product=product}"/>
 </div>
 

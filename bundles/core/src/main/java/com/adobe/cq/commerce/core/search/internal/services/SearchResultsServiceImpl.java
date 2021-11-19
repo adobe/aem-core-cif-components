@@ -1,20 +1,22 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -40,7 +42,7 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.search.internal.converters.AggregationToSearchAggregationConverter;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
@@ -49,6 +51,7 @@ import com.adobe.cq.commerce.core.search.internal.models.SorterImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SorterKeyImpl;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
+import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
@@ -76,27 +79,22 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery.CategoryListArgumentsDefinition;
 import com.adobe.cq.commerce.magento.graphql.SortEnum;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 
 @Component(service = SearchResultsService.class)
 public class SearchResultsServiceImpl implements SearchResultsService {
 
-    @Reference
-    SearchFilterService searchFilterService;
+    private static final String CATEGORY_ID_FILTER = "category_id";
+    private static final String CATEGORY_UID_FILTER = "category_uid";
 
     @Reference
-    private UrlProvider urlProvider = null;
-
-    private MagentoGraphqlClient magentoGraphqlClient;
+    private SearchFilterService searchFilterService;
+    @Reference
+    private UrlProvider urlProvider;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsServiceImpl.class);
-
-    public SearchResultsServiceImpl() {}
-
-    public SearchResultsServiceImpl(final MagentoGraphqlClient magentoGraphqlClient) {
-        this.magentoGraphqlClient = magentoGraphqlClient;
-    }
 
     @Nonnull
     @Override
@@ -132,14 +130,16 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
         SearchOptionsImpl mutableSearchOptions = new SearchOptionsImpl(searchOptions);
         searchResultsSet.setSearchOptions(mutableSearchOptions);
-
-        Page page = resource.getResourceResolver().adaptTo(PageManager.class).getContainingPage(resource);
-
-        if (magentoGraphqlClient == null) {
-            magentoGraphqlClient = MagentoGraphqlClient.create(resource, page, request);
+        MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
+        Page page = resource.adaptTo(Page.class);
+        if (page == null) {
+            PageManager pageManager = resource.getResourceResolver().adaptTo(PageManager.class);
+            if (pageManager != null) {
+                page = pageManager.getContainingPage(resource);
+            }
         }
 
-        if (magentoGraphqlClient == null) {
+        if (magentoGraphqlClient == null || page == null) {
             LOGGER.error("The search result service was unable to create a new MagentoGraphqlClient.");
             return new ImmutablePair<>(null, searchResultsSet);
         }
@@ -150,13 +150,12 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             String categoryQueryString = generateCategoryQueryString(categoryRetriever).get();
             LOGGER.debug("Generated category query string {}", categoryQueryString);
             GraphqlResponse<Query, Error> categoryResponse = magentoGraphqlClient.execute(categoryQueryString);
-            Query categoryData = categoryResponse.getData();
-
-            if (categoryData != null) {
+            if (CollectionUtils.isEmpty(categoryResponse.getErrors()) && categoryResponse.getData() != null) {
+                Query categoryData = categoryResponse.getData();
                 List<CategoryTree> categories = categoryData.getCategoryList();
                 if (CollectionUtils.isNotEmpty(categories)) {
                     category = categories.get(0);
-                    mutableSearchOptions.setCategoryId(category.getId().toString());
+                    mutableSearchOptions.setCategoryUid(category.getUid().toString());
                 }
             }
         }
@@ -171,26 +170,28 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         LOGGER.debug("Generated products query string {}", productsQueryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(productsQueryString);
 
-        Query data = response.getData();
-        Products products = data != null ? data.getProducts() : null;
-
         // If we have any errors returned we'll log them and return an empty search result
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
-            response.getErrors().stream()
+            response.getErrors()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
 
             return new ImmutablePair<>(category, searchResultsSet);
         }
 
         // Finally we transform the results to something useful and expected by other the Sling Models and wider display layer
+        Products products = response.getData().getProducts();
         final List<ProductListItem> productListItems = extractProductsFromResponse(
             products.getItems(),
             productPage,
             request,
             resource);
 
-        final List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(products.getAggregations(),
+        List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(products.getAggregations(),
             mutableSearchOptions.getAllFilters(), availableFilters);
+
+        // special handling of category identifier(s)
+        removeCategoryIdAggregationIfNecessary(searchAggregations, mutableSearchOptions);
+        removeCategoryUidFilterEntriesIfPossible(searchAggregations, request);
 
         searchResultsSet.setTotalResults(products.getTotalCount());
         searchResultsSet.setProductListItems(productListItems);
@@ -360,14 +361,12 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
     /**
      * Generates a query string for the category specified in the retriever.
-     * 
-     * 
+     *
      * @param categoryRetriever
      * @return the query string
      */
     @Nonnull
     private Optional<String> generateCategoryQueryString(final AbstractCategoryRetriever categoryRetriever) {
-
         if (categoryRetriever != null) {
             Pair<CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> categoryArgs = categoryRetriever.generateCategoryQueryArgs();
             return Optional.of(Operations.query(query -> query
@@ -388,11 +387,12 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     private ProductInterfaceQueryDefinition generateProductQuery(
         final Consumer<ProductInterfaceQuery> productQueryHook) {
         return (ProductInterfaceQuery q) -> {
-            q.id()
-                .sku()
+            q.sku()
                 .name()
                 .smallImage(i -> i.url())
                 .urlKey()
+                .urlPath()
+                .urlRewrites(uq -> uq.url())
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp
@@ -438,7 +438,10 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         LOGGER.debug("Found {} products for search term", products.size());
 
-        ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, resource);
+        String resourceType = resource.getResourceType();
+        String prefix = StringUtils.substringAfterLast(resourceType, "/");
+        String parentId = ComponentUtils.generateId(prefix, resource.getPath());
+        ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, parentId);
 
         return products.stream()
             .map(converter)
@@ -472,4 +475,34 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Removes the category_id filter from the search aggregations when category_uid filter is present because either cannot be combined
+     * with the other.
+     *
+     * @param aggs
+     * @param searchOptions
+     */
+    private void removeCategoryIdAggregationIfNecessary(List<SearchAggregation> aggs, SearchOptionsImpl searchOptions) {
+        // Special treatment for category_id filter as this is always present and collides with category_uid filter (CIF-2206)
+        if (searchOptions.getCategoryUid().isPresent()) {
+            aggs.removeIf(agg -> CATEGORY_ID_FILTER.equals(agg.getIdentifier()));
+        }
+    }
+
+    /**
+     * Removes the category_uid filter from all filter options' filter maps when the category uid can be retrieved from the request already.
+     *
+     * @param aggs
+     * @param request
+     */
+    private void removeCategoryUidFilterEntriesIfPossible(List<SearchAggregation> aggs, SlingHttpServletRequest request) {
+        String categoryUid = urlProvider.getCategoryIdentifier(request);
+        if (StringUtils.isNotBlank(categoryUid)) {
+            aggs.stream()
+                .map(SearchAggregation::getOptions)
+                .flatMap(Collection::stream)
+                .map(SearchAggregationOption::getAddFilterMap)
+                .forEach(filterMap -> filterMap.remove(CATEGORY_UID_FILTER, categoryUid));
+        }
+    }
 }

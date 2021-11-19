@@ -21,6 +21,7 @@
                         selectionId="sku" />
                     <relationType jcr:primaryType="nt:unstructured" 
                         sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                        sling:orderBefore="id"
                         fieldLabel="Target products to display." 
                         name="./relationType">
                         <datasource jcr:primaryType="nt:unstructured" 

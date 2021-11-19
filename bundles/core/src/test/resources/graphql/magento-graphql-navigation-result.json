@@ -2,46 +2,114 @@
   "data": {
     "categoryList": [
       {
-        "id": 2,
+        "uid": "Mg==",
         "name": "Default Category",
         "url_path": null,
         "position": 1,
         "children": [
           {
-            "id": 11,
+            "uid": "MjE=",
+            "name": "Women",
+            "url_path": "women",
+            "position": 2,
+            "children": [
+              {
+                "uid": "MjM=",
+                "name": "Bottoms",
+                "url_path": "women/bottoms-women",
+                "position": 2,
+                "children": [
+                  {
+                    "uid": "Mjg=",
+                    "name": "Pants",
+                    "url_path": "women/bottoms-women/pants-women",
+                    "position": 1,
+                    "children": []
+                  },
+                  {
+                    "uid": "Mjk=",
+                    "name": "Shorts",
+                    "url_path": "women/bottoms-women/shorts-women",
+                    "position": 2,
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "uid": "MjI=",
+                "name": "Tops",
+                "url_path": "women/tops-women",
+                "position": 1,
+                "children": [
+
+                  {
+                    "uid": "MjU=",
+                    "name": "Hoodies & Sweatshirts",
+                    "url_path": "women/tops-women/hoodies-and-sweatshirts-women",
+                    "position": 2,
+                    "children": []
+                  },
+                  {
+                    "uid": "MjY=",
+                    "name": "Tees",
+                    "url_path": "women/tops-women/tees-women",
+                    "position": 3,
+                    "children": []
+                  },
+                  {
+                    "uid": "MjQ=",
+                    "name": "Jackets",
+                    "url_path": "women/tops-women/jackets-women",
+                    "position": 1,
+                    "children": []
+                  },
+                  {
+                    "uid": "Mjc=",
+                    "name": "Bras & Tanks",
+                    "url_path": "women/tops-women/tanks-women",
+                    "include_in_menu": 0,
+                    "position": 4,
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uid": "MTI=",
             "name": "Men",
             "url_path": "men",
             "position": 3,
             "children": [
               {
-                "id": 12,
+                "uid": "MTM=",
                 "name": "Tops",
                 "url_path": "men/tops-men",
                 "position": 1,
                 "children": [
                   {
-                    "id": 14,
+                    "uid": "MTU=",
                     "name": "Jackets",
                     "url_path": "men/tops-men/jackets-men",
                     "position": 1,
                     "children": []
                   },
                   {
-                    "id": 15,
+                    "uid": "MTY=",
                     "name": "Hoodies & Sweatshirts",
                     "url_path": "men/tops-men/hoodies-and-sweatshirts-men",
                     "position": 2,
                     "children": []
                   },
                   {
-                    "id": 16,
+                    "uid": "MTc=",
                     "name": "Tees",
                     "url_path": "men/tops-men/tees-men",
                     "position": 3,
                     "children": []
                   },
                   {
-                    "id": 17,
+                    "uid": "MTg=",
                     "name": "Tanks",
                     "url_path": "men/tops-men/tanks-men",
                     "position": 4,
@@ -50,20 +118,20 @@
                 ]
               },
               {
-                "id": 13,
+                "uid": "MTQ=",
                 "name": "Bottoms",
                 "url_path": "men/bottoms-men",
                 "position": 2,
                 "children": [
                   {
-                    "id": 18,
+                    "uid": "MTk=",
                     "name": "Pants",
                     "url_path": "men/bottoms-men/pants-men",
                     "position": 1,
                     "children": []
                   },
                   {
-                    "id": 19,
+                    "uid": "MjA=",
                     "name": "Shorts",
                     "url_path": "men/bottoms-men/shorts-men",
                     "position": 2,
@@ -74,79 +142,13 @@
             ]
           },
           {
-            "id": 20,
-            "name": "Women",
-            "url_path": "women",
-            "position": 2,
-            "children": [
-              {
-                "id": 21,
-                "name": "Tops",
-                "url_path": "women/tops-women",
-                "position": 1,
-                "children": [
-                  {
-                    "id": 23,
-                    "name": "Jackets",
-                    "url_path": "women/tops-women/jackets-women",
-                    "position": 1,
-                    "children": []
-                  },
-                  {
-                    "id": 24,
-                    "name": "Hoodies & Sweatshirts",
-                    "url_path": "women/tops-women/hoodies-and-sweatshirts-women",
-                    "position": 2,
-                    "children": []
-                  },
-                  {
-                    "id": 25,
-                    "name": "Tees",
-                    "url_path": "women/tops-women/tees-women",
-                    "position": 3,
-                    "children": []
-                  },
-                  {
-                    "id": 26,
-                    "name": "Bras & Tanks",
-                    "url_path": "women/tops-women/tanks-women",
-                    "position": 4,
-                    "children": []
-                  }
-                ]
-              },
-              {
-                "id": 22,
-                "name": "Bottoms",
-                "url_path": "women/bottoms-women",
-                "position": 2,
-                "children": [
-                  {
-                    "id": 27,
-                    "name": "Pants",
-                    "url_path": "women/bottoms-women/pants-women",
-                    "position": 1,
-                    "children": []
-                  },
-                  {
-                    "id": 28,
-                    "name": "Shorts",
-                    "url_path": "women/bottoms-women/shorts-women",
-                    "position": 2,
-                    "children": []
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "id": 9,
+            "uid": "OQ==",
             "name": "Training",
             "url_path": "training",
             "position": 5,
             "children": [
               {
-                "id": 10,
+                "uid": "MTA=",
                 "name": "Video Download",
                 "url_path": "training/training-video",
                 "position": 1,
@@ -155,27 +157,27 @@
             ]
           },
           {
-            "id": 3,
+            "uid": "Mw==",
             "name": "Gear",
             "url_path": "gear",
             "position": 4,
             "children": [
               {
-                "id": 4,
+                "uid": "NA==",
                 "name": "Bags",
                 "url_path": "gear/bags",
                 "position": 1,
                 "children": []
               },
               {
-                "id": 5,
+                "uid": "NQ==",
                 "name": "Fitness Equipment",
                 "url_path": "gear/fitness-equipment",
                 "position": 2,
                 "children": []
               },
               {
-                "id": 6,
+                "uid": "Ng==",
                 "name": "Watches",
                 "url_path": "gear/watches",
                 "position": 3,
@@ -184,17 +186,33 @@
             ]
           },
           {
-            "id": 38,
+            "uid": "Mzk=",
             "name": "What's New",
             "url_path": "what-is-new",
+            "include_in_menu": 1,
             "position": 1,
             "children": []
           },
           {
-            "id": 37,
+            "uid": "Mzg=",
             "name": "Sale",
             "url_path": "sale",
             "position": 6,
+            "children": []
+          },
+          {
+            "uid": "Mzh=",
+            "name": "Hidden",
+            "url_path": "hidden",
+            "include_in_menu": 0,
+            "position": 7,
+            "children": []
+          },
+
+          {
+            "uid": "Mzi=",
+            "url_path": "noname",
+            "position": 8,
             "children": []
           }
         ]

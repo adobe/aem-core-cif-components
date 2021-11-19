@@ -32,6 +32,8 @@ common:
       - store_artifacts:
           path: bundles/core/target/site/jacoco
       - store_artifacts:
+          path: extensions/product-recs/bundle/target/site/jacoco
+      - store_artifacts:
           path: examples/bundle/target/site/jacoco
 
   selenium_test_steps: &selenium_test_steps
@@ -54,8 +56,8 @@ common:
 
   docker_auth: &docker_auth
     auth:
-      username: $DOCKER_USER
-      password: $DOCKER_PASS
+      username: $ARTIFACTORY_CLOUD_USER
+      password: $ARTIFACTORY_CLOUD_PASS
 
 executors:
   cif_executor:
@@ -70,7 +72,7 @@ executors:
     docker:
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-azul-jdk11
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:5181-azul
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:5852-azul
         <<: *docker_auth
   test_executor_655:
     docker:
@@ -103,6 +105,8 @@ jobs:
             - bundles/core/target
             - ui.apps/target/*.zip
             - ui.config/target/*.zip
+            - extensions/product-recs/bundle/target
+            - extensions/product-recs/content/target/*.zip
             - examples/bundle/target
             - examples/ui.apps/target/*.zip
             - examples/ui.config/target/*.zip
@@ -160,6 +164,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
           name: Provision
           command: |
             node -v
@@ -177,18 +184,44 @@ jobs:
       - codecov/upload:
           flags: jest
 
+  jest-extension:
+    docker:
+      - image: circleci/node:lts-browsers
+    steps:
+      - checkout
+      - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
+          name: Provision (Core)
+          command: |
+            node -v
+            npm -v
+            npm install
+            npm run webpack:dev
+            npm link
+          working_directory: ./react-components
+      - run:
+          name: Provision (Extension)
+          command: |
+            npm install
+            npm link @adobe/aem-core-cif-react-components
+          working_directory: ./extensions/product-recs/react-components
+      - run:
+          name: Run Unit Tests (Jest)
+          command: npm run ci
+          working_directory: ./extensions/product-recs/react-components
+      - store_test_results:
+          path: ./extensions/product-recs/react-components/test-results
+      - store_artifacts:
+          path: ./extensions/product-recs/react-components/test-results
+      - codecov/upload:
+          flags: jest
+
   integration-test-655:
     executor: test_executor_655
     environment:
       AEM: classic
-      TYPE: integration
-    resource_class: large
-    working_directory: /home/circleci/build
-    <<: *integration_test_steps
-
-  integration-test-cloudready:
-    executor: test_executor_cloudready
-    environment:
       TYPE: integration
     resource_class: large
     working_directory: /home/circleci/build
@@ -247,10 +280,14 @@ workflows:
   build-and-release:
     jobs:
       - build-java-11:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
       - build-java-8:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -262,7 +299,13 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - jest-extension:
+          filters:
+            tags:
+              only: /.*/
       - integration-test-655:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -271,16 +314,10 @@ workflows:
             - build-java-8
             - karma
             - jest
-      - integration-test-cloudready:
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - build-java-8
-            - karma
-            - jest
+            - jest-extension
       - integration-test-cloudready-with-addon:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -289,7 +326,10 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - selenium-chrome-655:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -298,7 +338,10 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - selenium-chrome-cloudready-with-addon:
+          context:
+            - CIF Artifactory Cloud
           filters:
             tags:
               only: /.*/
@@ -307,7 +350,12 @@ workflows:
             - build-java-8
             - karma
             - jest
+            - jest-extension
       - release:
+          context:
+            - CIF Artifactory Cloud
+            - CIF NPM
+            - CIF Maven Central
           requires:
             - build-java-11
           filters:

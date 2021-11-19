@@ -76,8 +76,26 @@
                       "structureDepth": "2"
                     },
                     "product": {
-                      "sling:resourceType": "venia/components/commerce/product",
+                      "sling:resourceType": "core/cif/components/commerce/product/v2/product",
                       "sling:resourceSuperType": "core/cif/components/commerce/product/v1/product"
+                    }
+                  }
+                }
+              }
+            },
+            "product-specific-page-no-product": {
+              "jcr:primaryType": "cq:Page",
+              "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "selectorFilter": "tiberius-gym-tank",
+                "sling:resourceType": "venia/components/page",
+                "root": {
+                  "responsivegrid": {
+                    "breadcrumb": {
+                      "sling:resourceType": "venia/components/commerce/breadcrumb",
+                      "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
+                      "startLevel": "3",
+                      "structureDepth": "2"
                     }
                   }
                 }
@@ -108,7 +126,7 @@
               "jcr:primaryType": "cq:Page",
               "jcr:content": {
                 "jcr:primaryType": "cq:PageContent",
-                "selectorFilter": "12",
+                "selectorFilter": "MTM=",
                 "sling:resourceType": "venia/components/page",
                 "root": {
                   "responsivegrid": {
@@ -119,8 +137,25 @@
                       "structureDepth": "2"
                     },
                     "productlist": {
-                      "sling:resourceType": "venia/components/commerce/productlist",
-                      "sling:resourceSuperType": "core/cif/components/commerce/productlist/v1/productlist"
+                      "sling:resourceType": "core/cif/components/commerce/productlist/v2/productlist"
+                    }
+                  }
+                }
+              }
+            },
+            "category-specific-page-no-productlist": {
+              "jcr:primaryType": "cq:Page",
+              "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "selectorFilter": "MTM=",
+                "sling:resourceType": "venia/components/page",
+                "root": {
+                  "responsivegrid": {
+                    "breadcrumb": {
+                      "sling:resourceType": "venia/components/commerce/breadcrumb",
+                      "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
+                      "startLevel": "3",
+                      "structureDepth": "2"
                     }
                   }
                 }

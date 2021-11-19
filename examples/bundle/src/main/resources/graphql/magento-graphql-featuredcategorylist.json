@@ -2,18 +2,20 @@
   "data": {
     "categoryList": [
       {
-        "id": 15,
+        "uid": "MTU=",
         "name": "Men's Jackets",
         "url_path": "men/tops-men/jackets-men",
         "position": 1,
-        "image": null
+        "image": null,
+        "staged": false
       },
       {
-        "id": 24,
+        "uid": "MjQ=",
         "name": "Women's Jackets",
         "url_path": "women/tops-women/jackets-women",
         "position": 2,
-        "image": null
+        "image": null,
+        "staged": false
       }
     ]
   }

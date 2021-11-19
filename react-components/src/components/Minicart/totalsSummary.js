@@ -1,26 +1,31 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { number, string, shape } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import Price from '../Price';
 
 import classes from './totalsSummary.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const TotalsSummary = props => {
-    const [t] = useTranslation(['cart', 'common']);
+    const intl = useIntl();
 
     // Props.
     const { numItems, subtotal, subtotalDiscount } = props;
@@ -36,7 +41,7 @@ const TotalsSummary = props => {
                 <dl className={classes.totals}>
                     <dt className={classes.subtotalLabel}>
                         <span>
-                            {`${t('cart:total', 'Cart Total:')} `}
+                            {intl.formatMessage({ id: 'cart:total', defaultMessage: 'Cart Total:' })}{' '}
                             <Price
                                 className={hasDiscount ? classes.discounted : ''}
                                 currencyCode={subtotal.currency}
@@ -45,7 +50,13 @@ const TotalsSummary = props => {
                         </span>
                     </dt>
                     <dd className={classes.subtotalValue}>
-                        {t('cart:itemsWithCount', { defaultValue: '{{count}} items', count: numItems })}
+                        {intl.formatMessage(
+                            {
+                                id: 'cart:itemsWithCount',
+                                defaultMessage: '{count, plural, one {# item} other {# items}}'
+                            },
+                            { count: numItems }
+                        )}
                     </dd>
                 </dl>
             )}
@@ -53,12 +64,18 @@ const TotalsSummary = props => {
                 <dl className={classes.totalsDiscount}>
                     <dt className={classes.subtotalLabel}>
                         <span>
-                            {`${t('cart:new-total', 'New Cart Total:')} `}
+                            {intl.formatMessage({ id: 'cart:new-total', defaultMessage: 'New Cart Total:' })}{' '}
                             <Price currencyCode={subtotalDiscount.currency} value={subtotalDiscount.value} />
                         </span>
                     </dt>
                     <dd className={classes.subtotalValue}>
-                        {t('cart:itemsWithCount', { defaultValue: '{{count}} items', count: numItems })}
+                        {intl.formatMessage(
+                            {
+                                id: 'cart:itemsWithCount',
+                                defaultMessage: '{count, plural, one {# item} other {# items}}'
+                            },
+                            { count: numItems }
+                        )}
                     </dd>
                 </dl>
             )}

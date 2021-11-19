@@ -1,0 +1,22 @@
+{
+  "data": {
+    "categories": {
+      "items": [
+        {
+          "id": 3,
+          "uid": "UID3",
+          "children": [
+            {
+              "id": 31,
+              "uid": "UID31"
+            },
+            {
+              "id": 32,
+              "uid": "UID32"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

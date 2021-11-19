@@ -23,7 +23,7 @@
                     jcr:lastModified="{Date}2019-02-15T19:09:39.787+01:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;h1>Relatedproducts&lt;sub>v1&lt;/sub>&lt;/h1>"
                     textIsRich="true"/>
                 <text
@@ -33,7 +33,7 @@
                     jcr:lastModified="{Date}2020-05-18T15:04:17.709+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;p>The Related Products component is a server-side component written in HTL, allowing to display a list of related products in a carousel style. This component actually reuses the Product Carousel component to display the products. The products are retrieved from Magento via GraphQL. This component can be used on any experience page.&lt;/p>&#xa;&lt;p>The component can be configured to fetch products based on the 3 &amp;quot;relation types&amp;quot; that exist between products in the Magento GraphQL schema:&lt;/p>&#xa;&lt;ul>&#xa;&lt;li>Related products&lt;/li>&#xa;&lt;li>Upsell products&lt;/li>&#xa;&lt;li>Cross-sell products&lt;br>&#xa;&lt;/li>&#xa;&lt;/ul>&#xa;&lt;p>The base product used to display the related products is either taken from:&lt;/p>&#xa;&lt;ul>&#xa;&lt;li>the selector in the product URL (that is, if the component is used on a product page)&lt;/li>&#xa;&lt;li>the &amp;quot;product&amp;quot; property that can be configured in the component dialog&lt;br>&#xa;&lt;/li>&#xa;&lt;/ul>&#xa;&lt;p>Note: due to the limited amount of sample data available, the links to product pages will always display the same demo product.&lt;br>&#xa;&lt;/p>&#xa;"
                     textIsRich="true"/>
                 <teaser
@@ -60,7 +60,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     jcr:title="Examples"
-                    sling:resourceType="core/wcm/components/title/v2/title"
+                    sling:resourceType="core-components-examples/components/title"
                     type="h2"/>
                 <title_290384408
                     cq:styleIds="[1544759676459]"
@@ -70,7 +70,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     jcr:title="Standard"
-                    sling:resourceType="core/wcm/components/title/v2/title"
+                    sling:resourceType="core-components-examples/components/title"
                     type="h3"/>
                 <text_1337506761
                     jcr:created="{Date}2018-12-06T19:23:41.968+01:00"
@@ -78,7 +78,7 @@
                     jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;p>The component, simply displaying sample data.&lt;/p>"
                     textIsRich="true"/>
                 <demo

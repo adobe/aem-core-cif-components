@@ -1,16 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
 import Product from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product/clientlib/js/product.js';
@@ -308,6 +310,33 @@ describe('Product', () => {
                 assert.equal(regularPrice, 'From $10.00 To $20.00');
                 assert.equal(finalPrice, 'From $5.00 To $10.00');
                 assert.equal(youSave, 'You save $5.00 (50%)');
+            });
+        });
+
+        it('displays a null price', () => {
+            const priceRange = {
+                'sample-sku': {
+                    minimum_price: {
+                        regular_price: {
+                            value: null,
+                            currency: 'USD'
+                        },
+                        final_price: {
+                            value: null,
+                            currency: 'USD'
+                        }
+                    }
+                }
+            };
+            window.CIF.CommerceGraphqlApi.getProductPrices.resetBehavior();
+            window.CIF.CommerceGraphqlApi.getProductPrices.resolves(priceRange);
+
+            productRoot.dataset.loadClientPrice = true;
+            let product = new Product({ element: productRoot });
+
+            return product._initPrices().then(() => {
+                let price = productRoot.querySelector(Product.selectors.price).innerText;
+                assert.equal(price, '');
             });
         });
     });

@@ -1,36 +1,41 @@
-/*******************************************************************************
- *
- *    Copyright 2020 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2020 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.datalayer;
 
-import javax.inject.Inject;
-
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.caconfig.ConfigurationBuilder;
+import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 
 import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
+import com.adobe.cq.wcm.core.components.models.Component;
 import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public abstract class DataLayerComponent {
-    public static final String ID_SEPARATOR = "-";
+public abstract class DataLayerComponent implements Component {
 
-    @Inject
+    @SlingObject
     protected Resource resource;
+
+    @Self
+    private Component wcmComponent;
 
     private String id;
     private Boolean dataLayerEnabled;
@@ -67,10 +72,14 @@ public abstract class DataLayerComponent {
     }
 
     protected String generateId() {
-        String resourceType = resource.getResourceType();
-        String prefix = StringUtils.substringAfterLast(resourceType, "/");
-        String path = resource.getPath();
-        return StringUtils.join(prefix, ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(path), 0, 10));
+        if (wcmComponent == null) {
+            String resourceType = resource.getResourceType();
+            String prefix = StringUtils.substringAfterLast(resourceType, "/");
+            String path = resource.getPath();
+            return ComponentUtils.generateId(prefix, path);
+        } else {
+            return wcmComponent.getId();
+        }
     }
 
     public String getId() {

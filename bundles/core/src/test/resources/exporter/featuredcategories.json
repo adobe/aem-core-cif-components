@@ -8,24 +8,24 @@
       "assetPath": null,
       "categoryIdentifier": {
         "entityType": "CATEGORY",
-        "value": "5",
-        "type": "ID"
+        "value": "uid-5",
+        "type": "UID"
       }
     },
     {
       "assetPath": "/content/dam/venia/landing_page_image4.jpg",
       "categoryIdentifier": {
         "entityType": "CATEGORY",
-        "value": "6",
-        "type": "ID"
+        "value": "uid-6",
+        "type": "UID"
       }
     },
     {
       "assetPath": "invalid-asset",
       "categoryIdentifier": {
         "entityType": "CATEGORY",
-        "value": "7",
-        "type": "ID"
+        "value": "uid-7",
+        "type": "UID"
       }
     },
     {
@@ -33,7 +33,7 @@
       "categoryIdentifier": {
         "entityType": "CATEGORY",
         "value": "9999",
-        "type": "ID"
+        "type": "UID"
       }
     }
   ],
@@ -41,30 +41,27 @@
     "featuredcategorylist-4295dd6c7a": {
       "xdm:categories": [
         {
-          "repo:id": "category-ef2d127de3",
+          "repo:id": "category-2193ce7b11",
           "xdm:name": "Equipment",
           "xdm:asset": {
-            "xdm:tags": [],
             "repo:path": "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg",
             "@type": "image",
             "repo:id": "image-b22e8ff83b"
           }
         },
         {
-          "repo:id": "category-e7f6c01177",
+          "repo:id": "category-0ca108fa0f",
           "xdm:name": "Running",
           "xdm:asset": {
-            "xdm:tags": [],
             "repo:path": "/content/dam/venia/landing_page_image4.web.jpg",
             "@type": "image",
             "repo:id": "image-e17a63b160"
           }
         },
         {
-          "repo:id": "category-7902699be4",
+          "repo:id": "category-4e437c752c",
           "xdm:name": "Bike",
           "xdm:asset": {
-            "xdm:tags": [],
             "repo:path": "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg",
             "@type": "image",
             "repo:id": "image-b22e8ff83b"

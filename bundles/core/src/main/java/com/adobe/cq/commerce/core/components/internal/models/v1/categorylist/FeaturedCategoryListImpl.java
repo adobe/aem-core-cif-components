@@ -1,17 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.categorylist;
 
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -29,10 +29,10 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
@@ -45,10 +45,8 @@ import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategor
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryListItem;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.CategoryIdentifierType;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ParamsBuilder;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.export.json.ComponentExporter;
@@ -70,24 +68,24 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class FeaturedCategoryListImpl extends DataLayerComponent implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
-    private static final Logger LOGGER = LoggerFactory.getLogger(FeaturedCategoryListImpl.class);
 
-    private static final String PN_ENABLE_UID_SUPPORT = "enableUIDSupport";
     private static final String RENDITION_WEB = "web";
     private static final String RENDITION_ORIGINAL = "original";
     private static final String CATEGORY_IDENTIFIER = "categoryId";
-    private static final String SELECTION_TYPE = "categoryIdType";
     private static final String ASSET_PROP = "asset";
     private static final String ITEMS_PROP = "items";
 
-    @Inject
+    @ScriptVariable
     private Page currentPage;
 
-    @Inject
+    @OSGiService
     private UrlProvider urlProvider;
 
     @Self
     private SlingHttpServletRequest request;
+
+    @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private MagentoGraphqlClient magentoGraphqlClient;
 
     @ScriptVariable
     protected Style currentStyle;
@@ -95,8 +93,6 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     private Map<String, Asset> assetOverride;
     private Page categoryPage;
     private AbstractCategoriesRetriever categoriesRetriever;
-    private CategoryIdentifierType categoryIdentifierType;
-    private boolean enableUIDSupport;
 
     @PostConstruct
     private void initModel() {
@@ -107,7 +103,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
         // Each identifier list will be held under a specific key
         // After the identifier type has been determined, the specific list will be used further
-        Map<CategoryIdentifierType, ArrayList<String>> categoryIdentifiers = new HashMap<>();
+        List<String> categoryIdentifiers = new ArrayList<>();
         assetOverride = new HashMap<>();
 
         // Iterate entries of composite multifield
@@ -115,23 +111,15 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
         // The identifier type to be used in the categoryList query.
         // The value of the last item configured in the component will be used
-        categoryIdentifierType = CategoryIdentifierType.ID;
         if (items != null) {
             for (Resource item : items.getChildren()) {
                 ValueMap props = item.getValueMap();
 
-                // Get the category identifier type. Could be ID or UID. This will be used in
-                // the GraphQL query as filter param
-                categoryIdentifierType = CategoryIdentifierType.valueOf(props.get(SELECTION_TYPE, "id").toUpperCase());
                 String categoryIdentifier = props.get(CATEGORY_IDENTIFIER, String.class);
                 if (StringUtils.isEmpty(categoryIdentifier)) {
                     continue;
                 }
-
-                if (!categoryIdentifiers.containsKey(categoryIdentifierType)) {
-                    categoryIdentifiers.put(categoryIdentifierType, new ArrayList<>());
-                }
-                categoryIdentifiers.get(categoryIdentifierType).add(categoryIdentifier);
+                categoryIdentifiers.add(categoryIdentifier);
 
                 // Check if an override asset was set. If yes, store it in a map for later use.
                 String assetPath = props.get(ASSET_PROP, String.class);
@@ -148,17 +136,10 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 assetOverride.put(categoryIdentifier, overrideAsset);
             }
 
-            if (!categoryIdentifiers.isEmpty() && !categoryIdentifiers.get(categoryIdentifierType).isEmpty()) {
-                MagentoGraphqlClient magentoGraphqlClient = MagentoGraphqlClient.create(resource, currentPage, request);
-
-                Resource configurationResource = currentPage != null ? currentPage.adaptTo(Resource.class) : resource;
-                ComponentsConfiguration componentsConfiguration = configurationResource.adaptTo(ComponentsConfiguration.class);
-                enableUIDSupport = Boolean.parseBoolean(componentsConfiguration.get(PN_ENABLE_UID_SUPPORT, String.class));
-                if (magentoGraphqlClient != null) {
-                    categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient, enableUIDSupport);
-                    // Setting the identifiers list based on the determined identifier type
-                    categoriesRetriever.setIdentifiers(categoryIdentifiers.get(categoryIdentifierType), categoryIdentifierType);
-                }
+            if (!categoryIdentifiers.isEmpty() && magentoGraphqlClient != null) {
+                categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
+                // Setting the identifiers list based on the determined identifier type
+                categoriesRetriever.setIdentifiers(categoryIdentifiers);
             }
         }
     }
@@ -172,21 +153,13 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
         List<CategoryTree> categories = categoriesRetriever.fetchCategories();
         for (CategoryTree category : categories) {
-            ParamsBuilder paramsBuilder = new ParamsBuilder()
-                .id(category.getId().toString())
-                .urlPath(category.getUrlPath());
-
-            if (enableUIDSupport || categoryIdentifierType == CategoryIdentifierType.UID) {
-                paramsBuilder.uid(category.getUid().toString());
-            }
-
-            Map<String, String> params = paramsBuilder.map();
+            CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(category);
             category.setPath(urlProvider.toCategoryUrl(request, categoryPage, params));
 
             // Replace image if there is an asset override
-            String id = category.getId().toString();
-            if (assetOverride.containsKey(id)) {
-                Asset asset = assetOverride.get(id);
+            String uid = category.getUid().toString();
+            if (assetOverride.containsKey(uid)) {
+                Asset asset = assetOverride.get(uid);
                 Rendition rendition = asset.getRendition(RENDITION_WEB);
                 if (rendition == null) {
                     rendition = asset.getRendition(RENDITION_ORIGINAL);
@@ -213,7 +186,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
             String assetPath = props.get(ASSET_PROP, String.class);
             if (StringUtils.isNotEmpty(categoryId)) {
                 categories.add(
-                    new FeaturedCategoryListItemImpl(new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.ID,
+                    new FeaturedCategoryListItemImpl(new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY), assetPath));
             }
         });
@@ -242,7 +215,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     @Override
     public CategoryData[] getDataLayerCategories() {
         return getCategories().stream()
-            .map(c -> new CategoryDataImpl(c.getId().toString(), c.getName(), c.getImage()))
+            .map(c -> new CategoryDataImpl(c.getUid().toString(), c.getName(), c.getImage()))
             .toArray(CategoryData[]::new);
     }
 

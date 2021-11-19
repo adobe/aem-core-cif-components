@@ -1,16 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
 class Product {
@@ -52,14 +54,18 @@ class Product {
         price.currency = range.minimum_price.final_price.currency;
         price.regularPrice = range.minimum_price.regular_price.value;
         price.finalPrice = range.minimum_price.final_price.value;
-        price.discountAmount = range.minimum_price.discount.amount_off;
-        price.discountPercent = range.minimum_price.discount.percent_off;
+        if (range.minimum_price.discount) {
+            price.discountAmount = range.minimum_price.discount.amount_off;
+            price.discountPercent = range.minimum_price.discount.percent_off;
+        }
 
         if (range.maximum_price) {
             price.regularPriceMax = range.maximum_price.regular_price.value;
             price.finalPriceMax = range.maximum_price.final_price.value;
-            price.discountAmountMax = range.maximum_price.discount.amount_off;
-            price.discountPercentMax = range.maximum_price.discount.percent_off;
+            if (range.maximum_price.discount) {
+                price.discountAmountMax = range.maximum_price.discount.amount_off;
+                price.discountPercentMax = range.maximum_price.discount.percent_off;
+            }
         }
 
         price.discounted = !!(price.discountAmount && price.discountAmount > 0);
@@ -111,8 +117,9 @@ class Product {
 
         // Update internal state and 'data-product-sku' attribute of price element
         this._state.sku = variant.sku;
-        this._element.querySelector(Product.selectors.price).setAttribute('data-product-sku', variant.sku);
-
+        [this._element.querySelector(Product.selectors.price), this._element].forEach(element =>
+            element.setAttribute('data-product-sku', variant.sku)
+        );
         // Update values and enable add to cart button
         this._element.querySelector(Product.selectors.sku).innerText = variant.sku;
         this._element.querySelector(Product.selectors.name).innerText = variant.name;
@@ -131,6 +138,11 @@ class Product {
      * Update price in the DOM.
      */
     _updatePrice(price, optionalSku) {
+        // Only update if prices are not null
+        if (!price.regularPrice || !price.finalPrice) {
+            return;
+        }
+
         let youSave = this._formatter.get('You save');
         let innerHTML = '';
         if (!price.range) {

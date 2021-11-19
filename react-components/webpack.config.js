@@ -1,22 +1,26 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const pkg = require('./package.json');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const libraryName = pkg.name;
+const externals = Object.keys(pkg.peerDependencies)
+    .reduce((obj, key) => ({ ...obj, [key]: `commonjs ${key}`}), {});
 
 module.exports = {
     entry: path.resolve(__dirname, 'src') + '/index.js',
@@ -28,7 +32,9 @@ module.exports = {
         umdNamedDefine: true,
         publicPath: '/dist/'
     },
-
+    optimization: {
+        minimize: false,
+    },
     module: {
         rules: [
             {
@@ -77,32 +83,15 @@ module.exports = {
         })
     ],
     devtool: 'source-map',
-    mode: 'development',
-    resolve: {
-        alias: {
-            react: path.resolve(__dirname, './node_modules/react'),
-            'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
-            'react-i18next': path.resolve(__dirname, './node_modules/react-i18next')
+    mode: 'production',
+    externals: [
+        externals,
+        // custom handling for pergrine deep imports
+        function(_context, request, callback) {
+            if (/@magento\/peregrine\//.test(request)) {
+                return callback(null, 'commonjs ' + request);
+            }
+            return callback();
         }
-    },
-    externals: {
-        react: {
-            root: 'React',
-            commonjs2: 'react',
-            commonjs: 'react',
-            amd: 'react'
-        },
-        'react-dom': {
-            root: 'ReactDOM',
-            commonjs2: 'react-dom',
-            commonjs: 'react-dom',
-            amd: 'react-dom'
-        },
-        'react-i18next': {
-            root: 'reactI18next',
-            commonjs2: 'react-i18next',
-            commonjs: 'react-i18next',
-            amd: 'react-i18next'
-        }
-    }
+    ]
 };

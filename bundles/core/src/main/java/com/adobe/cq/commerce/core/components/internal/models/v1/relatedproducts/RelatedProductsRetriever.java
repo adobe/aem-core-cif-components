@@ -1,24 +1,24 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
-
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts;
 
 import java.util.List;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
-import com.adobe.cq.commerce.core.components.services.UrlProvider.ProductIdentifierType;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -47,23 +47,15 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
     }
 
     private RelationType relationtype;
-    private ProductIdentifierType productIdentifierType;
 
-    RelatedProductsRetriever(MagentoGraphqlClient client, RelationType relationType, ProductIdentifierType productIdentifierType) {
+    RelatedProductsRetriever(MagentoGraphqlClient client, RelationType relationType) {
         super(client);
         this.relationtype = relationType;
-        this.productIdentifierType = productIdentifierType;
     }
 
     @Override
     protected String generateQuery(List<String> identifiers) {
-        FilterEqualTypeInput input = new FilterEqualTypeInput().setEq(identifiers.get(0));
-        ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
-        if (ProductIdentifierType.SKU.equals(productIdentifierType)) {
-            filter.setSku(input);
-        } else {
-            filter.setUrlKey(input);
-        }
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(new FilterEqualTypeInput().setEq(identifiers.get(0)));
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
         ProductInterfaceQueryDefinition def;
@@ -104,6 +96,8 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
                 .name()
                 .thumbnail(t -> t.label().url())
                 .urlKey()
+                .urlPath()
+                .urlRewrites(uq -> uq.url())
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp

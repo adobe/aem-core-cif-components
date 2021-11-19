@@ -1,25 +1,30 @@
-/*******************************************************************************
- *
- *    Copyright 2019 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2019 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
+import { combineReducers, createStore, applyMiddleware } from 'redux';
+import { Provider as ReduxProvider } from 'react-redux';
 import { render } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
-import { I18nextProvider } from 'react-i18next';
-import { MockLink } from '@apollo/client/testing';
+import { MockedProvider, MockLink } from '@apollo/client/testing';
+import { IntlProvider } from 'react-intl';
 import { onError } from '@apollo/client/link/error';
 import { ApolloLink, from } from '@apollo/client';
+import { default as thunkMiddleware } from '@magento/peregrine/lib/store/middleware/thunk';
+import { default as cartReducer } from '@magento/peregrine/lib/store/reducers/cart';
+import CartContextProvider from '@magento/peregrine/lib/context/cart';
 
-import i18n from '../../__mocks__/i18nForTests';
 import ConfigContextProvider from '../context/ConfigContext';
 import UserContextProvider from '../context/UserContext';
 
@@ -40,6 +45,7 @@ import queryCustomerDetails from './mocks/queryCustomerDetails';
 import queryCustomerInformation from './mocks/queryCustomerInformation';
 import queryEmptyCart from './mocks/queryEmptyCart';
 import queryNewCart from './mocks/queryNewCart';
+import i18nMessages from '../../i18n/en.json';
 
 const debugGraphQL = process.env.DEBUG_GRAPHQL !== undefined && process.env.DEBUG_GRAPHQL !== null ? true : false;
 
@@ -69,11 +75,23 @@ const defaultConfig = {
     graphqlMethod: 'GET'
 };
 
+// create a limited subset of reducers of peregrine
+const store = createStore(
+    combineReducers({
+        // mock user state
+        user: () => ({ isSignedIn: false }),
+        // real cart reducer
+        cart: cartReducer
+    }),
+    applyMiddleware(thunkMiddleware)
+);
+
 // eslint-disable-next-line react/display-name
 const allProviders = (config, userContext, mocks) => ({ children }) => {
     let mockLink = new MockLink(mocks);
 
     let loggerLink = new ApolloLink((operation, forward) => {
+        // eslint-disable-next-line no-console
         console.log(
             `[GraphQL operation]: \n\tQuery: ${JSON.stringify(operation.query)} \n\tVariables: ${JSON.stringify(
                 operation.variables
@@ -85,9 +103,10 @@ const allProviders = (config, userContext, mocks) => ({ children }) => {
     let errorLoggingLink = onError(({ graphQLErrors, networkError }) => {
         if (graphQLErrors)
             graphQLErrors.map(({ message, locations, path }) =>
+                // eslint-disable-next-line no-console
                 console.log(`[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`)
             );
-
+        // eslint-disable-next-line no-console
         if (networkError) console.log(`[Network error]: ${networkError}`);
     });
 
@@ -97,7 +116,11 @@ const allProviders = (config, userContext, mocks) => ({ children }) => {
         <MockedProvider addTypename={false} link={link}>
             <ConfigContextProvider config={config || defaultConfig}>
                 <UserContextProvider initialState={userContext}>
-                    <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
+                    <IntlProvider locale="en" messages={i18nMessages}>
+                        <ReduxProvider store={store}>
+                            <CartContextProvider>{children}</CartContextProvider>
+                        </ReduxProvider>
+                    </IntlProvider>
                 </UserContextProvider>
             </ConfigContextProvider>
         </MockedProvider>

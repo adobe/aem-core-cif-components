@@ -1,0 +1,728 @@
+{
+  "account:account-created": [
+    {
+      "type": 0,
+      "value": "Account created"
+    }
+  ],
+  "account:account-created-title": [
+    {
+      "type": 0,
+      "value": "Your account was successfully created"
+    }
+  ],
+  "account:account-details-sign-in-text": [
+    {
+      "type": 0,
+      "value": "Please sign in to see the account details."
+    }
+  ],
+  "account:account-icon-text-greeting": [
+    {
+      "type": 0,
+      "value": "Hi, "
+    },
+    {
+      "type": 1,
+      "value": "name"
+    }
+  ],
+  "account:account-icon-text-sign-in": [
+    {
+      "type": 0,
+      "value": "Sign In"
+    }
+  ],
+  "account:account-information": [
+    {
+      "type": 0,
+      "value": "Account Information"
+    }
+  ],
+  "account:add-an-address": [
+    {
+      "type": 0,
+      "value": "Add an address"
+    }
+  ],
+  "account:address-book": [
+    {
+      "type": 0,
+      "value": "Address Book"
+    }
+  ],
+  "account:address-book-sign-in-text": [
+    {
+      "type": 0,
+      "value": "Please Sign in to see your address book."
+    }
+  ],
+  "account:address-default-tag": [
+    {
+      "type": 0,
+      "value": "Default"
+    }
+  ],
+  "account:address-delete": [
+    {
+      "type": 0,
+      "value": "Delete"
+    }
+  ],
+  "account:address-delete-cancel": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "account:address-delete-confirm": [
+    {
+      "type": 0,
+      "value": "Delete"
+    }
+  ],
+  "account:address-edit": [
+    {
+      "type": 0,
+      "value": "Edit"
+    }
+  ],
+  "account:address-form-heading": [
+    {
+      "type": 0,
+      "value": "Address"
+    }
+  ],
+  "account:change-password": [
+    {
+      "type": 0,
+      "value": "Change Password"
+    }
+  ],
+  "account:change-password-cancel": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "account:confirm-new-password": [
+    {
+      "type": 0,
+      "value": "Confirm New Password"
+    }
+  ],
+  "account:confirm-password": [
+    {
+      "type": 0,
+      "value": "Confirm Password"
+    }
+  ],
+  "account:continue-shopping": [
+    {
+      "type": 0,
+      "value": "Continue Shopping"
+    }
+  ],
+  "account:create-account": [
+    {
+      "type": 0,
+      "value": "Create account"
+    }
+  ],
+  "account:create-account-lead": [
+    {
+      "type": 0,
+      "value": "Check out faster, use multiple addresses, track orders and more by creating an account!"
+    }
+  ],
+  "account:create-an-account": [
+    {
+      "type": 0,
+      "value": "Create an Account"
+    }
+  ],
+  "account:create-cancel": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "account:create-submit": [
+    {
+      "type": 0,
+      "value": "Submit"
+    }
+  ],
+  "account:current-password": [
+    {
+      "type": 0,
+      "value": "Current Password"
+    }
+  ],
+  "account:edit-account-info": [
+    {
+      "type": 0,
+      "value": "Edit account information"
+    }
+  ],
+  "account:email": [
+    {
+      "type": 0,
+      "value": "Email address"
+    }
+  ],
+  "account:email-confirmation-info": [
+    {
+      "type": 0,
+      "value": "You will receive a link at "
+    },
+    {
+      "type": 1,
+      "value": "email"
+    },
+    {
+      "type": 0,
+      "value": ". Access that link to confirm your email address."
+    }
+  ],
+  "account:firstname": [
+    {
+      "type": 0,
+      "value": "First Name"
+    }
+  ],
+  "account:forget-password-confirmation": [
+    {
+      "type": 0,
+      "value": "If there is an account associated with "
+    },
+    {
+      "type": 1,
+      "value": "email"
+    },
+    {
+      "type": 0,
+      "value": ", you will receive an email with a link to change your password."
+    }
+  ],
+  "account:forgot-password": [
+    {
+      "type": 0,
+      "value": "Forgot Password?"
+    }
+  ],
+  "account:forgot-password-cancel": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "account:forgot-password-submit": [
+    {
+      "type": 0,
+      "value": "Submit"
+    }
+  ],
+  "account:lastname": [
+    {
+      "type": 0,
+      "value": "Last Name"
+    }
+  ],
+  "account:my-account": [
+    {
+      "type": 0,
+      "value": "My account"
+    }
+  ],
+  "account:name": [
+    {
+      "type": 0,
+      "value": "Name"
+    }
+  ],
+  "account:new-password": [
+    {
+      "type": 0,
+      "value": "New Password"
+    }
+  ],
+  "account:new-password-confirm": [
+    {
+      "type": 0,
+      "value": "Confirm new Password"
+    }
+  ],
+  "account:password": [
+    {
+      "type": 0,
+      "value": "Password"
+    }
+  ],
+  "account:password-recovery": [
+    {
+      "type": 0,
+      "value": "Password recovery"
+    }
+  ],
+  "account:password-was-changed": [
+    {
+      "type": 0,
+      "value": "Your password was changed."
+    }
+  ],
+  "account:reset-password": [
+    {
+      "type": 0,
+      "value": "Reset Password"
+    }
+  ],
+  "account:reset-password-error": [
+    {
+      "type": 0,
+      "value": "Could not reset password."
+    }
+  ],
+  "account:reset-password-instructions": [
+    {
+      "type": 0,
+      "value": "Enter your email below to receive a password reset link."
+    }
+  ],
+  "account:reset-password-lead": [
+    {
+      "type": 0,
+      "value": "Please choose a new password to complete the password reset."
+    }
+  ],
+  "account:reset-password-missing-token": [
+    {
+      "type": 0,
+      "value": "Missing or invalid token."
+    }
+  ],
+  "account:reset-password-success": [
+    {
+      "type": 0,
+      "value": "Your password was changed. Please log in with your new password."
+    }
+  ],
+  "account:sign-in": [
+    {
+      "type": 0,
+      "value": "Sign In"
+    }
+  ],
+  "account:sign-in-form-title": [
+    {
+      "type": 0,
+      "value": "Sign-in to Your Account"
+    }
+  ],
+  "account:sign-out": [
+    {
+      "type": 0,
+      "value": "Sign Out"
+    }
+  ],
+  "account:signing-in": [
+    {
+      "type": 0,
+      "value": "Signing In"
+    }
+  ],
+  "account:subscribe-news": [
+    {
+      "type": 0,
+      "value": "Subscribe to news and updates"
+    }
+  ],
+  "cart:apply-coupon": [
+    {
+      "type": 0,
+      "value": "Apply Coupon"
+    }
+  ],
+  "cart:continue-shopping": [
+    {
+      "type": 0,
+      "value": "Continue Shopping"
+    }
+  ],
+  "cart:edit-item": [
+    {
+      "type": 0,
+      "value": "Edit item"
+    }
+  ],
+  "cart:enter-coupon": [
+    {
+      "type": 0,
+      "value": "Enter your code"
+    }
+  ],
+  "cart:fetching-data": [
+    {
+      "type": 0,
+      "value": "Fetching cart data..."
+    }
+  ],
+  "cart:itemsWithCount": [
+    {
+      "offset": 0,
+      "options": {
+        "one": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " item"
+            }
+          ]
+        },
+        "other": {
+          "value": [
+            {
+              "type": 7
+            },
+            {
+              "type": 0,
+              "value": " items"
+            }
+          ]
+        }
+      },
+      "pluralType": "cardinal",
+      "type": 6,
+      "value": "count"
+    }
+  ],
+  "cart:new-total": [
+    {
+      "type": 0,
+      "value": "New Cart Total:"
+    }
+  ],
+  "cart:no-items": [
+    {
+      "type": 0,
+      "value": "There are no items in your shopping cart"
+    }
+  ],
+  "cart:quantity": [
+    {
+      "type": 0,
+      "value": "Quantity"
+    }
+  ],
+  "cart:remove-coupon": [
+    {
+      "type": 0,
+      "value": "Remove coupon"
+    }
+  ],
+  "cart:remove-item": [
+    {
+      "type": 0,
+      "value": "Remove item"
+    }
+  ],
+  "cart:shopping-cart": [
+    {
+      "type": 0,
+      "value": "Shopping Cart"
+    }
+  ],
+  "cart:total": [
+    {
+      "type": 0,
+      "value": "Cart Total:"
+    }
+  ],
+  "cart:update-cart": [
+    {
+      "type": 0,
+      "value": "Update Cart"
+    }
+  ],
+  "checkout:add-billing-information": [
+    {
+      "type": 0,
+      "value": "Add Billing Information"
+    }
+  ],
+  "checkout:add-shipping-information": [
+    {
+      "type": 0,
+      "value": "Add Shipping Information"
+    }
+  ],
+  "checkout:address-city": [
+    {
+      "type": 0,
+      "value": "City"
+    }
+  ],
+  "checkout:address-default-address": [
+    {
+      "type": 0,
+      "value": "Make my default address"
+    }
+  ],
+  "checkout:address-email": [
+    {
+      "type": 0,
+      "value": "E-Mail"
+    }
+  ],
+  "checkout:address-firstname": [
+    {
+      "type": 0,
+      "value": "First Name"
+    }
+  ],
+  "checkout:address-form-address-select-new-address": [
+    {
+      "type": 0,
+      "value": "New Address"
+    }
+  ],
+  "checkout:address-form-heading": [
+    {
+      "type": 0,
+      "value": "Shipping Address"
+    }
+  ],
+  "checkout:address-lastname": [
+    {
+      "type": 0,
+      "value": "Last Name"
+    }
+  ],
+  "checkout:address-phone": [
+    {
+      "type": 0,
+      "value": "Phone"
+    }
+  ],
+  "checkout:address-postcode": [
+    {
+      "type": 0,
+      "value": "ZIP"
+    }
+  ],
+  "checkout:address-save-in-address-book": [
+    {
+      "type": 0,
+      "value": "Save in address book"
+    }
+  ],
+  "checkout:address-state": [
+    {
+      "type": 0,
+      "value": "State"
+    }
+  ],
+  "checkout:address-street": [
+    {
+      "type": 0,
+      "value": "Street"
+    }
+  ],
+  "checkout:address-submit": [
+    {
+      "type": 0,
+      "value": "Use Address"
+    }
+  ],
+  "checkout:address-use-saved-address": [
+    {
+      "type": 0,
+      "value": "Use Saved Address"
+    }
+  ],
+  "checkout:back-to-cart": [
+    {
+      "type": 0,
+      "value": "Back to cart"
+    }
+  ],
+  "checkout:checkout": [
+    {
+      "type": 0,
+      "value": "Checkout"
+    }
+  ],
+  "checkout:confirm-order": [
+    {
+      "type": 0,
+      "value": "Confirm Order"
+    }
+  ],
+  "checkout:continue-shopping": [
+    {
+      "type": 0,
+      "value": "Continue Shopping"
+    }
+  ],
+  "checkout:country": [
+    {
+      "type": 0,
+      "value": "Country"
+    }
+  ],
+  "checkout:order-confirmation": [
+    {
+      "type": 0,
+      "value": "The order number is "
+    },
+    {
+      "type": 1,
+      "value": "orderId"
+    },
+    {
+      "type": 0,
+      "value": ". You will receive an order confirmation email with order status and other details."
+    }
+  ],
+  "checkout:pay-with": [
+    {
+      "type": 0,
+      "value": "Pay With"
+    }
+  ],
+  "checkout:same-as-shipping": [
+    {
+      "type": 0,
+      "value": "Billing address same as shipping address"
+    }
+  ],
+  "checkout:ship-to": [
+    {
+      "type": 0,
+      "value": "Ship To"
+    }
+  ],
+  "checkout:shipping-information": [
+    {
+      "type": 0,
+      "value": "Shipping Information"
+    }
+  ],
+  "checkout:shipping-method": [
+    {
+      "type": 0,
+      "value": "Shipping Method"
+    }
+  ],
+  "checkout:specify-shipping-method": [
+    {
+      "type": 0,
+      "value": "Specify Shipping Method"
+    }
+  ],
+  "checkout:thankyou-for-purchase": [
+    {
+      "type": 0,
+      "value": "Thank you for your purchase!"
+    }
+  ],
+  "checkout:total": [
+    {
+      "type": 0,
+      "value": "TOTAL"
+    }
+  ],
+  "checkout:use": [
+    {
+      "type": 0,
+      "value": "Use"
+    }
+  ],
+  "checkout:use-card": [
+    {
+      "type": 0,
+      "value": "Use Card"
+    }
+  ],
+  "checkout:use-payment-method": [
+    {
+      "type": 0,
+      "value": "Use Payment Method"
+    }
+  ],
+  "checkout:use-shipping-method": [
+    {
+      "type": 0,
+      "value": "Use Method"
+    }
+  ],
+  "common": [
+    {
+      "type": 0,
+      "value": "Edit"
+    }
+  ],
+  "common:back": [
+    {
+      "type": 0,
+      "value": "Back"
+    }
+  ],
+  "common:cancel": [
+    {
+      "type": 0,
+      "value": "Cancel"
+    }
+  ],
+  "common:close": [
+    {
+      "type": 0,
+      "value": "Close"
+    }
+  ],
+  "common:loading": [
+    {
+      "type": 0,
+      "value": "Loading"
+    }
+  ],
+  "common:save": [
+    {
+      "type": 0,
+      "value": "Save"
+    }
+  ],
+  "product:add-item": [
+    {
+      "type": 0,
+      "value": "Add to Cart"
+    }
+  ],
+  "product:customization-price": [
+    {
+      "type": 0,
+      "value": "Your customization"
+    }
+  ],
+  "product:customize-bundle": [
+    {
+      "type": 0,
+      "value": "Customize"
+    }
+  ],
+  "product:quantity-label": [
+    {
+      "type": 0,
+      "value": "Product quantity"
+    }
+  ],
+  "product:required-fields": [
+    {
+      "type": 0,
+      "value": "Required fields"
+    }
+  ]
+}

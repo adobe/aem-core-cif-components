@@ -1,16 +1,18 @@
-/*******************************************************************************
- *
- *    Copyright 2020 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2020 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.io.IOException;
@@ -31,18 +33,15 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.services.UrlProvider;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMMode;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class PreviewServletTest {
 
@@ -126,10 +125,9 @@ public class PreviewServletTest {
 
         // mock UrlProvider
         String PREVIEW_PRODUCT_URL = "/dummy/preview/url.key.html#variant_key";
-        when(urlProvider.toProductUrl(any(), any(), any())).thenReturn(PREVIEW_PRODUCT_URL);
+        when(urlProvider.toProductUrl(any(), any(), Matchers.<Map<String, String>>any())).thenReturn(PREVIEW_PRODUCT_URL);
 
         // mock request parameters
-        when(request.getParameter(UrlProvider.ID_PARAM)).thenReturn("testId");
         when(request.getParameter(UrlProvider.UID_PARAM)).thenReturn("testUid");
         when(request.getParameter(UrlProvider.SKU_PARAM)).thenReturn("testSku");
         when(request.getParameter(UrlProvider.URL_KEY_PARAM)).thenReturn("testUrlKey");
@@ -147,8 +145,7 @@ public class PreviewServletTest {
 
         // verify UrlProvider parameters
         Map<String, String> params = captor.getValue();
-        Assert.assertEquals("Incorrect number of parameters", 7, params.size());
-        Assert.assertEquals("Incorrect ID parameter", "testId", params.get(UrlProvider.ID_PARAM));
+        Assert.assertEquals("Incorrect number of parameters", 6, params.size());
         Assert.assertEquals("Incorrect UID parameter", "testUid", params.get(UrlProvider.UID_PARAM));
         Assert.assertEquals("Incorrect SKU parameter", "testSku", params.get(UrlProvider.SKU_PARAM));
         Assert.assertEquals("Incorrect URL_KEY parameter", "testUrlKey", params.get(UrlProvider.URL_KEY_PARAM));
@@ -179,7 +176,6 @@ public class PreviewServletTest {
             PREVIEW_CATEGORY_URL);
 
         // mock request parameters
-        when(request.getParameter(UrlProvider.ID_PARAM)).thenReturn("testId");
         when(request.getParameter(UrlProvider.UID_PARAM)).thenReturn("testUid");
         when(request.getParameter(UrlProvider.SKU_PARAM)).thenReturn("testSku");
         when(request.getParameter(UrlProvider.URL_KEY_PARAM)).thenReturn("testUrlKey");
@@ -197,8 +193,7 @@ public class PreviewServletTest {
 
         // verify UrlProvider parameters
         Map<String, String> params = captor.getValue();
-        Assert.assertEquals("Incorrect number of parameters", 7, params.size());
-        Assert.assertEquals("Incorrect ID parameter", "testId", params.get(UrlProvider.ID_PARAM));
+        Assert.assertEquals("Incorrect number of parameters", 6, params.size());
         Assert.assertEquals("Incorrect UID parameter", "testUid", params.get(UrlProvider.UID_PARAM));
         Assert.assertEquals("Incorrect SKU parameter", "testSku", params.get(UrlProvider.SKU_PARAM));
         Assert.assertEquals("Incorrect URL_KEY parameter", "testUrlKey", params.get(UrlProvider.URL_KEY_PARAM));

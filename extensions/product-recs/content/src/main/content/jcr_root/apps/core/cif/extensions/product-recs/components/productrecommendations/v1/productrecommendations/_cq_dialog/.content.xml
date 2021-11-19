@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
+          xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
+          xmlns:cq="http://www.day.com/jcr/cq/1.0"
+          xmlns:jcr="http://www.jcp.org/jcr/1.0"
+          xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+          jcr:primaryType="nt:unstructured"
+          jcr:title="Product Recommendations"
+          sling:resourceType="cq/gui/components/authoring/dialog"
+          extraClientlibs="[core.cif.components.productrecommendations.v1.editor,cif.shell.picker]"
+          trackingFeature="cif-core-components:productrecommendations:v1">
+    <content jcr:primaryType="nt:unstructured"
+             granite:class="cif-product-recs__editor"
+             sling:resourceType="granite/ui/components/coral/foundation/container">
+        <items jcr:primaryType="nt:unstructured">
+            <column jcr:primaryType="nt:unstructured"
+                    sling:resourceType="granite/ui/components/coral/foundation/container">
+                <items jcr:primaryType="nt:unstructured">
+                    <usePreconfigured
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                            granite:class="cif-product-recs__use-predefined"
+                            name="./preconfigured"
+                            text="Use preconfigured recommendation"
+                            checked="{Boolean}true"
+                            value="{Boolean}true"
+                            uncheckedValue="{Boolean}false">
+                    </usePreconfigured>
+                    <usePreconfiguredTypeHint
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="granite/ui/components/foundation/form/hidden"
+                            ignoreData="{Boolean}true"
+                            name="./includeCategories@TypeHint"
+                            value="Boolean"/>
+                    <content
+                            jcr:primaryType="nt:unstructured"
+                            granite:class="cif-product-recs__editor-options"
+                            sling:resourceType="granite/ui/components/coral/foundation/container">
+                        <items jcr:primaryType="nt:unstructured">
+                            <title jcr:primaryType="nt:unstructured"
+                                   sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                   fieldDescription="Optional title text. Leave empty to hide the title."
+                                   fieldLabel="Title"
+                                   name="./jcr:title"
+                                   value="Recommended products" />
+                            <recommendationType
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                    fieldLabel="Recommendation type"
+                                    multiple="{Boolean}false"
+                                    name="./recommendationType">
+                                    <datasource
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="core/cif/extensions/product-recs/datasources/allowedrectypes/v1"/>
+                            </recommendationType>
+                            <noFilterContainer
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/well">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <noFilter
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/foundation/form/radio"
+                                            name="./usedFilter"
+                                            text="No filter"
+                                            deleteHint="{Boolean}false"
+                                            value="none"/>
+                                </items>
+                            </noFilterContainer>
+                            <categoryInclusion
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/well">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <categories
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="commerce/gui/components/common/cifcategoryfield"
+                                            multiple="{Boolean}true"
+                                            fieldLabel="Included categories"
+                                            selectionId="slug"
+                                            name="./includedCategories" />
+                                    <useFilter
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/foundation/form/radio"
+                                            name="./usedFilter"
+                                            text="Use filter"
+                                            deleteHint="{Boolean}false"
+                                            value="./includedCategories">
+                                    </useFilter>
+                                </items>
+                            </categoryInclusion>
+                            <priceRangeInclusion
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/well">
+                                <items  jcr:primaryType="nt:unstructured">
+                                    <label
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/text"
+                                            granite:class="cif-product-recs__price-range-label"
+                                            text="Included price range">
+                                    </label>
+                                    <columns
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                                            granite:class="cif-product-recs__price-range"
+                                            margin="{Boolean}true">
+                                        <items jcr:primaryType="nt:unstructured">
+                                            <minPrinceInclusion
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                                                    fieldLabel="Min price"
+                                                    step="0.01"
+                                                    granite:class="u-coral-noPadding u-coral-noMargin"
+                                                    name="./includedPriceRangeMin"/>
+                                            <minPrinceInclusionTypeHint
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="granite/ui/components/foundation/form/hidden"
+                                                    ignoreData="{Boolean}true"
+                                                    name="./includedPriceRangeMin@TypeHint"
+                                                    value="Double"/>
+                                            <maxPrinceInclusion
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                                                    fieldLabel="Max price"
+                                                    step="0.01"
+                                                    granite:class="u-coral-noPadding u-coral-noMargin"
+                                                    name="./includedPriceRangeMax"/>
+                                            <maxPrinceInclusionTypeHint
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="granite/ui/components/foundation/form/hidden"
+                                                    ignoreData="{Boolean}true"
+                                                    name="./includedPriceRangeMax@TypeHint"
+                                                    value="Double"/>
+                                        </items>
+                                    </columns>
+                                    <useFilter
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/foundation/form/radio"
+                                            name="./usedFilter"
+                                            text="Use filter"
+                                            deleteHint="{Boolean}false"
+                                            value="./includedPriceRange">
+                                    </useFilter>
+                                </items>
+                            </priceRangeInclusion>
+                            <categoryExclusion
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/well">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <categories
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="commerce/gui/components/common/cifcategoryfield"
+                                            fieldLabel="Excluded categories"
+                                            multiple="{Boolean}true"
+                                            selectionId="slug"
+                                            name="./excludedCategories" />
+                                    <useFilter
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/foundation/form/radio"
+                                            name="./usedFilter"
+                                            text="Use filter"
+                                            deleteHint="{Boolean}false"
+                                            value="./excludedCategories">
+                                    </useFilter>
+                                </items>
+                            </categoryExclusion>
+                            <priceRangeExclusion
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/well">
+                                <items  jcr:primaryType="nt:unstructured">
+                                    <label
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/text"
+                                            granite:class="cif-product-recs__price-range-label"
+                                            text="Excluded price range">
+                                    </label>
+                                    <columns
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+                                            granite:class="cif-product-recs__price-range"
+                                            margin="{Boolean}true">
+                                        <items jcr:primaryType="nt:unstructured">
+                                            <minPrinceExclusion
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                                                    fieldLabel="Min price"
+                                                    step="0.01"
+                                                    granite:class="u-coral-noPadding u-coral-noMargin"
+                                                    name="./excludedPriceRangeMin"/>
+                                            <minPrinceExclusionTypeHint
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="granite/ui/components/foundation/form/hidden"
+                                                    ignoreData="{Boolean}true"
+                                                    name="./excludedPriceRangeMin@TypeHint"
+                                                    value="Double"/>
+                                            <maxPrinceExclusion
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                                                    fieldLabel="Max price"
+                                                    step="0.01"
+                                                    granite:class="u-coral-noPadding u-coral-noMargin"
+                                                    name="./excludedPriceRangeMax"/>
+                                            <maxPrinceExclusionTypeHint
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="granite/ui/components/foundation/form/hidden"
+                                                    ignoreData="{Boolean}true"
+                                                    name="./excludedPriceRangeMax@TypeHint"
+                                                    value="Double"/>
+                                        </items>
+                                    </columns>
+                                    <useFilter
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/foundation/form/radio"
+                                            name="./usedFilter"
+                                            text="Use filter"
+                                            deleteHint="{Boolean}false"
+                                            value="./excludedPriceRange">
+                                    </useFilter>
+                                </items>
+                            </priceRangeExclusion>
+                        </items>
+                    </content>
+                </items>
+            </column>
+        </items>
+    </content>
+</jcr:root>

@@ -1,19 +1,22 @@
-/*******************************************************************************
- *
- *    Copyright 2020 Adobe. All rights reserved.
- *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License. You may obtain a copy
- *    of the License at http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software distributed under
- *    the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR REPRESENTATIONS
- *    OF ANY KIND, either express or implied. See the License for the specific language
- *    governing permissions and limitations under the License.
- *
- ******************************************************************************/
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2020 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 let dataLayerEnabled = null;
 let dataLayer = null;
-const isDataLayerEnabled = () => {
+
+export const isDataLayerEnabled = () => {
     if (dataLayerEnabled === null) {
         dataLayerEnabled = document.body.hasAttribute('data-cmp-data-layer-enabled');
     }
@@ -73,3 +76,81 @@ export const removeEventListener = (eventName, handler) => {
         getDataLayer().removeEventListener(eventName, handler);
     }
 };
+
+/**
+ * Converts all keys of a given GraphQL response from kebab-case or snake_case into camelCase.
+ */
+const transformGraphqlResponse = o => {
+    const result = {};
+
+    Object.entries(o).forEach(([key, value]) => {
+        if (key === '__typename') {
+            return;
+        }
+
+        if (Array.isArray(value)) {
+            result[toCamel(key)] = value.map(item => transformGraphqlResponse(item));
+        } else if (typeof value === 'object' && value !== null) {
+            result[toCamel(key)] = transformGraphqlResponse(value);
+        } else {
+            result[toCamel(key)] = value;
+        }
+    });
+    return result;
+};
+
+const toCamel = s =>
+    s.replace(/([-_][a-z])/gi, group =>
+        group
+            .toUpperCase()
+            .replace('-', '')
+            .replace('_', '')
+    );
+
+/**
+ * Remove fields which are not required by MSE SDK and add fields which are unavailable in GraphQL.
+ */
+export const transformCart = cart => {
+    let newCart = {};
+    try {
+        const { id, prices, totalQuantity } = cart;
+        const { subtotalExcludingTax, subtotalIncludingTax } = prices || {};
+
+        const items = cart.items
+            ? cart.items.map(item => {
+                  const { price } = item.prices;
+                  const { value, currency } = price;
+                  return {
+                      prices: {
+                          price
+                      },
+                      canApplyMsrp: false,
+                      id: item.uid,
+                      formattedPrice: `${value} ${currency}`,
+                      quantity: item.quantity,
+                      product: {
+                          productId: 0,
+                          name: item.product.name,
+                          sku: item.product.sku
+                      }
+                  };
+              })
+            : [];
+
+        newCart = {
+            id,
+            items,
+            prices: {
+                subtotalExcludingTax,
+                subtotalIncludingTax
+            },
+            totalQuantity
+        };
+    } catch (e) {
+        console.error(e);
+    }
+
+    return newCart;
+};
+
+export { transformGraphqlResponse };

@@ -1,14 +1,13 @@
 {
-    "product-8309e8957e": {
+    "product-a8f26bcdca": {
         "xdm:SKU": "MJ01",
         "xdm:listPrice": 58.0,
         "xdm:categories": [
             {
-                "repo:id": "category-4a44dc1536",
+                "repo:id": "category-8c01c593b9",
                 "xdm:name": "category-1",
                 "xdm:asset": {
                     "repo:path": "/url/to/image",
-                    "xdm:tags": [],
                     "repo:id": "image-5e4329fc2c",
                     "@type": "image"
                 }
@@ -17,19 +16,16 @@
         "xdm:assets": [
             {
                 "repo:path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg",
-                "xdm:tags": [],
                 "repo:id": "image-67ec60811c",
                 "@type": "image"
             },
             {
                 "repo:path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg",
-                "xdm:tags": [],
                 "repo:id": "image-e71f9f4579",
                 "@type": "image"
             },
             {
                 "repo:path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg",
-                "xdm:tags": [],
                 "repo:id": "image-560184ac55",
                 "@type": "image"
             }
