@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
@@ -88,7 +89,7 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
     protected Style currentStyle;
 
     private Page productPage;
-    private List<String> baseProductSkus;
+    private List<String> baseProductSkus = Collections.emptyList();
 
     private AbstractProductsRetriever productsRetriever;
 
@@ -128,6 +129,7 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
 
     @Override
     @JsonIgnore
+    @Nonnull
     public List<ProductListItem> getProducts() {
         if (productsRetriever == null) {
             return Collections.emptyList();
@@ -200,18 +202,14 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
 
     @JsonProperty("productIdentifiers")
     public List<CommerceIdentifier> getProductCommerceIdentifiers() {
-        if (baseProductSkus == null) {
-            return Collections.emptyList();
-        }
         return baseProductSkus.stream().map(ListItemIdentifier::new).collect(Collectors.toList());
     }
 
     @Override
+    @Deprecated
     @JsonIgnore
+    @Nonnull
     public List<ProductListItem> getProductIdentifiers() {
-        if (baseProductSkus == null) {
-            return Collections.emptyList();
-        }
         return baseProductSkus.stream()
             .map(ListItemIdentifier::new)
             .map(id -> new ProductListItemImpl(id, getId(), productPage))
