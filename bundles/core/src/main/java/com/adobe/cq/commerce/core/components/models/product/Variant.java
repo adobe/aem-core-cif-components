@@ -18,12 +18,15 @@ package com.adobe.cq.commerce.core.components.models.product;
 import java.util.List;
 import java.util.Map;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
 import com.adobe.cq.commerce.core.components.models.common.Price;
 
 /**
  * Variant is a view model interface representing a product variant that
  * contains properties specific to a variant in comparison to its base product.
  */
+@ConsumerType
 public interface Variant {
     String getId();
 

@@ -14,14 +14,18 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { useEffect } from 'react';
-import { useTranslation, Trans } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import { useUserContext } from '../../context/UserContext';
 import AccountTrigger from './accountTrigger';
 import AccountDropdown from './accountDropdown';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AccountContainer = props => {
     const [{ currentUser, isSignedIn }, { getUserDetails }] = useUserContext();
+    const intl = useIntl();
 
     useEffect(() => {
         if (isSignedIn && currentUser.email === '') {
@@ -29,15 +33,20 @@ const AccountContainer = props => {
         }
     }, [getUserDetails]);
 
-    const [t] = useTranslation('account');
-
-    const label = isSignedIn ? (
-        <Trans t={t} i18nKey="account:account-icon-text-greeting">
-            Hi, {{ name: currentUser.firstname }}
-        </Trans>
-    ) : (
-        t('account:account-icon-text-sign-in', 'Sign In')
-    );
+    const label = isSignedIn
+        ? intl.formatMessage(
+              {
+                  id: 'account:account-icon-text-greeting',
+                  defaultMessage: 'Hi, {name}'
+              },
+              {
+                  name: currentUser.firstname
+              }
+          )
+        : intl.formatMessage({
+              id: 'account:account-icon-text-sign-in',
+              defaultMessage: 'Sign In'
+          });
 
     return (
         <>

@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>2.1.1-SNAPSHOT</version>
+        <version>2.4.1-SNAPSHOT</version>
         <relativePath>../../parent/pom.xml</relativePath>
     </parent>
 
@@ -149,6 +149,11 @@
                                     <artifactId>core.wcm.components.examples.ui.apps</artifactId>
                                     <filter>true</filter>
                                 </subPackage>
+                                <subPackage>
+                                    <groupId>com.adobe.cq</groupId>
+                                    <artifactId>core.wcm.components.examples.ui.config</artifactId>
+                                    <filter>true</filter>
+                                </subPackage>
                             </subPackages>
                         </configuration>
                     </plugin>
@@ -165,6 +170,12 @@
                 <dependency>
                     <groupId>com.adobe.cq</groupId>
                     <artifactId>core.wcm.components.examples.ui.apps</artifactId>
+                    <type>zip</type>
+                    <version>${core.wcm.components.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>com.adobe.cq</groupId>
+                    <artifactId>core.wcm.components.examples.ui.config</artifactId>
                     <type>zip</type>
                     <version>${core.wcm.components.version}</version>
                 </dependency>

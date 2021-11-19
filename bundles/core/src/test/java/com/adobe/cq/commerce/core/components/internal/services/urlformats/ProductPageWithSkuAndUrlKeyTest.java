@@ -15,51 +15,58 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
-import com.google.common.collect.ImmutableMap;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class ProductPageWithSkuAndUrlKeyTest {
 
-    public final UrlFormat subject = ProductPageWithSkuAndUrlKey.INSTANCE;
+    public final ProductUrlFormat subject = ProductPageWithSkuAndUrlKey.INSTANCE;
 
     @Test
     public void testFormatWithMissingParameters() {
-        assertEquals("{{page}}.html/{{sku}}/{{url_key}}.html", subject.format(Collections.emptyMap()));
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+
+        assertEquals("{{page}}.html/{{sku}}.html", subject.format(params));
     }
 
     @Test
     public void testFormat() {
-        assertEquals("/page/path.html/foo-bar/next-generation-foo-bar2021.html", subject.format(ImmutableMap.of(
-            "page", "/page/path",
-            "sku", "foo-bar",
-            "url_key", "next-generation-foo-bar2021")));
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setPage("/page/path");
+        params.setSku("foo-bar");
+        params.setUrlKey("next-generation-foo-bar2021");
+
+        assertEquals("/page/path.html/foo-bar/next-generation-foo-bar2021.html", subject.format(params));
+
+        params.setVariantSku("variant");
+
+        assertEquals("/page/path.html/foo-bar/next-generation-foo-bar2021.html#variant", subject.format(params));
     }
 
     @Test
     public void testFormatWithUrlKeyAndUrlPath() {
-        assertEquals("/page/path.html/foo-bar/next-generation-foo-bar2021.html", subject.format(ImmutableMap.of(
-            "page", "/page/path",
-            "sku", "foo-bar",
-            "url_key", "next-generation-foo-bar2021",
-            "url_path", "next-generation-foo-bar2022")));
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setPage("/page/path");
+        params.setSku("foo-bar");
+        params.setUrlKey("next-generation-foo-bar2021");
+        params.setUrlPath("next-generation-foo-bar2022");
+
+        assertEquals("/page/path.html/foo-bar/next-generation-foo-bar2021.html", subject.format(params));
     }
 
     @Test
     public void testFormatWithUrlPath() {
-        assertEquals("/page/path.html/foo-bar/next-generation-foo-bar2022.html", subject.format(ImmutableMap.of(
-            "page", "/page/path",
-            "sku", "foo-bar",
-            "url_path", "next-generation-foo-bar2022")));
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setPage("/page/path");
+        params.setSku("foo-bar");
+        params.setUrlPath("next-generation-foo-bar2022");
+
+        assertEquals("/page/path.html/foo-bar/next-generation-foo-bar2022.html", subject.format(params));
     }
 
     @Test
@@ -67,28 +74,31 @@ public class ProductPageWithSkuAndUrlKeyTest {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
         pathInfo.setSuffix("/foo-bar/next-generation-foo-bar2021.html");
-        Map<String, String> parameters = subject.parse(pathInfo, null);
+        ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
-        assertEquals("/page/path", parameters.get("page"));
-        assertEquals("foo-bar", parameters.get("sku"));
-        assertEquals("next-generation-foo-bar2021", parameters.get("url_key"));
+        assertEquals("/page/path", parameters.getPage());
+        assertEquals("foo-bar", parameters.getSku());
+        assertEquals("next-generation-foo-bar2021", parameters.getUrlKey());
     }
 
     @Test
     public void testParseNull() {
-        Map<String, String> parameters = subject.parse(null, null);
-        assertTrue(parameters.isEmpty());
+        ProductUrlFormat.Params parameters = subject.parse(null, null);
+        assertNull(parameters.getPage());
+        assertNull(parameters.getSku());
+        assertNull(parameters.getUrlKey());
+        assertNull(parameters.getUrlPath());
     }
 
     @Test
     public void testParseNoSuffix() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
-        Map<String, String> parameters = subject.parse(pathInfo, null);
+        ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
-        assertEquals("/page/path", parameters.get("page"));
-        assertNull(parameters.get("sku"));
-        assertNull(parameters.get("url_key"));
+        assertEquals("/page/path", parameters.getPage());
+        assertNull(parameters.getSku());
+        assertNull(parameters.getUrlKey());
     }
 
     @Test
@@ -96,10 +106,10 @@ public class ProductPageWithSkuAndUrlKeyTest {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
         pathInfo.setSuffix("/foo-bar.html");
-        Map<String, String> parameters = subject.parse(pathInfo, null);
+        ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
-        assertEquals("/page/path", parameters.get("page"));
-        assertEquals("foo-bar", parameters.get("sku"));
-        assertNull(parameters.get("url_key"));
+        assertEquals("/page/path", parameters.getPage());
+        assertEquals("foo-bar", parameters.getSku());
+        assertNull(parameters.getUrlKey());
     }
 }

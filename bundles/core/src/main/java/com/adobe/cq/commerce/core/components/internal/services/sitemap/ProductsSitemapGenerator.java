@@ -17,16 +17,16 @@ package com.adobe.cq.commerce.core.components.internal.services.sitemap;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.sitemap.SitemapException;
 import org.apache.sling.sitemap.SitemapService;
 import org.apache.sling.sitemap.builder.Sitemap;
-import org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer;
+import org.apache.sling.sitemap.builder.Url;
 import org.apache.sling.sitemap.spi.generator.SitemapGenerator;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
@@ -35,12 +35,12 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.sitemap.SitemapProductFilter;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -57,7 +57,8 @@ import com.day.cq.wcm.api.Page;
     property = {
         Constants.SERVICE_RANKING + ":Integer=100"
     })
-public class ProductsSitemapGenerator implements SitemapGenerator {
+@Designate(ocd = ProductsSitemapGenerator.Configuration.class)
+public class ProductsSitemapGenerator extends SitemapGeneratorBase implements SitemapGenerator {
 
     @ObjectClassDefinition(name = "CIF Product Sitemap Generator")
     @interface Configuration {
@@ -66,25 +67,32 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
             name = "Pagination Size",
             description = "The number of products to query from the commerce backend per iteration.")
         int pageSize() default 10;
+
+        @AttributeDefinition(
+            name = "Add Last Modified",
+            description = "If enabled, a Product's last update date will be set as last "
+                + "modified date to an url entry. This does not take into account any associated/referenced content on the product page nor "
+                + "the last modified date know to AEM.")
+        boolean enableLastModified() default true;
     }
 
     static final String PN_NEXT_PRODUCT = "nextProduct";
     static final String PN_NEXT_PAGE = "nextPage";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ProductsSitemapGenerator.class);
-
     @Reference
     private UrlProvider urlProvider;
     @Reference
-    private SitemapLinkExternalizer externalizer;
+    private SitemapLinkExternalizerProvider externalizerProvider;
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
     private SitemapProductFilter productFilter;
 
     private int pageSize;
+    private boolean addLastModified;
 
     @Activate
     protected void activate(Configuration configuration) {
         this.pageSize = configuration.pageSize();
+        this.addLastModified = configuration.enableLastModified();
     }
 
     @Override
@@ -108,9 +116,8 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
         int currentIndex = context.getProperty(PN_NEXT_PRODUCT, 0);
         int currentPageIndex = context.getProperty(PN_NEXT_PAGE, 1);
         int maxPages = Integer.MAX_VALUE;
-        // parameter map to be reused while iterating
-        UrlProvider.ParamsBuilder paramsBuilder = new UrlProvider.ParamsBuilder()
-            .page(externalizer.externalize(sitemapRoot));
+        ResourceResolver resourceResolver = sitemapRoot.getResourceResolver();
+        SitemapLinkExternalizer externalizer = externalizerProvider.getExternalizer(resourceResolver);
 
         while (currentPageIndex <= maxPages) {
             String query = Operations.query(productsQueryFor(currentPageIndex, pageSize)).toString();
@@ -134,17 +141,17 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
             for (int i = currentIndex; i < items.size(); i++) {
                 ProductInterface product = items.get(i);
                 if (productFilter != null && !productFilter.shouldInclude(productPage, product)) {
-                    LOGGER.debug("Ignore product {}, not allowed by filter: {}", product.getSku(), productFilter.getClass()
+                    logger.debug("Ignore product {}, not allowed by filter: {}", product.getSku(), productFilter.getClass()
                         .getSimpleName());
                     continue;
                 }
-                Map<String, String> params = paramsBuilder
-                    .sku(product.getSku())
-                    .urlKey(product.getUrlKey())
-                    .variantSku(null)
-                    .variantUrlKey(null)
-                    .map();
-                sitemap.addUrl(urlProvider.toProductUrl(null, null, params));
+                ProductUrlFormat.Params params = new ProductUrlFormat.Params(product);
+                params.setPage(productPage.getPath());
+                String urlStr = externalizer.toExternalProductUrl(null, null, params);
+                Url url = sitemap.addUrl(urlStr);
+                if (addLastModified) {
+                    addLastModified(url, product);
+                }
                 context.setProperty(PN_NEXT_PRODUCT, i + 1);
             }
 
@@ -154,7 +161,7 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
         }
     }
 
-    private static QueryQueryDefinition productsQueryFor(int pageIndex, int pageSize) {
+    private QueryQueryDefinition productsQueryFor(int pageIndex, int pageSize) {
         return q -> q.products(
             arguments -> arguments
                 .search(StringUtils.EMPTY)
@@ -162,8 +169,11 @@ public class ProductsSitemapGenerator implements SitemapGenerator {
                 .currentPage(pageIndex),
             resultSet -> resultSet
                 .totalCount()
-                .items(product -> product
-                    .urlKey()
-                    .sku()));
+                .items(product -> {
+                    product.urlKey().sku();
+                    if (addLastModified) {
+                        product.updatedAt().createdAt();
+                    }
+                }));
     }
 }

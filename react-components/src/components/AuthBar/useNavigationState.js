@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import { useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import { useEventListener } from '../../utils/hooks';
 import { useConfigContext } from '../../context/ConfigContext';
 
@@ -35,20 +35,24 @@ const ancestors = {
 };
 
 const stepTitles = {
-    CREATE_ACCOUNT: t => t('account:create-account', 'Create account'),
-    FORGOT_PASSWORD: t => t('account:password-recovery', 'Password recovery'),
-    CHANGE_PASSWORD: t => t('account:change-password', 'Change Password'),
-    MY_ACCOUNT: t => t('account:my-account', 'My account'),
-    ACCOUNT_CREATED: t => t('account:account-created', 'Account created'),
-    SIGN_IN: t => t('account:sign-in', 'Sign In')
+    CREATE_ACCOUNT: intl => intl.formatMessage({ id: 'account:create-account', defaultMessage: 'Create account' }),
+    FORGOT_PASSWORD: intl =>
+        intl.formatMessage({ id: 'account:password-recovery', defaultMessage: 'Password recovery' }),
+    CHANGE_PASSWORD: intl => intl.formatMessage({ id: 'account:change-password', defaultMessage: 'Change Password' }),
+    MY_ACCOUNT: intl => intl.formatMessage({ id: 'account:my-account', defaultMessage: 'My account' }),
+    ACCOUNT_CREATED: intl => intl.formatMessage({ id: 'account:account-created', defaultMessage: 'Account created' }),
+    SIGN_IN: intl => intl.formatMessage({ id: 'account:sign-in', defaultMessage: 'Sign In' })
 };
 
 const startAccMgEvent = new CustomEvent(events.START_ACC_MANAGEMENT);
 const exitAccMgEvent = new CustomEvent(events.EXIT_ACC_MANAGEMENT);
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const useNavigationState = (props = { view: 'MENU' }) => {
     const [currentView, setCurrentView] = useState(props.view);
-    const [t] = useTranslation('account');
+    const intl = useIntl();
 
     const {
         mountingPoints: { navPanel }
@@ -86,7 +90,7 @@ const useNavigationState = (props = { view: 'MENU' }) => {
     useEventListener(document, 'aem.navigation.back', handleBack);
 
     const switchTo = view => {
-        triggerNavigationEvent(stepTitles[view](t));
+        triggerNavigationEvent(stepTitles[view](intl));
         setCurrentView(view);
     };
 

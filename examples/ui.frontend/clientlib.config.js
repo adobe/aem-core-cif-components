@@ -68,19 +68,6 @@ module.exports = {
           ignore: ['**/*.js', '**/*.css']
         }
       }
-    },
-    {
-      ...libsBaseConfig,
-      name: 'storybook',
-      categories: ['cif-examples.storybook'],
-      dependencies: [],
-      assets: {
-        resources: {
-          cwd: 'storybook-static',
-          files: ['**/*.*'],
-          flatten: false
-        }
-      }
     }
   ]
 };

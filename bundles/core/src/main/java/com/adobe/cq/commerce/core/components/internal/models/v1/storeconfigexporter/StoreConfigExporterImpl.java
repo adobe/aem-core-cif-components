@@ -38,6 +38,10 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.day.cq.wcm.api.Page;
+import com.drew.lang.annotations.Nullable;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -45,10 +49,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = { StoreConfigExporter.class },
-    resourceType = StoreConfigExporterImpl.RESOURCE_TYPE)
+    resourceType = {
+        com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl.RESOURCE_TYPE,
+        com.adobe.cq.commerce.core.components.internal.models.v2.page.PageImpl.RESOURCE_TYPE
+    })
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class StoreConfigExporterImpl implements StoreConfigExporter {
-
-    protected static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreConfigExporterImpl.class);
     private static final String EMPTY_JSON_OBJECT = "{}";
@@ -57,7 +63,6 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     private static final String GRAPHQL_ENDPOINT_PROPERTY = "magentoGraphqlEndpoint";
 
     private static final String DEFAULT_GRAPHQL_ENDPOINT = "/api/graphql";
-    private static final String DEFAULT_STORE_VIEW = "default";
 
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -68,19 +73,21 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     @SlingObject
     private Resource resource;
 
-    private String storeView = DEFAULT_STORE_VIEW;
+    private String storeView;
     private String graphqlEndpoint = DEFAULT_GRAPHQL_ENDPOINT;
     private HttpMethod method = HttpMethod.POST;
     private Page storeRootPage;
     private Map<String, String> httpHeaders = Collections.emptyMap();
 
     @PostConstruct
-    void initModel() {
+    protected void initModel() {
         // Get configuration from CIF Sling CA config
         Resource configResource = currentPage.getContentResource();
         ComponentsConfiguration properties = configResource.adaptTo(ComponentsConfiguration.class);
-        storeView = properties.get(STORE_CODE_PROPERTY, DEFAULT_STORE_VIEW);
-        graphqlEndpoint = properties.get(GRAPHQL_ENDPOINT_PROPERTY, DEFAULT_GRAPHQL_ENDPOINT);
+        if (properties != null) {
+            storeView = properties.get(STORE_CODE_PROPERTY, String.class);
+            graphqlEndpoint = properties.get(GRAPHQL_ENDPOINT_PROPERTY, DEFAULT_GRAPHQL_ENDPOINT);
+        }
 
         if (magentoGraphqlClient != null) {
             GraphqlClientConfiguration graphqlClientConfiguration = magentoGraphqlClient.getConfiguration();
@@ -90,21 +97,35 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     }
 
     @Override
+    @Nullable
+    @JsonProperty("storeView")
     public String getStoreView() {
         return storeView;
     }
 
     @Override
+    @JsonProperty("graphqlEndpoint")
     public String getGraphqlEndpoint() {
         return graphqlEndpoint;
     }
 
     @Override
+    @JsonProperty("graphqlMethod")
     public String getMethod() {
-        return method.toString();
+        return method != null ? method.toString() : null;
     }
 
+    @JsonProperty("headers")
+    public Map<String, String> getHttpHeadersMap() {
+        return Collections.unmodifiableMap(httpHeaders);
+    }
+
+    /**
+     * @deprecated should be replaced with a type safe method like getHttpHeadersMap()
+     */
     @Override
+    @Deprecated
+    @JsonIgnore
     public String getHttpHeaders() {
         if (MapUtils.isEmpty(httpHeaders)) {
             return EMPTY_JSON_OBJECT;
@@ -126,6 +147,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     }
 
     @Override
+    @JsonProperty("storeRootUrl")
     public String getStoreRootUrl() {
         if (storeRootPage == null) {
             storeRootPage = SiteNavigation.getNavigationRootPage(currentPage);

@@ -15,19 +15,25 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { Fragment } from 'react';
 import { shape, string } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import { useCheckoutState } from './checkoutContext';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const PaymentMethodSummary = props => {
     const { classes } = props;
     const [{ paymentMethod }] = useCheckoutState();
-    const [t] = useTranslation('checkout');
+    const intl = useIntl();
 
     if (!paymentMethod) {
         return (
             <span className={classes.informationPrompt}>
-                {t('checkout:add-billing-information', 'Add Billing Information')}
+                {intl.formatMessage({
+                    id: 'checkout:add-billing-information',
+                    defaultMessage: 'Add Billing Information'
+                })}
             </span>
         );
     }

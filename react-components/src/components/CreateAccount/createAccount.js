@@ -16,7 +16,7 @@
 import React from 'react';
 import { Form } from 'informed';
 import { shape, string, func } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import Field from '../Field';
 import TextInput from '../TextInput';
@@ -35,12 +35,15 @@ import defaultClasses from './createAccount.css';
 import useCreateAccount from './useCreateAccount';
 import LoadingIndicator from '../LoadingIndicator';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CreateAccount = props => {
     const { showAccountCreated, handleCancel } = props;
     const [{ createAccountError, inProgress }, { createAccount }] = useCreateAccount({
         showAccountCreated
     });
-    const [t] = useTranslation('account');
+    const intl = useIntl();
 
     if (inProgress) {
         return <LoadingIndicator message="Creating account" />;
@@ -56,12 +59,15 @@ const CreateAccount = props => {
     return (
         <Form className={classes.root} onSubmit={handleCreateAccount}>
             <p className={classes.lead}>
-                {t(
-                    'account:create-account-lead',
-                    'Check out faster, use multiple addresses, track orders and more by creating an account!'
-                )}
+                {intl.formatMessage({
+                    id: 'account:create-account-lead',
+                    defaultMessage:
+                        'Check out faster, use multiple addresses, track orders and more by creating an account!'
+                })}
             </p>
-            <Field label={t('account:firstname', 'First Name')} required={true}>
+            <Field
+                label={intl.formatMessage({ id: 'account:firstname', defaultMessage: 'First Name' })}
+                required={true}>
                 <TextInput
                     field="customer.firstname"
                     autoComplete="given-name"
@@ -70,7 +76,7 @@ const CreateAccount = props => {
                     aria-label="firstname"
                 />
             </Field>
-            <Field label={t('account:lastname', 'Last Name')} required={true}>
+            <Field label={intl.formatMessage({ id: 'account:lastname', defaultMessage: 'Last Name' })} required={true}>
                 <TextInput
                     field="customer.lastname"
                     autoComplete="family-name"
@@ -79,7 +85,7 @@ const CreateAccount = props => {
                     aria-label="lastname"
                 />
             </Field>
-            <Field label={t('account:email', 'Email address')} required={true}>
+            <Field label={intl.formatMessage({ id: 'account:email', defaultMessage: 'Email address' })} required={true}>
                 <TextInput
                     field="customer.email"
                     autoComplete="email"
@@ -88,7 +94,7 @@ const CreateAccount = props => {
                     aria-label="email"
                 />
             </Field>
-            <Field label={t('account:password', 'Password')} required={true}>
+            <Field label={intl.formatMessage({ id: 'account:password', defaultMessage: 'Password' })} required={true}>
                 <TextInput
                     field="password"
                     type="password"
@@ -98,7 +104,9 @@ const CreateAccount = props => {
                     aria-label="password"
                 />
             </Field>
-            <Field label={t('account:confirm-password', 'Confirm Password')} required={true}>
+            <Field
+                label={intl.formatMessage({ id: 'account:confirm-password', defaultMessage: 'Confirm Password' })}
+                required={true}>
                 <TextInput
                     field="confirm"
                     type="password"
@@ -110,14 +118,17 @@ const CreateAccount = props => {
             <div className={classes.subscribe}>
                 <Checkbox
                     field="subscribe"
-                    label={t('account:subscribe-news', 'Subscribe to news and updates')}
+                    label={intl.formatMessage({
+                        id: 'account:subscribe-news',
+                        defaultMessage: 'Subscribe to news and updates'
+                    })}
                     aria-label="subscribe"
                 />
             </div>
             <div className={classes.error}>{errorMessage}</div>
             <div className={classes.actions}>
                 <Button disabled={inProgress} type="submit" priority="high" aria-label="submit">
-                    {t('account:create-submit', 'Submit')}
+                    {intl.formatMessage({ id: 'account:create-submit', defaultMessage: 'Submit' })}
                 </Button>
                 {handleCancel && (
                     <Button
@@ -126,7 +137,7 @@ const CreateAccount = props => {
                         priority="normal"
                         aria-label="cancel"
                         onClick={handleCancel}>
-                        {t('account:create-cancel', 'Cancel')}
+                        {intl.formatMessage({ id: 'account:create-cancel', defaultMessage: 'Cancel' })}
                     </Button>
                 )}
             </div>

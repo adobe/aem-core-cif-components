@@ -17,12 +17,15 @@ package com.adobe.cq.commerce.core.components.models.productlist;
 
 import javax.annotation.Nullable;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.wcm.core.components.models.Component;
 
+@ConsumerType
 public interface ProductList extends Component, ProductCollection, PageMetadata {
 
     /**

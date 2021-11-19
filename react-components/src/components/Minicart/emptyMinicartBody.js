@@ -14,23 +14,33 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import Trigger from '../Trigger';
 import classes from './emptyMiniCartBody.css';
 import { useCartState } from './cartContext';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const EmptyMinicartBody = () => {
     const [, dispatch] = useCartState();
-    const [t] = useTranslation('cart');
+    const intl = useIntl();
 
     return (
         <div className={classes.root} data-testid="empty-minicart">
-            <h3 className={classes.emptyTitle}>{t('cart:no-items', 'There are no items in your shopping cart')}</h3>
+            <h3 className={classes.emptyTitle}>
+                {intl.formatMessage({
+                    id: 'cart:no-items',
+                    defaultMessage: 'There are no items in your shopping cart'
+                })}
+            </h3>
             <Trigger
                 action={() => {
                     dispatch({ type: 'close' });
                 }}>
-                <span className={classes.continue}>{t('cart:continue-shopping', 'Continue Shopping')}</span>
+                <span className={classes.continue}>
+                    {intl.formatMessage({ id: 'cart:continue-shopping', defaultMessage: 'Continue Shopping' })}
+                </span>
             </Trigger>
         </div>
     );

@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.services.sitemap;
 import java.io.IOException;
 import java.util.Set;
 
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.sitemap.SitemapException;
 import org.apache.sling.sitemap.builder.Sitemap;
@@ -30,11 +31,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.sitemap.SitemapProductFilter;
-import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.core.testing.TestContext;
+import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.wcm.api.Page;
 import com.google.common.collect.ImmutableMap;
@@ -52,10 +55,9 @@ import static org.mockito.Mockito.when;
 public class ProductsSitemapGeneratorTest {
 
     @Rule
-    public final AemContext aemContext = new AemContext();
+    public final AemContext aemContext = TestContext.newAemContext();
 
-    private final UrlProviderImpl urlProvider = new UrlProviderImpl();
-    private final GraphqlClient graphqlClient = Utils.setupGraphqlClient();
+    private final GraphqlClient graphqlClient = new GraphqlClientImpl();
 
     @Mock
     private SitemapLinkExternalizer externalizer;
@@ -79,8 +81,10 @@ public class ProductsSitemapGeneratorTest {
             ImmutableMap.of("cq:cifProductPage", "/content/site/en/product-page"));
         productPage = aemContext.create().page(homePage.getPath() + "/product-page");
 
+        aemContext.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
         aemContext.registerService(SitemapLinkExternalizer.class, externalizer);
-        aemContext.registerInjectActivateService(urlProvider);
+        aemContext.registerInjectActivateService(new SitemapLinkExternalizerProvider());
+        aemContext.registerInjectActivateService(graphqlClient);
         aemContext.registerInjectActivateService(new ProductsSitemapGenerator(), "pageSize", 2);
 
         aemContext.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);

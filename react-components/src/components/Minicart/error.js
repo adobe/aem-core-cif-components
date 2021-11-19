@@ -14,16 +14,19 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import Button from '../Button';
 
 import classes from './error.css';
 import { useCartState } from './cartContext';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Error = () => {
     const [{ errorMessage }, dispatch] = useCartState();
-    const [t] = useTranslation('common');
+    const intl = useIntl();
 
     return (
         <div className={classes.root}>
@@ -35,7 +38,7 @@ const Error = () => {
                     onClick={() => {
                         dispatch({ type: 'discardError' });
                     }}>
-                    <span>{t('common:close', 'Close')}</span>
+                    <span>{intl.formatMessage({ id: 'common:close', defaultMessage: 'Close' })}</span>
                 </Button>
             </div>
         </div>

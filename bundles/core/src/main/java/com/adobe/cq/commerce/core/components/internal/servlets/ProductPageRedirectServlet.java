@@ -39,14 +39,16 @@ import com.day.cq.wcm.api.PageManagerFactory;
     immediate = true,
     property = {
         ServletResolverConstants.SLING_SERVLET_METHODS + "=" + HttpConstants.METHOD_GET,
-        ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "=" + ProductPageRedirectServlet.RESOURCE_TYPE,
+        ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "="
+            + com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl.RESOURCE_TYPE,
+        ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "="
+            + com.adobe.cq.commerce.core.components.internal.models.v2.page.PageImpl.RESOURCE_TYPE,
         ServletResolverConstants.SLING_SERVLET_SELECTORS + "=" + ProductPageRedirectServlet.SELECTOR,
         ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=" + ProductPageRedirectServlet.EXTENSION
     })
 public class ProductPageRedirectServlet extends AbstractCommerceRedirectServlet {
     protected static final String SELECTOR = "cifproductredirect";
     protected static final String EXTENSION = "html";
-    protected static final String RESOURCE_TYPE = "core/cif/components/structure/page/v1/page";
 
     @Reference
     protected UrlProvider urlProvider;

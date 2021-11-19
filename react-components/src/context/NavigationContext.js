@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { useCallback, useContext, useReducer, Suspense } from 'react';
 import { object } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import LoadingIndicator from '../components/LoadingIndicator';
 import { useEventListener } from '../utils/hooks';
@@ -48,6 +48,9 @@ const reducerFactory = () => {
     };
 };
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const NavigationContextProvider = props => {
     const initialState = props.initialState || {
         view: 'MENU'
@@ -55,23 +58,23 @@ const NavigationContextProvider = props => {
 
     const [navigationState, dispatch] = useReducer(reducerFactory(), initialState);
     const { view } = navigationState;
-    const [t] = useTranslation('account');
+    const intl = useIntl();
 
-    const showSignIn = () => NavigationActions.showSignIn({ dispatch, t });
+    const showSignIn = () => NavigationActions.showSignIn({ dispatch, intl });
 
     const showMenu = () => NavigationActions.showMenu({ dispatch });
 
-    const showMyAccount = () => NavigationActions.showMyAccount({ dispatch, t });
+    const showMyAccount = () => NavigationActions.showMyAccount({ dispatch, intl });
 
-    const showChangePassword = () => NavigationActions.showChangePassword({ dispatch, t });
+    const showChangePassword = () => NavigationActions.showChangePassword({ dispatch, intl });
 
-    const showForgotPassword = () => NavigationActions.showForgotPassword({ dispatch, t });
+    const showForgotPassword = () => NavigationActions.showForgotPassword({ dispatch, intl });
 
-    const showCreateAccount = () => NavigationActions.showCreateAccount({ dispatch, t });
+    const showCreateAccount = () => NavigationActions.showCreateAccount({ dispatch, intl });
 
-    const showAccountCreated = () => NavigationActions.showAccountCreated({ dispatch, t });
+    const showAccountCreated = () => NavigationActions.showAccountCreated({ dispatch, intl });
 
-    const showView = view => NavigationActions.showView({ dispatch, t, view });
+    const showView = view => NavigationActions.showView({ dispatch, intl, view });
 
     const handleBack = useCallback(() => {
         if (navigationState.view === null) {
@@ -131,4 +134,7 @@ const withSuspense = NavigationContextProvider => {
 
 export default withSuspense(NavigationContextProvider);
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const useNavigationContext = () => useContext(NavigationContext);

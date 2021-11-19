@@ -18,6 +18,9 @@ import { useMutation } from '@apollo/client';
 
 import MUTATION_REQUEST_PASSWORD_RESET_EMAIL from '../../queries/mutation_request_password_reset_email.graphql';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const useForgotPasswordForm = () => {
     const [state, setState] = useState({ loading: false, submitted: false, email: null });
 

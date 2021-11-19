@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { useCallback } from 'react';
 import { bool, string } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import { useMutation } from '@apollo/client';
 
 import { useCountries, useAwaitQuery } from '../../utils/hooks';
@@ -40,6 +40,8 @@ import CART_DETAILS_QUERY from '../../queries/query_cart_details.graphql';
 /**
  * The EditableForm component renders the actual edit forms for the sections
  * within the form.
+ *
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
  */
 const EditableForm = props => {
     const { submitting, isAddressInvalid, invalidAddressMessage } = props;
@@ -75,8 +77,7 @@ const EditableForm = props => {
         MUTATION_SET_SHIPPING_METHOD
     );
     const [setGuestEmailOnCart] = useMutation(MUTATION_SET_GUEST_EMAIL_ON_CART);
-
-    const [t] = useTranslation(['checkout']);
+    const intl = useIntl();
 
     if (shippingMethodsError || countriesError) {
         let errorObj = shippingMethodsError || countriesError;
@@ -201,7 +202,10 @@ const EditableForm = props => {
                 <AddressForm
                     cancel={handleCancel}
                     countries={countries}
-                    formHeading={t('checkout:address-form-heading', 'Shipping Address')}
+                    formHeading={intl.formatMessage({
+                        id: 'checkout:address-form-heading',
+                        defaultMessage: 'Shipping Address'
+                    })}
                     isAddressInvalid={isAddressInvalid}
                     invalidAddressMessage={invalidAddressMessage}
                     initialAddressSelectValue={selectedAddressId}
@@ -212,7 +216,10 @@ const EditableForm = props => {
                     showSaveInAddressBookCheckbox={isSignedIn && selectedAddressId !== 0}
                     submit={handleSubmitAddressForm}
                     submitting={submitting}
-                    submitButtonLabel={t('checkout:address-submit', 'Use Address')}
+                    submitButtonLabel={intl.formatMessage({
+                        id: 'checkout:address-submit',
+                        defaultMessage: 'Use Address'
+                    })}
                 />
             );
         }

@@ -56,7 +56,6 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -80,6 +79,7 @@ import com.adobe.cq.wcm.core.components.services.link.PathProcessor;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManagerFactory;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.msm.api.LiveRelationshipManager;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -108,8 +108,7 @@ public class GraphqlServletTest {
                 context.load().json(contentPath, "/content");
 
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
-                urlProvider.activate(new MockUrlProviderConfiguration());
-                context.registerService(UrlProvider.class, urlProvider);
+                context.registerInjectActivateService(urlProvider);
 
                 context.registerInjectActivateService(new SearchFilterServiceImpl());
                 context.registerInjectActivateService(new SearchResultsServiceImpl());
@@ -150,6 +149,7 @@ public class GraphqlServletTest {
     private GraphqlServlet graphqlServlet;
     private MockSlingHttpServletRequest request;
     private MockSlingHttpServletResponse response;
+    private SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
 
     @Before
     public void setUp() throws ServletException {
@@ -158,6 +158,7 @@ public class GraphqlServletTest {
         request = new MockSlingHttpServletRequest(null);
         response = new MockSlingHttpServletResponse();
         context.registerService(PathProcessor.class, new MockPathProcessor());
+        context.registerService(PageManagerFactory.class, rr -> context.pageManager());
     }
 
     @Test
@@ -229,7 +230,6 @@ public class GraphqlServletTest {
         when(style.get(Mockito.anyString(), Mockito.isA(Integer.class))).then(i -> i.getArgumentAt(1, Integer.class));
         slingBindings.put("currentStyle", style);
 
-        SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
         when(wcmMode.isDisabled()).thenReturn(false);
         slingBindings.put("wcmmode", wcmMode);
 
@@ -331,6 +331,18 @@ public class GraphqlServletTest {
     }
 
     @Test
+    public void testUnknownProductModel() throws ServletException {
+        prepareModel(PRODUCT_V1_RESOURCE);
+        when(wcmMode.isDisabled()).thenReturn(Boolean.TRUE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/unknown-product.html");
+
+        Product productModel = context.request().adaptTo(Product.class);
+        Assert.assertFalse(productModel.getFound());
+    }
+
+    @Test
     public void testProductListModelV1() throws ServletException {
         prepareModel(PRODUCT_LIST_V1_RESOURCE);
 
@@ -390,6 +402,18 @@ public class GraphqlServletTest {
         List<ProductListItem> items = new ArrayList<>(productListModel.getProducts());
         Assert.assertTrue(items.get(1).isStaged());
         Assert.assertTrue(items.get(5).isStaged());
+    }
+
+    @Test
+    public void testUnknownProductListModel() throws ServletException {
+        prepareModel(PRODUCT_LIST_V1_RESOURCE);
+        when(wcmMode.isDisabled()).thenReturn(Boolean.TRUE);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/unknown-category.html");
+
+        ProductList productListModel = context.request().adaptTo(ProductList.class);
+        Assert.assertNull(productListModel.getCategoryRetriever());
     }
 
     @Test

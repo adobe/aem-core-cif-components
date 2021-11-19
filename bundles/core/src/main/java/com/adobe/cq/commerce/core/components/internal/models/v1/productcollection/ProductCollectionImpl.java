@@ -25,6 +25,7 @@ import javax.annotation.PostConstruct;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
@@ -41,6 +42,7 @@ import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManagerFactory;
 import com.day.cq.wcm.api.designer.Style;
 
 import static com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl.PAGE_SIZE_DEFAULT;
@@ -50,7 +52,9 @@ import static com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImp
     adapters = ProductCollection.class,
     resourceType = ProductCollectionImpl.RESOURCE_TYPE)
 public class ProductCollectionImpl extends DataLayerComponent implements ProductCollection {
-    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcollection/v1/productcollection";
+
+    public static final String RESOURCE_TYPE = "core/cif/components/commerce/productcollection/v1/productcollection";
+
     protected static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
     protected static final String PAGINATION_TYPE_DEFAULT = "paginationbar";
 
@@ -61,11 +65,11 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
 
     @Self
     protected SlingHttpServletRequest request;
-    @ScriptVariable
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     protected ValueMap properties;
-    @ScriptVariable
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     protected Style currentStyle;
-    @ScriptVariable
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     protected Page currentPage;
     @OSGiService
     protected SearchResultsService searchResultsService;
@@ -73,21 +77,35 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
     protected UrlProvider urlProvider;
     @OSGiService
     protected Externalizer externalizer;
+    @OSGiService
+    protected PageManagerFactory pageManagerFactory;
 
     protected SearchOptionsImpl searchOptions;
     protected SearchResultsSet searchResultsSet;
 
     @PostConstruct
     private void baseInitModel() {
-        navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
-        loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
-        paginationType = properties.get(PN_PAGINATION_TYPE, currentStyle.get(PN_PAGINATION_TYPE, PAGINATION_TYPE_DEFAULT));
+        if (properties == null) {
+            properties = request.getResource().getValueMap();
+        }
+        if (currentPage == null) {
+            currentPage = pageManagerFactory.getPageManager(request.getResourceResolver())
+                .getContainingPage(request.getResource());
+        }
+
+        navPageSize = properties.get(PN_PAGE_SIZE, getOptionalStyle(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
+        loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, getOptionalStyle(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+        paginationType = properties.get(PN_PAGINATION_TYPE, getOptionalStyle(PN_PAGINATION_TYPE, PAGINATION_TYPE_DEFAULT));
 
         // get product template page
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
         }
+    }
+
+    protected final <T> T getOptionalStyle(String pn, T defaultValue) {
+        return currentStyle != null ? currentStyle.get(pn, defaultValue) : defaultValue;
     }
 
     public Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {

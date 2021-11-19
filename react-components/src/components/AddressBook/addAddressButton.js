@@ -15,19 +15,20 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { PlusSquare as PlusIcon } from 'react-feather';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 
 import { useUserContext } from '../../context/UserContext';
 
 import classes from './addAddressButton.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AddAddressButton = props => {
     const { displayType } = props;
     const [, { dispatch }] = useUserContext();
-
-    const [t] = useTranslation('account');
-
+    const intl = useIntl();
     const rootClass = displayType ? classes[displayType] : classes.root;
 
     return (
@@ -35,7 +36,9 @@ const AddAddressButton = props => {
             <span className={classes.icon}>
                 <PlusIcon size={18} />
             </span>
-            <span className={classes.label}>{t('account:add-an-address', 'Add an address')}</span>
+            <span className={classes.label}>
+                {intl.formatMessage({ id: 'account:add-an-address', defaultMessage: 'Add an address' })}
+            </span>
         </button>
     );
 };

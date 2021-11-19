@@ -16,6 +16,9 @@
 import React, { createContext, useContext, useReducer } from 'react';
 import { bool, func, object, shape, string } from 'prop-types';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const initialCheckoutState = {
     flowState: 'cart',
     order: null,

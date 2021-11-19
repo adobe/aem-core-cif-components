@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import Button from '../Button';
 import classes from './authBar.css';
@@ -22,8 +22,12 @@ import { useUserContext } from '../../context/UserContext';
 import UserChip from './userChip';
 import { func } from 'prop-types';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AuthBar = ({ showMyAccount, showSignIn }) => {
     const [{ currentUser, isSignedIn }, { getUserDetails }] = useUserContext();
+    const intl = useIntl();
 
     useEffect(() => {
         if (isSignedIn && currentUser.email === '') {
@@ -31,15 +35,11 @@ const AuthBar = ({ showMyAccount, showSignIn }) => {
         }
     }, [getUserDetails]);
 
-    const [t] = useTranslation('account');
-
-    const disabled = false;
-
     const content = isSignedIn ? (
         <UserChip currentUser={currentUser} showMyAccount={showMyAccount} />
     ) : (
-        <Button disabled={!!disabled} priority="high" onClick={showSignIn}>
-            {t('account:sign-in', 'Sign In')}
+        <Button disabled={false} priority="high" onClick={showSignIn}>
+            {intl.formatMessage({ id: 'account:sign-in', defaultMessage: 'Sign In' })}
         </Button>
     );
     return <div className={classes.root}>{content}</div>;

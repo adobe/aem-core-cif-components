@@ -4,6 +4,10 @@ See below for a full list of minimum system requirements for historical versions
 
 | CIF Core Components | AEM as a Cloud Service | AEM 6.4 | AEM 6.5 | Magento                    | Java |
 | ------------------- | ---------------------- | ------- | ------- | -------------------------- | ---- |
+| 2.4.0               | Continual              |    -    | 6.5.7   | 2.4.2 ee                   | 8, 11 |
+| 2.3.1               | Continual              |    -    | 6.5.7   | 2.4.2 ee                   | 8, 11 |
+| 2.2.0               | Continual              |    -    | 6.5.7   | 2.4.2 ee                   | 8, 11 |
+| 2.1.0               | Continual              |    -    | 6.5.7   | 2.4.2 ee                   | 8, 11 |
 | 2.0.0               | Continual              |    -    | 6.5.7   | 2.4.2 ee                   | 8, 11 |
 | 1.12.0              | Continual              | 6.4.4.0 | 6.5.7   | 2.4.2                      | 8, 11 |
 | 1.11.0              | Continual              | 6.4.4.0 | 6.5.7   | 2.4.2                      | 8, 11 |

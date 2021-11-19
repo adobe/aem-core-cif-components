@@ -14,16 +14,19 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import Button from '../Button';
 
 import classes from './couponForm.css';
 import useCouponForm from './useCouponForm';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CouponForm = () => {
     const [{ couponError }, { addCouponToCart }] = useCouponForm();
     const [couponCode, setCouponCode] = useState('');
-    const [t] = useTranslation('cart');
+    const intl = useIntl();
 
     const addCouponHandler = () => {
         return addCouponToCart(couponCode);
@@ -38,10 +41,10 @@ const CouponForm = () => {
                 onChange={e => setCouponCode(e.target.value)}
                 type="text"
                 name="couponCode"
-                placeholder={t('cart:enter-coupon', 'Enter your code')}
+                placeholder={intl.formatMessage({ id: 'cart:enter-coupon', defaultMessage: 'Enter your code' })}
             />
             <Button priority="high" onClick={addCouponHandler} disabled={couponCode.length < 3}>
-                <span>{t('cart:apply-coupon', 'Apply Coupon')}</span>
+                <span>{intl.formatMessage({ id: 'cart:apply-coupon', defaultMessage: 'Apply Coupon' })}</span>
             </Button>
             {errorFragment}
         </form>

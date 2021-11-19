@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import { useUserContext } from '../../context/UserContext';
 import AddressItemsContainer from './addressItemsContainer';
@@ -22,9 +22,12 @@ import AddressFormContainer from './addressFormContainer';
 
 import classes from './addressBook.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AddressBook = () => {
     const [{ isSignedIn }] = useUserContext();
-    const [t] = useTranslation('account');
+    const intl = useIntl();
 
     const content = isSignedIn ? (
         <>
@@ -33,13 +36,18 @@ const AddressBook = () => {
         </>
     ) : (
         <div className={classes.text}>
-            {t('account:address-book-sign-in-text', 'Please Sign in to see your address book.')}
+            {intl.formatMessage({
+                id: 'account:address-book-sign-in-text',
+                defaultMessage: 'Please Sign in to see your address book.'
+            })}
         </div>
     );
 
     return (
         <div className={classes.root}>
-            <h1 className={classes.title}>{t('account:address-book', 'Address Book')}</h1>
+            <h1 className={classes.title}>
+                {intl.formatMessage({ id: 'account:address-book', defaultMessage: 'Address Book' })}
+            </h1>
             {content}
         </div>
     );

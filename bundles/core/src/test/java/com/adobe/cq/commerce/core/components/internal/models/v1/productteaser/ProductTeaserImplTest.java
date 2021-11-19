@@ -20,62 +20,56 @@ import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.Money;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserImpl.CALL_TO_ACTION_TEXT_ADD_TO_CART;
+import static com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserImpl.CALL_TO_ACTION_TYPE_ADD_TO_CART;
+import static com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserImpl.CALL_TO_ACTION_TYPE_DETAILS;
+import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.mockito.Mockito.when;
 
 public class ProductTeaserImplTest {
-
-    @Rule
-    public final AemContext context = createContext("/context/jcr-content.json");
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
         "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
-    private static AemContext createContext(String contentPath) {
-        return new AemContext((AemContextCallback) context -> {
-            // Load page structure
-            context.load().json(contentPath, "/content");
-
-            UrlProviderImpl urlProvider = new UrlProviderImpl();
-            urlProvider.activate(new MockUrlProviderConfiguration());
-            context.registerService(UrlProvider.class, urlProvider);
+    @Rule
+    public final AemContext context = buildAemContext("/context/jcr-content.json")
+        .<AemContext>afterSetUp(context -> {
             ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
             Utils.addDataLayerConfig(mockConfigBuilder, true);
             context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
-        }, ResourceResolverType.JCR_MOCK);
-    }
+            context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
+        })
+        .build();
 
     private static final String PRODUCT_PAGE = "/content/product-page";
     private static final String PRODUCT_SPECIFIC_PAGE = PRODUCT_PAGE + "/product-specific-page";
@@ -88,6 +82,8 @@ public class ProductTeaserImplTest {
     private static final String PRODUCTTEASER_PATH = "/content/pageA/jcr:content/root/responsivegrid/productteaser-path";
     private static final String PRODUCTTEASER_NOCLIENT = "/content/pageA/jcr:content/root/responsivegrid/productteaser-noclient";
     private static final String PRODUCTTEASER_FULL = "/content/pageA/jcr:content/root/responsivegrid/productteaser-full";
+    private static final String PRODUCTTEASER_CTA_TEST = "/content/pageA/jcr:content/root/responsivegrid/productteaser-cta-test";
+    private static final String PRODUCTTEASER_CTA_TEXT_TEST = "/content/pageA/jcr:content/root/responsivegrid/productteaser-cta-text-test";
 
     private Resource teaserResource;
     private Resource pageResource;
@@ -96,15 +92,21 @@ public class ProductTeaserImplTest {
     private boolean deepLink;
 
     public void setUp(String resourcePath, boolean deepLink) throws Exception {
+        setUp(resourcePath, "graphql/magento-graphql-productteaser-result.json", deepLink);
+    }
+
+    public void setUp(String resourcePath, String graphqlResultPath, boolean deepLink) throws Exception {
         this.deepLink = deepLink;
         Page page = Mockito.spy(context.currentPage(PAGE));
         context.currentResource(resourcePath);
         teaserResource = Mockito.spy(context.resourceResolver().getResource(resourcePath));
 
-        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-productteaser-result.json");
+        Query rootQuery = Utils.getQueryFromResource(graphqlResultPath);
         product = rootQuery.getProducts().getItems().get(0);
 
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-productteaser-result.json");
+        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        context.registerInjectActivateService(graphqlClient);
+        Utils.addHttpResponseFrom(graphqlClient, graphqlResultPath);
         when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
@@ -121,7 +123,7 @@ public class ProductTeaserImplTest {
 
         if (deepLink) {
             // Configure the component to create deep links to specific pages
-            context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
+            context.runMode("author");
         }
 
         productTeaser = context.request().adaptTo(ProductTeaserImpl.class);
@@ -140,7 +142,7 @@ public class ProductTeaserImplTest {
     @Test
     public void verifyCtaDetails() throws Exception {
         setUp(PRODUCTTEASER_VARIANT, false);
-        Assert.assertEquals("addToCart", productTeaser.getCallToAction());
+        Assert.assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
         Assert.assertEquals("MJ01-XS-Orange", productTeaser.getSku());
     }
 
@@ -217,7 +219,9 @@ public class ProductTeaserImplTest {
         Resource teaserResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTTEASER_VIRTUAL));
         when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
-        GraphqlClient graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-virtualproduct-result.json");
+        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        context.registerInjectActivateService(graphqlClient);
+        Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-virtualproduct-result.json");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
@@ -232,6 +236,48 @@ public class ProductTeaserImplTest {
 
         productTeaser = context.request().adaptTo(ProductTeaserImpl.class);
         Assert.assertTrue(productTeaser.isVirtualProduct());
+    }
+
+    @Test
+    public void testCtaForConfigurable() throws Exception {
+        setUp(PRODUCTTEASER_CTA_TEST, false);
+        Assert.assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
+        Assert.assertEquals(CALL_TO_ACTION_TEXT_ADD_TO_CART, productTeaser.getCallToActionText());
+    }
+
+    @Test
+    public void testCtaTextForConfigurable() throws Exception {
+        setUp(PRODUCTTEASER_CTA_TEXT_TEST, false);
+        Assert.assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
+        Assert.assertEquals("custom", productTeaser.getCallToActionText());
+    }
+
+    @Test
+    public void testCtaForVirtual() throws Exception {
+        setUp(PRODUCTTEASER_CTA_TEST, "graphql/magento-graphql-virtualproduct-result.json", false);
+        Assert.assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
+        Assert.assertEquals(null, productTeaser.getCallToActionText());
+    }
+
+    @Test
+    public void testCtaTextForVirtual() throws Exception {
+        setUp(PRODUCTTEASER_CTA_TEXT_TEST, "graphql/magento-graphql-virtualproduct-result.json", false);
+        Assert.assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
+        Assert.assertEquals("custom", productTeaser.getCallToActionText());
+    }
+
+    @Test
+    public void testCtaForGroup() throws Exception {
+        setUp(PRODUCTTEASER_CTA_TEST, "graphql/magento-graphql-groupedproduct-result.json", false);
+        Assert.assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
+        Assert.assertEquals(CALL_TO_ACTION_TEXT_ADD_TO_CART, productTeaser.getCallToActionText());
+    }
+
+    @Test
+    public void testCtaForBundle() throws Exception {
+        setUp(PRODUCTTEASER_CTA_TEST, "graphql/magento-graphql-bundleproduct-result.json", false);
+        Assert.assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
+        Assert.assertEquals(CALL_TO_ACTION_TEXT_ADD_TO_CART, productTeaser.getCallToActionText());
     }
 
     @Test

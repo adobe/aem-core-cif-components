@@ -15,16 +15,19 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { func } from 'prop-types';
-import { useTranslation, Trans } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import Trigger from '../Trigger';
 import { useUserContext } from '../../context/UserContext';
 import classes from './createAccountSuccess.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CreateAccountSuccess = props => {
-    const [t] = useTranslation('account');
     const { showSignIn } = props;
     const [{ createAccountEmail }, { dispatch }] = useUserContext();
+    const intl = useIntl();
 
     const handleSignIn = () => {
         dispatch({ type: 'cleanupAccountCreated' });
@@ -35,17 +38,26 @@ const CreateAccountSuccess = props => {
         <div className={classes.root}>
             <div className={classes.body}>
                 <h2 className={classes.header}>
-                    {t('account:account-created-title', 'Your account was successfully created')}
+                    {intl.formatMessage({
+                        id: 'account:account-created-title',
+                        defaultMessage: 'Your account was successfully created'
+                    })}
                 </h2>
                 <div className={classes.textBlock}>
-                    {/* prettier-ignore */}
-                    <Trans i18nKey="account:email-confirmation-info">
-                        You will receive a link at <b>{{ email: createAccountEmail }}</b>. Access that link to confirm your email address.
-                    </Trans>
+                    {intl.formatMessage(
+                        {
+                            id: 'account:email-confirmation-info',
+                            defaultMessage:
+                                'You will receive a link at {email}. Access that link to confirm your email address.'
+                        },
+                        { email: createAccountEmail }
+                    )}
                 </div>
                 <div className={classes.actions}>
                     <Trigger action={handleSignIn}>
-                        <span className={classes.signin}>{t('account:sign-in', 'Sign In')}</span>
+                        <span className={classes.signin}>
+                            {intl.formatMessage({ id: 'account:sign-in', defaultMessage: 'Sign In' })}
+                        </span>
                     </Trigger>
                 </div>
             </div>

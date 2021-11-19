@@ -23,9 +23,7 @@ exports[`<AccountDropdown> renders the account created component inside account 
         <div
           class="textBlock"
         >
-          You will receive a link at 
-          <b />
-          . Access that link to confirm your email address.
+          You will receive a link at . Access that link to confirm your email address.
         </div>
         <div
           class="actions"

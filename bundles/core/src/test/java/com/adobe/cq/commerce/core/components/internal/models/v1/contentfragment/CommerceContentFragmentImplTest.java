@@ -21,7 +21,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
@@ -29,29 +30,22 @@ import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
-import org.apache.sling.xss.XSSAPI;
 import org.hamcrest.CustomMatcher;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.contentfragment.CommerceContentFragment;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
-import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.dam.cfm.ContentElement;
 import com.adobe.cq.dam.cfm.DataType;
 import com.adobe.cq.dam.cfm.FragmentData;
@@ -70,8 +64,8 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -91,39 +85,30 @@ public class CommerceContentFragmentImplTest {
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
-    public final AemContext context = createContext("/context/jcr-content-content-fragment.json");
-    MockSlingHttpServletRequest request;
-    private UrlProviderImpl urlProvider;
+    public final AemContext context = buildAemContext("/context/jcr-content-content-fragment.json")
+        .<AemContext>afterSetUp(context -> {
+            ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+            Utils.addDataLayerConfig(mockConfigBuilder, true);
+            context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
+        })
+        .build();
+
+    private MockSlingHttpServletRequest request;
     private List<ContentElement> contentFragmentElements = new ArrayList<>();
-    private HttpClient httpClient;
+    private CloseableHttpClient httpClient;
     private FragmentRenderService renderService;
-
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                context.load().json(contentPath, "/content");
-
-                ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
-                Utils.addDataLayerConfig(mockConfigBuilder, true);
-                context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
 
     @Before
     public void setup() throws Exception {
-
         ResourceResolver originalResourceResolver = context.resourceResolver();
         ResourceResolver resourceResolver = Mockito.spy(originalResourceResolver);
 
         // setup graphql client
-        httpClient = mock(HttpClient.class);
+        httpClient = mock(CloseableHttpClient.class);
+        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
+
         GraphqlClient graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
@@ -136,9 +121,6 @@ public class CommerceContentFragmentImplTest {
 
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.put(SlingBindings.RESOLVER, resourceResolver);
-        XSSAPI xssApi = mock(XSSAPI.class);
-        when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-        slingBindings.put("xssApi", xssApi);
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
         slingBindings.put("currentStyle", style);
@@ -148,9 +130,6 @@ public class CommerceContentFragmentImplTest {
 
         context.registerService(LiveRelationshipManager.class, mock(LiveRelationshipManager.class));
         context.registerService(LanguageManager.class, new MockLanguageManager());
-        urlProvider = new UrlProviderImpl();
-        urlProvider.activate(new MockUrlProviderConfiguration());
-        context.registerService(UrlProvider.class, urlProvider);
         renderService = mock((FragmentRenderService.class));
         context.registerService(FragmentRenderService.class, renderService);
         when(renderService.render(any(), any())).thenAnswer(inv -> request.adaptTo(CommerceContentFragment.class)
@@ -298,7 +277,6 @@ public class CommerceContentFragmentImplTest {
     @Test
     public void testContentFragmentForProductPageNoSku() {
         prepareRequest(CONTENT_FRAGMENT_PATH_2);
-        urlProvider.activate(new MockUrlProviderConfiguration());
 
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);
         Assert.assertNotNull(contentFragment);
@@ -332,7 +310,6 @@ public class CommerceContentFragmentImplTest {
 
         // setup url provider
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
-        urlProvider.activate(new MockUrlProviderConfiguration());
         requestPathInfo.setSuffix("/url_path.html");
 
         CommerceContentFragment contentFragment = request.adaptTo(CommerceContentFragment.class);

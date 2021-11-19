@@ -14,31 +14,43 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation, Trans } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import classes from './receipt.css';
 import Trigger from '../Trigger';
 
 import useReceipt from './useReceipt';
+
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const Receipt = () => {
     const [{ orderId }, continueShopping] = useReceipt();
-    const [t] = useTranslation('checkout');
+    const intl = useIntl();
 
     return (
         <div className={classes.root}>
             <div className={classes.body}>
                 <h2 className={classes.header}>
-                    {t('checkout:thankyou-for-purchase', 'Thank you for your purchase!')}
+                    {intl.formatMessage({
+                        id: 'checkout:thankyou-for-purchase',
+                        defaultMessage: 'Thank you for your purchase!'
+                    })}
                 </h2>
                 <div className={classes.textBlock}>
-                    {/* prettier-ignore */}
-                    <Trans i18nKey="checkout:order-confirmation">
-                        The order number is {{ orderId : orderId }}. You will receive an order confirmation email with order
-                        status and other details.
-                    </Trans>
+                    {intl.formatMessage(
+                        {
+                            id: 'checkout:order-confirmation',
+                            defaultMessage:
+                                'The order number is {orderId}. You will receive an order confirmation email with order status and other details.'
+                        },
+                        { orderId }
+                    )}
                 </div>
                 <Trigger action={continueShopping}>
-                    <span className={classes.continue}>{t('checkout:continue-shopping', 'Continue Shopping')}</span>
+                    <span className={classes.continue}>
+                        {intl.formatMessage({ id: 'checkout:continue-shopping', defaultMessage: 'Continue Shopping' })}
+                    </span>
                 </Trigger>
             </div>
         </div>

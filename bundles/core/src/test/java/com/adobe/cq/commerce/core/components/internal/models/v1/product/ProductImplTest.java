@@ -19,15 +19,15 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
-import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,9 +35,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.MockExternalizer;
-import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
+import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizer;
+import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.GroupItem;
@@ -46,11 +46,10 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
-import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
@@ -65,7 +64,6 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
-import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -73,58 +71,42 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ProductImplTest {
 
-    @Rule
-    public final AemContext context = createContext("/context/jcr-content.json");
-
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
         "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
-
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                // Load page structure
-                context.load().json(contentPath, "/content");
-
-                UrlProviderImpl urlProvider = new UrlProviderImpl();
-                urlProvider.activate(new MockUrlProviderConfiguration());
-                context.registerService(UrlProvider.class, urlProvider);
-
-                context.registerAdapter(Resource.class, ComponentsConfiguration.class,
-                    (Function<Resource, ComponentsConfiguration>) input -> !input.getPath().contains("pageB") ? MOCK_CONFIGURATION_OBJECT
-                        : ComponentsConfiguration.EMPTY);
-
-                context.registerService(Externalizer.class, new MockExternalizer());
-
-                ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
-                Utils.addDataLayerConfig(mockConfigBuilder, true);
-                Utils.addStorefrontContextConfig(mockConfigBuilder, true);
-                context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
-
-                XSSAPI xssapi = mock(XSSAPI.class);
-                when(xssapi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-                context.registerService(XSSAPI.class, xssapi);
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
-
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCT = "/content/pageA/jcr:content/root/responsivegrid/product";
     private static final String PRODUCT_WITH_ID = "/content/pageA/jcr:content/root/responsivegrid/productwithid";
+
+    @Rule
+    public final AemContext context = buildAemContext("/context/jcr-content.json")
+        .<AemContext>afterSetUp(context -> {
+            context.registerAdapter(Resource.class, ComponentsConfiguration.class,
+                (Function<Resource, ComponentsConfiguration>) input -> !input.getPath().contains("pageB") ? MOCK_CONFIGURATION_OBJECT
+                    : ComponentsConfiguration.EMPTY);
+
+            ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+            Utils.addDataLayerConfig(mockConfigBuilder, true);
+            Utils.addStorefrontContextConfig(mockConfigBuilder, true);
+            context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
+        })
+        .build();
 
     private Resource productResource;
     private Resource pageResource;
@@ -132,29 +114,25 @@ public class ProductImplTest {
     private GraphqlClient graphqlClient;
 
     protected Product productModel;
-    protected HttpClient httpClient;
+    protected CloseableHttpClient httpClient;
 
     @Before
     public void setUp() throws Exception {
-        Page page = Mockito.spy(context.currentPage(PAGE));
-        pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        Page page = spy(context.currentPage(PAGE));
+        pageResource = spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
 
-        httpClient = mock(HttpClient.class);
+        httpClient = mock(CloseableHttpClient.class);
+        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         context.currentResource(PRODUCT);
-        productResource = Mockito.spy(context.resourceResolver().getResource(PRODUCT));
+        productResource = spy(context.resourceResolver().getResource(PRODUCT));
 
         Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-product-result.json");
         product = rootQuery.getProducts().getItems().get(0);
 
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
-
-        graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        graphqlClient = spy(new GraphqlClientImpl());
+        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
 
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200, "{products(filter:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200, "{products(filter:{sku");
@@ -545,7 +523,7 @@ public class ProductImplTest {
 
     @Test
     public void testStorefrontContextRender() throws IOException {
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
         ObjectMapper mapper = new ObjectMapper();
         String expected = Utils.getResource("storefront-context/result-storefront-context-product-component.json");
         String jsonResult = productModel.getStorefrontContext().getJson();
@@ -553,7 +531,7 @@ public class ProductImplTest {
     }
 
     @Test
-    public void testManualHtmlId() throws IOException {
+    public void testManualHtmlId() {
         context.currentResource(PRODUCT_WITH_ID);
         context.request().setServletPath(PRODUCT_WITH_ID + ".beaumont-summit-kit.html");
         productResource = context.resourceResolver().getResource(PRODUCT_WITH_ID);
@@ -561,8 +539,33 @@ public class ProductImplTest {
         slingBindings.setResource(productResource);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
 
-        productModel = context.request().adaptTo(ProductImpl.class);
+        adaptToProduct();
 
         assertEquals("custom-id", productModel.getId());
+    }
+
+    @Test
+    public void testCanonicalUrlFromSitemapLinkExternalizer() {
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+        SitemapLinkExternalizer externalizer = mock(SitemapLinkExternalizer.class);
+        SitemapLinkExternalizerProvider externalizerProvider = mock(SitemapLinkExternalizerProvider.class);
+        when(externalizerProvider.getExternalizer(any())).thenReturn(externalizer);
+        when(externalizer.toExternalProductUrl(any(), any(), any())).then(inv -> {
+            // assert the parameters
+            ProductUrlFormat.Params parameters = inv.getArgumentAt(2, ProductUrlFormat.Params.class);
+            assertNotNull(parameters);
+            assertEquals("beaumont-summit-kit", parameters.getUrlKey());
+            assertEquals("MJ01", parameters.getSku());
+            Page page = inv.getArgumentAt(1, Page.class);
+            assertNotNull(page);
+            assertEquals("/content/product-page", page.getPath());
+            // invoke the callback directly
+            return urlProvider.toProductUrl(inv.getArgumentAt(0, SlingHttpServletRequest.class), page, parameters);
+        });
+        context.registerService(SitemapLinkExternalizerProvider.class, externalizerProvider);
+
+        adaptToProduct();
+
+        assertEquals("/content/product-page.html/beaumont-summit-kit.html", productModel.getCanonicalUrl());
     }
 }

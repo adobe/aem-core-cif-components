@@ -15,24 +15,31 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
+import java.io.IOException;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.client.MagentoGraphqlClientImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.testing.Utils;
+import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
@@ -60,17 +67,25 @@ public class GraphQLCategoryProviderTest {
         "my-store", "enableUIDSupport", "true"));
 
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
-    private static GraphqlClient graphqlClient;
 
     private static AemContext createContext(String contentPath) {
         return new AemContext(
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
-                graphqlClient = Utils.setupGraphqlClientWithHttpResponseFrom("graphql/magento-graphql-navigation-result.json");
-                context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> graphqlClient);
+                context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
             },
             ResourceResolverType.JCR_MOCK);
+    }
+
+    private GraphqlClient graphqlClient;
+
+    @Before
+    public void setup() throws IOException {
+        graphqlClient = new GraphqlClientImpl();
+        context.registerInjectActivateService(graphqlClient);
+        Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-navigation-result.json");
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> graphqlClient);
     }
 
     @Test
@@ -102,7 +117,7 @@ public class GraphQLCategoryProviderTest {
         GraphqlResponse<Query, Error> response = mock(GraphqlResponse.class);
         Query rootQuery = mock(Query.class);
         List<CategoryTree> list = mock(List.class);
-        CategoryTree category = mock(CategoryTree.class);
+        CategoryTree category = new CategoryTree();
 
         // test category not found
         when(graphqlClient.execute(anyString())).thenReturn(response);
@@ -116,7 +131,6 @@ public class GraphQLCategoryProviderTest {
 
         // test category children not found
         when(rootQuery.getCategoryList().get(0)).thenReturn(category);
-        when(category.getChildren()).thenReturn(null);
         Assert.assertTrue(categoryProvider.getChildCategories("13", 10).isEmpty());
     }
 
@@ -138,6 +152,24 @@ public class GraphQLCategoryProviderTest {
         // Test category children found
         List<CategoryTree> categories = categoryProvider.getChildCategories("Mg==", 5);
         Assert.assertEquals(6, categories.size());
+        Assert.assertEquals(categories.stream().sorted(Comparator.comparing(CategoryTree::getPosition)).collect(Collectors.toList()),
+            categories);
+
+        CategoryTree women = categories.get(1);
+        Assert.assertNotNull(women);
+        Assert.assertEquals("Women", women.getName());
+        List<CategoryTree> womenChildren = women.getChildren();
+        Assert.assertNotNull(womenChildren);
+        Assert.assertEquals(2, womenChildren.size());
+        CategoryTree tops = womenChildren.get(0);
+        Assert.assertNotNull(tops);
+        Assert.assertEquals("Tops", tops.getName());
+        List<CategoryTree> topsChildren = tops.getChildren();
+        Assert.assertNotNull(topsChildren);
+        Assert.assertEquals(3, topsChildren.size());
+        Assert.assertEquals(topsChildren.stream().sorted(Comparator.comparing(CategoryTree::getPosition)).collect(Collectors.toList()),
+            topsChildren);
+
     }
 
     @Test

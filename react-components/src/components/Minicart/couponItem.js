@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import Kebab from './kebab';
 import Section from './section';
@@ -22,10 +22,12 @@ import Section from './section';
 import classes from './couponItem.css';
 import useCouponItem from './useCouponItem';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CouponItem = () => {
     const [{ appliedCoupon }, { removeCouponFromCart }] = useCouponItem();
-
-    const [t] = useTranslation('cart');
+    const intl = useIntl();
 
     return (
         <div className={classes.root}>
@@ -33,7 +35,11 @@ const CouponItem = () => {
                 Coupon <strong>{appliedCoupon}</strong> applied.
             </div>
             <Kebab>
-                <Section text={t('cart:remove-coupon', 'Remove coupon')} onClick={removeCouponFromCart} icon="Trash" />
+                <Section
+                    text={intl.formatMessage({ id: 'cart:remove-coupon', defaultMessage: 'Remove coupon' })}
+                    onClick={removeCouponFromCart}
+                    icon="Trash"
+                />
             </Kebab>
         </div>
     );

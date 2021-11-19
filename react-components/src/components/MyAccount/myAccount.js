@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import { func } from 'prop-types';
 
 import LoadingIndicator from '../LoadingIndicator';
@@ -24,15 +24,20 @@ import { useUserContext } from '../../context/UserContext';
 
 import { SignOutLink, AccountInfoLink, AddressBookLink, ChangePasswordLink } from './AccountLinks';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const MyAccount = props => {
     const { showMenu, showChangePassword, showAccountInformation } = props;
     const [{ currentUser, inProgress }] = useUserContext();
-    const [t] = useTranslation('account');
+    const intl = useIntl();
 
     if (inProgress) {
         return (
             <div className={classes.modal_active}>
-                <LoadingIndicator>{t('account:signing-in', 'Signing In')}</LoadingIndicator>
+                <LoadingIndicator>
+                    {intl.formatMessage({ id: 'account:signing-in', defaultMessage: 'Signing In' })}
+                </LoadingIndicator>
             </div>
         );
     }

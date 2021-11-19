@@ -21,51 +21,45 @@ import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
+import org.apache.sling.models.factory.ModelFactory;
 import org.apache.sling.scripting.api.BindingsValuesProvider;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
-import org.apache.sling.xss.XSSAPI;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.MockExternalizer;
-import com.adobe.cq.commerce.core.MockLaunch;
-import com.adobe.cq.commerce.core.components.internal.services.MockUrlProviderConfiguration;
-import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
+import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.testing.Utils;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
+import com.adobe.cq.commerce.core.testing.MockLaunch;
+import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
-import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
-import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.launches.api.Launch;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
-import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -78,41 +72,29 @@ import static org.mockito.Mockito.when;
 
 public class PageMetadataImplTest {
 
-    @Rule
-    public final AemContext context = createContext("/context/jcr-content-breadcrumb.json");
-
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
         "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                // Load page structure
-                context.load().json(contentPath, "/content");
+    @Rule
+    public final AemContext context = buildAemContext("/context/jcr-content-breadcrumb.json")
+        .<AemContext>afterSetUp(context -> {
+            context.registerInjectActivateService(new SearchFilterServiceImpl());
+            context.registerInjectActivateService(new SearchResultsServiceImpl());
 
-                UrlProviderImpl urlProvider = new UrlProviderImpl();
-                urlProvider.activate(new MockUrlProviderConfiguration());
-                context.registerService(UrlProvider.class, urlProvider);
+            context.registerAdapter(Resource.class, ComponentsConfiguration.class, MOCK_CONFIGURATION_OBJECT);
+            context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
 
-                context.registerInjectActivateService(new SearchFilterServiceImpl());
-                context.registerInjectActivateService(new SearchResultsServiceImpl());
+            ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+            Utils.addDataLayerConfig(mockConfigBuilder, true);
+            context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
 
-                context.registerAdapter(Resource.class, ComponentsConfiguration.class, MOCK_CONFIGURATION_OBJECT);
-                context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
-
-                context.registerService(Externalizer.class, new MockExternalizer());
-
-                ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
-                Utils.addDataLayerConfig(mockConfigBuilder, true);
-                context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
-
-                XSSAPI xssApi = mock(XSSAPI.class);
-                when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
-                context.registerService(XSSAPI.class, xssApi);
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
+            // TODO: CIF-2469
+            CommerceComponentModelFinder commerceModelFinder = new CommerceComponentModelFinder();
+            Whitebox.setInternalState(commerceModelFinder, "modelFactory", context.getService(ModelFactory.class));
+            context.registerService(CommerceComponentModelFinder.class, commerceModelFinder);
+        })
+        .build();
 
     private void provideSlingBindings(Bindings bindings) {
         bindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, context.currentPage());
@@ -180,20 +162,28 @@ public class PageMetadataImplTest {
     }
 
     @Test
+    public void testPageMetadataModelOnProductSpecificPageNoProduct() throws Exception {
+        String pagePath = "/content/venia/us/en/products/product-page/product-specific-page-no-product";
+
+        prepareModel(pagePath);
+        PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
+
+        Assert.assertNull(pageMetadataModel.getMetaDescription());
+        Assert.assertNull(pageMetadataModel.getMetaKeywords());
+        Assert.assertNull(pageMetadataModel.getMetaTitle());
+        Assert.assertNull(pageMetadataModel.getCanonicalUrl());
+    }
+
+    @Test
     public void testPageMetadataModelOnProductPageOnLaunch() throws Exception {
         testPageMetadataModelOnProductPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/product-page");
     }
 
     private void testPageMetadataModelOnProductPage(String pagePath) throws Exception {
-        HttpClient httpClient = Mockito.mock(HttpClient.class);
-
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
-
+        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
+        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
@@ -225,7 +215,7 @@ public class PageMetadataImplTest {
         assertFalse("The category doesn't have staged data", productListModel.isStaged());
 
         // Verify that GraphQL client is only called 5 times, so Sling model caching works as expected
-        // --> see testPageMetadataModelOnCategoryPage() to see why we expect 5 queries
+        // --> see testPageMetadataModelOnCategoryPage(String) to see why we expect 5 queries
         verify(graphqlClient, times(5)).execute(any(), any(), any(), any());
         verify(graphqlClient, never()).execute(any(), any(), any());
 
@@ -253,20 +243,29 @@ public class PageMetadataImplTest {
     }
 
     @Test
+    public void testPageMetadataModelOnCategorySpecificPageNoProductlist() throws Exception {
+        String pagePath = "/content/venia/us/en/products/category-page/category-specific-page-no-productlist";
+
+        prepareModel(pagePath);
+        PageMetadata pageMetadataModel = context.request().adaptTo(PageMetadata.class);
+
+        Assert.assertNull(pageMetadataModel.getMetaDescription());
+        Assert.assertNull(pageMetadataModel.getMetaKeywords());
+        Assert.assertNull(pageMetadataModel.getMetaTitle());
+        Assert.assertNull(pageMetadataModel.getCanonicalUrl());
+    }
+
+    @Test
     public void testPageMetadataModelOnCategoryPageOnLaunch() throws Exception {
         testPageMetadataModelOnCategoryPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/category-page");
     }
 
     private void testPageMetadataModelOnCategoryPage(String pagePath) throws Exception {
-        HttpClient httpClient = Mockito.mock(HttpClient.class);
-
-        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
-        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+        CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
+        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        Whitebox.setInternalState(graphqlClient, "gson", QueryDeserializer.getGson());
-        Whitebox.setInternalState(graphqlClient, "client", httpClient);
-        Whitebox.setInternalState(graphqlClient, "configuration", graphqlClientConfiguration);
+        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");

@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -40,12 +39,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
-import com.adobe.cq.commerce.core.components.models.common.Price;
+import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
@@ -53,14 +49,15 @@ import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
-import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
+import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -69,13 +66,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Exporter(
     name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
     extensions = ExporterConstants.SLING_MODEL_EXTENSION)
-public class ProductCarouselImpl extends DataLayerComponent implements ProductCarousel {
+public class ProductCarouselImpl extends ProductCarouselBase implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
-
-    @Self
-    private SlingHttpServletRequest request;
 
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -95,8 +89,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
     protected Style currentStyle;
 
     private Page productPage;
-    private List<String> baseProductSkus;
-    private Locale locale;
+    private List<String> baseProductSkus = Collections.emptyList();
 
     private AbstractProductsRetriever productsRetriever;
 
@@ -112,8 +105,6 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
         if (productPage == null) {
             productPage = currentPage;
         }
-
-        locale = productPage.getLanguage(false);
 
         // Make sure we use the base product sku for each selected product (can be a variant)
         baseProductSkus = productSkus
@@ -138,6 +129,7 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
 
     @Override
     @JsonIgnore
+    @Nonnull
     public List<ProductListItem> getProducts() {
         if (productsRetriever == null) {
             return Collections.emptyList();
@@ -160,7 +152,10 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
                     continue; // Can happen that a product is not found
                 }
 
-                String slug = product.getUrlKey();
+                // retain urlKey, urlPath and urlRewrites from the base product
+                String urlKey = product.getUrlKey();
+                String urlPath = product.getUrlPath();
+                List<UrlRewrite> urlRewrites = product.getUrlRewrites();
                 if (skus.getRight() != null && product instanceof ConfigurableProduct) {
                     SimpleProduct variant = findVariant((ConfigurableProduct) product, skus.getRight());
                     if (variant != null) {
@@ -169,21 +164,15 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
                 }
 
                 try {
-                    Price price = new PriceImpl(product.getPriceRange(), locale);
-                    ProductImage thumbnail = product.getThumbnail();
-                    carouselProductList.add(new ProductListItemImpl(
-                        skus.getLeft(),
-                        slug,
-                        product.getName(),
-                        price,
-                        thumbnail == null ? null : thumbnail.getUrl(),
-                        thumbnail == null ? null : thumbnail.getLabel(),
-                        productPage,
-                        skus.getRight(),
-                        request,
-                        urlProvider,
-                        this.getId(),
-                        product.getStaged()));
+                    ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), productPage, request, urlProvider)
+                        .product(product)
+                        .image(product.getThumbnail())
+                        .sku(skus.getLeft())
+                        .urlKey(urlKey)
+                        .urlPath(urlPath)
+                        .urlRewrites(urlRewrites)
+                        .variantSku(skus.getRight());
+                    carouselProductList.add(builder.build());
                 } catch (Exception e) {
                     LOGGER.error("Failed to instantiate product " + combinedSku, e);
                 }
@@ -211,14 +200,19 @@ public class ProductCarouselImpl extends DataLayerComponent implements ProductCa
         return TitleTypeProvider.getTitleType(currentStyle, resource.getValueMap());
     }
 
+    @JsonProperty("productIdentifiers")
+    public List<CommerceIdentifier> getProductCommerceIdentifiers() {
+        return baseProductSkus.stream().map(ListItemIdentifier::new).collect(Collectors.toList());
+    }
+
     @Override
+    @Deprecated
+    @JsonIgnore
     @Nonnull
     public List<ProductListItem> getProductIdentifiers() {
-        if (baseProductSkus == null) {
-            return Collections.emptyList();
-        }
-        return baseProductSkus.stream().map(sku -> new ProductListItemImpl(
-            CommerceIdentifierImpl.fromProductSku(sku), getId(), productPage))
+        return baseProductSkus.stream()
+            .map(ListItemIdentifier::new)
+            .map(id -> new ProductListItemImpl(id, getId(), productPage))
             .collect(Collectors.toList());
     }
 

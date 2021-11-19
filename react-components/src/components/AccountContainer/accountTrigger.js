@@ -22,6 +22,9 @@ import Icon from '../Icon';
 
 import classes from './accountTrigger.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const AccountTrigger = props => {
     const [{ isAccountDropdownOpen }, { toggleAccountDropdown }] = useUserContext();
     const { label } = props;

@@ -18,6 +18,9 @@ import { useUserContext } from '../../context/UserContext';
 
 import MUTATION_CREATE_CUSTOMER from '../../queries/mutation_create_customer.graphql';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export default props => {
     const { showAccountCreated } = props;
     const [{ isSignedIn, createAccountError, inProgress }, { dispatch }] = useUserContext();

@@ -14,14 +14,17 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 import { useAddressForm } from './useAddressForm';
 import { useCheckoutState } from '../Checkout/checkoutContext';
 import { useUserContext } from '../../context/UserContext';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 export const useAddressSelect = (props = { initialAddress: undefined }) => {
     const { initialAddress } = props;
-
+    const intl = useIntl();
     const { findSavedAddress, getNewAddress, parseAddress, parseAddressFormValues } = useAddressForm();
     const [, dispatch] = useCheckoutState();
     const [{ currentUser }] = useUserContext();
@@ -33,11 +36,11 @@ export const useAddressSelect = (props = { initialAddress: undefined }) => {
     };
     const initialAddressId = initialAddress ? parseInitialAddressSelectValue(initialAddress) : 0;
     const [selectedAddressId, setSelectedAddressId] = useState(initialAddressId);
-
-    const [t] = useTranslation('checkout');
-
     const addressSelectNewAddressItem = {
-        label: t('checkout:address-form-address-select-new-address', 'New Address'),
+        label: intl.formatMessage({
+            id: 'checkout:address-form-address-select-new-address',
+            defaultMessage: 'New Address'
+        }),
         value: 0
     };
     const addressSelectItems = currentUser.addresses.map(address => {

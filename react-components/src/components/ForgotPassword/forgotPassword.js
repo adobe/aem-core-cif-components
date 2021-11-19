@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { func } from 'prop-types';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import ForgotPasswordForm from './forgotPasswordForm';
 import FormSubmissionSuccessful from './formSubmissionSuccessful';
@@ -24,26 +24,33 @@ import LoadingIndicator from '../LoadingIndicator';
 
 import classes from './forgotPassword.css';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const ForgotPassword = props => {
     const { onClose, onCancel } = props;
 
     const [{ loading, submitted, email }, { handleFormSubmit }] = useForgotPassword();
-    const [t] = useTranslation('account', 'common');
+    const intl = useIntl();
 
     let content;
 
     if (loading) {
-        content = <LoadingIndicator>{t('common:loading', 'Loading')}</LoadingIndicator>;
+        content = (
+            <LoadingIndicator>
+                {intl.formatMessage({ id: 'common:loading', defaultMessage: 'Loading' })}
+            </LoadingIndicator>
+        );
     } else if (submitted) {
         content = <FormSubmissionSuccessful email={email} onContinue={onClose} />;
     } else {
         content = (
             <>
                 <p className={classes.instructions}>
-                    {t(
-                        'account:reset-password-instructions',
-                        'Enter your email below to receive a password reset link.'
-                    )}
+                    {intl.formatMessage({
+                        id: 'account:reset-password-instructions',
+                        defaultMessage: 'Enter your email below to receive a password reset link.'
+                    })}
                 </p>
                 <ForgotPasswordForm handleFormSubmit={handleFormSubmit} handleCancel={onCancel} />
             </>

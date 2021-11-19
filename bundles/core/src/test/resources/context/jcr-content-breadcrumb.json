@@ -82,6 +82,24 @@
                   }
                 }
               }
+            },
+            "product-specific-page-no-product": {
+              "jcr:primaryType": "cq:Page",
+              "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "selectorFilter": "tiberius-gym-tank",
+                "sling:resourceType": "venia/components/page",
+                "root": {
+                  "responsivegrid": {
+                    "breadcrumb": {
+                      "sling:resourceType": "venia/components/commerce/breadcrumb",
+                      "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
+                      "startLevel": "3",
+                      "structureDepth": "2"
+                    }
+                  }
+                }
+              }
             }
           },
           "category-page": {
@@ -120,6 +138,24 @@
                     },
                     "productlist": {
                       "sling:resourceType": "core/cif/components/commerce/productlist/v2/productlist"
+                    }
+                  }
+                }
+              }
+            },
+            "category-specific-page-no-productlist": {
+              "jcr:primaryType": "cq:Page",
+              "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "selectorFilter": "MTM=",
+                "sling:resourceType": "venia/components/page",
+                "root": {
+                  "responsivegrid": {
+                    "breadcrumb": {
+                      "sling:resourceType": "venia/components/commerce/breadcrumb",
+                      "sling:resourceSuperType": "core/wcm/components/breadcrumb/v2/breadcrumb",
+                      "startLevel": "3",
+                      "structureDepth": "2"
                     }
                   }
                 }

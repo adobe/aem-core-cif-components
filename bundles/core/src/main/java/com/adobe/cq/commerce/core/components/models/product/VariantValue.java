@@ -15,10 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.product;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
 /**
  * VariantValue is a view model interface representing a possible value for
  * a VariantAttribute.
  */
+@ConsumerType
 public interface VariantValue {
     String getLabel();
 

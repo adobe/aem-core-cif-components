@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useIntl } from 'react-intl';
 
 import LoadingIndicator from '../LoadingIndicator';
 
@@ -29,10 +29,17 @@ import CouponItem from './couponItem';
 import { useCartState } from './cartContext';
 import DiscountList from './discountList';
 
+/**
+ * @deprecated replace with peregrine backed component, will be removed with CIF 3.0 latest
+ */
 const CartLoadingIndicator = () => {
-    const [t] = useTranslation('cart');
+    const intl = useIntl();
 
-    return <LoadingIndicator>{t('cart:fetching-data', 'Fetching cart data...')}</LoadingIndicator>;
+    return (
+        <LoadingIndicator>
+            {intl.formatMessage({ id: 'cart:fetching-data', defaultMessage: 'Fetching cart data...' })}
+        </LoadingIndicator>
+    );
 };
 
 const Body = () => {
