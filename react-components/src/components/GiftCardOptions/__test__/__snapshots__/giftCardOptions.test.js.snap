@@ -249,6 +249,7 @@ exports[`GiftCardProductOptions renders the component with full options 1`] = `
     >
       <span
         class="fieldIcons__root"
+        style="--iconsBefore: 0; --iconsAfter: 1;"
       >
         <span
           class="fieldIcons__input"
@@ -596,6 +597,7 @@ exports[`GiftCardProductOptions renders the component with sku 1`] = `
     >
       <span
         class="fieldIcons__root"
+        style="--iconsBefore: 0; --iconsAfter: 1;"
       >
         <span
           class="fieldIcons__input"
