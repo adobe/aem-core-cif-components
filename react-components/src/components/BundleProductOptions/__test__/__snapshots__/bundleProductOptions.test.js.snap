@@ -291,7 +291,6 @@ exports[`BundleProductOptions renders the component with full options 1`] = `
     >
       <span
         class="fieldIcons__root"
-        style="--iconsBefore: 0; --iconsAfter: 1;"
       >
         <span
           class="fieldIcons__input"

@@ -44,7 +44,6 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
             </label>
             <span
               class="root"
-              style="--iconsBefore: 0; --iconsAfter: 0;"
             >
               <span
                 class="input"
@@ -85,7 +84,6 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
             </label>
             <span
               class="root"
-              style="--iconsBefore: 0; --iconsAfter: 0;"
             >
               <span
                 class="input"
@@ -126,7 +124,6 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
             </label>
             <span
               class="root"
-              style="--iconsBefore: 0; --iconsAfter: 0;"
             >
               <span
                 class="input"
@@ -167,7 +164,6 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
             </label>
             <span
               class="root"
-              style="--iconsBefore: 0; --iconsAfter: 0;"
             >
               <span
                 class="input"
@@ -208,7 +204,6 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
             </label>
             <span
               class="root"
-              style="--iconsBefore: 0; --iconsAfter: 1;"
             >
               <span
                 class="input"
@@ -268,7 +263,6 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
             </label>
             <span
               class="root"
-              style="--iconsBefore: 0; --iconsAfter: 0;"
             >
               <span
                 class="input"
@@ -309,7 +303,6 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
             </label>
             <span
               class="root"
-              style="--iconsBefore: 0; --iconsAfter: 0;"
             >
               <span
                 class="input"
@@ -350,7 +343,6 @@ exports[`<AddressFormContainer> renders the component with address form shown 1`
             </label>
             <span
               class="root"
-              style="--iconsBefore: 0; --iconsAfter: 0;"
             >
               <span
                 class="input"

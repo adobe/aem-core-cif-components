@@ -20,7 +20,6 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
         </label>
         <span
           class="root"
-          style="--iconsBefore: 0; --iconsAfter: 0;"
         >
           <span
             class="input"
@@ -58,7 +57,6 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
         </label>
         <span
           class="root"
-          style="--iconsBefore: 0; --iconsAfter: 0;"
         >
           <span
             class="input"
@@ -96,7 +94,6 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
         </label>
         <span
           class="root"
-          style="--iconsBefore: 0; --iconsAfter: 0;"
         >
           <span
             class="input"
@@ -134,7 +131,6 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
         </label>
         <span
           class="root"
-          style="--iconsBefore: 0; --iconsAfter: 1;"
         >
           <span
             class="input"
@@ -226,7 +222,6 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
         </label>
         <span
           class="root"
-          style="--iconsBefore: 0; --iconsAfter: 0;"
         >
           <span
             class="input"
@@ -264,7 +259,6 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
         </label>
         <span
           class="root"
-          style="--iconsBefore: 0; --iconsAfter: 0;"
         >
           <span
             class="input"
@@ -302,7 +296,6 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
         </label>
         <span
           class="root"
-          style="--iconsBefore: 0; --iconsAfter: 0;"
         >
           <span
             class="input"
@@ -340,7 +333,6 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
         </label>
         <span
           class="root"
-          style="--iconsBefore: 0; --iconsAfter: 1;"
         >
           <span
             class="input"
@@ -411,7 +403,6 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
       </label>
       <span
         class="root"
-        style="--iconsBefore: 0; --iconsAfter: 1;"
       >
         <span
           class="input"

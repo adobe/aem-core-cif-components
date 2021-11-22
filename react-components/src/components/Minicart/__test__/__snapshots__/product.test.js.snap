@@ -7,14 +7,16 @@ exports[`<Product /> renders the component 1`] = `
     data-testid="cart-item"
   >
     <img
-      alt=""
+      alt="nodejs"
       class="image"
       placeholder="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAFCAQAAADIpIVQAAAADklEQVR42mNkgAJGIhgAALQABsHyMOcAAAAASUVORK5CYII="
       src="/media/catalog/product/some/url?auto=webp&format=pjpg&width=80&height=100"
     />
     <div
       class="name"
-    />
+    >
+      nodejs
+    </div>
     <div
       class="quantity"
     >

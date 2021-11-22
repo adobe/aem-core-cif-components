@@ -38,7 +38,6 @@ exports[`<CartOptions> renders the component properly 1`] = `
         </h2>
         <span
           class="root"
-          style="--iconsBefore: 0; --iconsAfter: 1;"
         >
           <span
             class="input"
