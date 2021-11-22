@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.sling.api.resource.Resource;
 
 import com.adobe.cq.launches.api.Launch;
+import com.adobe.cq.launches.api.LaunchPromotionScope;
 import com.adobe.cq.launches.api.LaunchSource;
 import com.day.cq.commons.jcr.JcrConstants;
 
@@ -120,4 +121,8 @@ public class MockLaunch implements Launch {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public LaunchPromotionScope getLaunchAutoPromotionScope() {
+        throw new UnsupportedOperationException();
+    }
 }
