@@ -69,18 +69,20 @@ public interface ProductTeaser extends Component {
 
     /**
      * Returns the "call to action" configured for this teaser.
+     * If the configured product cannot be added directly to the cart and for CTA
+     * "add-to-cart" is configured then "details" is returned.
+     * If no CTA is configured then {@code null} is returned.
      * 
-     * @return the value of the "call to action" option. This can be "add-to-cart" or "details". If no CTA is configured then this methods
-     *         returns {@code null}
+     * @return the value of the "call to action" option. This can be "add-to-cart" or "details".
      */
     String getCallToAction();
 
     /**
      * Returns the "call to action text" configured for this teaser.
-     * 
+     * If no CTA text is configured then this methods returns {@code null} unless the configured product
+     * cannot be added directly to the cart, when "Add to Cart" is returned.
+     *
      * @return the value of the "call to action text" option.
-     *         If no CTA text is configured then this methods returns
-     *         {@code null}
      */
     String getCallToActionText();
 
