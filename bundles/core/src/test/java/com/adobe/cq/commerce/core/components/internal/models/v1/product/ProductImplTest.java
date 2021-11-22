@@ -455,7 +455,7 @@ public class ProductImplTest {
 
     @Test
     public void testGiftCardProduct() throws IOException {
-        testBundleProductImpl(false);
+        testGiftCardProductImpl(false);
     }
 
     public void testGiftCardProductImpl(boolean hasStagedData) throws IOException {
