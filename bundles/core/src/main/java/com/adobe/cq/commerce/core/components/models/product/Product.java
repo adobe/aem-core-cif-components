@@ -56,7 +56,9 @@ public interface Product extends Component, PageMetadata {
 
     Boolean isBundleProduct();
 
-    Boolean isGiftCardProduct();
+    default Boolean isGiftCardProduct() {
+        return false;
+    }
 
     /**
      * The version 1 of the product component always returns <code>false</code> as it does not support this feature.
