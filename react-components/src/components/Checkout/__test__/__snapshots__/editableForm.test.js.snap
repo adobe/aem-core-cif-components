@@ -20,6 +20,7 @@ exports[`<EditableForm /> renders the payments form if countries are loaded 1`] 
       >
         <span
           class="root"
+          style="--iconsBefore: 0; --iconsAfter: 1;"
         >
           <span
             class="input"
@@ -164,6 +165,7 @@ exports[`<EditableForm /> renders the payments form if countries are loaded 2`] 
       >
         <span
           class="root"
+          style="--iconsBefore: 0; --iconsAfter: 1;"
         >
           <span
             class="input"
@@ -314,6 +316,7 @@ exports[`<EditableForm /> renders the shipping method form if countries are load
         </label>
         <span
           class="root"
+          style="--iconsBefore: 0; --iconsAfter: 1;"
         >
           <span
             class="input"
@@ -419,6 +422,7 @@ exports[`<EditableForm /> submits the Address form 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -459,6 +463,7 @@ exports[`<EditableForm /> submits the Address form 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -499,6 +504,7 @@ exports[`<EditableForm /> submits the Address form 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -539,6 +545,7 @@ exports[`<EditableForm /> submits the Address form 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -579,6 +586,7 @@ exports[`<EditableForm /> submits the Address form 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -619,6 +627,7 @@ exports[`<EditableForm /> submits the Address form 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 1;"
           >
             <span
               class="input"
@@ -689,6 +698,7 @@ exports[`<EditableForm /> submits the Address form 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 1;"
           >
             <span
               class="input"
@@ -762,6 +772,7 @@ exports[`<EditableForm /> submits the Address form 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -802,6 +813,7 @@ exports[`<EditableForm /> submits the Address form 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"

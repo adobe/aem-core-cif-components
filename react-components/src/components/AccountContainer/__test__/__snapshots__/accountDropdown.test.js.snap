@@ -73,6 +73,7 @@ exports[`<AccountDropdown> renders the change password component inside account 
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -111,6 +112,7 @@ exports[`<AccountDropdown> renders the change password component inside account 
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -150,6 +152,7 @@ exports[`<AccountDropdown> renders the change password component inside account 
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -233,6 +236,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
         </label>
         <span
           class="root"
+          style="--iconsBefore: 0; --iconsAfter: 0;"
         >
           <span
             class="input"
@@ -271,6 +275,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
         </label>
         <span
           class="root"
+          style="--iconsBefore: 0; --iconsAfter: 0;"
         >
           <span
             class="input"
@@ -309,6 +314,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
         </label>
         <span
           class="root"
+          style="--iconsBefore: 0; --iconsAfter: 0;"
         >
           <span
             class="input"
@@ -347,6 +353,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
         </label>
         <span
           class="root"
+          style="--iconsBefore: 0; --iconsAfter: 0;"
         >
           <span
             class="input"
@@ -386,6 +393,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
         </label>
         <span
           class="root"
+          style="--iconsBefore: 0; --iconsAfter: 0;"
         >
           <span
             class="input"
@@ -495,6 +503,7 @@ exports[`<AccountDropdown> renders the forgot password component inside account 
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
