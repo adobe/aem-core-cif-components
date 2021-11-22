@@ -69,6 +69,7 @@ exports[`<AccountContainer> renders the component 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
@@ -107,6 +108,7 @@ exports[`<AccountContainer> renders the component 1`] = `
           </label>
           <span
             class="root"
+            style="--iconsBefore: 0; --iconsAfter: 0;"
           >
             <span
               class="input"
