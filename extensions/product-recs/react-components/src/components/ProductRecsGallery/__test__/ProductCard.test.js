@@ -119,7 +119,7 @@ describe('ProductCard', () => {
 
         const { queryByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
 
-        fireEvent.click(queryByRole('button'));
+        fireEvent.click(queryByRole('button', { name: 'Add to Cart' }));
         expect(mse.publish.recsItemClick).toHaveBeenCalledWith(unit.unitId, product.productId);
     });
 
