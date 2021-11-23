@@ -36,7 +36,7 @@
     },
     {
       "matchPackageNames": ["com.adobe.aem:uber-jar"],
-      "allowedVersions": "<=6.5.8"
+      "allowedVersions": "<=6.5.7"
     },
     {
       "matchPackageNames": [
