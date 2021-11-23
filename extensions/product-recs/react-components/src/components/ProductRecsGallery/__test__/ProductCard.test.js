@@ -95,7 +95,7 @@ describe('ProductCard', () => {
             })
         );
         expect(eventListener).toHaveBeenCalledTimes(1);
-    })
+    });
 
     it('button redirects to the product page', () => {
         product = {

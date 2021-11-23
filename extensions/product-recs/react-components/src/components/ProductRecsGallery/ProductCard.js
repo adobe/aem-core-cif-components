@@ -49,7 +49,7 @@ const ProductCard = props => {
             detail: [{ sku, quantity: 1 }]
         });
         document.dispatchEvent(customEvent);
-    }
+    };
 
     const openDetails = (unit, product) => {
         const { sku, productId } = product;
