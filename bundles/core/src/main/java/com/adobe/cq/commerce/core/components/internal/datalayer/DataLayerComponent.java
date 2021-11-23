@@ -29,7 +29,7 @@ import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public abstract class DataLayerComponent {
+public abstract class DataLayerComponent implements Component {
 
     @SlingObject
     protected Resource resource;

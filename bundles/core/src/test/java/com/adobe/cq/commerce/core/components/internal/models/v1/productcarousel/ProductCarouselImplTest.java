@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -53,9 +54,11 @@ import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -162,6 +165,21 @@ public class ProductCarouselImplTest {
             }
             idx++;
         }
+    }
+
+    @Test
+    public void testGetProductIdentifiers() {
+        List<ProductListItem> items = productCarousel.getProductIdentifiers();
+        Set<String> expectedIdentifiers = ImmutableSet.of(
+            "NOT-FOUND",
+            "24-MG01",
+            "MJ01",
+            "faultyproduct",
+            "WJ01");
+
+        assertThat(items.stream().map(ProductListItem::getSKU).collect(Collectors.toList()))
+            .hasSize(expectedIdentifiers.size())
+            .containsOnlyElementsOf(expectedIdentifiers);
     }
 
     @Test

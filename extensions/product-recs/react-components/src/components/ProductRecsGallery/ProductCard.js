@@ -49,6 +49,15 @@ const ProductCard = props => {
             detail: [{ sku, quantity: 1 }]
         });
         document.dispatchEvent(customEvent);
+    }
+
+    const openDetails = (unit, product) => {
+        const { sku, productId } = product;
+        const { unitId } = unit;
+
+        window.location.assign(createProductPageUrl(sku));
+
+        mse && mse.publish.recsItemClick(unitId, productId);
     };
 
     const renderPrice = (prices, currency) => {
@@ -79,14 +88,22 @@ const ProductCard = props => {
                 <div>{name}</div>
                 <div className={classes.price}>{renderPrice(prices, currency)}</div>
             </a>
-            {// Only display add to cart button for products that can be added to cart without further customization
-            ['simple', 'virtual', 'downloadable'].includes(type) && (
-                <Trigger className={classes.buttonMargin} action={() => addToCart(props.unit, props.product)}>
+            {
+                <Trigger
+                    action={() => {
+                        if (['simple', 'virtual', 'downloadable'].includes(type)) {
+                            // Add to cart only products that can be added to cart without further customization
+                            addToCart(props.unit, props.product);
+                        } else {
+                            // Open details for other products
+                            openDetails(props.unit, props.product);
+                        }
+                    }}>
                     <span className={classes.addToCart}>
                         {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to Cart' })}
                     </span>
                 </Trigger>
-            )}
+            }
             <Trigger className={classes.buttonMargin} action={() => addToWishlist(props.product)}>
                 <span className={classes.addToWishlist}>
                     {intl.formatMessage({ id: 'productrecs:add-to-wishlist', defaultMessage: 'Add to Wish List' })}

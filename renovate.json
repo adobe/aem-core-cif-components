@@ -1,0 +1,119 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    ":separateMajorReleases",
+    ":combinePatchMinorReleases",
+    ":ignoreUnstable",
+    ":prImmediately",
+    ":semanticPrefixFixDepsChoreOthers",
+    ":updateNotScheduled",
+    ":automergeDisabled",
+    ":ignoreModulesAndTests",
+    ":autodetectPinVersions",
+    "group:monorepos",
+    "group:recommended",
+    "helpers:disableTypesNodeMajor",
+    ":prHourlyLimitNone",
+    "docker:enableMajor"
+  ],
+  "reviewers": [
+    "@mhaack",
+    "@herzog31",
+    "@LSantha",
+    "@laurentiumagureanu",
+    "@Buuhuu"
+  ],
+  "separateMinorPatch": true,
+  "packageRules": [
+    {
+      "matchManagers": ["npm"],
+      "enabled": false
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch", "pin"],
+      "automerge": true,
+      "addLabels": ["automerge"]
+    },
+    {
+      "matchPackageNames": ["com.adobe.aem:uber-jar"],
+      "allowedVersions": "<=6.5.7"
+    },
+    {
+      "matchPackageNames": [
+        "org.osgi:osgi.annotation",
+        "org.osgi:osgi.cmpn",
+        "org.osgi:osgi.core"
+      ],
+      "allowedVersions": "<=6.0.1"
+    },
+    {
+      "matchPackagePrefixes": ["org.slf4j"],
+      "allowedVersions": "<=1.7.25"
+    },
+    {
+      "matchPackageNames": [
+        "com.adobe.cq:core.wcm.components.core",
+        "com.adobe.cq:core.wcm.components.content"
+      ],
+      "allowedVersions": "<=2.17.10"
+    },
+    {
+      "matchPackageNames": ["com.adobe.cq:core.wcm.components.junit.core"],
+      "allowedVersions": "<=2.0.0"
+    },
+    {
+      "matchPackageNames": ["com.adobe.commerce.cif:magento-graphql"],
+      "allowedVersions": "<=9.0.0-magento242ee"
+    },
+    {
+      "matchPackageNames": ["com.google.code.gson:gson"],
+      "allowedVersions": "<=2.8.5"
+    },
+    {
+      "matchPackagePrefixes": ["com.fasterxml.jackson.core"],
+      "allowedVersions": "<=2.11.3"
+    },
+    {
+      "matchPackageNames": ["javax.servlet:javax.servlet-api"],
+      "allowedVersions": "<=3.1.0"
+    },
+    {
+      "matchPackageNames": ["javax.servlet.jsp:jsp-api"],
+      "allowedVersions": "<=2.1.0"
+    },
+    {
+      "matchPackageNames": ["org.apache.commons:commons-collections4"],
+      "allowedVersions": "<=4.4.0"
+    },
+    {
+      "matchPackageNames": ["org.apache.commons:commons-lang3"],
+      "allowedVersions": "3.10.0"
+    },
+    {
+      "matchPackageNames": ["commons-io:commons-io"],
+      "allowedVersions": "<=2.7.0"
+    },
+    {
+      "matchPackageNames": ["org.apache.jackrabbit:jackrabbit-jcr-commons"],
+      "allowedVersions": "<=2.20.2"
+    },
+    {
+      "matchPackageNames": ["org.apache.sling:org.apache.sling.api"],
+      "allowedVersions": "<=2.22.0"
+    },
+    {
+      "matchPackageNames": ["org.apache.sling:org.apache.sling.commons.osgi"],
+      "allowedVersions": "<=2.4.0"
+    },
+    {
+      "matchPackageNames": ["org.apache.sling:org.apache.sling.models.api"],
+      "allowedVersions": "<=1.3.8"
+    },
+    {
+      "matchPackageNames": ["org.apache.sling:org.apache.sling.i18n"],
+      "allowedVersions": "<=2.5.14"
+    }
+  ],
+  "pinDigests": true,
+  "prConcurrentLimit": 3
+}
