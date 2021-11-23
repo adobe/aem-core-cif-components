@@ -35,13 +35,15 @@ const ProductRecsGallery = props => {
 
     useEffect(() => {
         if (!loading && hostElement) {
-            const products = units && units.length > 0 ? units[0].products || [] : [];
-            hostElement.dispatchEvent(new CustomEvent('aem.cif.product-recs-loaded', {
-                bubbles: true,
-                detail: products
-            }));
+            const products = units && units.length > 0 ? units[0].products : [];
+            hostElement.dispatchEvent(
+                new CustomEvent('aem.cif.product-recs-loaded', {
+                    bubbles: true,
+                    detail: products
+                })
+            );
         }
-    }, [loading, units])
+    }, [loading, units]);
 
     if (loading) {
         content = <LoadingIndicator />;
