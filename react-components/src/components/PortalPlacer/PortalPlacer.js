@@ -27,9 +27,9 @@ const PortalPlacer = props => {
 
     const children = [...elems].map((elem, index) => {
         // Convert empty dataset keys to boolean values
-        const dataset = { 
+        const dataset = {
             hostElement: elem,
-            ...elem.dataset 
+            ...elem.dataset
         };
         Object.keys(dataset).forEach(key => {
             if (dataset[key] === '') {
