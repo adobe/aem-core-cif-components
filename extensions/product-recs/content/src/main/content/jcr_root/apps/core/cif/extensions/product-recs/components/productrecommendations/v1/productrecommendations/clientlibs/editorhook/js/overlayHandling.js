@@ -27,8 +27,7 @@
             const cq = e.target.parentElement.querySelector('[data-path]');
             const { path } = cq ? cq.dataset : {};
 
-            new ns.MessageChannel("cqauthor", window.parent)
-                .postMessage('cif-destroy-overlay', path, -1);
+            new ns.MessageChannel('cqauthor', window.parent).postMessage('cif-destroy-overlay', path, -1);
         }
     }
 
@@ -40,7 +39,10 @@
     }
 
     channel.on('cq-content-frame-loaded', function() {
-        ns.ContentFrame.contentWindow.document.addEventListener('aem.cif.product-recs-loaded', removeOverlayInContentFrame);
+        ns.ContentFrame.contentWindow.document.addEventListener(
+            'aem.cif.product-recs-loaded',
+            removeOverlayInContentFrame
+        );
         ns.ContentFrame.messageChannel.subscribeRequestMessage('cif-destroy-overlay', removeOverlayInEditorFrame);
     });
 })(Granite.author, jQuery, jQuery(document));
