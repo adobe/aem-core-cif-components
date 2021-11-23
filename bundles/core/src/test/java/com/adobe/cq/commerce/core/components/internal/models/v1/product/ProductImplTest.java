@@ -455,10 +455,10 @@ public class ProductImplTest {
 
     @Test
     public void testGiftCardProduct() throws IOException {
-        testGiftCardProductImpl(false);
+        testGiftCardProductImpl();
     }
 
-    public void testGiftCardProductImpl(boolean hasStagedData) throws IOException {
+    public void testGiftCardProductImpl() throws IOException {
         Utils.setupHttpResponse("graphql/magento-graphql-gift-card-product-result.json", httpClient, 200,
             "{products(filter:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-gift-card-product-result.json", httpClient, 200,
@@ -467,12 +467,6 @@ public class ProductImplTest {
 
         Assert.assertNotNull("Product model is not null", productModel);
         Assert.assertTrue(productModel.isGiftCardProduct());
-
-        if (hasStagedData) {
-            Assert.assertTrue("The product has staged data", productModel.isStaged());
-        } else {
-            Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
-        }
     }
 
     @Test

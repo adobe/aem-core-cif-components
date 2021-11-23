@@ -39,9 +39,4 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
     public void testBundleProduct() throws IOException {
         testBundleProductImpl(true);
     }
-
-    @Override
-    public void testGiftCardProduct() throws IOException {
-        testGiftCardProductImpl(true);
-    }
 }
