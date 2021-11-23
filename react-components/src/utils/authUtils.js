@@ -15,9 +15,31 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import { ApolloLink } from '@apollo/client';
 import { checkCookie, cookieValue } from './cookieUtils';
+import { checkItem, getJsonItem } from './localStorageUtils';
+
+import BrowserPersistence from '@magento/peregrine/lib/util/simplePersistence';
+
+const SIGN_IN_TOKEN_KEY = BrowserPersistence.KEY + '__signin_token';
+
+const getAuthToken = () => {
+    let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
+    if (checkItem(SIGN_IN_TOKEN_KEY)) {
+        const singInTokenJson = getJsonItem(SIGN_IN_TOKEN_KEY);
+
+        if (singInTokenJson) {
+            const timestamp = new Date().getTime();
+            if (timestamp - singInTokenJson.timeStored < singInTokenJson.ttl * 1000) {
+                token = singInTokenJson.value.replace(/"/g, '');
+            }
+        }
+    }
+
+    return token;
+};
 
 const authLink = new ApolloLink((operation, forward) => {
-    let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
+    const token = getAuthToken();
+
     if (token.length > 0) {
         operation.setContext(({ headers }) => ({
             headers: {
@@ -30,4 +52,4 @@ const authLink = new ApolloLink((operation, forward) => {
     return forward(operation);
 });
 
-export { authLink as graphqlAuthLink };
+export { authLink as graphqlAuthLink, getAuthToken };

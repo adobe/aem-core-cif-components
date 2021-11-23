@@ -18,7 +18,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -37,16 +36,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
+import com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel.ProductCarouselBase;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
-import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier.EntityType;
-import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier.IdentifierType;
-import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
@@ -58,6 +52,8 @@ import com.adobe.cq.export.json.ExporterConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -66,16 +62,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Exporter(
     name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
     extensions = ExporterConstants.SLING_MODEL_EXTENSION)
-public class RelatedProductsImpl extends DataLayerComponent implements ProductCarousel {
+public class RelatedProductsImpl extends ProductCarouselBase implements ProductCarousel {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/relatedproducts/v1/relatedproducts";
     private static final Logger LOGGER = LoggerFactory.getLogger(RelatedProductsImpl.class);
 
     protected static final String PN_PRODUCT = "product";
     protected static final String PN_RELATION_TYPE = "relationType";
-
-    @Self
-    private SlingHttpServletRequest request;
 
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -94,7 +87,6 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
 
     private Page productPage;
     private AbstractProductsRetriever productsRetriever;
-    private Locale locale;
     private RelationType relationType;
     private String productSku;
 
@@ -108,8 +100,6 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
         if (productPage == null) {
             productPage = currentPage;
         }
-
-        locale = productPage.getLanguage(false);
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
@@ -154,11 +144,10 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
         List<ProductListItem> carouselProductList = new ArrayList<>();
         for (ProductInterface product : products) {
             try {
-                Price price = new PriceImpl(product.getPriceRange(), locale);
-                carouselProductList.add(new ProductListItemImpl(product.getSku(), product.getUrlKey(),
-                    product.getName(), price, product.getThumbnail().getUrl(), product
-                        .getThumbnail().getLabel(), productPage, null, request,
-                    urlProvider, this.getId(), product.getStaged()));
+                ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), productPage, request, urlProvider)
+                    .product(product)
+                    .image(product.getThumbnail());
+                carouselProductList.add(builder.build());
             } catch (Exception e) {
                 LOGGER.error("Failed to instantiate product " + (product != null ? product.getSku() : null), e);
             }
@@ -177,11 +166,21 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
         return TitleTypeProvider.getTitleType(currentStyle, properties);
     }
 
+    @JsonProperty("productIdentifiers")
+    public List<CommerceIdentifier> getProductCommerceIdentifiers() {
+        return getProducts().stream()
+            .map(ProductListItem::getSKU)
+            .map(ListItemIdentifier::new)
+            .collect(Collectors.toList());
+    }
+
     @Nonnull
     @Override
     public List<ProductListItem> getProductIdentifiers() {
-        return getProducts().stream().map(p -> new ProductListItemImpl(
-            CommerceIdentifierImpl.fromProductSku(p.getSKU()), getId(), productPage))
+        return getProducts().stream()
+            .map(ProductListItem::getSKU)
+            .map(ListItemIdentifier::new)
+            .map(id -> new ProductListItemImpl(id, getId(), productPage))
             .collect(Collectors.toList());
     }
 
@@ -194,7 +193,13 @@ public class RelatedProductsImpl extends DataLayerComponent implements ProductCa
         return relationType;
     }
 
+    /**
+     * Returns the {@link CommerceIdentifier} as part of the JSON interface of the component.
+     *
+     * @return
+     */
+    @JsonSerialize(as = CommerceIdentifier.class)
     public CommerceIdentifier getCommerceIdentifier() {
-        return new CommerceIdentifierImpl(productSku, IdentifierType.SKU, EntityType.PRODUCT);
+        return new ListItemIdentifier(productSku);
     }
 }

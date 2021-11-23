@@ -23,7 +23,7 @@
                     jcr:lastModified="{Date}2020-05-20T13:34:05.989+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;p>This example page displays the two components used to display product search results.&lt;br>&#xa;&lt;/p>&#xa;"
                     textIsRich="true"/>
                 <heading_searchbar
@@ -33,7 +33,7 @@
                     jcr:lastModified="{Date}2019-02-15T19:09:39.787+01:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;h1>Search&lt;sub>v1&lt;/sub>&lt;/h1>"
                     textIsRich="true"/>
                 <text_searchbar
@@ -43,7 +43,7 @@
                     jcr:lastModified="{Date}2020-06-04T11:34:13.727+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;p>The Searchbar component is a server-side component written in HTL, displaying a search input. After submitting the search term, the component redirects to the search results page defined by the inherited &lt;b>cq:cifSearchResultsPage&lt;/b>&amp;nbsp;property (defined at the root of the site) and passes the search term as a query parameter. In this example, the results are displayed on that same page in the &lt;b>Searchresults&lt;/b> component shown below. Just enter any text and press enter to display some sample search results.&lt;br>&#xa;&lt;/p>&#xa;"
                     textIsRich="true"/>
                 <teaser_searchbar
@@ -70,7 +70,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     jcr:title="Example"
-                    sling:resourceType="core/wcm/components/title/v2/title"
+                    sling:resourceType="core-components-examples/components/title"
                     type="h2"/>
                 <demo_searchbar
                     jcr:created="{Date}2018-12-07T12:55:03.496+01:00"
@@ -113,7 +113,7 @@
                     jcr:lastModified="{Date}2019-02-15T19:09:39.787+01:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;h1>Searchresults&lt;sub>v1&lt;/sub>&lt;/h1>"
                     textIsRich="true"/>
                 <text1_searchresults
@@ -123,7 +123,7 @@
                     jcr:lastModified="{Date}2020-06-04T11:34:55.642+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     text="&lt;p>The Searchresults component is a server-side component written in HTL, displaying product search results in a gallery view. The search query term is read from request parameters of the page and the data is retrieved from Magento via GraphQL. The main usage of this component would be on a search result page.&lt;/p>&#xa;&lt;p>The component can be configured:&lt;/p>&#xa;&lt;ul>&#xa;&lt;li>to show a given number of products per page.&lt;/li>&#xa;&lt;li>to dynamically load products prices in an additional client-side (browser) query after page load.&lt;/li>&#xa;&lt;/ul>&#xa;&lt;p>Note that due to the limited amount of sample data, the search term, the filters and the pagination do not have any effect on this example page, but you can see in the URL how these search parameters would be passed as query parameters.&lt;/p>&#xa;&lt;p>When displaying the sample data, the clientlib part of the component will also issue a client-side GraphQL query to refetch the products prices on page load. This demonstrates how prices can be refreshed upon page load even if the rest of the page data may be cached in the AEM dispatcher.&lt;/p>&#xa;"
                     textIsRich="true"/>
                 <teaser_searchresults
@@ -150,7 +150,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     jcr:title="Example"
-                    sling:resourceType="core/wcm/components/title/v2/title"
+                    sling:resourceType="core-components-examples/components/title"
                     type="h2"/>
                 <demo_searchresults
                     jcr:created="{Date}2018-12-07T12:55:03.496+01:00"
@@ -191,7 +191,7 @@
                     jcr:lastModified="{Date}2020-05-20T13:37:11.609+02:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core/wcm/components/text/v2/text"
+                    sling:resourceType="core-components-examples/components/text"
                     textIsRich="true"/>
             </responsivegrid>
         </root>

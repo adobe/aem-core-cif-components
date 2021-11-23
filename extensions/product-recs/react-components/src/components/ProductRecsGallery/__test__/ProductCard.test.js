@@ -97,6 +97,32 @@ describe('ProductCard', () => {
         expect(eventListener).toHaveBeenCalledTimes(1);
     });
 
+    it('button redirects to the product page', () => {
+        product = {
+            sku: 'my-sku',
+            name: 'My Product',
+            type: 'configurable',
+            productId: 123,
+            currency: 'CHF',
+            prices: {
+                minimum: {
+                    final: 342.23
+                },
+                maximum: {
+                    final: 342.23
+                }
+            },
+            smallImage: {
+                url: 'http://localhost/product.png'
+            }
+        };
+
+        const { queryByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
+
+        fireEvent.click(queryByRole('button', { name: 'Add to Cart' }));
+        expect(mse.publish.recsItemClick).toHaveBeenCalledWith(unit.unitId, product.productId);
+    });
+
     it('redirects to the product page', () => {
         const { getByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
 

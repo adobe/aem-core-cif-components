@@ -136,7 +136,7 @@ jobs:
 
   karma:
     docker:
-      - image: circleci/node:lts-browsers
+      - image: circleci/node:lts-browsers@sha256:4e85b1aa632b9f5a0b9d6247485a9b151f953b2ff588c649aa5dce08b3f6d7d5
     steps:
       - checkout
       - run:
@@ -160,7 +160,7 @@ jobs:
 
   jest:
     docker:
-      - image: circleci/node:lts-browsers
+      - image: circleci/node:lts-browsers@sha256:4e85b1aa632b9f5a0b9d6247485a9b151f953b2ff588c649aa5dce08b3f6d7d5
     steps:
       - checkout
       - run:
@@ -186,7 +186,7 @@ jobs:
 
   jest-extension:
     docker:
-      - image: circleci/node:lts-browsers
+      - image: circleci/node:lts-browsers@sha256:4e85b1aa632b9f5a0b9d6247485a9b151f953b2ff588c649aa5dce08b3f6d7d5
     steps:
       - checkout
       - run:

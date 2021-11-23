@@ -15,23 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 
-import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
-import com.google.common.collect.Sets;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 
-import static com.adobe.cq.commerce.core.components.services.urls.UrlProvider.PAGE_PARAM;
-import static com.adobe.cq.commerce.core.components.services.urls.UrlProvider.URL_KEY_PARAM;
+public class CategoryPageWithUrlKey extends UrlFormatBase implements CategoryUrlFormat {
 
-public class CategoryPageWithUrlKey extends AbstractUrlFormat {
-    public static final UrlFormat INSTANCE = new CategoryPageWithUrlKey();
+    public static final CategoryUrlFormat INSTANCE = new CategoryPageWithUrlKey();
     public static final String PATTERN = "{{page}}.html/{{url_key}}.html";
 
     private CategoryPageWithUrlKey() {
@@ -39,29 +31,26 @@ public class CategoryPageWithUrlKey extends AbstractUrlFormat {
     }
 
     @Override
-    public String format(Map<String, String> parameters) {
-        removeEmptyValues(parameters);
-        String urlKey = getUrlKey(parameters);
-        return parameters.getOrDefault(PAGE_PARAM, "{{" + PAGE_PARAM + "}}") + HTML_EXTENSION + "/" +
-            urlKey + HTML_EXTENSION;
+    public String format(Params parameters) {
+        return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
+            + HTML_EXTENSION_AND_SUFFIX
+            + StringUtils.defaultIfEmpty(getUrlKey(parameters.getUrlPath(), parameters.getUrlKey()), "{{url_key}}")
+            + HTML_EXTENSION;
     }
 
     @Override
-    public Map<String, String> parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap) {
+    public Params parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap) {
+        Params params = new Params();
+
         if (requestPathInfo == null) {
-            return Collections.emptyMap();
+            return params;
         }
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put(PAGE_PARAM, removeJcrContent(requestPathInfo.getResourcePath()));
+
+        params.setPage(removeJcrContent(requestPathInfo.getResourcePath()));
         String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
         if (StringUtils.isNotBlank(suffix)) {
-            parameters.put(URL_KEY_PARAM, suffix);
+            params.setUrlKey(suffix);
         }
-        return parameters;
-    }
-
-    @Override
-    public Set<String> getParameterNames() {
-        return Sets.newHashSet(PAGE_PARAM, URL_KEY_PARAM);
+        return params;
     }
 }

@@ -37,8 +37,4 @@ public class CommerceIdentifierImpl implements CommerceIdentifier {
     public EntityType getEntityType() {
         return entityType;
     }
-
-    public static CommerceIdentifier fromProductSku(String sku) {
-        return new CommerceIdentifierImpl(sku, IdentifierType.SKU, EntityType.PRODUCT);
-    }
 }

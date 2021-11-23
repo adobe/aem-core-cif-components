@@ -18,19 +18,19 @@
 
 {categoryList(filters:{category_uid:{eq:"MTI=="}}){uid,description,name,image,product_count,meta_description,meta_keywords,meta_title,url_key,url_path,staged}}
 
-{products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged},aggregations{options{count,label,value},attribute_code,count,label}}}
+{products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged},aggregations{options{count,label,value},attribute_code,count,label}}}
 
 {products(filter:{sku:{eq:"MJ01"}}){items{__typename,sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,meta_description,meta_keyword,meta_title,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position},categories{__typename,uid,name,image},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},configurable_options{label,attribute_code,values{value_index,label}},variants{attributes{code,value_index},product{sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,color,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position},categories{__typename,uid,name,image},staged}}},... on GroupedProduct{items{position,qty,product{__typename,sku,name,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged}}}
 
-{products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
+{products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
 
-{products(filter:{sku:{in:["NOT-FOUND","24-MG01","MJ01","faultyproduct","WJ01"]}}){items{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
+{products(filter:{sku:{in:["NOT-FOUND","24-MG01","MJ01","faultyproduct","WJ01"]}}){items{__typename,sku,name,thumbnail{label,url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
 
 {customAttributeMetadata(attributes:[]){items{attribute_code,attribute_type,input_type}}}
 
-{products(search:"glove",currentPage:1,pageSize:6,filter:{},sort:{relevance:DESC}){total_count,items{__typename,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
+{products(search:"glove",currentPage:1,pageSize:6,filter:{},sort:{relevance:DESC}){total_count,items{__typename,sku,name,small_image{url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
 
-{products(search:"glove",currentPage:1,pageSize:6,filter:{category_id:{eq:"21"}},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
+{products(search:"glove",currentPage:1,pageSize:6,filter:{category_id:{eq:"21"}},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
 
 {categoryList(filters:{url_key:{eq:"url_path"}}){uid}}
 
@@ -44,9 +44,11 @@
 
 {categoryList(filters:{category_uid:{eq:"Mg=="}}){uid,name,url_path,position,include_in_menu,children{uid,name,url_path,position,include_in_menu,children{uid,name,url_path,position,include_in_menu,children{uid,name,url_path,position,include_in_menu,children{uid,name,url_path,position,include_in_menu,children{uid,name,url_path,position,include_in_menu}}}}}}}
 
-{products(filter:{sku:{eq:"MJ01"}}){items{__typename,name,image{url,label},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,image{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
+{products(filter:{sku:{eq:"MJ01"}}){items{__typename,name,image{url,label},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,image{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
 
-{products(filter:{sku:{eq:"VVP01"}}){items{__typename,name,image{url,label},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,image{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
+{products(filter:{sku:{eq:"VVP01"}}){items{__typename,name,image{url,label},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,image{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
+
+{products(filter:{sku:{eq:"sku"}}){items{__typename,name,image{url,label},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,image{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}
 
 {products(filter:{url_key:{eq:"no-asset"}}){items{__typename,sku,url_key}}}
 
@@ -64,23 +66,23 @@
 
 {categoryList(filters:{category_uid:{in:["uid-5","uid-6"]}}){uid,url_key,url_path}}
 
-{products(filter:{sku:{eq:"24-MG01"}}){items{__typename,related_products{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on ConfigurableProduct{variants{product{sku}}},description{html}}}}}
+{products(filter:{sku:{eq:"24-MG01"}}){items{__typename,related_products{__typename,sku,name,thumbnail{label,url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on ConfigurableProduct{variants{product{sku}}},description{html}}}}}
 
 {products(filter:{url_key:{eq:"endurance-watch"}}){items{__typename,sku,url_key}}}
 
-{products(filter:{sku:{eq:"MJ01"}}){items{__typename,upsell_products{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}
+{products(filter:{sku:{eq:"MJ01"}}){items{__typename,upsell_products{__typename,sku,name,thumbnail{label,url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}
 
-{products(filter:{sku:{eq:"24-MG01"}}){items{__typename,related_products{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}
+{products(filter:{sku:{eq:"24-MG01"}}){items{__typename,related_products{__typename,sku,name,thumbnail{label,url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}
 
-{products(filter:{sku:{eq:"MJ01"}}){items{__typename,crosssell_products{__typename,sku,name,thumbnail{label,url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}
+{products(filter:{sku:{eq:"MJ01"}}){items{__typename,crosssell_products{__typename,sku,name,thumbnail{label,url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}
 
 {categoryList(filters:{url_key:{eq:"running"}}){uid}}
 
 {categoryList(filters:{url_key:{eq:"category-1"}}){uid}}
 
-{products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,stock_status,staged},aggregations{options{count,label,value},attribute_code,count,label}}}
+{products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,stock_status,staged},aggregations{options{count,label,value},attribute_code,count,label}}}
 
-{products(currentPage:3,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
+{products(currentPage:3,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
 
 {categoryList(filters:{url_key:{eq:"men"}}){uid}}
 
@@ -90,7 +92,7 @@
 
 {products(filter:{sku:{eq:"MJ01"}}){items{__typename,sku,url_key,name,categories{__typename,uid,url_path,name,breadcrumbs{category_uid,category_url_path,category_name}}}}}
 
-{products(filter:{sku:{eq:"MJ01"}}){items{__typename,url_key,url_path}}}
+{products(filter:{sku:{eq:"MJ01"}}){items{__typename,url_key,url_path,url_rewrites{url}}}}
 
 {categoryList(filters:{url_key:{eq:"uid3"}}){uid}}
 
@@ -118,17 +120,17 @@
 
 {products(filter:{sku:{eq:"24-WG085_Group"}}){items{__typename,sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,meta_description,meta_keyword,meta_title,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position},categories{__typename,uid,name,image},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},configurable_options{label,attribute_code,values{value_index,label}},variants{attributes{code,value_index},product{sku,name,description{html},image{label,url},thumbnail{label,url},url_key,stock_status,color,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},media_gallery{__typename,disabled,url,label,position},categories{__typename,uid,name,image},staged}}},... on GroupedProduct{items{position,qty,product{__typename,sku,name,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged}}}
 
-{categoryList(filters:{category_uid:{eq:"MTI=="}}){uid,url_path,url_key}}
+{categoryList(filters:{category_uid:{eq:"MTI=="}}){url_path,url_key}}
 
-{categoryList(filters:{category_uid:{eq:"uid-5"}}){uid,url_path,url_key}}
+{categoryList(filters:{category_uid:{eq:"uid-5"}}){url_path,url_key}}
 
 {categoryList(filters:{category_uid:{eq:"MTI=="}}){uid,description,name,image,product_count,meta_description,meta_keywords,meta_title,url_key,url_path,staged}}
 
-{products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged},aggregations{options{count,label,value},attribute_code,count,label}}}
+{products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged},aggregations{options{count,label,value},attribute_code,count,label}}}
 
-{products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged,created_at,stock_status,staged},aggregations{options{count,label,value},attribute_code,count,label}}}
+{products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged,created_at,stock_status,staged},aggregations{options{count,label,value},attribute_code,count,label}}}
 
-{products(currentPage:3,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged},aggregations{options{count,label,value},attribute_code,count,label}}}
+{products(currentPage:3,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},staged},aggregations{options{count,label,value},attribute_code,count,label}}}
 
 {products(search:"",pageSize:2,currentPage:1){total_count,items{__typename,url_key,sku,updated_at,created_at}}}
 
@@ -138,31 +140,31 @@
 
 {products(search:"",pageSize:2,currentPage:999){total_count,items{__typename,url_key,sku,updated_at,created_at}}}
 
-{categories(filters:{category_uid:{eq:"UID2"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID2"}}){items{url_key,url_path,uid,children{uid},created_at,updated_at}}}
 
-{categories(filters:{category_uid:{eq:"UID3"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID3"}}){items{url_key,url_path,uid,children{uid},created_at,updated_at}}}
 
-{categories(filters:{category_uid:{eq:"UID31"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID31"}}){items{url_key,url_path,uid,children{uid},created_at,updated_at}}}
 
-{categories(filters:{category_uid:{eq:"UID32"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID32"}}){items{url_key,url_path,uid,children{uid},created_at,updated_at}}}
 
-{categories(filters:{category_uid:{eq:"UID4"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID4"}}){items{url_key,url_path,uid,children{uid},created_at,updated_at}}}
 
-{categories(filters:{category_uid:{eq:"UID41"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID41"}}){items{url_key,url_path,uid,children{uid},created_at,updated_at}}}
 
-{categories(filters:{category_uid:{eq:"UID42"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID42"}}){items{url_key,url_path,uid,children{uid},created_at,updated_at}}}
 
-{categories(filters:{category_uid:{eq:"UID5"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID5"}}){items{url_key,url_path,uid,children{uid},created_at,updated_at}}}
 
-{categories(filters:{category_uid:{eq:"UID51"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID51"}}){items{url_key,url_path,uid,children{uid},created_at,updated_at}}}
 
-{categories(filters:{category_uid:{eq:"UID52"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
+{categories(filters:{category_uid:{eq:"UID52"}}){items{url_key,url_path,uid,children{uid},created_at,updated_at}}}
 
-{categories(filters:{category_uid:{eq:"ERROR"}}){items{url_key,url_path,uid,created_at,updated_at,children{uid}}}}
+{categories(filters:{category_uid:{eq:"ERROR"}}){items{url_key,url_path,uid,children{uid},created_at,updated_at}}}
 
-{products(filter:{sku:{eq:"MJ02"}}){items{__typename,url_key,url_path}}}
+{products(filter:{sku:{eq:"MJ02"}}){items{__typename,url_key,url_path,url_rewrites{url}}}}
 
-{categoryList(filters:{category_uid:{eq:"uid-99"}}){uid,url_path,url_key}}
+{categoryList(filters:{category_uid:{eq:"uid-99"}}){url_path,url_key}}
 
 {categoryList(filters:{url_key:{eq:"exist"}}){uid}}
 
