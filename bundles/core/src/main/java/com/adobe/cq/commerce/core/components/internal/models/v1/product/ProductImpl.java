@@ -89,6 +89,9 @@ import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManagerFactory;
 import com.day.cq.wcm.api.designer.Style;
+import com.day.cq.wcm.api.policies.ContentPolicy;
+import com.day.cq.wcm.api.policies.ContentPolicyManager;
+import com.day.cq.wcm.commons.policy.ContentPolicyStyle;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -149,10 +152,18 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @PostConstruct
     protected void initModel() {
+        // When the Model is created by the CatalogPageNotFoundFilter, script variables will not yet be available. In this case we have to
+        // initialise some fields manually, which is necessary as the Model is cache=true and will not be recreated during rendering.
         if (currentPage == null) {
             currentPage = pageManagerFactory.getPageManager(request.getResourceResolver())
                 .getContainingPage(request.getResource());
         }
+        if (currentStyle == null) {
+            ContentPolicyManager contentPolicyManager = request.getResourceResolver().adaptTo(ContentPolicyManager.class);
+            ContentPolicy policy = contentPolicyManager.getPolicy(resource, request);
+            currentStyle = new ContentPolicyStyle(policy, null);
+        }
+
         // Get product selection from dialog
         ValueMap properties = request.getResource().getValueMap();
         String sku = properties.get(SELECTION_PROPERTY, String.class);
@@ -168,8 +179,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
             if (StringUtils.isNotBlank(sku)) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
                 productRetriever.setIdentifier(sku);
-                loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, Utils.getStyle(currentStyle, PN_LOAD_CLIENT_PRICE,
-                    LOAD_CLIENT_PRICE_DEFAULT));
+                loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
             } else if (isAuthor) {
                 // In AEM Sites editor, load some dummy placeholder data for the component.
                 try {
@@ -183,7 +193,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         }
 
         locale = currentPage.getLanguage(false);
-        enableAddToWishListButton = Utils.getStyle(currentStyle, PN_STYLE_ENABLE_ADD_TO_WISHLIST, Boolean.TRUE);
+        enableAddToWishListButton = currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Boolean.TRUE);
     }
 
     @Override

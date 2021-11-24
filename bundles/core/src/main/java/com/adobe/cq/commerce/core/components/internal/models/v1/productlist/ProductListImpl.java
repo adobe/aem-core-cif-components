@@ -101,8 +101,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             properties = request.getResource().getValueMap();
         }
         // read properties
-        showTitle = properties.get(PN_SHOW_TITLE, Utils.getStyle(currentStyle, PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
-        showImage = properties.get(PN_SHOW_IMAGE, Utils.getStyle(currentStyle, PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
+        showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
+        showImage = properties.get(PN_SHOW_IMAGE, currentStyle.get(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
         isAuthor = wcmMode != null && !wcmMode.isDisabled();
 
         String currentPageIndexCandidate = request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID);

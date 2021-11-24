@@ -26,6 +26,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.models.factory.ModelFactory;
 import org.apache.sling.scripting.api.BindingsValuesProvider;
 import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
@@ -47,6 +48,8 @@ import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.day.cq.wcm.api.policies.ContentPolicy;
+import com.day.cq.wcm.api.policies.ContentPolicyManager;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.junit.Assert.assertEquals;
@@ -70,6 +73,8 @@ public class CatalogPageNotFoundFilterTest {
     private SightlyWCMMode wcmMode;
     private MockSlingHttpServletRequest request;
     private MockSlingHttpServletResponse response;
+    @Mock
+    private ContentPolicy contentPolicy;
 
     @Before
     public void setup() throws IOException {
@@ -97,6 +102,10 @@ public class CatalogPageNotFoundFilterTest {
         aemContext.registerService(BindingsValuesProvider.class, bindings -> bindings.put("wcmmode", wcmMode));
         when(wcmMode.isDisabled()).thenReturn(true);
 
+        ContentPolicyManager contentPolicyManager = mock(ContentPolicyManager.class);
+        aemContext.registerAdapter(ResourceResolver.class, ContentPolicyManager.class, contentPolicyManager);
+        when(contentPolicyManager.getPolicy(any(), any())).thenReturn(contentPolicy);
+
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
             "{products(filter:{sku:{eq:\"MJ01\"}}");
         Utils.setupHttpResponse("graphql/magento-graphql-product-sku.json", httpClient, HttpStatus.SC_OK,
@@ -105,7 +114,6 @@ public class CatalogPageNotFoundFilterTest {
             "{categoryList(filters:{url_key:{eq:\"jackets-men\"}}");
         Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid:{eq:\"MTI==\"}}");
-
         Utils.setupHttpResponse(null, httpClient, HttpStatus.SC_NOT_FOUND, "url_key:{eq:\"does-not-exist\"}}");
     }
 
