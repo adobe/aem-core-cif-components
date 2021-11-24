@@ -16,12 +16,10 @@
 package com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.productrecommendations;
 
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.scripting.api.BindingsValuesProvider;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.day.cq.wcm.api.designer.Style;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -29,10 +27,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ProductRecommendationsImplTest {
 
