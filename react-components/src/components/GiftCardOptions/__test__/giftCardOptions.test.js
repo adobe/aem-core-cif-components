@@ -37,10 +37,8 @@ describe('GiftCardProductOptions', () => {
 
     it('renders the component with sku', async () => {
         const gitfCardProductOptionsContainer = document.createElement('div');
-        gitfCardProductOptionsContainer.dataset.sku = 'gift-card';
-        gitfCardProductOptionsContainer.id = 'gift-card-product-options';
 
-        const { asFragment } = render(<GiftCardProductOptions />, {
+        const { asFragment } = render(<GiftCardProductOptions sku="gift-card" />, {
             config: config,
             container: document.body.appendChild(gitfCardProductOptionsContainer),
             mocks: [mockResponse]
@@ -57,10 +55,8 @@ describe('GiftCardProductOptions', () => {
         });
 
         const gitfCardProductOptionsContainer = document.createElement('div');
-        gitfCardProductOptionsContainer.dataset.sku = 'gift-card';
-        gitfCardProductOptionsContainer.id = 'gift-card-product-options';
 
-        const { asFragment, getByRole, getByLabelText } = render(<GiftCardProductOptions />, {
+        const { asFragment, getByRole, getByLabelText } = render(<GiftCardProductOptions sku="gift-card" />, {
             config: config,
             container: document.body.appendChild(gitfCardProductOptionsContainer),
             mocks: [mockResponse, mockAddToCartMutation]

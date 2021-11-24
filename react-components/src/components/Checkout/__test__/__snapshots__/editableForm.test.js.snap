@@ -292,6 +292,151 @@ exports[`<EditableForm /> renders the payments form if countries are loaded 2`] 
 </DocumentFragment>
 `;
 
+exports[`<EditableForm /> renders the payments form if countries are loaded 3`] = `
+<DocumentFragment>
+  <form
+    class="root"
+  >
+    <div
+      class="body"
+    >
+      <h2
+        class="heading"
+      >
+        Billing Information
+      </h2>
+      <div
+        class="braintree"
+      >
+        <span
+          class="root"
+          style="--iconsBefore: 0; --iconsAfter: 1;"
+        >
+          <span
+            class="input"
+          >
+            <select
+              class="input"
+              name="payment_method"
+            >
+              <option
+                value="braintree"
+              >
+                Credit Card (Braintree)
+              </option>
+              <option
+                value="checkmo"
+              >
+                Check / Money order
+              </option>
+            </select>
+          </span>
+          <span
+            class="before"
+          />
+          <span
+            class="after"
+          >
+            <span
+              class="root"
+            >
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="6 9 12 15 18 9"
+                />
+              </svg>
+            </span>
+          </span>
+        </span>
+        <p
+          class="root"
+        />
+      </div>
+      <div
+        class="address_check"
+      >
+        <label
+          class="root"
+        >
+          <span
+            class="icon"
+          >
+            <span
+              class="root"
+            >
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="20 6 9 17 4 12"
+                />
+              </svg>
+            </span>
+          </span>
+          <input
+            checked=""
+            class="input"
+            name="addresses_same"
+            type="checkbox"
+          />
+          <span
+            class="label"
+          >
+            Billing address same as shipping address
+          </span>
+        </label>
+        <p
+          class="root"
+        />
+      </div>
+    </div>
+    <div
+      class="footer"
+    >
+      <button
+        class="root_normalPriority"
+        type="button"
+      >
+        <span
+          class="content"
+        >
+          Cancel
+        </span>
+      </button>
+      <button
+        class="root_highPriority"
+        disabled=""
+        type="submit"
+      >
+        <span
+          class="content"
+        >
+          Use Payment Method
+        </span>
+      </button>
+    </div>
+  </form>
+</DocumentFragment>
+`;
+
 exports[`<EditableForm /> renders the shipping method form if countries are loaded 1`] = `
 <DocumentFragment>
   <form

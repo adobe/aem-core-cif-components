@@ -13,15 +13,11 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-
 import LoadingIndicator from '../LoadingIndicator';
-import { useAwaitQuery } from '../../utils/hooks';
-import GIFT_CARD_PRODUCT_QUERY from '../../queries/query_gift_card_product.graphql';
-import { useConfigContext } from '../../context/ConfigContext';
 import Price from '../Price';
-
+import useGiftCardOptions from './useGiftCardOptions';
 const OPEN_AMOUNT = 'open_amount';
 
 const messages = defineMessages({
@@ -51,99 +47,14 @@ const messages = defineMessages({
     }
 });
 
-const GiftCartOptions = () => {
-    const [giftCardState, setGiftCardState] = useState(null);
-    const giftCardProductQuery = useAwaitQuery(GIFT_CARD_PRODUCT_QUERY);
+const GiftCartOptions = props => {
+    const { sku } = props;
+    const [
+        giftCardState,
+        { changeAmountSelection, changeCustomAmount, changeOptionValue, changeQuantity, canAddToCart, addToCart }
+    ] = useGiftCardOptions({ sku });
 
     const { formatMessage } = useIntl();
-    const {
-        mountingPoints: { giftCardProductOptionsContainer }
-    } = useConfigContext();
-    const sku = document.querySelector(giftCardProductOptionsContainer)?.dataset?.sku;
-
-    useEffect(() => {
-        const fetchGiftCardOptions = async () => {
-            if (!sku) {
-                console.error('SKU is not present in the dataset of mountpoint element');
-                return;
-            }
-            const { data, error } = await giftCardProductQuery({ variables: { sku }, fetchPolicy: 'network-only' });
-
-            if (error) {
-                throw new Error(error);
-            }
-
-            const giftCardOptions = data.products.items[0];
-            const giftCardValues = {
-                quantity: 1,
-                open_amount: giftCardOptions.giftcard_amounts.length === 0,
-                custom_amount: giftCardOptions.open_amount_min,
-                custom_amount_uid: giftCardOptions.gift_card_options.find(
-                    o => o.title.toLowerCase() === 'custom giftcard amount'
-                )?.value.uid,
-                selected_amount: '',
-                entered_options: giftCardOptions.gift_card_options
-                    .filter(o => o.title.toLowerCase() !== 'custom giftcard amount')
-                    .reduce(
-                        (prev, curr) => ({
-                            ...prev,
-                            [curr.value.uid]: ''
-                        }),
-                        {}
-                    )
-            };
-
-            setGiftCardState({ giftCardOptions, giftCardValues });
-        };
-
-        fetchGiftCardOptions();
-    }, []);
-
-    const changeAmountSelection = e => {
-        const { value } = e.target;
-        setGiftCardState({
-            ...giftCardState,
-            giftCardValues: {
-                ...giftCardState.giftCardValues,
-                open_amount: value === OPEN_AMOUNT,
-                selected_amount: value
-            }
-        });
-    };
-
-    const changeCustomAmount = e => {
-        const { value } = e.target;
-        setGiftCardState({
-            ...giftCardState,
-            giftCardValues: {
-                ...giftCardState.giftCardValues,
-                custom_amount: value
-            }
-        });
-    };
-
-    const changeOptionValue = (uid, value) => {
-        setGiftCardState({
-            ...giftCardState,
-            giftCardValues: {
-                ...giftCardState.giftCardValues,
-                entered_options: {
-                    ...giftCardState.giftCardValues.entered_options,
-                    [uid]: value
-                }
-            }
-        });
-    };
-
-    const changeQuantity = e => {
-        setGiftCardState({
-            ...giftCardState,
-            giftCardValues: {
-                ...giftCardState.giftCardValues,
-                quantity: e.target.value
-            }
-        });
-    };
 
     if (giftCardState === null) {
         return <LoadingIndicator />;
@@ -164,50 +75,6 @@ const GiftCartOptions = () => {
         },
         giftCardValues: { quantity, open_amount, custom_amount, custom_amount_uid, selected_amount, entered_options }
     } = giftCardState;
-
-    const canAddToCart = () => {
-        if (open_amount) {
-            if (
-                Math.fround(open_amount_min) > Math.fround(custom_amount) ||
-                Math.fround(custom_amount) > Math.fround(open_amount_max)
-            ) {
-                return false;
-            }
-        } else {
-            if (selected_amount === '') {
-                return false;
-            }
-        }
-
-        for (const option of gift_card_options.filter(o => o.required)) {
-            if (entered_options[option.value.uid].trim() === '') {
-                return false;
-            }
-        }
-
-        return true;
-    };
-
-    const addToCart = () => {
-        const productData = {
-            sku,
-            virtual: false,
-            giftCard: true,
-            quantity: quantity,
-            entered_options: Object.entries(entered_options).map(o => ({ uid: o[0], value: o[1] }))
-        };
-
-        if (open_amount) {
-            productData.entered_options.push({ uid: custom_amount_uid, value: custom_amount + '' });
-        } else {
-            productData.selected_options = [selected_amount];
-        }
-
-        const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-            detail: [productData]
-        });
-        document.dispatchEvent(customEvent);
-    };
 
     return (
         <>
