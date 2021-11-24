@@ -41,6 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcollection.ProductCollectionImpl;
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.CategoryStorefrontContextImpl;
@@ -100,8 +101,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             properties = request.getResource().getValueMap();
         }
         // read properties
-        showTitle = properties.get(PN_SHOW_TITLE, getOptionalStyle(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
-        showImage = properties.get(PN_SHOW_IMAGE, getOptionalStyle(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
+        showTitle = properties.get(PN_SHOW_TITLE, Utils.getStyle(currentStyle, PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
+        showImage = properties.get(PN_SHOW_IMAGE, Utils.getStyle(currentStyle, PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
         isAuthor = wcmMode != null && !wcmMode.isDisabled();
 
         String currentPageIndexCandidate = request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID);

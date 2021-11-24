@@ -22,9 +22,17 @@ import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.day.cq.wcm.api.designer.Style;
+import com.drew.lang.annotations.NotNull;
+import com.drew.lang.annotations.Nullable;
+
 public class Utils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
+
+    public static <T> T getStyle(@Nullable Style style, @NotNull String property, T defaultValue) {
+        return style != null ? style.get(property, defaultValue) : defaultValue;
+    }
 
     /**
      * Builds a NumberFormat instance used for formatting prices based on the given

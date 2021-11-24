@@ -27,6 +27,7 @@ import ProductCard from './ProductCard';
 const ProductRecsGallery = props => {
     const mse = useStorefrontEvents();
     const rendered = useRef(false);
+    const { addToWishListButtonEnabled = true } = props;
     const { loading, units } = useRecommendations(props);
     const { observeElement } = useVisibilityObserver();
 
@@ -48,7 +49,12 @@ const ProductRecsGallery = props => {
                 <h2 className={classes.title}>{unit.unitName || props.title}</h2>
                 <div className={classes.container} ref={e => observeElement(e, isVisible)}>
                     {unit.products.map(product => (
-                        <ProductCard unit={unit} product={product} key={product.sku} />
+                        <ProductCard
+                            unit={unit}
+                            product={product}
+                            key={product.sku}
+                            addToWishListButtonEnabled={addToWishListButtonEnabled}
+                        />
                     ))}
                 </div>
             </>
@@ -72,7 +78,8 @@ ProductRecsGallery.propTypes = {
     excludeMinPrice: PropTypes.string,
     includeMaxPrice: PropTypes.string,
     includeMinPrice: PropTypes.string,
-    preconfigured: PropTypes.bool
+    preconfigured: PropTypes.bool,
+    addToWishListButtonEnabled: PropTypes.bool
 };
 
 export default ProductRecsGallery;

@@ -25,7 +25,8 @@
         data-include-min-price="${recommendations.priceRangeInclusions.minPrice}"
         data-include-max-price="${recommendations.priceRangeInclusions.maxPrice}"
         data-exclude-min-price="${recommendations.priceRangeExclusions.minPrice}"
-        data-exclude-max-price="${recommendations.priceRangeExclusions.maxPrice}">
+        data-exclude-max-price="${recommendations.priceRangeExclusions.maxPrice}"
+        data-add-to-wish-list-enabled="${recommendations.addToWishListButtonEnabled}">
 </div>
 
 <sly data-sly-call="${templates.placeholder @ isEmpty = wcmmode.edit}" />

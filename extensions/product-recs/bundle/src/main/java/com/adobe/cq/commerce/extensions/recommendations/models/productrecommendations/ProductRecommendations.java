@@ -15,12 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.extensions.recommendations.models.productrecommendations;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
 import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
 
 /**
  * Sling model for a product recommendation component
  * The model holds all the configured options
  */
+@ConsumerType
 public interface ProductRecommendations {
 
     boolean getPreconfigured();
@@ -36,5 +39,14 @@ public interface ProductRecommendations {
     PriceRange getPriceRangeInclusions();
 
     PriceRange getPriceRangeExclusions();
+
+    /**
+     * Returns {@code true} when the product recommendations component should show an Add to Wish List button.
+     *
+     * @return {@code true} when the Add to Wish List button is enabled, {@code false} otherwise
+     */
+    default boolean getAddToWishListButtonEnabled() {
+        return true;
+    }
 
 }

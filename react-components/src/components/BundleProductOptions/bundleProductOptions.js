@@ -33,7 +33,7 @@ const BundleProductOptions = () => {
     const {
         mountingPoints: { bundleProductOptionsContainer }
     } = useConfigContext();
-    const sku = document.querySelector(bundleProductOptionsContainer)?.dataset?.sku;
+    const { sku, addToWishlistEnabled = true } = document.querySelector(bundleProductOptionsContainer)?.dataset || {};
     const productId = document.querySelector('[data-cmp-is=product]')?.id;
     const [bundleState, setBundleState] = useState(null);
     const intl = useIntl();
@@ -297,19 +297,21 @@ const BundleProductOptions = () => {
                         <span>{intl.formatMessage({ id: 'product:add-item', defaultMessage: 'Add to Cart' })}</span>
                     </span>
                 </button>
-                <button
-                    className="button__root_normalPriority button__root clickable__root"
-                    type="button"
-                    onClick={addToWishlist}>
-                    <span className="button__content">
-                        <span>
-                            {intl.formatMessage({
-                                id: 'product:add-to-wishlist',
-                                defaultMessage: 'Add to Wish List'
-                            })}
+                {addToWishlistEnabled && (
+                    <button
+                        className="button__root_normalPriority button__root clickable__root"
+                        type="button"
+                        onClick={addToWishlist}>
+                        <span className="button__content">
+                            <span>
+                                {intl.formatMessage({
+                                    id: 'product:add-to-wishlist',
+                                    defaultMessage: 'Add to Wish List'
+                                })}
+                            </span>
                         </span>
-                    </span>
-                </button>
+                    </button>
+                )}
             </section>
         </>
     );

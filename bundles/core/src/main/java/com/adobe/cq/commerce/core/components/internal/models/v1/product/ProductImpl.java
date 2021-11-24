@@ -47,6 +47,7 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.AssetDataImpl;
 import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryDataImpl;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.ProductStorefrontContextImpl;
@@ -106,6 +107,10 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
     private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
     private static final String SELECTION_PROPERTY = "selection";
+    /**
+     * Name of the boolean policy property indicating if the product component should show an add to wish list button or not.
+     */
+    private static final String PN_STYLE_ENABLE_ADD_TO_WISHLIST = "enableAddToWishList";
 
     @Self
     private SlingHttpServletRequest request;
@@ -136,6 +141,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private boolean usePlaceholderData = false;
     private boolean isAuthor = true;
     private String canonicalUrl;
+    private boolean enableAddToWishListButton = true;
 
     protected AbstractProductRetriever productRetriever;
 
@@ -162,7 +168,8 @@ public class ProductImpl extends DataLayerComponent implements Product {
             if (StringUtils.isNotBlank(sku)) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
                 productRetriever.setIdentifier(sku);
-                loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, getOptionalStyle(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+                loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, Utils.getStyle(currentStyle, PN_LOAD_CLIENT_PRICE,
+                    LOAD_CLIENT_PRICE_DEFAULT));
             } else if (isAuthor) {
                 // In AEM Sites editor, load some dummy placeholder data for the component.
                 try {
@@ -176,10 +183,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         }
 
         locale = currentPage.getLanguage(false);
-    }
-
-    protected final <T> T getOptionalStyle(String pn, T defaultValue) {
-        return currentStyle != null ? currentStyle.get(pn, defaultValue) : defaultValue;
+        enableAddToWishListButton = Utils.getStyle(currentStyle, PN_STYLE_ENABLE_ADD_TO_WISHLIST, Boolean.TRUE);
     }
 
     @Override
@@ -528,5 +532,10 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public ProductStorefrontContext getStorefrontContext() {
         return new ProductStorefrontContextImpl(productRetriever.fetchProduct(), resource);
+    }
+
+    @Override
+    public boolean getAddToWishListButtonEnabled() {
+        return enableAddToWishListButton;
     }
 }
