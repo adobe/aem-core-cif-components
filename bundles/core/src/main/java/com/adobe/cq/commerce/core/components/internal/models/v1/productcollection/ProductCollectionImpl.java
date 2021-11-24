@@ -25,6 +25,7 @@ import javax.annotation.PostConstruct;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -44,6 +45,9 @@ import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManagerFactory;
 import com.day.cq.wcm.api.designer.Style;
+import com.day.cq.wcm.api.policies.ContentPolicy;
+import com.day.cq.wcm.api.policies.ContentPolicyManager;
+import com.day.cq.wcm.commons.policy.ContentPolicyStyle;
 
 import static com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl.PAGE_SIZE_DEFAULT;
 
@@ -65,7 +69,8 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
 
     @Self
     protected SlingHttpServletRequest request;
-    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
+    @Self
+    @Via("resource")
     protected ValueMap properties;
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     protected Style currentStyle;
@@ -85,27 +90,27 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
 
     @PostConstruct
     private void baseInitModel() {
-        if (properties == null) {
-            properties = request.getResource().getValueMap();
-        }
+        // When the Model is created by the CatalogPageNotFoundFilter, script variables will not yet be available. In this case we have to
+        // initialise some fields manually, which is necessary as the Model is cache=true and will not be recreated during rendering.
         if (currentPage == null) {
             currentPage = pageManagerFactory.getPageManager(request.getResourceResolver())
                 .getContainingPage(request.getResource());
         }
+        if (currentStyle == null) {
+            ContentPolicyManager contentPolicyManager = request.getResourceResolver().adaptTo(ContentPolicyManager.class);
+            ContentPolicy policy = contentPolicyManager.getPolicy(resource, request);
+            currentStyle = new ContentPolicyStyle(policy, null);
+        }
 
-        navPageSize = properties.get(PN_PAGE_SIZE, getOptionalStyle(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
-        loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, getOptionalStyle(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
-        paginationType = properties.get(PN_PAGINATION_TYPE, getOptionalStyle(PN_PAGINATION_TYPE, PAGINATION_TYPE_DEFAULT));
+        navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
+        loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+        paginationType = properties.get(PN_PAGINATION_TYPE, currentStyle.get(PN_PAGINATION_TYPE, PAGINATION_TYPE_DEFAULT));
 
         // get product template page
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
         }
-    }
-
-    protected final <T> T getOptionalStyle(String pn, T defaultValue) {
-        return currentStyle != null ? currentStyle.get(pn, defaultValue) : defaultValue;
     }
 
     public Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {
