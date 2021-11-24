@@ -47,6 +47,7 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.AssetDataImpl;
 import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryDataImpl;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.ProductStorefrontContextImpl;
@@ -87,10 +88,7 @@ import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManagerFactory;
-import com.day.cq.wcm.api.designer.Style;
-import com.day.cq.wcm.api.policies.ContentPolicy;
-import com.day.cq.wcm.api.policies.ContentPolicyManager;
-import com.day.cq.wcm.commons.policy.ContentPolicyStyle;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -122,8 +120,10 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private Page currentPage;
     @OSGiService
     private UrlProvider urlProvider;
-    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
-    private Style currentStyle;
+    @ScriptVariable(
+        name = WCMBindingsConstants.NAME_CURRENT_STYLE,
+        injectionStrategy = InjectionStrategy.OPTIONAL)
+    private ValueMap currentStyle;
     @ScriptVariable(name = "wcmmode", injectionStrategy = InjectionStrategy.OPTIONAL)
     private SightlyWCMMode wcmMode;
     @SlingObject
@@ -158,9 +158,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
                 .getContainingPage(request.getResource());
         }
         if (currentStyle == null) {
-            ContentPolicyManager contentPolicyManager = request.getResourceResolver().adaptTo(ContentPolicyManager.class);
-            ContentPolicy policy = contentPolicyManager.getPolicy(resource, request);
-            currentStyle = new ContentPolicyStyle(policy, null);
+            currentStyle = Utils.getStyleProperties(request, resource);
         }
 
         // Get product selection from dialog

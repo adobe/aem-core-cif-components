@@ -32,6 +32,7 @@ import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
@@ -44,10 +45,7 @@ import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManagerFactory;
-import com.day.cq.wcm.api.designer.Style;
-import com.day.cq.wcm.api.policies.ContentPolicy;
-import com.day.cq.wcm.api.policies.ContentPolicyManager;
-import com.day.cq.wcm.commons.policy.ContentPolicyStyle;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
 
 import static com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl.PAGE_SIZE_DEFAULT;
 
@@ -72,8 +70,10 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
     @Self
     @Via("resource")
     protected ValueMap properties;
-    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
-    protected Style currentStyle;
+    @ScriptVariable(
+        name = WCMBindingsConstants.NAME_CURRENT_STYLE,
+        injectionStrategy = InjectionStrategy.OPTIONAL)
+    protected ValueMap currentStyle;
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     protected Page currentPage;
     @OSGiService
@@ -97,9 +97,7 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
                 .getContainingPage(request.getResource());
         }
         if (currentStyle == null) {
-            ContentPolicyManager contentPolicyManager = request.getResourceResolver().adaptTo(ContentPolicyManager.class);
-            ContentPolicy policy = contentPolicyManager.getPolicy(resource, request);
-            currentStyle = new ContentPolicyStyle(policy, null);
+            currentStyle = Utils.getStyleProperties(request, resource);
         }
 
         navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
