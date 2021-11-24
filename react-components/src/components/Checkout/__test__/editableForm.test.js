@@ -264,11 +264,11 @@ describe('<EditableForm />', () => {
             expect(queryByText('Billing Information')).not.toBeNull();
             expect(checkoutReducer.mock.calls.length).toBe(1);
         });
-        fireEvent.change(getByRole('combobox'), { target: { value: 'checkmo' } });
 
+        fireEvent.change(getByRole('combobox'), { target: { value: 'checkmo' } });
         fireEvent.click(getByRole('button', { name: 'Use Payment Method' }));
+
         await wait(() => {
-            expect(asFragment()).toMatchSnapshot();
             expect(checkoutReducer).toHaveBeenLastCalledWith(
                 {
                     editing: 'paymentMethod',
@@ -290,6 +290,8 @@ describe('<EditableForm />', () => {
                 { type: 'setPaymentMethod', paymentMethod: { code: 'checkmo', title: 'Check / Money order' } }
             );
         });
+
+        expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders the shipping method form if countries are loaded', async () => {
