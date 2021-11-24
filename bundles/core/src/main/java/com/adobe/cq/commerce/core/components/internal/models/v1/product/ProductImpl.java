@@ -47,7 +47,6 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.AssetDataImpl;
 import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryDataImpl;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
-import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.ProductStorefrontContextImpl;
@@ -144,7 +143,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private boolean usePlaceholderData = false;
     private boolean isAuthor = true;
     private String canonicalUrl;
-    private boolean enableAddToWishListButton = true;
+    private boolean enableAddToWishList = true;
 
     protected AbstractProductRetriever productRetriever;
 
@@ -193,7 +192,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         }
 
         locale = currentPage.getLanguage(false);
-        enableAddToWishListButton = currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Boolean.TRUE);
+        enableAddToWishList = currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Boolean.TRUE);
     }
 
     @Override
@@ -545,7 +544,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     }
 
     @Override
-    public boolean getAddToWishListButtonEnabled() {
-        return enableAddToWishListButton;
+    public boolean getAddToWishListEnabled() {
+        return enableAddToWishList;
     }
 }

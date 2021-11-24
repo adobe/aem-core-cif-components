@@ -16,10 +16,12 @@
 package com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.productrecommendations;
 
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.scripting.api.BindingsValuesProvider;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.day.cq.wcm.api.designer.Style;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
@@ -27,6 +29,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ProductRecommendationsImplTest {
 
@@ -67,6 +73,7 @@ public class ProductRecommendationsImplTest {
         assertNull(productRecommendations.getCategoryExclusions());
         assertNull(productRecommendations.getPriceRangeInclusions());
         assertNull(productRecommendations.getPriceRangeExclusions());
+        assertTrue(productRecommendations.getAddToWishListEnabled());
     }
 
     @Test
@@ -79,6 +86,7 @@ public class ProductRecommendationsImplTest {
         assertNull(productRecommendations.getCategoryExclusions());
         assertNull(productRecommendations.getPriceRangeInclusions());
         assertNull(productRecommendations.getPriceRangeExclusions());
+        assertTrue(productRecommendations.getAddToWishListEnabled());
     }
 
     @Test
@@ -91,6 +99,7 @@ public class ProductRecommendationsImplTest {
         assertNull(productRecommendations.getCategoryExclusions());
         assertNull(productRecommendations.getPriceRangeInclusions());
         assertNull(productRecommendations.getPriceRangeExclusions());
+        assertTrue(productRecommendations.getAddToWishListEnabled());
     }
 
     @Test
@@ -103,6 +112,7 @@ public class ProductRecommendationsImplTest {
         assertEquals("tops-women", productRecommendations.getCategoryExclusions());
         assertNull(productRecommendations.getPriceRangeInclusions());
         assertNull(productRecommendations.getPriceRangeExclusions());
+        assertTrue(productRecommendations.getAddToWishListEnabled());
     }
 
     @Test
@@ -116,6 +126,7 @@ public class ProductRecommendationsImplTest {
         assertEquals(Double.valueOf(10), productRecommendations.getPriceRangeInclusions().getMinPrice());
         assertEquals(Double.valueOf(100), productRecommendations.getPriceRangeInclusions().getMaxPrice());
         assertNull(productRecommendations.getPriceRangeExclusions());
+        assertTrue(productRecommendations.getAddToWishListEnabled());
     }
 
     @Test
@@ -129,6 +140,13 @@ public class ProductRecommendationsImplTest {
         assertNull(productRecommendations.getPriceRangeInclusions());
         assertEquals(Double.valueOf(30), productRecommendations.getPriceRangeExclusions().getMinPrice());
         assertEquals(Double.valueOf(50), productRecommendations.getPriceRangeExclusions().getMaxPrice());
+        assertTrue(productRecommendations.getAddToWishListEnabled());
+    }
 
+    @Test
+    public void testAddToWishListDisabled() {
+        context.contentPolicyMapping(ProductRecommendationsImpl.RESOURCE_TYPE, "enableAddToWishList", Boolean.FALSE);
+        setupTest(PRECONFIGURED_RECS_PATH);
+        assertFalse(productRecommendations.getAddToWishListEnabled());
     }
 }

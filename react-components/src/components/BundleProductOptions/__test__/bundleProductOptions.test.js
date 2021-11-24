@@ -119,4 +119,33 @@ describe('BundleProductOptions', () => {
             }
         ]);
     });
+
+    it('renders no add to wish list button', async () => {
+        // mock useState to return the state for a full rendering
+        jest.spyOn(hooks, 'useAwaitQuery').mockImplementation(() => {
+            return jest.fn().mockImplementation(async () => {
+                return {
+                    data: mockResponse,
+                    error: null
+                };
+            });
+        });
+
+        const bundleProductOptionsContainer = document.createElement('div');
+        bundleProductOptionsContainer.dataset.sku = 'VA24';
+        bundleProductOptionsContainer.dataset.hideAddToWishList = true;
+        bundleProductOptionsContainer.id = 'bundle-product-options';
+
+        const { asFragment, container, getByRole } = render(<BundleProductOptions />, {
+            config: config,
+            container: document.body.appendChild(bundleProductOptionsContainer),
+            mocks: [mockAddToCartMutation]
+        });
+
+        fireEvent.click(getByRole('button', { name: 'Customize' }));
+
+        await waitForDomChange({ container });
+
+        expect(asFragment()).toMatchSnapshot();
+    });
 });

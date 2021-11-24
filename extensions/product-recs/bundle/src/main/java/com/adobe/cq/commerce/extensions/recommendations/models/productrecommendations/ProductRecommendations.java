@@ -45,7 +45,7 @@ public interface ProductRecommendations {
      *
      * @return {@code true} when the Add to Wish List button is enabled, {@code false} otherwise
      */
-    default boolean getAddToWishListButtonEnabled() {
+    default boolean getAddToWishListEnabled() {
         return true;
     }
 

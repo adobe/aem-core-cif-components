@@ -138,7 +138,7 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
     }
 
     @Override
-    public boolean getAddToWishListButtonEnabled() {
+    public boolean getAddToWishListEnabled() {
         return currentStyle != null ? currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Boolean.TRUE) : Boolean.TRUE;
     }
 }

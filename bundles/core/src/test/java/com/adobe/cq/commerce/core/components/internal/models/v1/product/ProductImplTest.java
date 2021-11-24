@@ -28,11 +28,9 @@ import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
@@ -74,9 +72,14 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -101,7 +104,7 @@ public class ProductImplTest {
                 (Function<Resource, ComponentsConfiguration>) input -> !input.getPath().contains("pageB") ? MOCK_CONFIGURATION_OBJECT
                     : ComponentsConfiguration.EMPTY);
 
-            ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+            ConfigurationBuilder mockConfigBuilder = mock(ConfigurationBuilder.class);
             Utils.addDataLayerConfig(mockConfigBuilder, true);
             Utils.addStorefrontContextConfig(mockConfigBuilder, true);
             context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
@@ -115,6 +118,7 @@ public class ProductImplTest {
 
     protected Product productModel;
     protected CloseableHttpClient httpClient;
+    protected Style style;
 
     @Before
     public void setUp() throws Exception {
@@ -150,8 +154,8 @@ public class ProductImplTest {
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
 
-        Style style = mock(Style.class);
-        when(style.get(Mockito.anyString(), Mockito.anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
+        style = mock(Style.class);
+        when(style.get(anyString(), anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
         slingBindings.put("currentStyle", style);
 
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
@@ -168,7 +172,7 @@ public class ProductImplTest {
         adaptToProduct();
 
         String identifier = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
-        Assert.assertEquals("MJ01", identifier);
+        assertEquals("MJ01", identifier);
     }
 
     @Test
@@ -186,7 +190,7 @@ public class ProductImplTest {
         adaptToProduct();
 
         String sku = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
-        Assert.assertEquals("MJ01", sku);
+        assertEquals("MJ01", sku);
     }
 
     @Test
@@ -199,66 +203,67 @@ public class ProductImplTest {
         testProduct(product, true);
 
         if (hasStagedData) {
-            Assert.assertTrue("The product has staged data", productModel.isStaged());
+            assertTrue("The product has staged data", productModel.isStaged());
         } else {
-            Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
+            assertFalse("The product doesn't have staged data", productModel.isStaged());
         }
 
         // We don't return these fields for the EDIT placeholder data
-        Assert.assertEquals(product.getMetaDescription(), productModel.getMetaDescription());
-        Assert.assertEquals(product.getMetaKeyword(), productModel.getMetaKeywords());
-        Assert.assertEquals(product.getMetaTitle(), productModel.getMetaTitle());
-        Assert.assertEquals("https://author" + PAGE + ".html/beaumont-summit-kit.html", productModel.getCanonicalUrl());
+        assertEquals(product.getMetaDescription(), productModel.getMetaDescription());
+        assertEquals(product.getMetaKeyword(), productModel.getMetaKeywords());
+        assertEquals(product.getMetaTitle(), productModel.getMetaTitle());
+        assertEquals("https://author" + PAGE + ".html/beaumont-summit-kit.html", productModel.getCanonicalUrl());
+        assertTrue(productModel.getAddToWishListEnabled());
     }
 
     private void testProduct(ProductInterface product, boolean loadClientPrice) {
-        Assert.assertTrue("The product is found", productModel.getFound());
-        Assert.assertEquals(product.getSku(), productModel.getSku());
-        Assert.assertEquals(product.getName(), productModel.getName());
-        Assert.assertEquals(product.getDescription().getHtml(), productModel.getDescription());
-        Assert.assertEquals(loadClientPrice, productModel.loadClientPrice());
-        Assert.assertEquals(ProductStockStatus.IN_STOCK.equals(product.getStockStatus()), productModel.getInStock().booleanValue());
+        assertTrue("The product is found", productModel.getFound());
+        assertEquals(product.getSku(), productModel.getSku());
+        assertEquals(product.getName(), productModel.getName());
+        assertEquals(product.getDescription().getHtml(), productModel.getDescription());
+        assertEquals(loadClientPrice, productModel.loadClientPrice());
+        assertEquals(ProductStockStatus.IN_STOCK.equals(product.getStockStatus()), productModel.getInStock().booleanValue());
 
-        Assert.assertEquals(product.getMediaGallery().size(), productModel.getAssets().size());
+        assertEquals(product.getMediaGallery().size(), productModel.getAssets().size());
         for (int j = 0; j < product.getMediaGallery().size(); j++) {
             MediaGalleryInterface mge = product.getMediaGallery().get(j);
             Asset asset = productModel.getAssets().get(j);
-            Assert.assertEquals(mge.getLabel(), asset.getLabel());
-            Assert.assertEquals(mge.getPosition(), asset.getPosition());
-            Assert.assertEquals("image", asset.getType());
-            Assert.assertEquals(mge.getUrl(), asset.getPath());
+            assertEquals(mge.getLabel(), asset.getLabel());
+            assertEquals(mge.getPosition(), asset.getPosition());
+            assertEquals("image", asset.getType());
+            assertEquals(mge.getUrl(), asset.getPath());
         }
 
-        Assert.assertTrue(productModel.getGroupedProductItems().isEmpty());
+        assertTrue(productModel.getGroupedProductItems().isEmpty());
     }
 
     @Test
     public void testVariants() {
         adaptToProduct();
         List<Variant> variants = productModel.getVariants();
-        Assert.assertNotNull(variants);
+        assertNotNull(variants);
 
         ConfigurableProduct cp = (ConfigurableProduct) product;
-        Assert.assertEquals(cp.getVariants().size(), variants.size());
+        assertEquals(cp.getVariants().size(), variants.size());
 
         for (int i = 0; i < variants.size(); i++) {
             Variant variant = variants.get(i);
             SimpleProduct sp = cp.getVariants().get(i).getProduct();
 
-            Assert.assertEquals(sp.getSku(), variant.getSku());
-            Assert.assertEquals(sp.getName(), variant.getName());
-            Assert.assertEquals(sp.getDescription().getHtml(), variant.getDescription());
-            Assert.assertEquals(ProductStockStatus.IN_STOCK.equals(sp.getStockStatus()), variant.getInStock().booleanValue());
-            Assert.assertEquals(sp.getColor(), variant.getColor());
+            assertEquals(sp.getSku(), variant.getSku());
+            assertEquals(sp.getName(), variant.getName());
+            assertEquals(sp.getDescription().getHtml(), variant.getDescription());
+            assertEquals(ProductStockStatus.IN_STOCK.equals(sp.getStockStatus()), variant.getInStock().booleanValue());
+            assertEquals(sp.getColor(), variant.getColor());
 
-            Assert.assertEquals(sp.getMediaGallery().size(), variant.getAssets().size());
+            assertEquals(sp.getMediaGallery().size(), variant.getAssets().size());
             for (int j = 0; j < sp.getMediaGallery().size(); j++) {
                 MediaGalleryInterface mge = sp.getMediaGallery().get(j);
                 Asset asset = variant.getAssets().get(j);
-                Assert.assertEquals(mge.getLabel(), asset.getLabel());
-                Assert.assertEquals(mge.getPosition(), asset.getPosition());
-                Assert.assertEquals("image", asset.getType());
-                Assert.assertEquals(mge.getUrl(), asset.getPath());
+                assertEquals(mge.getLabel(), asset.getLabel());
+                assertEquals(mge.getPosition(), asset.getPosition());
+                assertEquals("image", asset.getType());
+                assertEquals(mge.getUrl(), asset.getPath());
             }
         }
     }
@@ -267,23 +272,23 @@ public class ProductImplTest {
     public void testGetVariantAttributes() {
         adaptToProduct();
         List<VariantAttribute> attributes = productModel.getVariantAttributes();
-        Assert.assertNotNull(attributes);
+        assertNotNull(attributes);
 
         ConfigurableProduct cp = (ConfigurableProduct) product;
-        Assert.assertEquals(cp.getConfigurableOptions().size(), attributes.size());
+        assertEquals(cp.getConfigurableOptions().size(), attributes.size());
 
         for (int i = 0; i < attributes.size(); i++) {
             VariantAttribute attribute = attributes.get(i);
             ConfigurableProductOptions option = cp.getConfigurableOptions().get(i);
 
-            Assert.assertEquals(option.getAttributeCode(), attribute.getId());
-            Assert.assertEquals(option.getLabel(), attribute.getLabel());
+            assertEquals(option.getAttributeCode(), attribute.getId());
+            assertEquals(option.getLabel(), attribute.getLabel());
 
             for (int j = 0; j < attribute.getValues().size(); j++) {
                 VariantValue value = attribute.getValues().get(j);
                 ConfigurableProductOptionsValues optionValue = option.getValues().get(j);
-                Assert.assertEquals(optionValue.getValueIndex(), value.getId());
-                Assert.assertEquals(optionValue.getLabel(), value.getLabel());
+                assertEquals(optionValue.getValueIndex(), value.getId());
+                assertEquals(optionValue.getLabel(), value.getLabel());
             }
         }
     }
@@ -292,8 +297,8 @@ public class ProductImplTest {
     public void testSimpleProduct() {
         adaptToProduct();
         Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(new SimpleProduct()));
-        Assert.assertTrue(productModel.getVariants().isEmpty());
-        Assert.assertTrue(productModel.getVariantAttributes().isEmpty());
+        assertTrue(productModel.getVariants().isEmpty());
+        assertTrue(productModel.getVariantAttributes().isEmpty());
     }
 
     @Test
@@ -329,7 +334,7 @@ public class ProductImplTest {
 
         Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
 
-        Assert.assertEquals(sampleString, productModel.getDescription());
+        assertEquals(sampleString, productModel.getDescription());
     }
 
     @Test
@@ -343,7 +348,7 @@ public class ProductImplTest {
 
         Whitebox.setInternalState(productModel.getProductRetriever(), "product", Optional.of(product));
 
-        Assert.assertEquals(sampleString, productModel.getDescription());
+        assertEquals(sampleString, productModel.getDescription());
     }
 
     @Test
@@ -364,12 +369,12 @@ public class ProductImplTest {
         adaptToProduct();
         Price price = productModel.getPriceRange();
 
-        Assert.assertTrue(price.isRange());
-        Assert.assertFalse(price.isDiscounted());
-        Assert.assertEquals(58.0, price.getRegularPrice(), 0.001);
-        Assert.assertEquals(58.0, price.getFinalPrice(), 0.001);
-        Assert.assertEquals(62.0, price.getRegularPriceMax(), 0.001);
-        Assert.assertEquals(62.0, price.getFinalPriceMax(), 0.001);
+        assertTrue(price.isRange());
+        assertFalse(price.isDiscounted());
+        assertEquals(58.0, price.getRegularPrice(), 0.001);
+        assertEquals(58.0, price.getFinalPrice(), 0.001);
+        assertEquals(62.0, price.getRegularPriceMax(), 0.001);
+        assertEquals(62.0, price.getFinalPriceMax(), 0.001);
     }
 
     @Test
@@ -377,12 +382,12 @@ public class ProductImplTest {
         adaptToProduct();
         Price price = productModel.getVariants().get(0).getPriceRange();
 
-        Assert.assertFalse(price.isRange());
-        Assert.assertTrue(price.isDiscounted());
-        Assert.assertEquals(58.0, price.getRegularPrice(), 0.001);
-        Assert.assertEquals(46.0, price.getFinalPrice(), 0.001);
-        Assert.assertEquals(12.0, price.getDiscountAmount(), 0.001);
-        Assert.assertEquals(20.69, price.getDiscountPercent(), 0.001);
+        assertFalse(price.isRange());
+        assertTrue(price.isDiscounted());
+        assertEquals(58.0, price.getRegularPrice(), 0.001);
+        assertEquals(46.0, price.getFinalPrice(), 0.001);
+        assertEquals(12.0, price.getDiscountAmount(), 0.001);
+        assertEquals(20.69, price.getDiscountPercent(), 0.001);
     }
 
     @Test
@@ -399,13 +404,13 @@ public class ProductImplTest {
         adaptToProduct();
 
         List<GroupItem> items = productModel.getGroupedProductItems();
-        Assert.assertTrue(productModel.isGroupedProduct());
-        Assert.assertEquals(4, items.size());
+        assertTrue(productModel.isGroupedProduct());
+        assertEquals(4, items.size());
 
         if (hasStagedData) {
-            Assert.assertTrue("The product has staged data", productModel.isStaged());
+            assertTrue("The product has staged data", productModel.isStaged());
         } else {
-            Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
+            assertFalse("The product doesn't have staged data", productModel.isStaged());
         }
 
         GroupedProduct gp = (GroupedProduct) product;
@@ -413,12 +418,12 @@ public class ProductImplTest {
             GroupItem item = items.get(i);
             ProductInterface pi = gp.getItems().get(i).getProduct();
 
-            Assert.assertEquals(pi.getSku(), item.getSku());
-            Assert.assertEquals(pi.getName(), item.getName());
-            Assert.assertEquals(pi.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPriceRange().getFinalPrice(), 0);
-            Assert.assertEquals(gp.getItems().get(i).getQty(), item.getDefaultQuantity(), 0);
+            assertEquals(pi.getSku(), item.getSku());
+            assertEquals(pi.getName(), item.getName());
+            assertEquals(pi.getPriceRange().getMinimumPrice().getFinalPrice().getValue(), item.getPriceRange().getFinalPrice(), 0);
+            assertEquals(gp.getItems().get(i).getQty(), item.getDefaultQuantity(), 0);
 
-            Assert.assertEquals(pi instanceof VirtualProduct, item.isVirtualProduct());
+            assertEquals(pi instanceof VirtualProduct, item.isVirtualProduct());
         }
     }
 
@@ -428,9 +433,9 @@ public class ProductImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-virtualproduct-result.json", httpClient, 200, "{products(filter:{sku");
         adaptToProduct();
 
-        Assert.assertNotNull("Product model is not null", productModel);
-        Assert.assertTrue(productModel.isVirtualProduct());
-        Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
+        assertNotNull("Product model is not null", productModel);
+        assertTrue(productModel.isVirtualProduct());
+        assertFalse("The product doesn't have staged data", productModel.isStaged());
     }
 
     @Test
@@ -443,13 +448,13 @@ public class ProductImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-bundleproduct-result.json", httpClient, 200, "{products(filter:{sku");
         adaptToProduct();
 
-        Assert.assertNotNull("Product model is not null", productModel);
-        Assert.assertTrue(productModel.isBundleProduct());
+        assertNotNull("Product model is not null", productModel);
+        assertTrue(productModel.isBundleProduct());
 
         if (hasStagedData) {
-            Assert.assertTrue("The product has staged data", productModel.isStaged());
+            assertTrue("The product has staged data", productModel.isStaged());
         } else {
-            Assert.assertFalse("The product doesn't have staged data", productModel.isStaged());
+            assertFalse("The product doesn't have staged data", productModel.isStaged());
         }
     }
 
@@ -459,10 +464,10 @@ public class ProductImplTest {
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
         adaptToProduct();
 
-        Assert.assertFalse("Product is not found", productModel.getFound());
-        Assert.assertFalse("Product is not configurable", productModel.isConfigurable());
-        Assert.assertFalse("Product is not a grouped product", productModel.isGroupedProduct());
-        Assert.assertFalse("Product is not virtual", productModel.isVirtualProduct());
+        assertFalse("Product is not found", productModel.getFound());
+        assertFalse("Product is not configurable", productModel.isConfigurable());
+        assertFalse("Product is not a grouped product", productModel.isGroupedProduct());
+        assertFalse("Product is not virtual", productModel.isVirtualProduct());
         assertNull("The product retriever is not created", productModel.getProductRetriever());
     }
 
@@ -476,7 +481,7 @@ public class ProductImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-product-not-found-result.json", httpClient, 200, "{products(filter:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-product-not-found-result.json", httpClient, 200, "{products(filter:{sku");
         adaptToProduct();
-        Assert.assertFalse("Product is not found", productModel.getFound());
+        assertFalse("Product is not found", productModel.getFound());
 
         // verify that graphql was called only once
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
@@ -485,10 +490,10 @@ public class ProductImplTest {
     @Test
     public void testClientLoadingIsDisabledOnLaunchPage() {
         adaptToProduct();
-        Assert.assertTrue(productModel.loadClientPrice());
+        assertTrue(productModel.loadClientPrice());
         Page launch = context.pageManager().getPage("/content/launches/2020/09/14/mylaunch" + PAGE);
         Whitebox.setInternalState(productModel, "currentPage", launch);
-        Assert.assertFalse(productModel.loadClientPrice());
+        assertFalse(productModel.loadClientPrice());
     }
 
     @Test
@@ -504,12 +509,12 @@ public class ProductImplTest {
         adaptToProduct();
 
         // Check that we get an empty list of products and the GraphQL client is never called
-        Assert.assertFalse(productModel.getFound());
-        Mockito.verify(graphqlClient, never()).execute(any(), any(), any());
-        Mockito.verify(graphqlClient, never()).execute(any(), any(), any(), any());
+        assertFalse(productModel.getFound());
+        verify(graphqlClient, never()).execute(any(), any(), any());
+        verify(graphqlClient, never()).execute(any(), any(), any(), any());
 
         // Test canonical url on publish
-        Assert.assertEquals("https://publish" + PAGE + ".html", productModel.getCanonicalUrl());
+        assertEquals("https://publish" + PAGE + ".html", productModel.getCanonicalUrl());
     }
 
     @Test
@@ -567,5 +572,12 @@ public class ProductImplTest {
         adaptToProduct();
 
         assertEquals("/content/product-page.html/beaumont-summit-kit.html", productModel.getCanonicalUrl());
+    }
+
+    @Test
+    public void testAddToWishListDisabled() {
+        when(style.get(eq("enableAddToWishList"), anyBoolean())).thenReturn(Boolean.FALSE);
+        adaptToProduct();
+        assertFalse(productModel.getAddToWishListEnabled());
     }
 }

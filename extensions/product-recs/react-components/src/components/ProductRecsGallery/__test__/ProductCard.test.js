@@ -55,8 +55,14 @@ describe('ProductCard', () => {
         };
     });
 
-    it('renders a product card', () => {
-        const { asFragment } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
+    it.each([
+        ['with add to wish list', undefined],
+        ['without add to wish list', true]
+    ])('renders a product card (%s)', (_nane, hideAddToWishList) => {
+        const { asFragment } = render(
+            <ProductCard unit={unit} product={product} hideAddToWishList={hideAddToWishList} />,
+            { wrapper: ContextWrapper }
+        );
 
         expect(asFragment()).toMatchSnapshot();
     });

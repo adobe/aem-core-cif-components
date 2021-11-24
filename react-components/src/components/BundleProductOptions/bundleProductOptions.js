@@ -33,10 +33,16 @@ const BundleProductOptions = () => {
     const {
         mountingPoints: { bundleProductOptionsContainer }
     } = useConfigContext();
-    const { sku, addToWishlistEnabled = true } = document.querySelector(bundleProductOptionsContainer)?.dataset || {};
     const productId = document.querySelector('[data-cmp-is=product]')?.id;
     const [bundleState, setBundleState] = useState(null);
     const intl = useIntl();
+    let { sku, hideAddToWishList } = document.querySelector(bundleProductOptionsContainer)?.dataset || {};
+
+    if (typeof hideAddToWishList !== 'undefined') {
+        // hide-add-to-wish-list is set without a value to the dom
+        // the returned value from the data set is an empty string: ''
+        hideAddToWishList = true;
+    }
 
     const fetchBundleDetails = async sku => {
         const { data, error } = await bundleProductQuery({ variables: { sku }, fetchPolicy: 'network-only' });
@@ -297,7 +303,7 @@ const BundleProductOptions = () => {
                         <span>{intl.formatMessage({ id: 'product:add-item', defaultMessage: 'Add to Cart' })}</span>
                     </span>
                 </button>
-                {addToWishlistEnabled && (
+                {!hideAddToWishList && (
                     <button
                         className="button__root_normalPriority button__root clickable__root"
                         type="button"

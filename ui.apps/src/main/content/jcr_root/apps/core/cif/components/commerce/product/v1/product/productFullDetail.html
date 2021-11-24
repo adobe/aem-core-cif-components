@@ -52,7 +52,7 @@
             <section data-sly-test="${isGroupedProduct}" class="productFullDetail__groupedProducts productFullDetail__quantity productFullDetail__section">
                 <sly data-sly-call="${groupedProductsTpl.groupedProducts @ groupedProductItems=product.groupedProductItems}"></sly>
             </section>
-            <div data-sly-test="${isBundleProduct}" id="bundle-product-options" data-sku="${product.sku}" data-add-to-wish-list-enabled="${product.addToWishListEnabled}"></div>
+            <div data-sly-test="${isBundleProduct}" id="bundle-product-options" data-sku="${product.sku}" data-hide-add-to-wish-list="${!product.addToWishListEnabled}"></div>
             <section data-sly-test="${!isGroupedProduct && !isBundleProduct}" class="productFullDetail__quantity productFullDetail__section">
                 <h2 class="productFullDetail__quantityTitle option__title"><span>${'Quantity' @ i18n}</span></h2>
                 <sly data-sly-call="${quantityTpl.quantity @ product=product}"></sly>
