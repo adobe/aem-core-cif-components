@@ -112,7 +112,7 @@ public class CommerceLinksTransformerTest {
         Document document = Jsoup.parse(html);
         Elements anchors = document.select(ELEMENT_ANCHOR);
 
-        assertEquals(12, anchors.size());
+        assertEquals(18, anchors.size());
         checkAnchor(anchors.get(0), "uid-5", null);
         checkAnchor(anchors.get(1), "uid-5", "any");
         checkAnchor(anchors.get(2), "uid-5", "/content/category-page.html/equipment.html");
@@ -125,6 +125,12 @@ public class CommerceLinksTransformerTest {
         checkAnchor(anchors.get(9), "MJ01", null);
         checkAnchor(anchors.get(10), "MJ01", "any");
         checkAnchor(anchors.get(11), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
+        checkAnchorTextAndTitle(anchors.get(12), "Beaumont Summit Kit", "Beaumont Summit Kit");
+        checkAnchorTextAndTitle(anchors.get(13), "Equipment", "Equipment");
+        checkAnchorTextAndTitle(anchors.get(14), "Equipment", "My Category");
+        checkAnchorText(anchors.get(15), "Equipment");
+        checkAnchorText(anchors.get(16), "Equipment");
+        checkAnchorText(anchors.get(17), "Equipment");
     }
 
     @Test
@@ -174,5 +180,16 @@ public class CommerceLinksTransformerTest {
             assertFalse(anchor.hasAttr(ATTR_CATEGORY_UID));
             assertFalse(anchor.hasAttr(ATTR_PRODUCT_SKU));
         }
+    }
+
+    private void checkAnchorText(Element anchor, String text) {
+        assertEquals(1, anchor.childNodeSize());
+        assertTrue(anchor.childNode(0) instanceof TextNode);
+        assertEquals(text, ((TextNode) anchor.childNode(0)).getWholeText());
+    }
+
+    private void checkAnchorTextAndTitle(Element anchor, String text, String title) {
+        checkAnchorText(anchor, text);
+        assertEquals(title, anchor.attr(ATTR_TITLE));
     }
 }
