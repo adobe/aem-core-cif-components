@@ -35,6 +35,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
@@ -94,10 +95,17 @@ public class UrlProviderImplTest {
         context.registerInjectActivateService(urlProvider);
     }
 
+    private void configureSpecificPageStrategy(boolean generateSpecificPageUrls) {
+        // TODO: CIF-2469
+        // With a newer version of OSGI mock we could re-inject the reference into the existing UrlProviderImpl
+        // context.registerInjectActivateService(new SpecificPageStrategy(), "generateSpecificPageUrls", true);
+        SpecificPageStrategy specificPageStrategy = context.getService(SpecificPageStrategy.class);
+        Whitebox.setInternalState(specificPageStrategy, "generateSpecificPageUrls", generateSpecificPageUrls);
+    }
+
     @Test
     public void testProductUrl() {
         Page page = context.currentPage("/content/product-page");
-        context.runMode("author");
 
         Map<String, String> params = new ParamsBuilder()
             .urlKey("beaumont-summit-kit")
@@ -121,7 +129,7 @@ public class UrlProviderImplTest {
     @Test
     public void testProductUrlWithSubpageAndAnchor() {
         Page page = context.currentPage("/content/product-page");
-        context.runMode("author");
+        configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
             .urlKey("productId2")
@@ -135,7 +143,7 @@ public class UrlProviderImplTest {
     @Test
     public void testNestedProductUrlWithAnchor() {
         Page page = context.currentPage("/content/product-page");
-        context.runMode("author");
+        configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
             .urlKey("productId1.1")
@@ -149,7 +157,6 @@ public class UrlProviderImplTest {
     @Test
     public void testProductUrlMissingParams() {
         Page page = context.currentPage("/content/product-page");
-        context.runMode("author");
         Map<String, String> params = new ParamsBuilder()
             .sku("MJ01")
             .map();
@@ -161,7 +168,6 @@ public class UrlProviderImplTest {
     @Test
     public void testProductUrlWithGraphQLClient() {
         Page page = context.currentPage("/content/product-page");
-        context.runMode("author");
 
         String url = urlProvider.toProductUrl(request, page, "MJ01");
         Assert.assertEquals("/content/product-page.html/beaumont-summit-kit.html", url);
@@ -172,7 +178,6 @@ public class UrlProviderImplTest {
     @Test
     public void testProductUrlNotFoundWithGraphQLClient() {
         Page page = context.currentPage("/content/product-page");
-        context.runMode("author");
 
         String url = urlProvider.toProductUrl(request, page, "MJ02");
         Assert.assertEquals("/content/product-page.html/{{url_key}}.html", url);
@@ -183,7 +188,6 @@ public class UrlProviderImplTest {
     @Test
     public void testProductUrlWithGraphQLClientMissingParameters() {
         Page page = context.currentPage("/content/product-page");
-        context.runMode("author");
 
         String url = urlProvider.toProductUrl(request, page, StringUtils.EMPTY);
         Assert.assertEquals("/content/product-page.html/{{url_key}}.html", url);
@@ -192,7 +196,6 @@ public class UrlProviderImplTest {
     @Test
     public void testProductUrlOnlySKU() {
         Page page = context.currentPage("/content/product-page");
-        context.runMode("author");
         MockOsgi.deactivate(urlProvider, context.bundleContext());
         MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithSku.PATTERN);
 
@@ -206,7 +209,6 @@ public class UrlProviderImplTest {
     @Test
     public void testCategoryUrl() {
         Page page = context.currentPage("/content/category-page");
-        context.runMode("author");
 
         Map<String, String> params = new ParamsBuilder()
             .urlPath("men")
@@ -219,7 +221,7 @@ public class UrlProviderImplTest {
     @Test
     public void testCategoryUrlWithSubpage() {
         Page page = context.currentPage("/content/category-page");
-        context.runMode("author");
+        configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
             .uid("MTE=")
@@ -233,7 +235,7 @@ public class UrlProviderImplTest {
     @Test
     public void testCategoryUrlWithSubpageArray() {
         Page page = context.currentPage("/content/category-page");
-        context.runMode("author");
+        configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
             .uid("MTF=")
@@ -247,7 +249,7 @@ public class UrlProviderImplTest {
     @Test
     public void testCategoryUrlWithSubpageV2() {
         Page page = context.currentPage("/content/category-page");
-        context.runMode("author");
+        configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
             .urlPath("women/tops/shirts")
@@ -260,7 +262,7 @@ public class UrlProviderImplTest {
     @Test
     public void testCategoryUrlWithSubpageArrayV2() {
         Page page = context.currentPage("/content/category-page");
-        context.runMode("author");
+        configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
             .urlPath("women/bottoms/shorts")
@@ -273,7 +275,7 @@ public class UrlProviderImplTest {
     @Test
     public void testNestedCategoryUrl() {
         Page page = context.currentPage("/content/category-page");
-        context.runMode("author");
+        configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
             .urlPath("category-uid-1.1")
@@ -286,7 +288,6 @@ public class UrlProviderImplTest {
     @Test
     public void testCategoryUrlMissingParams() {
         Page page = context.currentPage("/content/category-page");
-        context.runMode("author");
         Map<String, String> params = new ParamsBuilder()
             .uid("UID-42")
             .map();
@@ -298,7 +299,6 @@ public class UrlProviderImplTest {
     @Test
     public void testCategoryUrlWithGraphQLClient() {
         Page page = context.currentPage("/content/category-page");
-        context.runMode("author");
 
         String url = urlProvider.toCategoryUrl(request, page, "uid-5");
         Assert.assertEquals("/content/category-page.html/equipment.html", url);
@@ -309,7 +309,6 @@ public class UrlProviderImplTest {
     @Test
     public void testCategoryUrlNotFoundWithGraphQLClient() {
         Page page = context.currentPage("/content/category-page");
-        context.runMode("author");
 
         String url = urlProvider.toCategoryUrl(request, page, "uid-99");
         Assert.assertEquals("/content/category-page.html/{{url_path}}.html", url);
@@ -320,7 +319,6 @@ public class UrlProviderImplTest {
     @Test
     public void testCategoryUrlWithGraphQLClientMissingParameters() {
         Page page = context.currentPage("/content/category-page");
-        context.runMode("author");
 
         String url = urlProvider.toCategoryUrl(request, page, StringUtils.EMPTY);
         Assert.assertEquals("/content/category-page.html/{{url_path}}.html", url);
