@@ -347,9 +347,7 @@ describe('<EditableForm />', () => {
         fireEvent.change(getByRole('combobox'), { target: { value: 'flatrate' } });
         fireEvent.click(getByRole('button', { name: 'Use Method' }));
 
-        await wait(() => {
-            expect(asFragment()).toMatchSnapshot();
-        });
+        expect(asFragment()).toMatchSnapshot();
     });
 
     it('does not render the shipping address form if countries could not be loaded', async () => {
