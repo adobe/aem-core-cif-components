@@ -30,8 +30,10 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
+import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.testing.Utils;
@@ -122,8 +124,11 @@ public class ProductTeaserImplTest {
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
 
         if (deepLink) {
-            // Configure the component to create deep links to specific pages
-            context.runMode("author");
+            // TODO: CIF-2469
+            // With a newer version of OSGI mock we could re-inject the reference into the existing UrlProviderImpl
+            // context.registerInjectActivateService(new SpecificPageStrategy(), "generateSpecificPageUrls", true);
+            SpecificPageStrategy specificPageStrategy = context.getService(SpecificPageStrategy.class);
+            Whitebox.setInternalState(specificPageStrategy, "generateSpecificPageUrls", true);
         }
 
         productTeaser = context.request().adaptTo(ProductTeaserImpl.class);

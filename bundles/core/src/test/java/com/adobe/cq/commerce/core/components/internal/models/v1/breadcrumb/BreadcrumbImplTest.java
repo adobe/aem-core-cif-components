@@ -37,6 +37,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
+import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.testing.MockLaunch;
 import com.adobe.cq.commerce.core.testing.MockPathProcessor;
@@ -197,8 +198,11 @@ public class BreadcrumbImplTest {
             HttpStatus.SC_OK, "breadcrumbs{category_uid,category_url_path,category_name}");
         prepareModel("/content/venia/us/en/products/product-page/product-specific-page");
 
-        // We set the EDIT mode to see the page specific URL
-        context.runMode("author");
+        // TODO: CIF-2469
+        // With a newer version of OSGI mock we could re-inject the reference into the existing UrlProviderImpl
+        // context.registerInjectActivateService(new SpecificPageStrategy(), "generateSpecificPageUrls", true);
+        SpecificPageStrategy specificPageStrategy = context.getService(SpecificPageStrategy.class);
+        Whitebox.setInternalState(specificPageStrategy, "generateSpecificPageUrls", true);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/tiberius-gym-tank.html");
@@ -227,8 +231,11 @@ public class BreadcrumbImplTest {
         String launchPage = "/content/launches/2020/09/14/mylaunch/content/venia/us/en/products/product-page/product-specific-page";
         prepareModel(launchPage);
 
-        // We set the EDIT mode to see the page specific URL
-        context.runMode("author");
+        // TODO: CIF-2469
+        // With a newer version of OSGI mock we could re-inject the reference into the existing UrlProviderImpl
+        // context.registerInjectActivateService(new SpecificPageStrategy(), "generateSpecificPageUrls", true);
+        SpecificPageStrategy specificPageStrategy = context.getService(SpecificPageStrategy.class);
+        Whitebox.setInternalState(specificPageStrategy, "generateSpecificPageUrls", true);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/tiberius-gym-tank.html");
@@ -279,8 +286,11 @@ public class BreadcrumbImplTest {
             "{categoryList(filters:{category_uid");
         prepareModel("/content/venia/us/en/products/category-page/category-specific-page");
 
-        // We set the EDIT mode to see the page specific URL
-        context.runMode("author");
+        // TODO: CIF-2469
+        // With a newer version of OSGI mock we could re-inject the reference into the existing UrlProviderImpl
+        // context.registerInjectActivateService(new SpecificPageStrategy(), "generateSpecificPageUrls", true);
+        SpecificPageStrategy specificPageStrategy = context.getService(SpecificPageStrategy.class);
+        Whitebox.setInternalState(specificPageStrategy, "generateSpecificPageUrls", true);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/men.html");
