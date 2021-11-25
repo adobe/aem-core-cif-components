@@ -46,6 +46,7 @@ import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
+import com.adobe.cq.commerce.magento.graphql.DownloadableProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
@@ -63,6 +64,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
     name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
     extensions = ExporterConstants.SLING_MODEL_EXTENSION)
 public class ProductTeaserImpl extends DataLayerComponent implements ProductTeaser {
+    static final String CALL_TO_ACTION_TYPE_DETAILS = "details";
+    static final String CALL_TO_ACTION_TYPE_ADD_TO_CART = "add-to-cart";
+    static final String CALL_TO_ACTION_TEXT_ADD_TO_CART = "Add to Cart";
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     private static final String SELECTION_PROPERTY = "selection";
@@ -98,6 +102,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     private Locale locale;
     private Boolean isVirtualProduct;
+    private boolean ctaOverride;
 
     @PostConstruct
     protected void initModel() {
@@ -118,8 +123,13 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
             if (magentoGraphqlClient != null) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
                 productRetriever.setIdentifier(combinedSku.getLeft());
+                ctaOverride = CALL_TO_ACTION_TYPE_ADD_TO_CART.equals(cta) && !oneClickShoppable(getProduct());
             }
         }
+    }
+
+    private boolean oneClickShoppable(ProductInterface product) {
+        return product instanceof SimpleProduct || product instanceof VirtualProduct || product instanceof DownloadableProduct;
     }
 
     @JsonIgnore
@@ -142,7 +152,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @Override
     public CommerceIdentifier getCommerceIdentifier() {
         if (getSku() != null) {
-            return CommerceIdentifierImpl.fromProductSku(getSku());
+            return new CommerceIdentifierImpl(getSku(), CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT);
         }
         return null;
     }
@@ -165,11 +175,19 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     @Override
     public String getCallToAction() {
+        if (ctaOverride) {
+            return CALL_TO_ACTION_TYPE_DETAILS;
+        }
+
         return cta;
     }
 
     @Override
     public String getCallToActionText() {
+        if (ctaOverride && StringUtils.isBlank(ctaText)) {
+            return CALL_TO_ACTION_TEXT_ADD_TO_CART;
+        }
+
         return ctaText;
     }
 

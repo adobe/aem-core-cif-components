@@ -33,6 +33,7 @@ public interface ProductCarousel extends Component {
     @Nonnull
     List<ProductListItem> getProducts();
 
+    @Deprecated
     @Nonnull
     List<ProductListItem> getProductIdentifiers();
 
