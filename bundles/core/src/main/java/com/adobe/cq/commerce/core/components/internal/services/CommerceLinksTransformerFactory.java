@@ -223,6 +223,7 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
                 protected ProductInterfaceQueryDefinition generateProductQuery() {
                     return q -> q
                         .name()
+                        .sku()
                         .urlKey()
                         .urlPath()
                         .urlRewrites(UrlRewriteQuery::url);
@@ -238,13 +239,7 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
             // set link text to product name
             linkText = product.getName();
 
-            ProductUrlFormat.Params params = new ProductUrlFormat.Params();
-            params.setSku(productSku);
-            params.setUrlKey(product.getUrlKey());
-            params.setUrlPath(product.getUrlPath());
-            params.setUrlRewrites(product.getUrlRewrites());
-
-            return urlProvider.toProductUrl(request, productPage, params);
+            return urlProvider.toProductUrl(request, productPage, new ProductUrlFormat.Params(product));
         }
 
         @Nullable
@@ -260,6 +255,7 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
                 protected CategoryTreeQueryDefinition generateCategoryQuery() {
                     return q -> q
                         .name()
+                        .uid()
                         .urlPath()
                         .urlKey();
                 }
@@ -274,12 +270,7 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
             // set link text to category name
             linkText = category.getName();
 
-            CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
-            params.setUid(categoryUid);
-            params.setUrlKey(category.getUrlKey());
-            params.setUrlPath(category.getUrlPath());
-
-            return urlProvider.toCategoryUrl(request, categoryPage, params);
+            return urlProvider.toCategoryUrl(request, categoryPage, new CategoryUrlFormat.Params(category));
         }
     }
 }

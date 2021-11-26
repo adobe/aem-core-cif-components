@@ -126,7 +126,9 @@ public class CommerceLinksTransformerTest {
         checkAnchor(anchors.get(9), "MJ01", null);
         checkAnchor(anchors.get(10), "MJ01", "any");
         checkAnchor(anchors.get(11), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
+        checkAnchor(anchors.get(12), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
         checkAnchorTextAndTitle(anchors.get(12), "Beaumont Summit Kit", "Beaumont Summit Kit");
+        checkAnchor(anchors.get(13), "uid-5", "/content/category-page.html/equipment.html");
         checkAnchorTextAndTitle(anchors.get(13), "Equipment", "Equipment");
         checkAnchorTextAndTitle(anchors.get(14), "Equipment", "My Category");
         checkAnchorText(anchors.get(15), "Equipment");
