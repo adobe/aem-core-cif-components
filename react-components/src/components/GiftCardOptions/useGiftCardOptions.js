@@ -130,7 +130,9 @@ const useGiftCardOptions = props => {
             }
         }
 
-        for (const option of gift_card_options.filter(o => o.required)) {
+        for (const option of gift_card_options.filter(
+            o => o.required && o.title.toLowerCase() !== 'custom giftcard amount'
+        )) {
             if (entered_options[option.value.uid].trim() === '') {
                 return false;
             }
