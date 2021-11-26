@@ -119,6 +119,7 @@ public class CommerceLinksTransformerTest {
         checkAnchor(anchors.get(3), "MJ01", null);
         checkAnchor(anchors.get(4), "MJ01", "any");
         checkAnchor(anchors.get(5), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
+        checkAnchorText(anchors.get(5), "Test product link with marker href.");
         checkAnchor(anchors.get(6), null, null);
         checkAnchor(anchors.get(7), null, "any");
         checkAnchor(anchors.get(8), null, MARKER_COMMERCE_LINKS);
