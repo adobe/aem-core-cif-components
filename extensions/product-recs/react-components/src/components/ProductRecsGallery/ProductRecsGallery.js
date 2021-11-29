@@ -13,7 +13,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { useStorefrontEvents, LoadingIndicator } from '@adobe/aem-core-cif-react-components';
@@ -25,6 +25,7 @@ import classes from './ProductRecsGallery.css';
 import ProductCard from './ProductCard';
 
 const ProductRecsGallery = props => {
+    const { hostElement } = props;
     const mse = useStorefrontEvents();
     const rendered = useRef(false);
     const { showAddToWishList } = props;
@@ -32,6 +33,18 @@ const ProductRecsGallery = props => {
     const { observeElement } = useVisibilityObserver();
 
     let content = '';
+
+    useEffect(() => {
+        if (!loading && hostElement) {
+            const products = units && units.length > 0 ? units[0].products : [];
+            hostElement.dispatchEvent(
+                new CustomEvent('aem.cif.product-recs-loaded', {
+                    bubbles: true,
+                    detail: products
+                })
+            );
+        }
+    }, [loading, units]);
 
     if (loading) {
         content = <LoadingIndicator />;
@@ -79,7 +92,8 @@ ProductRecsGallery.propTypes = {
     includeMaxPrice: PropTypes.string,
     includeMinPrice: PropTypes.string,
     preconfigured: PropTypes.bool,
-    showAddToWishList: PropTypes.bool
+    showAddToWishList: PropTypes.bool,
+    hostElement: PropTypes.instanceOf(HTMLElement)
 };
 
 export default ProductRecsGallery;
