@@ -53,6 +53,7 @@ class AddToWishlist {
         });
         const items = selections.map(selection => {
             const item = {
+                productId: selection.dataset.productId,
                 sku: selection.dataset.productSku,
                 quantity: selection.value
             };
