@@ -268,7 +268,6 @@ describe('<EditableForm />', () => {
 
         fireEvent.click(getByRole('button', { name: 'Use Payment Method' }));
         await wait(() => {
-            expect(asFragment()).toMatchSnapshot();
             expect(checkoutReducer).toHaveBeenLastCalledWith(
                 {
                     editing: 'paymentMethod',
@@ -290,6 +289,8 @@ describe('<EditableForm />', () => {
                 { type: 'setPaymentMethod', paymentMethod: { code: 'checkmo', title: 'Check / Money order' } }
             );
         });
+
+        expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders the shipping method form if countries are loaded', async () => {
@@ -345,9 +346,7 @@ describe('<EditableForm />', () => {
         fireEvent.change(getByRole('combobox'), { target: { value: 'flatrate' } });
         fireEvent.click(getByRole('button', { name: 'Use Method' }));
 
-        await wait(() => {
-            expect(asFragment()).toMatchSnapshot();
-        });
+        expect(asFragment()).toMatchSnapshot();
     });
 
     it('does not render the shipping address form if countries could not be loaded', async () => {
