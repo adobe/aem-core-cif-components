@@ -35,13 +35,23 @@ ConfigContextProvider.propTypes = {
             addressBookContainer: PropTypes.string,
             authBarContainer: PropTypes.string,
             cartTrigger: PropTypes.string,
+            minicart: PropTypes.string,
             navPanel: PropTypes.string,
             bundleProductOptionsContainer: PropTypes.string,
-            accountDetailsDialogContainer: PropTypes.string
+            giftCardProductOptionsContainer: PropTypes.string,
+            accountDetails: PropTypes.string,
+            resetPasswordPage: PropTypes.string,
+            productRecs: PropTypes.string,
+            cartDetailsContainer: PropTypes.string,
+            checkoutPageContainer: PropTypes.string
         }),
         pagePaths: PropTypes.shape({
             addressBook: PropTypes.string,
-            baseUrl: PropTypes.string
+            baseUrl: PropTypes.string,
+            accountDetails: PropTypes.string,
+            cartDetails: PropTypes.string,
+            resetPassword: PropTypes.string,
+            checkoutPage: PropTypes.string
         })
     }).isRequired
 };
