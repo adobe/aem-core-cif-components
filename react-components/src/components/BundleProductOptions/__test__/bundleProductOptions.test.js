@@ -76,6 +76,7 @@ describe('BundleProductOptions', () => {
         fireEvent.click(getByRole('button', { name: 'Customize' }));
 
         await waitForDomChange({ container });
+
         expect(asFragment()).toMatchSnapshot();
 
         fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
@@ -85,9 +86,6 @@ describe('BundleProductOptions', () => {
         fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
 
         // Add to cart should be called just once since the second click was on a disabled button
-        await wait(() => expect(dispatchEventSpy).toHaveBeenCalledTimes(1));
-
-        // Add to wishlist should be called just once
         await wait(() => expect(dispatchEventSpy).toHaveBeenCalledTimes(1));
 
         // The mock dispatchEvent function returns the CustomEvent detail
@@ -107,17 +105,6 @@ describe('BundleProductOptions', () => {
         ]);
 
         dispatchEventSpy.mockClear();
-
-        fireEvent.click(getByRole('button', { name: 'Add to Wish List' }));
-
-        // The mock dispatchEvent function returns the CustomEvent detail
-        expect(dispatchEventSpy).toHaveReturnedWith([
-            {
-                quantity: 1,
-                selected_options: ['YnVuZGxlLzIvMy8x', 'YnVuZGxlLzMvNS8x', 'YnVuZGxlLzQvNy8x', 'YnVuZGxlLzQvOC8x'],
-                sku: 'VA24'
-            }
-        ]);
     });
 
     it('renders add to wish list button', async () => {
@@ -136,6 +123,10 @@ describe('BundleProductOptions', () => {
         bundleProductOptionsContainer.dataset.showAddToWishList = '';
         bundleProductOptionsContainer.id = 'bundle-product-options';
 
+        const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation(event => {
+            return event.detail;
+        });
+
         const { asFragment, container, getByRole } = render(<BundleProductOptions />, {
             config: config,
             container: document.body.appendChild(bundleProductOptionsContainer),
@@ -147,5 +138,26 @@ describe('BundleProductOptions', () => {
         await waitForDomChange({ container });
 
         expect(asFragment()).toMatchSnapshot();
+
+        fireEvent.click(getByRole('button', { name: 'Add to Wish List' }));
+
+        await wait(() => expect(dispatchEventSpy).toHaveBeenCalledTimes(1));
+
+        // The mock dispatchEvent function returns the CustomEvent detail
+        expect(dispatchEventSpy).toHaveReturnedWith([
+            {
+                quantity: 1,
+                selected_options: [
+                    'YnVuZGxlLzEvMS8x',
+                    'YnVuZGxlLzIvMy8x',
+                    'YnVuZGxlLzMvNS8x',
+                    'YnVuZGxlLzQvNy8x',
+                    'YnVuZGxlLzQvOC8x'
+                ],
+                sku: 'VA24'
+            }
+        ]);
+
+        dispatchEventSpy.mockClear();
     });
 });
