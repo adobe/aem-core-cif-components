@@ -1,0 +1,69 @@
+{
+    "data": {
+        "products": {
+            "items": [
+                {
+                    "__typename": "GiftCardProduct",
+                    "sku": "gitf-card",
+                    "staged": true,
+                    "name": "Gift Card",
+                    "description": {
+                        "html": "<p>A gift card</p>"
+                    },
+                    "image": {
+                        "label": "Gift Card",
+                        "url": "http://test-url.magentosite.cloud/pub/media/catalog/product/cache/6635d67a47a2c5525bebb864987a446d/l/u/luma-gift.jpg"
+                    },
+                    "thumbnail": {
+                        "label": "Gift Card",
+                        "url": "http://test-url.magentosite.cloud/pub/media/catalog/product/cache/6635d67a47a2c5525bebb864987a446d/l/u/luma-gift.jpg"
+                    },
+                    "url_key": "gitf-card",
+                    "stock_status": "IN_STOCK",
+                    "price_range": {
+                        "minimum_price": {
+                            "regular_price": {
+                                "value": 0,
+                                "currency": "USD"
+                            },
+                            "final_price": {
+                                "value": 12,
+                                "currency": "USD"
+                            },
+                            "discount": {
+                                "amount_off": 0,
+                                "percent_off": 0
+                            }
+                        },
+                        "maximum_price": {
+                            "regular_price": {
+                                "value": 0,
+                                "currency": "USD"
+                            },
+                            "final_price": {
+                                "value": 12,
+                                "currency": "USD"
+                            },
+                            "discount": {
+                                "amount_off": 0,
+                                "percent_off": 0
+                            }
+                        }
+                    },
+                    "media_gallery_entries": [
+                        {
+                            "disabled": false,
+                            "file": "/l/u/luma-gift.jpg",
+                            "label": "Image",
+                            "position": 1,
+                            "media_type": "image"
+                        }
+                    ]
+                }
+            ]
+        },
+        "storeConfig": {
+            "secure_base_media_url": "http://test-url.magentosite.cloud/pub/media/"
+        }
+    }
+}

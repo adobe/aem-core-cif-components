@@ -459,6 +459,22 @@ public class ProductImplTest {
     }
 
     @Test
+    public void testGiftCardProduct() throws IOException {
+        testGiftCardProductImpl();
+    }
+
+    public void testGiftCardProductImpl() throws IOException {
+        Utils.setupHttpResponse("graphql/magento-graphql-gift-card-product-result.json", httpClient, 200,
+            "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-gift-card-product-result.json", httpClient, 200,
+            "{products(filter:{sku");
+        adaptToProduct();
+
+        Assert.assertNotNull("Product model is not null", productModel);
+        Assert.assertTrue(productModel.isGiftCardProduct());
+    }
+
+    @Test
     public void testProductNoGraphqlClient() {
         when(productResource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);

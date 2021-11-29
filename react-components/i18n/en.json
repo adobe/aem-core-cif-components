@@ -719,6 +719,42 @@
       "value": "Customize"
     }
   ],
+  "product:gift-card-amount-selection": [
+    {
+      "type": 0,
+      "value": "Amount"
+    }
+  ],
+  "product:gift-card-choose-amount": [
+    {
+      "type": 0,
+      "value": "Choose an Amount"
+    }
+  ],
+  "product:gift-card-custom-ammount-maximum": [
+    {
+      "type": 0,
+      "value": "Maximum"
+    }
+  ],
+  "product:gift-card-custom-ammount-minimum": [
+    {
+      "type": 0,
+      "value": "Minimum"
+    }
+  ],
+  "product:gift-card-custom-amount": [
+    {
+      "type": 0,
+      "value": "Amount in"
+    }
+  ],
+  "product:gift-card-other-amount": [
+    {
+      "type": 0,
+      "value": "Other Amount"
+    }
+  ],
   "product:quantity-label": [
     {
       "type": 0,
