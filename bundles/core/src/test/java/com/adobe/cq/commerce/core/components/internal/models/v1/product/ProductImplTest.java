@@ -470,8 +470,8 @@ public class ProductImplTest {
             "{products(filter:{sku");
         adaptToProduct();
 
-        Assert.assertNotNull("Product model is not null", productModel);
-        Assert.assertTrue(productModel.isGiftCardProduct());
+        assertNotNull("Product model is not null", productModel);
+        assertTrue(productModel.isGiftCardProduct());
     }
 
     @Test
