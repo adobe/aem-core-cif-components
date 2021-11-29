@@ -81,7 +81,7 @@ public class ProductCollectionImplTest {
 
     private SlingBindings getSlingBindings(String resourcePath) {
         Page page = context.currentPage(PAGE);
-        Resource productCollectionResource = context.resourceResolver().getResource(resourcePath);
+        Resource productCollectionResource = context.currentResource(resourcePath);
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(productCollectionResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);

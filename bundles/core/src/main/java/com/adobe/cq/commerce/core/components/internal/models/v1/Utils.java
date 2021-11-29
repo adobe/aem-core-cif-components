@@ -19,12 +19,52 @@ import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.day.cq.wcm.api.designer.Designer;
+import com.day.cq.wcm.api.designer.Style;
+import com.day.cq.wcm.api.policies.ContentPolicy;
+import com.day.cq.wcm.api.policies.ContentPolicyManager;
+import com.day.cq.wcm.commons.policy.ContentPolicyStyle;
+import com.drew.lang.annotations.NotNull;
+import com.drew.lang.annotations.Nullable;
 
 public class Utils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
+
+    /**
+     * Returns the {@link Style}/{@link ContentPolicy} of a given content {@link Resource} as ValueMap. It tries to get the
+     * {@link ContentPolicy} first and if it fails, it tries to get the {@link Style}.
+     *
+     * @param request
+     * @param contentResource
+     * @return
+     */
+    @NotNull
+    public static ValueMap getStyleProperties(@Nullable SlingHttpServletRequest request, Resource contentResource) {
+        ContentPolicyManager contentPolicyManager = contentResource.getResourceResolver().adaptTo(ContentPolicyManager.class);
+        if (contentPolicyManager != null) {
+            ContentPolicy policy = contentPolicyManager.getPolicy(contentResource, request);
+            if (policy != null) {
+                return new ContentPolicyStyle(policy, null);
+            }
+        }
+
+        Designer designer = contentResource.getResourceResolver().adaptTo(Designer.class);
+        if (designer != null) {
+            Style style = designer.getStyle(contentResource);
+            if (style != null) {
+                return style;
+            }
+        }
+
+        return ValueMap.EMPTY;
+    }
 
     /**
      * Builds a NumberFormat instance used for formatting prices based on the given

@@ -27,7 +27,7 @@
     "i18n:extract-compile": "formatjs extract --out-file i18n/__temp.json 'src/**/*.js' && formatjs compile --ast --out-file i18n/en.json i18n/__temp.json && rm i18n/__temp.json"
   },
   "devDependencies": {
-    "@adobe/aem-core-cif-react-components": "^2.0.0",
+    "@adobe/aem-core-cif-react-components": "^2.4.0",
     "@apollo/client": "^3.2.4",
     "@babel/core": "^7.8.7",
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
