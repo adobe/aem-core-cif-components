@@ -70,6 +70,7 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
+import com.adobe.cq.commerce.magento.graphql.GiftCardProduct;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.GroupedProductItem;
 import com.adobe.cq.commerce.magento.graphql.MediaGalleryInterface;
@@ -132,6 +133,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private Boolean isGroupedProduct;
     private Boolean isVirtualProduct;
     private Boolean isBundleProduct;
+    private Boolean isGiftCardProduct;
     private Boolean loadClientPrice;
     private boolean usePlaceholderData = false;
     private boolean isAuthor = true;
@@ -242,6 +244,14 @@ public class ProductImpl extends DataLayerComponent implements Product {
             isBundleProduct = productRetriever != null && productRetriever.fetchProduct() instanceof BundleProduct;
         }
         return isBundleProduct;
+    }
+
+    @Override
+    public Boolean isGiftCardProduct() {
+        if (isGiftCardProduct == null) {
+            isGiftCardProduct = productRetriever != null && productRetriever.fetchProduct() instanceof GiftCardProduct;
+        }
+        return isGiftCardProduct;
     }
 
     @Override
