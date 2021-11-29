@@ -150,4 +150,77 @@ describe('useAddToCartEvent', () => {
             ]);
         });
     });
+
+    it('calls addToCartApi#addGiftCardProductItems if gift card product items', async () => {
+        // given
+        const addGiftCardProductItems = jest.fn();
+
+        // when
+        render(<MockComponet addToCartApi={{ addGiftCardProductItems }} />);
+        dispatchEvent([
+            {
+                sku: 'gift-card',
+                virtual: false,
+                giftCard: true,
+                quantity: 1,
+                entered_options: [
+                    {
+                        uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX25hbWU=',
+                        value: 'bla'
+                    },
+                    {
+                        uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX2VtYWls',
+                        value: 'bla'
+                    },
+                    {
+                        uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X25hbWU=',
+                        value: 'bla'
+                    },
+                    {
+                        uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X2VtYWls',
+                        value: 'bla'
+                    },
+                    {
+                        uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ==',
+                        value: 'da'
+                    }
+                ],
+                selected_options: ['Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzEyLjAwMDA=']
+            }
+        ]);
+
+        // then
+        await wait(() => {
+            expect(addGiftCardProductItems).toHaveBeenCalledTimes(1);
+            expect(addGiftCardProductItems).toHaveBeenCalledWith([
+                {
+                    sku: 'gift-card',
+                    quantity: 1,
+                    entered_options: [
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX25hbWU=',
+                            value: 'bla'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfc2VuZGVyX2VtYWls',
+                            value: 'bla'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X25hbWU=',
+                            value: 'bla'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfcmVjaXBpZW50X2VtYWls',
+                            value: 'bla'
+                        },
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ==',
+                            value: 'da'
+                        }
+                    ],
+                    selected_options: ['Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzEyLjAwMDA=']
+                }
+            ]);
+        });
+    });
 });
