@@ -170,7 +170,12 @@ public class ProductsSitemapGenerator extends SitemapGeneratorBase implements Si
             resultSet -> resultSet
                 .totalCount()
                 .items(product -> {
-                    product.urlKey().sku();
+                    product
+                        .sku()
+                        .urlKey()
+                        .urlPath()
+                        .urlRewrites(urlRewritesQuery -> urlRewritesQuery.url());
+
                     if (addLastModified) {
                         product.updatedAt().createdAt();
                     }

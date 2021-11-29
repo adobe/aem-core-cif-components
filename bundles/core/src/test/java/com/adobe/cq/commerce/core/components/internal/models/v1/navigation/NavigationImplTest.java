@@ -16,7 +16,6 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +27,12 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.apache.sling.settings.SlingSettingsService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
@@ -106,11 +105,13 @@ public class NavigationImplTest {
         when(categoryProvider.getChildCategories(any(), any())).thenReturn(categoryList);
 
         // URL provider
-        SlingSettingsService slingSettingsService = mock(SlingSettingsService.class);
-        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
+        SpecificPageStrategy specificPageStrategy = new SpecificPageStrategy();
+        SpecificPageStrategy.Configuration specificPageStrategyConfig = mock(SpecificPageStrategy.Configuration.class);
+        when(specificPageStrategyConfig.generateSpecificPageUrls()).thenReturn(false);
+        specificPageStrategy.activate(specificPageStrategyConfig);
         UrlProviderImpl urlProvider = new UrlProviderImpl();
         urlProvider.activate(mock(UrlProviderConfiguration.class));
-        Whitebox.setInternalState(urlProvider, "slingSettingsService", slingSettingsService);
+        Whitebox.setInternalState(urlProvider, "specificPageStrategy", specificPageStrategy);
         Whitebox.setInternalState(navigation, "urlProvider", urlProvider);
 
         // current request
