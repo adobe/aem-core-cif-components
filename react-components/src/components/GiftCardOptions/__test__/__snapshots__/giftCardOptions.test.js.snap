@@ -1,0 +1,682 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GiftCardProductOptions renders the component with full options 1`] = `
+<DocumentFragment>
+  <section
+    class="productFullDetail__section productFullDetail__giftCardProduct"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Amount
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="giftCardOptionSelect__root"
+      >
+        <span
+          class="fieldIcons__root"
+        >
+          <span
+            class="fieldIcons__input"
+          >
+            <select
+              aria-label="Amount"
+              class="select__input field__input giftCardProduct__option"
+            >
+              <option
+                value=""
+              >
+                Choose an Amount...
+              </option>
+              <option
+                value="Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzEyLjAwMDA="
+              >
+                12
+              </option>
+              <option
+                value="Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzEzLjAwMDA="
+              >
+                13
+              </option>
+              <option
+                value="open_amount"
+              >
+                Other Amount...
+              </option>
+            </select>
+          </span>
+          <span
+            class="fieldIcons__before"
+          />
+          <span
+            class="fieldIcons__after"
+          >
+            <span
+              class="icon__root"
+            >
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="6 9 12 15 18 9"
+                />
+              </svg>
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__giftCardProduct"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Sender Name
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="giftCardOptionSelect__root"
+      >
+        <span>
+          <input
+            aria-label="Sender Name"
+            class="field__input"
+            type="text"
+            value=""
+          />
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__giftCardProduct"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Sender Email
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="giftCardOptionSelect__root"
+      >
+        <span>
+          <input
+            aria-label="Sender Email"
+            class="field__input"
+            type="text"
+            value=""
+          />
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__giftCardProduct"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Recipient Name
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="giftCardOptionSelect__root"
+      >
+        <span>
+          <input
+            aria-label="Recipient Name"
+            class="field__input"
+            type="text"
+            value=""
+          />
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__giftCardProduct"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Recipient Email
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="giftCardOptionSelect__root"
+      >
+        <span>
+          <input
+            aria-label="Recipient Email"
+            class="field__input"
+            type="text"
+            value=""
+          />
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__giftCardProduct"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Message
+      </span>
+       
+    </h3>
+    <div>
+      <div
+        class="giftCardOptionSelect__root"
+      >
+        <span>
+          <input
+            aria-label="Message"
+            class="field__input"
+            type="text"
+            value=""
+          />
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__quantity productFullDetail__section"
+  >
+    <h2
+      class="productFullDetail__quantityTitle option__title"
+    >
+      <span>
+        Quantity
+      </span>
+    </h2>
+    <div
+      class="quantity__root"
+    >
+      <span
+        class="fieldIcons__root"
+        style="--iconsBefore: 0; --iconsAfter: 1;"
+      >
+        <span
+          class="fieldIcons__input"
+        >
+          <select
+            aria-label="Product quantity"
+            class="select__input field__input"
+            name="quantity"
+          >
+            <option
+              value="1"
+            >
+              1
+            </option>
+            <option
+              value="2"
+            >
+              2
+            </option>
+            <option
+              value="3"
+            >
+              3
+            </option>
+            <option
+              value="4"
+            >
+              4
+            </option>
+          </select>
+        </span>
+        <span
+          class="fieldIcons__before"
+        />
+        <span
+          class="fieldIcons__after"
+        >
+          <span
+            class="icon__root"
+          >
+            <svg
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <polyline
+                points="6 9 12 15 18 9"
+              />
+            </svg>
+          </span>
+        </span>
+      </span>
+      <p
+        class="message-root"
+      />
+    </div>
+  </section>
+  <section
+    class="productFullDetail__cartActions productFullDetail__section"
+  >
+    <button
+      class="button__root_highPriority button__root clickable__root button__filled"
+      disabled=""
+      type="button"
+    >
+      <span
+        class="button__content"
+      >
+        <span>
+          Add to Cart
+        </span>
+      </span>
+    </button>
+  </section>
+</DocumentFragment>
+`;
+
+exports[`GiftCardProductOptions renders the component with no sku 1`] = `
+<DocumentFragment>
+  <div
+    class="root"
+  >
+    <span
+      class="indicator loader-img"
+    />
+    <span
+      class="message"
+    />
+  </div>
+</DocumentFragment>
+`;
+
+exports[`GiftCardProductOptions renders the component with sku 1`] = `
+<DocumentFragment>
+  <section
+    class="productFullDetail__section productFullDetail__giftCardProduct"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Amount
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="giftCardOptionSelect__root"
+      >
+        <span
+          class="fieldIcons__root"
+        >
+          <span
+            class="fieldIcons__input"
+          >
+            <select
+              aria-label="Amount"
+              class="select__input field__input giftCardProduct__option"
+            >
+              <option
+                value=""
+              >
+                Choose an Amount...
+              </option>
+              <option
+                value="Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzEyLjAwMDA="
+              >
+                12
+              </option>
+              <option
+                value="Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzEzLjAwMDA="
+              >
+                13
+              </option>
+              <option
+                value="open_amount"
+              >
+                Other Amount...
+              </option>
+            </select>
+          </span>
+          <span
+            class="fieldIcons__before"
+          />
+          <span
+            class="fieldIcons__after"
+          >
+            <span
+              class="icon__root"
+            >
+              <svg
+                fill="none"
+                height="18"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="18"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <polyline
+                  points="6 9 12 15 18 9"
+                />
+              </svg>
+            </span>
+          </span>
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__giftCardProduct"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Sender Name
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="giftCardOptionSelect__root"
+      >
+        <span>
+          <input
+            aria-label="Sender Name"
+            class="field__input"
+            type="text"
+            value=""
+          />
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__giftCardProduct"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Sender Email
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="giftCardOptionSelect__root"
+      >
+        <span>
+          <input
+            aria-label="Sender Email"
+            class="field__input"
+            type="text"
+            value=""
+          />
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__giftCardProduct"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Recipient Name
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="giftCardOptionSelect__root"
+      >
+        <span>
+          <input
+            aria-label="Recipient Name"
+            class="field__input"
+            type="text"
+            value=""
+          />
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__giftCardProduct"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Recipient Email
+      </span>
+       
+      <span
+        class="required"
+      >
+         *
+      </span>
+    </h3>
+    <div>
+      <div
+        class="giftCardOptionSelect__root"
+      >
+        <span>
+          <input
+            aria-label="Recipient Email"
+            class="field__input"
+            type="text"
+            value=""
+          />
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__section productFullDetail__giftCardProduct"
+  >
+    <h3
+      class="option__title"
+    >
+      <span>
+        Message
+      </span>
+       
+    </h3>
+    <div>
+      <div
+        class="giftCardOptionSelect__root"
+      >
+        <span>
+          <input
+            aria-label="Message"
+            class="field__input"
+            type="text"
+            value=""
+          />
+        </span>
+      </div>
+    </div>
+  </section>
+  <section
+    class="productFullDetail__quantity productFullDetail__section"
+  >
+    <h2
+      class="productFullDetail__quantityTitle option__title"
+    >
+      <span>
+        Quantity
+      </span>
+    </h2>
+    <div
+      class="quantity__root"
+    >
+      <span
+        class="fieldIcons__root"
+        style="--iconsBefore: 0; --iconsAfter: 1;"
+      >
+        <span
+          class="fieldIcons__input"
+        >
+          <select
+            aria-label="Product quantity"
+            class="select__input field__input"
+            name="quantity"
+          >
+            <option
+              value="1"
+            >
+              1
+            </option>
+            <option
+              value="2"
+            >
+              2
+            </option>
+            <option
+              value="3"
+            >
+              3
+            </option>
+            <option
+              value="4"
+            >
+              4
+            </option>
+          </select>
+        </span>
+        <span
+          class="fieldIcons__before"
+        />
+        <span
+          class="fieldIcons__after"
+        >
+          <span
+            class="icon__root"
+          >
+            <svg
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <polyline
+                points="6 9 12 15 18 9"
+              />
+            </svg>
+          </span>
+        </span>
+      </span>
+      <p
+        class="message-root"
+      />
+    </div>
+  </section>
+  <section
+    class="productFullDetail__cartActions productFullDetail__section"
+  >
+    <button
+      class="button__root_highPriority button__root clickable__root button__filled"
+      disabled=""
+      type="button"
+    >
+      <span
+        class="button__content"
+      >
+        <span>
+          Add to Cart
+        </span>
+      </span>
+    </button>
+  </section>
+</DocumentFragment>
+`;
