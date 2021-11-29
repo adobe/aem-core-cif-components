@@ -29,14 +29,23 @@ Product component is a server side component written in HTL, allowing to display
 ### Use Object
 The Product component uses the `com.adobe.cq.commerce.core.components.models.product.Product` Sling model as its Use-object.
 
-### Selectors & Request Parameters
-This component is targeted for a product page showing details of a single simple or configurable product.
-1. The product identifier (based on `UrlProvider` configuration) is retrieved form the first URL selector. Alternatively, a product sku can be defined via the edit dialog.
-
 ### Component Policy Configuration Properties
 The following configuration properties are used:
 
 1. `./loadClientPrice` - enables client-side price fetching
+2. `./enableAddToWishList` - enables the add to favourites list button, disabled per default
+
+### Edit Dialog Properties
+
+The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
+
+1. `./id` - defines the component HTML ID attribute.
+2. `./sku` - the sku of the manually selected product to be shown by the component, optional 
+
+### Selectors & Request Parameters
+This component is targeted for a product page showing details of a single simple or configurable product.
+
+1. The product identifier (based on `UrlProvider` configuration) is retrieved form the first URL selector. Alternatively, a product sku can be defined via the edit dialog.
 
 ## BEM Description
 ```
