@@ -15,12 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.productrecommendations;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
@@ -57,13 +56,9 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
     protected SlingHttpServletRequest request;
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     private Style currentStyle;
-
+    @Self
+    @Via("resource")
     private ValueMap props;
-
-    @PostConstruct
-    private void initModel() {
-        props = request.getResource().adaptTo(ValueMap.class);
-    }
 
     private String getStringListProperty(String propertyName) {
         Object property = props.get(propertyName);
@@ -139,6 +134,7 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
 
     @Override
     public boolean getAddToWishListEnabled() {
-        return currentStyle != null ? currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Boolean.TRUE) : Boolean.TRUE;
+        Boolean defaultValue = ProductRecommendations.super.getAddToWishListEnabled();
+        return currentStyle != null ? currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, defaultValue) : defaultValue;
     }
 }

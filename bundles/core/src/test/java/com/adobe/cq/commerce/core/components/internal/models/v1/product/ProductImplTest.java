@@ -213,7 +213,8 @@ public class ProductImplTest {
         assertEquals(product.getMetaKeyword(), productModel.getMetaKeywords());
         assertEquals(product.getMetaTitle(), productModel.getMetaTitle());
         assertEquals("https://author" + PAGE + ".html/beaumont-summit-kit.html", productModel.getCanonicalUrl());
-        assertTrue(productModel.getAddToWishListEnabled());
+
+        assertFalse(productModel.getAddToWishListEnabled());
     }
 
     private void testProduct(ProductInterface product, boolean loadClientPrice) {
@@ -592,8 +593,8 @@ public class ProductImplTest {
 
     @Test
     public void testAddToWishListDisabled() {
-        when(style.get(eq("enableAddToWishList"), anyBoolean())).thenReturn(Boolean.FALSE);
+        when(style.get(eq("enableAddToWishList"), anyBoolean())).thenReturn(Boolean.TRUE);
         adaptToProduct();
-        assertFalse(productModel.getAddToWishListEnabled());
+        assertTrue(productModel.getAddToWishListEnabled());
     }
 }

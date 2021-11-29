@@ -104,7 +104,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     }
 
     @PostConstruct
-    protected void postConstruct() {
+    protected void initModel() {
         if (currentPage == null) {
             currentPage = getPageFromResource(resource);
         }

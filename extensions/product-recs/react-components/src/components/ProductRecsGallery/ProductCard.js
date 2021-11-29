@@ -22,7 +22,7 @@ import { useStorefrontEvents, Price, Trigger, createProductPageUrl } from '@adob
 import classes from './ProductCard.css';
 
 const ProductCard = props => {
-    const { hideAddToWishList } = props;
+    const { showAddToWishList } = props;
     const mse = useStorefrontEvents();
     const intl = useIntl();
 
@@ -105,7 +105,7 @@ const ProductCard = props => {
                     </span>
                 </Trigger>
             }
-            {!hideAddToWishList && (
+            {showAddToWishList && (
                 <Trigger className={classes.buttonMargin} action={() => addToWishlist(props.product)}>
                     <span className={classes.addToWishlist}>
                         {intl.formatMessage({ id: 'productrecs:add-to-wishlist', defaultMessage: 'Add to Wish List' })}
@@ -138,7 +138,7 @@ ProductCard.propTypes = {
             url: PropTypes.string
         })
     }),
-    hideAddToWishList: PropTypes.bool
+    showAddToWishList: PropTypes.bool
 };
 
 export default ProductCard;

@@ -100,9 +100,9 @@ describe('ProductRecsGallery', () => {
     });
 
     it.each([
-        ['with add to wish list', undefined],
-        ['without add to wish list', true]
-    ])('renders a list of products (%s)', (_name, hideAddToWishList) => {
+        ['with add to wish list', true],
+        ['without add to wish list', undefined]
+    ])('renders a list of products (%s)', (_name, showAddToWishList) => {
         mockUseRecommendationsValue.mockReturnValue({
             loading: false,
             units
@@ -112,7 +112,7 @@ describe('ProductRecsGallery', () => {
             <ProductRecsGallery
                 title="My Product Recommendations"
                 recommendationType="most-viewed"
-                hideAddToWishList={hideAddToWishList}
+                showAddToWishList={showAddToWishList}
             />,
             { wrapper: ContextWrapper }
         );

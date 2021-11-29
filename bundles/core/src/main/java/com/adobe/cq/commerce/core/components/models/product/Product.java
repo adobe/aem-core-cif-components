@@ -101,6 +101,6 @@ public interface Product extends Component, PageMetadata {
      * @return
      */
     default boolean getAddToWishListEnabled() {
-        return true;
+        return false;
     }
 }

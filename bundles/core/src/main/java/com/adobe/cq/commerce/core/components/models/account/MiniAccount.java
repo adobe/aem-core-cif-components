@@ -13,40 +13,21 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-package com.adobe.cq.commerce.extensions.recommendations.models.productrecommendations;
+package com.adobe.cq.commerce.core.components.models.account;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
-import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
+import com.adobe.cq.wcm.core.components.models.Component;
 
-/**
- * Sling model for a product recommendation component
- * The model holds all the configured options
- */
 @ConsumerType
-public interface ProductRecommendations {
-
-    boolean getPreconfigured();
-
-    String getTitle();
-
-    String getRecommendationType();
-
-    String getCategoryInclusions();
-
-    String getCategoryExclusions();
-
-    PriceRange getPriceRangeInclusions();
-
-    PriceRange getPriceRangeExclusions();
+public interface MiniAccount extends Component {
 
     /**
-     * Returns {@code true} when the product recommendations component should show an Add to Wish List button.
+     * Returns {@code true} when the wish list is enabled and should be shown in the account drop down.
      *
-     * @return {@code true} when the Add to Wish List button is enabled, {@code false} otherwise
+     * @return {@code true} if the wish list is enabled, {@code false} otherwise
      */
-    default boolean getAddToWishListEnabled() {
+    default boolean getWishListEnabled() {
         return false;
     }
-
 }

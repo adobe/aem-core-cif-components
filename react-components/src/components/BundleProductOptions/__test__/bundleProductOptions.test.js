@@ -120,7 +120,7 @@ describe('BundleProductOptions', () => {
         ]);
     });
 
-    it('renders no add to wish list button', async () => {
+    it('renders add to wish list button', async () => {
         // mock useState to return the state for a full rendering
         jest.spyOn(hooks, 'useAwaitQuery').mockImplementation(() => {
             return jest.fn().mockImplementation(async () => {
@@ -133,7 +133,7 @@ describe('BundleProductOptions', () => {
 
         const bundleProductOptionsContainer = document.createElement('div');
         bundleProductOptionsContainer.dataset.sku = 'VA24';
-        bundleProductOptionsContainer.dataset.hideAddToWishList = true;
+        bundleProductOptionsContainer.dataset.showAddToWishList = '';
         bundleProductOptionsContainer.id = 'bundle-product-options';
 
         const { asFragment, container, getByRole } = render(<BundleProductOptions />, {

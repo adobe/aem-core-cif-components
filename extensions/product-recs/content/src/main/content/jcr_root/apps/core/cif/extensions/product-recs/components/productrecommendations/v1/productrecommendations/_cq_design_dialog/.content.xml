@@ -30,8 +30,7 @@
                                         name="./enableAddToWishList"
                                         text="Add to Wish List"
                                         uncheckedValue="false"
-                                        value="true"
-                                        checked="{Boolean}true"/>
+                                        value="true"/>
                                     <allowedRecTypes
                                         jcr:primaryType="nt:unstructured"
                                         sling:resourceType="granite/ui/components/coral/foundation/form/select"

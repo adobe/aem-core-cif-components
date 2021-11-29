@@ -192,7 +192,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         }
 
         locale = currentPage.getLanguage(false);
-        enableAddToWishList = currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Boolean.TRUE);
+        enableAddToWishList = currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Boolean.FALSE);
     }
 
     @Override

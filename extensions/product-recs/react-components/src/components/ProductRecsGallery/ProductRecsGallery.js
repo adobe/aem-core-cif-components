@@ -27,7 +27,7 @@ import ProductCard from './ProductCard';
 const ProductRecsGallery = props => {
     const mse = useStorefrontEvents();
     const rendered = useRef(false);
-    const { hideAddToWishList } = props;
+    const { showAddToWishList } = props;
     const { loading, units } = useRecommendations(props);
     const { observeElement } = useVisibilityObserver();
 
@@ -53,7 +53,7 @@ const ProductRecsGallery = props => {
                             unit={unit}
                             product={product}
                             key={product.sku}
-                            hideAddToWishList={hideAddToWishList}
+                            showAddToWishList={showAddToWishList}
                         />
                     ))}
                 </div>
@@ -79,7 +79,7 @@ ProductRecsGallery.propTypes = {
     includeMaxPrice: PropTypes.string,
     includeMinPrice: PropTypes.string,
     preconfigured: PropTypes.bool,
-    hideAddToWishList: PropTypes.bool
+    showAddToWishList: PropTypes.bool
 };
 
 export default ProductRecsGallery;

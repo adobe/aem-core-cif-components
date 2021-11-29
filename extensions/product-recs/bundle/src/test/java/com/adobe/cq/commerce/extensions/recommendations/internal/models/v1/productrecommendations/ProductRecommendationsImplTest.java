@@ -67,7 +67,7 @@ public class ProductRecommendationsImplTest {
         assertNull(productRecommendations.getCategoryExclusions());
         assertNull(productRecommendations.getPriceRangeInclusions());
         assertNull(productRecommendations.getPriceRangeExclusions());
-        assertTrue(productRecommendations.getAddToWishListEnabled());
+        assertFalse(productRecommendations.getAddToWishListEnabled());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class ProductRecommendationsImplTest {
         assertNull(productRecommendations.getCategoryExclusions());
         assertNull(productRecommendations.getPriceRangeInclusions());
         assertNull(productRecommendations.getPriceRangeExclusions());
-        assertTrue(productRecommendations.getAddToWishListEnabled());
+        assertFalse(productRecommendations.getAddToWishListEnabled());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class ProductRecommendationsImplTest {
         assertNull(productRecommendations.getCategoryExclusions());
         assertNull(productRecommendations.getPriceRangeInclusions());
         assertNull(productRecommendations.getPriceRangeExclusions());
-        assertTrue(productRecommendations.getAddToWishListEnabled());
+        assertFalse(productRecommendations.getAddToWishListEnabled());
     }
 
     @Test
@@ -106,7 +106,7 @@ public class ProductRecommendationsImplTest {
         assertEquals("tops-women", productRecommendations.getCategoryExclusions());
         assertNull(productRecommendations.getPriceRangeInclusions());
         assertNull(productRecommendations.getPriceRangeExclusions());
-        assertTrue(productRecommendations.getAddToWishListEnabled());
+        assertFalse(productRecommendations.getAddToWishListEnabled());
     }
 
     @Test
@@ -120,7 +120,7 @@ public class ProductRecommendationsImplTest {
         assertEquals(Double.valueOf(10), productRecommendations.getPriceRangeInclusions().getMinPrice());
         assertEquals(Double.valueOf(100), productRecommendations.getPriceRangeInclusions().getMaxPrice());
         assertNull(productRecommendations.getPriceRangeExclusions());
-        assertTrue(productRecommendations.getAddToWishListEnabled());
+        assertFalse(productRecommendations.getAddToWishListEnabled());
     }
 
     @Test
@@ -134,13 +134,13 @@ public class ProductRecommendationsImplTest {
         assertNull(productRecommendations.getPriceRangeInclusions());
         assertEquals(Double.valueOf(30), productRecommendations.getPriceRangeExclusions().getMinPrice());
         assertEquals(Double.valueOf(50), productRecommendations.getPriceRangeExclusions().getMaxPrice());
-        assertTrue(productRecommendations.getAddToWishListEnabled());
+        assertFalse(productRecommendations.getAddToWishListEnabled());
     }
 
     @Test
     public void testAddToWishListDisabled() {
-        context.contentPolicyMapping(ProductRecommendationsImpl.RESOURCE_TYPE, "enableAddToWishList", Boolean.FALSE);
+        context.contentPolicyMapping(ProductRecommendationsImpl.RESOURCE_TYPE, "enableAddToWishList", Boolean.TRUE);
         setupTest(PRECONFIGURED_RECS_PATH);
-        assertFalse(productRecommendations.getAddToWishListEnabled());
+        assertTrue(productRecommendations.getAddToWishListEnabled());
     }
 }
