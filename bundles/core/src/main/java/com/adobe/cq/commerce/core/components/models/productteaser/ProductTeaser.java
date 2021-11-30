@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.productteaser;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
@@ -23,6 +25,7 @@ import com.adobe.cq.wcm.core.components.models.Component;
 /**
  * Product Teaser is the sling model interface for the CIF Teaser component.
  */
+@ConsumerType
 public interface ProductTeaser extends Component {
 
     /**
@@ -106,5 +109,14 @@ public interface ProductTeaser extends Component {
      * @return product retriever instance
      */
     AbstractProductRetriever getProductRetriever();
+
+    /**
+     * Returns true when the Add to Wish List button is enabled.
+     *
+     * @return
+     */
+    default boolean getAddToWishListEnabled() {
+        return false;
+    }
 
 }

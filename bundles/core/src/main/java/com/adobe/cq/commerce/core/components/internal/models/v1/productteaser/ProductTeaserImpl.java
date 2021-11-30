@@ -26,6 +26,7 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -54,6 +55,8 @@ import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Model(
@@ -69,32 +72,33 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     static final String CALL_TO_ACTION_TEXT_ADD_TO_CART = "Add to Cart";
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
+    protected static final String PN_STYLE_ADD_TO_WISHLIST_ENABLED = "enableAddToWishList";
+
     private static final String SELECTION_PROPERTY = "selection";
 
     @Self
     private SlingHttpServletRequest request;
-
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
-
     @ScriptVariable
     private Page currentPage;
-
     @OSGiService
     private UrlProvider urlProvider;
-
-    @ScriptVariable
+    @Self
+    @Via("resource")
     private ValueMap properties;
-
     @ValueMapValue(
         name = "cta",
         injectionStrategy = InjectionStrategy.OPTIONAL)
     private String cta;
-
     @ValueMapValue(
         name = "ctaText",
         injectionStrategy = InjectionStrategy.OPTIONAL)
     private String ctaText;
+    @ScriptVariable(
+        name = WCMBindingsConstants.NAME_CURRENT_STYLE,
+        injectionStrategy = InjectionStrategy.OPTIONAL)
+    private Style currentStyle;
 
     private Page productPage;
     private Pair<String, String> combinedSku;
@@ -262,6 +266,13 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @Override
     public String getExportedType() {
         return RESOURCE_TYPE;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean getAddToWishListEnabled() {
+        Boolean defaultValue = ProductTeaser.super.getAddToWishListEnabled();
+        return currentStyle != null ? currentStyle.get(PN_STYLE_ADD_TO_WISHLIST_ENABLED, defaultValue) : defaultValue;
     }
 
     // DataLayer methods
