@@ -26,11 +26,23 @@ describe('createProductPageUrl', () => {
         expect(url).toBeNull();
     });
 
-    it('creates a product page url for a product sku', () => {
+    it('creates a product page url for a product sku from body dataset', () => {
         document.body.dataset.storeRootUrl = '/content/venia/us/en.html';
 
-        const url = createProductPageUrl('my-product');
-
+        let url = createProductPageUrl('my-product');
         expect(url).toEqual('http://localhost/content/venia/us/en.cifproductredirect.html/my-product');
+        url = createProductPageUrl('my-other-product');
+        expect(url).toEqual('http://localhost/content/venia/us/en.cifproductredirect.html/my-other-product');
+    });
+
+    it('creates a product page url for a product sku from meta element', () => {
+        const el = { content: '{"storeRootUrl":"/content/venia2/us/en.html"}' };
+        // eslint-disable-next-line no-unused-vars
+        jest.spyOn(document, 'querySelector').mockImplementation(_ => el);
+
+        let url = createProductPageUrl('my-product');
+        expect(url).toEqual('http://localhost/content/venia2/us/en.cifproductredirect.html/my-product');
+        url = createProductPageUrl('my-other-product');
+        expect(url).toEqual('http://localhost/content/venia2/us/en.cifproductredirect.html/my-other-product');
     });
 });
