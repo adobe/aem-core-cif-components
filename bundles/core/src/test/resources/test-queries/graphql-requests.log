@@ -174,3 +174,5 @@
 
 {categoryList(filters:{url_key:{eq:"jackets-men"}}){uid}}
 
+{categoryList(filters:{category_uid:{eq:"MTM="}}){url_path,url_key}}
+

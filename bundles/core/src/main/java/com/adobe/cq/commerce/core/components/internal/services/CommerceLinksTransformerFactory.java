@@ -39,17 +39,12 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.UrlRewriteQuery;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 
@@ -111,14 +106,12 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
         private SlingHttpServletRequest request;
         private boolean ignoreContent;
         private int elementsDepth;
-        private String linkText;
 
         @Override
         public void init(ProcessingContext context, ProcessingComponentConfiguration config) throws IOException {
             this.request = context.getRequest();
             ignoreContent = false;
             elementsDepth = 0;
-            linkText = null;
         }
 
         @Override
@@ -140,16 +133,16 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
             }
 
             boolean replaceText = Boolean.parseBoolean(attributes.getValue(ATTR_REPLACE_TEXT));
-            String newHref = null;
+            LinkInfo linkInfo = null;
             String productSku = attributes.getValue(ATTR_PRODUCT_SKU);
             if (StringUtils.isNotBlank(productSku)) {
                 // if there is both product and category attribute on a link then product attribute is honored
                 Page currentPage = request.getResourceResolver().adaptTo(PageManager.class).getContainingPage(request.getResource());
                 Page productPage = SiteNavigation.getProductPage(currentPage);
                 if (replaceText) {
-                    newHref = prepareProductInfo(productSku, productPage);
+                    linkInfo = prepareProductInfo(productSku, productPage);
                 } else {
-                    newHref = urlProvider.toProductUrl(request, productPage, productSku);
+                    linkInfo = new LinkInfo(urlProvider.toProductUrl(request, productPage, productSku));
                 }
             } else {
                 String categoryUid = attributes.getValue(ATTR_CATEGORY_UID);
@@ -157,26 +150,26 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
                     Page currentPage = request.getResourceResolver().adaptTo(PageManager.class).getContainingPage(request.getResource());
                     Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
                     if (replaceText) {
-                        newHref = prepareCategoryInfo(categoryUid, categoryPage);
+                        linkInfo = prepareCategoryInfo(categoryUid, categoryPage);
                     } else {
-                        newHref = urlProvider.toCategoryUrl(request, categoryPage, categoryUid);
+                        linkInfo = new LinkInfo(urlProvider.toCategoryUrl(request, categoryPage, categoryUid));
                     }
                 }
             }
 
-            if (StringUtils.isNotBlank(newHref)) {
+            if (linkInfo != null && StringUtils.isNotBlank(linkInfo.href)) {
                 AttributesImpl newAttributes = new AttributesImpl(attributes);
-                newAttributes.setValue(attributes.getIndex(ATTR_HREF), newHref);
-                if (StringUtils.isNotBlank(linkText)) {
+                newAttributes.setValue(attributes.getIndex(ATTR_HREF), linkInfo.href);
+                if (StringUtils.isNotBlank(linkInfo.title)) {
                     String title = attributes.getValue(ATTR_TITLE);
                     if (title == null) {
                         // set title to linkText
-                        newAttributes.addAttribute("", ATTR_TITLE, ATTR_TITLE, "CDATA", linkText);
+                        newAttributes.addAttribute("", ATTR_TITLE, ATTR_TITLE, "CDATA", linkInfo.title);
                     }
                 }
                 super.startElement(uri, localName, qName, newAttributes);
-                if (StringUtils.isNotBlank(linkText)) {
-                    char[] chars = linkText.toCharArray();
+                if (StringUtils.isNotBlank(linkInfo.title)) {
+                    char[] chars = linkInfo.title.toCharArray();
                     // insert linkText as new content
                     super.characters(chars, 0, chars.length);
                     // ignore all content of current element
@@ -211,66 +204,66 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
         }
 
         @Nullable
-        private String prepareProductInfo(String productSku, Page productPage) {
+        private LinkInfo prepareProductInfo(String productSku, Page productPage) {
             MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
             if (magentoGraphqlClient == null) {
                 LOGGER.debug("GraphQL client not found for {}", request.getResource().getPath());
                 return null;
             }
 
-            AbstractProductRetriever productRetriever = new AbstractProductRetriever(magentoGraphqlClient) {
-                @Override
-                protected ProductInterfaceQueryDefinition generateProductQuery() {
-                    return q -> q
-                        .name()
-                        .sku()
-                        .urlKey()
-                        .urlPath()
-                        .urlRewrites(UrlRewriteQuery::url);
-                }
-            };
+            ProductUrlParameterRetriever productRetriever = new ProductUrlParameterRetriever(magentoGraphqlClient);
+            productRetriever.extendProductQueryWith(q -> q.name());
             productRetriever.setIdentifier(productSku);
             ProductInterface product = productRetriever.fetchProduct();
+
             if (product == null) {
                 LOGGER.debug("Product not found for SKU {}.", productSku);
                 return null;
             }
 
-            // set link text to product name
-            linkText = product.getName();
+            ProductUrlFormat.Params urlParams = new ProductUrlFormat.Params(product);
+            urlParams.setSku(productSku);
 
-            return urlProvider.toProductUrl(request, productPage, new ProductUrlFormat.Params(product));
+            return new LinkInfo(urlProvider.toProductUrl(request, productPage, urlParams), product.getName());
         }
 
         @Nullable
-        private String prepareCategoryInfo(String categoryUid, Page categoryPage) {
+        private LinkInfo prepareCategoryInfo(String categoryUid, Page categoryPage) {
             MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
             if (magentoGraphqlClient == null) {
                 LOGGER.debug("GraphQL client not found for {}", request.getResource().getPath());
                 return null;
             }
 
-            AbstractCategoryRetriever categoryRetriever = new AbstractCategoryRetriever(magentoGraphqlClient) {
-                @Override
-                protected CategoryTreeQueryDefinition generateCategoryQuery() {
-                    return q -> q
-                        .name()
-                        .uid()
-                        .urlPath()
-                        .urlKey();
-                }
-            };
+            CategoryUrlParameterRetriever categoryRetriever = new CategoryUrlParameterRetriever(magentoGraphqlClient);
+            categoryRetriever.extendCategoryQueryWith(q -> q.name());
             categoryRetriever.setIdentifier(categoryUid);
             CategoryInterface category = categoryRetriever.fetchCategory();
+
             if (category == null) {
                 LOGGER.debug("Category not found for UID {}.", categoryUid);
                 return null;
             }
 
-            // set link text to category name
-            linkText = category.getName();
+            CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(category);
+            params.setUid(categoryUid);
 
-            return urlProvider.toCategoryUrl(request, categoryPage, new CategoryUrlFormat.Params(category));
+            return new LinkInfo(urlProvider.toCategoryUrl(request, categoryPage, params), category.getName());
+        }
+    }
+
+    private static class LinkInfo {
+
+        final String href;
+        final String title;
+
+        LinkInfo(String href) {
+            this(href, null);
+        }
+
+        LinkInfo(String href, String title) {
+            this.href = href;
+            this.title = title;
         }
     }
 }

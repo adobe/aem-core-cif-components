@@ -86,6 +86,8 @@ public class CommerceLinksTransformerTest {
             "{products(filter:{sku:{eq:\"MJ01\"}}");
         Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid:{eq:\"uid-5\"}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{category_uid:{eq:\"MTM=\"}}");
 
         // setup UrlRewriterTransformer
         MockSlingHttpServletRequest mockRequest = context.request();
@@ -132,7 +134,7 @@ public class CommerceLinksTransformerTest {
         checkAnchorTextAndTitle(anchors.get(13), "Equipment", "Equipment");
         checkAnchorTextAndTitle(anchors.get(14), "Equipment", "My Category");
         checkAnchorText(anchors.get(15), "Equipment");
-        checkAnchorText(anchors.get(16), "Equipment");
+        checkAnchorText(anchors.get(16), "Tops");
         checkAnchorText(anchors.get(17), "Equipment");
     }
 
