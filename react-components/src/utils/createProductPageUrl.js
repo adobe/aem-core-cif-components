@@ -14,34 +14,26 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-let storeRootUrl = null;
-
 export const createProductPageUrl = sku => {
     const url = new URL(window.location);
 
     // Provided by StoreConfigExporter
-    if (storeRootUrl) {
-        return storeRootUrl;
-    }
-
     let storeConfigEl = document.querySelector('meta[name="store-config"]');
-    let pathname;
+    let storeRootUrl;
 
     if (storeConfigEl) {
-        pathname = JSON.parse(storeConfigEl.content).storeRootUrl;
+        storeRootUrl = JSON.parse(storeConfigEl.content).storeRootUrl;
     } else {
         // TODO: deprecated - the store configuration on the <body> has been deprecated and will be removed
-        pathname = document.body.dataset.storeRootUrl;
+        storeRootUrl = document.body.dataset.storeRootUrl;
     }
 
-    if (!pathname) {
+    if (!storeRootUrl) {
         return null;
     }
 
-    const extension = '.html';
-    const path = pathname.substr(0, pathname.lastIndexOf('.'));
+    const path = storeRootUrl.substr(0, storeRootUrl.lastIndexOf('.'));
+    url.pathname = `${path}.cifproductredirect.html/${sku}`;
 
-    url.pathname = `${path}.cifproductredirect${extension}/${sku}`;
-
-    return (storeRootUrl = url.toString());
+    return url.toString();
 };
