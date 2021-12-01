@@ -15,10 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-import TeaserConfig from '../../../../src/main/content/jcr_root/apps/core/cif/components/content/teaser/v1/teaser/clientlib/editor/js/teaser';
+import TeaserConfigV1 from '../../../../src/main/content/jcr_root/apps/core/cif/components/content/teaser/v1/teaser/clientlib/editor/js/teaser';
+import TeaserConfigV2 from '../../../../src/main/content/jcr_root/apps/core/cif/components/content/teaser/v2/teaser/clientlib/editor/js/teaser';
 import jQuery from '../../../clientlibs/common/jQueryMockForTest';
 
-describe('TeaserConfig', () => {
+[
+    ['TeaserConfig v1', TeaserConfigV1],
+    ['TeaserConfig v2', TeaserConfigV2],
+].forEach(([name, TeaserConfig]) => describe(name, () => {
     var body;
     var dialogRoot;
     var emptyElement;
@@ -642,4 +646,4 @@ describe('TeaserConfig', () => {
         assert(pageField.setValue.calledOnceWithExactly(''));
         assert(productField.setValue.calledOnceWithExactly(''));
     });
-});
+}));
