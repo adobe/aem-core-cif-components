@@ -28,6 +28,12 @@ const bundledProductMapper = item => ({
     bundle_options: item.options
 });
 
+const giftCardProductMapper = item => ({
+    ...productMapper(item).data,
+    entered_options: item.entered_options,
+    selected_options: item.selected_options
+});
+
 const useAddToCartEvent = (props = {}) => {
     const { fallbackHandler } = props;
     const [, defaultAddToCartApi] = useAddToCart();
@@ -38,9 +44,12 @@ const useAddToCartEvent = (props = {}) => {
         const physicalCartItems = items.filter(item => !item.virtual).map(productMapper);
         const virtualCartItems = items.filter(item => item.virtual).map(productMapper);
         const bundleCartItems = items.filter(item => item.bundle).map(bundledProductMapper);
+        const giftCardCartItems = items.filter(item => item.giftCard).map(giftCardProductMapper);
 
         if (bundleCartItems.length > 0) {
             await addToCartApi.addBundledProductItems(bundleCartItems);
+        } else if (giftCardCartItems.length > 0) {
+            await addToCartApi.addGiftCardProductItems(giftCardCartItems);
         } else if (virtualCartItems.length > 0 && physicalCartItems.length > 0) {
             await addToCartApi.addPhysicalAndVirtualProductItems(physicalCartItems, virtualCartItems);
         } else if (virtualCartItems.length > 0) {
