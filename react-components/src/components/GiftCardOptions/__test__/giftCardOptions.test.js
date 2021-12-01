@@ -49,6 +49,20 @@ describe('GiftCardProductOptions', () => {
         expect(asFragment()).toMatchSnapshot();
     });
 
+    it('renders the component with wishlist', async () => {
+        const gitfCardProductOptionsContainer = document.createElement('div');
+
+        const { asFragment } = render(<GiftCardProductOptions sku="gift-card" showAddToWishList={true} />, {
+            config: config,
+            container: document.body.appendChild(gitfCardProductOptionsContainer),
+            mocks: [mockResponse]
+        });
+
+        expect(await screen.findByText(/cart/i)).toBeInTheDocument();
+
+        expect(asFragment()).toMatchSnapshot();
+    });
+
     it('renders the component with full options', async () => {
         const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation(event => {
             return event.detail;
