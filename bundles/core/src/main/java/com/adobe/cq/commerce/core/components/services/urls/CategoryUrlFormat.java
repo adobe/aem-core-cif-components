@@ -48,7 +48,9 @@ public interface CategoryUrlFormat extends GenericUrlFormat<CategoryUrlFormat.Pa
         }
 
         public Params(CategoryInterface category) {
-            this.uid = category.getUid().toString();
+            if (category.getUid() != null) {
+                this.uid = category.getUid().toString();
+            }
             this.urlKey = category.getUrlKey();
             this.urlPath = category.getUrlPath();
         }
