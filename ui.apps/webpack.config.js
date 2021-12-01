@@ -14,6 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+const os = require('os');
 const path = require('path');
 const glob = require('glob');
 
@@ -33,30 +34,8 @@ const LIB = {
     CAROUSEL: 'apps/core/cif/components/commerce/carousel/v1/carousel/clientlibs',
 };
 
-function generateBaseConfig() {
+function generateBaseConfig(bablePlugins = []) {
     return {
-        entry: {
-            // Map of clientlib base paths and a corresponding array of JavaScript files that should be packed. We use the
-            // key to specify the target destination of the packed code and the glob module to generate a list of JavaScript
-            // files matching the given glob expression.
-            [LIB.COMMON]: ['@babel/polyfill', ...glob.sync(JCR_ROOT + LIB.COMMON + '/js/**/*.js')],
-            [LIB.STOREFRONT_EVENTS]: ['@adobe/magento-storefront-events-sdk', ...glob.sync(JCR_ROOT + LIB.STOREFRONT_EVENTS + '/js/**/*.js')],
-            [LIB.PRODUCT]: glob.sync(JCR_ROOT + LIB.PRODUCT + '/js/**/*.js'),
-            [LIB.CAROUSEL]: glob.sync(JCR_ROOT + LIB.CAROUSEL + '/js/**/*.js'),
-            [LIB.PRODUCTCAROUSEL]: glob.sync(JCR_ROOT + LIB.PRODUCTCAROUSEL + '/js/**/*.js'),
-            [LIB.PRODUCTCOLLECTION]: glob.sync(JCR_ROOT + LIB.PRODUCTCOLLECTION + '/js/**/*.js'),
-            [LIB.PRODUCTCOLLECTION_V2]: glob.sync(JCR_ROOT + LIB.PRODUCTCOLLECTION_V2 + '/js/**/*.js'),
-            [LIB.SEARCHBAR]: glob.sync(JCR_ROOT + LIB.SEARCHBAR + '/js/**/*.js'),
-            [LIB.SEARCHBAR_V2]: glob.sync(JCR_ROOT + LIB.SEARCHBAR_V2 + '/js/**/*.js'),
-            [LIB.NAVIGATION]: glob.sync(JCR_ROOT + LIB.NAVIGATION + '/js/**/*.js'),
-            [LIB.PRODUCTTEASER]:glob.sync(`${JCR_ROOT}${LIB.PRODUCTTEASER}/js/**/*.js`),
-            [LIB.CONTENTTEASER_EDITOR]:glob.sync(`${JCR_ROOT}${LIB.CONTENTTEASER_EDITOR}/js/**/*.js`)
-        },
-        output: {
-            path: path.resolve(__dirname, "src/main/content/jcr_root"),
-            // [name] will be replaced by the base path of the clientlib (key of the entry map).
-            filename: './[name]/dist/index.js'
-        },
         module: {
             rules: [
                 // Transpile .js files with babel. Babel will by default pick up the browserslist definition in the 
@@ -67,7 +46,8 @@ function generateBaseConfig() {
                     use: {
                         loader: 'babel-loader',
                         options: {
-                            presets: ['@babel/preset-env']
+                            presets: ['@babel/preset-env'],
+                            plugins: bablePlugins
                         }
                     }
                 }
@@ -84,19 +64,46 @@ function applyKarmaOptions() {
     // Disable minification
     karma.mode = 'development';
 
-    // Add coverage collection
-    let babelRule = karma.module.rules.find(r => r.use.loader == 'babel-loader');
-    babelRule.use.options.plugins = ['istanbul'];
-
+    
     return karma;
 }
 
-module.exports = function(env, argv) {
+module.exports = function (env, argv) {
     // Return karma specific configuration
     if (env.karma) {
-        return applyKarmaOptions();
-        
+        return {
+            ...generateBaseConfig(['istanbul']),
+            mode: 'development',
+            // output into a temp directory
+            output: {
+                path: path.join(os.tmpdir(), '_karma_webpack_') + Math.floor(Math.random() * 1000000),
+            },
+        }
+    } else {
+        return {
+            ...generateBaseConfig(),
+            entry: {
+                // Map of clientlib base paths and a corresponding array of JavaScript files that should be packed. We use the
+                // key to specify the target destination of the packed code and the glob module to generate a list of JavaScript
+                // files matching the given glob expression.
+                [LIB.COMMON]: ['@babel/polyfill', ...glob.sync(JCR_ROOT + LIB.COMMON + '/js/**/*.js')],
+                [LIB.STOREFRONT_EVENTS]: ['@adobe/magento-storefront-events-sdk', ...glob.sync(JCR_ROOT + LIB.STOREFRONT_EVENTS + '/js/**/*.js')],
+                [LIB.PRODUCT]: glob.sync(JCR_ROOT + LIB.PRODUCT + '/js/**/*.js'),
+                [LIB.CAROUSEL]: glob.sync(JCR_ROOT + LIB.CAROUSEL + '/js/**/*.js'),
+                [LIB.PRODUCTCAROUSEL]: glob.sync(JCR_ROOT + LIB.PRODUCTCAROUSEL + '/js/**/*.js'),
+                [LIB.PRODUCTCOLLECTION]: glob.sync(JCR_ROOT + LIB.PRODUCTCOLLECTION + '/js/**/*.js'),
+                [LIB.PRODUCTCOLLECTION_V2]: glob.sync(JCR_ROOT + LIB.PRODUCTCOLLECTION_V2 + '/js/**/*.js'),
+                [LIB.SEARCHBAR]: glob.sync(JCR_ROOT + LIB.SEARCHBAR + '/js/**/*.js'),
+                [LIB.SEARCHBAR_V2]: glob.sync(JCR_ROOT + LIB.SEARCHBAR_V2 + '/js/**/*.js'),
+                [LIB.NAVIGATION]: glob.sync(JCR_ROOT + LIB.NAVIGATION + '/js/**/*.js'),
+                [LIB.PRODUCTTEASER]: glob.sync(`${JCR_ROOT}${LIB.PRODUCTTEASER}/js/**/*.js`),
+                [LIB.CONTENTTEASER_EDITOR]: glob.sync(`${JCR_ROOT}${LIB.CONTENTTEASER_EDITOR}/js/**/*.js`)
+            },
+            output: {
+                path: path.resolve(__dirname, "src/main/content/jcr_root"),
+                // [name] will be replaced by the base path of the clientlib (key of the entry map).
+                filename: './[name]/dist/index.js'
+            }
+        };
     }
-
-    return generateBaseConfig();
 }
