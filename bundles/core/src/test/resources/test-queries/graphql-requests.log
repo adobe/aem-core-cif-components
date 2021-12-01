@@ -174,3 +174,9 @@
 
 {categoryList(filters:{url_key:{eq:"jackets-men"}}){uid}}
 
+{products(filter:{sku:{eq:"MJ01"}}){items{__typename,url_key,url_path,url_rewrites{url},name}}}
+
+{categoryList(filters:{category_uid:{eq:"uid-5"}}){url_path,url_key,name}}
+
+{categoryList(filters:{category_uid:{eq:"MTM="}}){url_path,url_key,name}}
+

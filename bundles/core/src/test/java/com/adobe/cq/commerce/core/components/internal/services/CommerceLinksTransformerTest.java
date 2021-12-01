@@ -86,6 +86,8 @@ public class CommerceLinksTransformerTest {
             "{products(filter:{sku:{eq:\"MJ01\"}}");
         Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid:{eq:\"uid-5\"}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{category_uid:{eq:\"MTM=\"}}");
 
         // setup UrlRewriterTransformer
         MockSlingHttpServletRequest mockRequest = context.request();
@@ -112,19 +114,28 @@ public class CommerceLinksTransformerTest {
         Document document = Jsoup.parse(html);
         Elements anchors = document.select(ELEMENT_ANCHOR);
 
-        assertEquals(12, anchors.size());
+        assertEquals(18, anchors.size());
         checkAnchor(anchors.get(0), "uid-5", null);
         checkAnchor(anchors.get(1), "uid-5", "any");
         checkAnchor(anchors.get(2), "uid-5", "/content/category-page.html/equipment.html");
         checkAnchor(anchors.get(3), "MJ01", null);
         checkAnchor(anchors.get(4), "MJ01", "any");
         checkAnchor(anchors.get(5), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
+        checkAnchorText(anchors.get(5), "Test product link with marker href.");
         checkAnchor(anchors.get(6), null, null);
         checkAnchor(anchors.get(7), null, "any");
         checkAnchor(anchors.get(8), null, MARKER_COMMERCE_LINKS);
         checkAnchor(anchors.get(9), "MJ01", null);
         checkAnchor(anchors.get(10), "MJ01", "any");
         checkAnchor(anchors.get(11), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
+        checkAnchor(anchors.get(12), "MJ01", "/content/product-page.html/beaumont-summit-kit.html");
+        checkAnchorTextAndTitle(anchors.get(12), "Beaumont Summit Kit", "Beaumont Summit Kit");
+        checkAnchor(anchors.get(13), "uid-5", "/content/category-page.html/equipment.html");
+        checkAnchorTextAndTitle(anchors.get(13), "Equipment", "Equipment");
+        checkAnchorTextAndTitle(anchors.get(14), "Equipment", "My Category");
+        checkAnchorText(anchors.get(15), "Equipment");
+        checkAnchorText(anchors.get(16), "Tops");
+        checkAnchorText(anchors.get(17), "Equipment");
     }
 
     @Test
@@ -174,5 +185,16 @@ public class CommerceLinksTransformerTest {
             assertFalse(anchor.hasAttr(ATTR_CATEGORY_UID));
             assertFalse(anchor.hasAttr(ATTR_PRODUCT_SKU));
         }
+    }
+
+    private void checkAnchorText(Element anchor, String text) {
+        assertEquals(1, anchor.childNodeSize());
+        assertTrue(anchor.childNode(0) instanceof TextNode);
+        assertEquals(text, ((TextNode) anchor.childNode(0)).getWholeText());
+    }
+
+    private void checkAnchorTextAndTitle(Element anchor, String text, String title) {
+        checkAnchorText(anchor, text);
+        assertEquals(title, anchor.attr(ATTR_TITLE));
     }
 }
