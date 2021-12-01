@@ -46,7 +46,7 @@
     "babel-plugin-istanbul": "^5.2.0",
     "chai": "^4.2.0",
     "glob": "^7.1.6",
-    "karma": "^5.0.0",
+    "karma": "^6.0.0",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-coverage": "^2.0.1",
