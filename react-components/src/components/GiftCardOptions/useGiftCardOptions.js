@@ -13,7 +13,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAwaitQuery } from '../../utils/hooks';
 import GIFT_CARD_PRODUCT_QUERY from '../../queries/query_gift_card_product.graphql';
 
@@ -25,43 +25,41 @@ const useGiftCardOptions = props => {
     const [giftCardState, setGiftCardState] = useState(null);
     const giftCardProductQuery = useAwaitQuery(GIFT_CARD_PRODUCT_QUERY);
 
-    useEffect(() => {
-        const fetchGiftCardOptions = async () => {
-            if (!sku) {
-                console.error('SKU is not present in the dataset of mountpoint element');
-                return;
-            }
-            const { data, error } = await giftCardProductQuery({ variables: { sku }, fetchPolicy: 'network-only' });
+    const fetchGiftCardOptions = useCallback(async () => {
+        if (!sku) {
+            console.error('SKU is not present in the dataset of mountpoint element');
+            return;
+        }
+        const { data, error } = await giftCardProductQuery({ variables: { sku }, fetchPolicy: 'network-only' });
 
-            if (error) {
-                throw new Error(error);
-            }
+        if (error) {
+            throw new Error(error);
+        }
 
-            const giftCardOptions = data.products.items[0];
-            const giftCardValues = {
-                quantity: 1,
-                open_amount: giftCardOptions.giftcard_amounts.length === 0,
-                custom_amount: giftCardOptions.open_amount_min,
-                custom_amount_uid: giftCardOptions.gift_card_options.find(
-                    o => o.title.toLowerCase() === 'custom giftcard amount'
-                )?.value.uid,
-                selected_amount: '',
-                entered_options: giftCardOptions.gift_card_options
-                    .filter(o => o.title.toLowerCase() !== 'custom giftcard amount')
-                    .reduce(
-                        (prev, curr) => ({
-                            ...prev,
-                            [curr.value.uid]: ''
-                        }),
-                        {}
-                    )
-            };
-
-            setGiftCardState({ giftCardOptions, giftCardValues });
+        const giftCardOptions = data.products.items[0];
+        const giftCardValues = {
+            quantity: 1,
+            open_amount: giftCardOptions.giftcard_amounts.length === 0,
+            custom_amount: giftCardOptions.open_amount_min,
+            custom_amount_uid: giftCardOptions.gift_card_options.find(
+                o => o.title.toLowerCase() === 'custom giftcard amount'
+            )?.value.uid,
+            selected_amount: '',
+            entered_options: giftCardOptions.gift_card_options
+                .filter(o => o.title.toLowerCase() !== 'custom giftcard amount')
+                .reduce(
+                    (prev, curr) => ({
+                        ...prev,
+                        [curr.value.uid]: ''
+                    }),
+                    {}
+                )
         };
 
-        fetchGiftCardOptions();
-    }, []);
+        setGiftCardState({ giftCardOptions, giftCardValues });
+    }, [sku, giftCardProductQuery]);
+
+    useEffect(() => fetchGiftCardOptions(), [fetchGiftCardOptions]);
 
     const changeAmountSelection = e => {
         const { value } = e.target;
@@ -175,6 +173,17 @@ const useGiftCardOptions = props => {
         }
     };
 
+    const addToWishlist = () => {
+        const {
+            giftCardValues: { quantity }
+        } = giftCardState;
+        const productData = { sku, quantity };
+        const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+            detail: [productData]
+        });
+        document.dispatchEvent(customEvent);
+    };
+
     return [
         giftCardState,
         {
@@ -183,7 +192,8 @@ const useGiftCardOptions = props => {
             changeOptionValue,
             changeQuantity,
             canAddToCart,
-            addToCart
+            addToCart,
+            addToWishlist
         }
     ];
 };

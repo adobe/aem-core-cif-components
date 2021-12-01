@@ -156,7 +156,7 @@ describe('useAddToCartEvent', () => {
         const addGiftCardProductItems = jest.fn();
 
         // when
-        render(<MockComponet addToCartApi={{ addGiftCardProductItems }} />);
+        render(<MockComponent addToCartApi={{ addGiftCardProductItems }} />);
         dispatchEvent([
             {
                 sku: 'gift-card',
