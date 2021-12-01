@@ -25,6 +25,7 @@ import compressQueryFetch from '../../utils/compressQueryFetch';
 import useCustomUrlEvent from '../../utils/useCustomUrlEvent';
 import useReferrerEvent from '../../utils/useReferrerEvent';
 import usePageEvent from '../../utils/usePageEvent';
+import typePolicies from '@magento/peregrine/lib/Apollo/policies';
 
 const App = props => {
     const { graphqlEndpoint, storeView, graphqlMethod = 'POST', headers = {} } = useConfigContext();
@@ -48,7 +49,7 @@ const App = props => {
                 fetch: compressQueryFetch
             })
         ]),
-        cache: new InMemoryCache()
+        cache: new InMemoryCache({ typePolicies })
     };
 
     const client = new ApolloClient(clientConfig);

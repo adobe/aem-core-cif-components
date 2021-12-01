@@ -25,7 +25,7 @@ describe('useAddToCartEvent', () => {
             })
         );
 
-    const MockComponet = props => {
+    const MockComponent = props => {
         useAddToCartEvent(props);
         return <></>;
     };
@@ -35,7 +35,7 @@ describe('useAddToCartEvent', () => {
         const fallback = jest.fn();
 
         // when
-        render(<MockComponet fallbackHandler={fallback} />);
+        render(<MockComponent fallbackHandler={fallback} />);
         dispatchEvent([]);
 
         // then
@@ -47,7 +47,7 @@ describe('useAddToCartEvent', () => {
         const addPhysicalProductItems = jest.fn();
 
         // when
-        render(<MockComponet addToCartApi={{ addPhysicalProductItems }} />);
+        render(<MockComponent addToCartApi={{ addPhysicalProductItems }} />);
         dispatchEvent([{ virtual: false, sku: 'sample', quantity: '1.0' }]);
 
         // then
@@ -66,7 +66,7 @@ describe('useAddToCartEvent', () => {
         const addPhysicalAndVirtualProductItems = jest.fn();
 
         // when
-        render(<MockComponet addToCartApi={{ addPhysicalAndVirtualProductItems }} />);
+        render(<MockComponent addToCartApi={{ addPhysicalAndVirtualProductItems }} />);
         dispatchEvent([
             { virtual: false, sku: 'physical', quantity: '1' },
             { virtual: true, sku: 'virtual', quantity: '1.5' }
@@ -95,7 +95,7 @@ describe('useAddToCartEvent', () => {
         const addVirtualProductItems = jest.fn();
 
         // when
-        render(<MockComponet addToCartApi={{ addVirtualProductItems }} />);
+        render(<MockComponent addToCartApi={{ addVirtualProductItems }} />);
         dispatchEvent([{ virtual: true, sku: 'virtual', quantity: '1.5' }]);
 
         // then
@@ -114,7 +114,7 @@ describe('useAddToCartEvent', () => {
         const addBundledProductItems = jest.fn();
 
         // when
-        render(<MockComponet addToCartApi={{ addBundledProductItems }} />);
+        render(<MockComponent addToCartApi={{ addBundledProductItems }} />);
         dispatchEvent([
             {
                 sku: 'bundle',
