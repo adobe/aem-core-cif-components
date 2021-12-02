@@ -46,3 +46,6 @@ export { createProductPageUrl } from './utils/createProductPageUrl';
 
 // new since CIF-1440
 export { useAddToCart, useAddToCartEvent } from './talons/Cart';
+
+// new since CIF-2539
+export { useAddToWishlistEvent } from './talons/Wishlist';
