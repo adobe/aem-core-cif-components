@@ -15,24 +15,29 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-import TeaserConfig from '../../../../src/main/content/jcr_root/apps/core/cif/components/content/teaser/v1/teaser/clientlib/editor/js/teaser';
+import TeaserConfigV1 from '../../../../src/main/content/jcr_root/apps/core/cif/components/content/teaser/v1/teaser/clientlib/editor/js/teaser';
+import TeaserConfigV2 from '../../../../src/main/content/jcr_root/apps/core/cif/components/content/teaser/v2/teaser/clientlib/editor/js/teaser';
 import jQuery from '../../../clientlibs/common/jQueryMockForTest';
 
-describe('TeaserConfig', () => {
-    var body;
-    var dialogRoot;
-    var emptyElement;
+[
+    ['TeaserConfig v1', TeaserConfigV1],
+    ['TeaserConfig v2', TeaserConfigV2]
+].forEach(([name, TeaserConfig]) =>
+    describe(name, () => {
+        var body;
+        var dialogRoot;
+        var emptyElement;
 
-    before(() => {
-        body = window.document.querySelector('body');
-        dialogRoot = document.createElement('div');
-        body.insertAdjacentElement('afterbegin', dialogRoot);
-        emptyElement = document.createElement('div');
-        body.insertAdjacentElement('beforeend', emptyElement);
+        before(() => {
+            body = window.document.querySelector('body');
+            dialogRoot = document.createElement('div');
+            body.insertAdjacentElement('afterbegin', dialogRoot);
+            emptyElement = document.createElement('div');
+            body.insertAdjacentElement('beforeend', emptyElement);
 
-        dialogRoot.insertAdjacentHTML(
-            'afterbegin',
-            `<div class="cq-dialog-content cmp-teaser__editor" data-cmp-is="commerceteaser-editor">
+            dialogRoot.insertAdjacentHTML(
+                'afterbegin',
+                `<div class="cq-dialog-content cmp-teaser__editor" data-cmp-is="commerceteaser-editor">
     <coral-tabview class="coral3-TabView" maximized="">
         <coral-panelstack class="coral3-PanelStack" role="presentation">
             <coral-panel class="coral3-Panel is-selected" role="tabpanel" selected="">
@@ -429,217 +434,224 @@ describe('TeaserConfig', () => {
         </coral-panelstack>
     </coral-tabview>
 </div>`
-        );
-    });
-
-    after(() => {
-        body.removeChild(dialogRoot);
-    });
-
-    it('initializes the TeaserConfig component', () => {
-        const spyOn = sinon.spy();
-        const fakeJQuery = sinon.stub().returns({
-            on: spyOn
+            );
         });
 
-        const teaserConfig = new TeaserConfig(fakeJQuery);
-        assert(
-            spyOn.calledOnceWith('dialog-loaded', teaserConfig.handleDialogLoaded),
-            'Event subscription not happening'
-        );
-    });
+        after(() => {
+            body.removeChild(dialogRoot);
+        });
 
-    it('handles dialog open event', () => {
-        const teaserConfig = new TeaserConfig(jQuery);
-        const stubAttachEventHandlers = sinon.stub(teaserConfig, 'attachEventHandlers');
-        const stubActionsToggleHandler = sinon.stub(teaserConfig, 'actionsToggleHandler');
-        const wrongEvent = {
-            dialog: jQuery(emptyElement)
-        };
+        it('initializes the TeaserConfig component', () => {
+            const spyOn = sinon.spy();
+            const fakeJQuery = sinon.stub().returns({
+                on: spyOn
+            });
 
-        teaserConfig.handleDialogLoaded(wrongEvent);
+            const teaserConfig = new TeaserConfig(fakeJQuery);
+            assert(
+                spyOn.calledOnceWith('dialog-loaded', teaserConfig.handleDialogLoaded),
+                'Event subscription not happening'
+            );
+        });
 
-        assert(stubAttachEventHandlers.notCalled);
-        assert(stubActionsToggleHandler.notCalled);
+        it('handles dialog open event', () => {
+            const teaserConfig = new TeaserConfig(jQuery);
+            const stubAttachEventHandlers = sinon.stub(teaserConfig, 'attachEventHandlers');
+            const stubActionsToggleHandler = sinon.stub(teaserConfig, 'actionsToggleHandler');
+            const wrongEvent = {
+                dialog: jQuery(emptyElement)
+            };
 
-        const event = {
-            dialog: jQuery(dialogRoot)
-        };
+            teaserConfig.handleDialogLoaded(wrongEvent);
 
-        teaserConfig.handleDialogLoaded(event);
+            assert(stubAttachEventHandlers.notCalled);
+            assert(stubActionsToggleHandler.notCalled);
 
-        assert(stubAttachEventHandlers.calledOnce, 'Dialog not found');
-        assert(stubActionsToggleHandler.calledOnce, 'Dialog not found');
+            const event = {
+                dialog: jQuery(dialogRoot)
+            };
 
-        teaserConfig.attachEventHandlers.restore();
-        teaserConfig.actionsToggleHandler.restore();
-    });
+            teaserConfig.handleDialogLoaded(event);
 
-    it('attaches field change handlers', () => {
-        const teaserConfig = new TeaserConfig(jQuery);
-        const stubHandlePickersChange = sinon.stub(teaserConfig, 'handlePickersChange');
-        const multiFieldActions = {};
-        const stubJQuery = sinon.stub(teaserConfig, '$');
-        const jMultiFieldActions = {
-            on: sinon.fake()
-        };
-        stubJQuery.withArgs(multiFieldActions).returns(jMultiFieldActions);
+            assert(stubAttachEventHandlers.calledOnce, 'Dialog not found');
+            assert(stubActionsToggleHandler.calledOnce, 'Dialog not found');
 
-        teaserConfig.attachEventHandlers(multiFieldActions);
+            teaserConfig.attachEventHandlers.restore();
+            teaserConfig.actionsToggleHandler.restore();
+        });
 
-        assert(stubHandlePickersChange.calledOnceWith(multiFieldActions));
-        assert(jMultiFieldActions.on.calledOnceWith('change'));
+        it('attaches field change handlers', () => {
+            const teaserConfig = new TeaserConfig(jQuery);
+            const stubHandlePickersChange = sinon.stub(teaserConfig, 'handlePickersChange');
+            const multiFieldActions = {};
+            const stubJQuery = sinon.stub(teaserConfig, '$');
+            const jMultiFieldActions = {
+                on: sinon.fake()
+            };
+            stubJQuery.withArgs(multiFieldActions).returns(jMultiFieldActions);
 
-        teaserConfig.handlePickersChange.restore();
-    });
+            teaserConfig.attachEventHandlers(multiFieldActions);
 
-    it('handles toggling actions', () => {
-        const teaserConfig = new TeaserConfig(jQuery);
-        const actionsEnabledCheckbox = {
-            addEventListener: sinon.fake()
-        };
-        teaserConfig.actionsToggleHandler(actionsEnabledCheckbox);
-        assert(actionsEnabledCheckbox.addEventListener.calledOnceWith('change'));
-    });
+            assert(stubHandlePickersChange.calledOnceWith(multiFieldActions));
+            assert(jMultiFieldActions.on.calledOnceWith('change'));
 
-    it('handles toggling fields', () => {
-        const teaserConfig = new TeaserConfig(jQuery);
-        const actionsEnabledCheckbox = document.querySelector(TeaserConfig.selectors.actionsEnabledCheckboxSelector);
-        teaserConfig.actionsToggleHandler(actionsEnabledCheckbox);
+            teaserConfig.handlePickersChange.restore();
+        });
 
-        actionsEnabledCheckbox.checked = false;
-        actionsEnabledCheckbox.dispatchEvent(new Event('change'));
+        it('handles toggling actions', () => {
+            const teaserConfig = new TeaserConfig(jQuery);
+            const actionsEnabledCheckbox = {
+                addEventListener: sinon.fake()
+            };
+            teaserConfig.actionsToggleHandler(actionsEnabledCheckbox);
+            assert(actionsEnabledCheckbox.addEventListener.calledOnceWith('change'));
+        });
 
-        const prodDisabled = document.querySelector(TeaserConfig.selectors.productFieldSelector).disabled;
-        const catDisabled = document.querySelector(TeaserConfig.selectors.categoryFieldSelector).disabled;
+        it('handles toggling fields', () => {
+            const teaserConfig = new TeaserConfig(jQuery);
+            const actionsEnabledCheckbox = document.querySelector(
+                TeaserConfig.selectors.actionsEnabledCheckboxSelector
+            );
+            teaserConfig.actionsToggleHandler(actionsEnabledCheckbox);
 
-        actionsEnabledCheckbox.checked = true;
-        actionsEnabledCheckbox.dispatchEvent(new Event('change'));
+            actionsEnabledCheckbox.checked = false;
+            actionsEnabledCheckbox.dispatchEvent(new Event('change'));
 
-        assert.equal(document.querySelector(TeaserConfig.selectors.productFieldSelector).disabled, !prodDisabled);
-        assert.equal(document.querySelector(TeaserConfig.selectors.categoryFieldSelector).disabled, !catDisabled);
-    });
+            const prodDisabled = document.querySelector(TeaserConfig.selectors.productFieldSelector).disabled;
+            const catDisabled = document.querySelector(TeaserConfig.selectors.categoryFieldSelector).disabled;
 
-    it('handles pickers change', () => {
-        const teaserConfig = new TeaserConfig(jQuery);
-        const stubJQuery = sinon.stub(teaserConfig, '$');
+            actionsEnabledCheckbox.checked = true;
+            actionsEnabledCheckbox.dispatchEvent(new Event('change'));
 
-        const pageElement = {
-            off: sinon.fake(),
-            on: sinon.fake(),
-            adaptTo: sinon
-                .stub()
-                .withArgs('foundation-field')
-                .returns('page-field')
-        };
+            assert.equal(document.querySelector(TeaserConfig.selectors.productFieldSelector).disabled, !prodDisabled);
+            assert.equal(document.querySelector(TeaserConfig.selectors.categoryFieldSelector).disabled, !catDisabled);
+        });
 
-        const productElement = {
-            off: sinon.fake(),
-            on: sinon.fake(),
-            adaptTo: sinon
-                .stub()
-                .withArgs('foundation-field')
-                .returns('product-field')
-        };
+        it('handles pickers change', () => {
+            const teaserConfig = new TeaserConfig(jQuery);
+            const stubJQuery = sinon.stub(teaserConfig, '$');
 
-        const categoryElement = {
-            off: sinon.fake(),
-            on: sinon.fake(),
-            adaptTo: sinon
-                .stub()
-                .withArgs('foundation-field')
-                .returns('category-field')
-        };
+            const pageElement = {
+                off: sinon.fake(),
+                on: sinon.fake(),
+                adaptTo: sinon
+                    .stub()
+                    .withArgs('foundation-field')
+                    .returns('page-field')
+            };
 
-        const eventData = { pageField: 'page-field', productField: 'product-field', categoryField: 'category-field' };
+            const productElement = {
+                off: sinon.fake(),
+                on: sinon.fake(),
+                adaptTo: sinon
+                    .stub()
+                    .withArgs('foundation-field')
+                    .returns('product-field')
+            };
 
-        stubJQuery.withArgs(document.querySelector(TeaserConfig.selectors.pageFieldSelector)).returns(pageElement);
-        stubJQuery
-            .withArgs(document.querySelector(TeaserConfig.selectors.productFieldSelector))
-            .returns(productElement);
-        stubJQuery
-            .withArgs(document.querySelector(TeaserConfig.selectors.categoryFieldSelector))
-            .returns(categoryElement);
+            const categoryElement = {
+                off: sinon.fake(),
+                on: sinon.fake(),
+                adaptTo: sinon
+                    .stub()
+                    .withArgs('foundation-field')
+                    .returns('category-field')
+            };
 
-        const multiFieldActions = document.querySelector(TeaserConfig.selectors.actionsMultifieldSelector);
-        teaserConfig.handlePickersChange(multiFieldActions);
+            const eventData = {
+                pageField: 'page-field',
+                productField: 'product-field',
+                categoryField: 'category-field'
+            };
 
-        assert(pageElement.off.calledOnceWithExactly('change', teaserConfig.handlePageChange));
-        assert(productElement.off.calledOnceWithExactly('change', teaserConfig.handleProductChange));
-        assert(categoryElement.off.calledOnceWithExactly('change', teaserConfig.handleCategoryChange));
+            stubJQuery.withArgs(document.querySelector(TeaserConfig.selectors.pageFieldSelector)).returns(pageElement);
+            stubJQuery
+                .withArgs(document.querySelector(TeaserConfig.selectors.productFieldSelector))
+                .returns(productElement);
+            stubJQuery
+                .withArgs(document.querySelector(TeaserConfig.selectors.categoryFieldSelector))
+                .returns(categoryElement);
 
-        assert(pageElement.adaptTo.calledOnceWithExactly('foundation-field'));
-        assert(productElement.adaptTo.calledOnceWithExactly('foundation-field'));
-        assert(categoryElement.adaptTo.calledOnceWithExactly('foundation-field'));
+            const multiFieldActions = document.querySelector(TeaserConfig.selectors.actionsMultifieldSelector);
+            teaserConfig.handlePickersChange(multiFieldActions);
 
-        assert(pageElement.on.calledOnceWithExactly('change', eventData, teaserConfig.handlePageChange));
-        assert(productElement.on.calledOnceWithExactly('change', eventData, teaserConfig.handleProductChange));
-        assert(categoryElement.on.calledOnceWithExactly('change', eventData, teaserConfig.handleCategoryChange));
-    });
+            assert(pageElement.off.calledOnceWithExactly('change', teaserConfig.handlePageChange));
+            assert(productElement.off.calledOnceWithExactly('change', teaserConfig.handleProductChange));
+            assert(categoryElement.off.calledOnceWithExactly('change', teaserConfig.handleCategoryChange));
 
-    it('handles page field change', () => {
-        const teaserConfig = new TeaserConfig(jQuery);
-        const pageField = {
-            getValue: sinon.fake.returns('')
-        };
-        const productField = {
-            setValue: sinon.fake()
-        };
-        const categoryField = {
-            setValue: sinon.fake()
-        };
+            assert(pageElement.adaptTo.calledOnceWithExactly('foundation-field'));
+            assert(productElement.adaptTo.calledOnceWithExactly('foundation-field'));
+            assert(categoryElement.adaptTo.calledOnceWithExactly('foundation-field'));
 
-        teaserConfig.handlePageChange({ data: { pageField, productField, categoryField } });
-        assert(productField.setValue.notCalled);
-        assert(categoryField.setValue.notCalled);
+            assert(pageElement.on.calledOnceWithExactly('change', eventData, teaserConfig.handlePageChange));
+            assert(productElement.on.calledOnceWithExactly('change', eventData, teaserConfig.handleProductChange));
+            assert(categoryElement.on.calledOnceWithExactly('change', eventData, teaserConfig.handleCategoryChange));
+        });
 
-        pageField.getValue = sinon.fake.returns('test');
-        teaserConfig.handlePageChange({ data: { pageField, productField, categoryField } });
-        assert(productField.setValue.calledOnceWithExactly(''));
-        assert(categoryField.setValue.calledOnceWithExactly(''));
-    });
+        it('handles page field change', () => {
+            const teaserConfig = new TeaserConfig(jQuery);
+            const pageField = {
+                getValue: sinon.fake.returns('')
+            };
+            const productField = {
+                setValue: sinon.fake()
+            };
+            const categoryField = {
+                setValue: sinon.fake()
+            };
 
-    it('handles product field change', () => {
-        const teaserConfig = new TeaserConfig(jQuery);
-        const pageField = {
-            setValue: sinon.fake()
-        };
-        const productField = {
-            getValue: sinon.fake.returns('')
-        };
-        const categoryField = {
-            setValue: sinon.fake()
-        };
+            teaserConfig.handlePageChange({ data: { pageField, productField, categoryField } });
+            assert(productField.setValue.notCalled);
+            assert(categoryField.setValue.notCalled);
 
-        teaserConfig.handleProductChange({ data: { pageField, productField, categoryField } });
-        assert(pageField.setValue.notCalled);
-        assert(categoryField.setValue.notCalled);
+            pageField.getValue = sinon.fake.returns('test');
+            teaserConfig.handlePageChange({ data: { pageField, productField, categoryField } });
+            assert(productField.setValue.calledOnceWithExactly(''));
+            assert(categoryField.setValue.calledOnceWithExactly(''));
+        });
 
-        productField.getValue = sinon.fake.returns('test');
-        teaserConfig.handleProductChange({ data: { pageField, productField, categoryField } });
-        assert(pageField.setValue.calledOnceWithExactly(''));
-        assert(categoryField.setValue.calledOnceWithExactly(''));
-    });
+        it('handles product field change', () => {
+            const teaserConfig = new TeaserConfig(jQuery);
+            const pageField = {
+                setValue: sinon.fake()
+            };
+            const productField = {
+                getValue: sinon.fake.returns('')
+            };
+            const categoryField = {
+                setValue: sinon.fake()
+            };
 
-    it('handles category field change', () => {
-        const teaserConfig = new TeaserConfig(jQuery);
-        const pageField = {
-            setValue: sinon.fake()
-        };
-        const categoryField = {
-            getValue: sinon.fake.returns('')
-        };
-        const productField = {
-            setValue: sinon.fake()
-        };
+            teaserConfig.handleProductChange({ data: { pageField, productField, categoryField } });
+            assert(pageField.setValue.notCalled);
+            assert(categoryField.setValue.notCalled);
 
-        teaserConfig.handleCategoryChange({ data: { pageField, productField, categoryField } });
-        assert(pageField.setValue.notCalled);
-        assert(productField.setValue.notCalled);
+            productField.getValue = sinon.fake.returns('test');
+            teaserConfig.handleProductChange({ data: { pageField, productField, categoryField } });
+            assert(pageField.setValue.calledOnceWithExactly(''));
+            assert(categoryField.setValue.calledOnceWithExactly(''));
+        });
 
-        categoryField.getValue = sinon.fake.returns('test');
-        teaserConfig.handleCategoryChange({ data: { pageField, productField, categoryField } });
-        assert(pageField.setValue.calledOnceWithExactly(''));
-        assert(productField.setValue.calledOnceWithExactly(''));
-    });
-});
+        it('handles category field change', () => {
+            const teaserConfig = new TeaserConfig(jQuery);
+            const pageField = {
+                setValue: sinon.fake()
+            };
+            const categoryField = {
+                getValue: sinon.fake.returns('')
+            };
+            const productField = {
+                setValue: sinon.fake()
+            };
+
+            teaserConfig.handleCategoryChange({ data: { pageField, productField, categoryField } });
+            assert(pageField.setValue.notCalled);
+            assert(productField.setValue.notCalled);
+
+            categoryField.getValue = sinon.fake.returns('test');
+            teaserConfig.handleCategoryChange({ data: { pageField, productField, categoryField } });
+            assert(pageField.setValue.calledOnceWithExactly(''));
+            assert(productField.setValue.calledOnceWithExactly(''));
+        });
+    })
+);

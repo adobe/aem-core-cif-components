@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.services;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 
 class ProductUrlParameterRetriever extends AbstractProductRetriever {
@@ -27,9 +28,13 @@ class ProductUrlParameterRetriever extends AbstractProductRetriever {
 
     @Override
     protected ProductInterfaceQueryDefinition generateProductQuery() {
-        return q -> q
-            .urlKey()
-            .urlPath()
-            .urlRewrites(uq -> uq.url());
+        return (ProductInterfaceQuery q) -> {
+            q.urlKey().urlPath().urlRewrites(uq -> uq.url());
+
+            // Apply product query hook
+            if (productQueryHook != null) {
+                productQueryHook.accept(q);
+            }
+        };
     }
 }

@@ -24,6 +24,7 @@ import org.apache.sling.rewriter.ProcessingComponentConfiguration;
 import org.apache.sling.rewriter.ProcessingContext;
 import org.apache.sling.rewriter.Transformer;
 import org.apache.sling.rewriter.TransformerFactory;
+import org.jetbrains.annotations.Nullable;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
@@ -37,8 +38,13 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 
@@ -71,6 +77,8 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
     static final String MARKER_COMMERCE_LINKS = "#CommerceLinks";
     static final String ATTR_CATEGORY_UID = "data-category-uid";
     static final String ATTR_PRODUCT_SKU = "data-product-sku";
+    static final String ATTR_REPLACE_TEXT = "data-replace-text";
+    static final String ATTR_TITLE = "title";
     static final String ATTR_HREF = "href";
     static final String ELEMENT_ANCHOR = "a";
 
@@ -96,14 +104,23 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
 
     class CommerceLinksTransformer extends DefaultTransformer {
         private SlingHttpServletRequest request;
+        private boolean ignoreContent;
+        private int elementsDepth;
 
         @Override
         public void init(ProcessingContext context, ProcessingComponentConfiguration config) throws IOException {
             this.request = context.getRequest();
+            ignoreContent = false;
+            elementsDepth = 0;
         }
 
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+            if (ignoreContent) {
+                elementsDepth++;
+                return;
+            }
+
             if (!ELEMENT_ANCHOR.equals(localName)) {
                 super.startElement(uri, localName, qName, attributes);
                 return;
@@ -115,25 +132,138 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
                 return;
             }
 
+            boolean replaceText = Boolean.parseBoolean(attributes.getValue(ATTR_REPLACE_TEXT));
+            LinkInfo linkInfo = null;
             String productSku = attributes.getValue(ATTR_PRODUCT_SKU);
-            AttributesImpl attributesImpl = new AttributesImpl(attributes);
             if (StringUtils.isNotBlank(productSku)) {
                 // if there is both product and category attribute on a link then product attribute is honored
                 Page currentPage = request.getResourceResolver().adaptTo(PageManager.class).getContainingPage(request.getResource());
                 Page productPage = SiteNavigation.getProductPage(currentPage);
-                String newHref = urlProvider.toProductUrl(request, productPage, productSku);
-                attributesImpl.setValue(attributes.getIndex(ATTR_HREF), newHref);
+                if (replaceText) {
+                    linkInfo = prepareProductInfo(productSku, productPage);
+                } else {
+                    linkInfo = new LinkInfo(urlProvider.toProductUrl(request, productPage, productSku));
+                }
             } else {
                 String categoryUid = attributes.getValue(ATTR_CATEGORY_UID);
                 if (StringUtils.isNotBlank(categoryUid)) {
                     Page currentPage = request.getResourceResolver().adaptTo(PageManager.class).getContainingPage(request.getResource());
                     Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
-                    String newHref = urlProvider.toCategoryUrl(request, categoryPage, categoryUid);
-                    attributesImpl.setValue(attributes.getIndex(ATTR_HREF), newHref);
+                    if (replaceText) {
+                        linkInfo = prepareCategoryInfo(categoryUid, categoryPage);
+                    } else {
+                        linkInfo = new LinkInfo(urlProvider.toCategoryUrl(request, categoryPage, categoryUid));
+                    }
                 }
             }
 
-            super.startElement(uri, localName, qName, attributesImpl);
+            if (linkInfo != null && StringUtils.isNotBlank(linkInfo.href)) {
+                AttributesImpl newAttributes = new AttributesImpl(attributes);
+                newAttributes.setValue(attributes.getIndex(ATTR_HREF), linkInfo.href);
+                if (StringUtils.isNotBlank(linkInfo.title)) {
+                    String title = attributes.getValue(ATTR_TITLE);
+                    if (title == null) {
+                        // set title to linkText
+                        newAttributes.addAttribute("", ATTR_TITLE, ATTR_TITLE, "CDATA", linkInfo.title);
+                    }
+                }
+                super.startElement(uri, localName, qName, newAttributes);
+                if (StringUtils.isNotBlank(linkInfo.title)) {
+                    char[] chars = linkInfo.title.toCharArray();
+                    // insert linkText as new content
+                    super.characters(chars, 0, chars.length);
+                    // ignore all content of current element
+                    ignoreContent = true;
+                    elementsDepth = 0;
+                }
+            } else {
+                super.startElement(uri, localName, qName, attributes);
+            }
+        }
+
+        @Override
+        public void endElement(String s, String s1, String s2) throws SAXException {
+            if (ignoreContent) {
+                if (elementsDepth > 0) {
+                    elementsDepth--;
+                } else {
+                    ignoreContent = false;
+                }
+            }
+
+            if (!ignoreContent) {
+                super.endElement(s, s1, s2);
+            }
+        }
+
+        @Override
+        public void characters(char[] ac, int i, int j) throws SAXException {
+            if (!ignoreContent) {
+                super.characters(ac, i, j);
+            }
+        }
+
+        @Nullable
+        private LinkInfo prepareProductInfo(String productSku, Page productPage) {
+            MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
+            if (magentoGraphqlClient == null) {
+                LOGGER.debug("GraphQL client not found for {}", request.getResource().getPath());
+                return null;
+            }
+
+            ProductUrlParameterRetriever productRetriever = new ProductUrlParameterRetriever(magentoGraphqlClient);
+            productRetriever.extendProductQueryWith(q -> q.name());
+            productRetriever.setIdentifier(productSku);
+            ProductInterface product = productRetriever.fetchProduct();
+
+            if (product == null) {
+                LOGGER.debug("Product not found for SKU {}.", productSku);
+                return null;
+            }
+
+            ProductUrlFormat.Params urlParams = new ProductUrlFormat.Params(product);
+            urlParams.setSku(productSku);
+
+            return new LinkInfo(urlProvider.toProductUrl(request, productPage, urlParams), product.getName());
+        }
+
+        @Nullable
+        private LinkInfo prepareCategoryInfo(String categoryUid, Page categoryPage) {
+            MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
+            if (magentoGraphqlClient == null) {
+                LOGGER.debug("GraphQL client not found for {}", request.getResource().getPath());
+                return null;
+            }
+
+            CategoryUrlParameterRetriever categoryRetriever = new CategoryUrlParameterRetriever(magentoGraphqlClient);
+            categoryRetriever.extendCategoryQueryWith(q -> q.name());
+            categoryRetriever.setIdentifier(categoryUid);
+            CategoryInterface category = categoryRetriever.fetchCategory();
+
+            if (category == null) {
+                LOGGER.debug("Category not found for UID {}.", categoryUid);
+                return null;
+            }
+
+            CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(category);
+            params.setUid(categoryUid);
+
+            return new LinkInfo(urlProvider.toCategoryUrl(request, categoryPage, params), category.getName());
+        }
+    }
+
+    private static class LinkInfo {
+
+        final String href;
+        final String title;
+
+        LinkInfo(String href) {
+            this(href, null);
+        }
+
+        LinkInfo(String href, String title) {
+            this.href = href;
+            this.title = title;
         }
     }
 }
