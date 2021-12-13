@@ -70,7 +70,7 @@
   },
   "dependencies": {
     "@adobe/aem-core-cif-react-components": "^2.0.0",
-    "@apollo/client": "^3.2.4",
+    "@apollo/client": "^3.5.5",
     "@babel/runtime": "^7.4.5",
     "@magento/peregrine": "11.0.0",
     "@magento/venia-ui": "8.0.0",
