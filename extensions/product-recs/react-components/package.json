@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "@adobe/aem-core-cif-react-components": "^2.4.2",
-    "@apollo/client": "^3.5.5",
+    "@apollo/client": "~3.1.2",
     "@babel/core": "^7.8.7",
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@babel/preset-env": "^7.8.7",
@@ -69,7 +69,7 @@
   },
   "peerDependencies": {
     "@adobe/aem-core-cif-react-components": "^2.4.2",
-    "@apollo/client": "^3.5.5",
+    "@apollo/client": "^3.1.2",
     "@magento/recommendations-js-sdk": "^2.0.5",
     "graphql": "~15.3.0",
     "prop-types": "^15.7.2",
