@@ -70,7 +70,7 @@ class AddToWishlist {
 }
 
 AddToWishlist.selectors = {
-    self: '.productFullDetail__cartActions button.button__root_normalPriority',
+    self: '.productFullDetail__cartActions button[data-cmp-is=add-to-wish-list]',
     sku: '.productFullDetail__details [role=sku]',
     quantity: '.productFullDetail__quantity select',
     product: '[data-cmp-is=product]'

@@ -44,7 +44,7 @@ describe('Product', () => {
                         <span role="sku">my-sample-sku</span>
                     </div>
                     <div class="productFullDetail__cartActions">
-                        <button class="button__root_normalPriority">
+                        <button class="button__root_normalPriority" data-cmp-is="add-to-wish-list">
                     </div>
                     <div class="productFullDetail__quantity">
                         <select data-product-sku="my-sample-sku">
