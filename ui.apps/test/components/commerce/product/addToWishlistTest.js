@@ -19,27 +19,42 @@ import AddToWishlist from '../../../../src/main/content/jcr_root/apps/core/cif/c
 
 describe('Product', () => {
     describe('AddToWishlist', () => {
+        const dispatchEventSpy = sinon.spy();
+        const originalDispatchEvent = document.dispatchEvent;
+
         let productRoot;
         let addToWishlistRoot;
         let pageRoot;
+
+        const setupPage = html => {
+            while (pageRoot.firstChild) {
+                pageRoot.removeChild(pageRoot.firstChild);
+            }
+            pageRoot.insertAdjacentHTML('afterbegin', html);
+
+            addToWishlistRoot = pageRoot.querySelector(AddToWishlist.selectors.self);
+            productRoot = pageRoot.querySelector(AddToWishlist.selectors.product);
+        };
 
         before(() => {
             let body = document.querySelector('body');
             pageRoot = document.createElement('div');
             body.appendChild(pageRoot);
+            document.dispatchEvent = dispatchEventSpy;
         });
 
         after(() => {
             pageRoot.parentNode.removeChild(pageRoot);
+            document.dispatchEvent = originalDispatchEvent;
         });
 
-        beforeEach(() => {
-            while (pageRoot.firstChild) {
-                pageRoot.removeChild(pageRoot.firstChild);
-            }
-            pageRoot.insertAdjacentHTML(
-                'afterbegin',
-                `<div data-cmp-is="product">
+        afterEach(() => {
+            dispatchEventSpy.resetHistory();
+        });
+
+        it('dispatches an event on click', () => {
+            setupPage(`
+                <div data-cmp-is="product">
                     <div class="productFullDetail__details">
                         <span role="sku">my-sample-sku</span>
                     </div>
@@ -51,24 +66,66 @@ describe('Product', () => {
                             <option value="5" selected></option>
                         </select>
                     </div>
-                </div>`
-            );
+                </div>
+            `);
 
-            addToWishlistRoot = pageRoot.querySelector(AddToWishlist.selectors.self);
-            productRoot = pageRoot.querySelector(AddToWishlist.selectors.product);
-        });
-
-        it('dispatches an event on click', () => {
-            let spy = sinon.spy();
-            let _originalDispatch = document.dispatchEvent;
-            document.dispatchEvent = spy;
             let addToWishlist = new AddToWishlist({ element: addToWishlistRoot, product: productRoot });
             addToWishlistRoot.click();
-            sinon.assert.calledOnce(spy);
-            assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-wishlist');
-            assert.equal(spy.getCall(0).args[0].detail[0].sku, 'my-sample-sku');
-            assert.equal(spy.getCall(0).args[0].detail[0].quantity, 5);
-            document.dispatchEvent = _originalDispatch;
+
+            sinon.assert.calledOnce(dispatchEventSpy);
+            assert.equal(dispatchEventSpy.getCall(0).args[0].type, 'aem.cif.add-to-wishlist');
+            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].sku, 'my-sample-sku');
+            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].quantity, 5);
+        });
+
+        it('dispatches an event on click with variant selected', () => {
+            setupPage(`
+                <div data-cmp-is="product">
+                    <div class="productFullDetail__details">
+                        <span role="sku">my-sample-sku</span>
+                    </div>
+                    <div class="productFullDetail__cartActions">
+                        <button class="button__root_normalPriority" data-cmp-is="add-to-wish-list">
+                    </div>
+                    <div class="productFullDetail__quantity">
+                        <select data-product-sku="my-sample-variant-sku">
+                            <option value="4" selected></option>
+                        </select>
+                    </div>
+                </div>
+            `);
+
+            let addToWishlist = new AddToWishlist({ element: addToWishlistRoot, product: productRoot });
+            addToWishlistRoot.click();
+            sinon.assert.calledOnce(dispatchEventSpy);
+
+            assert.equal(dispatchEventSpy.getCall(0).args[0].type, 'aem.cif.add-to-wishlist');
+            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].parent_sku, 'my-sample-sku');
+            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].sku, 'my-sample-variant-sku');
+            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].quantity, 4);
+        });
+
+        it('dispatches no event if no product selected', () => {
+            setupPage(`
+                <div data-cmp-is="product">
+                    <div class="productFullDetail__details">
+                        <span role="sku">my-sample-sku</span>
+                    </div>
+                    <div class="productFullDetail__cartActions">
+                        <button class="button__root_normalPriority" data-cmp-is="add-to-wish-list">
+                    </div>
+                    <div class="productFullDetail__quantity">
+                        <select data-product-sku="my-sample-sku">
+                            <option value="0" selected></option>
+                        </select>
+                    </div>
+                </div>
+            `);
+
+            let addToWishlist = new AddToWishlist({ element: addToWishlistRoot, product: productRoot });
+            addToWishlistRoot.click();
+
+            sinon.assert.notCalled(dispatchEventSpy);
         });
     });
 });
