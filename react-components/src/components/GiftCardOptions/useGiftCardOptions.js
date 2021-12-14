@@ -59,9 +59,8 @@ const useGiftCardOptions = props => {
 
             setGiftCardState({ giftCardOptions, giftCardValues });
         };
-
         fetchGiftCardOptions();
-    }, []);
+    }, [sku, giftCardProductQuery]);
 
     const changeAmountSelection = e => {
         const { value } = e.target;
@@ -175,6 +174,17 @@ const useGiftCardOptions = props => {
         }
     };
 
+    const addToWishlist = () => {
+        const {
+            giftCardValues: { quantity }
+        } = giftCardState;
+        const productData = { sku, quantity };
+        const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+            detail: [productData]
+        });
+        document.dispatchEvent(customEvent);
+    };
+
     return [
         giftCardState,
         {
@@ -183,7 +193,8 @@ const useGiftCardOptions = props => {
             changeOptionValue,
             changeQuantity,
             canAddToCart,
-            addToCart
+            addToCart,
+            addToWishlist
         }
     ];
 };
