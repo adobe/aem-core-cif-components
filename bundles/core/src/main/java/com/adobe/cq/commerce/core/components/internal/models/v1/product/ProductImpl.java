@@ -108,6 +108,10 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
     private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
     private static final String SELECTION_PROPERTY = "selection";
+    /**
+     * Name of the boolean policy property indicating if the product component should show an add to wish list button or not.
+     */
+    private static final String PN_STYLE_ENABLE_ADD_TO_WISHLIST = "enableAddToWishList";
 
     @Self
     private SlingHttpServletRequest request;
@@ -141,6 +145,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private boolean usePlaceholderData = false;
     private boolean isAuthor = true;
     private String canonicalUrl;
+    private boolean enableAddToWishList = true;
 
     protected AbstractProductRetriever productRetriever;
 
@@ -187,6 +192,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         }
 
         locale = currentPage.getLanguage(false);
+        enableAddToWishList = currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Boolean.FALSE);
     }
 
     @Override
@@ -543,5 +549,10 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public ProductStorefrontContext getStorefrontContext() {
         return new ProductStorefrontContextImpl(productRetriever.fetchProduct(), resource);
+    }
+
+    @Override
+    public boolean getAddToWishListEnabled() {
+        return enableAddToWishList;
     }
 }

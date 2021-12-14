@@ -94,4 +94,13 @@ public interface Product extends Component, PageMetadata {
      * @return context of the product
      */
     ProductStorefrontContext getStorefrontContext();
+
+    /**
+     * Returns true when the Add to Wish List button is enabled.
+     *
+     * @return
+     */
+    default boolean getAddToWishListEnabled() {
+        return false;
+    }
 }

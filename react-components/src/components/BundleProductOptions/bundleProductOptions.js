@@ -33,10 +33,16 @@ const BundleProductOptions = () => {
     const {
         mountingPoints: { bundleProductOptionsContainer }
     } = useConfigContext();
-    const sku = document.querySelector(bundleProductOptionsContainer)?.dataset?.sku;
     const productId = document.querySelector('[data-cmp-is=product]')?.id;
     const [bundleState, setBundleState] = useState(null);
     const intl = useIntl();
+    let { sku, showAddToWishList } = document.querySelector(bundleProductOptionsContainer)?.dataset || {};
+
+    if (showAddToWishList === '') {
+        // show-add-to-wish-list is set without a value to the dom,
+        // the returned value from the data set is an empty string: ''
+        showAddToWishList = true;
+    }
 
     const fetchBundleDetails = async sku => {
         const { data, error } = await bundleProductQuery({ variables: { sku }, fetchPolicy: 'network-only' });
@@ -297,19 +303,21 @@ const BundleProductOptions = () => {
                         <span>{intl.formatMessage({ id: 'product:add-item', defaultMessage: 'Add to Cart' })}</span>
                     </span>
                 </button>
-                <button
-                    className="button__root_normalPriority button__root clickable__root"
-                    type="button"
-                    onClick={addToWishlist}>
-                    <span className="button__content">
-                        <span>
-                            {intl.formatMessage({
-                                id: 'product:add-to-wishlist',
-                                defaultMessage: 'Add to Wish List'
-                            })}
+                {showAddToWishList && (
+                    <button
+                        className="button__root_normalPriority button__root clickable__root"
+                        type="button"
+                        onClick={addToWishlist}>
+                        <span className="button__content">
+                            <span>
+                                {intl.formatMessage({
+                                    id: 'product:add-to-wishlist',
+                                    defaultMessage: 'Add to Wish List'
+                                })}
+                            </span>
                         </span>
-                    </span>
-                </button>
+                    </button>
+                )}
             </section>
         </>
     );

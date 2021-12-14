@@ -22,6 +22,7 @@ import { useStorefrontEvents, Price, Trigger, createProductPageUrl } from '@adob
 import classes from './ProductCard.css';
 
 const ProductCard = props => {
+    const { showAddToWishList } = props;
     const mse = useStorefrontEvents();
     const intl = useIntl();
 
@@ -104,11 +105,13 @@ const ProductCard = props => {
                     </span>
                 </Trigger>
             }
-            <Trigger className={classes.buttonMargin} action={() => addToWishlist(props.product)}>
-                <span className={classes.addToWishlist}>
-                    {intl.formatMessage({ id: 'productrecs:add-to-wishlist', defaultMessage: 'Add to Wish List' })}
-                </span>
-            </Trigger>
+            {showAddToWishList && (
+                <Trigger className={classes.buttonMargin} action={() => addToWishlist(props.product)}>
+                    <span className={classes.addToWishlist}>
+                        {intl.formatMessage({ id: 'productrecs:add-to-wishlist', defaultMessage: 'Add to Wish List' })}
+                    </span>
+                </Trigger>
+            )}
         </div>
     );
 };
@@ -134,7 +137,8 @@ ProductCard.propTypes = {
         smallImage: PropTypes.shape({
             url: PropTypes.string
         })
-    })
+    }),
+    showAddToWishList: PropTypes.bool
 };
 
 export default ProductCard;

@@ -13,7 +13,21 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-@Version("2.5.0")
-package com.adobe.cq.commerce.extensions.recommendations.models.productrecommendations;
+package com.adobe.cq.commerce.core.components.models.account;
 
-import org.osgi.annotation.versioning.Version;
+import org.osgi.annotation.versioning.ConsumerType;
+
+import com.adobe.cq.wcm.core.components.models.Component;
+
+@ConsumerType
+public interface MiniAccount extends Component {
+
+    /**
+     * Returns {@code true} when the wish list is enabled and should be shown in the account drop down.
+     *
+     * @return {@code true} if the wish list is enabled, {@code false} otherwise
+     */
+    default boolean getWishListEnabled() {
+        return false;
+    }
+}

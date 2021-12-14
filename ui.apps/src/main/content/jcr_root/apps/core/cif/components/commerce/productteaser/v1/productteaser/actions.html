@@ -23,8 +23,8 @@
                 class="button__root_highPriority button__root clickable__root button__filled" type="button">
             <span class="button__content"><span>${product.callToActionText || 'See more details' @ i18n}</span></span>
         </button>
-        <button class="button__root_normalPriority button__root clickable__root" data-action="wishlist" data-item-sku="${product.sku}" 
-                type="button">
+        <button data-sly-test="${product.addToWishListEnabled}" class="button__root_normalPriority button__root clickable__root"
+                data-action="wishlist" data-item-sku="${product.sku}" type="button">
             <span class="button__content">
                 <span>${'Add to Wish List' @ i18n}</span>
             </span>

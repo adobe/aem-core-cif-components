@@ -35,12 +35,16 @@ The Product Teaser component uses the `com.adobe.cq.commerce.core.components.mod
 The following configuration properties are used:
 
 1. `./cq:DropTargetConfig` - controls the drag & drop behavior of group "product" items onto this component
+2. `./enableAddToWishList` - enables/disables the add to wish list button, defaults to disabled
 
 ### Edit Dialog Properties
 
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
-1. `./productPath` - identifies the product to be displayed
+1. `./selection` - identifies the product to be displayed.
+2. `./cta` - defines the call to action of the product teaser, may one of `add-to-card`, `details` or empty.
+3. `./ctaText` - defines a text that overwrites the default call to action label.
+4. `./id` - defines the component HTML ID attribute.
 
 ## BEM Description
 

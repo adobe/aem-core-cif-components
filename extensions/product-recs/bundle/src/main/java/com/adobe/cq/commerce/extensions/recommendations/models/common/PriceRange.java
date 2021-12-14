@@ -15,9 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.extensions.recommendations.models.common;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
 /**
  * A representation of a price range for the price filters of a product recommendation
  */
+@ConsumerType
 public interface PriceRange {
 
     Double getMinPrice();

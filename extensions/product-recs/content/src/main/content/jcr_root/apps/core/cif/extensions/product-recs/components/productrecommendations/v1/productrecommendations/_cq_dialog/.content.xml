@@ -30,7 +30,7 @@
                             jcr:primaryType="nt:unstructured"
                             sling:resourceType="granite/ui/components/foundation/form/hidden"
                             ignoreData="{Boolean}true"
-                            name="./includeCategories@TypeHint"
+                            name="./preconfigured@TypeHint"
                             value="Boolean"/>
                     <content
                             jcr:primaryType="nt:unstructured"
