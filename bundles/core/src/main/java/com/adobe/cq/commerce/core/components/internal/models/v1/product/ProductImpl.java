@@ -145,7 +145,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private boolean usePlaceholderData = false;
     private boolean isAuthor = true;
     private String canonicalUrl;
-    private boolean enableAddToWishList = true;
+    private boolean enableAddToWishList;
 
     protected AbstractProductRetriever productRetriever;
 
@@ -192,7 +192,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         }
 
         locale = currentPage.getLanguage(false);
-        enableAddToWishList = currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Boolean.FALSE);
+        enableAddToWishList = currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Product.super.getAddToWishListEnabled());
     }
 
     @Override
