@@ -95,9 +95,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
         name = "ctaText",
         injectionStrategy = InjectionStrategy.OPTIONAL)
     private String ctaText;
-    @ScriptVariable(
-        name = WCMBindingsConstants.NAME_CURRENT_STYLE,
-        injectionStrategy = InjectionStrategy.OPTIONAL)
+    @ScriptVariable(name = WCMBindingsConstants.NAME_CURRENT_STYLE)
     private Style currentStyle;
 
     private Page productPage;
@@ -107,6 +105,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     private Locale locale;
     private Boolean isVirtualProduct;
     private boolean ctaOverride;
+    private boolean enableAddToWishList;
 
     @PostConstruct
     protected void initModel() {
@@ -130,6 +129,8 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
                 ctaOverride = CALL_TO_ACTION_TYPE_ADD_TO_CART.equals(cta) && !oneClickShoppable(getProduct());
             }
         }
+
+        enableAddToWishList = currentStyle.get(PN_STYLE_ADD_TO_WISHLIST_ENABLED, ProductTeaser.super.getAddToWishListEnabled());
     }
 
     private boolean oneClickShoppable(ProductInterface product) {
@@ -271,8 +272,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @Override
     @JsonIgnore
     public boolean getAddToWishListEnabled() {
-        Boolean defaultValue = ProductTeaser.super.getAddToWishListEnabled();
-        return currentStyle != null ? currentStyle.get(PN_STYLE_ADD_TO_WISHLIST_ENABLED, defaultValue) : defaultValue;
+        return enableAddToWishList;
     }
 
     // DataLayer methods

@@ -225,6 +225,7 @@ public class ProductTeaserImplTest {
         slingBindings.setResource(teaserResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
 
         ProductTeaserImpl productTeaserNoClient = context.request().adaptTo(ProductTeaserImpl.class);
 
@@ -255,6 +256,7 @@ public class ProductTeaserImplTest {
         slingBindings.setResource(teaserResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
 
         productTeaser = context.request().adaptTo(ProductTeaserImpl.class);
         assertTrue(productTeaser.isVirtualProduct());
