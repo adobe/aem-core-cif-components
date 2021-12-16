@@ -160,7 +160,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                     actionUrl = currentPage.getPath() + ".html";
                 }
 
-                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, identifier));
+                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, identifier, action, wcmTeaser.getId()));
             }
         }
     }
