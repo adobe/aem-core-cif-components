@@ -11,11 +11,14 @@ package com.adobe.cq.commerce.core.components.models.categorylist;
 
 import javax.annotation.Nullable;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 
 /**
  * An item from a category list
  */
+@ConsumerType
 public interface FeaturedCategoryListItem {
 
     /**
