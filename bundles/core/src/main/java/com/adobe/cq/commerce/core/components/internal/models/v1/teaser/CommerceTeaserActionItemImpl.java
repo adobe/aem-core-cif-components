@@ -71,4 +71,9 @@ public class CommerceTeaserActionItemImpl extends DataLayerListItem implements C
     public String getDataLayerTitle() {
         return getTitle();
     }
+
+    @Override
+    public String getDataLayerType() {
+        return identifier != null ? identifier.getEntityType().toString() : null;
+    }
 }
