@@ -17,6 +17,8 @@ package com.adobe.cq.commerce.core.components.models.categorylist;
 
 import java.util.List;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.wcm.core.components.models.Component;
@@ -24,6 +26,7 @@ import com.adobe.cq.wcm.core.components.models.Component;
 /**
  * Provides the list of categories to CategoryList Componenet.
  */
+@ConsumerType
 public interface FeaturedCategoryList extends Component {
 
     /**

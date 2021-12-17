@@ -180,16 +180,22 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
         List<FeaturedCategoryListItem> categories = new ArrayList<>();
 
-        resource.getChild(ITEMS_PROP).getChildren().forEach(resource -> {
-            ValueMap props = resource.adaptTo(ValueMap.class);
-            String categoryId = props.get(CATEGORY_IDENTIFIER, String.class);
-            String assetPath = props.get(ASSET_PROP, String.class);
-            if (StringUtils.isNotEmpty(categoryId)) {
-                categories.add(
-                    new FeaturedCategoryListItemImpl(new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.UID,
-                        CommerceIdentifier.EntityType.CATEGORY), assetPath));
+        Resource childResource = resource.getChild(ITEMS_PROP);
+
+        if (childResource != null) {
+            for (Resource resource : childResource.getChildren()) {
+                ValueMap props = resource.adaptTo(ValueMap.class);
+                String categoryId = props.get(CATEGORY_IDENTIFIER, String.class);
+                String assetPath = props.get(ASSET_PROP, String.class);
+                if (StringUtils.isNotEmpty(categoryId)) {
+                    categories.add(
+                        new FeaturedCategoryListItemImpl(
+                            new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.UID,
+                                CommerceIdentifier.EntityType.CATEGORY),
+                            assetPath));
+                }
             }
-        });
+        }
 
         return categories;
     }

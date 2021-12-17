@@ -14,7 +14,8 @@
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.card="${@ item}">
-    <a class="cmp-categorylist__anchor" href="${item.path}" title="${item.name}">
+    <a class="cmp-categorylist__anchor" href="${item.path}" 
+       data-cmp-clickable="${item.data ? true : false}" title="${item.name}">
             <span data-sly-test.hasImage=${item.image} class="cmp-categorylist__imagewrapper" style="background-image: url(${item.image @context='uri'});">
                 <img class="cmp-categorylist__image" src='${item.image}' alt="${item.name}">
             </span>

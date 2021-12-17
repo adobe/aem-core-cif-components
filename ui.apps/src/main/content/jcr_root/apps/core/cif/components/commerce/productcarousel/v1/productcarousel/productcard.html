@@ -16,7 +16,9 @@
            id="${product.id}"
            data-cmp-data-layer="${product.data.json}"
            class="card product__card">
-          <a href="${product.URL}" title="${product.title}">
+          <a href="${product.URL}" 
+             title="${product.title}"
+             data-cmp-clickable="${product.data ? true : false}">
               <div class="product__card__image">
                   <img class="product__image" src="${product.imageURL}" alt="${product.imageAlt}" />
               </div>
