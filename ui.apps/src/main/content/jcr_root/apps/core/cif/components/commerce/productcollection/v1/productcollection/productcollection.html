@@ -37,6 +37,7 @@
                     title="${product.title}"
                     role="product"
                     data-cmp-data-layer="${product.data.json}"
+                    data-cmp-clickable="${product.data ? true : false}"
                     data-sku="${product.SKU}"
                     href="${product.URL}"
                     data-sly-call="${itemTemplate.item @ item = product}">

@@ -1,6 +1,7 @@
 {
   "actions": [
     {
+      "id": "id-item-42bb242b79",
       "title": "A product",
       "url": "/content/product-page/product-specific-page.html/beaumont-summit-kit.html",
       "entityIdentifier": {
@@ -10,6 +11,7 @@
       }
     },
     {
+      "id": "id-item-b4f5fde93c",
       "title": "A category",
       "url": "/content/category-page.html/equipment.html",
       "entityIdentifier": {
@@ -19,6 +21,7 @@
       }
     },
     {
+      "id": "id-item-3353aa771c",
       "title": "A category",
       "url": "/content/category-page.html/equipment/running.html",
       "entityIdentifier": {
@@ -28,18 +31,20 @@
       }
     },
     {
+      "id": "id-item-0d9b466cbf",
       "title": "Some text",
       "url": "/content/pageA.html"
     },
     {
+      "id": "id-item-ba02bdc390",
       "title": "A page",
       "url": "/content/page.html"
     }
   ],
-  "pretitle": "Pretitle",
   "title": "Title",
-  "actionsEnabled": true,
   "description": "Description",
+  "pretitle": "Pretitle",
+  "actionsEnabled": true,
   "imageLinkHidden": false,
   "titleLinkHidden": false,
   "id": "id",

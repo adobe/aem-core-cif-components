@@ -18,22 +18,28 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.apache.sling.api.resource.Resource;
+
+import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerListItem;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaserActionItem;
 
-public class CommerceTeaserActionItemImpl implements CommerceTeaserActionItem {
+public class CommerceTeaserActionItemImpl extends DataLayerListItem implements CommerceTeaserActionItem {
 
     private final String title;
     private final String url;
     private CommerceIdentifier identifier;
 
-    public CommerceTeaserActionItemImpl(String title, String url) {
+    public CommerceTeaserActionItemImpl(String title, String url, Resource action,
+                                        String parentId) {
+        super(parentId, action);
         this.title = title;
         this.url = url;
     }
 
-    public CommerceTeaserActionItemImpl(String title, String url, CommerceIdentifier identifier) {
-        this(title, url);
+    public CommerceTeaserActionItemImpl(String title, String url, CommerceIdentifier identifier, Resource action,
+                                        String parentId) {
+        this(title, url, action, parentId);
         this.identifier = identifier;
     }
 
@@ -52,5 +58,22 @@ public class CommerceTeaserActionItemImpl implements CommerceTeaserActionItem {
     @Nullable
     public CommerceIdentifier getEntityIdentifier() {
         return identifier;
+    }
+
+    // DataLayer methods
+
+    @Override
+    public String getDataLayerLinkUrl() {
+        return getURL();
+    }
+
+    @Override
+    public String getDataLayerTitle() {
+        return getTitle();
+    }
+
+    @Override
+    public String getDataLayerType() {
+        return identifier != null ? identifier.getEntityType().toString() : null;
     }
 }

@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { ApolloClient, ApolloProvider, from, HttpLink, InMemoryCache } from '@apollo/client';
+import typePolicies from '@magento/peregrine/lib/Apollo/policies';
 
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
@@ -25,13 +26,14 @@ import compressQueryFetch from '../../utils/compressQueryFetch';
 import useCustomUrlEvent from '../../utils/useCustomUrlEvent';
 import useReferrerEvent from '../../utils/useReferrerEvent';
 import usePageEvent from '../../utils/usePageEvent';
-import typePolicies from '@magento/peregrine/lib/Apollo/policies';
+import useDataLayerEvents from '../../utils/useDataLayerEvents';
 
 const App = props => {
     const { graphqlEndpoint, storeView, graphqlMethod = 'POST', headers = {} } = useConfigContext();
     useCustomUrlEvent();
     useReferrerEvent();
     usePageEvent();
+    useDataLayerEvents();
 
     const clientHeaders = { ...headers };
 

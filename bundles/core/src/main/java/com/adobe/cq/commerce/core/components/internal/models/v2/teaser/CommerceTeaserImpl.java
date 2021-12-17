@@ -119,7 +119,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 }
 
                 String title = actionProperties.get(PN_ACTION_TEXT, String.class);
-                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, identifier));
+                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, identifier, action, wcmTeaser.getId()));
             }
         }
     }
