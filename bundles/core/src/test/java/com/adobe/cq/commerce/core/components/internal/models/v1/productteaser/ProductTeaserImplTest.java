@@ -26,10 +26,9 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
@@ -45,6 +44,7 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
@@ -54,7 +54,17 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserImpl.CALL_TO_ACTION_TEXT_ADD_TO_CART;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserImpl.CALL_TO_ACTION_TYPE_ADD_TO_CART;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserImpl.CALL_TO_ACTION_TYPE_DETAILS;
+import static com.adobe.cq.commerce.core.components.internal.models.v1.productteaser.ProductTeaserImpl.PN_STYLE_ADD_TO_WISHLIST_ENABLED;
 import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class ProductTeaserImplTest {
@@ -66,7 +76,7 @@ public class ProductTeaserImplTest {
     @Rule
     public final AemContext context = buildAemContext("/context/jcr-content.json")
         .<AemContext>afterSetUp(context -> {
-            ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+            ConfigurationBuilder mockConfigBuilder = mock(ConfigurationBuilder.class);
             Utils.addDataLayerConfig(mockConfigBuilder, true);
             context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
             context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
@@ -87,11 +97,18 @@ public class ProductTeaserImplTest {
     private static final String PRODUCTTEASER_CTA_TEST = "/content/pageA/jcr:content/root/responsivegrid/productteaser-cta-test";
     private static final String PRODUCTTEASER_CTA_TEXT_TEST = "/content/pageA/jcr:content/root/responsivegrid/productteaser-cta-text-test";
 
+    private Style style;
     private Resource teaserResource;
     private Resource pageResource;
     private ProductTeaserImpl productTeaser;
     private ProductInterface product;
     private boolean deepLink;
+
+    @Before
+    public void setup() {
+        style = mock(Style.class);
+        when(style.get(any(), anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
+    }
 
     public void setUp(String resourcePath, boolean deepLink) throws Exception {
         setUp(resourcePath, "graphql/magento-graphql-productteaser-result.json", deepLink);
@@ -99,9 +116,9 @@ public class ProductTeaserImplTest {
 
     public void setUp(String resourcePath, String graphqlResultPath, boolean deepLink) throws Exception {
         this.deepLink = deepLink;
-        Page page = Mockito.spy(context.currentPage(PAGE));
+        Page page = spy(context.currentPage(PAGE));
         context.currentResource(resourcePath);
-        teaserResource = Mockito.spy(context.resourceResolver().getResource(resourcePath));
+        teaserResource = spy(context.resourceResolver().getResource(resourcePath));
 
         Query rootQuery = Utils.getQueryFromResource(graphqlResultPath);
         product = rootQuery.getProducts().getItems().get(0);
@@ -113,7 +130,7 @@ public class ProductTeaserImplTest {
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
-        pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        pageResource = spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
@@ -121,7 +138,7 @@ public class ProductTeaserImplTest {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(teaserResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
-        slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
 
         if (deepLink) {
             // TODO: CIF-2469
@@ -147,26 +164,26 @@ public class ProductTeaserImplTest {
     @Test
     public void verifyCtaDetails() throws Exception {
         setUp(PRODUCTTEASER_VARIANT, false);
-        Assert.assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
-        Assert.assertEquals("MJ01-XS-Orange", productTeaser.getSku());
+        assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
+        assertEquals("MJ01-XS-Orange", productTeaser.getSku());
     }
 
     public void verifyProduct(String resourcePath) throws Exception {
         setUp(resourcePath, true);
 
-        Assert.assertEquals(product.getName(), productTeaser.getName());
+        assertEquals(product.getName(), productTeaser.getName());
 
         // There is a dedicated specific subpage for that product
-        Assert.assertTrue(productTeaser.getUrl().startsWith(PRODUCT_SPECIFIC_PAGE));
-        Assert.assertEquals(toProductUrl(product), productTeaser.getUrl());
+        assertTrue(productTeaser.getUrl().startsWith(PRODUCT_SPECIFIC_PAGE));
+        assertEquals(toProductUrl(product), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = product.getPriceRange().getMinimumPrice().getFinalPrice();
         priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
-        Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getPriceRange().getFormattedFinalPrice());
+        assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getPriceRange().getFormattedFinalPrice());
 
-        Assert.assertEquals(product.getImage().getUrl(), productTeaser.getImage());
-        Assert.assertEquals(product.getImage().getLabel(), productTeaser.getImageAlt());
+        assertEquals(product.getImage().getUrl(), productTeaser.getImage());
+        assertEquals(product.getImage().getLabel(), productTeaser.getImageAlt());
     }
 
     @Test
@@ -184,23 +201,23 @@ public class ProductTeaserImplTest {
             .findFirst()
             .orElse(null);
 
-        Assert.assertEquals(variant.getName(), productTeaser.getName());
-        Assert.assertEquals(toProductUrl(product, variantSku), productTeaser.getUrl());
+        assertEquals(variant.getName(), productTeaser.getName());
+        assertEquals(toProductUrl(product, variantSku), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = variant.getPriceRange().getMinimumPrice().getFinalPrice();
         priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
-        Assert.assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getPriceRange().getFormattedFinalPrice());
+        assertEquals(priceFormatter.format(amount.getValue()), productTeaser.getPriceRange().getFormattedFinalPrice());
 
-        Assert.assertEquals(variant.getImage().getUrl(), productTeaser.getImage());
-        Assert.assertEquals(variant.getImage().getLabel(), productTeaser.getImageAlt());
+        assertEquals(variant.getImage().getUrl(), productTeaser.getImage());
+        assertEquals(variant.getImage().getLabel(), productTeaser.getImageAlt());
     }
 
     @Test
     public void verifyProductTeaserNoGraphqlCLient() {
         Page page = context.currentPage(PAGE);
         context.currentResource(PRODUCTTEASER_NOCLIENT);
-        Resource teaserResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTTEASER_NOCLIENT));
+        Resource teaserResource = spy(context.resourceResolver().getResource(PRODUCTTEASER_NOCLIENT));
         when(teaserResource.adaptTo(GraphqlClient.class)).thenReturn(null);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
@@ -208,20 +225,21 @@ public class ProductTeaserImplTest {
         slingBindings.setResource(teaserResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
 
         ProductTeaserImpl productTeaserNoClient = context.request().adaptTo(ProductTeaserImpl.class);
 
-        Assert.assertNull(productTeaserNoClient.getProductRetriever());
-        Assert.assertNull(productTeaserNoClient.getUrl());
-        Assert.assertNull(productTeaserNoClient.getImage());
-        Assert.assertNull(productTeaserNoClient.getImageAlt());
+        assertNull(productTeaserNoClient.getProductRetriever());
+        assertNull(productTeaserNoClient.getUrl());
+        assertNull(productTeaserNoClient.getImage());
+        assertNull(productTeaserNoClient.getImageAlt());
     }
 
     @Test
     public void testVirtualProduct() throws IOException {
-        Page page = Mockito.spy(context.currentPage(PAGE));
+        Page page = spy(context.currentPage(PAGE));
         context.currentResource(PRODUCTTEASER_VIRTUAL);
-        Resource teaserResource = Mockito.spy(context.resourceResolver().getResource(PRODUCTTEASER_VIRTUAL));
+        Resource teaserResource = spy(context.resourceResolver().getResource(PRODUCTTEASER_VIRTUAL));
         when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         GraphqlClient graphqlClient = new GraphqlClientImpl();
@@ -230,7 +248,7 @@ public class ProductTeaserImplTest {
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
-        pageResource = Mockito.spy(page.adaptTo(Resource.class));
+        pageResource = spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
@@ -238,51 +256,52 @@ public class ProductTeaserImplTest {
         slingBindings.setResource(teaserResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, teaserResource.getValueMap());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
 
         productTeaser = context.request().adaptTo(ProductTeaserImpl.class);
-        Assert.assertTrue(productTeaser.isVirtualProduct());
+        assertTrue(productTeaser.isVirtualProduct());
     }
 
     @Test
     public void testCtaForConfigurable() throws Exception {
         setUp(PRODUCTTEASER_CTA_TEST, false);
-        Assert.assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
-        Assert.assertEquals(CALL_TO_ACTION_TEXT_ADD_TO_CART, productTeaser.getCallToActionText());
+        assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
+        assertEquals(CALL_TO_ACTION_TEXT_ADD_TO_CART, productTeaser.getCallToActionText());
     }
 
     @Test
     public void testCtaTextForConfigurable() throws Exception {
         setUp(PRODUCTTEASER_CTA_TEXT_TEST, false);
-        Assert.assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
-        Assert.assertEquals("custom", productTeaser.getCallToActionText());
+        assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
+        assertEquals("custom", productTeaser.getCallToActionText());
     }
 
     @Test
     public void testCtaForVirtual() throws Exception {
         setUp(PRODUCTTEASER_CTA_TEST, "graphql/magento-graphql-virtualproduct-result.json", false);
-        Assert.assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
-        Assert.assertEquals(null, productTeaser.getCallToActionText());
+        assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
+        assertEquals(null, productTeaser.getCallToActionText());
     }
 
     @Test
     public void testCtaTextForVirtual() throws Exception {
         setUp(PRODUCTTEASER_CTA_TEXT_TEST, "graphql/magento-graphql-virtualproduct-result.json", false);
-        Assert.assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
-        Assert.assertEquals("custom", productTeaser.getCallToActionText());
+        assertEquals(CALL_TO_ACTION_TYPE_ADD_TO_CART, productTeaser.getCallToAction());
+        assertEquals("custom", productTeaser.getCallToActionText());
     }
 
     @Test
     public void testCtaForGroup() throws Exception {
         setUp(PRODUCTTEASER_CTA_TEST, "graphql/magento-graphql-groupedproduct-result.json", false);
-        Assert.assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
-        Assert.assertEquals(CALL_TO_ACTION_TEXT_ADD_TO_CART, productTeaser.getCallToActionText());
+        assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
+        assertEquals(CALL_TO_ACTION_TEXT_ADD_TO_CART, productTeaser.getCallToActionText());
     }
 
     @Test
     public void testCtaForBundle() throws Exception {
         setUp(PRODUCTTEASER_CTA_TEST, "graphql/magento-graphql-bundleproduct-result.json", false);
-        Assert.assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
-        Assert.assertEquals(CALL_TO_ACTION_TEXT_ADD_TO_CART, productTeaser.getCallToActionText());
+        assertEquals(CALL_TO_ACTION_TYPE_DETAILS, productTeaser.getCallToAction());
+        assertEquals(CALL_TO_ACTION_TEXT_ADD_TO_CART, productTeaser.getCallToActionText());
     }
 
     @Test
@@ -309,7 +328,27 @@ public class ProductTeaserImplTest {
         ObjectMapper mapper = new ObjectMapper();
         String expected = Utils.getResource("results/result-datalayer-productteaser-component.json");
         String jsonResult = productTeaser.getData().getJson();
-        Assert.assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+        assertEquals(mapper.readTree(expected), mapper.readTree(jsonResult));
+    }
+
+    @Test
+    public void testAddToWishListDefault() throws Exception {
+        setUp(PRODUCTTEASER_SIMPLE, false);
+        assertFalse(productTeaser.getAddToWishListEnabled());
+    }
+
+    @Test
+    public void testAddToWishListDisabled() throws Exception {
+        when(style.get(eq(PN_STYLE_ADD_TO_WISHLIST_ENABLED), anyBoolean())).thenReturn(Boolean.FALSE);
+        setUp(PRODUCTTEASER_SIMPLE, false);
+        assertFalse(productTeaser.getAddToWishListEnabled());
+    }
+
+    @Test
+    public void testAddToWishListEnabled() throws Exception {
+        when(style.get(eq(PN_STYLE_ADD_TO_WISHLIST_ENABLED), anyBoolean())).thenReturn(Boolean.TRUE);
+        setUp(PRODUCTTEASER_SIMPLE, false);
+        assertTrue(productTeaser.getAddToWishListEnabled());
     }
 
     private String toProductUrl(ProductInterface product) {

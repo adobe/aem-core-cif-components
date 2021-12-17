@@ -76,6 +76,7 @@ describe('BundleProductOptions', () => {
         fireEvent.click(getByRole('button', { name: 'Customize' }));
 
         await waitForDomChange({ container });
+
         expect(asFragment()).toMatchSnapshot();
 
         fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
@@ -102,5 +103,61 @@ describe('BundleProductOptions', () => {
                 virtual: false
             }
         ]);
+
+        dispatchEventSpy.mockClear();
+    });
+
+    it('renders add to wish list button', async () => {
+        // mock useState to return the state for a full rendering
+        jest.spyOn(hooks, 'useAwaitQuery').mockImplementation(() => {
+            return jest.fn().mockImplementation(async () => {
+                return {
+                    data: mockResponse,
+                    error: null
+                };
+            });
+        });
+
+        const bundleProductOptionsContainer = document.createElement('div');
+        bundleProductOptionsContainer.dataset.sku = 'VA24';
+        bundleProductOptionsContainer.dataset.showAddToWishList = '';
+        bundleProductOptionsContainer.id = 'bundle-product-options';
+
+        const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation(event => {
+            return event.detail;
+        });
+
+        const { asFragment, container, getByRole } = render(<BundleProductOptions />, {
+            config: config,
+            container: document.body.appendChild(bundleProductOptionsContainer),
+            mocks: [mockAddToCartMutation]
+        });
+
+        fireEvent.click(getByRole('button', { name: 'Customize' }));
+
+        await waitForDomChange({ container });
+
+        expect(asFragment()).toMatchSnapshot();
+
+        fireEvent.click(getByRole('button', { name: 'Add to Wish List' }));
+
+        await wait(() => expect(dispatchEventSpy).toHaveBeenCalledTimes(1));
+
+        // The mock dispatchEvent function returns the CustomEvent detail
+        expect(dispatchEventSpy).toHaveReturnedWith([
+            {
+                quantity: 1,
+                selected_options: [
+                    'YnVuZGxlLzEvMS8x',
+                    'YnVuZGxlLzIvMy8x',
+                    'YnVuZGxlLzMvNS8x',
+                    'YnVuZGxlLzQvNy8x',
+                    'YnVuZGxlLzQvOC8x'
+                ],
+                sku: 'VA24'
+            }
+        ]);
+
+        dispatchEventSpy.mockClear();
     });
 });

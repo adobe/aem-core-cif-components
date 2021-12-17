@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 import { ApolloClient, ApolloProvider, from, HttpLink, InMemoryCache } from '@apollo/client';
+import typePolicies from '@magento/peregrine/lib/Apollo/policies';
 
 import { CartProvider, CartInitializer } from '../Minicart';
 import { CheckoutProvider } from '../Checkout';
@@ -50,7 +51,7 @@ const App = props => {
                 fetch: compressQueryFetch
             })
         ]),
-        cache: new InMemoryCache()
+        cache: new InMemoryCache({ typePolicies })
     };
 
     const client = new ApolloClient(clientConfig);

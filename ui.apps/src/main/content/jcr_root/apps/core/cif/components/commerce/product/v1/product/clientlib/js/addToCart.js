@@ -121,7 +121,7 @@ class AddToCart {
 }
 
 AddToCart.selectors = {
-    self: '.productFullDetail__cartActions button',
+    self: '.productFullDetail__cartActions button.button__root_highPriority',
     sku: '.productFullDetail__details [role=sku]',
     quantity: '.productFullDetail__quantity select',
     product: '[data-cmp-is=product]'

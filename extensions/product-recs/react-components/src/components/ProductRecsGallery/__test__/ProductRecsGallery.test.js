@@ -33,6 +33,49 @@ jest.mock('../../../hooks/useVisibilityObserver', () => ({
 
 describe('ProductRecsGallery', () => {
     let mse;
+    const units = [
+        {
+            unitId: 'my-unit-id',
+            products: [
+                {
+                    sku: 'sku-a',
+                    name: 'My Product A',
+                    type: 'simple',
+                    productId: 1,
+                    currency: 'CHF',
+                    prices: {
+                        minimum: {
+                            final: 342.23
+                        },
+                        maximum: {
+                            final: 342.23
+                        }
+                    },
+                    smallImage: {
+                        url: 'http://localhost/product-a.jpg'
+                    }
+                },
+                {
+                    sku: 'sku-b',
+                    name: 'My Product B',
+                    type: 'simple',
+                    productId: 2,
+                    currency: 'CHF',
+                    prices: {
+                        minimum: {
+                            final: 342.23
+                        },
+                        maximum: {
+                            final: 2231.42
+                        }
+                    },
+                    smallImage: {
+                        url: 'http://localhost/product-b.png'
+                    }
+                }
+            ]
+        }
+    ];
 
     beforeAll(() => {
         mse = window.magentoStorefrontEvents = mockMagentoStorefrontEvents;
@@ -56,56 +99,21 @@ describe('ProductRecsGallery', () => {
         expect(asFragment()).toMatchSnapshot();
     });
 
-    it('renders a list of products', () => {
+    it.each([
+        ['with add to wish list', true],
+        ['without add to wish list', undefined]
+    ])('renders a list of products (%s)', (_name, showAddToWishList) => {
         mockUseRecommendationsValue.mockReturnValue({
             loading: false,
-            units: [
-                {
-                    unitId: 'my-unit-id',
-                    products: [
-                        {
-                            sku: 'sku-a',
-                            name: 'My Product A',
-                            type: 'simple',
-                            productId: 1,
-                            currency: 'CHF',
-                            prices: {
-                                minimum: {
-                                    final: 342.23
-                                },
-                                maximum: {
-                                    final: 342.23
-                                }
-                            },
-                            smallImage: {
-                                url: 'http://localhost/product-a.jpg'
-                            }
-                        },
-                        {
-                            sku: 'sku-b',
-                            name: 'My Product B',
-                            type: 'simple',
-                            productId: 2,
-                            currency: 'CHF',
-                            prices: {
-                                minimum: {
-                                    final: 342.23
-                                },
-                                maximum: {
-                                    final: 2231.42
-                                }
-                            },
-                            smallImage: {
-                                url: 'http://localhost/product-b.png'
-                            }
-                        }
-                    ]
-                }
-            ]
+            units
         });
 
         const { asFragment } = render(
-            <ProductRecsGallery title="My Product Recommendations" recommendationType="most-viewed" />,
+            <ProductRecsGallery
+                title="My Product Recommendations"
+                recommendationType="most-viewed"
+                showAddToWishList={showAddToWishList}
+            />,
             { wrapper: ContextWrapper }
         );
 

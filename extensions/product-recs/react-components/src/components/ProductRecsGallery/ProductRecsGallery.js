@@ -28,6 +28,7 @@ const ProductRecsGallery = props => {
     const { hostElement } = props;
     const mse = useStorefrontEvents();
     const rendered = useRef(false);
+    const { showAddToWishList } = props;
     const { loading, units } = useRecommendations(props);
     const { observeElement } = useVisibilityObserver();
 
@@ -61,7 +62,12 @@ const ProductRecsGallery = props => {
                 <h2 className={classes.title}>{unit.unitName || props.title}</h2>
                 <div className={classes.container} ref={e => observeElement(e, isVisible)}>
                     {unit.products.map(product => (
-                        <ProductCard unit={unit} product={product} key={product.sku} />
+                        <ProductCard
+                            unit={unit}
+                            product={product}
+                            key={product.sku}
+                            showAddToWishList={showAddToWishList}
+                        />
                     ))}
                 </div>
             </>
@@ -86,6 +92,7 @@ ProductRecsGallery.propTypes = {
     includeMaxPrice: PropTypes.string,
     includeMinPrice: PropTypes.string,
     preconfigured: PropTypes.bool,
+    showAddToWishList: PropTypes.bool,
     hostElement: PropTypes.instanceOf(HTMLElement)
 };
 

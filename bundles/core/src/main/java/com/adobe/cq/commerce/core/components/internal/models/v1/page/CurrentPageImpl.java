@@ -58,7 +58,7 @@ public class CurrentPageImpl extends AbstractPageDelegator {
     private com.adobe.cq.wcm.core.components.models.Page delegate;
 
     @PostConstruct
-    protected void postConstruct() {
+    protected void initModel() {
         delegate = modelFactory.getModelFromWrappedRequest(request, currentPage.getContentResource(), Page.class);
         request = null;
     }

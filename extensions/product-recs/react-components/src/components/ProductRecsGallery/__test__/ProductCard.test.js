@@ -55,8 +55,14 @@ describe('ProductCard', () => {
         };
     });
 
-    it('renders a product card', () => {
-        const { asFragment } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
+    it.each([
+        ['with add to wish list', true],
+        ['without add to wish list', undefined]
+    ])('renders a product card (%s)', (_nane, showAddToWishList) => {
+        const { asFragment } = render(
+            <ProductCard unit={unit} product={product} showAddToWishList={showAddToWishList} />,
+            { wrapper: ContextWrapper }
+        );
 
         expect(asFragment()).toMatchSnapshot();
     });
@@ -74,9 +80,29 @@ describe('ProductCard', () => {
 
         const { queryByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
 
-        fireEvent.click(queryByRole('button'));
+        fireEvent.click(
+            queryByRole('button', {
+                name: /add to cart/i
+            })
+        );
         expect(eventListener).toHaveBeenCalledTimes(1);
         expect(mse.publish.recsItemAddToCartClick).toHaveBeenCalledWith(unit.unitId, product.productId);
+    });
+
+    it('triggers an add to wish list event', () => {
+        const eventListener = jest.fn();
+        document.addEventListener('aem.cif.add-to-wishlist', eventListener);
+
+        const { queryByRole } = render(<ProductCard unit={unit} product={product} showAddToWishList={true} />, {
+            wrapper: ContextWrapper
+        });
+
+        fireEvent.click(
+            queryByRole('button', {
+                name: /add to Wish List/i
+            })
+        );
+        expect(eventListener).toHaveBeenCalledTimes(1);
     });
 
     it('button redirects to the product page', () => {
@@ -101,7 +127,7 @@ describe('ProductCard', () => {
 
         const { queryByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
 
-        fireEvent.click(queryByRole('button'));
+        fireEvent.click(queryByRole('button', { name: 'Add to Cart' }));
         expect(mse.publish.recsItemClick).toHaveBeenCalledWith(unit.unitId, product.productId);
     });
 

@@ -22,6 +22,7 @@ import { useStorefrontEvents, Price, Trigger, createProductPageUrl } from '@adob
 import classes from './ProductCard.css';
 
 const ProductCard = props => {
+    const { showAddToWishList } = props;
     const mse = useStorefrontEvents();
     const intl = useIntl();
 
@@ -40,6 +41,15 @@ const ProductCard = props => {
         document.dispatchEvent(customEvent);
 
         mse && mse.publish.recsItemAddToCartClick(unitId, productId);
+    };
+
+    const addToWishlist = product => {
+        const { sku } = product;
+
+        const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+            detail: [{ sku, quantity: 1 }]
+        });
+        document.dispatchEvent(customEvent);
     };
 
     const openDetails = (unit, product) => {
@@ -91,10 +101,17 @@ const ProductCard = props => {
                         }
                     }}>
                     <span className={classes.addToCart}>
-                        {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to cart' })}
+                        {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to Cart' })}
                     </span>
                 </Trigger>
             }
+            {showAddToWishList && (
+                <Trigger className={classes.buttonMargin} action={() => addToWishlist(props.product)}>
+                    <span className={classes.addToWishlist}>
+                        {intl.formatMessage({ id: 'productrecs:add-to-wishlist', defaultMessage: 'Add to Wish List' })}
+                    </span>
+                </Trigger>
+            )}
         </div>
     );
 };
@@ -120,7 +137,8 @@ ProductCard.propTypes = {
         smallImage: PropTypes.shape({
             url: PropTypes.string
         })
-    })
+    }),
+    showAddToWishList: PropTypes.bool
 };
 
 export default ProductCard;

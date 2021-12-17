@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ProductCard renders a product card 1`] = `
+exports[`ProductCard renders a product card (with add to wish list) 1`] = `
 <DocumentFragment>
   <div
     class="card"
@@ -38,7 +38,62 @@ exports[`ProductCard renders a product card 1`] = `
       <span
         class="addToCart"
       >
-        Add to cart
+        Add to Cart
+      </span>
+    </button>
+    <button
+      class="cmp-Trigger__trigger__root cmp-components__clickable__root"
+      type="button"
+    >
+      <span
+        class="addToWishlist"
+      >
+        Add to Wish List
+      </span>
+    </button>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`ProductCard renders a product card (without add to wish list) 1`] = `
+<DocumentFragment>
+  <div
+    class="card"
+  >
+    <a
+      href="http://localhost/content/venia/us/en.cifproductredirect.html/my-sku"
+      title="My Product"
+    >
+      <div
+        class="cardImage"
+      >
+        <img
+          alt="My Product"
+          class="productImage"
+          src="http://localhost/product.png"
+        />
+      </div>
+      <div>
+        My Product
+      </div>
+      <div
+        class="price"
+      >
+        <span
+          class=""
+        >
+          CHF 342.23
+        </span>
+      </div>
+    </a>
+    <button
+      class="cmp-Trigger__trigger__root cmp-components__clickable__root"
+      type="button"
+    >
+      <span
+        class="addToCart"
+      >
+        Add to Cart
       </span>
     </button>
   </div>
@@ -84,7 +139,7 @@ exports[`ProductCard renders a product card with a price range 1`] = `
       <span
         class="addToCart"
       >
-        Add to cart
+        Add to Cart
       </span>
     </button>
   </div>

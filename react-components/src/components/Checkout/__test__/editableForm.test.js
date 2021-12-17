@@ -264,9 +264,10 @@ describe('<EditableForm />', () => {
             expect(queryByText('Billing Information')).not.toBeNull();
             expect(checkoutReducer.mock.calls.length).toBe(1);
         });
-        fireEvent.change(getByRole('combobox'), { target: { value: 'checkmo' } });
 
+        fireEvent.change(getByRole('combobox'), { target: { value: 'checkmo' } });
         fireEvent.click(getByRole('button', { name: 'Use Payment Method' }));
+
         await wait(() => {
             expect(checkoutReducer).toHaveBeenLastCalledWith(
                 {

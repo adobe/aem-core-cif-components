@@ -44,7 +44,7 @@ describe('GroupedProduct', () => {
                         <span role="sku">my-grouped-product</span>
                     </div>
                     <div class="productFullDetail__cartActions">
-                        <button>
+                        <button class="button__root_highPriority">
                     </div>
                     <section class="productFullDetail__groupedProducts productFullDetail__quantity">         
                         <select data-product-sku="sku1">

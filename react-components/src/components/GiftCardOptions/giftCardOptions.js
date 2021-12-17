@@ -14,6 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
+import PropTypes from 'prop-types';
 import { defineMessages, useIntl } from 'react-intl';
 import LoadingIndicator from '../LoadingIndicator';
 import Price from '../Price';
@@ -48,13 +49,21 @@ const messages = defineMessages({
 });
 
 const GiftCartOptions = props => {
-    const { sku } = props;
+    const { sku, showAddToWishList } = props;
     const [
         giftCardState,
-        { changeAmountSelection, changeCustomAmount, changeOptionValue, changeQuantity, canAddToCart, addToCart }
+        {
+            changeAmountSelection,
+            changeCustomAmount,
+            changeOptionValue,
+            changeQuantity,
+            canAddToCart,
+            addToCart,
+            addToWishlist
+        }
     ] = useGiftCardOptions({ sku });
 
-    const { formatMessage } = useIntl();
+    const intl = useIntl();
 
     if (giftCardState === null) {
         return <LoadingIndicator />;
@@ -73,7 +82,7 @@ const GiftCartOptions = props => {
                 }
             }
         },
-        giftCardValues: { quantity, open_amount, custom_amount, custom_amount_uid, selected_amount, entered_options }
+        giftCardValues: { quantity, open_amount, custom_amount, selected_amount, entered_options }
     } = giftCardState;
 
     return (
@@ -81,18 +90,19 @@ const GiftCartOptions = props => {
             {giftcard_amounts.length > 0 && (
                 <section className="productFullDetail__section productFullDetail__giftCardProduct">
                     <h3 className="option__title">
-                        <span>{formatMessage(messages.amountSelectionLabel)}</span> <span className="required"> *</span>
+                        <span>{intl.formatMessage(messages.amountSelectionLabel)}</span>{' '}
+                        <span className="required"> *</span>
                     </h3>
                     <div>
                         <div className="giftCardOptionSelect__root">
                             <span className="fieldIcons__root">
                                 <span className="fieldIcons__input">
                                     <select
-                                        aria-label={formatMessage(messages.amountSelectionLabel)}
+                                        aria-label={intl.formatMessage(messages.amountSelectionLabel)}
                                         className="select__input field__input giftCardProduct__option"
                                         value={selected_amount}
                                         onChange={changeAmountSelection}>
-                                        <option value="">{formatMessage(messages.chooseAmount)}...</option>
+                                        <option value="">{intl.formatMessage(messages.chooseAmount)}...</option>
                                         {giftcard_amounts.map(o => (
                                             <option key={o.uid} value={o.uid}>
                                                 {o.value}
@@ -100,7 +110,7 @@ const GiftCartOptions = props => {
                                         ))}
                                         {allow_open_amount && (
                                             <option value={OPEN_AMOUNT}>
-                                                {formatMessage(messages.otherAmount)}...
+                                                {intl.formatMessage(messages.otherAmount)}...
                                             </option>
                                         )}
                                     </select>
@@ -131,7 +141,7 @@ const GiftCartOptions = props => {
                 <section className="productFullDetail__section productFullDetail__giftCardProduct">
                     <h3 className="option__title">
                         <span>
-                            {formatMessage(messages.customAmountLabel)} {currency}
+                            {intl.formatMessage(messages.customAmountLabel)} {currency}
                         </span>{' '}
                         <span className="required"> *</span>
                     </h3>
@@ -140,7 +150,7 @@ const GiftCartOptions = props => {
                             <span>
                                 <input
                                     type="number"
-                                    aria-label={formatMessage(messages.customAmountLabel)}
+                                    aria-label={intl.formatMessage(messages.customAmountLabel)}
                                     className="field__input"
                                     min={open_amount_min}
                                     max={open_amount_max}
@@ -149,9 +159,9 @@ const GiftCartOptions = props => {
                                 />
                             </span>
                             <span>
-                                {formatMessage(messages.customPriceMinimum)}:{' '}
+                                {intl.formatMessage(messages.customPriceMinimum)}:{' '}
                                 <Price currencyCode={currency} value={open_amount_min} />{' '}
-                                {formatMessage(messages.customPriceMaximum)}:{' '}
+                                {intl.formatMessage(messages.customPriceMaximum)}:{' '}
                                 <Price currencyCode={currency} value={open_amount_max} />
                             </span>
                         </div>
@@ -184,13 +194,13 @@ const GiftCartOptions = props => {
                 ))}
             <section className="productFullDetail__quantity productFullDetail__section">
                 <h2 className="productFullDetail__quantityTitle option__title">
-                    <span>{formatMessage({ id: 'cart:quantity', defaultMessage: 'Quantity' })}</span>
+                    <span>{intl.formatMessage({ id: 'cart:quantity', defaultMessage: 'Quantity' })}</span>
                 </h2>
                 <div className="quantity__root">
                     <span className="fieldIcons__root" style={{ '--iconsBefore': 0, '--iconsAfter': 1 }}>
                         <span className="fieldIcons__input">
                             <select
-                                aria-label={formatMessage({
+                                aria-label={intl.formatMessage({
                                     id: 'product:quantity-label',
                                     defaultMessage: 'Product quantity'
                                 })}
@@ -232,12 +242,32 @@ const GiftCartOptions = props => {
                     disabled={!canAddToCart()}
                     onClick={addToCart}>
                     <span className="button__content">
-                        <span>{formatMessage({ id: 'product:add-item', defaultMessage: 'Add to Cart' })}</span>
+                        <span>{intl.formatMessage({ id: 'product:add-item', defaultMessage: 'Add to Cart' })}</span>
                     </span>
                 </button>
+                {showAddToWishList && (
+                    <button
+                        className="button__root_normalPriority button__root clickable__root"
+                        type="button"
+                        onClick={addToWishlist}>
+                        <span className="button__content">
+                            <span>
+                                {intl.formatMessage({
+                                    id: 'product:add-to-wishlist',
+                                    defaultMessage: 'Add to Wish List'
+                                })}
+                            </span>
+                        </span>
+                    </button>
+                )}
             </section>
         </>
     );
+};
+
+GiftCartOptions.propTypes = {
+    sku: PropTypes.string.required,
+    showAddToWishList: PropTypes.bool
 };
 
 export default GiftCartOptions;

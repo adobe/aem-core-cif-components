@@ -33,10 +33,16 @@ const BundleProductOptions = () => {
     const {
         mountingPoints: { bundleProductOptionsContainer }
     } = useConfigContext();
-    const sku = document.querySelector(bundleProductOptionsContainer)?.dataset?.sku;
     const productId = document.querySelector('[data-cmp-is=product]')?.id;
     const [bundleState, setBundleState] = useState(null);
     const intl = useIntl();
+    let { sku, showAddToWishList } = document.querySelector(bundleProductOptionsContainer)?.dataset || {};
+
+    if (showAddToWishList === '') {
+        // show-add-to-wish-list is set without a value to the dom,
+        // the returned value from the data set is an empty string: ''
+        showAddToWishList = true;
+    }
 
     const fetchBundleDetails = async sku => {
         const { data, error } = await bundleProductQuery({ variables: { sku }, fetchPolicy: 'network-only' });
@@ -171,6 +177,26 @@ const BundleProductOptions = () => {
         document.dispatchEvent(customEvent);
     };
 
+    const addToWishlist = () => {
+        const { selections, quantity } = bundleState;
+        const selected_options = [];
+        selections.forEach(s => {
+            s.customization.forEach(c => {
+                selected_options.push(btoa(`bundle/${s.option_id}/${c.id}/${s.quantity}`));
+            });
+        });
+        const productData = {
+            sku,
+            quantity: quantity,
+            selected_options
+        };
+
+        const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+            detail: [productData]
+        });
+        document.dispatchEvent(customEvent);
+    };
+
     const getTotalPrice = () => {
         const { selections, currencyCode } = bundleState;
         const price = selections.reduce((acc, selection) => {
@@ -277,6 +303,21 @@ const BundleProductOptions = () => {
                         <span>{intl.formatMessage({ id: 'product:add-item', defaultMessage: 'Add to Cart' })}</span>
                     </span>
                 </button>
+                {showAddToWishList && (
+                    <button
+                        className="button__root_normalPriority button__root clickable__root"
+                        type="button"
+                        onClick={addToWishlist}>
+                        <span className="button__content">
+                            <span>
+                                {intl.formatMessage({
+                                    id: 'product:add-to-wishlist',
+                                    defaultMessage: 'Add to Wish List'
+                                })}
+                            </span>
+                        </span>
+                    </button>
+                )}
             </section>
         </>
     );

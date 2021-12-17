@@ -42,7 +42,12 @@ let generateTeaserHtml = button => `<div class="item__root" data-cmp-is="product
     </div>
     <div class="productteaser__cta">
        ${button}
-    </div>      
+       <button class="button__root_normalPriority button__root clickable__root" data-action="wishlist" type="button">
+            <span class="button__content">
+                <span>Add to Wish List</span>
+            </span >
+        </button >
+    </div>
 </div>`;
 
 describe('ProductTeaser', () => {
@@ -82,7 +87,26 @@ describe('ProductTeaser', () => {
         });
 
         const productTeaser = new ProductTeaser(teaserRoot);
-        const button = teaserRoot.querySelector('button');
+        const button = teaserRoot.querySelector('button.button__root_highPriority');
+        button.click();
+
+        const response = pageRoot.querySelector('div.response');
+        assert.isNotNull(response);
+    });
+
+    it('triggers the wishlist addition event for the Add To Wishlist CTA', () => {
+        pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(addToCartAction));
+        teaserRoot = pageRoot.querySelector(ProductTeaser.selectors.rootElement);
+
+        document.addEventListener('aem.cif.add-to-wishlist', () => {
+            let response = document.createElement('div');
+            response.classList.add('response');
+            response.innerText = 'event triggered';
+            pageRoot.appendChild(response);
+        });
+
+        const productTeaser = new ProductTeaser(teaserRoot);
+        const button = teaserRoot.querySelector('button.button__root_normalPriority');
         button.click();
 
         const response = pageRoot.querySelector('div.response');
@@ -99,7 +123,7 @@ describe('ProductTeaser', () => {
         teaserRoot = pageRoot.querySelector(ProductTeaser.selectors.rootElement);
 
         const productTeaser = new ProductTeaser(teaserRoot);
-        const button = teaserRoot.querySelector('button');
+        const button = teaserRoot.querySelector('button.button__root_highPriority');
         button.click();
         mockLocation.verify();
     });
@@ -108,7 +132,7 @@ describe('ProductTeaser', () => {
         pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(misconfiguredAction));
         teaserRoot = pageRoot.querySelector(ProductTeaser.selectors.rootElement);
         const productTeaser = new ProductTeaser(teaserRoot);
-        const button = teaserRoot.querySelector('button');
+        const button = teaserRoot.querySelector('button.button__root_highPriority');
         button.click();
         assert(productTeaser._noOpHandler.called);
     });

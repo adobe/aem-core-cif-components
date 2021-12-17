@@ -30,6 +30,14 @@ const config = {
 };
 
 describe('GiftCardProductOptions', () => {
+    const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation(event => {
+        return event.detail;
+    });
+
+    afterEach(() => {
+        dispatchEventSpy.mockClear();
+    });
+
     it('renders the component with no sku', () => {
         const { asFragment } = render(<GiftCardProductOptions />, { config: config });
         expect(asFragment()).toMatchSnapshot();
@@ -49,11 +57,21 @@ describe('GiftCardProductOptions', () => {
         expect(asFragment()).toMatchSnapshot();
     });
 
-    it('renders the component with full options', async () => {
-        const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation(event => {
-            return event.detail;
+    it('renders the component with wishlist', async () => {
+        const gitfCardProductOptionsContainer = document.createElement('div');
+
+        const { asFragment } = render(<GiftCardProductOptions sku="gift-card" showAddToWishList={true} />, {
+            config: config,
+            container: document.body.appendChild(gitfCardProductOptionsContainer),
+            mocks: [mockResponse]
         });
 
+        expect(await screen.findByText(/cart/i)).toBeInTheDocument();
+
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the component with full options', async () => {
         const gitfCardProductOptionsContainer = document.createElement('div');
 
         const { asFragment, getByRole, getByLabelText } = render(<GiftCardProductOptions sku="gift-card" />, {
@@ -68,6 +86,7 @@ describe('GiftCardProductOptions', () => {
 
         // Click add to cart which should be disabled
         fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
+        expect(dispatchEventSpy).toHaveBeenCalledTimes(0);
 
         // Add the required inputs
         fireEvent.change(getByLabelText(/amount/i), {
@@ -113,6 +132,33 @@ describe('GiftCardProductOptions', () => {
                     }
                 ],
                 selected_options: ['Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzEyLjAwMDA=']
+            }
+        ]);
+    });
+
+    it('renders add to wish list button', async () => {
+        const gitfCardProductOptionsContainer = document.createElement('div');
+
+        const { asFragment, getByRole } = render(<GiftCardProductOptions sku="gift-card" showAddToWishList={true} />, {
+            config: config,
+            container: document.body.appendChild(gitfCardProductOptionsContainer),
+            mocks: [mockResponse, mockAddToCartMutation]
+        });
+
+        expect(await screen.findByText(/cart/i)).toBeInTheDocument();
+
+        expect(asFragment()).toMatchSnapshot();
+
+        // Click add to wish list button
+        fireEvent.click(getByRole('button', { name: 'Add to Wish List' }));
+
+        // Add to cart should be called just once since the first click was on a disabled button
+        await wait(() => expect(dispatchEventSpy).toHaveBeenCalledTimes(1));
+
+        expect(dispatchEventSpy).toHaveReturnedWith([
+            {
+                sku: 'gift-card',
+                quantity: 1
             }
         ]);
     });
