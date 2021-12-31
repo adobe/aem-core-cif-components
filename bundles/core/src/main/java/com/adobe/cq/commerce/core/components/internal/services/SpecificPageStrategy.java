@@ -90,17 +90,13 @@ public class SpecificPageStrategy {
     }
 
     public Page getSpecificPage(Page startPage, ProductUrlFormat.Params params) {
-        if (StringUtils.isEmpty(params.getUrlKey())) {
-            // specific product pages only support lookup by slug/url_key yet
-            return null;
-        }
-
         Iterable<Page> candidates = traverse(startPage)::iterator;
         for (Page candidate : candidates) {
             ValueMap properties = candidate.getProperties();
             String[] productUrlKeys = properties.get(SELECTOR_FILTER_PROPERTY, String[].class);
             for (String productUrlKey : productUrlKeys) {
-                if (productUrlKey.equals(params.getUrlKey())) {
+                if (productUrlKey.equals(params.getUrlKey())
+                    || productUrlKey.equals(params.getSku())) {
                     return candidate;
                 }
             }
@@ -110,6 +106,7 @@ public class SpecificPageStrategy {
     }
 
     public Page getSpecificPage(Page startPage, CategoryUrlFormat.Params params) {
+        // check for uids only as fallback when there is no url_path and url_key
         boolean checkUids = StringUtils.isNotEmpty(params.getUid());
         boolean checkUrlPath = StringUtils.isNotEmpty(params.getUrlPath());
         boolean checkUrlKey = StringUtils.isNotEmpty(params.getUrlKey());
@@ -159,15 +156,6 @@ public class SpecificPageStrategy {
                 categoryUids = null;
             }
 
-            // check for uid first
-            if (checkUids && categoryUids != null) {
-                for (String categoryUid : categoryUids) {
-                    if (categoryUid.equals(params.getUid())) {
-                        return candidate;
-                    }
-                }
-            }
-
             // check for url path
             if (checkUrlPath) {
                 for (String categoryUrlPath : categoryUrlPaths) {
@@ -183,6 +171,15 @@ public class SpecificPageStrategy {
                 for (String categoryUrlPath : categoryUrlPaths) {
                     String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath, "/");
                     if (categoryUrlKey.equals(params.getUrlKey())) {
+                        return candidate;
+                    }
+                }
+            }
+
+            // check for uid last, as fallback
+            if (checkUids && categoryUids != null) {
+                for (String categoryUid : categoryUids) {
+                    if (categoryUid.equals(params.getUid())) {
                         return candidate;
                     }
                 }

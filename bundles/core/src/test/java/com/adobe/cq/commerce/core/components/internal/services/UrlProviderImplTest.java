@@ -265,11 +265,12 @@ public class UrlProviderImplTest {
         configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
-            .urlPath("women/bottoms/shorts")
+            .urlPath("women/women-bottoms/women-bottoms-shorts")
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page/sub-page-with-urlpath-array-v2.html/women/bottoms/shorts.html", url);
+        Assert.assertEquals("/content/category-page/sub-page-with-urlpath-array-v2.html/women/women-bottoms/women-bottoms-shorts.html",
+            url);
     }
 
     @Test
