@@ -16,6 +16,9 @@
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -27,6 +30,7 @@ import javax.servlet.ServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.request.RequestDispatcherOptions;
 import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Component;
@@ -35,7 +39,14 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
+import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManager;
+import com.day.cq.wcm.api.PageManagerFactory;
 import com.day.cq.wcm.api.WCMMode;
 
 @Component(
@@ -52,39 +63,47 @@ public class SpecificPageFilterFactory implements Filter {
 
     @Reference
     private UrlProviderImpl urlProvider;
+    @Reference
+    private SpecificPageStrategy specificPageStrategy;
+    @Reference
+    private PageManagerFactory pageManagerFactory;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {}
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        SlingHttpServletRequest slingRequest = (SlingHttpServletRequest) request;
-
-        // Skip filter on AEM author
-        WCMMode wcmMode = WCMMode.fromRequest(request);
-        if (!WCMMode.DISABLED.equals(wcmMode)) {
-            chain.doFilter(request, response);
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
+        // Skip filter if deep linking is enabled
+        if (specificPageStrategy.isGenerateSpecificPageUrlsEnabled()) {
+            chain.doFilter(servletRequest, servletResponse);
             return;
         }
 
-        // detect the commerce identifier
-        String identifier = urlProvider.parseProductUrlIdentifier(slingRequest);
-        if (StringUtils.isEmpty(identifier)) {
-            identifier = urlProvider.parseCategoryUrlIdentifier(slingRequest);
+        // if not find the specific page for the url parameters
+        SlingHttpServletRequest slingRequest = (SlingHttpServletRequest) servletRequest;
+        SlingHttpServletResponse slingResponse = (SlingHttpServletResponse) servletResponse;
+        PageManager pageManager = pageManagerFactory.getPageManager(slingRequest.getResourceResolver());
+        Page currentPage = pageManager.getContainingPage(slingRequest.getResource());
+        Page specificPage = null;
+
+        if (currentPage != null) {
+            if (SiteNavigation.isProductPage(currentPage)) {
+                ProductUrlFormat.Params params = urlProvider.parseProductUrlIdentifier(slingRequest);
+                specificPage = specificPageStrategy.getSpecificPage(currentPage, params);
+            } else if (SiteNavigation.isCategoryPage(currentPage)) {
+                CategoryUrlFormat.Params params = urlProvider.parseCategoryUrlIdentifier(slingRequest);
+                specificPage = specificPageStrategy.getSpecificPage(currentPage,params);
+            }
         }
-        if (StringUtils.isEmpty(identifier)) {
-            chain.doFilter(request, response);
+
+        if (specificPage == null) {
+            LOGGER.debug("No specific page found for: {}", slingRequest.getRequestURI());
+            chain.doFilter(servletRequest, servletResponse);
             return;
         }
 
-        // We add a specific selector to the request to forward the request to SpecificPageServlet
-        RequestDispatcherOptions options = new RequestDispatcherOptions();
-        options.setReplaceSelectors(SpecificPageServlet.SELECTOR + "." + identifier);
-
-        Resource page = slingRequest.getResource();
-        LOGGER.debug("Adding {} selector for {} {}", SpecificPageServlet.SELECTOR, slingRequest.getRequestURI(), page.getPath());
-        RequestDispatcher dispatcher = slingRequest.getRequestDispatcher(page, options);
-        dispatcher.forward(slingRequest, response);
+        RequestDispatcher dispatcher = slingRequest.getRequestDispatcher(specificPage.getContentResource());
+        dispatcher.forward(slingRequest, slingResponse);
     }
 
     @Override
