@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -79,6 +80,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     private boolean showTitle;
     private boolean showImage;
 
+    @Self
+    private SlingHttpServletRequest request;
     // This script variable is not injected when the model is instantiated in SpecificPageServlet
     @ScriptVariable(name = "wcmmode", injectionStrategy = InjectionStrategy.OPTIONAL)
     private SightlyWCMMode wcmMode = null;
@@ -96,19 +99,12 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     @PostConstruct
     protected void initModel() {
-        if (properties == null) {
-            properties = request.getResource().getValueMap();
-        }
+        super.initModel();
+
         // read properties
         showTitle = properties.get(PN_SHOW_TITLE, currentStyle.get(PN_SHOW_TITLE, SHOW_TITLE_DEFAULT));
         showImage = properties.get(PN_SHOW_IMAGE, currentStyle.get(PN_SHOW_IMAGE, SHOW_IMAGE_DEFAULT));
         isAuthor = wcmMode != null && !wcmMode.isDisabled();
-
-        String currentPageIndexCandidate = request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID);
-        // make sure the current page from the query string is reasonable i.e. numeric and over 0
-        Integer currentPageIndex = calculateCurrentPageCursor(currentPageIndexCandidate);
-
-        Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
 
         // Extract category identifier from URL
         String categoryUid = urlProvider.getCategoryIdentifier(request);
@@ -125,25 +121,70 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                 } catch (IOException e) {
                     LOGGER.warn("Cannot use placeholder data", e);
                 }
-            } else {
-                // There isn't any selector on publish instance
-                searchResultsSet = new SearchResultsSetImpl();
-                categorySearchResultsSet = Pair.of(null, searchResultsSet);
-                return;
             }
         }
 
         if (usePlaceholderData) {
-            searchResultsSet = new SearchResultsSetImpl();
+            CategoryProducts categoryProducts = getCategory().getProducts();
+            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, getId());
+            List<ProductListItem> productListItems = categoryProducts.getItems().stream()
+                .map(converter)
+                .filter(Objects::nonNull) // the converter returns null if the conversion fails
+                .collect(Collectors.toList());
+            SearchResultsSetImpl searchResultsSetImpl = new SearchResultsSetImpl();
+            searchResultsSetImpl.setProductListItems(productListItems);
+            searchResultsSet = searchResultsSetImpl;
+        } else if (categoryRetriever != null) {
+            initCategorySearchResultsSet();
         } else {
-            searchOptions = new SearchOptionsImpl();
-            searchOptions.setCurrentPage(currentPageIndex);
-            searchOptions.setPageSize(navPageSize);
-            searchOptions.setAttributeFilters(searchFilters);
+            searchResultsSet = new SearchResultsSetImpl();
+            categorySearchResultsSet = Pair.of(null, searchResultsSet);
+        }
 
-            // configure sorting
-            searchOptions.addSorterKey("price", "Price", Sorter.Order.ASC);
-            searchOptions.addSorterKey("name", "Product Name", Sorter.Order.ASC);
+        initCanonicalUrl();
+
+        // release adaptable
+        request = null;
+    }
+
+    protected void initCategorySearchResultsSet() {
+        String currentPageIndexCandidate = request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID);
+        // make sure the current page from the query string is reasonable i.e. numeric and over 0
+        Integer currentPageIndex = calculateCurrentPageCursor(currentPageIndexCandidate);
+
+        Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
+        SearchOptionsImpl searchOptions = new SearchOptionsImpl();
+        searchOptions.setCurrentPage(currentPageIndex);
+        searchOptions.setPageSize(navPageSize);
+        searchOptions.setAttributeFilters(searchFilters);
+        // configure sorting
+        searchOptions.addSorterKey("price", "Price", Sorter.Order.ASC);
+        searchOptions.addSorterKey("name", "Product Name", Sorter.Order.ASC);
+
+        categorySearchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request,
+            categoryRetriever.getProductQueryHook(), categoryRetriever);
+    }
+
+    protected void initCanonicalUrl() {
+        if (usePlaceholderData) {
+            // placeholder data has no canonical url
+            return;
+        }
+
+        Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
+        CategoryInterface category = getCategory();
+        SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
+
+        if (category != null && categoryPage != null && sitemapLinkExternalizerProvider != null) {
+            canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
+                .toExternalCategoryUrl(request, categoryPage, new CategoryUrlFormat.Params(category));
+        } else {
+            // fallback to legacy logic
+            if (isAuthor) {
+                canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
+            } else {
+                canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
+            }
         }
     }
 
@@ -184,23 +225,14 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
-        if (usePlaceholderData) {
-            CategoryProducts categoryProducts = getCategory().getProducts();
-            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, getId());
-            return categoryProducts.getItems().stream()
-                .map(converter)
-                .filter(Objects::nonNull) // the converter returns null if the conversion fails
-                .collect(Collectors.toList());
-        } else {
-            return getSearchResultsSet().getProductListItems();
-        }
+        return getSearchResultsSet().getProductListItems();
     }
 
     @Nonnull
     @Override
     public SearchResultsSet getSearchResultsSet() {
         if (searchResultsSet == null) {
-            searchResultsSet = getCategorySearchResultsSet().getRight();
+            searchResultsSet = categorySearchResultsSet.getRight();
 
             ((SearchResultsSetImpl) searchResultsSet).setSearchAggregations(
                 searchResultsSet.getSearchAggregations()
@@ -211,20 +243,11 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         return searchResultsSet;
     }
 
-    private Pair<CategoryInterface, SearchResultsSet> getCategorySearchResultsSet() {
-        if (categorySearchResultsSet == null) {
-            Consumer<ProductInterfaceQuery> productQueryHook = categoryRetriever != null ? categoryRetriever.getProductQueryHook() : null;
-            categorySearchResultsSet = searchResultsService
-                .performSearch(searchOptions, resource, productPage, request, productQueryHook, categoryRetriever);
-        }
-        return categorySearchResultsSet;
-    }
-
     protected CategoryInterface getCategory() {
         if (usePlaceholderData) {
             return categoryRetriever.fetchCategory();
         }
-        return getCategorySearchResultsSet().getLeft();
+        return categorySearchResultsSet.getLeft();
     }
 
     @Override
@@ -249,27 +272,6 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     @Override
     public String getCanonicalUrl() {
-        if (usePlaceholderData) {
-            // placeholder data has no canonical url
-            return null;
-        }
-        if (canonicalUrl == null) {
-            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
-            CategoryInterface category = getCategory();
-            SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
-
-            if (category != null && categoryPage != null && sitemapLinkExternalizerProvider != null) {
-                canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
-                    .toExternalCategoryUrl(request, categoryPage, new CategoryUrlFormat.Params(category));
-            } else {
-                // fallback to legacy logic
-                if (isAuthor) {
-                    canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
-                } else {
-                    canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
-                }
-            }
-        }
         return canonicalUrl;
     }
 

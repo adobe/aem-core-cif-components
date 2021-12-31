@@ -24,6 +24,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,10 +51,15 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsImpl.class);
     static final String RESOURCE_TYPE = "core/cif/components/commerce/searchresults";
 
+    @Self
+    private SlingHttpServletRequest request;
+
     private String searchTerm;
 
     @PostConstruct
     protected void initModel() {
+        super.initModel();
+
         searchTerm = request.getParameter(SearchOptionsImpl.SEARCH_QUERY_PARAMETER_ID);
         if (StringUtils.isBlank(searchTerm)) {
             searchResultsSet = new SearchResultsSetImpl();

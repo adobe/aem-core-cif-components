@@ -66,7 +66,7 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
     protected String paginationType;
 
     @Self
-    protected SlingHttpServletRequest request;
+    private SlingHttpServletRequest request;
     @Self
     @Via("resource")
     protected ValueMap properties;
@@ -89,7 +89,7 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
     protected SearchResultsSet searchResultsSet;
 
     @PostConstruct
-    private void baseInitModel() {
+    protected void initModel() {
         // When the Model is created by the CatalogPageNotFoundFilter, script variables will not yet be available. In this case we have to
         // initialise some fields manually, which is necessary as the Model is cache=true and will not be recreated during rendering.
         if (currentPage == null) {
