@@ -63,7 +63,6 @@ public class NavigationImplTest {
     NavigationImpl navigation;
     com.adobe.cq.wcm.core.components.internal.models.v1.NavigationImpl wcmNavigation;
     GraphQLCategoryProvider categoryProvider;
-    ResourceResolver resourceResolver;
     PageManager pageManager;
     List<NavigationItem> navigationItems;
     List<CategoryTree> categoryList;
@@ -116,11 +115,9 @@ public class NavigationImplTest {
         Whitebox.setInternalState(navigation, "urlProvider", urlProvider);
 
         // current request
-        resourceResolver = mock(ResourceResolver.class);
         request = mock(SlingHttpServletRequest.class);
         Whitebox.setInternalState(navigation, "request", request);
         when(request.getRequestURI()).thenReturn("uri");
-        when(request.getResourceResolver()).thenReturn(resourceResolver);
 
         navigationModel = new NavigationModelImpl();
         Whitebox.setInternalState(navigationModel, "rootNavigation", navigation);
