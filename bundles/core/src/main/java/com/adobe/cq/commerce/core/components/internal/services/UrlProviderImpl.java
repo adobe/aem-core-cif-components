@@ -45,6 +45,7 @@ import com.adobe.cq.commerce.core.components.internal.services.urlformats.Produc
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.GenericUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
@@ -179,8 +180,7 @@ public class UrlProviderImpl implements UrlProvider {
     @Override
     public String toProductUrl(SlingHttpServletRequest request, Page page, ProductUrlFormat.Params params) {
         if (page != null) {
-            ProductUrlFormat.Params parsableParams = newProductUrlFormat.retainParsableParameters(params);
-            String pageParam = getPageParam(page, parsableParams, specificPageStrategy::getSpecificPage);
+            String pageParam = getPageParam(page, newProductUrlFormat, params, specificPageStrategy::getSpecificPage);
             if (!pageParam.equals(params.getPage())) {
                 params = new ProductUrlFormat.Params(params);
                 params.setPage(pageParam);
@@ -218,8 +218,7 @@ public class UrlProviderImpl implements UrlProvider {
     @Override
     public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page page, CategoryUrlFormat.Params params) {
         if (page != null) {
-            CategoryUrlFormat.Params parsableParams = newCategoryUrlFormat.retainParsableParameters(params);
-            String pageParam = getPageParam(page, parsableParams, specificPageStrategy::getSpecificPage);
+            String pageParam = getPageParam(page, newCategoryUrlFormat, params, specificPageStrategy::getSpecificPage);
             if (!pageParam.equals(params.getPage())) {
                 params = new CategoryUrlFormat.Params(params);
                 params.setPage(pageParam);
@@ -229,12 +228,12 @@ public class UrlProviderImpl implements UrlProvider {
         return newCategoryUrlFormat.format(params);
     }
 
-    private <T> String getPageParam(Page page, T params, BiFunction<Page, T, Page> specificPageSelector) {
+    private <T> String getPageParam(Page page, GenericUrlFormat<T> format, T params, BiFunction<Page, T, Page> specificPageSelector) {
         // enable rendering of deep links only on author
         boolean deepLinkSpecificPages = specificPageStrategy.isGenerateSpecificPageUrlsEnabled();
 
         if (deepLinkSpecificPages) {
-            Page subPage = specificPageSelector.apply(page, params);
+            Page subPage = specificPageSelector.apply(page, format.retainParsableParameters(params));
             if (subPage != null) {
                 return subPage.getPath();
             }
