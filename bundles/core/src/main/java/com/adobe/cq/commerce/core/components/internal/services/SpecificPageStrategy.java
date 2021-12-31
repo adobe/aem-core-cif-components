@@ -19,20 +19,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -42,13 +33,8 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.day.cq.commons.jcr.JcrConstants;
-import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
 
 /**
@@ -186,7 +172,7 @@ public class SpecificPageStrategy {
             if (checkUrlPath) {
                 for (String categoryUrlPath : categoryUrlPaths) {
                     if (categoryUrlPath.equals(params.getUrlPath())
-                        || (includesSubCategories && StringUtils.startsWith(params.getUrlPath(),categoryUrlPath + "/"))) {
+                        || (includesSubCategories && StringUtils.startsWith(params.getUrlPath(), categoryUrlPath + "/"))) {
                         return candidate;
                     }
                 }
@@ -195,7 +181,7 @@ public class SpecificPageStrategy {
             // check for url key
             if (checkUrlKey) {
                 for (String categoryUrlPath : categoryUrlPaths) {
-                    String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath,"/");
+                    String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath, "/");
                     if (categoryUrlKey.equals(params.getUrlKey())) {
                         return candidate;
                     }

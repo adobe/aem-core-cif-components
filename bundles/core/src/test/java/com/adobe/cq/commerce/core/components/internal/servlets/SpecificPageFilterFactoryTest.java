@@ -20,11 +20,8 @@ import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 
-import org.apache.sling.api.request.RequestDispatcherOptions;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.hamcrest.ResourceMatchers;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -41,10 +38,8 @@ import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.apache.sling.hamcrest.ResourceMatchers.path;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 
 public class SpecificPageFilterFactoryTest {
 
@@ -81,7 +76,8 @@ public class SpecificPageFilterFactoryTest {
         context.requestPathInfo().setSuffix("/men/tops.html");
         filter.doFilter(context.request(), null, chain);
 
-        Mockito.verify(requestDispatcherFactory).getRequestDispatcher(argThat(path("/content/category-page/sub-page-with-urlpath/jcr:content")), any());
+        Mockito.verify(requestDispatcherFactory).getRequestDispatcher(argThat(path(
+            "/content/category-page/sub-page-with-urlpath/jcr:content")), any());
         Mockito.verify(chain, never()).doFilter(context.request(), null);
     }
 

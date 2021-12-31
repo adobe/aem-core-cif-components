@@ -16,9 +16,6 @@
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -28,11 +25,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
-import org.apache.sling.api.request.RequestDispatcherOptions;
-import org.apache.sling.api.resource.Resource;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
@@ -47,7 +41,6 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.PageManagerFactory;
-import com.day.cq.wcm.api.WCMMode;
 
 @Component(
     property = {
@@ -72,7 +65,8 @@ public class SpecificPageFilterFactory implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {}
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException,
+        ServletException {
         // Skip filter if deep linking is enabled
         if (specificPageStrategy.isGenerateSpecificPageUrlsEnabled()) {
             chain.doFilter(servletRequest, servletResponse);
@@ -92,7 +86,7 @@ public class SpecificPageFilterFactory implements Filter {
                 specificPage = specificPageStrategy.getSpecificPage(currentPage, params);
             } else if (SiteNavigation.isCategoryPage(currentPage)) {
                 CategoryUrlFormat.Params params = urlProvider.parseCategoryUrlIdentifier(slingRequest);
-                specificPage = specificPageStrategy.getSpecificPage(currentPage,params);
+                specificPage = specificPageStrategy.getSpecificPage(currentPage, params);
             }
         }
 
