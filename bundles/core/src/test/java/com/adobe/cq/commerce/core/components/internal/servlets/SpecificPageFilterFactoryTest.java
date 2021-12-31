@@ -99,6 +99,22 @@ public class SpecificPageFilterFactoryTest {
     }
 
     @Test
+    public void testFilterNoopNoPage() throws IOException, ServletException {
+        context.currentResource("/content/product-page/ignored");
+        // TODO: CIF-2469
+        // With a newer version of OSGI mock we could re-inject the reference into the existing UrlProviderImpl
+        // context.registerInjectActivateService(new SpecificPageStrategy(), "generateSpecificPageUrls", true);
+        SpecificPageStrategy specificPageStrategy = context.getService(SpecificPageStrategy.class);
+        Whitebox.setInternalState(specificPageStrategy, "generateSpecificPageUrls", true);
+
+        filter.doFilter(context.request(), null, chain);
+
+        // Verify that the request is passed unchanged down the filter chain
+        Mockito.verify(requestDispatcherFactory, never()).getRequestDispatcher(any(Resource.class), any());
+        Mockito.verify(chain).doFilter(context.request(), null);
+    }
+
+    @Test
     public void testFilterForwardingNoParameters() throws IOException, ServletException {
         context.currentResource("/content/product-page");
         filter.doFilter(context.request(), null, chain);
