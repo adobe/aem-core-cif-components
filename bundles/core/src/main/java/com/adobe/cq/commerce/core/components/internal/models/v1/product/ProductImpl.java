@@ -37,6 +37,7 @@ import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.apache.sling.xss.XSSAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,13 +136,19 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private PageManagerFactory pageManagerFactory;
     @OSGiService
     private Externalizer externalizer;
+    @ValueMapValue(name = SELECTION_PROPERTY, injectionStrategy = InjectionStrategy.OPTIONAL)
+    private String sku;
+    @ValueMapValue(name = PN_LOAD_CLIENT_PRICE, injectionStrategy = InjectionStrategy.OPTIONAL)
+    private Boolean loadClientPrice;
+    @ValueMapValue(name = Component.PN_ID, injectionStrategy = InjectionStrategy.OPTIONAL)
+    private String userSetId;
 
     private Boolean configurable;
     private Boolean isGroupedProduct;
     private Boolean isVirtualProduct;
     private Boolean isBundleProduct;
     private Boolean isGiftCardProduct;
-    private Boolean loadClientPrice;
+
     private boolean usePlaceholderData = false;
     private boolean isAuthor = true;
     private String canonicalUrl;
@@ -164,8 +171,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
         }
 
         // Get product selection from dialog
-        ValueMap properties = request.getResource().getValueMap();
-        String sku = properties.get(SELECTION_PROPERTY, String.class);
         isAuthor = wcmMode != null && !wcmMode.isDisabled();
 
         if (magentoGraphqlClient != null) {
@@ -178,7 +183,9 @@ public class ProductImpl extends DataLayerComponent implements Product {
             if (StringUtils.isNotBlank(sku)) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
                 productRetriever.setIdentifier(sku);
-                loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+                if (loadClientPrice == null) {
+                    loadClientPrice = currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT);
+                }
             } else if (isAuthor) {
                 // In AEM Sites editor, load some dummy placeholder data for the component.
                 try {
@@ -193,6 +200,34 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
         locale = currentPage.getLanguage(false);
         enableAddToWishList = currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Product.super.getAddToWishListEnabled());
+
+        initCanonicalUrl();
+
+        // release reference to the adaptable
+        request = null;
+    }
+
+    protected void initCanonicalUrl() {
+        if (usePlaceholderData) {
+            // placeholder data has no canonical url
+            return;
+        }
+
+        Page productPage = SiteNavigation.getProductPage(currentPage);
+        ProductInterface product = productRetriever != null ? productRetriever.fetchProduct() : null;
+        SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
+
+        if (productPage != null && product != null && sitemapLinkExternalizerProvider != null) {
+            canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
+                .toExternalProductUrl(request, productPage, new ProductUrlFormat.Params(product));
+        } else {
+            // fallback to the previous/legacy logic
+            if (isAuthor) {
+                canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
+            } else {
+                canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
+            }
+        }
     }
 
     @Override
@@ -337,7 +372,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public Boolean loadClientPrice() {
-        return loadClientPrice && !LaunchUtils.isLaunchBasedPath(currentPage.getPath());
+        return loadClientPrice != null && loadClientPrice && !LaunchUtils.isLaunchBasedPath(currentPage.getPath());
     }
 
     @Override
@@ -386,10 +421,10 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private List<Asset> filterAndSortAssets(List<MediaGalleryInterface> assets) {
         return assets == null ? Collections.emptyList()
             : assets.parallelStream()
-                .filter(a -> (a.getDisabled() == null || !a.getDisabled()) && a instanceof ProductImage)
-                .map(this::mapAsset)
-                .sorted(Comparator.comparing(a -> a.getPosition() == null ? Integer.MAX_VALUE : a.getPosition()))
-                .collect(Collectors.toList());
+            .filter(a -> (a.getDisabled() == null || !a.getDisabled()) && a instanceof ProductImage)
+            .map(this::mapAsset)
+            .sorted(Comparator.comparing(a -> a.getPosition() == null ? Integer.MAX_VALUE : a.getPosition()))
+            .collect(Collectors.toList());
     }
 
     private Asset mapAsset(MediaGalleryInterface entry) {
@@ -450,27 +485,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public String getCanonicalUrl() {
-        if (usePlaceholderData) {
-            // placeholder data has no canonical url
-            return null;
-        }
-        if (canonicalUrl == null) {
-            Page productPage = SiteNavigation.getProductPage(currentPage);
-            ProductInterface product = productRetriever != null ? productRetriever.fetchProduct() : null;
-            SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
-
-            if (productPage != null && product != null && sitemapLinkExternalizerProvider != null) {
-                canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
-                    .toExternalProductUrl(request, productPage, new ProductUrlFormat.Params(product));
-            } else {
-                // fallback to the previous/legacy logic
-                if (isAuthor) {
-                    canonicalUrl = externalizer.authorLink(resource.getResourceResolver(), request.getRequestURI());
-                } else {
-                    canonicalUrl = externalizer.publishLink(resource.getResourceResolver(), request.getRequestURI());
-                }
-            }
-        }
         return canonicalUrl;
     }
 
@@ -490,12 +504,11 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     protected String generateId() {
         String id = super.generateId();
-        ValueMap properties = request.getResource().getValueMap();
-        if (StringUtils.isNotBlank(properties.get(Component.PN_ID, String.class))) {
+        if (StringUtils.isNotBlank(userSetId)) {
             // if available use the id provided by the user
             return id;
         } else {
-            // otherwise include the product SKU in the id
+            // otherwise, include the product SKU in the id
             String prefix = StringUtils.substringBefore(id, ID_SEPARATOR);
             String suffix = StringUtils.substringAfterLast(id, ID_SEPARATOR) + getSku();
             return ComponentUtils.generateId(prefix, suffix);
