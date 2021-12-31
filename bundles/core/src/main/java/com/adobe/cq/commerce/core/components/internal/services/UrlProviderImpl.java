@@ -16,9 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BiFunction;
 
 import org.apache.commons.lang3.StringUtils;
@@ -181,12 +179,8 @@ public class UrlProviderImpl implements UrlProvider {
     @Override
     public String toProductUrl(SlingHttpServletRequest request, Page page, ProductUrlFormat.Params params) {
         if (page != null) {
-            Map<String, String> paramsMap = params.asMap();
-            Set<String> searchValues = new HashSet<>();
-            // compatible to the previous implementation, may be removed
-            searchValues.addAll(paramsMap.values());
-
-            String pageParam = getPageParam(page, params, specificPageStrategy::getSpecificPage);
+            ProductUrlFormat.Params parsableParams = newProductUrlFormat.retainParsableParameters(params);
+            String pageParam = getPageParam(page, parsableParams, specificPageStrategy::getSpecificPage);
             if (!pageParam.equals(params.getPage())) {
                 params = new ProductUrlFormat.Params(params);
                 params.setPage(pageParam);
@@ -224,11 +218,8 @@ public class UrlProviderImpl implements UrlProvider {
     @Override
     public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page page, CategoryUrlFormat.Params params) {
         if (page != null) {
-            Map<String, String> paramsMap = params.asMap();
-            Set<String> searchValues = new HashSet<>();
-            // compatible to the previous implementation, may be removed
-            searchValues.addAll(paramsMap.values());
-            String pageParam = getPageParam(page, params, specificPageStrategy::getSpecificPage);
+            CategoryUrlFormat.Params parsableParams = newCategoryUrlFormat.retainParsableParameters(params);
+            String pageParam = getPageParam(page, parsableParams, specificPageStrategy::getSpecificPage);
             if (!pageParam.equals(params.getPage())) {
                 params = new CategoryUrlFormat.Params(params);
                 params.setPage(pageParam);

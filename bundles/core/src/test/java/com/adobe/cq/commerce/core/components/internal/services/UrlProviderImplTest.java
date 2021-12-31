@@ -39,6 +39,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
@@ -50,6 +51,7 @@ import com.google.common.collect.ImmutableSet;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -112,7 +114,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toProductUrl(request, page, params);
-        Assert.assertEquals("/content/product-page.html/beaumont-summit-kit.html", url);
+        assertEquals("/content/product-page.html/beaumont-summit-kit.html", url);
     }
 
     @Test
@@ -123,7 +125,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toProductUrl(request, null, params);
-        Assert.assertEquals("/content/custom-page.html/beaumont-summit-kit.html", url);
+        assertEquals("/content/custom-page.html/beaumont-summit-kit.html", url);
     }
 
     @Test
@@ -137,7 +139,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toProductUrl(request, page, params);
-        Assert.assertEquals("/content/product-page/sub-page-2.html/productId2.html#variantSku", url);
+        assertEquals("/content/product-page/sub-page-2.html/productId2.html#variantSku", url);
     }
 
     @Test
@@ -151,7 +153,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toProductUrl(request, page, params);
-        Assert.assertEquals("/content/product-page/sub-page/nested-page.html/productId1.1.html#variantSku", url);
+        assertEquals("/content/product-page/sub-page/nested-page.html/productId1.1.html#variantSku", url);
     }
 
     @Test
@@ -162,7 +164,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toProductUrl(request, page, params);
-        Assert.assertEquals("/content/product-page.html/{{url_key}}.html", url);
+        assertEquals("/content/product-page.html/{{url_key}}.html", url);
     }
 
     @Test
@@ -170,7 +172,7 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/product-page");
 
         String url = urlProvider.toProductUrl(request, page, "MJ01");
-        Assert.assertEquals("/content/product-page.html/beaumont-summit-kit.html", url);
+        assertEquals("/content/product-page.html/beaumont-summit-kit.html", url);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
@@ -180,7 +182,7 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/product-page");
 
         String url = urlProvider.toProductUrl(request, page, "MJ02");
-        Assert.assertEquals("/content/product-page.html/{{url_key}}.html", url);
+        assertEquals("/content/product-page.html/{{url_key}}.html", url);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
@@ -190,7 +192,7 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/product-page");
 
         String url = urlProvider.toProductUrl(request, page, StringUtils.EMPTY);
-        Assert.assertEquals("/content/product-page.html/{{url_key}}.html", url);
+        assertEquals("/content/product-page.html/{{url_key}}.html", url);
     }
 
     @Test
@@ -200,7 +202,7 @@ public class UrlProviderImplTest {
         MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithSku.PATTERN);
 
         String url = urlProvider.toProductUrl(request, page, "MJ01");
-        Assert.assertEquals("/content/product-page.html/MJ01.html", url);
+        assertEquals("/content/product-page.html/MJ01.html", url);
 
         // not required when only sku is used
         verify(graphqlClient, never()).execute(any(), any(), any(), any());
@@ -215,7 +217,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page.html/men.html", url);
+        assertEquals("/content/category-page.html/men.html", url);
     }
 
     @Test
@@ -229,7 +231,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page/sub-page-with-urlpath.html/men/tops/shirts.html", url);
+        assertEquals("/content/category-page/sub-page-with-urlpath.html/men/tops/shirts.html", url);
     }
 
     @Test
@@ -243,7 +245,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page/sub-page-with-urlpath-array.html/men/bottoms.html", url);
+        assertEquals("/content/category-page/sub-page-with-urlpath-array.html/men/bottoms.html", url);
     }
 
     @Test
@@ -256,7 +258,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page/sub-page-with-urlpath-v2.html/women/tops/shirts.html", url);
+        assertEquals("/content/category-page/sub-page-with-urlpath-v2.html/women/tops/shirts.html", url);
     }
 
     @Test
@@ -269,7 +271,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page/sub-page-with-urlpath-array-v2.html/women/women-bottoms/women-bottoms-shorts.html",
+        assertEquals("/content/category-page/sub-page-with-urlpath-array-v2.html/women/women-bottoms/women-bottoms-shorts.html",
             url);
     }
 
@@ -283,7 +285,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page/sub-page/nested-page.html/category-uid-1.1.html", url);
+        assertEquals("/content/category-page/sub-page/nested-page.html/category-uid-1.1.html", url);
     }
 
     @Test
@@ -294,7 +296,7 @@ public class UrlProviderImplTest {
             .map();
 
         String url = urlProvider.toCategoryUrl(request, page, params);
-        Assert.assertEquals("/content/category-page.html/{{url_path}}.html", url);
+        assertEquals("/content/category-page.html/{{url_path}}.html", url);
     }
 
     @Test
@@ -302,7 +304,7 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/category-page");
 
         String url = urlProvider.toCategoryUrl(request, page, "uid-5");
-        Assert.assertEquals("/content/category-page.html/equipment.html", url);
+        assertEquals("/content/category-page.html/equipment.html", url);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
@@ -312,7 +314,7 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/category-page");
 
         String url = urlProvider.toCategoryUrl(request, page, "uid-99");
-        Assert.assertEquals("/content/category-page.html/{{url_path}}.html", url);
+        assertEquals("/content/category-page.html/{{url_path}}.html", url);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
@@ -322,7 +324,7 @@ public class UrlProviderImplTest {
         Page page = context.currentPage("/content/category-page");
 
         String url = urlProvider.toCategoryUrl(request, page, StringUtils.EMPTY);
-        Assert.assertEquals("/content/category-page.html/{{url_path}}.html", url);
+        assertEquals("/content/category-page.html/{{url_path}}.html", url);
     }
 
     @Test
@@ -332,10 +334,10 @@ public class UrlProviderImplTest {
         requestPathInfo.setSuffix("/beaumont-summit-kit.html");
 
         String identifier = urlProvider.getProductIdentifier(context.request());
-        Assert.assertEquals("MJ01", identifier);
+        assertEquals("MJ01", identifier);
         // second access should be cached in request attributes
         identifier = urlProvider.getProductIdentifier(context.request());
-        Assert.assertEquals("MJ01", identifier);
+        assertEquals("MJ01", identifier);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
@@ -359,7 +361,7 @@ public class UrlProviderImplTest {
         MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithSku.PATTERN);
 
         String identifier = urlProvider.getProductIdentifier(context.request());
-        Assert.assertEquals("MJ01", identifier);
+        assertEquals("MJ01", identifier);
 
         verify(graphqlClient, never()).execute(any(), any(), any(), any());
     }
@@ -371,10 +373,10 @@ public class UrlProviderImplTest {
         requestPathInfo.setSuffix("/men/tops-men/jackets-men");
 
         String identifier = urlProvider.getCategoryIdentifier(context.request());
-        Assert.assertEquals("MTI==", identifier);
+        assertEquals("MTI==", identifier);
         // second access should be cached in request attributes
         identifier = urlProvider.getCategoryIdentifier(context.request());
-        Assert.assertEquals("MTI==", identifier);
+        assertEquals("MTI==", identifier);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
     }
@@ -402,15 +404,15 @@ public class UrlProviderImplTest {
 
         // verify parse
         String identifier = urlProvider.getProductIdentifier(context.request());
-        Assert.assertEquals("MJ02", identifier);
+        assertEquals("MJ02", identifier);
 
         // verify format
         String url = urlProvider.toProductUrl(request, page, "MJ02");
-        Assert.assertEquals("/page.html?sku=MJ02", url);
+        assertEquals("/page.html?sku=MJ02", url);
 
         // verify the product page url format is not used for categories
         url = urlProvider.toCategoryUrl(request, page, "uid-5");
-        Assert.assertEquals("/page.html/equipment.html", url);
+        assertEquals("/page.html/equipment.html", url);
     }
 
     @Test
@@ -424,15 +426,34 @@ public class UrlProviderImplTest {
 
         // verify parse
         String identifier = urlProvider.getCategoryIdentifier(context.request());
-        Assert.assertEquals("uid-5", identifier);
+        assertEquals("uid-5", identifier);
 
         // verify format
         String url = urlProvider.toCategoryUrl(request, page, "uid-5");
-        Assert.assertEquals("/page.html?uid=uid-5", url);
+        assertEquals("/page.html?uid=uid-5", url);
 
         // verify the category page url format is not used for products
         url = urlProvider.toProductUrl(request, page, "MJ01");
-        Assert.assertEquals("/page.html/beaumont-summit-kit.html", url);
+        assertEquals("/page.html/beaumont-summit-kit.html", url);
+    }
+
+    @Test
+    public void testCustomCategoryPageFormatWithSpecificPage() {
+        Page page = context.currentPage("/content/category-page");
+        context.registerService(UrlFormat.class, new CustomUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.CATEGORY_PAGE_URL_FORMAT);
+        configureSpecificPageStrategy(true);
+        // registering the custom format causes a new service to be created
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+
+        // verify format, it should pick based on the uid even though the other parameters are available as well
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setPage(page.getPath());
+        params.setUrlPath("men/tops");
+        params.setUrlKey("tops");
+        params.setUid("category-uid-3");
+
+        assertEquals("/content/category-page/sub-page-with-urlpath-array.html?uid=category-uid-3", urlProvider.toCategoryUrl(request, page,
+            params));
     }
 
     private static class CustomUrlFormat implements UrlFormat {

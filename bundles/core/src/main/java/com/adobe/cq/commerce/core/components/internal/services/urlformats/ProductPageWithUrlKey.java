@@ -54,4 +54,12 @@ public class ProductPageWithUrlKey extends UrlFormatBase implements ProductUrlFo
         }
         return params;
     }
+
+    @Override
+    public Params retainParsableParameters(Params parameters) {
+        Params copy = new Params();
+        copy.setPage(parameters.getPage());
+        copy.setUrlKey(getUrlKey(parameters.getUrlPath(), parameters.getUrlKey()));
+        return copy;
+    }
 }

@@ -170,7 +170,7 @@ public class SpecificPageStrategy {
             if (checkUrlKey) {
                 for (String categoryUrlPath : categoryUrlPaths) {
                     String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath, "/");
-                    if (categoryUrlKey.equals(params.getUrlKey())) {
+                    if (categoryUrlPath.equals(params.getUrlKey()) || categoryUrlKey.equals(params.getUrlKey())) {
                         return candidate;
                     }
                 }

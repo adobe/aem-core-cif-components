@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
 import org.junit.Test;
@@ -25,6 +26,7 @@ import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class ProductPageWithSkuAndUrlPathTest {
 
@@ -117,5 +119,26 @@ public class ProductPageWithSkuAndUrlPathTest {
         assertEquals("foo-bar", parameters.getSku());
         assertNull(parameters.getUrlKey());
         assertNull(parameters.getUrlPath());
+    }
+
+    @Test
+    public void testRetainParsableParameters() {
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setPage("/page/path");
+        params.setSku("sku");
+        params.setVariantSku("variant-sku");
+        params.setUrlRewrites(Collections.singletonList(new UrlRewrite().setUrl("url-rewrites")));
+        params.setUrlKey("url-key");
+        params.setVariantUrlKey("variant-url-key");
+        params.setUrlPath("url-path/url-key");
+
+        params = subject.retainParsableParameters(params);
+        assertNull(params.getVariantSku());
+        assertNull(params.getVariantUrlKey());
+        assertTrue(params.getUrlRewrites().isEmpty());
+        assertEquals("url-path/url-key", params.getUrlPath());
+        assertEquals("/page/path", params.getPage());
+        assertEquals("sku", params.getSku());
+        assertEquals("url-key", params.getUrlKey());
     }
 }

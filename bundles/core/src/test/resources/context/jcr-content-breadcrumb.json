@@ -126,7 +126,7 @@
               "jcr:primaryType": "cq:Page",
               "jcr:content": {
                 "jcr:primaryType": "cq:PageContent",
-                "selectorFilter": "MTM=",
+                "selectorFilter": "MTM=|men/tops-men",
                 "sling:resourceType": "venia/components/page",
                 "root": {
                   "responsivegrid": {
