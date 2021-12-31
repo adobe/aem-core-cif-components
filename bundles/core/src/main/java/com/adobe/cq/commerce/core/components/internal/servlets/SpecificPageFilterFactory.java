@@ -27,6 +27,8 @@ import javax.servlet.ServletResponse;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.engine.EngineConstants;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.Designate;
@@ -38,16 +40,26 @@ import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.PageManagerFactory;
 
 @Component(
     property = {
-        "sling.filter.scope=REQUEST",
-        "sling.filter.methods=GET",
-        "sling.filter.extensions=html",
-        "service.ranking:Integer=" + Integer.MIN_VALUE
+        EngineConstants.SLING_FILTER_SCOPE + "=" + EngineConstants.FILTER_SCOPE_REQUEST,
+        // as this is in REQUEST scope it is called for the resource before it got forwarded to jcr:content
+        EngineConstants.SLING_FILTER_RESOURCETYPES + "=" + NameConstants.NT_PAGE,
+        // but we also want to cover cases where the page content is requested directly
+        EngineConstants.SLING_FILTER_RESOURCETYPES + "="
+            + com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl.RESOURCE_TYPE,
+        EngineConstants.SLING_FILTER_RESOURCETYPES + "="
+            + com.adobe.cq.commerce.core.components.internal.models.v2.page.PageImpl.RESOURCE_TYPE,
+        // limit to typical content rendering requests
+        EngineConstants.SLING_FILTER_EXTENSIONS + "=html",
+        EngineConstants.SLING_FILTER_EXTENSIONS + "=json",
+        // make sure the filter comes late but earlier then the CatalogPageNotFoundFilter
+        Constants.SERVICE_RANKING + ":Integer=-5000"
     })
 @Designate(ocd = SpecificPageFilterConfiguration.class, factory = true)
 public class SpecificPageFilterFactory implements Filter {
