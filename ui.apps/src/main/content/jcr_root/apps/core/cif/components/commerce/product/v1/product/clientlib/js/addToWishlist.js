@@ -56,7 +56,7 @@ class AddToWishlist {
             return parseInt(selection.value) > 0;
         });
 
-        if (grouped) {
+        if (this._state.grouped) {
             return [
                 {
                     productId: this._state.productId,
