@@ -23,9 +23,13 @@ class AddToWishlist {
     constructor(config) {
         this._element = config.element;
         let parent_sku = config.product.querySelector(AddToWishlist.selectors.sku).innerHTML;
+        let grouped = config.product.dataset.grouped !== undefined;
+        let productId = config.product.id;
 
         this._state = {
-            parent_sku
+            parent_sku,
+            grouped,
+            productId
         };
 
         // Add click handler to add to wishlist button
@@ -51,21 +55,30 @@ class AddToWishlist {
         const selections = Array.from(document.querySelectorAll(AddToWishlist.selectors.quantity)).filter(selection => {
             return parseInt(selection.value) > 0;
         });
-        const items = selections.map(selection => {
-            const item = {
-                productId: selection.dataset.productId,
-                sku: selection.dataset.productSku,
-                quantity: selection.value
-            };
 
-            if (item.sku != this._state.parent_sku) {
-                item.parent_sku = this._state.parent_sku;
-            }
+        if (grouped) {
+            return [
+                {
+                    productId: this._state.productId,
+                    sku: this._state.parent_sku,
+                    quantity: 1
+                }
+            ];
+        } else {
+            return selections.map(selection => {
+                const item = {
+                    productId: selection.dataset.productId,
+                    sku: selection.dataset.productSku,
+                    quantity: selection.value
+                };
 
-            return item;
-        });
+                if (item.sku != this._state.parent_sku) {
+                    item.parent_sku = this._state.parent_sku;
+                }
 
-        return items;
+                return item;
+            });
+        }
     }
 }
 
