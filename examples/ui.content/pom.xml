@@ -73,7 +73,6 @@
                         <description>${project.description}</description>
                         <created>${buildNumber}</created>
                         <createdBy>${vault.package.company}</createdBy>
-                        <cloudManagerTarget>none</cloudManagerTarget>
                     </properties>
                     <validatorsSettings>
                         <jackrabbit-nodetypes>
