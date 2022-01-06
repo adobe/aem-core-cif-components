@@ -21,22 +21,26 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter.StoreConfigExporterImpl;
+import com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter;
 import com.adobe.cq.wcm.core.components.models.HtmlPageItem;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 class StoreConfigHtmlPageItem implements HtmlPageItem {
 
     private static final String NAME = "store-config";
     private static final String ATTR_NAME = "name";
     private static final String ATTR_CONTENT = "content";
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+        // we moved from a Map<String,String> to Map<String,String[]> to support multiple http headers with the same name
+        // however doing that without unwrapping single element arrays would be a breaking change to any frontend consumers
+        .enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreConfigHtmlPageItem.class);
 
     private final Map<String, String> attributes = new HashMap<>();
 
-    StoreConfigHtmlPageItem(StoreConfigExporterImpl storeConfigExporter) {
+    StoreConfigHtmlPageItem(StoreConfigExporter storeConfigExporter) {
         try {
             attributes.put(ATTR_NAME, NAME);
             attributes.put(ATTR_CONTENT, OBJECT_MAPPER.writeValueAsString(storeConfigExporter));
