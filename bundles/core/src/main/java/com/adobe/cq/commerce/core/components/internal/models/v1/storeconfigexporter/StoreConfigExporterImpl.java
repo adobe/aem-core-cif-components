@@ -51,11 +51,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class StoreConfigExporterImpl implements StoreConfigExporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreConfigExporterImpl.class);
-    private static final String EMPTY_JSON_OBJECT = "{}";
-
     private static final String STORE_CODE_PROPERTY = "magentoStore";
     private static final String GRAPHQL_ENDPOINT_PROPERTY = "magentoGraphqlEndpoint";
-
     private static final String DEFAULT_GRAPHQL_ENDPOINT = "/api/graphql";
 
     @Self
