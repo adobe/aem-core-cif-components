@@ -39,7 +39,6 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.day.cq.wcm.api.Page;
 import com.drew.lang.annotations.Nullable;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -124,6 +123,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
         }
         return mappedPath + ".html";
     }
+
     @Override
     public Map<String, String[]> getHttpHeaders() {
         return Collections.unmodifiableMap(httpHeaders);
