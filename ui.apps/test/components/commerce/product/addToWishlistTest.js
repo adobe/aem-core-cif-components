@@ -78,6 +78,32 @@ describe('Product', () => {
             assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].quantity, 5);
         });
 
+        it('dispatches an event on click for grouped product', () => {
+            setupPage(`
+                <div data-cmp-is="product" data-grouped>
+                    <div class="productFullDetail__details">
+                        <span role="sku">parent-sku</span>
+                    </div>
+                    <div class="productFullDetail__cartActions">
+                        <button class="button__root_normalPriority" data-cmp-is="add-to-wish-list">
+                    </div>
+                    <div class="productFullDetail__quantity">
+                        <select data-product-sku="my-sample-sku">
+                            <option value="5" selected></option>
+                        </select>
+                    </div>
+                </div>
+            `);
+
+            let addToWishlist = new AddToWishlist({ element: addToWishlistRoot, product: productRoot });
+            addToWishlistRoot.click();
+
+            sinon.assert.calledOnce(dispatchEventSpy);
+            assert.equal(dispatchEventSpy.getCall(0).args[0].type, 'aem.cif.add-to-wishlist');
+            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].sku, 'parent-sku');
+            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].quantity, 1);
+        });
+
         it('dispatches an event on click with variant selected', () => {
             setupPage(`
                 <div data-cmp-is="product">
