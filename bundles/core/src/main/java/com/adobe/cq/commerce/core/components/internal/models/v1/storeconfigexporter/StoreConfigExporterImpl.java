@@ -92,25 +92,21 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
 
     @Override
     @Nullable
-    @JsonProperty("storeView")
     public String getStoreView() {
         return storeView;
     }
 
     @Override
-    @JsonProperty("graphqlEndpoint")
     public String getGraphqlEndpoint() {
         return graphqlEndpoint;
     }
 
     @Override
-    @JsonProperty("graphqlMethod")
     public String getMethod() {
         return method != null ? method.toString() : null;
     }
 
     @Override
-    @JsonProperty("storeRootUrl")
     public String getStoreRootUrl() {
         if (storeRootPage == null) {
             storeRootPage = SiteNavigation.getNavigationRootPage(currentPage);
@@ -131,8 +127,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
         }
         return mappedPath + ".html";
     }
-
-    @JsonProperty("headers")
+    @Override
     public Map<String, String[]> getHttpHeaders() {
         return Collections.unmodifiableMap(httpHeaders);
     }
