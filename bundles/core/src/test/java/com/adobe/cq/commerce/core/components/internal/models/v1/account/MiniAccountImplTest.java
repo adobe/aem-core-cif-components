@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.account;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,10 +25,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.adobe.cq.commerce.core.components.models.account.MiniAccount;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.testing.TestContext;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.junit.Assert.assertFalse;
@@ -59,6 +62,7 @@ public class MiniAccountImplTest {
 
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, currentPage);
 
         when(style.get(any(), anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
     }
@@ -83,6 +87,28 @@ public class MiniAccountImplTest {
     @Test
     public void testWishListEnabled() {
         when(style.get(eq(MiniAccountImpl.PN_STYLE_ENABLE_WISH_LIST), anyBoolean())).thenReturn(Boolean.TRUE);
+        MiniAccount miniAccount = context.request().adaptTo(MiniAccount.class);
+
+        assertNotNull(miniAccount);
+        assertTrue(miniAccount.getWishListEnabled());
+    }
+
+    @Test
+    public void testWishListEnabledConfigDisabled() {
+        when(style.get(eq(MiniAccountImpl.PN_STYLE_ENABLE_WISH_LIST), anyBoolean())).thenReturn(Boolean.TRUE);
+        context.registerAdapter(Resource.class, ComponentsConfiguration.class,
+            new ComponentsConfiguration(new ValueMapDecorator(ImmutableMap.of("enableWishLists", Boolean.FALSE))));
+        MiniAccount miniAccount = context.request().adaptTo(MiniAccount.class);
+
+        assertNotNull(miniAccount);
+        assertFalse(miniAccount.getWishListEnabled());
+    }
+
+    @Test
+    public void testWishListEnabledConfigEnabled() {
+        when(style.get(eq(MiniAccountImpl.PN_STYLE_ENABLE_WISH_LIST), anyBoolean())).thenReturn(Boolean.TRUE);
+        context.registerAdapter(Resource.class, ComponentsConfiguration.class,
+            new ComponentsConfiguration(new ValueMapDecorator(ImmutableMap.of("enableWishLists", Boolean.TRUE))));
         MiniAccount miniAccount = context.request().adaptTo(MiniAccount.class);
 
         assertNotNull(miniAccount);

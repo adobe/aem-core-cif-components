@@ -16,13 +16,18 @@
 package com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.productrecommendations;
 
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
+import org.apache.sling.api.scripting.SlingBindings;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.common.ValueMapDecorator;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static com.adobe.cq.commerce.extensions.recommendations.testing.TestContext.newAemContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -41,19 +46,19 @@ public class ProductRecommendationsImplTest {
     private static final String EXCLUDE_PRICE_RANGE_RECS_PATH = "/content/landingPage/jcr:content/root/responsivegrid/product-recs-exclude-price";
 
     @Rule
-    public final AemContext context = createContext("/context/jcr-content.json");
-
-    private static AemContext createContext(String contentPath) {
-        return new AemContext((AemContextCallback) context -> {
-            // Load page structure
-            context.load().json(contentPath, "/content");
-        }, ResourceResolverType.JCR_MOCK);
-    }
+    public final AemContext context = newAemContext("/context/jcr-content.json");
 
     private void setupTest(String componentPath) {
         // Mock resource and resolver
         Resource resource = context.resourceResolver().getResource(componentPath);
+        Page currentPage = context.pageManager().getContainingPage(resource);
+        context.currentPage(currentPage);
         context.currentResource(resource);
+
+        SlingBindings bindings = new SlingBindings();
+        context.request().setAttribute(SlingBindings.class.toString(), bindings);
+        bindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, currentPage);
+
         productRecommendations = context.request().adaptTo(ProductRecommendationsImpl.class);
     }
 
@@ -138,9 +143,19 @@ public class ProductRecommendationsImplTest {
     }
 
     @Test
-    public void testAddToWishListDisabled() {
+    public void testAddToWishListEnabled() {
         context.contentPolicyMapping(ProductRecommendationsImpl.RESOURCE_TYPE, "enableAddToWishList", Boolean.TRUE);
         setupTest(PRECONFIGURED_RECS_PATH);
         assertTrue(productRecommendations.getAddToWishListEnabled());
+    }
+
+    @Test
+    public void testAddToWishListDisabledByConfiguration() {
+        context.registerAdapter(Resource.class, ComponentsConfiguration.class, new ComponentsConfiguration(new ValueMapDecorator(
+            ImmutableMap.of(
+                "enableWishLists", Boolean.FALSE))));
+        context.contentPolicyMapping(ProductRecommendationsImpl.RESOURCE_TYPE, "enableAddToWishList", Boolean.TRUE);
+        setupTest(PRECONFIGURED_RECS_PATH);
+        assertFalse(productRecommendations.getAddToWishListEnabled());
     }
 }

@@ -42,6 +42,7 @@ import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
@@ -73,6 +74,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     protected static final String PN_STYLE_ADD_TO_WISHLIST_ENABLED = "enableAddToWishList";
+    private static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
 
     private static final String SELECTION_PROPERTY = "selection";
 
@@ -111,10 +113,13 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     protected void initModel() {
         locale = currentPage.getLanguage(false);
 
+        ComponentsConfiguration configProperties = currentPage.getContentResource().adaptTo(ComponentsConfiguration.class);
+
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
         }
+
         String selection = properties.get(SELECTION_PROPERTY, String.class);
         if (selection != null && !selection.isEmpty()) {
             if (selection.startsWith("/")) {
@@ -130,7 +135,8 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
             }
         }
 
-        enableAddToWishList = currentStyle.get(PN_STYLE_ADD_TO_WISHLIST_ENABLED, ProductTeaser.super.getAddToWishListEnabled());
+        enableAddToWishList = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS, Boolean.TRUE) : Boolean.TRUE)
+            && currentStyle.get(PN_STYLE_ADD_TO_WISHLIST_ENABLED, ProductTeaser.super.getAddToWishListEnabled());
     }
 
     private boolean oneClickShoppable(ProductInterface product) {
