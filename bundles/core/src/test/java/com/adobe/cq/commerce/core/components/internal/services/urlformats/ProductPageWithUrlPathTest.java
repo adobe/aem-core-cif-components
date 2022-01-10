@@ -70,11 +70,39 @@ public class ProductPageWithUrlPathTest {
     public void testParse() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
+        pathInfo.setSuffix("/foo-bar/foo-bar-product.html");
+        ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
+
+        assertEquals("/page/path", parameters.getPage());
+        assertEquals("foo-bar/foo-bar-product", parameters.getUrlPath());
+        assertEquals("foo-bar-product", parameters.getUrlKey());
+        assertEquals("foo-bar", parameters.getCategoryUrlKey());
+    }
+
+    @Test
+    public void testParseNoCategory() {
+        MockRequestPathInfo pathInfo = new MockRequestPathInfo();
+        pathInfo.setResourcePath("/page/path");
         pathInfo.setSuffix("/foo-bar.html");
         ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
         assertEquals("/page/path", parameters.getPage());
+        assertEquals("foo-bar", parameters.getUrlKey());
         assertEquals("foo-bar", parameters.getUrlPath());
+        assertNull(parameters.getCategoryUrlKey());
+    }
+
+    @Test
+    public void testParseWithNestedCategory() {
+        MockRequestPathInfo pathInfo = new MockRequestPathInfo();
+        pathInfo.setResourcePath("/page/path");
+        pathInfo.setSuffix("/foo-bar/sub/category/deep.html");
+        ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
+
+        assertEquals("/page/path", parameters.getPage());
+        assertEquals("foo-bar/sub/category/deep", parameters.getUrlPath());
+        assertEquals("deep", parameters.getUrlKey());
+        assertEquals("category", parameters.getCategoryUrlKey());
     }
 
     @Test

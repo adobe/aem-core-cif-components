@@ -51,6 +51,7 @@ public interface ProductUrlFormat extends GenericUrlFormat<ProductUrlFormat.Para
         private String variantUrlKey;
         private String urlPath;
         private List<String> urlRewrites = Collections.emptyList();
+        private String categoryUrlKey;
 
         public Params() {
             super();
@@ -141,6 +142,14 @@ public interface ProductUrlFormat extends GenericUrlFormat<ProductUrlFormat.Para
 
         public void setUrlRewrites(List<UrlRewrite> urlRewrites) {
             this.urlRewrites = convertUrlRewrites(urlRewrites);
+        }
+
+        public String getCategoryUrlKey() {
+            return categoryUrlKey;
+        }
+
+        public void setCategoryUrlKey(String categoryUrlKey) {
+            this.categoryUrlKey = categoryUrlKey;
         }
 
         @Deprecated

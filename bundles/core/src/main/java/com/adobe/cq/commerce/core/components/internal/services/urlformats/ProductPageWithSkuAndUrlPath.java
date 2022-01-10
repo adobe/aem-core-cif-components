@@ -57,8 +57,16 @@ public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements Produ
             if (suffix.indexOf("/") > 0) {
                 params.setSku(StringUtils.substringBefore(suffix, "/"));
                 String urlPath = StringUtils.substringAfter(suffix, "/");
+                int lastSlash = urlPath.lastIndexOf("/");
+
+                if (lastSlash > 0) {
+                    int slashBeforeLastSlash = urlPath.substring(0, lastSlash).lastIndexOf('/');
+                    params.setUrlKey(urlPath.substring(lastSlash + 1));
+                    params.setCategoryUrlKey(urlPath.substring(slashBeforeLastSlash > 0 ? slashBeforeLastSlash + 1 : 0, lastSlash));
+                } else {
+                    params.setUrlKey(urlPath);
+                }
                 params.setUrlPath(urlPath);
-                params.setUrlKey(urlPath.indexOf("/") > 0 ? StringUtils.substringAfterLast(urlPath, "/") : urlPath);
             } else {
                 params.setSku(suffix);
             }

@@ -77,6 +77,34 @@ public class ProductPageWithSkuAndUrlPathTest {
     public void testParse() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
+        pathInfo.setSuffix("/foo-bar/top-level-category/next-generation-foo-bar2021.html");
+        ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
+
+        assertEquals("/page/path", parameters.getPage());
+        assertEquals("foo-bar", parameters.getSku());
+        assertEquals("next-generation-foo-bar2021", parameters.getUrlKey());
+        assertEquals("top-level-category/next-generation-foo-bar2021", parameters.getUrlPath());
+        assertEquals("top-level-category", parameters.getCategoryUrlKey());
+    }
+
+    @Test
+    public void testParseNoCategory() {
+        MockRequestPathInfo pathInfo = new MockRequestPathInfo();
+        pathInfo.setResourcePath("/page/path");
+        pathInfo.setSuffix("/foo-bar/next-generation-foo-bar2021.html");
+        ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
+
+        assertEquals("/page/path", parameters.getPage());
+        assertEquals("foo-bar", parameters.getSku());
+        assertEquals("next-generation-foo-bar2021", parameters.getUrlKey());
+        assertEquals("next-generation-foo-bar2021", parameters.getUrlPath());
+        assertNull(parameters.getCategoryUrlKey());
+    }
+
+    @Test
+    public void testParseWithNestedCategory() {
+        MockRequestPathInfo pathInfo = new MockRequestPathInfo();
+        pathInfo.setResourcePath("/page/path");
         pathInfo.setSuffix("/foo-bar/top-level-category/sub-category/next-generation-foo-bar2021.html");
         ProductUrlFormat.Params parameters = subject.parse(pathInfo, null);
 
@@ -84,6 +112,7 @@ public class ProductPageWithSkuAndUrlPathTest {
         assertEquals("foo-bar", parameters.getSku());
         assertEquals("next-generation-foo-bar2021", parameters.getUrlKey());
         assertEquals("top-level-category/sub-category/next-generation-foo-bar2021", parameters.getUrlPath());
+        assertEquals("sub-category", parameters.getCategoryUrlKey());
     }
 
     @Test
