@@ -6,6 +6,6 @@
     jcr:primaryType="cq:Component" 
     jcr:title="Product Detail v2" 
     cq:icon="tag"
-    sling:resourceSuperType="core/cif/components/commerce/product/v1/product"
+    sling:resourceSuperType="core/cif/components/commerce/product/v2/product"
     componentGroup="CIF Core Components">
 </jcr:root>
