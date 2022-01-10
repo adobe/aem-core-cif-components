@@ -23,6 +23,8 @@ import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.models.account.MiniAccount;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 
 @Model(
@@ -33,15 +35,20 @@ public class MiniAccountImpl extends DataLayerComponent implements MiniAccount {
 
     protected static final String RT_MINIACCOUNT_V2 = "core/cif/components/content/miniaccount/v2/miniaccount";
     protected static final String PN_STYLE_ENABLE_WISH_LIST = "enableWishList";
+    private static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
 
     @ScriptVariable
     private Style currentStyle;
+    @ScriptVariable
+    private Page currentPage;
 
     private boolean wishListEnabled;
 
     @PostConstruct
     protected void initModel() {
-        wishListEnabled = currentStyle.get(PN_STYLE_ENABLE_WISH_LIST, MiniAccount.super.getWishListEnabled());
+        ComponentsConfiguration configProperties = currentPage.getContentResource().adaptTo(ComponentsConfiguration.class);
+        wishListEnabled = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS, Boolean.TRUE) : Boolean.TRUE)
+            && currentStyle.get(PN_STYLE_ENABLE_WISH_LIST, MiniAccount.super.getWishListEnabled());
     }
 
     @Override

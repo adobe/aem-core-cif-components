@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.prod
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
@@ -24,9 +25,11 @@ import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.common.PriceRangeImpl;
 import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
 import com.adobe.cq.commerce.extensions.recommendations.models.productrecommendations.ProductRecommendations;
+import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 
 @Model(
@@ -51,11 +54,12 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
     private static final String DEFAULT_TITLE = "Recommended products";
     private static final String USED_FILTER = "usedFilter";
     private static final String PN_STYLE_ENABLE_ADD_TO_WISHLIST = "enableAddToWishList";
+    private static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
 
-    @Self
-    protected SlingHttpServletRequest request;
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     private Style currentStyle;
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
+    private Page currentPage;
     @Self
     @Via("resource")
     private ValueMap props;
@@ -134,7 +138,10 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
 
     @Override
     public boolean getAddToWishListEnabled() {
+        Resource configResource = currentPage != null ? currentPage.getContentResource() : null;
+        ComponentsConfiguration configProperties = configResource != null ? configResource.adaptTo(ComponentsConfiguration.class) : null;
         Boolean defaultValue = ProductRecommendations.super.getAddToWishListEnabled();
-        return currentStyle != null ? currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, defaultValue) : defaultValue;
+        return (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS, Boolean.TRUE) : Boolean.TRUE)
+            && currentStyle != null ? currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, defaultValue) : defaultValue;
     }
 }
