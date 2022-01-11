@@ -80,8 +80,5 @@
   "engines": {
     "node": ">=12",
     "npm": ">= 6"
-  },
-  "dependencies": {
-    "@adobe/magento-storefront-event-collector": "^1.1.1"
   }
 }
