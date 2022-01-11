@@ -130,7 +130,7 @@ public class ProductComponentIT extends CommerceTestBase {
 
         // Component Library > Commerce > Outdoor > Collection > Chaz Kangeroo Hoodie
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        assertEquals(5, elements.size());
+        assertEquals(6, elements.size());
     }
 
     @Test
@@ -140,7 +140,7 @@ public class ProductComponentIT extends CommerceTestBase {
 
         // Component Library > Commerce
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        assertEquals(2, elements.size());
+        assertEquals(3, elements.size());
     }
 
     @Test
