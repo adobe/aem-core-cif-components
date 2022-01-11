@@ -70,4 +70,18 @@ public class ProductPageWithUrlPath extends UrlFormatBase implements ProductUrlF
         }
         return params;
     }
+
+    @Override
+    public Params retainParsableParameters(Params parameters) {
+        String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
+        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey);
+        if (urlPath == null && urlKey != null) {
+            urlPath = urlKey;
+        }
+        Params copy = new Params();
+        copy.setPage(parameters.getPage());
+        copy.setUrlKey(urlKey);
+        copy.setUrlPath(urlPath);
+        return copy;
+    }
 }

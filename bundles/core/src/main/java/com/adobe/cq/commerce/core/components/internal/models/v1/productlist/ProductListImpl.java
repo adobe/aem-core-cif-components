@@ -159,11 +159,6 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         return showTitle;
     }
 
-    // Not OSGi exported but public so UrlProviderImpl can use it
-    public String getUrlPath() {
-        return getCategory() != null ? getCategory().getUrlPath() : null;
-    }
-
     @Override
     public String getImage() {
         if (getCategory() != null) {

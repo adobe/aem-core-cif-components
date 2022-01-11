@@ -16,13 +16,11 @@
 package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
+import java.util.function.BiFunction;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.jetbrains.annotations.Nullable;
 import org.osgi.service.component.annotations.Activate;
@@ -47,6 +45,7 @@ import com.adobe.cq.commerce.core.components.internal.services.urlformats.Produc
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.GenericUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
@@ -181,12 +180,7 @@ public class UrlProviderImpl implements UrlProvider {
     @Override
     public String toProductUrl(SlingHttpServletRequest request, Page page, ProductUrlFormat.Params params) {
         if (page != null) {
-            Map<String, String> paramsMap = params.asMap();
-            Set<String> searchValues = new HashSet<>();
-            // compatible to the previous implementation, may be removed
-            searchValues.addAll(paramsMap.values());
-
-            String pageParam = getPageParam(page, searchValues, request, params.asMap());
+            String pageParam = getPageParam(page, newProductUrlFormat, params, specificPageStrategy::getSpecificPage);
             if (!pageParam.equals(params.getPage())) {
                 params = new ProductUrlFormat.Params(params);
                 params.setPage(pageParam);
@@ -224,11 +218,7 @@ public class UrlProviderImpl implements UrlProvider {
     @Override
     public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page page, CategoryUrlFormat.Params params) {
         if (page != null) {
-            Map<String, String> paramsMap = params.asMap();
-            Set<String> searchValues = new HashSet<>();
-            // compatible to the previous implementation, may be removed
-            searchValues.addAll(paramsMap.values());
-            String pageParam = getPageParam(page, searchValues, request, params.asMap());
+            String pageParam = getPageParam(page, newCategoryUrlFormat, params, specificPageStrategy::getSpecificPage);
             if (!pageParam.equals(params.getPage())) {
                 params = new CategoryUrlFormat.Params(params);
                 params.setPage(pageParam);
@@ -238,14 +228,14 @@ public class UrlProviderImpl implements UrlProvider {
         return newCategoryUrlFormat.format(params);
     }
 
-    private String getPageParam(Page page, Set<String> searchValues, SlingHttpServletRequest request, Map<String, String> params) {
+    private <T> String getPageParam(Page page, GenericUrlFormat<T> format, T params, BiFunction<Page, T, Page> specificPageSelector) {
         // enable rendering of deep links only on author
         boolean deepLinkSpecificPages = specificPageStrategy.isGenerateSpecificPageUrlsEnabled();
 
         if (deepLinkSpecificPages) {
-            Resource subPageResource = specificPageStrategy.getSpecificPage(page.adaptTo(Resource.class), searchValues, request, params);
-            if (subPageResource != null) {
-                return subPageResource.getPath();
+            Page subPage = specificPageSelector.apply(page, format.retainParsableParameters(params));
+            if (subPage != null) {
+                return subPage.getPath();
             }
         }
 
@@ -372,15 +362,8 @@ public class UrlProviderImpl implements UrlProvider {
      * @param request The current Sling HTTP request.
      * @return The product sku or url_key from the URL.
      */
-    public String parseProductUrlIdentifier(SlingHttpServletRequest request) {
-        ProductUrlFormat.Params productIdentifiers = newProductUrlFormat.parse(request.getRequestPathInfo(),
-            request.getRequestParameterMap());
-        if (StringUtils.isNotEmpty(productIdentifiers.getSku())) {
-            return productIdentifiers.getSku();
-        } else if (StringUtils.isNotEmpty(productIdentifiers.getUrlKey())) {
-            return productIdentifiers.getUrlKey();
-        }
-        return null;
+    public ProductUrlFormat.Params parseProductUrlIdentifier(SlingHttpServletRequest request) {
+        return newProductUrlFormat.parse(request.getRequestPathInfo(), request.getRequestParameterMap());
     }
 
     /**
@@ -390,14 +373,7 @@ public class UrlProviderImpl implements UrlProvider {
      * @param request The current Sling HTTP request.
      * @return The category url_path from the URL.
      */
-    public String parseCategoryUrlIdentifier(SlingHttpServletRequest request) {
-        CategoryUrlFormat.Params categoryIdentifiers = newCategoryUrlFormat.parse(request.getRequestPathInfo(),
-            request.getRequestParameterMap());
-        if (StringUtils.isNotEmpty(categoryIdentifiers.getUrlPath())) {
-            return categoryIdentifiers.getUrlPath();
-        } else if (StringUtils.isNotEmpty(categoryIdentifiers.getUrlKey())) {
-            return categoryIdentifiers.getUrlKey();
-        }
-        return null;
+    public CategoryUrlFormat.Params parseCategoryUrlIdentifier(SlingHttpServletRequest request) {
+        return newCategoryUrlFormat.parse(request.getRequestPathInfo(), request.getRequestParameterMap());
     }
 }

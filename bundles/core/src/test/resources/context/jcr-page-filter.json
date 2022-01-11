@@ -113,7 +113,7 @@
       "jcr:primaryType": "cq:Page",
       "jcr:content": {
         "jcr:primaryType":"cq:PageContent",
-        "selectorFilter": ["category-uid-1|men/tops", "category-uid-2|men/bottoms"],
+        "selectorFilter": ["category-uid-3|men/tops", "category-uid-4|men/bottoms"],
         "includesSubCategories": true,
         "cq:template": "/conf/venia/settings/wcm/templates/anything-else"
       }
@@ -122,14 +122,13 @@
       "jcr:primaryType": "cq:Page",
       "jcr:content": {
         "jcr:primaryType":"cq:PageContent",
-        "selectorFilter": ["women/tops", "women/bottoms"],
+        "selectorFilter": ["women/women-tops", "women/women-bottoms"],
         "selectorFilterType": "urlPath",
         "includesSubCategories": true,
         "cq:template": "/conf/venia/settings/wcm/templates/anything-else"
       }
     }
   },
-
   "catalog-page": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {

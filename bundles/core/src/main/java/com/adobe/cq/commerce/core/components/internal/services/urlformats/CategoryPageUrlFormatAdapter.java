@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
+import java.util.Map;
+
 import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 
@@ -38,5 +40,12 @@ public class CategoryPageUrlFormatAdapter implements CategoryUrlFormat {
     @Override
     public Params parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap) {
         return new Params(delegate.parse(requestPathInfo, parameterMap));
+    }
+
+    @Override
+    public Params retainParsableParameters(Params parameters) {
+        Map<String, String> map = parameters.asMap();
+        map.keySet().retainAll(delegate.getParameterNames());
+        return new Params(map);
     }
 }
