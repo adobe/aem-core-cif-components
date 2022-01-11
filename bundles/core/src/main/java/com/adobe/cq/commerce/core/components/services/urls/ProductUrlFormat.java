@@ -183,7 +183,7 @@ public interface ProductUrlFormat extends GenericUrlFormat<ProductUrlFormat.Para
          *
          * <pre>
          *  {@code
-         * [{ url: "bar" }, {url: "foo/bar" }]
+         * ["bar", "foo/bar"]
          * </pre>
          *
          * @param urlRewrites

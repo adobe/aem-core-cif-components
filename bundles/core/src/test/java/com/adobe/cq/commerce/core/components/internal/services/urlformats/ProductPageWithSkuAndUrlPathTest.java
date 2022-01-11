@@ -162,15 +162,17 @@ public class ProductPageWithSkuAndUrlPathTest {
         params.setUrlRewrites(Collections.singletonList(new UrlRewrite().setUrl("url-rewrites")));
         params.setUrlKey("url-key");
         params.setVariantUrlKey("variant-url-key");
-        params.setUrlPath("url-path/url-key");
+        params.setUrlPath("url-path/url-path-sub/url-key");
 
         params = subject.retainParsableParameters(params);
         assertNull(params.getVariantSku());
         assertNull(params.getVariantUrlKey());
         assertTrue(params.getUrlRewrites().isEmpty());
-        assertEquals("url-path/url-key", params.getUrlPath());
+        assertEquals("url-path/url-path-sub/url-key", params.getUrlPath());
         assertEquals("/page/path", params.getPage());
         assertEquals("sku", params.getSku());
         assertEquals("url-key", params.getUrlKey());
+        assertEquals("url-path/url-path-sub", params.getCategoryUrlParams().getUrlPath());
+        assertEquals("url-path-sub", params.getCategoryUrlParams().getUrlKey());
     }
 }

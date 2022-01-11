@@ -21,6 +21,8 @@ import org.apache.sling.api.request.RequestPathInfo;
 
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 
+import static com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath.extractCategoryUrlFormatParams;
+
 public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements ProductUrlFormat {
     public static final ProductUrlFormat INSTANCE = new ProductPageWithSkuAndUrlPath();
     public static final String PATTERN = "{{page}}.html/{{sku}}/{{url_path}}.html#{{variant_sku}}";
@@ -61,12 +63,7 @@ public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements Produ
 
                 if (lastSlash > 0) {
                     params.setUrlKey(urlPath.substring(lastSlash + 1));
-
-                    String categoryUrlPath = urlPath.substring(0, lastSlash);
-                    int slashBeforeLastSlash = categoryUrlPath.lastIndexOf('/');
-                    params.getCategoryUrlParams().setUrlPath(categoryUrlPath);
-                    params.getCategoryUrlParams().setUrlKey(categoryUrlPath.substring(slashBeforeLastSlash > 0 ? slashBeforeLastSlash + 1
-                        : 0));
+                    extractCategoryUrlFormatParams(urlPath.substring(0, lastSlash), params.getCategoryUrlParams());
                 } else {
                     params.setUrlKey(urlPath);
                 }
@@ -90,6 +87,12 @@ public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements Produ
         copy.setSku(parameters.getSku());
         copy.setUrlKey(urlKey);
         copy.setUrlPath(urlPath);
+
+        int lastSlash = urlPath != null ? urlPath.lastIndexOf('/') : -1;
+        if (lastSlash > 0) {
+            extractCategoryUrlFormatParams(urlPath.substring(0, lastSlash), copy.getCategoryUrlParams());
+        }
+
         return copy;
     }
 }

@@ -46,6 +46,15 @@
         "selectorFilter": "productId2",
         "cq:template": "/conf/venia/settings/wcm/templates/anything"
       }
+    },
+    "sub-page-3": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "cq:template": "/conf/venia/settings/wcm/templates/anything",
+        "useForCategories": ["women", "men/men-tops" ],
+        "includesSubCategories": true
+      }
     }
   },
   "category-page": {

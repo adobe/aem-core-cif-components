@@ -95,6 +95,53 @@ public class SpecificPageStrategyTest {
     }
 
     @Test
+    public void testSpecificProductPageByCategoryPathExact() {
+        // given
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setSku("productId999");
+        params.getCategoryUrlParams().setUrlPath("women");
+        params.getCategoryUrlParams().setUrlKey("women");
+
+        // when
+        Page specificPage = subject.getSpecificPage(productPage, params);
+
+        // then
+        assertNotNull(specificPage);
+        assertEquals(productPage.getPath() + "/sub-page-3", specificPage.getPath());
+    }
+
+    @Test
+    public void testSpecificProductPageByCategoryUrlPathDescendant() {
+        // given
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setSku("productId999");
+        params.getCategoryUrlParams().setUrlPath("women/women-bottoms");
+        params.getCategoryUrlParams().setUrlKey("women-bottoms");
+
+        // when
+        Page specificPage = subject.getSpecificPage(productPage, params);
+
+        // then
+        assertNotNull(specificPage);
+        assertEquals(productPage.getPath() + "/sub-page-3", specificPage.getPath());
+    }
+
+    @Test
+    public void testSpecificProductPageByCategoryUrlKey() {
+        // given
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setSku("productId999");
+        params.getCategoryUrlParams().setUrlKey("men-tops");
+
+        // when
+        Page specificPage = subject.getSpecificPage(productPage, params);
+
+        // then
+        assertNotNull(specificPage);
+        assertEquals(productPage.getPath() + "/sub-page-3", specificPage.getPath());
+    }
+
+    @Test
     public void testNestedSpecificProductPage() {
         // given
         ProductUrlFormat.Params params = new ProductUrlFormat.Params();

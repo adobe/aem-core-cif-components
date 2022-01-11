@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 
 public class ProductPageWithUrlPath extends UrlFormatBase implements ProductUrlFormat {
@@ -55,14 +56,9 @@ public class ProductPageWithUrlPath extends UrlFormatBase implements ProductUrlF
         String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
         if (StringUtils.isNotBlank(suffix)) {
             int lastSlash = suffix.lastIndexOf("/");
-
             if (lastSlash > 0) {
                 params.setUrlKey(suffix.substring(lastSlash + 1));
-
-                String categoryUrlPath = suffix.substring(0, lastSlash);
-                int slashBeforeLastSlash = categoryUrlPath.lastIndexOf('/');
-                params.getCategoryUrlParams().setUrlPath(categoryUrlPath);
-                params.getCategoryUrlParams().setUrlKey(categoryUrlPath.substring(slashBeforeLastSlash > 0 ? slashBeforeLastSlash + 1 : 0));
+                extractCategoryUrlFormatParams(suffix.substring(0, lastSlash), params.getCategoryUrlParams());
             } else {
                 params.setUrlKey(suffix);
             }
@@ -82,6 +78,18 @@ public class ProductPageWithUrlPath extends UrlFormatBase implements ProductUrlF
         copy.setPage(parameters.getPage());
         copy.setUrlKey(urlKey);
         copy.setUrlPath(urlPath);
+
+        int lastSlash = urlPath != null ? urlPath.lastIndexOf('/') : -1;
+        if (lastSlash > 0) {
+            extractCategoryUrlFormatParams(urlPath.substring(0, lastSlash), copy.getCategoryUrlParams());
+        }
+
         return copy;
+    }
+
+    static void extractCategoryUrlFormatParams(String categoryUrlPath, CategoryUrlFormat.Params params) {
+        int lastSlash = categoryUrlPath.lastIndexOf('/');
+        params.setUrlPath(categoryUrlPath);
+        params.setUrlKey(categoryUrlPath.substring(lastSlash > 0 ? lastSlash + 1 : 0));
     }
 }
