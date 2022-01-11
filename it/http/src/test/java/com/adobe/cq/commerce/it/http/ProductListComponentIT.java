@@ -126,7 +126,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
         // Component Library > Commerce > Outdoor > Collection
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        assertEquals(4, elements.size());
+        assertEquals(5, elements.size());
     }
 
     @Test
@@ -136,7 +136,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
         // Component Library > Commerce
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        assertEquals(2, elements.size());
+        assertEquals(3, elements.size());
     }
 
     @Test
