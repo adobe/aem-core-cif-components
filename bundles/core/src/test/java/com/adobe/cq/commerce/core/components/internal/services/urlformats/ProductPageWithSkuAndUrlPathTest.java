@@ -84,7 +84,8 @@ public class ProductPageWithSkuAndUrlPathTest {
         assertEquals("foo-bar", parameters.getSku());
         assertEquals("next-generation-foo-bar2021", parameters.getUrlKey());
         assertEquals("top-level-category/next-generation-foo-bar2021", parameters.getUrlPath());
-        assertEquals("top-level-category", parameters.getCategoryUrlKey());
+        assertEquals("top-level-category", parameters.getCategoryUrlParams().getUrlPath());
+        assertEquals("top-level-category", parameters.getCategoryUrlParams().getUrlKey());
     }
 
     @Test
@@ -98,7 +99,8 @@ public class ProductPageWithSkuAndUrlPathTest {
         assertEquals("foo-bar", parameters.getSku());
         assertEquals("next-generation-foo-bar2021", parameters.getUrlKey());
         assertEquals("next-generation-foo-bar2021", parameters.getUrlPath());
-        assertNull(parameters.getCategoryUrlKey());
+        assertNull(parameters.getCategoryUrlParams().getUrlPath());
+        assertNull(parameters.getCategoryUrlParams().getUrlKey());
     }
 
     @Test
@@ -112,7 +114,8 @@ public class ProductPageWithSkuAndUrlPathTest {
         assertEquals("foo-bar", parameters.getSku());
         assertEquals("next-generation-foo-bar2021", parameters.getUrlKey());
         assertEquals("top-level-category/sub-category/next-generation-foo-bar2021", parameters.getUrlPath());
-        assertEquals("sub-category", parameters.getCategoryUrlKey());
+        assertEquals("top-level-category/sub-category", parameters.getCategoryUrlParams().getUrlPath());
+        assertEquals("sub-category", parameters.getCategoryUrlParams().getUrlKey());
     }
 
     @Test

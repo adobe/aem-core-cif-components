@@ -54,17 +54,19 @@ public class ProductPageWithUrlPath extends UrlFormatBase implements ProductUrlF
         params.setPage(removeJcrContent(requestPathInfo.getResourcePath()));
         String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
         if (StringUtils.isNotBlank(suffix)) {
-            String urlPath = suffix;
-            int lastSlash = urlPath.lastIndexOf("/");
+            int lastSlash = suffix.lastIndexOf("/");
 
             if (lastSlash > 0) {
-                int slashBeforeLastSlash = urlPath.substring(0, lastSlash).lastIndexOf('/');
-                params.setUrlKey(urlPath.substring(lastSlash + 1));
-                params.setCategoryUrlKey(urlPath.substring(slashBeforeLastSlash > 0 ? slashBeforeLastSlash + 1 : 0, lastSlash));
+                params.setUrlKey(suffix.substring(lastSlash + 1));
+
+                String categoryUrlPath = suffix.substring(0, lastSlash);
+                int slashBeforeLastSlash = categoryUrlPath.lastIndexOf('/');
+                params.getCategoryUrlParams().setUrlPath(categoryUrlPath);
+                params.getCategoryUrlParams().setUrlKey(categoryUrlPath.substring(slashBeforeLastSlash > 0 ? slashBeforeLastSlash + 1 : 0));
             } else {
-                params.setUrlKey(urlPath);
+                params.setUrlKey(suffix);
             }
-            params.setUrlPath(urlPath);
+            params.setUrlPath(suffix);
         }
         return params;
     }

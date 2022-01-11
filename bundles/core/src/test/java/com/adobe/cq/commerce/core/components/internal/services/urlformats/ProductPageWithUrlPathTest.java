@@ -76,7 +76,8 @@ public class ProductPageWithUrlPathTest {
         assertEquals("/page/path", parameters.getPage());
         assertEquals("foo-bar/foo-bar-product", parameters.getUrlPath());
         assertEquals("foo-bar-product", parameters.getUrlKey());
-        assertEquals("foo-bar", parameters.getCategoryUrlKey());
+        assertEquals("foo-bar", parameters.getCategoryUrlParams().getUrlPath());
+        assertEquals("foo-bar", parameters.getCategoryUrlParams().getUrlKey());
     }
 
     @Test
@@ -89,7 +90,8 @@ public class ProductPageWithUrlPathTest {
         assertEquals("/page/path", parameters.getPage());
         assertEquals("foo-bar", parameters.getUrlKey());
         assertEquals("foo-bar", parameters.getUrlPath());
-        assertNull(parameters.getCategoryUrlKey());
+        assertNull(parameters.getCategoryUrlParams().getUrlPath());
+        assertNull(parameters.getCategoryUrlParams().getUrlKey());
     }
 
     @Test
@@ -102,7 +104,8 @@ public class ProductPageWithUrlPathTest {
         assertEquals("/page/path", parameters.getPage());
         assertEquals("foo-bar/sub/category/deep", parameters.getUrlPath());
         assertEquals("deep", parameters.getUrlKey());
-        assertEquals("category", parameters.getCategoryUrlKey());
+        assertEquals("foo-bar/sub/category", parameters.getCategoryUrlParams().getUrlPath());
+        assertEquals("category", parameters.getCategoryUrlParams().getUrlKey());
     }
 
     @Test

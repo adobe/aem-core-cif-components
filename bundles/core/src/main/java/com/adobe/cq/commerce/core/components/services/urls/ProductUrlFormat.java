@@ -51,7 +51,7 @@ public interface ProductUrlFormat extends GenericUrlFormat<ProductUrlFormat.Para
         private String variantUrlKey;
         private String urlPath;
         private List<String> urlRewrites = Collections.emptyList();
-        private String categoryUrlKey;
+        private CategoryUrlFormat.Params categoryUrlParams;
 
         public Params() {
             super();
@@ -144,12 +144,17 @@ public interface ProductUrlFormat extends GenericUrlFormat<ProductUrlFormat.Para
             this.urlRewrites = convertUrlRewrites(urlRewrites);
         }
 
-        public String getCategoryUrlKey() {
-            return categoryUrlKey;
-        }
-
-        public void setCategoryUrlKey(String categoryUrlKey) {
-            this.categoryUrlKey = categoryUrlKey;
+        /**
+         * The returned object may contain parameters of the category the product represented by the {@link ProductUrlFormat.Params}
+         * belongs to. This is in particular the case when the product url encodes category identifiers.
+         *
+         * @return
+         */
+        public CategoryUrlFormat.Params getCategoryUrlParams() {
+            if (categoryUrlParams == null) {
+                categoryUrlParams = new CategoryUrlFormat.Params();
+            }
+            return categoryUrlParams;
         }
 
         @Deprecated
@@ -168,19 +173,19 @@ public interface ProductUrlFormat extends GenericUrlFormat<ProductUrlFormat.Para
          * Flattens the list {@link UrlRewrite} to a list of Strings, also removing the extension if any.
          * <p>
          * Converts
-         * 
+         *
          * <pre>
          *  {@code
          * [{ url: "bar.html" }, {url: "foo/bar.html" }]
          * </pre>
-         * 
+         * <p>
          * to
-         * 
+         *
          * <pre>
          *  {@code
          * [{ url: "bar" }, {url: "foo/bar" }]
          * </pre>
-         * 
+         *
          * @param urlRewrites
          * 
          * @return
