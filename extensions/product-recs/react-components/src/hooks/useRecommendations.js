@@ -126,8 +126,16 @@ export const useRecommendations = props => {
             const newUnits = preconfigured ? data.results : data.units;
 
             if (mse) {
+                // Exclude products which do not match the MSE schema to not trigger errors during collection
+                const mseUnits = newUnits.map(unit => ({
+                    ...unit,
+                    products: unit.products.filter(
+                        product => product.prices && product.prices.minimum && product.prices.maximum
+                    )
+                }));
+
                 const { units = [] } = mse.context.getRecommendations() || {};
-                mse.context.setRecommendations({ units: [...units, ...newUnits] });
+                mse.context.setRecommendations({ units: [...units, ...mseUnits] });
                 mse.publish.recsResponseReceived();
             }
 

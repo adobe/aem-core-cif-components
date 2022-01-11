@@ -46,7 +46,8 @@ describe('useRecommendations', () => {
 
     const units = [
         {
-            unitId: 'my-unit'
+            unitId: 'my-unit',
+            products: []
         }
     ];
 
@@ -119,6 +120,59 @@ describe('useRecommendations', () => {
         // Check MSE calls
         expect(mse.publish.recsRequestSent).toHaveBeenCalledTimes(1);
         expect(mse.context.setRecommendations).toHaveBeenCalledWith({ units });
+        expect(mse.publish.recsResponseReceived).toHaveBeenCalledTimes(1);
+    });
+
+    it('filters out products without prices', async () => {
+        const units = [
+            {
+                unitId: 'my-unit',
+                products: [
+                    {
+                        sku: 'product-with-price',
+                        prices: {
+                            minimum: {},
+                            maximum: {}
+                        }
+                    },
+                    {
+                        sku: 'product-without-price'
+                    }
+                ]
+            }
+        ];
+
+        // Prepare mocks
+        mockFetchPreconfigured.mockResolvedValue({ status: 200, data: { results: units } });
+
+        // Render hook with mock StorefrontInstanceContext
+        const { result } = renderHook(() => useRecommendations({ preconfigured: true }), { wrapper });
+
+        // Wait for hook to return the correct unit
+        await wait(() => {
+            expect(result.current).toStrictEqual({
+                loading: false,
+                units
+            });
+        });
+
+        // Check MSE calls
+        const mseUnits = [
+            {
+                unitId: 'my-unit',
+                products: [
+                    {
+                        sku: 'product-with-price',
+                        prices: {
+                            minimum: {},
+                            maximum: {}
+                        }
+                    }
+                ]
+            }
+        ];
+        expect(mse.publish.recsRequestSent).toHaveBeenCalledTimes(1);
+        expect(mse.context.setRecommendations).toHaveBeenCalledWith({ units: mseUnits });
         expect(mse.publish.recsResponseReceived).toHaveBeenCalledTimes(1);
     });
 
