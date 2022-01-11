@@ -59,6 +59,7 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
@@ -112,6 +113,10 @@ public class ProductImpl extends DataLayerComponent implements Product {
      * Name of the boolean policy property indicating if the product component should show an add to wish list button or not.
      */
     private static final String PN_STYLE_ENABLE_ADD_TO_WISHLIST = "enableAddToWishList";
+    /**
+     * Name of a boolean configuration properties used by the CIF Configuration to store if the endpoint has wish lists enabled.
+     */
+    private static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
 
     @Self
     private SlingHttpServletRequest request;
@@ -163,6 +168,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
             currentStyle = Utils.getStyleProperties(request, resource);
         }
 
+        ComponentsConfiguration configProperties = currentPage.getContentResource().adaptTo(ComponentsConfiguration.class);
         // Get product selection from dialog
         ValueMap properties = request.getResource().getValueMap();
         String sku = properties.get(SELECTION_PROPERTY, String.class);
@@ -192,7 +198,8 @@ public class ProductImpl extends DataLayerComponent implements Product {
         }
 
         locale = currentPage.getLanguage(false);
-        enableAddToWishList = currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Product.super.getAddToWishListEnabled());
+        enableAddToWishList = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS, Boolean.TRUE) : Boolean.TRUE)
+            && currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Product.super.getAddToWishListEnabled());
     }
 
     @Override
