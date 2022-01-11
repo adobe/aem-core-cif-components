@@ -58,7 +58,7 @@ describe('ProductCard', () => {
     it.each([
         ['with add to wish list', true],
         ['without add to wish list', undefined]
-    ])('renders a product card (%s)', (_nane, showAddToWishList) => {
+    ])('renders a product card (%s)', (_name, showAddToWishList) => {
         const { asFragment } = render(
             <ProductCard unit={unit} product={product} showAddToWishList={showAddToWishList} />,
             { wrapper: ContextWrapper }
@@ -140,5 +140,19 @@ describe('ProductCard', () => {
         // Click and check MSE
         fireEvent.click(getByRole('link'));
         expect(mse.publish.recsItemClick).toHaveBeenCalledWith(unit.unitId, product.productId);
+    });
+
+    it('renders a product without image', () => {
+        product.smallImage = null;
+        const { asFragment } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
+
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders a product without price', () => {
+        product.prices = null;
+        const { asFragment } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
+
+        expect(asFragment()).toMatchSnapshot();
     });
 });
