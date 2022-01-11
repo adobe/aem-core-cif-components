@@ -100,7 +100,8 @@ public class ProductComponentIT extends CommerceTestBase {
 
     @Test
     public void testProductPageWithSampleDataForGroupedProduct() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/set-of-sprite-yoga-straps.html", 200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH
+            + "/product/sample-product.html/set-of-sprite-yoga-straps.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Verify product name
@@ -123,7 +124,8 @@ public class ProductComponentIT extends CommerceTestBase {
 
     @Test
     public void testProductBreadcrumbWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html", 200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html",
+            200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Component Library > Commerce > Outdoor > Collection > Chaz Kangeroo Hoodie
