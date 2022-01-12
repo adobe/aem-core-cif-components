@@ -81,6 +81,28 @@ public class UrlFormatBaseTest {
     }
 
     @Test
+    public void testSelectUrlPathReturnsUrlPathInContext() {
+        assertEquals(
+            "bar/top",
+            UrlFormatBase.selectUrlPath(
+                null,
+                Arrays.asList("foobar", "foobar/top", "bar", "bar/top"),
+                "top",
+                "bar/top"));
+    }
+
+    @Test
+    public void testSelectUrlPathReturnsUrlPathInContextNested() {
+        assertEquals(
+            "bar/top",
+            UrlFormatBase.selectUrlPath(
+                null,
+                Arrays.asList("foobar", "foobar/top", "bar", "bar/top"),
+                "top",
+                "bar"));
+    }
+
+    @Test
     public void testSelectUrlPathReturnsUrlKeyIfNoMatch() {
         assertEquals(
             "noKey",

@@ -63,21 +63,73 @@ class UrlFormatBase {
         }
     }
 
+    /**
+     * @see UrlFormatBase#selectUrlPath(String, List, String, String)
+     */
     protected static String selectUrlPath(String urlPath, List<String> alternatives, String urlKey) {
+        return selectUrlPath(urlPath, alternatives, urlKey, null);
+    }
+
+    /**
+     * Selects the right url_path from the given parameters.
+     * <p>
+     * If a non-empty {@code urlPath} parameter is given it is simply returned. Otherwise one of the given {@code alternatives} will be
+     * selected. The selection returns the first alternative with the most path segments, split by {@code "/"}. However, only the
+     * alternatives which end with the given {@code urlKey} are considers.
+     * <p>
+     * If the optional {@code contextUrlPath} is given, the selection will prefer alternatives that use segments of this url_path. This does
+     * not require an exact match, it will also rank partial matches higher.
+     *
+     * @param urlPath
+     * @param alternatives
+     * @param urlKey
+     * @param contextUrlPath
+     * @return
+     */
+    protected static String selectUrlPath(String urlPath, List<String> alternatives, String urlKey, String contextUrlPath) {
         if (StringUtils.isNotEmpty(urlPath)) {
             return urlPath;
         }
 
+        String[] contextParts = StringUtils.isNotEmpty(contextUrlPath) ? contextUrlPath.split("/") : null;
         String[] candidateParts = new String[0];
+        int candidateMatches = -1;
 
         for (String alternative : alternatives) {
-            String[] optionParts = alternative.split("/");
-            if (optionParts.length > candidateParts.length && optionParts[optionParts.length - 1].equals(urlKey)) {
-                candidateParts = optionParts;
+            String[] alternativeParts = alternative.split("/");
+            if (alternativeParts.length >= candidateParts.length && alternativeParts[alternativeParts.length - 1].equals(urlKey)) {
+                if (alternativeParts.length == candidateParts.length && contextParts != null) {
+                    // check for contextPart matches also if the candidate and alternative have the same number of path segments
+                    if (candidateMatches < 0) {
+                        candidateMatches = countMatches(contextParts, candidateParts);
+                    }
+                    int alternativeMatches = countMatches(contextParts, alternativeParts);
+                    if (alternativeMatches <= candidateMatches) {
+                        // current candidate is ranked higher or equal already
+                        continue;
+                    }
+                    candidateMatches = alternativeMatches;
+                    candidateParts = alternativeParts;
+                } else if (alternativeParts.length > candidateParts.length) {
+                    // otherwise, only consider the alternative if it has more segments than the canidate (first match)
+                    candidateParts = alternativeParts;
+                }
             }
         }
 
         return candidateParts.length > 0 ? StringUtils.join(candidateParts, '/') : urlKey;
+    }
+
+    private static int countMatches(String[] left, String[] right) {
+        int matches = 0;
+        for (int i = 0; i < Math.min(left.length, right.length); i++) {
+            if (left[i].equals(right[i])) {
+                matches++;
+            } else {
+                break;
+            }
+        }
+        return matches;
     }
 
     /**

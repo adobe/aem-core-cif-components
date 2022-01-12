@@ -76,6 +76,29 @@ public class ProductPageWithSkuAndUrlPathTest {
     }
 
     @Test
+    public void testFormatWithContext() {
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setPage("/page/path");
+        params.setSku(("foo-bar"));
+        params.setUrlKey("bar");
+        params.setUrlRewrites(Arrays.asList(
+            new UrlRewrite().setUrl("bar"),
+            new UrlRewrite().setUrl("foo/bar"),
+            new UrlRewrite().setUrl("foo/barfoo/bar"),
+            new UrlRewrite().setUrl("foo/foobar/bar")));
+
+        assertEquals("/page/path.html/foo-bar/foo/barfoo/bar.html", subject.format(params));
+
+        params.getCategoryUrlParams().setUrlPath("foo/foobar");
+
+        assertEquals("/page/path.html/foo-bar/foo/foobar/bar.html", subject.format(params));
+
+        params.getCategoryUrlParams().setUrlPath("foo");
+
+        assertEquals("/page/path.html/foo-bar/foo/barfoo/bar.html", subject.format(params));
+    }
+
+    @Test
     public void testParse() {
         MockRequestPathInfo pathInfo = new MockRequestPathInfo();
         pathInfo.setResourcePath("/page/path");
@@ -176,5 +199,28 @@ public class ProductPageWithSkuAndUrlPathTest {
         assertEquals("url-key", params.getUrlKey());
         assertEquals("url-path/url-path-sub", params.getCategoryUrlParams().getUrlPath());
         assertEquals("url-path-sub", params.getCategoryUrlParams().getUrlKey());
+    }
+
+    @Test
+    public void testRetainParsableParametersWithContext() {
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setPage("/page/path");
+        params.setSku("sku");
+        params.setUrlRewrites(Arrays.asList(
+            new UrlRewrite().setUrl("url-key"),
+            new UrlRewrite().setUrl("url-path/url-key")));
+        params.setUrlKey("url-key");
+        params.getCategoryUrlParams().setUrlPath("url-path");
+
+        params = subject.retainParsableParameters(params);
+        assertNull(params.getVariantSku());
+        assertNull(params.getVariantUrlKey());
+        assertTrue(params.getUrlRewrites().isEmpty());
+        assertEquals("url-path/url-key", params.getUrlPath());
+        assertEquals("/page/path", params.getPage());
+        assertEquals("sku", params.getSku());
+        assertEquals("url-key", params.getUrlKey());
+        assertEquals("url-path", params.getCategoryUrlParams().getUrlPath());
+        assertEquals("url-path", params.getCategoryUrlParams().getUrlKey());
     }
 }

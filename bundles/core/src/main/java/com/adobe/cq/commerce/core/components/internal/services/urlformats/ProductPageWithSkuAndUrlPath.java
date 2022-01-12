@@ -33,8 +33,9 @@ public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements Produ
 
     @Override
     public String format(Params parameters) {
+        String context = parameters.getCategoryUrlParams().getUrlPath();
         String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
-        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey);
+        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey, context);
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
             + HTML_EXTENSION_AND_SUFFIX
             + StringUtils.defaultIfEmpty(parameters.getSku(), "{{sku}}")
@@ -76,8 +77,9 @@ public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements Produ
 
     @Override
     public Params retainParsableParameters(Params parameters) {
+        String context = parameters.getCategoryUrlParams().getUrlPath();
         String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
-        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey);
+        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey, context);
         String[] categoryParams = extractCategoryUrlFormatParams(urlPath);
 
         Params copy = new Params();

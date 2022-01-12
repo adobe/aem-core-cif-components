@@ -31,7 +31,6 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.serviceusermapping.ServiceUserMapped;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -43,6 +42,7 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.ComponentsConfigurationAdapterFactory;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.testing.MockLaunch;
+import com.adobe.cq.commerce.core.testing.TestContext;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -57,7 +57,6 @@ import com.day.cq.wcm.api.Page;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -85,11 +84,7 @@ public class MagentoGraphqlClientImplTest {
     private GraphqlClient graphqlClient;
 
     @Rule
-    public final AemContext context = new AemContext(
-        (AemContextCallback) context -> {
-            context.load().json("/context/jcr-content.json", "/content");
-        },
-        ResourceResolverType.JCR_MOCK);
+    public final AemContext context = TestContext.newAemContext("/context/jcr-content.json");
 
     @Before
     public void setup() {
