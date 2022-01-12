@@ -77,6 +77,27 @@ class UrlFormatBase {
             }
         }
 
-        return candidateParts.length > 0 ? StringUtils.join(candidateParts, '/') : null;
+        return candidateParts.length > 0 ? StringUtils.join(candidateParts, '/') : urlKey;
+    }
+
+    /**
+     * Extracts the category url_path and url_key encoded in a product's url_path.
+     *
+     * @param productUrlPath
+     * @return a {@code String[]} with exactly 2 elements. The first is the url_key the second the url_path.
+     */
+    protected static String[] extractCategoryUrlFormatParams(String productUrlPath) {
+        int lastSlash = productUrlPath != null ? productUrlPath.lastIndexOf('/') : -1;
+        if (lastSlash < 0) {
+            return new String[] { null, null };
+        }
+
+        String categoryUrlPath = productUrlPath.substring(0, lastSlash);
+        lastSlash = categoryUrlPath.lastIndexOf("/");
+        if (lastSlash > 0) {
+            return new String[] { categoryUrlPath.substring(lastSlash + 1), categoryUrlPath };
+        } else {
+            return new String[] { categoryUrlPath, categoryUrlPath };
+        }
     }
 }

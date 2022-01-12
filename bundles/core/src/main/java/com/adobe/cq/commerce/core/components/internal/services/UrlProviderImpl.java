@@ -39,9 +39,11 @@ import com.adobe.cq.commerce.core.components.internal.services.urlformats.Catego
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageUrlFormatAdapter;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithCategoryAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuCategoryAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
@@ -76,6 +78,8 @@ public class UrlProviderImpl implements UrlProvider {
             put(ProductPageWithSkuAndUrlKey.PATTERN, ProductPageWithSkuAndUrlKey.INSTANCE);
             put(ProductPageWithUrlPath.PATTERN, ProductPageWithUrlPath.INSTANCE);
             put(ProductPageWithSkuAndUrlPath.PATTERN, ProductPageWithSkuAndUrlPath.INSTANCE);
+            put(ProductPageWithCategoryAndUrlKey.PATTERN, ProductPageWithCategoryAndUrlKey.INSTANCE);
+            put(ProductPageWithSkuCategoryAndUrlKey.PATTERN, ProductPageWithSkuCategoryAndUrlKey.INSTANCE);
         }
     };
 

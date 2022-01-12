@@ -81,8 +81,9 @@ public class UrlFormatBaseTest {
     }
 
     @Test
-    public void testSelectUrlPathReturnsPlaceholderIfNoMatch() {
-        assertNull(
+    public void testSelectUrlPathReturnsUrlKeyIfNoMatch() {
+        assertEquals(
+            "noKey",
             UrlFormatBase.selectUrlPath(
                 null,
                 Arrays.asList("top", "top/urlKey", "top/2nd/urlKey"),

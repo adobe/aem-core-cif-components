@@ -35,9 +35,6 @@ public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements Produ
     public String format(Params parameters) {
         String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
         String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey);
-        if (urlPath == null && urlKey != null) {
-            urlPath = urlKey;
-        }
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
             + HTML_EXTENSION_AND_SUFFIX
             + StringUtils.defaultIfEmpty(parameters.getSku(), "{{sku}}")
@@ -63,7 +60,9 @@ public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements Produ
 
                 if (lastSlash > 0) {
                     params.setUrlKey(urlPath.substring(lastSlash + 1));
-                    extractCategoryUrlFormatParams(urlPath.substring(0, lastSlash), params.getCategoryUrlParams());
+                    String[] categoryParams = extractCategoryUrlFormatParams(urlPath);
+                    params.getCategoryUrlParams().setUrlKey(categoryParams[0]);
+                    params.getCategoryUrlParams().setUrlPath(categoryParams[1]);
                 } else {
                     params.setUrlKey(urlPath);
                 }
@@ -79,19 +78,15 @@ public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements Produ
     public Params retainParsableParameters(Params parameters) {
         String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
         String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey);
-        if (urlPath == null && urlKey != null) {
-            urlPath = urlKey;
-        }
+        String[] categoryParams = extractCategoryUrlFormatParams(urlPath);
+
         Params copy = new Params();
         copy.setPage(parameters.getPage());
         copy.setSku(parameters.getSku());
         copy.setUrlKey(urlKey);
         copy.setUrlPath(urlPath);
-
-        int lastSlash = urlPath != null ? urlPath.lastIndexOf('/') : -1;
-        if (lastSlash > 0) {
-            extractCategoryUrlFormatParams(urlPath.substring(0, lastSlash), copy.getCategoryUrlParams());
-        }
+        copy.getCategoryUrlParams().setUrlKey(categoryParams[0]);
+        copy.getCategoryUrlParams().setUrlPath(categoryParams[1]);
 
         return copy;
     }
