@@ -16,9 +16,12 @@
 package com.adobe.cq.commerce.core.components.internal.client;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.Cookie;
 
@@ -59,6 +62,8 @@ import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -125,11 +130,12 @@ public class MagentoGraphqlClientImplTest {
         expectedHeaders.add(new BasicHeader("Store", "my-store"));
         expectedHeaders.add(new BasicHeader("customHeader-1", "value1"));
         expectedHeaders.add(new BasicHeader("customHeader-2", "value2"));
+        expectedHeaders.add(new BasicHeader("customHeader-2", "value3"));
         expectedHeaders.add(new BasicHeader("customHeader-3", "=value3=3=3=3=3"));
 
         ValueMap MOCK_CONFIGURATION_CUSTOM_HEADERS = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-            "my-store", "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2", "customHeader-3==value3=3=3=3=3",
-                "Authorization=099sx8x7v1" }));
+            "my-store", "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2", "customHeader-2=value3",
+                "customHeader-3==value3=3=3=3=3", "Authorization=099sx8x7v1" }));
         ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION_CUSTOM_HEADERS);
 
         Page pageWithConfig = spy(context.pageManager().getPage(PAGE_A));
@@ -139,11 +145,21 @@ public class MagentoGraphqlClientImplTest {
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         RequestOptionsMatcher matcher = new RequestOptionsMatcher(expectedHeaders, HttpMethod.GET);
-        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(pageWithConfig.adaptTo(Resource.class), pageWithConfig, null);
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(pageResource, pageWithConfig, null);
         client.execute("{dummy}", HttpMethod.GET);
         graphqlClient.getConfiguration();
 
         verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+
+        Map<String, String> legacyHeaderMap = client.getHttpHeaders();
+        Map<String, String[]> headerMap = client.getHttpHeaderMap();
+
+        assertThat(legacyHeaderMap.keySet(), hasItems("customHeader-1", "customHeader-2", "customHeader-3"));
+        assertThat(legacyHeaderMap.values(), hasItems("value1", "value2", "=value3=3=3=3=3"));
+        assertThat(headerMap.keySet(), hasItems("customHeader-1", "customHeader-2", "customHeader-3"));
+        assertThat(
+            headerMap.values().stream().flatMap(Arrays::stream).collect(Collectors.toSet()),
+            hasItems("value1", "value2", "value3", "=value3=3=3=3=3"));
     }
 
     @Test
