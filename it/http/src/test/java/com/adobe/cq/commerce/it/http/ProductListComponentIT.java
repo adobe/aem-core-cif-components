@@ -43,7 +43,7 @@ public class ProductListComponentIT extends CommerceTestBase {
     @Test
     @Category({ IgnoreOnCloud.class })
     public void testProductListPageWithSampleData65() throws Exception {
-        String pagePath = COMMERCE_LIBRARY_PATH + "/productlist.html/outdoor.html";
+        String pagePath = COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html/outdoor.html";
         testProductListPageWithSampleData(pagePath, ImmutableMap.of(
             doc -> doc.select("title").first().html(), "Meta title for Outdoor Collection",
             doc -> doc.select("meta[name=keywords]").first().attr("content"), "Meta keywords for Outdoor Collection",
@@ -55,7 +55,7 @@ public class ProductListComponentIT extends CommerceTestBase {
     @Test
     @Category({ IgnoreOn65.class })
     public void testProductListPageWithSampleDataCloud() throws Exception {
-        String pagePath = COMMERCE_LIBRARY_PATH + "/productlist.html/outdoor.html";
+        String pagePath = COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html/outdoor.html";
         testProductListPageWithSampleData(pagePath, ImmutableMap.of(
             doc -> doc.select("title").first().html(), "Meta title for Outdoor Collection",
             doc -> doc.select("meta[name=keywords]").first().attr("content"), "Meta keywords for Outdoor Collection",
@@ -103,7 +103,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
     @Test
     public void testProductListPageWithPlaceholderData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html", 200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Verify category name
@@ -121,29 +121,29 @@ public class ProductListComponentIT extends CommerceTestBase {
 
     @Test
     public void testProductListBreadcrumbWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html/outdoor.html", 200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html/outdoor.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Component Library > Commerce > Outdoor > Collection
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        assertEquals(4, elements.size());
+        assertEquals(5, elements.size());
     }
 
     @Test
     public void testProductListBreadcrumbWithPlaceholderData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html", 200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Component Library > Commerce
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        assertEquals(2, elements.size());
+        assertEquals(3, elements.size());
     }
 
     @Test
     public void testCategoryNotFound() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html?wcmmode=disabled");
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html?wcmmode=disabled");
         assertEquals(404, response.getStatusLine().getStatusCode());
-        response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist.html/unknown-category.html?wcmmode=disabled");
+        response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html/unknown-category.html?wcmmode=disabled");
         assertEquals(404, response.getStatusLine().getStatusCode());
     }
 }

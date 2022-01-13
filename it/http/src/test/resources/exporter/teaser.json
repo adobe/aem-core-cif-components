@@ -3,7 +3,7 @@
     {
       "id": "teaser-28faf4b577-item-1dd38cd5b3",
       "title": "Find out more",
-      "url": "/content/core-components-examples/library/commerce/product.html/summit-watch.html",
+      "url": "/content/core-components-examples/library/commerce/product/sample-product.html/summit-watch.html",
       "entityIdentifier": {
         "entityType": "PRODUCT",
         "value": "24-MG03",
@@ -12,7 +12,7 @@
       "dataLayer": {
         "teaser-28faf4b577-item-1dd38cd5b3": {
           "dc:title": "Find out more",
-          "xdm:linkURL": "/content/core-components-examples/library/commerce/product.html/summit-watch.html",
+          "xdm:linkURL": "/content/core-components-examples/library/commerce/product/sample-product.html/summit-watch.html",
           "@type": "PRODUCT"
         }
       }
