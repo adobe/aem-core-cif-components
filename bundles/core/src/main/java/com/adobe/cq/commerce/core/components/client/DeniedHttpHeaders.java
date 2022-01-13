@@ -15,9 +15,9 @@ import com.google.common.collect.ImmutableSet;
 
 public interface DeniedHttpHeaders {
     /**
-     * A list of HTTP headers that cannot be overriden when configuring a list of custom HTTP headers
+     * A list of HTTP headers that cannot be overridden when configuring a list of custom HTTP headers
      */
-    final Set<String> DENYLIST = ImmutableSet.of(org.apache.http.HttpHeaders.ACCEPT,
+    Set<String> DENYLIST = ImmutableSet.of(org.apache.http.HttpHeaders.ACCEPT,
         org.apache.http.HttpHeaders.ACCEPT_CHARSET,
         org.apache.http.HttpHeaders.ACCEPT_ENCODING,
         org.apache.http.HttpHeaders.ACCEPT_LANGUAGE,
