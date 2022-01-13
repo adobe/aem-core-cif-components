@@ -70,8 +70,10 @@ public class ProductPageWithCategoryAndUrlKey extends UrlFormatBase implements P
 
     @Override
     public Params retainParsableParameters(Params parameters) {
+        String contextUrlKey = parameters.getCategoryUrlParams().getUrlKey();
+        String contextUrlPath = parameters.getCategoryUrlParams().getUrlPath();
         String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
-        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey);
+        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey, contextUrlKey, contextUrlPath);
         String[] categoryUrlParams = extractCategoryUrlFormatParams(urlPath);
 
         Params copy = new Params();
