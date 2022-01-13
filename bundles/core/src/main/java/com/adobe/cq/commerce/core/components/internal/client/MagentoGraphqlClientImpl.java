@@ -21,8 +21,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -76,7 +78,9 @@ import com.day.cq.wcm.api.PageManager;
 public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MagentoGraphqlClient.class);
-
+    private static final Set<String> DENIED_HEADERS = DeniedHttpHeaders.DENYLIST.stream()
+        .map(headerName -> headerName.toLowerCase(Locale.ROOT))
+        .collect(Collectors.toSet());
     private SlingHttpServletRequest request;
     private Resource resource;
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
@@ -235,7 +239,17 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
     @Override
     public Map<String, String> getHttpHeaders() {
-        return httpHeaders.stream().collect(Collectors.toMap(Header::getName, Header::getValue));
+        // if we have duplicate headers, take the first one
+        return httpHeaders.stream().collect(Collectors.toMap(Header::getName, Header::getValue, (l, r) -> l));
+    }
+
+    @Override
+    public Map<String, String[]> getHttpHeaderMap() {
+        return httpHeaders.stream().collect(Collectors.groupingBy(
+            Header::getName,
+            Collectors.collectingAndThen(
+                Collectors.mapping(Header::getValue, Collectors.toList()),
+                list -> list.toArray(new String[0]))));
     }
 
     private static List<Header> getCustomHttpHeaders(ComponentsConfiguration configuration) {
@@ -245,15 +259,10 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
         if (customHeaders != null) {
             headers = Arrays.stream(customHeaders)
-                .map(headerConfig -> {
-                    String name = headerConfig.substring(0, headerConfig.indexOf('='));
-                    if (DeniedHttpHeaders.DENYLIST.stream().noneMatch(name::equalsIgnoreCase)) {
-                        String value = headerConfig.substring(headerConfig.indexOf('=') + 1, headerConfig.length());
-                        return new BasicHeader(name, value);
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
+                .filter(headerConfig -> StringUtils.contains(headerConfig, '='))
+                .map(headerConfig -> headerConfig.split("=", 2))
+                .filter(headerParts -> !DENIED_HEADERS.contains(headerParts[0].toLowerCase(Locale.ROOT)))
+                .map(headerParts -> new BasicHeader(headerParts[0], headerParts[1]))
                 .collect(Collectors.toList());
         }
 

@@ -20,9 +20,9 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.collections4.MapUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -39,12 +39,6 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.day.cq.wcm.api.Page;
 import com.drew.lang.annotations.Nullable;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -53,23 +47,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
         com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl.RESOURCE_TYPE,
         com.adobe.cq.commerce.core.components.internal.models.v2.page.PageImpl.RESOURCE_TYPE
     })
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class StoreConfigExporterImpl implements StoreConfigExporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreConfigExporterImpl.class);
-    private static final String EMPTY_JSON_OBJECT = "{}";
-
     private static final String STORE_CODE_PROPERTY = "magentoStore";
     private static final String GRAPHQL_ENDPOINT_PROPERTY = "magentoGraphqlEndpoint";
-
     private static final String DEFAULT_GRAPHQL_ENDPOINT = "/api/graphql";
 
+    @Self
+    private SlingHttpServletRequest request;
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
-
     @ScriptVariable
     private Page currentPage;
-
     @SlingObject
     private Resource resource;
 
@@ -77,7 +67,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     private String graphqlEndpoint = DEFAULT_GRAPHQL_ENDPOINT;
     private HttpMethod method = HttpMethod.POST;
     private Page storeRootPage;
-    private Map<String, String> httpHeaders = Collections.emptyMap();
+    private Map<String, String[]> httpHeaders = Collections.emptyMap();
 
     @PostConstruct
     protected void initModel() {
@@ -92,62 +82,27 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
         if (magentoGraphqlClient != null) {
             GraphqlClientConfiguration graphqlClientConfiguration = magentoGraphqlClient.getConfiguration();
             method = graphqlClientConfiguration.httpMethod();
-            httpHeaders = magentoGraphqlClient.getHttpHeaders();
+            httpHeaders = magentoGraphqlClient.getHttpHeaderMap();
         }
     }
 
     @Override
     @Nullable
-    @JsonProperty("storeView")
     public String getStoreView() {
         return storeView;
     }
 
     @Override
-    @JsonProperty("graphqlEndpoint")
     public String getGraphqlEndpoint() {
         return graphqlEndpoint;
     }
 
     @Override
-    @JsonProperty("graphqlMethod")
     public String getMethod() {
         return method != null ? method.toString() : null;
     }
 
-    @JsonProperty("headers")
-    public Map<String, String> getHttpHeadersMap() {
-        return Collections.unmodifiableMap(httpHeaders);
-    }
-
-    /**
-     * @deprecated should be replaced with a type safe method like getHttpHeadersMap()
-     */
     @Override
-    @Deprecated
-    @JsonIgnore
-    public String getHttpHeaders() {
-        if (MapUtils.isEmpty(httpHeaders)) {
-            return EMPTY_JSON_OBJECT;
-        }
-
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode objectNode = mapper.createObjectNode();
-
-        for (Map.Entry<String, String> header : httpHeaders.entrySet()) {
-            objectNode.put(header.getKey(), header.getValue());
-        }
-
-        try {
-            return mapper.writeValueAsString(objectNode);
-        } catch (JsonProcessingException e) {
-            LOGGER.error(e.getMessage(), e);
-            return EMPTY_JSON_OBJECT;
-        }
-    }
-
-    @Override
-    @JsonProperty("storeRootUrl")
     public String getStoreRootUrl() {
         if (storeRootPage == null) {
             storeRootPage = SiteNavigation.getNavigationRootPage(currentPage);
@@ -158,6 +113,19 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
             return null;
         }
 
-        return storeRootPage.getPath() + ".html";
+        ResourceResolver resourceResolver = request.getResourceResolver();
+        String unmappedPath = storeRootPage.getPath();
+        String mappedPath = resourceResolver.map(request, unmappedPath);
+        if (mappedPath == null || !mappedPath.startsWith("/")) {
+            // when the path is mapped into a different domain than the one of the current request
+            // return the unmappedPath
+            mappedPath = unmappedPath;
+        }
+        return mappedPath + ".html";
+    }
+
+    @Override
+    public Map<String, String[]> getHttpHeaders() {
+        return Collections.unmodifiableMap(httpHeaders);
     }
 }
