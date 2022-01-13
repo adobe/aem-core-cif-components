@@ -107,7 +107,7 @@ public class GraphqlServletTest {
             (AemContextCallback) context -> {
                 // Load page structure
                 context.load().json(contentPath, "/content");
-                context.registerService(PageManagerFactory.class,r -> context.pageManager());
+                context.registerService(PageManagerFactory.class, r -> context.pageManager());
                 SpecificPageStrategy specificPageStrategy = new SpecificPageStrategy();
                 context.registerInjectActivateService(specificPageStrategy);
                 UrlProviderImpl urlProvider = new UrlProviderImpl();
