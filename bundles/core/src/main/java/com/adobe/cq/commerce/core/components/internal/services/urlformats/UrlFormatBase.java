@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ResourceUtil;
@@ -64,10 +65,10 @@ class UrlFormatBase {
     }
 
     /**
-     * @see UrlFormatBase#selectUrlPath(String, List, String, String)
+     * @see UrlFormatBase#selectUrlPath(String, List, String, String, String)
      */
     protected static String selectUrlPath(String urlPath, List<String> alternatives, String urlKey) {
-        return selectUrlPath(urlPath, alternatives, urlKey, null);
+        return selectUrlPath(urlPath, alternatives, urlKey, null, null);
     }
 
     /**
@@ -77,41 +78,38 @@ class UrlFormatBase {
      * selected. The selection returns the first alternative with the most path segments, split by {@code "/"}. However, only the
      * alternatives which end with the given {@code urlKey} are considers.
      * <p>
-     * If the optional {@code contextUrlPath} is given, the selection will prefer alternatives that use segments of this url_path. This does
-     * not require an exact match, it will also rank partial matches higher.
+     * If the optional {@code contextUrlPath} is given, the selection will prefer alternatives that use segments of this url_path. This
+     * does not require an exact match, it will also rank partial matches higher.
      *
      * @param urlPath
      * @param alternatives
      * @param urlKey
+     * @param contextUrlKey
      * @param contextUrlPath
      * @return
      */
-    protected static String selectUrlPath(String urlPath, List<String> alternatives, String urlKey, String contextUrlPath) {
+    protected static String selectUrlPath(String urlPath, List<String> alternatives, String urlKey, String contextUrlKey,
+        String contextUrlPath) {
         if (StringUtils.isNotEmpty(urlPath)) {
             return urlPath;
         }
 
+        contextUrlKey = contextUrlKey == null && contextUrlPath != null
+            ? StringUtils.substringAfterLast(contextUrlPath, "/")
+            : contextUrlKey;
         String[] contextParts = StringUtils.isNotEmpty(contextUrlPath) ? contextUrlPath.split("/") : null;
         String[] candidateParts = new String[0];
-        int candidateMatches = -1;
+        int candidateScore = 0;
 
         for (String alternative : alternatives) {
             String[] alternativeParts = alternative.split("/");
-            if (alternativeParts.length >= candidateParts.length && alternativeParts[alternativeParts.length - 1].equals(urlKey)) {
-                if (alternativeParts.length == candidateParts.length && contextParts != null) {
-                    // check for contextPart matches also if the candidate and alternative have the same number of path segments
-                    if (candidateMatches < 0) {
-                        candidateMatches = countMatches(contextParts, candidateParts);
-                    }
-                    int alternativeMatches = countMatches(contextParts, alternativeParts);
-                    if (alternativeMatches <= candidateMatches) {
-                        // current candidate is ranked higher or equal already
-                        continue;
-                    }
-                    candidateMatches = alternativeMatches;
-                    candidateParts = alternativeParts;
-                } else if (alternativeParts.length > candidateParts.length) {
-                    // otherwise, only consider the alternative if it has more segments than the canidate (first match)
+            if (alternativeParts[alternativeParts.length - 1].equals(urlKey)) {
+                int alternativeScore = matchesContext(contextUrlKey, contextParts, alternativeParts);
+                if (alternativeScore > candidateScore
+                    || (alternativeScore == candidateScore && alternativeParts.length > candidateParts.length)) {
+                    // only if the alternative matches more segments of the context, or when it matches the same number of times and
+                    // has more segments than the current candidate.
+                    candidateScore = alternativeScore;
                     candidateParts = alternativeParts;
                 }
             }
@@ -120,14 +118,28 @@ class UrlFormatBase {
         return candidateParts.length > 0 ? StringUtils.join(candidateParts, '/') : urlKey;
     }
 
-    private static int countMatches(String[] left, String[] right) {
+    private static int matchesContext(String contextUrlKey, String[] contextParts, String[] alternativeParts) {
+        // prefix match first, counting the overlap with the contextParts
+        // contextParts: venia-accessories/belts
+        // alternativeParts:
+        // * venia-accessories/product => 1
+        // * venia-accessories/belts/product => 2 ...
+        // * new-products/belts/product => 0
         int matches = 0;
-        for (int i = 0; i < Math.min(left.length, right.length); i++) {
-            if (left[i].equals(right[i])) {
-                matches++;
-            } else {
-                break;
+        if (contextParts != null) {
+            for (int i = 0; i < Math.min(contextParts.length, alternativeParts.length); i++) {
+                if (contextParts[i].equals(alternativeParts[i])) {
+                    matches++;
+                } else {
+                    break;
+                }
             }
+        }
+        // if there is no overlap we try to find at least the contextUrlKey anywhere in the alternative parts
+        if (matches == 0 && ArrayUtils.indexOf(alternativeParts, contextUrlKey) >= 0) {
+            // if that is the case we seed the matches to one as the context is more relevant than no match but still would be less relevant
+            // if we find another alternative that scores higher with the prefix match above.
+            matches = 1;
         }
         return matches;
     }

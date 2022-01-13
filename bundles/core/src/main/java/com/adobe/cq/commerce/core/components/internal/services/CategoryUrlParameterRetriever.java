@@ -20,9 +20,9 @@ import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRe
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 
-class CategoryUrlParameterRetriever extends AbstractCategoryRetriever {
+public class CategoryUrlParameterRetriever extends AbstractCategoryRetriever {
 
-    CategoryUrlParameterRetriever(MagentoGraphqlClient client) {
+    public CategoryUrlParameterRetriever(MagentoGraphqlClient client) {
         super(client);
     }
 

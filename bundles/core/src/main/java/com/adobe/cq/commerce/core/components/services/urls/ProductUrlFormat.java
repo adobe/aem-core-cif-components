@@ -72,6 +72,7 @@ public interface ProductUrlFormat extends GenericUrlFormat<ProductUrlFormat.Para
             this.variantUrlKey = other.getVariantUrlKey();
             this.urlPath = other.getUrlPath();
             this.urlRewrites = other.getUrlRewrites();
+            this.categoryUrlParams = other.categoryUrlParams;
         }
 
         @Deprecated

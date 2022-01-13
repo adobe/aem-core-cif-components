@@ -82,24 +82,54 @@ public class UrlFormatBaseTest {
 
     @Test
     public void testSelectUrlPathReturnsUrlPathInContext() {
+        // prefix match, no context url key
         assertEquals(
-            "bar/top",
+            "bar/foo/top",
             UrlFormatBase.selectUrlPath(
                 null,
-                Arrays.asList("foobar", "foobar/top", "bar", "bar/top"),
+                Arrays.asList("foobar", "foobar/top", "bar", "bar/top", "bar/foo/top"),
                 "top",
-                "bar/top"));
+                null,
+                "bar/foo"));
     }
 
     @Test
-    public void testSelectUrlPathReturnsUrlPathInContextNested() {
+    public void testSelectUrlPathReturnsUrlPathNoContext() {
+        // no match, neither contextUrlPath nor contextUrlKey
         assertEquals(
-            "bar/top",
+            "foobar/asdf/top",
             UrlFormatBase.selectUrlPath(
                 null,
-                Arrays.asList("foobar", "foobar/top", "bar", "bar/top"),
+                Arrays.asList("foobar", "foobar/top", "foobar/asdf/top", "bar", "bar/top", "bar/foo/top"),
                 "top",
-                "bar"));
+                null,
+                "another-bar"));
+    }
+
+    @Test
+    public void testSelectUrlPathReturnsUrlPathOutOfContext() {
+        // prefix match partial, no context url key
+        assertEquals(
+            "bar/foo/top",
+            UrlFormatBase.selectUrlPath(
+                null,
+                Arrays.asList("foobar", "foobar/top", "bar", "bar/top", "bar/foo/top"),
+                "top",
+                null,
+                "bar/another-foo"));
+    }
+
+    @Test
+    public void testSelectUrlPathReturnsUrlPathInContextWithUrlKey() {
+        // no prefix match, but url key matches
+        assertEquals(
+            "foobar/bar/top",
+            UrlFormatBase.selectUrlPath(
+                null,
+                Arrays.asList("top", "foobar/top", "foobar/foo/top", "foobar/bar/top"),
+                "top",
+                "bar",
+                null));
     }
 
     @Test

@@ -87,8 +87,10 @@ public class ProductPageWithSkuAndUrlPathTest {
             new UrlRewrite().setUrl("foo/barfoo/bar"),
             new UrlRewrite().setUrl("foo/foobar/bar")));
 
+        // first, most specific url_path (canonical)
         assertEquals("/page/path.html/foo-bar/foo/barfoo/bar.html", subject.format(params));
 
+        // prefix match
         params.getCategoryUrlParams().setUrlPath("foo/foobar");
 
         assertEquals("/page/path.html/foo-bar/foo/foobar/bar.html", subject.format(params));
