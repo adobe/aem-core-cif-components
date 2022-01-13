@@ -84,4 +84,47 @@ describe('useAddToCartEvent', () => {
             quantity: 1
         });
     });
+
+    it('dispatches a success event', async () => {
+        const callback = jest.fn();
+        document.addEventListener('aem.cif.toast', callback);
+
+        const addProductToWishlistMutationMock = jest.fn().mockReturnValue();
+        render(<MockComponent operations={{ addProductToWishlistMutation: addProductToWishlistMutationMock }} />);
+
+        dispatchEvent([{ sku: 'bar', quantity: 1 }]);
+
+        await testEventDetails(addProductToWishlistMutationMock, {
+            sku: 'bar',
+            quantity: 1
+        });
+
+        expect(callback).toHaveBeenCalledTimes(1);
+        expect(callback.mock.calls[0][0].detail).toEqual({
+            message: 'wishlist.success',
+            type: 'info'
+        });
+    });
+
+    it('dispatches an error event', async () => {
+        const callback = jest.fn();
+        document.addEventListener('aem.cif.toast', callback);
+
+        const addProductToWishlistMutationMock = jest.fn().mockRejectedValue('This is an error');
+        render(<MockComponent operations={{ addProductToWishlistMutation: addProductToWishlistMutationMock }} />);
+
+        dispatchEvent([{ sku: 'bar', quantity: 1 }]);
+
+        await testEventDetails(addProductToWishlistMutationMock, {
+            sku: 'bar',
+            quantity: 1
+        });
+
+        expect(callback).toHaveBeenCalledTimes(1);
+        expect(callback.mock.calls[0][0].detail).toEqual({
+            message: 'wishlist.error',
+            type: 'error',
+            error: 'This is an error'
+        });
+    });
 });
