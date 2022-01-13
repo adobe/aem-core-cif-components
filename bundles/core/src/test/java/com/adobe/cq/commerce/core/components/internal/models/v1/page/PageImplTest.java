@@ -67,7 +67,7 @@ public class PageImplTest extends AbstractPageDelegatorTest {
             "magentoStore", "my-magento-store",
             "enableUIDSupport", "true",
             "cq:graphqlClient", "my-graphql-client",
-            "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2" }));
+            "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2", "customHeader-2=value3" }));
     static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
@@ -328,12 +328,11 @@ public class PageImplTest extends AbstractPageDelegatorTest {
             + "\"storeRootUrl\": \"/content/pageH.html\","
             + "\"headers\": {"
             + "\"customHeader-1\": \"value1\","
-            + "\"customHeader-2\": \"value2\","
+            + "\"customHeader-2\": [\"value2\",\"value3\"],"
             + "\"Store\": \"my-magento-store\""
             + "}"
             + "}");
         JsonNode actual = mapper.readTree(new StringReader(content));
         assertEquals(expected, actual);
     }
-
 }

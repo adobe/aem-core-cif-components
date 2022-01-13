@@ -62,6 +62,10 @@ const ProductCard = props => {
     };
 
     const renderPrice = (prices, currency) => {
+        if (!prices || (!prices.minimum && !prices.maximum)) {
+            return <></>;
+        }
+
         const { minimum, maximum } = prices;
         const isRange = Math.round(minimum.final * 100) !== Math.round(maximum.final * 100);
 
@@ -77,15 +81,20 @@ const ProductCard = props => {
         return <Price value={minimum.final} currencyCode={currency} />;
     };
 
+    const renderImage = () => {
+        if (!smallImage || !smallImage.url) {
+            return <></>;
+        }
+        return <img className={classes.productImage} src={smallImage.url} alt={name} />;
+    };
+
     return (
         <div className={classes.card} key={sku}>
             <a
                 href={createProductPageUrl(sku)}
                 title={name}
                 onClick={() => mse && mse.publish.recsItemClick(unitId, productId)}>
-                <div className={classes.cardImage}>
-                    <img className={classes.productImage} src={smallImage.url} alt={name} />
-                </div>
+                <div className={classes.cardImage}>{renderImage()}</div>
                 <div>{name}</div>
                 <div className={classes.price}>{renderPrice(prices, currency)}</div>
             </a>
