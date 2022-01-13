@@ -25,9 +25,11 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
+import org.apache.sling.servlethelpers.MockRequestPathInfo;
+import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,9 +38,13 @@ import org.mockito.Answers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithCategoryAndUrlKey;
+import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.search.internal.models.FilterAttributeMetadataImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
@@ -51,17 +57,28 @@ import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Aggregation;
 import com.adobe.cq.commerce.magento.graphql.AggregationOption;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.CurrencyEnum;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterRangeTypeInput;
+import com.adobe.cq.commerce.magento.graphql.Money;
+import com.adobe.cq.commerce.magento.graphql.PriceRange;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
+import com.shopify.graphql.support.ID;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -71,37 +88,30 @@ import static org.mockito.Mockito.when;
 public class SearchResultsServiceImplTest {
 
     @Rule
-    public final AemContext context = createContext("/context/jcr-content.json");
+    public final AemContext context = newAemContext("/context/jcr-content.json");
 
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                // Load page structure
-                context.load().json(contentPath, "/content");
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
-
-    @Mock
-    UrlProvider urlProvider;
     @Mock
     SearchFilterService searchFilterService;
     @Mock
-    SlingHttpServletRequest request;
-    @Mock
     MagentoGraphqlClient magentoGraphqlClient;
-    @Mock
-    Page productPage;
-
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     Query query;
-
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     Products products;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    ProductInterface product;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    PriceRange priceRange;
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    Money money;
 
+    CategoryTree categoryTree = new CategoryTree();
+    List<ProductInterface> productHits = new ArrayList<>();
+    MockSlingHttpServletRequest request;
     Resource resource;
     SearchResultsServiceImpl serviceUnderTest;
     SearchOptionsImpl searchOptions;
+    Page productPage;
 
     private static final String FILTER_ATTRIBUTE_NAME_CODE = "name";
     private static final String FILTER_ATTRIBUTE_COLOR_CODE = "color";
@@ -117,7 +127,30 @@ public class SearchResultsServiceImplTest {
 
     @Before
     public void setup() {
+        productPage = context.currentPage("/content/product-page");
         resource = context.resourceResolver().getResource("/content/pageA");
+        request = context.request();
+
+        when(product.getSku()).thenReturn("sku");
+        when(product.getName()).thenReturn("name");
+        when(money.getCurrency()).thenReturn(CurrencyEnum.USD);
+        when(money.getValue()).thenReturn(12.34);
+        when(priceRange.getMinimumPrice().getFinalPrice()).thenReturn(money);
+        when(priceRange.getMinimumPrice().getRegularPrice()).thenReturn(money);
+        when(product.getPriceRange()).thenReturn(priceRange);
+        when(product.getUrlKey()).thenReturn("product");
+        when(product.getUrlRewrites()).thenReturn(Arrays.asList(
+            new UrlRewrite().setUrl("product"),
+            new UrlRewrite().setUrl("url-path/product"),
+            new UrlRewrite().setUrl("url-path/url-key/product"),
+            new UrlRewrite().setUrl("anther-url-path/product"),
+            new UrlRewrite().setUrl("anther-url-path/with/product"),
+            new UrlRewrite().setUrl("anther-url-path/with/more/product"),
+            new UrlRewrite().setUrl("anther-url-path/with/more/path/product"),
+            new UrlRewrite().setUrl("anther-url-path/with/more/path/segments/product"),
+            new UrlRewrite().setUrl("just-another/product"),
+            new UrlRewrite().setUrl("just-another/category/product")));
+        productHits.add(product);
 
         when(searchFilterService.retrieveCurrentlyAvailableCommerceFilters(any())).thenReturn(Arrays.asList(
             createMatchFilterAttributeMetadata(FILTER_ATTRIBUTE_NAME_CODE),
@@ -131,23 +164,61 @@ public class SearchResultsServiceImplTest {
             createUnknownAttributeMetadata()));
 
         when(products.getTotalCount()).thenReturn(0);
-        when(products.getItems()).thenReturn(Collections.emptyList());
+        when(products.getItems()).thenReturn(productHits);
         when(products.getAggregations()).thenReturn(Collections.emptyList());
         when(query.getProducts()).thenReturn(products);
+        when(query.getCategoryList()).thenReturn(Collections.singletonList(categoryTree));
 
-        GraphqlResponse<Query, Error> response = new GraphqlResponse<Query, Error>();
+        GraphqlResponse<Query, Error> response = new GraphqlResponse<>();
         response.setData(query);
-
-        when(request.adaptTo(MagentoGraphqlClient.class)).thenReturn(magentoGraphqlClient);
         when(magentoGraphqlClient.execute(any())).thenReturn(response);
 
-        context.registerService(SearchFilterService.class, searchFilterService);
+        categoryTree.setUid(new ID("foobar"));
 
-        context.registerService(UrlProvider.class, urlProvider);
+        context.registerService(SearchFilterService.class, searchFilterService);
         context.registerAdapter(SlingHttpServletRequest.class, MagentoGraphqlClient.class, magentoGraphqlClient);
 
         prepareSearchOptions();
         serviceUnderTest = context.registerInjectActivateService(new SearchResultsServiceImpl());
+
+        // TODO: CIF-2469
+        // With a newer version of OSGI mock we could re-register UrlProviderImpl with a different configuration
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+        Whitebox.setInternalState(urlProvider, "newProductUrlFormat", ProductPageWithCategoryAndUrlKey.INSTANCE);
+    }
+
+    private static FilterAttributeMetadata createMatchFilterAttributeMetadata(String attributeCode) {
+        FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
+        newFilterAttributeMetadata.setAttributeCode(attributeCode);
+        newFilterAttributeMetadata.setFilterInputType(FilterMatchTypeInput.class.getSimpleName());
+        newFilterAttributeMetadata.setAttributeType("String");
+        newFilterAttributeMetadata.setAttributeInputType("text");
+        return newFilterAttributeMetadata;
+    }
+
+    private FilterAttributeMetadata createBooleanEqualFilterAttributeMetadata(String attributeCode) {
+        FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
+        newFilterAttributeMetadata.setAttributeCode(attributeCode);
+        newFilterAttributeMetadata.setFilterInputType(FilterEqualTypeInput.class.getSimpleName());
+        newFilterAttributeMetadata.setAttributeType("Int");
+        newFilterAttributeMetadata.setAttributeInputType("boolean");
+        return newFilterAttributeMetadata;
+    }
+
+    private FilterAttributeMetadata createRangeFilterAttributeMetadata(String attributeCode) {
+        FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
+        newFilterAttributeMetadata.setAttributeCode(attributeCode);
+        newFilterAttributeMetadata.setFilterInputType(FilterRangeTypeInput.class.getSimpleName());
+        newFilterAttributeMetadata.setAttributeType("Float");
+        newFilterAttributeMetadata.setAttributeInputType("price");
+        return newFilterAttributeMetadata;
+    }
+
+    private FilterAttributeMetadata createUnknownAttributeMetadata() {
+        FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
+        newFilterAttributeMetadata.setAttributeCode(FILTER_ATTRIBUTE_UNKNOWN);
+        newFilterAttributeMetadata.setFilterInputType(FILTER_ATTRIBUTE_UNKNOWN);
+        return newFilterAttributeMetadata;
     }
 
     private void prepareSearchOptions() {
@@ -187,7 +258,7 @@ public class SearchResultsServiceImplTest {
         assertThat(searchResultsSet).isNotNull();
         assertThat(searchResultsSet.getTotalResults()).isEqualTo(0);
         assertThat(searchResultsSet.getAppliedQueryParameters()).containsKeys("search_query");
-        assertThat(searchResultsSet.getProductListItems()).isEmpty();
+        assertThat(searchResultsSet.getProductListItems()).hasSize(1);
         assertThat(searchResultsSet.getSorter().getKeys()).isNull();
         assertThat(searchResultsSet.getSorter().getCurrentKey()).isNull();
 
@@ -290,10 +361,20 @@ public class SearchResultsServiceImplTest {
         assertThat(getFilterMapsOfAllOptions(aggregations, filterMapFilter).count()).isEqualTo(2);
 
         // test with category_uid filter from request
-        when(urlProvider.getCategoryIdentifier(request)).thenReturn("foobar");
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/foobar");
         resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
         aggregations = resultsSet.getSearchAggregations();
         assertThat(getFilterMapsOfAllOptions(aggregations, filterMapFilter)).isEmpty();
+    }
+
+    private static FilterAttributeMetadata createStringEqualFilterAttributeMetadata(String attributeCode) {
+        FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
+        newFilterAttributeMetadata.setAttributeCode(attributeCode);
+        newFilterAttributeMetadata.setFilterInputType(FilterEqualTypeInput.class.getSimpleName());
+        newFilterAttributeMetadata.setAttributeType("String");
+        newFilterAttributeMetadata.setAttributeInputType("text");
+        return newFilterAttributeMetadata;
     }
 
     private static Stream<Map<String, String>> getFilterMapsOfAllOptions(List<SearchAggregation> aggregations,
@@ -410,46 +491,63 @@ public class SearchResultsServiceImplTest {
         assertThat(captor.getValue()).contains("created_at,is_returnable_custom_:is_returnable");
     }
 
-    private FilterAttributeMetadata createMatchFilterAttributeMetadata(String attributeCode) {
-        FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
-        newFilterAttributeMetadata.setAttributeCode(attributeCode);
-        newFilterAttributeMetadata.setFilterInputType(FilterMatchTypeInput.class.getSimpleName());
-        newFilterAttributeMetadata.setAttributeType("String");
-        newFilterAttributeMetadata.setAttributeInputType("text");
-        return newFilterAttributeMetadata;
+    @Test
+    public void testProductItemsReturnedInContextOfGivenCategoryRetriever() {
+        CategoryTree local = new CategoryTree();
+        local.setUid(new ID("foobar"));
+        local.setUrlKey("url-key");
+        local.setUrlPath("url-path/url-key");
+        AbstractCategoryRetriever retriever = new AbstractCategoryRetriever(magentoGraphqlClient) {
+            @Override
+            public CategoryInterface fetchCategory() {
+                return local;
+            }
+
+            @Override
+            protected CategoryTreeQueryDefinition generateCategoryQuery() {
+                return q -> {};
+            }
+        };
+
+        Pair<CategoryInterface, SearchResultsSet> result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,
+            null, retriever);
+
+        assertSame(local, result.getLeft());
+
+        SearchResultsSet resultsSet = result.getRight();
+        List<ProductListItem> items = resultsSet.getProductListItems();
+        assertEquals(1, items.size());
+        ProductListItem item = items.get(0);
+        assertEquals("/content/product-page.html/url-key/product.html", item.getURL());
     }
 
-    private FilterAttributeMetadata createStringEqualFilterAttributeMetadata(String attributeCode) {
-        FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
-        newFilterAttributeMetadata.setAttributeCode(attributeCode);
-        newFilterAttributeMetadata.setFilterInputType(FilterEqualTypeInput.class.getSimpleName());
-        newFilterAttributeMetadata.setAttributeType("String");
-        newFilterAttributeMetadata.setAttributeInputType("text");
-        return newFilterAttributeMetadata;
+    @Test
+    public void testProductItemsReturnedInContextOfUidFilterParameter() {
+        categoryTree.setUrlKey("category");
+        categoryTree.setUrlPath("just-another/category");
+        searchOptions.setCategoryUid("foobar");
+
+        Pair<CategoryInterface, SearchResultsSet> result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,
+            null, null);
+
+        SearchResultsSet resultsSet = result.getRight();
+        List<ProductListItem> items = resultsSet.getProductListItems();
+        assertEquals(1, items.size());
+        ProductListItem item = items.get(0);
+        // category is the deepest url_key in the context of the given CategoryTree (descendant of another-url-path/with)
+        assertEquals("/content/product-page.html/category/product.html", item.getURL());
     }
 
-    private FilterAttributeMetadata createBooleanEqualFilterAttributeMetadata(String attributeCode) {
-        FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
-        newFilterAttributeMetadata.setAttributeCode(attributeCode);
-        newFilterAttributeMetadata.setFilterInputType(FilterEqualTypeInput.class.getSimpleName());
-        newFilterAttributeMetadata.setAttributeType("Int");
-        newFilterAttributeMetadata.setAttributeInputType("boolean");
-        return newFilterAttributeMetadata;
-    }
+    @Test
+    public void testProductItemsReturnedWithCanonicalUrl() {
+        Pair<CategoryInterface, SearchResultsSet> result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,
+            null, null);
 
-    private FilterAttributeMetadata createRangeFilterAttributeMetadata(String attributeCode) {
-        FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
-        newFilterAttributeMetadata.setAttributeCode(attributeCode);
-        newFilterAttributeMetadata.setFilterInputType(FilterRangeTypeInput.class.getSimpleName());
-        newFilterAttributeMetadata.setAttributeType("Float");
-        newFilterAttributeMetadata.setAttributeInputType("price");
-        return newFilterAttributeMetadata;
-    }
-
-    private FilterAttributeMetadata createUnknownAttributeMetadata() {
-        FilterAttributeMetadataImpl newFilterAttributeMetadata = new FilterAttributeMetadataImpl();
-        newFilterAttributeMetadata.setAttributeCode(FILTER_ATTRIBUTE_UNKNOWN);
-        newFilterAttributeMetadata.setFilterInputType(FILTER_ATTRIBUTE_UNKNOWN);
-        return newFilterAttributeMetadata;
+        SearchResultsSet resultsSet = result.getRight();
+        List<ProductListItem> items = resultsSet.getProductListItems();
+        assertEquals(1, items.size());
+        ProductListItem item = items.get(0);
+        // segments is the deepest url_key without any context given
+        assertEquals("/content/product-page.html/segments/product.html", item.getURL());
     }
 }

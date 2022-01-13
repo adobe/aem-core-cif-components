@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.common;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -30,6 +31,7 @@ import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -58,10 +60,12 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     private CommerceIdentifier identifier;
     private Boolean isStaged;
     private ProductInterface product;
+    private CategoryInterface categoryContext;
 
     private ProductListItemImpl(ProductInterface product, String sku, String urlKey, String urlPath, List<UrlRewrite> urlRewrites,
                                 String name, Price price, String imageURL, String imageAlt, Page productPage, String activeVariantSku,
-                                SlingHttpServletRequest request, UrlProvider urlProvider, String parentId, Boolean isStaged) {
+                                SlingHttpServletRequest request, UrlProvider urlProvider, String parentId, Boolean isStaged,
+                                CategoryInterface categoryContext) {
         super(parentId, productPage.getContentResource());
         this.product = product;
         this.sku = sku;
@@ -80,6 +84,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         this.identifier = activeVariantSku != null
             ? new CommerceIdentifierImpl(activeVariantSku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT)
             : new CommerceIdentifierImpl(sku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT);
+        this.categoryContext = categoryContext;
     }
 
     @Deprecated
@@ -136,6 +141,11 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         params.setVariantSku(activeVariantSku);
         params.setUrlPath(urlPath);
         params.setUrlRewrites(urlRewrites);
+
+        if (categoryContext != null) {
+            params.getCategoryUrlParams().setUrlKey(categoryContext.getUrlKey());
+            params.getCategoryUrlParams().setUrlPath(categoryContext.getUrlPath());
+        }
 
         return urlProvider.toProductUrl(request, productPage, params);
     }
@@ -225,6 +235,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
         private String name;
         private String urlPath;
         private List<UrlRewrite> urlRewrites;
+        private CategoryInterface categoryContext;
 
         public Builder(String parentId, @NotNull Page productPage, SlingHttpServletRequest request, UrlProvider urlProvider) {
             this.parentId = parentId;
@@ -278,22 +289,42 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
             return this;
         }
 
+        /**
+         * Sets the category as context for the product item. This will case the {@link UrlProvider} to generate product urls in the context
+         * of this category if applicable.
+         *
+         * @param category
+         * @return
+         */
+        public Builder categoryContext(CategoryInterface category) {
+            this.categoryContext = category;
+            return this;
+        }
+
         public ProductListItem build() {
-            String sku = this.sku == null && product != null ? product.getSku() : this.sku;
-            String urlKey = this.urlKey == null && product != null ? product.getUrlKey() : this.urlKey;
-            String urlPath = this.urlPath == null && product != null ? product.getUrlPath() : this.urlPath;
-            List<UrlRewrite> urlRewrites = this.urlRewrites == null && product != null ? product.getUrlRewrites() : this.urlRewrites;
-            String name = this.name == null && product != null ? product.getName() : this.name;
-            Price price = this.price == null && product != null
-                ? new PriceImpl(product.getPriceRange(), productPage.getLanguage(false), product instanceof GroupedProduct)
-                : this.price;
-            ProductImage image = this.image == null && product != null ? product.getSmallImage() : this.image;
+            String sku = getFromProductIfNull(this.sku, product, ProductInterface::getSku);
+            String urlKey = getFromProductIfNull(this.urlKey, product, ProductInterface::getUrlKey);
+            String urlPath = getFromProductIfNull(this.urlPath, product, ProductInterface::getUrlPath);
+            List<UrlRewrite> urlRewrites = getFromProductIfNull(this.urlRewrites, product, ProductInterface::getUrlRewrites);
+            String name = getFromProductIfNull(this.name, product, ProductInterface::getName);
+            // TODO: target to be refactored with 3.0
+            // The price is required, either set by the builder or as a price range of the product. Some code expects the exception being
+            // throw by PriceImpl when the price range is null, for example the ProductCarouselImpl (validated by unit tests). However
+            // Exceptions must not be used for control flow, meaning this implementation should return null if the price is really required
+            // or, if not the impl should deal with null prices.
+            Price price = getFromProductIfNull(this.price, product,
+                p -> new PriceImpl(p.getPriceRange(), productPage.getLanguage(false), p instanceof GroupedProduct));
+            ProductImage image = getFromProductIfNull(this.image, product, ProductInterface::getSmallImage);
             String imageUrl = image != null ? image.getUrl() : null;
             String imageLabel = image != null ? StringUtils.defaultIfBlank(image.getLabel(), name) : null;
             boolean isStaged = product != null && Boolean.TRUE.equals(product.getStaged());
 
             return new ProductListItemImpl(product, sku, urlKey, urlPath, urlRewrites, name, price, imageUrl, imageLabel, productPage,
-                variantSku, request, urlProvider, parentId, isStaged);
+                variantSku, request, urlProvider, parentId, isStaged, categoryContext);
         }
+    }
+
+    private static <T> T getFromProductIfNull(T value, ProductInterface product, Function<ProductInterface, T> getter) {
+        return value == null && product != null ? getter.apply(product) : value;
     }
 }
