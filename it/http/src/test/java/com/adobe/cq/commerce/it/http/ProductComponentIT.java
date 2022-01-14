@@ -41,7 +41,7 @@ public class ProductComponentIT extends CommerceTestBase {
     @Test
     @Category({ IgnoreOnCloud.class })
     public void testProductPageWithSampleData65() throws Exception {
-        String pagePath = COMMERCE_LIBRARY_PATH + "/product.html/chaz-kangeroo-hoodie.html";
+        String pagePath = COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html";
         testProductPageWithSampleData(pagePath, ImmutableMap.of(
             doc -> doc.select("title").first().html(), "Meta title for Chaz Kangeroo Hoodie",
             doc -> doc.select("meta[name=keywords]").first().attr("content"), "Meta keywords for Chaz Kangeroo Hoodie",
@@ -53,7 +53,7 @@ public class ProductComponentIT extends CommerceTestBase {
     @Test
     @Category({ IgnoreOn65.class })
     public void testProductPageWithSampleDataCloud() throws Exception {
-        String pagePath = COMMERCE_LIBRARY_PATH + "/product.html/chaz-kangeroo-hoodie.html";
+        String pagePath = COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html";
         testProductPageWithSampleData(pagePath, ImmutableMap.of(
             doc -> doc.select("title").first().html(), "Meta title for Chaz Kangeroo Hoodie",
             doc -> doc.select("meta[name=keywords]").first().attr("content"), "Meta keywords for Chaz Kangeroo Hoodie",
@@ -100,7 +100,8 @@ public class ProductComponentIT extends CommerceTestBase {
 
     @Test
     public void testProductPageWithSampleDataForGroupedProduct() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.html/set-of-sprite-yoga-straps.html", 200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH
+            + "/product/sample-product.html/set-of-sprite-yoga-straps.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Verify product name
@@ -113,7 +114,7 @@ public class ProductComponentIT extends CommerceTestBase {
 
     @Test
     public void testProductPageWithPlaceholderData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.html", 200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Verify product name
@@ -123,29 +124,30 @@ public class ProductComponentIT extends CommerceTestBase {
 
     @Test
     public void testProductBreadcrumbWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.html/chaz-kangeroo-hoodie.html", 200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html",
+            200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Component Library > Commerce > Outdoor > Collection > Chaz Kangeroo Hoodie
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        assertEquals(5, elements.size());
+        assertEquals(6, elements.size());
     }
 
     @Test
     public void testProductBreadcrumbWithPlaceholderData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.html", 200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Component Library > Commerce
         Elements elements = doc.select(BreadcrumbComponentIT.BREADCRUMB_ITEM_SELECTOR);
-        assertEquals(2, elements.size());
+        assertEquals(3, elements.size());
     }
 
     @Test
     public void testProductNotFound() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.html?wcmmode=disabled");
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html?wcmmode=disabled");
         assertEquals(404, response.getStatusLine().getStatusCode());
-        response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product.html/unknown-product.html?wcmmode=disabled");
+        response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/unknown-product.html?wcmmode=disabled");
         assertEquals(404, response.getStatusLine().getStatusCode());
     }
 }

@@ -59,18 +59,9 @@
                 <configuration>
                     <group>cif-components-library</group>
                     <packageType>container</packageType>
-                    <properties>
-                        <cloudManagerTarget>none</cloudManagerTarget>
-                    </properties>
                     <allowIndexDefinitions>true</allowIndexDefinitions> 
                     <embeddedTarget>/apps/core/cif/install</embeddedTarget>                 
                     <embeddeds>
-                        <embedded>
-                            <groupId>com.adobe.commerce.cif</groupId>
-                            <artifactId>graphql-client</artifactId>
-                            <filter>true</filter>
-                            <target>/apps/core/cif/install</target>
-                        </embedded>
                         <embedded>
                             <groupId>com.adobe.commerce.cif</groupId>
                             <artifactId>magento-graphql</artifactId>
@@ -91,16 +82,6 @@
                         </embedded>
                     </embeddeds>
                     <subPackages>
-                        <subPackage>
-                            <groupId>com.adobe.commerce.cif</groupId>
-                            <artifactId>core-cif-components-apps</artifactId>
-                            <filter>true</filter>
-                        </subPackage>
-                        <subPackage>
-                            <groupId>com.adobe.commerce.cif</groupId>
-                            <artifactId>core-cif-components-config</artifactId>
-                            <filter>true</filter>
-                        </subPackage>
                         <subPackage>
                             <groupId>com.adobe.commerce.cif</groupId>
                             <artifactId>core-cif-components-examples-apps</artifactId>
