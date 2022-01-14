@@ -81,6 +81,15 @@ public interface MagentoGraphqlClient {
      * Returns the list of custom HTTP headers used by the GraphQL client.
      *
      * @return a {@link Map} with header names as keys and header values as values
+     * @deprecated this method will be replaced by {@link MagentoGraphqlClient#getHttpHeaderMap()} in the next major release‡
      */
+    @Deprecated
     Map<String, String> getHttpHeaders();
+
+    /**
+     * Returns the Map of custom HTTP headers used by the GraphQL client.
+     * 
+     * @return a {@link Map} with header names as keys and header values as values
+     */
+    Map<String, String[]> getHttpHeaderMap();
 }

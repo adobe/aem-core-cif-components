@@ -15,33 +15,37 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter;
 
-import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.testing.MockLaunch;
+import com.adobe.cq.commerce.core.testing.TestContext;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.launches.api.Launch;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -53,9 +57,9 @@ public class StoreConfigExporterImplTest {
             "my-graphql-client", "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2" }));
 
     @Rule
-    public final AemContext context = new AemContext(ResourceResolverType.JCR_MOCK);
+    public final AemContext context = TestContext.newAemContext();
 
-    private ComponentsConfiguration mockConfiguration = new ComponentsConfiguration(MOCK_CONFIGURATION);
+    private ComponentsConfiguration mockConfiguration = ComponentsConfiguration.EMPTY;
 
     @Before
     public void setup() {
@@ -66,94 +70,123 @@ public class StoreConfigExporterImplTest {
 
     @Test
     public void testStoreView() {
+        mockConfiguration = new ComponentsConfiguration(MOCK_CONFIGURATION);
         setupWithPage("/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        Assert.assertEquals("my-magento-store", storeConfigExporter.getStoreView());
+        assertNotNull(storeConfigExporter);
+        assertEquals("my-magento-store", storeConfigExporter.getStoreView());
     }
 
     @Test
     public void testStoreViewEmptyWithoutConfiguration() {
-        setupWithPage("/content/pageH", HttpMethod.POST);
         mockConfiguration = null;
+        setupWithPage("/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
         Assert.assertNotNull(storeConfigExporter);
         Assert.assertNull(null, storeConfigExporter.getStoreView());
-        Assert.assertEquals("/api/graphql", storeConfigExporter.getGraphqlEndpoint());
-        Assert.assertEquals("{}", storeConfigExporter.getHttpHeaders());
-        Assert.assertEquals("POST", storeConfigExporter.getMethod());
+        assertEquals("/api/graphql", storeConfigExporter.getGraphqlEndpoint());
+        assertNotNull(storeConfigExporter.getHttpHeaders());
+        assertTrue(storeConfigExporter.getHttpHeaders().isEmpty());
+        assertEquals("POST", storeConfigExporter.getMethod());
     }
 
     @Test
     public void testStoreViewOnLaunchPage() {
-        context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
-
+        mockConfiguration = new ComponentsConfiguration(MOCK_CONFIGURATION);
+        context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) MockLaunch::new);
         setupWithPage("/content/launches/2020/09/14/mylaunch/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        Assert.assertEquals("my-magento-store", storeConfigExporter.getStoreView());
+        assertNotNull(storeConfigExporter);
+        assertEquals("my-magento-store", storeConfigExporter.getStoreView());
     }
 
     @Test
     public void testStoreViewDefault() {
         setupWithPage("/content/pageD", HttpMethod.POST);
-        mockConfiguration = ComponentsConfiguration.EMPTY;
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        assertNotNull(storeConfigExporter);
         Assert.assertNull(storeConfigExporter.getStoreView());
     }
 
     @Test
     public void testGraphqlEndpoint() {
+        mockConfiguration = new ComponentsConfiguration(MOCK_CONFIGURATION);
         setupWithPage("/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-
-        Assert.assertEquals("/my/api/graphql", storeConfigExporter.getGraphqlEndpoint());
+        assertNotNull(storeConfigExporter);
+        assertEquals("/my/api/graphql", storeConfigExporter.getGraphqlEndpoint());
     }
 
     @Test
     public void testGraphqlEndpointDefault() {
         setupWithPage("/content/pageD", HttpMethod.POST);
-        mockConfiguration = ComponentsConfiguration.EMPTY;
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        Assert.assertEquals("/api/graphql", storeConfigExporter.getGraphqlEndpoint());
+        assertNotNull(storeConfigExporter);
+        assertEquals("/api/graphql", storeConfigExporter.getGraphqlEndpoint());
     }
 
     @Test
     public void testGraphqlMethodGet() {
+        mockConfiguration = new ComponentsConfiguration(MOCK_CONFIGURATION);
         setupWithPage("/content/pageH", HttpMethod.GET);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        Assert.assertEquals("GET", storeConfigExporter.getMethod());
+        assertNotNull(storeConfigExporter);
+        assertEquals("GET", storeConfigExporter.getMethod());
     }
 
     @Test
     public void testGraphqlMethodPost() {
         setupWithPage("/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        Assert.assertEquals("POST", storeConfigExporter.getMethod());
+        assertNotNull(storeConfigExporter);
+        assertEquals("POST", storeConfigExporter.getMethod());
     }
 
     @Test
     public void testGetStoreRootUrl() {
         setupWithPage("/content/pageB/pageC", HttpMethod.POST);
-        mockConfiguration = ComponentsConfiguration.EMPTY;
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        Assert.assertEquals("/content/pageB.html", storeConfigExporter.getStoreRootUrl());
+        assertNotNull(storeConfigExporter);
+        assertEquals("/content/pageB.html", storeConfigExporter.getStoreRootUrl());
     }
 
     @Test
-    public void testCustomHttpHeaders() throws IOException {
+    public void testGetStoreRootUrlWithMapping() {
+        context.create().resource("/etc/map/http/localhost.80", "sling:internalRedirect", new String[] { "/", "/content" });
+        // update MapEntries as we don't have support for jcr events
+        context.getService(EventAdmin.class).sendEvent(new Event(
+            "org/apache/sling/api/resource/Resource/ADDED",
+            Collections.singletonMap("path", "/etc/map/http/localhost.80")));
+        setupWithPage("/content/pageB/pageC", HttpMethod.POST);
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        assertNotNull(storeConfigExporter);
+        assertEquals("/pageB.html", storeConfigExporter.getStoreRootUrl());
+    }
+
+    @Test
+    public void testGetStoreRootUrlWithMappingInDifferentDomain() {
+        context.create().resource("/etc/map/http/foobar.80", "sling:internalRedirect", new String[] { "/", "/content" });
+        // update MapEntries as we don't have support for jcr events
+        context.getService(EventAdmin.class).sendEvent(new Event(
+            "org/apache/sling/api/resource/Resource/ADDED",
+            Collections.singletonMap("path", "/etc/map/http/foobar.80")));
+        setupWithPage("/content/pageB/pageC", HttpMethod.POST);
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        assertNotNull(storeConfigExporter);
+        assertEquals("/content/pageB.html", storeConfigExporter.getStoreRootUrl());
+    }
+
+    @Test
+    public void testCustomHttpHeaders() {
+        mockConfiguration = new ComponentsConfiguration(MOCK_CONFIGURATION);
         setupWithPage("/content/pageH", HttpMethod.POST);
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        String expectedHeaders = "{\"Store\":\"my-magento-store\",\"customHeader-1\":\"value1\",\"customHeader-2\":\"value2\"}";
+        assertNotNull(storeConfigExporter);
 
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode actualNode = mapper.readTree(storeConfigExporter.getHttpHeaders());
-        JsonNode expectedNode = mapper.readTree(expectedHeaders);
-
-        Assert.assertEquals("The custom HTTP headers are correctly parsed", expectedNode, actualNode);
-
-        Map<String, String> headers = storeConfigExporter.getHttpHeadersMap();
-        Assert.assertEquals("my-magento-store", headers.get("Store"));
-        Assert.assertEquals("value1", headers.get("customHeader-1"));
-        Assert.assertEquals("value2", headers.get("customHeader-2"));
+        Map<String, String[]> headers = storeConfigExporter.getHttpHeaders();
+        assertArrayEquals(new String[] { "my-magento-store" }, headers.get("Store"));
+        assertArrayEquals(new String[] { "value1" }, headers.get("customHeader-1"));
+        assertArrayEquals(new String[] { "value2" }, headers.get("customHeader-2"));
     }
 
     private void setupWithPage(String pagePath, HttpMethod method) {
