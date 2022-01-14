@@ -30,8 +30,8 @@ import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.via.ResourceSuperType;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter.StoreConfigExporterImpl;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
+import com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter;
 import com.adobe.cq.wcm.core.components.models.HtmlPageItem;
 import com.adobe.cq.wcm.core.components.models.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -49,7 +49,7 @@ public class PageImpl extends AbstractPageDelegator implements Page {
     @Via(type = ResourceSuperType.class)
     private Page page;
     @Self
-    private StoreConfigExporterImpl storeConfigExporter;
+    private StoreConfigExporter storeConfigExporter;
     @Self
     private PageMetadata pageMetadata;
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
