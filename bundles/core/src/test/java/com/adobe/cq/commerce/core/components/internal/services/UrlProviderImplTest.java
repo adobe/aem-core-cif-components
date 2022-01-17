@@ -39,6 +39,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
@@ -74,6 +75,7 @@ public class UrlProviderImplTest {
         graphqlClient = spy(new GraphqlClientImpl());
         context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
         context.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
+        context.registerAdapter(Resource.class, ComponentsConfiguration.class, ComponentsConfiguration.EMPTY);
 
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
             "{products(filter:{sku:{eq:\"MJ01\"}}");
@@ -117,6 +119,8 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductUrlWithCustomPage() {
+        Page page = context.create().page("/content/custom-page");
+        context.currentPage(page);
         Map<String, String> params = new ParamsBuilder()
             .urlKey("beaumont-summit-kit")
             .page("/content/custom-page")
@@ -341,6 +345,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductIdentifierParsingInSuffixUrlKeyWithGraphqlClientError() {
+        context.currentPage("/content/product-page");
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/beaumont-summit-kit.html");
 
@@ -352,6 +357,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductIdentifierParsingInSuffixSKU() {
+        context.currentPage("/content/product-page");
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/MJ01.html");
         MockOsgi.deactivate(urlProvider, context.bundleContext());

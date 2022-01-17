@@ -39,6 +39,7 @@ public class SitemapLinkExternalizerTest {
     public void testExternalizerWithSlingExternalizer() {
         // given
         Page page = aemContext.create().page("/content/venia/us/en");
+        aemContext.currentPage(page);
 
         org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer externalizerService = mock(
             org.apache.sling.sitemap.spi.common.SitemapLinkExternalizer.class);
@@ -53,7 +54,7 @@ public class SitemapLinkExternalizerTest {
         params.setUrlKey("foobar");
 
         // then
-        String canonicalUrl = externalizer.toExternalProductUrl(null, null, params);
+        String canonicalUrl = externalizer.toExternalProductUrl(null, page, params);
         assertEquals("http://venia.local/us/en.html/foobar.html", canonicalUrl);
     }
 
@@ -70,6 +71,8 @@ public class SitemapLinkExternalizerTest {
         ProductUrlFormat.Params params = new ProductUrlFormat.Params();
         params.setPage("/does/not/exist");
         params.setUrlKey("foobar");
+        Page page = aemContext.create().page("/does/not/exist");
+        aemContext.currentPage(page);
 
         // then
         String canonicalUrl = externalizer.toExternalProductUrl(aemContext.request(), null, params);
@@ -80,6 +83,7 @@ public class SitemapLinkExternalizerTest {
     public void testExternalizerWithSitesSeoExternalizer() {
         // given
         Page page = aemContext.create().page("/content/venia/us/en");
+        aemContext.currentPage(page);
 
         com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer externalizerService = mock(
             com.adobe.aem.wcm.seo.sitemap.externalizer.SitemapLinkExternalizer.class);

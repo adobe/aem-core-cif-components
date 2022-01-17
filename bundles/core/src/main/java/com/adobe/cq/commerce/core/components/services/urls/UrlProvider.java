@@ -82,7 +82,11 @@ public interface UrlProvider {
      * {@code params} parameter.
      * <p>
      * This method should be used if the component already loaded the URL attributes.
-     *
+     * 
+     * Either <code>request</code> or <code>request</code> parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
+     * 
      * @param request The current Sling HTTP request.
      * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
      * @param params The parameters used in the URL template.
@@ -98,6 +102,10 @@ public interface UrlProvider {
      * <p>
      * This method should be used if the component already loaded the URL attributes.
      *
+     * Either <code>request</code> or <code>request</code> parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
+     * 
      * @param request The current Sling HTTP request.
      * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
      * @param params The parameters used in the URL template.
@@ -106,13 +114,21 @@ public interface UrlProvider {
     String toProductUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, ProductUrlFormat.Params params);
 
     /**
-     * Returns the product page URL. Only the product identifier must be provided, the implementation will query the needed URL
+     * Returns the product page URL. Only the product identifier must be provided,
+     * the implementation will query the needed URL
      * attributes to generate a complete URL based on the configuration.
      * <p>
-     * This method should be used if the component only can provide the product identifier.
+     * This method should be used if the component only can provide the product
+     * identifier.
+     * 
+     * Either <code>request</code> or <code>request</code> parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
      *
-     * @param request The current Sling HTTP request.
-     * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
+     * @param request           The current Sling HTTP request.
+     * @param page              The target page, if any. This parameter can be null
+     *                          if the URL template does not use the
+     *                          <code>${page}</code> parameter.
      * @param productIdentifier The product identifier.
      * @return The product URL.
      */
@@ -123,6 +139,10 @@ public interface UrlProvider {
      * {@code params} parameter.
      * <p>
      * This method should be used if the component already loaded the URL attributes.
+     * 
+     * Either <code>request</code> or <code>request</code> parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
      *
      * @param request The current Sling HTTP request.
      * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
@@ -138,6 +158,10 @@ public interface UrlProvider {
      * {@code params} parameter.
      * <p>
      * This method should be used if the component already loaded the URL attributes.
+     * 
+     * Either <code>request</code> or <code>request</code> parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
      *
      * @param request The current Sling HTTP request.
      * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
@@ -151,6 +175,10 @@ public interface UrlProvider {
      * attributes to generate a complete URL based on the configuration.
      * <p>
      * This method should be used if the component only can provide the category identifier.
+     * 
+     * Either <code>request</code> or <code>request</code> parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
      *
      * @param request The current Sling HTTP request.
      * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.

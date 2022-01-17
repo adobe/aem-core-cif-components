@@ -155,7 +155,7 @@ public class CategoriesSitemapGenerator extends SitemapGeneratorBase implements 
                     // skip root category, and ignored categories
                     CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(category);
                     params.setPage(categoryPage.getPath());
-                    String urlStr = externalizer.toExternalCategoryUrl(null, null, params);
+                    String urlStr = externalizer.toExternalCategoryUrl(null, categoryPage, params);
                     Url url = sitemap.addUrl(urlStr);
                     if (addLastModified) {
                         addLastModified(url, category);
