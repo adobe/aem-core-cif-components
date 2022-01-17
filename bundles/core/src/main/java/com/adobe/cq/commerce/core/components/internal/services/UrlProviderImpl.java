@@ -130,6 +130,8 @@ public class UrlProviderImpl implements UrlProvider {
     @Reference
     private PageManagerFactory pageManagerFactory;
 
+    private boolean enableContextAwareProductUrls;
+
     @Activate
     public void activate(UrlProviderConfiguration conf) {
         if (newProductUrlFormat == null) {
@@ -148,6 +150,7 @@ public class UrlProviderImpl implements UrlProvider {
                     .getOrDefault(conf.categoryPageUrlFormat(), CategoryPageWithUrlPath.INSTANCE);
             }
         }
+        enableContextAwareProductUrls = conf.enableContextAwareProductUrls();
     }
 
     @Deactivate
@@ -193,55 +196,55 @@ public class UrlProviderImpl implements UrlProvider {
 
     @Override
     public String toProductUrl(@Nullable SlingHttpServletRequest request, Page page, ProductUrlFormat.Params params) {
-        ProductUrlFormat.Params copy = null;
+        ProductUrlFormat.Params copy = new ProductUrlFormat.Params(params);
         if (page != null) {
             String pageParam = getPageParam(page, newProductUrlFormat, params, specificPageStrategy::getSpecificPage);
             if (!pageParam.equals(params.getPage())) {
-                copy = new ProductUrlFormat.Params(params);
                 copy.setPage(pageParam);
             }
         }
-        if (params.getCategoryUrlParams().getUrlKey() == null && params.getCategoryUrlParams().getUrlPath() == null) {
-            // if there is no category context given for the product parameters, try to retain them from the current page. That may be a
-            // product page or a category page. Both may encode the category context in the url. A use case for that would be for example
-            // a related products component on a product page, that does not know about the category context but should link to related
-            // products in the same category if applicable.
+        if (enableContextAwareProductUrls) {
+            if (params.getCategoryUrlParams().getUrlKey() == null && params.getCategoryUrlParams().getUrlPath() == null) {
+                // if there is no category context given for the product parameters, try to retain them from the current page. That may be a
+                // product page or a category page. Both may encode the category context in the url. A use case for that would be for example
+                // a related products component on a product page, that does not know about the category context but should link to related
+                // products in the same category if applicable.
 
-            // TODO: target to be refactored with 3.0
-            // currently the UrlProvider accepts a page parameter, which is a product page according to SiteNavigation#getProductPage for
-            // all CIF Components. It would be more helpful if this is actually the currentPage as we can select the product page from
-            // there anyway. This will be a breaking change.
-            SlingBindings slingBindings = request != null ? (SlingBindings) request.getAttribute(SlingBindings.class.getName()) : null;
-            String categoryUrlKey = null;
-            String categoryUrlPath = null;
-            if (slingBindings != null) {
-                Page currentPage = (Page) slingBindings.get(WCMBindingsConstants.NAME_CURRENT_PAGE);
-                if (currentPage != null) {
-                    if (SiteNavigation.isProductPage(currentPage)) {
-                        ProductUrlFormat.Params parseParams = parseProductUrlFormatParameters(request);
-                        categoryUrlKey = parseParams.getCategoryUrlParams().getUrlKey();
-                        categoryUrlPath = parseParams.getCategoryUrlParams().getUrlPath();
-                    } else if (SiteNavigation.isCategoryPage(currentPage)) {
-                        CategoryUrlFormat.Params parsedParams = parseCategoryUrlFormatParameters(request);
-                        categoryUrlKey = parsedParams.getUrlKey();
-                        categoryUrlPath = parsedParams.getUrlPath();
+                // TODO: target to be refactored with 3.0
+                // currently the UrlProvider accepts a page parameter, which is a product page according to SiteNavigation#getProductPage for
+                // all CIF Components. It would be more helpful if this is actually the currentPage as we can select the product page from
+                // there anyway. This will be a breaking change.
+                SlingBindings slingBindings = request != null ? (SlingBindings) request.getAttribute(SlingBindings.class.getName()) : null;
+                String categoryUrlKey = null;
+                String categoryUrlPath = null;
+                if (slingBindings != null) {
+                    Page currentPage = (Page) slingBindings.get(WCMBindingsConstants.NAME_CURRENT_PAGE);
+                    if (currentPage != null) {
+                        if (SiteNavigation.isProductPage(currentPage)) {
+                            ProductUrlFormat.Params parseParams = parseProductUrlFormatParameters(request);
+                            categoryUrlKey = parseParams.getCategoryUrlParams().getUrlKey();
+                            categoryUrlPath = parseParams.getCategoryUrlParams().getUrlPath();
+                        } else if (SiteNavigation.isCategoryPage(currentPage)) {
+                            CategoryUrlFormat.Params parsedParams = parseCategoryUrlFormatParameters(request);
+                            categoryUrlKey = parsedParams.getUrlKey();
+                            categoryUrlPath = parsedParams.getUrlPath();
+                        }
                     }
                 }
-            }
-            if (categoryUrlKey != null || categoryUrlPath != null) {
-                if (copy == null) {
-                    copy = new ProductUrlFormat.Params(params);
+                if (categoryUrlKey != null || categoryUrlPath != null) {
+                    copy.getCategoryUrlParams().setUrlKey(categoryUrlKey);
+                    copy.getCategoryUrlParams().setUrlPath(categoryUrlPath);
                 }
-                copy.getCategoryUrlParams().setUrlKey(categoryUrlKey);
-                copy.getCategoryUrlParams().setUrlPath(categoryUrlPath);
+            }
+        } else {
+            if (params.getCategoryUrlParams().getUrlKey() != null && params.getCategoryUrlParams().getUrlPath() != null) {
+                // remove the category context again in order to enforce canonical urls to be returned
+                copy.getCategoryUrlParams().setUrlKey(null);
+                copy.getCategoryUrlParams().setUrlPath(null);
             }
         }
 
-        if (copy != null) {
-            params = copy;
-        }
-
-        return newProductUrlFormat.format(params);
+        return newProductUrlFormat.format(copy);
     }
 
     @Override

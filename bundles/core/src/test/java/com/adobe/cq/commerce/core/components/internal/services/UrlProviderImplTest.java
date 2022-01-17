@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +29,7 @@ import org.apache.sling.api.request.RequestParameter;
 import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
 import org.apache.sling.testing.mock.osgi.MockOsgi;
@@ -38,15 +40,19 @@ import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithCategoryAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
+import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.collect.ImmutableSet;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
@@ -203,6 +209,90 @@ public class UrlProviderImplTest {
 
         String url = urlProvider.toProductUrl(request, page, "MJ01");
         assertEquals("/content/product-page.html/MJ01.html", url);
+
+        // not required when only sku is used
+        verify(graphqlClient, never()).execute(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testProductPageWithinAnotherProductPagesContext() {
+        Page page = context.currentPage("/content/product-page");
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        MockRequestPathInfo pathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        pathInfo.setSuffix("/category-b/another-product.html");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithCategoryAndUrlKey.PATTERN);
+
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setUrlRewrites(Arrays.asList(
+            new UrlRewrite().setUrl("product"),
+            new UrlRewrite().setUrl("category-a/product"),
+            new UrlRewrite().setUrl("category-b/product")
+        ));
+        params.setUrlKey("product");
+
+        // when enableContextAwareProductUrls true
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            "productPageUrlFormat", ProductPageWithCategoryAndUrlKey.PATTERN,
+            "enableContextAwareProductUrls", true);
+
+        String url = urlProvider.toProductUrl(request, page, params);
+        assertEquals("/content/product-page.html/category-b/product.html", url);
+
+        // when enableContextAwareProductUrls disabled
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            "productPageUrlFormat", ProductPageWithCategoryAndUrlKey.PATTERN,
+            "enableContextAwareProductUrls", false);
+        params.getCategoryUrlParams().setUrlKey("category-b");
+        params.getCategoryUrlParams().setUrlPath("category-b");
+
+        url = urlProvider.toProductUrl(request, page, params);
+        assertEquals("/content/product-page.html/category-a/product.html", url);
+
+        // not required when only sku is used
+        verify(graphqlClient, never()).execute(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testProductPageWithinCategoryContext() {
+        Page page = context.currentPage("/content/category-page");
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        MockRequestPathInfo pathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        pathInfo.setSuffix("/category-b.html");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithCategoryAndUrlKey.PATTERN);
+
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setUrlRewrites(Arrays.asList(
+            new UrlRewrite().setUrl("product"),
+            new UrlRewrite().setUrl("category-a/product"),
+            new UrlRewrite().setUrl("category-b/product")
+        ));
+        params.setUrlKey("product");
+
+        // when enableContextAwareProductUrls true
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            "productPageUrlFormat", ProductPageWithCategoryAndUrlKey.PATTERN,
+            "enableContextAwareProductUrls", true);
+
+        String url = urlProvider.toProductUrl(request, page, params);
+        assertEquals("/content/category-page.html/category-b/product.html", url);
+
+        // when enableContextAwareProductUrls disabled
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            "productPageUrlFormat", ProductPageWithCategoryAndUrlKey.PATTERN,
+            "enableContextAwareProductUrls", false);
+        params.getCategoryUrlParams().setUrlKey("category-b");
+        params.getCategoryUrlParams().setUrlPath("category-b");
+
+        url = urlProvider.toProductUrl(request, page, params);
+        assertEquals("/content/category-page.html/category-a/product.html", url);
 
         // not required when only sku is used
         verify(graphqlClient, never()).execute(any(), any(), any(), any());
