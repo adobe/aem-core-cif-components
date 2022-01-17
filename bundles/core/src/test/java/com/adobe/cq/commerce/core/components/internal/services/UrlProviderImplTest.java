@@ -228,8 +228,7 @@ public class UrlProviderImplTest {
         params.setUrlRewrites(Arrays.asList(
             new UrlRewrite().setUrl("product"),
             new UrlRewrite().setUrl("category-a/product"),
-            new UrlRewrite().setUrl("category-b/product")
-        ));
+            new UrlRewrite().setUrl("category-b/product")));
         params.setUrlKey("product");
 
         // when enableContextAwareProductUrls true
@@ -270,8 +269,7 @@ public class UrlProviderImplTest {
         params.setUrlRewrites(Arrays.asList(
             new UrlRewrite().setUrl("product"),
             new UrlRewrite().setUrl("category-a/product"),
-            new UrlRewrite().setUrl("category-b/product")
-        ));
+            new UrlRewrite().setUrl("category-b/product")));
         params.setUrlKey("product");
 
         // when enableContextAwareProductUrls true

@@ -185,6 +185,7 @@ public class SearchResultsServiceImplTest {
         // With a newer version of OSGI mock we could re-register UrlProviderImpl with a different configuration
         UrlProvider urlProvider = context.getService(UrlProvider.class);
         Whitebox.setInternalState(urlProvider, "newProductUrlFormat", ProductPageWithCategoryAndUrlKey.INSTANCE);
+        Whitebox.setInternalState(urlProvider, "enableContextAwareProductUrls", true);
     }
 
     private static FilterAttributeMetadata createMatchFilterAttributeMetadata(String attributeCode) {

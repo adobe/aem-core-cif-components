@@ -206,12 +206,14 @@ public class UrlProviderImpl implements UrlProvider {
         if (enableContextAwareProductUrls) {
             if (params.getCategoryUrlParams().getUrlKey() == null && params.getCategoryUrlParams().getUrlPath() == null) {
                 // if there is no category context given for the product parameters, try to retain them from the current page. That may be a
-                // product page or a category page. Both may encode the category context in the url. A use case for that would be for example
+                // product page or a category page. Both may encode the category context in the url. A use case for that would be for
+                // example
                 // a related products component on a product page, that does not know about the category context but should link to related
                 // products in the same category if applicable.
 
                 // TODO: target to be refactored with 3.0
-                // currently the UrlProvider accepts a page parameter, which is a product page according to SiteNavigation#getProductPage for
+                // currently the UrlProvider accepts a page parameter, which is a product page according to SiteNavigation#getProductPage
+                // for
                 // all CIF Components. It would be more helpful if this is actually the currentPage as we can select the product page from
                 // there anyway. This will be a breaking change.
                 SlingBindings slingBindings = request != null ? (SlingBindings) request.getAttribute(SlingBindings.class.getName()) : null;

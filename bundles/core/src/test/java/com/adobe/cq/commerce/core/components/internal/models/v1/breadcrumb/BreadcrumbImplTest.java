@@ -181,6 +181,7 @@ public class BreadcrumbImplTest {
         // context.registerInjectActivateService(new SpecificPageStrategy(), "generateSpecificPageUrls", true);
         UrlProvider urlProvider = context.getService(UrlProvider.class);
         Whitebox.setInternalState(urlProvider, "newProductUrlFormat", ProductPageWithCategoryAndUrlKey.INSTANCE);
+        Whitebox.setInternalState(urlProvider, "enableContextAwareProductUrls", true);
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
         List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
