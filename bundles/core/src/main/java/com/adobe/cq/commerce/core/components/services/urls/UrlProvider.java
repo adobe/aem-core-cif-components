@@ -125,10 +125,10 @@ public interface UrlProvider {
      * <code>null</code> but not both.
      * If both are null an {@link IllegalArgumentException} is thrown.
      *
-     * @param request           The current Sling HTTP request.
-     * @param page              The target page, if any. This parameter can be null
-     *                          if the URL template does not use the
-     *                          <code>${page}</code> parameter.
+     * @param request The current Sling HTTP request.
+     * @param page The target page, if any. This parameter can be null
+     *            if the URL template does not use the
+     *            <code>${page}</code> parameter.
      * @param productIdentifier The product identifier.
      * @return The product URL.
      */

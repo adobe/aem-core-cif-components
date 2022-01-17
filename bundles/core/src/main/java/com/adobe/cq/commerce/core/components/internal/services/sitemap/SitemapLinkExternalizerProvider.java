@@ -96,7 +96,7 @@ public class SitemapLinkExternalizerProvider {
             String url = urlProvider.toProductUrl(request, page, params);
             Resource resolvedResource = resourceResolver.resolve(url);
             String externalPath = externalizer.externalize(resolvedResource);
-            
+
             if (externalPath != null && url.startsWith(resolvedResource.getPath())) {
                 return externalPath + url.substring(resolvedResource.getPath().length());
             } else {

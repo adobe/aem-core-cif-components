@@ -165,7 +165,7 @@ public class UrlProviderImpl implements UrlProvider {
 
         ProductUrlFormat productUrlFormat = newProductUrlFormat;
         Resource resource = request != null ? request.getResource() : page.getContentResource();
-        
+
         ComponentsConfiguration properties = resource
             .adaptTo(ComponentsConfiguration.class);
 
@@ -197,7 +197,7 @@ public class UrlProviderImpl implements UrlProvider {
 
         CategoryUrlFormat categoryUrlFormat = newCategoryUrlFormat;
         Resource resource = request != null ? request.getResource() : page.getContentResource();
-        
+
         ComponentsConfiguration properties = resource
             .adaptTo(ComponentsConfiguration.class);
 
