@@ -87,7 +87,7 @@ describe('useAddToCartEvent', () => {
 
     it('dispatches a success event', async () => {
         const callback = jest.fn();
-        document.addEventListener('aem.cif.toast', callback);
+        document.addEventListener('aem.cif.add-to-wishlist.success', callback);
 
         const addProductToWishlistMutationMock = jest.fn().mockReturnValue();
         render(<MockComponent operations={{ addProductToWishlistMutation: addProductToWishlistMutationMock }} />);
@@ -101,14 +101,18 @@ describe('useAddToCartEvent', () => {
 
         expect(callback).toHaveBeenCalledTimes(1);
         expect(callback.mock.calls[0][0].detail).toEqual({
-            message: 'wishlist.success',
-            type: 'info'
+            items: [
+                {
+                    sku: 'bar',
+                    quantity: 1
+                }
+            ]
         });
     });
 
     it('dispatches an error event', async () => {
         const callback = jest.fn();
-        document.addEventListener('aem.cif.toast', callback);
+        document.addEventListener('aem.cif.add-to-wishlist.error', callback);
 
         const addProductToWishlistMutationMock = jest.fn().mockRejectedValue('This is an error');
         render(<MockComponent operations={{ addProductToWishlistMutation: addProductToWishlistMutationMock }} />);
@@ -122,8 +126,12 @@ describe('useAddToCartEvent', () => {
 
         expect(callback).toHaveBeenCalledTimes(1);
         expect(callback.mock.calls[0][0].detail).toEqual({
-            message: 'wishlist.error',
-            type: 'error',
+            items: [
+                {
+                    sku: 'bar',
+                    quantity: 1
+                }
+            ],
             error: 'This is an error'
         });
     });

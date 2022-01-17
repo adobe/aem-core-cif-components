@@ -42,26 +42,24 @@ const useAddToWishlistEvent = (props = {}) => {
             addProductToWishlist({ variables: { wishlistId: '0', itemOptions: productMapper(item) } })
         );
 
-        let toastEvent;
+        let responseEvent;
         try {
             // Wait for all items to be added to the wishlist
             await Promise.all(promises);
-            toastEvent = new CustomEvent('aem.cif.toast', {
+            responseEvent = new CustomEvent('aem.cif.add-to-wishlist.success', {
                 detail: {
-                    message: 'wishlist.success',
-                    type: 'info'
+                    items
                 }
             });
         } catch (error) {
-            toastEvent = new CustomEvent('aem.cif.toast', {
+            responseEvent = new CustomEvent('aem.cif.add-to-wishlist.error', {
                 detail: {
-                    message: 'wishlist.error',
-                    type: 'error',
-                    error
+                    error,
+                    items
                 }
             });
         }
-        document.dispatchEvent(toastEvent);
+        document.dispatchEvent(responseEvent);
     });
 };
 
