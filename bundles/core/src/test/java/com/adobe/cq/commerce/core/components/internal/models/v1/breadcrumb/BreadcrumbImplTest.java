@@ -38,7 +38,9 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithCategoryAndUrlKey;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.testing.MockLaunch;
 import com.adobe.cq.commerce.core.testing.MockPathProcessor;
 import com.adobe.cq.commerce.core.testing.Utils;
@@ -160,6 +162,36 @@ public class BreadcrumbImplTest {
 
         NavigationItem product = items.get(3);
         assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/product-page.html/tiberius-gym-tank.html");
+        assertThat(product.isActive()).isTrue();
+    }
+
+    @Test
+    public void testProductPageWithinCategoryContext() throws Exception {
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
+            "{products(filter:{sku");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
+            "breadcrumbs{category_uid,category_url_path,category_name}");
+        prepareModel("/content/venia/us/en/products/product-page");
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/summer-2022-men/tiberius-gym-tank.html");
+        // TODO: CIF-2469
+        // With a newer version of OSGI mock we could re-inject the reference into the existing UrlProviderImpl
+        // context.registerInjectActivateService(new SpecificPageStrategy(), "generateSpecificPageUrls", true);
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+        Whitebox.setInternalState(urlProvider, "newProductUrlFormat", ProductPageWithCategoryAndUrlKey.INSTANCE);
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+        List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
+        assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Men", "Collections", "Tiberius Gym Tank");
+
+        NavigationItem menCategory = items.get(1);
+        assertThat(menCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.html/men.html");
+        assertThat(menCategory.isActive()).isFalse();
+
+        NavigationItem product = items.get(3);
+        assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/product-page.html/summer-2022-men/tiberius-gym-tank.html");
         assertThat(product.isActive()).isTrue();
     }
 

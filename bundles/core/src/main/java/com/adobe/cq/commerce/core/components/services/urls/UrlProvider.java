@@ -168,12 +168,30 @@ public interface UrlProvider {
     String getProductIdentifier(SlingHttpServletRequest request);
 
     /**
+     * Parses and returns the {@link ProductUrlFormat.Params} used in the given {@link SlingHttpServletRequest} based on the URLProvider
+     * configuration for product page URLs.
+     *
+     * @param request The current Sling HTTP request.
+     * @return the parsed {@link ProductUrlFormat.Params}
+     */
+    ProductUrlFormat.Params parseProductUrlFormatParameters(SlingHttpServletRequest request);
+
+    /**
      * Returns the category identifier used in the given Sling HTTP request. The category identifier can be used to load category data.
      *
      * @param request The current Sling HTTP request.
      * @return The category uid identifier.
      */
     String getCategoryIdentifier(SlingHttpServletRequest request);
+
+    /**
+     * Parses and returns the {@link CategoryUrlFormat.Params} used in the given Sling HTTP request based on the URLProvider configuration
+     * for category page URLs.
+     *
+     * @param request The current Sling HTTP request.
+     * @return parsed {@link CategoryUrlFormat.Params}
+     */
+    CategoryUrlFormat.Params parseCategoryUrlFormatParameters(SlingHttpServletRequest request);
 
     /**
      * A helper class used to easily build parameters for the URL templates.

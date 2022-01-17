@@ -17,12 +17,16 @@ package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ResourceUtil;
 
-class UrlFormatBase {
+import com.drew.lang.annotations.NotNull;
+
+public class UrlFormatBase {
 
     protected static String HTML_EXTENSION = ".html";
     protected static String HTML_EXTENSION_AND_SUFFIX = HTML_EXTENSION + "/";
@@ -80,16 +84,21 @@ class UrlFormatBase {
      * <p>
      * If the optional {@code contextUrlPath} is given, the selection will prefer alternatives that use segments of this url_path. This
      * does not require an exact match, it will also rank partial matches higher.
+     * <p>
+     * TODO: In the future make this a Service that customers can override to decide what the "right" url_path would be.
      *
-     * @param urlPath
-     * @param alternatives
-     * @param urlKey
-     * @param contextUrlKey
-     * @param contextUrlPath
+     * @param urlPath a given url_path. If not empty, this will immediately be returned
+     * @param alternatives a list of alternative url_paths
+     * @param urlKey an url_key to filter for. If not {@code null} only the alternatives that end with that url_key will be
+     *            considered
+     * @param contextUrlKey the url_key of a category defining the context for the current selection. If {@code null} it will be retrieved
+     *            from the {@code contextUrlPath} if given.
+     * @param contextUrlPath the url_path of a category defining the context for the current selection. If not given, the canonical url_path
+     *            will be returned
      * @return
      */
-    protected static String selectUrlPath(String urlPath, List<String> alternatives, String urlKey, String contextUrlKey,
-        String contextUrlPath) {
+    public static String selectUrlPath(@Nullable String urlPath, @NotNull List<String> alternatives, @Nullable String urlKey,
+        @Nullable String contextUrlKey, @Nullable String contextUrlPath) {
         if (StringUtils.isNotEmpty(urlPath)) {
             return urlPath;
         }
@@ -103,7 +112,7 @@ class UrlFormatBase {
 
         for (String alternative : alternatives) {
             String[] alternativeParts = alternative.split("/");
-            if (alternativeParts[alternativeParts.length - 1].equals(urlKey)) {
+            if (alternativeParts[alternativeParts.length - 1].equals(urlKey) || urlKey == null) {
                 int alternativeScore = matchesContext(contextUrlKey, contextParts, alternativeParts);
                 if (alternativeScore > candidateScore
                     || (alternativeScore == candidateScore && alternativeParts.length > candidateParts.length)) {

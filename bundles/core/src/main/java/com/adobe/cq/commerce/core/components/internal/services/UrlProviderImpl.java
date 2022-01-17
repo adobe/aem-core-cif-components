@@ -218,11 +218,11 @@ public class UrlProviderImpl implements UrlProvider {
                 Page currentPage = (Page) slingBindings.get(WCMBindingsConstants.NAME_CURRENT_PAGE);
                 if (currentPage != null) {
                     if (SiteNavigation.isProductPage(currentPage)) {
-                        ProductUrlFormat.Params parseParams = parseProductUrlIdentifier(request);
+                        ProductUrlFormat.Params parseParams = parseProductUrlFormatParameters(request);
                         categoryUrlKey = parseParams.getCategoryUrlParams().getUrlKey();
                         categoryUrlPath = parseParams.getCategoryUrlParams().getUrlPath();
                     } else if (SiteNavigation.isCategoryPage(currentPage)) {
-                        CategoryUrlFormat.Params parsedParams = parseCategoryUrlIdentifier(request);
+                        CategoryUrlFormat.Params parsedParams = parseCategoryUrlFormatParameters(request);
                         categoryUrlKey = parsedParams.getUrlKey();
                         categoryUrlPath = parsedParams.getUrlPath();
                     }
@@ -409,25 +409,13 @@ public class UrlProviderImpl implements UrlProvider {
         return null;
     }
 
-    /**
-     * Parses and returns the product sku or url_key used in the given Sling HTTP request based on the URLProvider configuration for product
-     * page URLs.
-     *
-     * @param request The current Sling HTTP request.
-     * @return The product sku or url_key from the URL.
-     */
-    public ProductUrlFormat.Params parseProductUrlIdentifier(SlingHttpServletRequest request) {
+    @Override
+    public ProductUrlFormat.Params parseProductUrlFormatParameters(SlingHttpServletRequest request) {
         return newProductUrlFormat.parse(request.getRequestPathInfo(), request.getRequestParameterMap());
     }
 
-    /**
-     * Parses and returns the category url_path used in the given Sling HTTP request based on the URLProvider configuration for product
-     * page URLs.
-     *
-     * @param request The current Sling HTTP request.
-     * @return The category url_path from the URL.
-     */
-    public CategoryUrlFormat.Params parseCategoryUrlIdentifier(SlingHttpServletRequest request) {
+    @Override
+    public CategoryUrlFormat.Params parseCategoryUrlFormatParameters(SlingHttpServletRequest request) {
         return newCategoryUrlFormat.parse(request.getRequestPathInfo(), request.getRequestParameterMap());
     }
 }
