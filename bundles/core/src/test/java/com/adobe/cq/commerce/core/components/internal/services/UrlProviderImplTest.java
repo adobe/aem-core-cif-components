@@ -257,9 +257,10 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductPageWithinCategoryContext() {
-        Page page = context.currentPage("/content/category-page");
+        Page currentPage = context.currentPage("/content/category-page");
+        Page productPage = context.currentPage("/content/product-page");
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
-        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, currentPage);
         MockRequestPathInfo pathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         pathInfo.setSuffix("/category-b.html");
         MockOsgi.deactivate(urlProvider, context.bundleContext());
@@ -278,8 +279,8 @@ public class UrlProviderImplTest {
             "productPageUrlFormat", ProductPageWithCategoryAndUrlKey.PATTERN,
             "enableContextAwareProductUrls", true);
 
-        String url = urlProvider.toProductUrl(request, page, params);
-        assertEquals("/content/category-page.html/category-b/product.html", url);
+        String url = urlProvider.toProductUrl(request, productPage, params);
+        assertEquals("/content/product-page.html/category-b/product.html", url);
 
         // when enableContextAwareProductUrls disabled
         MockOsgi.deactivate(urlProvider, context.bundleContext());
@@ -289,11 +290,37 @@ public class UrlProviderImplTest {
         params.getCategoryUrlParams().setUrlKey("category-b");
         params.getCategoryUrlParams().setUrlPath("category-b");
 
-        url = urlProvider.toProductUrl(request, page, params);
-        assertEquals("/content/category-page.html/category-a/product.html", url);
+        url = urlProvider.toProductUrl(request, productPage, params);
+        assertEquals("/content/product-page.html/category-a/product.html", url);
 
         // not required when only sku is used
         verify(graphqlClient, never()).execute(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testProductUrlSpecificPageFromCategoryPageContext() {
+        // verify that the specific page can be picked by the category url_key provided by the category url format
+        Page currentPage = context.currentPage("/content/category-page");
+        Page productPage = context.currentPage("/content/product-page");
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, currentPage);
+        MockRequestPathInfo pathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        pathInfo.setSuffix("/category-b.html");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            "productPageUrlFormat", ProductPageWithCategoryAndUrlKey.PATTERN,
+            "enableContextAwareProductUrls", true);
+        configureSpecificPageStrategy(true);
+
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setUrlRewrites(Arrays.asList(
+            new UrlRewrite().setUrl("product"),
+            new UrlRewrite().setUrl("category-a/product"),
+            new UrlRewrite().setUrl("category-b/product")));
+        params.setUrlKey("product");
+
+        String url = urlProvider.toProductUrl(request, productPage, params);
+        assertEquals("/content/product-page/sub-page/nested-page-category.html/category-b/product.html", url);
     }
 
     @Test

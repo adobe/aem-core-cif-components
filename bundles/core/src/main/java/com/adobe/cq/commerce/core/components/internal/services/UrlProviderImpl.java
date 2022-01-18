@@ -197,12 +197,7 @@ public class UrlProviderImpl implements UrlProvider {
     @Override
     public String toProductUrl(@Nullable SlingHttpServletRequest request, Page page, ProductUrlFormat.Params params) {
         ProductUrlFormat.Params copy = new ProductUrlFormat.Params(params);
-        if (page != null) {
-            String pageParam = getPageParam(page, newProductUrlFormat, params, specificPageStrategy::getSpecificPage);
-            if (!pageParam.equals(params.getPage())) {
-                copy.setPage(pageParam);
-            }
-        }
+
         if (enableContextAwareProductUrls) {
             if (params.getCategoryUrlParams().getUrlKey() == null && params.getCategoryUrlParams().getUrlPath() == null) {
                 // if there is no category context given for the product parameters, try to retain them from the current page. That may be a
@@ -213,9 +208,8 @@ public class UrlProviderImpl implements UrlProvider {
 
                 // TODO: target to be refactored with 3.0
                 // currently the UrlProvider accepts a page parameter, which is a product page according to SiteNavigation#getProductPage
-                // for
-                // all CIF Components. It would be more helpful if this is actually the currentPage as we can select the product page from
-                // there anyway. This will be a breaking change.
+                // for all CIF Components. It would be more helpful if this is actually the currentPage as we can select the product page
+                // from there anyway. This will be a breaking change.
                 SlingBindings slingBindings = request != null ? (SlingBindings) request.getAttribute(SlingBindings.class.getName()) : null;
                 String categoryUrlKey = null;
                 String categoryUrlPath = null;
@@ -243,6 +237,13 @@ public class UrlProviderImpl implements UrlProvider {
                 // remove the category context again in order to enforce canonical urls to be returned
                 copy.getCategoryUrlParams().setUrlKey(null);
                 copy.getCategoryUrlParams().setUrlPath(null);
+            }
+        }
+
+        if (page != null) {
+            String pageParam = getPageParam(page, newProductUrlFormat, copy, specificPageStrategy::getSpecificPage);
+            if (!pageParam.equals(params.getPage())) {
+                copy.setPage(pageParam);
             }
         }
 

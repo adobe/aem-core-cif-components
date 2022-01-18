@@ -34,6 +34,14 @@
           "selectorFilter": "productId1.1",
           "cq:template": "/conf/venia/settings/wcm/templates/anything"
         }
+      },
+      "nested-page-category": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType":"cq:PageContent",
+          "useForCategories": "category-b",
+          "cq:template": "/conf/venia/settings/wcm/templates/anything"
+        }
       }
     },
     "sub-page-no-jcr-content": {
