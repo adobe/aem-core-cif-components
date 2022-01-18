@@ -80,6 +80,10 @@
 
 {categoryList(filters:{url_key:{eq:"running"}}){uid}}
 
+{categoryList(filters:{category_uid:{eq:"MTI=="}}){uid,description,name,image,product_count,meta_description,meta_keywords,meta_title,url_key,url_path}}
+
+{products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},aggregations{options{count,label,value},attribute_code,count,label}}}
+
 {categoryList(filters:{url_key:{eq:"category-1"}}){uid}}
 
 {products(currentPage:1,pageSize:6,filter:{},sort:{price:ASC}){total_count,items{__typename,sku,name,small_image{url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,stock_status,staged},aggregations{options{count,label,value},attribute_code,count,label}}}

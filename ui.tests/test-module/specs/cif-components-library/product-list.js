@@ -18,7 +18,7 @@ const config = require('../../lib/config');
 const commons = require('../../lib/commons');
 
 describe('Product List component in the CIF components library', () => {
-    const productListPage = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/productlist.html/outdoor.html`;
+    const productListPage = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/productlist/sample-productlist.html/outdoor.html`;
     const productListPageSelector = '.cmp-examples-demo__top .productlist';
 
     before(() => {
