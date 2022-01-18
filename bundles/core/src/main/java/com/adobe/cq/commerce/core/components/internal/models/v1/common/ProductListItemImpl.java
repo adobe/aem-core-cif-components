@@ -307,9 +307,9 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
             String urlPath = getFromProductIfNull(this.urlPath, product, ProductInterface::getUrlPath);
             List<UrlRewrite> urlRewrites = getFromProductIfNull(this.urlRewrites, product, ProductInterface::getUrlRewrites);
             String name = getFromProductIfNull(this.name, product, ProductInterface::getName);
-            // TODO: target to be refactored with 3.0
+            // TODO: target to be refactored with 3.0 (CIF-2634)
             // The price is required, either set by the builder or as a price range of the product. Some code expects the exception being
-            // throw by PriceImpl when the price range is null, for example the ProductCarouselImpl (validated by unit tests). However
+            // thrown by PriceImpl when the price range is null, for example the ProductCarouselImpl (validated by unit tests). However
             // Exceptions must not be used for control flow, meaning this implementation should return null if the price is really required
             // or, if not the impl should deal with null prices.
             Price price = getFromProductIfNull(this.price, product,

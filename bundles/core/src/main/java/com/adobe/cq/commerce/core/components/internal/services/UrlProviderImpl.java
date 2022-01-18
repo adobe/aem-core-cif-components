@@ -206,7 +206,7 @@ public class UrlProviderImpl implements UrlProvider {
                 // a related products component on a product page, that does not know about the category context but should link to related
                 // products in the same category if applicable.
 
-                // TODO: target to be refactored with 3.0
+                // TODO: target to be refactored with 3.0 (CIF-2634)
                 // currently the UrlProvider accepts a page parameter, which is a product page according to SiteNavigation#getProductPage
                 // for all CIF Components. It would be more helpful if this is actually the currentPage as we can select the product page
                 // from there anyway. This will be a breaking change.
