@@ -33,7 +33,6 @@ import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
 import org.apache.sling.testing.mock.osgi.MockOsgi;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -72,11 +71,6 @@ public class UrlProviderImplTest {
     private CloseableHttpClient httpClient;
     private GraphqlClient graphqlClient;
     private ComponentsConfiguration caConfig;
-
-    @After
-    public void tearDown() {
-        caConfig = ComponentsConfiguration.EMPTY;
-    }
 
     @Before
     public void setup() throws Exception {

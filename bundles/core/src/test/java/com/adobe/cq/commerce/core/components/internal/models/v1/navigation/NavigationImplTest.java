@@ -91,6 +91,7 @@ public class NavigationImplTest {
         when(currentPage.getContentResource()).thenReturn(currentPageContent);
         Resource categoryPageResource = new SyntheticResource(null, CATEGORY_PAGE_PATH, null);
         when(categoryPage.adaptTo(Resource.class)).thenReturn(categoryPageResource);
+        when(categoryPage.getContentResource()).thenReturn(categoryPageResource);
         when(contentResource.adaptTo(ComponentsConfiguration.class)).thenReturn(null);
         Whitebox.setInternalState(navigation, "currentPage", currentPage);
 
