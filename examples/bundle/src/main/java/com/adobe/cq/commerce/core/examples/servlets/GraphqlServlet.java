@@ -484,6 +484,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             } else if (filters.get("url_key").get("eq").equals("unknown-category")) {
                 // return empty response
                 graphqlResponse = readGraphqlResponse(UNKNOWN_CATEGORY_JSON);
+            } else {
+                graphqlResponse = readGraphqlResponse(CATEGORY_UID_JSON);
             }
         } else if (filters.containsKey("category_uid")) {
             if (filters.get("category_uid").containsKey("in") && (((List<String>) (filters.get("category_uid").get("in"))).size() == 4)) {
