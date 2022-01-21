@@ -29,7 +29,7 @@ public class CategoryUrlParameterRetriever extends AbstractCategoryRetriever {
     @Override
     protected CategoryTreeQueryDefinition generateCategoryQuery() {
         return (CategoryTreeQuery q) -> {
-            q.urlPath().urlKey();
+            q.uid().urlPath().urlKey();
 
             if (categoryQueryHook != null) {
                 categoryQueryHook.accept(q);

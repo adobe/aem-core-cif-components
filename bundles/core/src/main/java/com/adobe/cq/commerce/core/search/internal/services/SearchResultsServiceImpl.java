@@ -60,7 +60,9 @@ import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Aggregation;
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterRangeTypeInput;
@@ -143,14 +145,35 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         // Next we generate the graphql category query and actually query the commerce system
         CategoryInterface category = null;
-        if (categoryRetriever == null && mutableSearchOptions.getCategoryUid().isPresent()) {
-            categoryRetriever = new CategoryUrlParameterRetriever(magentoGraphqlClient);
-        }
-        if (categoryRetriever != null) {
+
+        if (categoryRetriever != null || mutableSearchOptions.getCategoryUid().isPresent()) {
+            // if a categoryRetriever is given or if a category uid filter is given, fetch the category and (re)set the uid filter
+            if (categoryRetriever == null) {
+                categoryRetriever = new CategoryUrlParameterRetriever(magentoGraphqlClient);
+                categoryRetriever.setIdentifier(mutableSearchOptions.getCategoryUid().get());
+            }
             category = categoryRetriever.fetchCategory();
-            if (category != null) {
+            if (category != null && category.getUid() != null) {
                 mutableSearchOptions.setCategoryUid(category.getUid().toString());
             }
+        }
+
+        if (categoryRetriever == null && StringUtils.isNotEmpty(mutableSearchOptions.getAllFilters().get(CATEGORY_ID_FILTER))) {
+            // if no categoryRetriever is given but an id filter, fetch the category only but dont set the uid filter as id and uid filter
+            // cannot be used toether in the same query
+            categoryRetriever = new CategoryUrlParameterRetriever(magentoGraphqlClient) {
+                @Override
+                public Pair<QueryQuery.CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> generateCategoryQueryArgs(
+                    String identifier) {
+                    Pair<QueryQuery.CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> original = super.generateCategoryQueryArgs(
+                        identifier);
+                    FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
+                    CategoryFilterInput filter = new CategoryFilterInput().setIds(identifierFilter);
+                    return new ImmutablePair<>(q -> q.filters(filter), original.getRight());
+                }
+            };
+            categoryRetriever.setIdentifier(mutableSearchOptions.getAllFilters().get(CATEGORY_ID_FILTER));
+            category = categoryRetriever.fetchCategory();
         }
 
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
