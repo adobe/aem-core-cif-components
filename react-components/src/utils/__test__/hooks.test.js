@@ -58,6 +58,35 @@ describe('Custom hooks', () => {
     describe('usePageType', () => {
         beforeEach(() => {
             document.body.innerHTML = '';
+            document.head.innerHTML = '';
+        });
+
+        it('detects the homepage via template', () => {
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'template');
+            meta.setAttribute('content', 'landing-page');
+            document.head.appendChild(meta);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('CMS');
+        });
+
+        it('it detects the homepage via canonical url', () => {
+            const link = document.createElement('link');
+            link.setAttribute('rel', 'canonical');
+            link.setAttribute('href', '/content/site/us/en.html');
+            document.head.appendChild(link);
+
+            const storeConfig = { storeRootUrl: '/content/site/us/en.html' };
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'store-config');
+            meta.setAttribute('content', JSON.stringify(storeConfig));
+            document.head.appendChild(meta);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('CMS');
         });
 
         it('detects a product page', () => {
@@ -80,10 +109,30 @@ describe('Custom hooks', () => {
             expect(result.current).toEqual('Category');
         });
 
-        it('detects a CMS page', () => {
+        it('detects the cart page', () => {
+            const cmp = document.createElement('div');
+            cmp.className = 'cartcontainer__root';
+            document.body.appendChild(cmp);
+
             const { result } = renderHook(() => usePageType());
 
-            expect(result.current).toEqual('CMS');
+            expect(result.current).toEqual('Cart');
+        });
+
+        it('detects the checkout page', () => {
+            const cmp = document.createElement('div');
+            cmp.className = 'checkoutpage__root';
+            document.body.appendChild(cmp);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('Checkout');
+        });
+
+        it('detects a content page', () => {
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('PageBuilder');
         });
     });
 });
