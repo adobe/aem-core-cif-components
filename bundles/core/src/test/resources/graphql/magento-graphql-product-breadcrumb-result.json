@@ -6,8 +6,35 @@
           "__typename": "ConfigurableProduct",
           "sku": "MT10",
           "url_key": "tiberius-gym-tank",
+          "url_rewrites": [
+            {
+              "url": "tiberius-gym-tank"
+            },
+            {
+              "url": "men/tiberius-gym-tank"
+            },
+            {
+              "url": "men/tops-men/tiberius-gym-tank"
+            },
+            {
+              "url": "men/tops-men/tanks-men/tiberius-gym-tank"
+            },
+            {
+              "url": "men/collections-men/tiberius-gym-tank"
+            },
+            {
+              "url": "men/collections-men/summer-2022-men/tiberius-gym-tank"
+            }
+          ],
           "name": "Tiberius Gym Tank",
           "categories": [
+            {
+              "__typename": "CategoryTree",
+              "uid": "MTI=",
+              "url_path": "men",
+              "name": "Men",
+              "breadcrumbs": []
+            },
             {
               "__typename": "CategoryTree",
               "uid": "MTM=",
@@ -36,6 +63,37 @@
                   "category_uid": "MTM=",
                   "category_url_path": "men/tops-men",
                   "category_name": "Tops"
+                }
+              ]
+            },
+            {
+              "__typename": "CategoryTree",
+              "uid": "MTF=",
+              "url_path": "men/collections-men",
+              "name": "Collections",
+              "breadcrumbs": [
+                {
+                  "category_uid": "MTI=",
+                  "category_url_path": "men",
+                  "category_name": "Men"
+                }
+              ]
+            },
+            {
+              "__typename": "CategoryTree",
+              "uid": "MTR=",
+              "url_path": "men/collections-men/summer-2022-men",
+              "name": "Summer 2022",
+              "breadcrumbs": [
+                {
+                  "category_uid": "MTI=",
+                  "category_url_path": "men",
+                  "category_name": "Men"
+                },
+                {
+                  "category_uid": "MTF=",
+                  "category_url_path": "men/collections-men",
+                  "category_name": "Collections"
                 }
               ]
             }

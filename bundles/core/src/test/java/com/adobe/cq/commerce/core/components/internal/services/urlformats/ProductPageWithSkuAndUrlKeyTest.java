@@ -92,6 +92,8 @@ public class ProductPageWithSkuAndUrlKeyTest {
         assertNull(parameters.getSku());
         assertNull(parameters.getUrlKey());
         assertNull(parameters.getUrlPath());
+        assertNull(parameters.getCategoryUrlParams().getUrlKey());
+        assertNull(parameters.getCategoryUrlParams().getUrlPath());
     }
 
     @Test

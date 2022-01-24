@@ -21,13 +21,11 @@ import org.apache.sling.api.request.RequestPathInfo;
 
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 
-import static com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath.extractCategoryUrlFormatParams;
+public class ProductPageWithSkuCategoryAndUrlKey extends UrlFormatBase implements ProductUrlFormat {
+    public static final ProductUrlFormat INSTANCE = new ProductPageWithSkuCategoryAndUrlKey();
+    public static final String PATTERN = "{{page}}.html/{{sku}}/{{category}}/{{url_key}}.html#{{variant_sku}}";
 
-public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements ProductUrlFormat {
-    public static final ProductUrlFormat INSTANCE = new ProductPageWithSkuAndUrlPath();
-    public static final String PATTERN = "{{page}}.html/{{sku}}/{{url_path}}.html#{{variant_sku}}";
-
-    private ProductPageWithSkuAndUrlPath() {
+    private ProductPageWithSkuCategoryAndUrlKey() {
         super();
     }
 
@@ -37,10 +35,15 @@ public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements Produ
         String contextUrlPath = parameters.getCategoryUrlParams().getUrlPath();
         String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
         String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey, contextUrlKey, contextUrlPath);
+        String[] categoryUrlParams = extractCategoryUrlFormatParams(urlPath);
+        String category = getUrlKey(categoryUrlParams[1], categoryUrlParams[0]);
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
             + HTML_EXTENSION_AND_SUFFIX
             + StringUtils.defaultIfEmpty(parameters.getSku(), "{{sku}}")
-            + (urlPath != null ? "/" + urlPath + HTML_EXTENSION : HTML_EXTENSION)
+            // as this url works without url_key, add the category only if both are konwn. otherwise the format would ambiguous.
+            + (urlKey != null && category != null ? "/" + category : "")
+            // this url format works also without the url_key
+            + (urlKey != null ? "/" + urlKey + HTML_EXTENSION : HTML_EXTENSION)
             + getOptionalAnchor(parameters.getVariantSku());
     }
 
@@ -55,20 +58,15 @@ public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements Produ
         params.setPage(removeJcrContent(requestPathInfo.getResourcePath()));
         String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
         if (StringUtils.isNotBlank(suffix)) {
-            if (suffix.indexOf("/") > 0) {
-                params.setSku(StringUtils.substringBefore(suffix, "/"));
-                String urlPath = StringUtils.substringAfter(suffix, "/");
-                int lastSlash = urlPath.lastIndexOf("/");
-
-                if (lastSlash > 0) {
-                    params.setUrlKey(urlPath.substring(lastSlash + 1));
-                    String[] categoryParams = extractCategoryUrlFormatParams(urlPath);
-                    params.getCategoryUrlParams().setUrlKey(categoryParams[0]);
-                    params.getCategoryUrlParams().setUrlPath(categoryParams[1]);
-                } else {
-                    params.setUrlKey(urlPath);
+            int firstSlash = suffix.indexOf("/");
+            int lastSlash = suffix.lastIndexOf("/");
+            if (firstSlash > 0) {
+                params.setSku(suffix.substring(0, firstSlash));
+                if (lastSlash > firstSlash) {
+                    params.getCategoryUrlParams().setUrlKey(suffix.substring(firstSlash + 1, lastSlash));
                 }
-                params.setUrlPath(urlPath);
+                // else lastSlash == firstSlash
+                params.setUrlKey(suffix.substring(lastSlash + 1));
             } else {
                 params.setSku(suffix);
             }
@@ -82,15 +80,13 @@ public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements Produ
         String contextUrlPath = parameters.getCategoryUrlParams().getUrlPath();
         String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
         String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey, contextUrlKey, contextUrlPath);
-        String[] categoryParams = extractCategoryUrlFormatParams(urlPath);
+        String[] categoryUrlParams = extractCategoryUrlFormatParams(urlPath);
 
         Params copy = new Params();
         copy.setPage(parameters.getPage());
         copy.setSku(parameters.getSku());
         copy.setUrlKey(urlKey);
-        copy.setUrlPath(urlPath);
-        copy.getCategoryUrlParams().setUrlKey(categoryParams[0]);
-        copy.getCategoryUrlParams().setUrlPath(categoryParams[1]);
+        copy.getCategoryUrlParams().setUrlKey(categoryUrlParams[0]);
 
         return copy;
     }

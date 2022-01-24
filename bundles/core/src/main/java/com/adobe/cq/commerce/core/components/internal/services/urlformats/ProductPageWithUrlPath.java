@@ -31,11 +31,10 @@ public class ProductPageWithUrlPath extends UrlFormatBase implements ProductUrlF
 
     @Override
     public String format(Params parameters) {
+        String contextUrlKey = parameters.getCategoryUrlParams().getUrlKey();
+        String contextUrlPath = parameters.getCategoryUrlParams().getUrlPath();
         String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
-        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey);
-        if (urlPath == null && urlKey != null) {
-            urlPath = urlKey;
-        }
+        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey, contextUrlKey, contextUrlPath);
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
             + HTML_EXTENSION_AND_SUFFIX
             + (urlPath != null ? urlPath : "{{url_path}}")
@@ -54,23 +53,35 @@ public class ProductPageWithUrlPath extends UrlFormatBase implements ProductUrlF
         params.setPage(removeJcrContent(requestPathInfo.getResourcePath()));
         String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
         if (StringUtils.isNotBlank(suffix)) {
+            int lastSlash = suffix.lastIndexOf("/");
+            if (lastSlash > 0) {
+                params.setUrlKey(suffix.substring(lastSlash + 1));
+                String[] categoryParams = extractCategoryUrlFormatParams(suffix);
+                params.getCategoryUrlParams().setUrlKey(categoryParams[0]);
+                params.getCategoryUrlParams().setUrlPath(categoryParams[1]);
+            } else {
+                params.setUrlKey(suffix);
+            }
             params.setUrlPath(suffix);
-            params.setUrlKey(suffix.indexOf("/") > 0 ? StringUtils.substringAfterLast(suffix, "/") : suffix);
         }
         return params;
     }
 
     @Override
     public Params retainParsableParameters(Params parameters) {
+        String contextUrlKey = parameters.getCategoryUrlParams().getUrlKey();
+        String contextUrlPath = parameters.getCategoryUrlParams().getUrlPath();
         String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
-        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey);
-        if (urlPath == null && urlKey != null) {
-            urlPath = urlKey;
-        }
+        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey, contextUrlKey, contextUrlPath);
+        String[] categoryParams = extractCategoryUrlFormatParams(urlPath);
+
         Params copy = new Params();
         copy.setPage(parameters.getPage());
         copy.setUrlKey(urlKey);
         copy.setUrlPath(urlPath);
+        copy.getCategoryUrlParams().setUrlKey(categoryParams[0]);
+        copy.getCategoryUrlParams().setUrlPath(categoryParams[1]);
+
         return copy;
     }
 }

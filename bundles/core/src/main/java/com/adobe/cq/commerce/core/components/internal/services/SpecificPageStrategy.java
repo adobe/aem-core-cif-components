@@ -30,8 +30,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
@@ -45,11 +43,14 @@ import com.day.cq.wcm.api.Page;
 @Designate(ocd = SpecificPageStrategy.Configuration.class)
 public class SpecificPageStrategy {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SpecificPageStrategy.class);
     private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
     private static final String SELECTOR_FILTER_TYPE_PROPERTY = SELECTOR_FILTER_PROPERTY + "Type";
     private static final String INCLUDES_SUBCATEGORIES_PROPERTY = "includesSubCategories";
     private static final String UID_AND_URL_PATH_SEPARATOR = "|";
+    /**
+     * Same as {@link SpecificPageStrategy#SELECTOR_FILTER_PROPERTY} but used for product pages
+     **/
+    private static final String PN_USE_FOR_CATEGORIES = "useForCategories";
 
     @ObjectClassDefinition(name = "CIF URL Provider Specific Page Strategy")
     public @interface Configuration {
@@ -85,19 +86,50 @@ public class SpecificPageStrategy {
             .flatMap(child -> Stream.concat(traverse(child), Stream.of(child)))
             // include only pages that have a filter set
             .filter(child -> Optional.ofNullable(child.getProperties())
-                .filter(properties -> properties.get(SELECTOR_FILTER_PROPERTY, String[].class) != null)
+                .filter(properties -> properties.get(SELECTOR_FILTER_PROPERTY, String[].class) != null
+                    || properties.get(PN_USE_FOR_CATEGORIES, String[].class) != null)
                 .isPresent());
     }
 
     public Page getSpecificPage(Page startPage, ProductUrlFormat.Params params) {
+        boolean checkCategoryUrlPath = StringUtils.isNotEmpty(params.getCategoryUrlParams().getUrlPath());
+        boolean checkCategoryUrlKey = StringUtils.isNotEmpty(params.getCategoryUrlParams().getUrlKey());
+
         Iterable<Page> candidates = traverse(startPage)::iterator;
         for (Page candidate : candidates) {
             ValueMap properties = candidate.getProperties();
-            String[] productUrlKeys = properties.get(SELECTOR_FILTER_PROPERTY, String[].class);
+            String[] productUrlKeys = properties.get(SELECTOR_FILTER_PROPERTY, new String[0]);
+
             for (String productUrlKey : productUrlKeys) {
                 if (productUrlKey.equals(params.getUrlKey())
                     || productUrlKey.equals(params.getSku())) {
                     return candidate;
+                }
+            }
+
+            if (!checkCategoryUrlKey && !checkCategoryUrlPath) {
+                continue;
+            }
+
+            String[] categoryUrlPaths = properties.get(PN_USE_FOR_CATEGORIES, new String[0]);
+            boolean includesSubCategories = properties.get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
+            CategoryUrlFormat.Params categoryParams = params.getCategoryUrlParams();
+
+            if (checkCategoryUrlPath) {
+                for (String categoryUrlPath : categoryUrlPaths) {
+                    if (categoryUrlPath.equals(categoryParams.getUrlPath())
+                        || (includesSubCategories && StringUtils.startsWith(categoryParams.getUrlPath(), categoryUrlPath + "/"))) {
+                        return candidate;
+                    }
+                }
+            }
+
+            if (checkCategoryUrlKey) {
+                for (String categoryUrlPath : categoryUrlPaths) {
+                    String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath, "/");
+                    if (categoryUrlPath.equals(categoryParams.getUrlKey()) || categoryUrlKey.equals(categoryParams.getUrlKey())) {
+                        return candidate;
+                    }
                 }
             }
         }
@@ -114,7 +146,7 @@ public class SpecificPageStrategy {
         Iterable<Page> candidates = traverse(startPage)::iterator;
         for (Page candidate : candidates) {
             ValueMap properties = candidate.getProperties();
-            String[] filters = properties.get(SELECTOR_FILTER_PROPERTY, String[].class);
+            String[] filters = properties.get(SELECTOR_FILTER_PROPERTY, new String[0]);
             String filterType = properties.get(SELECTOR_FILTER_TYPE_PROPERTY, "uidAndUrlPath");
             boolean includesSubCategories = properties.get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
 

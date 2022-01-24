@@ -34,6 +34,14 @@
           "selectorFilter": "productId1.1",
           "cq:template": "/conf/venia/settings/wcm/templates/anything"
         }
+      },
+      "nested-page-category": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType":"cq:PageContent",
+          "useForCategories": "category-b",
+          "cq:template": "/conf/venia/settings/wcm/templates/anything"
+        }
       }
     },
     "sub-page-no-jcr-content": {
@@ -45,6 +53,15 @@
         "jcr:primaryType": "cq:PageContent",
         "selectorFilter": "productId2",
         "cq:template": "/conf/venia/settings/wcm/templates/anything"
+      }
+    },
+    "sub-page-3": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "cq:template": "/conf/venia/settings/wcm/templates/anything",
+        "useForCategories": ["women", "men/men-tops" ],
+        "includesSubCategories": true
       }
     }
   },
