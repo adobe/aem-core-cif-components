@@ -94,7 +94,6 @@ export const useStorefrontEvents = () => {
 };
 
 export const usePageType = () => {
-
     const PageTypes = {
         // Pages with landing-page template or pages that match the store root URL
         // as defined in the store config.
