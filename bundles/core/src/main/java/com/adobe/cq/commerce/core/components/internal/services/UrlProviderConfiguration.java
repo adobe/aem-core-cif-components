@@ -21,9 +21,11 @@ import org.osgi.service.metatype.annotations.Option;
 
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithCategoryAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuCategoryAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
 
@@ -35,32 +37,46 @@ public @interface UrlProviderConfiguration {
         description = "Defines the format of a product page URL.",
         options = {
             @Option(
-                label = "Suffix with product sku : " + ProductPageWithSku.PATTERN,
+                label = "Suffix with sku: " + ProductPageWithSku.PATTERN,
                 value = ProductPageWithSku.PATTERN),
             @Option(
-                label = "Suffix with product sku & url_key : " + ProductPageWithSkuAndUrlKey.PATTERN,
+                label = "Suffix with sku & product url_key: " + ProductPageWithSkuAndUrlKey.PATTERN,
                 value = ProductPageWithSkuAndUrlKey.PATTERN),
             @Option(
-                label = "Suffix with product sku & url_path : " + ProductPageWithSkuAndUrlPath.PATTERN,
+                label = "Suffix with sku & category & product url_key: " + ProductPageWithSkuCategoryAndUrlKey.PATTERN,
+                value = ProductPageWithSkuCategoryAndUrlKey.PATTERN),
+            @Option(
+                label = "Suffix with sku & product url_path: " + ProductPageWithSkuAndUrlPath.PATTERN,
                 value = ProductPageWithSkuAndUrlPath.PATTERN),
             @Option(
-                label = "Suffix with product url_key : " + ProductPageWithUrlKey.PATTERN,
+                label = "Suffix with product url_key: " + ProductPageWithUrlKey.PATTERN,
                 value = ProductPageWithUrlKey.PATTERN),
             @Option(
-                label = "Suffix with product url_path : " + ProductPageWithUrlPath.PATTERN,
-                value = ProductPageWithUrlPath.PATTERN)
+                label = "Suffix with category & product url_key: " + ProductPageWithCategoryAndUrlKey.PATTERN,
+                value = ProductPageWithCategoryAndUrlKey.PATTERN),
+            @Option(
+                label = "Suffix with product url_path: " + ProductPageWithUrlPath.PATTERN,
+                value = ProductPageWithUrlPath.PATTERN),
         })
     String productPageUrlFormat() default ProductPageWithUrlKey.PATTERN;
+
+    @AttributeDefinition(
+        name = "Enabled context-aware product urls",
+        description = "If enabled the CIF URL Provider will take the category context into account to create product page urls. For "
+            + "those product page url formats, which encode category identifiers, this means that the given category context will be "
+            + "preferred over the canonical form when selecting the product url. The category context can either be given explicitly by "
+            + "components such as the Product List Component or implicitly by the page the user is on. Defaults to false")
+    boolean enableContextAwareProductUrls() default false;
 
     @AttributeDefinition(
         name = "Category page url format",
         description = "Defines the format of a category page URL.",
         options = {
             @Option(
-                label = "Suffix with product url_key : " + CategoryPageWithUrlKey.PATTERN,
+                label = "Suffix with product url_key: " + CategoryPageWithUrlKey.PATTERN,
                 value = CategoryPageWithUrlKey.PATTERN),
             @Option(
-                label = "Suffix with product url_path : " + CategoryPageWithUrlPath.PATTERN,
+                label = "Suffix with product url_path: " + CategoryPageWithUrlPath.PATTERN,
                 value = CategoryPageWithUrlPath.PATTERN)
         })
     String categoryPageUrlFormat() default CategoryPageWithUrlPath.PATTERN;

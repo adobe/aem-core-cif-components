@@ -89,4 +89,19 @@ public class CategoryPageWithUrlKeyTest {
         assertEquals("/page/path", parameters.getPage());
         assertNull(parameters.getUrlKey());
     }
+
+    @Test
+    public void testRetainParsableParameters() {
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setPage("/page/path");
+        params.setUid("uid");
+        params.setUrlKey("url-key");
+        params.setUrlPath("url-path/url-key");
+
+        params = subject.retainParsableParameters(params);
+        assertNull(params.getUid());
+        assertNull(params.getUrlPath());
+        assertEquals("/page/path", params.getPage());
+        assertEquals("url-key", params.getUrlKey());
+    }
 }

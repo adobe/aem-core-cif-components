@@ -15,30 +15,25 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl;
-import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
-import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.day.cq.commons.jcr.JcrConstants;
-import com.day.cq.wcm.api.NameConstants;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
+import com.day.cq.wcm.api.Page;
 
 /**
  * This Component is used by the {@link UrlProviderImpl} to get a specific page for a given product page. If it is not enabled the
@@ -48,11 +43,14 @@ import com.day.cq.wcm.api.NameConstants;
 @Designate(ocd = SpecificPageStrategy.Configuration.class)
 public class SpecificPageStrategy {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SpecificPageStrategy.class);
     private static final String SELECTOR_FILTER_PROPERTY = "selectorFilter";
     private static final String SELECTOR_FILTER_TYPE_PROPERTY = SELECTOR_FILTER_PROPERTY + "Type";
     private static final String INCLUDES_SUBCATEGORIES_PROPERTY = "includesSubCategories";
     private static final String UID_AND_URL_PATH_SEPARATOR = "|";
+    /**
+     * Same as {@link SpecificPageStrategy#SELECTOR_FILTER_PROPERTY} but used for product pages
+     **/
+    private static final String PN_USE_FOR_CATEGORIES = "useForCategories";
 
     @ObjectClassDefinition(name = "CIF URL Provider Specific Page Strategy")
     public @interface Configuration {
@@ -81,93 +79,140 @@ public class SpecificPageStrategy {
         return generateSpecificPageUrls;
     }
 
-    /**
-     * This method checks if any of the children of the given <code>page</code> resource is a page with a <code>selectorFilter</code>
-     * property set with the value of the given <code>selector</code>.
-     *
-     * @param page The page resource, from where children pages will be checked.
-     * @param selectors The searched value for the <code>selectorFilter</code> property.
-     * @param request The current Sling HTTP Servlet request.
-     * @param params The map of parameters relevant to create a url
-     * @return If found, a child page resource that contains the given <code>selectorFilter</code> value. If not found, this method returns
-     *         null.
-     */
-    public Resource getSpecificPage(Resource page, Set<String> selectors, SlingHttpServletRequest request, Map<String, String> params) {
-        ProductList productList = null;
-        String currentUrlPath = null;
-        Iterable<Resource> children = page != null ? page.getChildren() : Collections.emptyList();
+    private Stream<Page> traverse(Page startPage) {
+        Iterable<Page> children = startPage != null ? startPage::listChildren : Collections.emptyList();
+        return StreamSupport.stream(children.spliterator(), false)
+            // depth first traversal
+            .flatMap(child -> Stream.concat(traverse(child), Stream.of(child)))
+            // include only pages that have a filter set
+            .filter(child -> Optional.ofNullable(child.getProperties())
+                .filter(properties -> properties.get(SELECTOR_FILTER_PROPERTY, String[].class) != null
+                    || properties.get(PN_USE_FOR_CATEGORIES, String[].class) != null)
+                .isPresent());
+    }
 
-        for (Resource child : children) {
-            if (!NameConstants.NT_PAGE.equals(child.getResourceType())) {
-                continue;
-            }
+    public Page getSpecificPage(Page startPage, ProductUrlFormat.Params params) {
+        boolean checkCategoryUrlPath = StringUtils.isNotEmpty(params.getCategoryUrlParams().getUrlPath());
+        boolean checkCategoryUrlKey = StringUtils.isNotEmpty(params.getCategoryUrlParams().getUrlKey());
 
-            if (child.hasChildren()) {
-                final Resource grandChild = getSpecificPage(child, selectors, request, params);
-                if (grandChild != null) {
-                    return grandChild;
+        Iterable<Page> candidates = traverse(startPage)::iterator;
+        for (Page candidate : candidates) {
+            ValueMap properties = candidate.getProperties();
+            String[] productUrlKeys = properties.get(SELECTOR_FILTER_PROPERTY, new String[0]);
+
+            for (String productUrlKey : productUrlKeys) {
+                if (productUrlKey.equals(params.getUrlKey())
+                    || productUrlKey.equals(params.getSku())) {
+                    return candidate;
                 }
             }
 
-            Resource jcrContent = child.getChild(JcrConstants.JCR_CONTENT);
-            if (jcrContent == null) {
+            if (!checkCategoryUrlKey && !checkCategoryUrlPath) {
                 continue;
             }
 
-            Object filter = jcrContent.getValueMap().get(SELECTOR_FILTER_PROPERTY);
-            if (filter == null) {
-                continue;
-            }
+            String[] categoryUrlPaths = properties.get(PN_USE_FOR_CATEGORIES, new String[0]);
+            boolean includesSubCategories = properties.get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
+            CategoryUrlFormat.Params categoryParams = params.getCategoryUrlParams();
 
-            // get the filterType property set by the picker
-            String filterType = jcrContent.getValueMap().get(SELECTOR_FILTER_TYPE_PROPERTY, "uidAndUrlPath");
-
-            // The property is saved as a String when it's a simple selection, or an array when a multi-selection is done
-            String[] selectorFilters = filter.getClass().isArray() ? ((String[]) filter) : ArrayUtils.toArray((String) filter);
-
-            // When used with the category picker and the 'uidAndUrlPath' option, the values might have a format like 'Mjg=|men/men-tops'
-            // --> so we split them to first extract the category ids
-            // V2 of the component uses 'urlPath' and does not requiere any processing
-            Stream<String> selectorFilterStream = Arrays.stream(selectorFilters);
-            if (StringUtils.equals(filterType, "uidAndUrlPath")) {
-                selectorFilterStream = selectorFilterStream
-                    .map(s -> StringUtils.contains(s, UID_AND_URL_PATH_SEPARATOR)
-                        ? StringUtils.substringAfter(s, UID_AND_URL_PATH_SEPARATOR)
-                        : s);
-            }
-
-            Set<String> selectorFilterSet = selectorFilterStream.filter(StringUtils::isNotEmpty).collect(Collectors.toSet());
-
-            if (!selectorFilterSet.isEmpty()) {
-                for (String selector : selectors) {
-                    if (selectorFilterSet.contains(selector)) {
-                        LOGGER.debug("Page has a matching sub-page for selector {} at {}", selector, child.getPath());
-                        return child;
+            if (checkCategoryUrlPath) {
+                for (String categoryUrlPath : categoryUrlPaths) {
+                    if (categoryUrlPath.equals(categoryParams.getUrlPath())
+                        || (includesSubCategories && StringUtils.startsWith(categoryParams.getUrlPath(), categoryUrlPath + "/"))) {
+                        return candidate;
                     }
                 }
+            }
 
-                boolean includesSubCategories = jcrContent.getValueMap().get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
-                if (includesSubCategories) {
-                    // The currentUrlPath being processed is either coming from:
-                    // 1) the ProductList model when a category page is being rendered
-                    // 2) the params map when the any model renders a category link
+            if (checkCategoryUrlKey) {
+                for (String categoryUrlPath : categoryUrlPaths) {
+                    String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath, "/");
+                    if (categoryUrlPath.equals(categoryParams.getUrlKey()) || categoryUrlKey.equals(categoryParams.getUrlKey())) {
+                        return candidate;
+                    }
+                }
+            }
+        }
 
-                    if (currentUrlPath == null) {
-                        if (params != null && params.containsKey(UrlProvider.URL_PATH_PARAM)) {
-                            currentUrlPath = params.get(UrlProvider.URL_PATH_PARAM);
-                        } else if (request != null && productList == null) {
-                            productList = request.adaptTo(ProductList.class);
-                            if (productList instanceof ProductListImpl) {
-                                currentUrlPath = ((ProductListImpl) productList).getUrlPath();
-                            }
+        return null;
+    }
+
+    public Page getSpecificPage(Page startPage, CategoryUrlFormat.Params params) {
+        // check for uids only as fallback when there is no url_path and url_key
+        boolean checkUids = StringUtils.isNotEmpty(params.getUid());
+        boolean checkUrlPath = StringUtils.isNotEmpty(params.getUrlPath());
+        boolean checkUrlKey = StringUtils.isNotEmpty(params.getUrlKey());
+
+        Iterable<Page> candidates = traverse(startPage)::iterator;
+        for (Page candidate : candidates) {
+            ValueMap properties = candidate.getProperties();
+            String[] filters = properties.get(SELECTOR_FILTER_PROPERTY, new String[0]);
+            String filterType = properties.get(SELECTOR_FILTER_TYPE_PROPERTY, "uidAndUrlPath");
+            boolean includesSubCategories = properties.get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
+
+            List<String> categoryUrlPaths;
+            List<String> categoryUids;
+
+            if (filterType.equals("uidAndUrlPath")) {
+                categoryUrlPaths = new ArrayList<>(filters.length);
+                categoryUids = checkUids ? new ArrayList<>(filters.length) : null;
+                // When used with the category picker and the 'uidAndUrlPath' option, the values might have a format like
+                // 'Mjg=|men/men-tops'.
+                // if there is no uid in the params we ignore the uid
+
+                for (String filter : filters) {
+                    if (StringUtils.isNotEmpty(filter) && !StringUtils.contains(filter, UID_AND_URL_PATH_SEPARATOR)) {
+                        // weird data, should not happen but is used in tests
+                        // consider the filter to be both
+                        categoryUrlPaths.add(filter);
+                        if (checkUids) {
+                            categoryUids.add(filter);
+                        }
+                        continue;
+                    }
+
+                    if (checkUids) {
+                        String uid = StringUtils.substringBefore(filter, UID_AND_URL_PATH_SEPARATOR);
+                        if (StringUtils.isNotEmpty(uid)) {
+                            categoryUids.add(uid);
                         }
                     }
 
-                    for (String urlPath : selectorFilterSet) {
-                        if (StringUtils.startsWith(currentUrlPath, urlPath + "/")) {
-                            LOGGER.debug("Page has a matching sub-page for url_path {} at {}", urlPath, child.getPath());
-                            return child;
-                        }
+                    String urlPath = StringUtils.substringAfter(filter, UID_AND_URL_PATH_SEPARATOR);
+                    if (StringUtils.isNotEmpty(urlPath)) {
+                        categoryUrlPaths.add(urlPath);
+                    }
+                }
+            } else {
+                categoryUrlPaths = Arrays.asList(filters);
+                categoryUids = null;
+            }
+
+            // check for url path
+            if (checkUrlPath) {
+                for (String categoryUrlPath : categoryUrlPaths) {
+                    if (categoryUrlPath.equals(params.getUrlPath())
+                        || (includesSubCategories && StringUtils.startsWith(params.getUrlPath(), categoryUrlPath + "/"))) {
+                        return candidate;
+                    }
+                }
+            }
+
+            // check for url key
+            if (checkUrlKey) {
+                for (String categoryUrlPath : categoryUrlPaths) {
+                    String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath, "/");
+                    if (categoryUrlPath.equals(params.getUrlKey()) || categoryUrlKey.equals(params.getUrlKey())) {
+                        return candidate;
+                    }
+                }
+            }
+
+            // check for uid last, as fallback
+            if (checkUids && categoryUids != null) {
+                for (String categoryUid : categoryUids) {
+                    if (categoryUid.equals(params.getUid())) {
+                        return candidate;
                     }
                 }
             }

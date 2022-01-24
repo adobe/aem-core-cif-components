@@ -21,20 +21,27 @@ import org.apache.sling.api.request.RequestPathInfo;
 
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 
-public class ProductPageWithUrlKey extends UrlFormatBase implements ProductUrlFormat {
-    public static final ProductUrlFormat INSTANCE = new ProductPageWithUrlKey();
-    public static final String PATTERN = "{{page}}.html/{{url_key}}.html#{{variant_sku}}";
+public class ProductPageWithCategoryAndUrlKey extends UrlFormatBase implements ProductUrlFormat {
+    public static final ProductUrlFormat INSTANCE = new ProductPageWithCategoryAndUrlKey();
+    public static final String PATTERN = "{{page}}.html/{{category}}/{{url_key}}.html#{{variant_sku}}";
 
-    private ProductPageWithUrlKey() {
+    private ProductPageWithCategoryAndUrlKey() {
         super();
     }
 
     @Override
     public String format(Params parameters) {
-        ;
+        String contextUrlKey = parameters.getCategoryUrlParams().getUrlKey();
+        String contextUrlPath = parameters.getCategoryUrlParams().getUrlPath();
+        String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
+        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey, contextUrlKey, contextUrlPath);
+        String[] categoryUrlParams = extractCategoryUrlFormatParams(urlPath);
+        String category = getUrlKey(categoryUrlParams[1], categoryUrlParams[0]);
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
             + HTML_EXTENSION_AND_SUFFIX
-            + StringUtils.defaultIfEmpty(getUrlKey(parameters.getUrlPath(), parameters.getUrlKey()), "{{url_key}}")
+            // this url format works also without the category
+            + (category != null ? category + "/" : "")
+            + StringUtils.defaultIfEmpty(urlKey, "{{url_key}}")
             + HTML_EXTENSION
             + getOptionalAnchor(parameters.getVariantSku());
     }
@@ -50,16 +57,30 @@ public class ProductPageWithUrlKey extends UrlFormatBase implements ProductUrlFo
         params.setPage(removeJcrContent(requestPathInfo.getResourcePath()));
         String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
         if (StringUtils.isNotBlank(suffix)) {
-            params.setUrlKey(suffix);
+            int slash = suffix.indexOf("/");
+            if (slash > 0) {
+                params.getCategoryUrlParams().setUrlKey(suffix.substring(0, slash));
+                params.setUrlKey(suffix.substring(slash + 1));
+            } else {
+                params.setUrlKey(suffix);
+            }
         }
         return params;
     }
 
     @Override
     public Params retainParsableParameters(Params parameters) {
+        String contextUrlKey = parameters.getCategoryUrlParams().getUrlKey();
+        String contextUrlPath = parameters.getCategoryUrlParams().getUrlPath();
+        String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
+        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey, contextUrlKey, contextUrlPath);
+        String[] categoryUrlParams = extractCategoryUrlFormatParams(urlPath);
+
         Params copy = new Params();
         copy.setPage(parameters.getPage());
-        copy.setUrlKey(getUrlKey(parameters.getUrlPath(), parameters.getUrlKey()));
+        copy.setUrlKey(urlKey);
+        copy.getCategoryUrlParams().setUrlKey(categoryUrlParams[0]);
+
         return copy;
     }
 }

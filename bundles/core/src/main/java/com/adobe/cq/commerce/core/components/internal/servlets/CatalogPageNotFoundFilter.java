@@ -32,6 +32,7 @@ import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.engine.EngineConstants;
 import org.apache.sling.scripting.core.ScriptHelper;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -63,7 +64,8 @@ import com.day.cq.wcm.api.PageManagerFactory;
         EngineConstants.SLING_FILTER_EXTENSIONS + "=html",
         EngineConstants.SLING_FILTER_EXTENSIONS + "=json",
         // since 6.5 / Sling Engine Impl 2.7
-        "sling.filter.resource.pattern=/content(/.+)?"
+        "sling.filter.resource.pattern=/content(/.+)?",
+        Constants.SERVICE_RANKING + ":Integer=-6000"
     })
 public class CatalogPageNotFoundFilter implements Filter {
 

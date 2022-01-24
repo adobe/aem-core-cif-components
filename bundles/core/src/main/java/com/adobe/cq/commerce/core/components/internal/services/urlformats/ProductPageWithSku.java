@@ -53,4 +53,12 @@ public class ProductPageWithSku extends UrlFormatBase implements ProductUrlForma
         }
         return params;
     }
+
+    @Override
+    public Params retainParsableParameters(Params parameters) {
+        Params copy = new Params();
+        copy.setPage(parameters.getPage());
+        copy.setSku(parameters.getSku());
+        return copy;
+    }
 }

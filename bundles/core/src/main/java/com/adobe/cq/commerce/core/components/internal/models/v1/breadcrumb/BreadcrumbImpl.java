@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -39,9 +40,11 @@ import org.apache.sling.models.annotations.via.ForcedResourceType;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.UrlFormatBase;
 import com.adobe.cq.commerce.core.components.models.breadcrumb.Breadcrumb;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -132,7 +135,8 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
                 if (StringUtils.isEmpty(productSku)) {
                     return;
                 }
-                categoriesBreadcrumbs = fetchProductBreadcrumbs(productSku, magentoGraphqlClient);
+                ProductUrlFormat.Params urlParmas = urlProvider.parseProductUrlFormatParameters(request);
+                categoriesBreadcrumbs = fetchProductBreadcrumbs(productSku, urlParmas, magentoGraphqlClient);
             } else if (isCategoryPage) {
                 String categoryUid = urlProvider.getCategoryIdentifier(request);
                 if (StringUtils.isEmpty(categoryUid)) {
@@ -221,11 +225,20 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             .reversed();
     }
 
-    private List<? extends CategoryInterface> fetchProductBreadcrumbs(String productSku, MagentoGraphqlClient magentoGraphqlClient) {
+    private List<? extends CategoryInterface> fetchProductBreadcrumbs(String productSku, ProductUrlFormat.Params urlParams,
+        MagentoGraphqlClient magentoGraphqlClient) {
         retriever = new BreadcrumbRetriever(magentoGraphqlClient);
         retriever.setProductIdentifier(productSku);
 
-        return retriever.fetchCategoriesBreadcrumbs();
+        List<? extends CategoryInterface> categories = retriever.fetchCategoriesBreadcrumbs();
+        List<String> alternatives = categories.stream().map(CategoryInterface::getUrlPath).collect(Collectors.toList());
+        String contextUrlPath = UrlFormatBase.selectUrlPath(null, alternatives, null, urlParams.getCategoryUrlParams().getUrlKey(),
+            urlParams.getCategoryUrlParams().getUrlPath());
+
+        // include only categories that are ancestors or descendants of the contextUrlPath
+        return categories.stream()
+            .filter(category -> contextUrlPath.startsWith(category.getUrlPath() + "/") || contextUrlPath.equals(category.getUrlPath()))
+            .collect(Collectors.toList());
     }
 
     private List<? extends CategoryInterface> fetchCategoryBreadcrumbs(String categoryUid, MagentoGraphqlClient magentoGraphqlClient) {

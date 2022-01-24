@@ -142,14 +142,14 @@ public class SiteNavigation {
         }
 
         if (StringUtils.isBlank(genericPagePath)) {
-            LOGGER.warn("Page property {} not found at {}", pageTypeProperty, page.getPath());
+            LOGGER.debug("Page property {} not found at {}", pageTypeProperty, page.getPath());
             return null;
         }
 
         PageManager pageManager = page.getPageManager();
         Page genericPage = pageManager.getPage(genericPagePath);
         if (genericPage == null) {
-            LOGGER.warn("No page found at {}", genericPagePath);
+            LOGGER.debug("No page found at {}", genericPagePath);
             return null;
         }
 
@@ -206,7 +206,7 @@ public class SiteNavigation {
             return false;
         }
 
-        // The product page might be in a Launch so we first extract the paths of the production versions
+        // The product page might be in a Launch, so we first extract the paths of the production versions
         String currentPagePath = currentPage.getPath().substring(currentPage.getPath().lastIndexOf("/content/"));
         String productPagePath = productPage.getPath().substring(productPage.getPath().lastIndexOf("/content/"));
 

@@ -52,4 +52,20 @@ public interface GenericUrlFormat<ParameterType> {
      * @return a map containing the parsed URL elements
      */
     ParameterType parse(RequestPathInfo requestPathInfo, RequestParameterMap parameterMap);
+
+    /**
+     * Implementations may return a subset of parameters from the given parameters when they parse less
+     * or other parameters then available for formatting.
+     * <p>
+     * An example would be a category url format that uses only the category uid but gets also url_key
+     * and url_path for formatting.
+     * <p>
+     * The default implementation simply returns the parameters given.
+     *
+     * @param parameters all URL parameters available for formatting
+     * @return a copy of the given parameters, reduced to those that would be available after parsing
+     */
+    default ParameterType retainParsableParameters(ParameterType parameters) {
+        return parameters;
+    }
 }
