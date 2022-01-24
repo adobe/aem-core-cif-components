@@ -89,7 +89,7 @@ describe('Custom hooks', () => {
             expect(result.current).toEqual('CMS');
         });
 
-        it('detects a product page', () => {
+        it('detects a product page via component', () => {
             const cmp = document.createElement('div');
             cmp.dataset.cifProductContext = '';
             document.body.appendChild(cmp);
@@ -99,10 +99,32 @@ describe('Custom hooks', () => {
             expect(result.current).toEqual('Product');
         });
 
-        it('detects a category page', () => {
+        it('detects a product page via template', () => {
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'template');
+            meta.setAttribute('content', 'product-page');
+            document.head.appendChild(meta);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('Product');
+        });
+
+        it('detects a category page via component', () => {
             const cmp = document.createElement('div');
             cmp.dataset.cifCategoryContext = '';
             document.body.appendChild(cmp);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('Category');
+        });
+
+        it('detects a category page via template', () => {
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'template');
+            meta.setAttribute('content', 'category-page');
+            document.head.appendChild(meta);
 
             const { result } = renderHook(() => usePageType());
 
