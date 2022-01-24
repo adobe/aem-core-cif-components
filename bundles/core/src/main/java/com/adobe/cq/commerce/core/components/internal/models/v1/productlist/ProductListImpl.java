@@ -180,8 +180,10 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Override
     public Collection<ProductListItem> getProducts() {
         if (usePlaceholderData) {
-            CategoryProducts categoryProducts = getCategory().getProducts();
-            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, getId());
+            CategoryInterface category = getCategory();
+            CategoryProducts categoryProducts = category.getProducts();
+            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, getId(),
+                category);
             return categoryProducts.getItems().stream()
                 .map(converter)
                 .filter(Objects::nonNull) // the converter returns null if the conversion fails

@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.wcm.api.Page;
 
@@ -38,13 +39,15 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
     private final Page productPage;
     private final UrlProvider urlProvider;
     private final SlingHttpServletRequest request;
+    private final CategoryInterface categoryContext;
 
     public ProductToProductListItemConverter(final Page productPage, final SlingHttpServletRequest request, final UrlProvider urlProvider,
-                                             String parentId) {
+                                             String parentId, CategoryInterface categoryContext) {
         this.parentId = parentId;
         this.productPage = productPage;
         this.request = request;
         this.urlProvider = urlProvider;
+        this.categoryContext = categoryContext;
     }
 
     @Override
@@ -52,6 +55,7 @@ public class ProductToProductListItemConverter implements Function<ProductInterf
         try {
             return new ProductListItemImpl.Builder(parentId, productPage, request, urlProvider)
                 .product(product)
+                .categoryContext(categoryContext)
                 .build();
         } catch (Exception e) {
             LOGGER.error("Failed to instantiate product " + product.getSku(), e);

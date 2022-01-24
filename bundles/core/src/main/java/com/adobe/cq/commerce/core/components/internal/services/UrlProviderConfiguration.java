@@ -61,6 +61,14 @@ public @interface UrlProviderConfiguration {
     String productPageUrlFormat() default ProductPageWithUrlKey.PATTERN;
 
     @AttributeDefinition(
+        name = "Enabled context-aware product urls",
+        description = "If enabled the CIF URL Provider will take the category context into account to create product page urls. For "
+            + "those product page url formats, which encode category identifiers, this means that the given category context will be "
+            + "preferred over the canonical form when selecting the product url. The category context can either be given explicitly by "
+            + "components such as the Product List Component or implicitly by the page the user is on. Defaults to false")
+    boolean enableContextAwareProductUrls() default false;
+
+    @AttributeDefinition(
         name = "Category page url format",
         description = "Defines the format of a category page URL.",
         options = {
