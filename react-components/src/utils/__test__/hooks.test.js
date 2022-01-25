@@ -72,10 +72,27 @@ describe('Custom hooks', () => {
             expect(result.current).toEqual('CMS');
         });
 
-        it('it detects the homepage via canonical url', () => {
+        it('it detects the homepage via canonical url (relative)', () => {
             const link = document.createElement('link');
             link.setAttribute('rel', 'canonical');
             link.setAttribute('href', '/content/site/us/en.html');
+            document.head.appendChild(link);
+
+            const storeConfig = { storeRootUrl: '/content/site/us/en.html' };
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'store-config');
+            meta.setAttribute('content', JSON.stringify(storeConfig));
+            document.head.appendChild(meta);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('CMS');
+        });
+
+        it('it detects the homepage via canonical url (absolute)', () => {
+            const link = document.createElement('link');
+            link.setAttribute('rel', 'canonical');
+            link.setAttribute('href', 'http://localhost:4502/content/site/us/en.html');
             document.head.appendChild(link);
 
             const storeConfig = { storeRootUrl: '/content/site/us/en.html' };

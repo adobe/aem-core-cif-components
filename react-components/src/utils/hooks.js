@@ -134,7 +134,7 @@ export const usePageType = () => {
         // Could not parse store config, ignore for now
     }
 
-    if (template == 'landing-page' || (canonicalUrl && storeRootUrl && canonicalUrl == storeRootUrl)) {
+    if (template == 'landing-page' || (canonicalUrl && storeRootUrl && canonicalUrl.endsWith(storeRootUrl))) {
         return PageTypes.CMS;
     }
     if (document.querySelector('[data-cif-product-context]') || template == 'product-page') {
