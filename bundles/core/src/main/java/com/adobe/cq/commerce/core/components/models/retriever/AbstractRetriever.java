@@ -37,7 +37,7 @@ public abstract class AbstractRetriever {
 
     public AbstractRetriever(MagentoGraphqlClient client) {
         if (client == null) {
-            throw new java.lang.Error("No GraphQL client provided");
+            throw new IllegalArgumentException("No GraphQL client provided");
         }
         this.client = client;
     }

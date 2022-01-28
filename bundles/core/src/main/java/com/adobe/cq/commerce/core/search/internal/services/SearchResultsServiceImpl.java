@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -40,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.services.CategoryUrlParameterRetriever;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
@@ -60,8 +60,8 @@ import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Aggregation;
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
-import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
@@ -76,7 +76,6 @@ import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
-import com.adobe.cq.commerce.magento.graphql.QueryQuery.CategoryListArgumentsDefinition;
 import com.adobe.cq.commerce.magento.graphql.SortEnum;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.wcm.core.components.util.ComponentUtils;
@@ -125,7 +124,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final Page productPage,
         final SlingHttpServletRequest request,
         final Consumer<ProductInterfaceQuery> productQueryHook,
-        final AbstractCategoryRetriever categoryRetriever) {
+        AbstractCategoryRetriever categoryRetriever) {
 
         SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
         SearchOptionsImpl mutableSearchOptions = new SearchOptionsImpl(searchOptions);
@@ -145,19 +144,36 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         }
 
         // Next we generate the graphql category query and actually query the commerce system
-        CategoryTree category = null;
-        if (generateCategoryQueryString(categoryRetriever).isPresent()) {
-            String categoryQueryString = generateCategoryQueryString(categoryRetriever).get();
-            LOGGER.debug("Generated category query string {}", categoryQueryString);
-            GraphqlResponse<Query, Error> categoryResponse = magentoGraphqlClient.execute(categoryQueryString);
-            if (CollectionUtils.isEmpty(categoryResponse.getErrors()) && categoryResponse.getData() != null) {
-                Query categoryData = categoryResponse.getData();
-                List<CategoryTree> categories = categoryData.getCategoryList();
-                if (CollectionUtils.isNotEmpty(categories)) {
-                    category = categories.get(0);
-                    mutableSearchOptions.setCategoryUid(category.getUid().toString());
-                }
+        CategoryInterface category = null;
+
+        if (categoryRetriever != null || mutableSearchOptions.getCategoryUid().isPresent()) {
+            // if a categoryRetriever is given or if a category uid filter is given, fetch the category and (re)set the uid filter
+            if (categoryRetriever == null) {
+                categoryRetriever = new CategoryUrlParameterRetriever(magentoGraphqlClient);
+                categoryRetriever.setIdentifier(mutableSearchOptions.getCategoryUid().get());
             }
+            category = categoryRetriever.fetchCategory();
+            if (category != null && category.getUid() != null) {
+                mutableSearchOptions.setCategoryUid(category.getUid().toString());
+            }
+        }
+
+        if (categoryRetriever == null && StringUtils.isNotEmpty(mutableSearchOptions.getAllFilters().get(CATEGORY_ID_FILTER))) {
+            // if no categoryRetriever is given but an id filter, fetch the category only but dont set the uid filter as id and uid filter
+            // cannot be used toether in the same query
+            categoryRetriever = new CategoryUrlParameterRetriever(magentoGraphqlClient) {
+                @Override
+                public Pair<QueryQuery.CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> generateCategoryQueryArgs(
+                    String identifier) {
+                    Pair<QueryQuery.CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> original = super.generateCategoryQueryArgs(
+                        identifier);
+                    FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
+                    CategoryFilterInput filter = new CategoryFilterInput().setIds(identifierFilter);
+                    return new ImmutablePair<>(q -> q.filters(filter), original.getRight());
+                }
+            };
+            categoryRetriever.setIdentifier(mutableSearchOptions.getAllFilters().get(CATEGORY_ID_FILTER));
+            category = categoryRetriever.fetchCategory();
         }
 
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
@@ -180,11 +196,8 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         // Finally we transform the results to something useful and expected by other the Sling Models and wider display layer
         Products products = response.getData().getProducts();
-        final List<ProductListItem> productListItems = extractProductsFromResponse(
-            products.getItems(),
-            productPage,
-            request,
-            resource);
+        final List<ProductListItem> productListItems = extractProductsFromResponse(products.getItems(), productPage, request, resource,
+            category);
 
         List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(products.getAggregations(),
             mutableSearchOptions.getAllFilters(), availableFilters);
@@ -360,23 +373,6 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     }
 
     /**
-     * Generates a query string for the category specified in the retriever.
-     *
-     * @param categoryRetriever
-     * @return the query string
-     */
-    @Nonnull
-    private Optional<String> generateCategoryQueryString(final AbstractCategoryRetriever categoryRetriever) {
-        if (categoryRetriever != null) {
-            Pair<CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> categoryArgs = categoryRetriever.generateCategoryQueryArgs();
-            return Optional.of(Operations.query(query -> query
-                .categoryList(categoryArgs.getLeft(), categoryArgs.getRight())).toString());
-        }
-
-        return Optional.empty();
-    }
-
-    /**
      * Generates a query object for a product. The generated query contains the following fields: id, name, slug (url_key), image url,
      * regular price, regular price currency
      *
@@ -434,14 +430,15 @@ public class SearchResultsServiceImpl implements SearchResultsService {
      */
     @Nonnull
     private List<ProductListItem> extractProductsFromResponse(List<ProductInterface> products, Page productPage,
-        final SlingHttpServletRequest request, Resource resource) {
+        final SlingHttpServletRequest request, Resource resource, CategoryInterface categoryContext) {
 
         LOGGER.debug("Found {} products for search term", products.size());
 
         String resourceType = resource.getResourceType();
         String prefix = StringUtils.substringAfterLast(resourceType, "/");
         String parentId = ComponentUtils.generateId(prefix, resource.getPath());
-        ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, parentId);
+        ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, parentId,
+            categoryContext);
 
         return products.stream()
             .map(converter)

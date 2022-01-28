@@ -51,6 +51,7 @@ public interface ProductUrlFormat extends GenericUrlFormat<ProductUrlFormat.Para
         private String variantUrlKey;
         private String urlPath;
         private List<String> urlRewrites = Collections.emptyList();
+        private CategoryUrlFormat.Params categoryUrlParams;
 
         public Params() {
             super();
@@ -71,6 +72,9 @@ public interface ProductUrlFormat extends GenericUrlFormat<ProductUrlFormat.Para
             this.variantUrlKey = other.getVariantUrlKey();
             this.urlPath = other.getUrlPath();
             this.urlRewrites = other.getUrlRewrites();
+            this.categoryUrlParams = other.categoryUrlParams != null
+                ? new CategoryUrlFormat.Params(other.categoryUrlParams)
+                : null;
         }
 
         @Deprecated
@@ -143,6 +147,19 @@ public interface ProductUrlFormat extends GenericUrlFormat<ProductUrlFormat.Para
             this.urlRewrites = convertUrlRewrites(urlRewrites);
         }
 
+        /**
+         * The returned object may contain parameters of the category the product represented by the {@link ProductUrlFormat.Params}
+         * belongs to. This is in particular the case when the product url encodes category identifiers.
+         *
+         * @return
+         */
+        public CategoryUrlFormat.Params getCategoryUrlParams() {
+            if (categoryUrlParams == null) {
+                categoryUrlParams = new CategoryUrlFormat.Params();
+            }
+            return categoryUrlParams;
+        }
+
         @Deprecated
         public Map<String, String> asMap() {
             return new UrlProvider.ParamsBuilder()
@@ -159,19 +176,19 @@ public interface ProductUrlFormat extends GenericUrlFormat<ProductUrlFormat.Para
          * Flattens the list {@link UrlRewrite} to a list of Strings, also removing the extension if any.
          * <p>
          * Converts
-         * 
+         *
          * <pre>
          *  {@code
          * [{ url: "bar.html" }, {url: "foo/bar.html" }]
          * </pre>
-         * 
+         * <p>
          * to
-         * 
+         *
          * <pre>
          *  {@code
-         * [{ url: "bar" }, {url: "foo/bar" }]
+         * ["bar", "foo/bar"]
          * </pre>
-         * 
+         *
          * @param urlRewrites
          * 
          * @return

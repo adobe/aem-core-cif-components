@@ -21,6 +21,8 @@ import org.apache.sling.api.request.RequestPathInfo;
 
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 
+import static com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath.extractCategoryUrlFormatParams;
+
 public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements ProductUrlFormat {
     public static final ProductUrlFormat INSTANCE = new ProductPageWithSkuAndUrlPath();
     public static final String PATTERN = "{{page}}.html/{{sku}}/{{url_path}}.html#{{variant_sku}}";
@@ -31,11 +33,10 @@ public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements Produ
 
     @Override
     public String format(Params parameters) {
+        String contextUrlKey = parameters.getCategoryUrlParams().getUrlKey();
+        String contextUrlPath = parameters.getCategoryUrlParams().getUrlPath();
         String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
-        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey);
-        if (urlPath == null && urlKey != null) {
-            urlPath = urlKey;
-        }
+        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey, contextUrlKey, contextUrlPath);
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
             + HTML_EXTENSION_AND_SUFFIX
             + StringUtils.defaultIfEmpty(parameters.getSku(), "{{sku}}")
@@ -57,12 +58,40 @@ public class ProductPageWithSkuAndUrlPath extends UrlFormatBase implements Produ
             if (suffix.indexOf("/") > 0) {
                 params.setSku(StringUtils.substringBefore(suffix, "/"));
                 String urlPath = StringUtils.substringAfter(suffix, "/");
+                int lastSlash = urlPath.lastIndexOf("/");
+
+                if (lastSlash > 0) {
+                    params.setUrlKey(urlPath.substring(lastSlash + 1));
+                    String[] categoryParams = extractCategoryUrlFormatParams(urlPath);
+                    params.getCategoryUrlParams().setUrlKey(categoryParams[0]);
+                    params.getCategoryUrlParams().setUrlPath(categoryParams[1]);
+                } else {
+                    params.setUrlKey(urlPath);
+                }
                 params.setUrlPath(urlPath);
-                params.setUrlKey(urlPath.indexOf("/") > 0 ? StringUtils.substringAfterLast(urlPath, "/") : urlPath);
             } else {
                 params.setSku(suffix);
             }
         }
         return params;
+    }
+
+    @Override
+    public Params retainParsableParameters(Params parameters) {
+        String contextUrlKey = parameters.getCategoryUrlParams().getUrlKey();
+        String contextUrlPath = parameters.getCategoryUrlParams().getUrlPath();
+        String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
+        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey, contextUrlKey, contextUrlPath);
+        String[] categoryParams = extractCategoryUrlFormatParams(urlPath);
+
+        Params copy = new Params();
+        copy.setPage(parameters.getPage());
+        copy.setSku(parameters.getSku());
+        copy.setUrlKey(urlKey);
+        copy.setUrlPath(urlPath);
+        copy.getCategoryUrlParams().setUrlKey(categoryParams[0]);
+        copy.getCategoryUrlParams().setUrlPath(categoryParams[1]);
+
+        return copy;
     }
 }
