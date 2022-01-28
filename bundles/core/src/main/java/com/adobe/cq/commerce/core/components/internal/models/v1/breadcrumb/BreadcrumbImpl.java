@@ -135,7 +135,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
                 if (StringUtils.isEmpty(productSku)) {
                     return;
                 }
-                ProductUrlFormat.Params urlParmas = urlProvider.parseProductUrlFormatParameters(request);
+                ProductUrlFormat.Params urlParmas = urlProvider.parseProductUrlFormatParameters(request, page);
                 categoriesBreadcrumbs = fetchProductBreadcrumbs(productSku, urlParmas, magentoGraphqlClient);
             } else if (isCategoryPage) {
                 String categoryUid = urlProvider.getCategoryIdentifier(request);

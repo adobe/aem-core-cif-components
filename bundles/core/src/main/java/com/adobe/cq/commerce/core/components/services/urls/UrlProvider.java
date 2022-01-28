@@ -219,6 +219,7 @@ public interface UrlProvider {
      * configuration for product page URLs.
      *
      * @param request The current Sling HTTP request.
+     * @param page The current page
      * @return the parsed {@link ProductUrlFormat.Params}
      */
     ProductUrlFormat.Params parseProductUrlFormatParameters(SlingHttpServletRequest request, Page page);
@@ -236,6 +237,7 @@ public interface UrlProvider {
      * for category page URLs.
      *
      * @param request The current Sling HTTP request.
+     * @param page The current page
      * @return parsed {@link CategoryUrlFormat.Params}
      */
     CategoryUrlFormat.Params parseCategoryUrlFormatParameters(SlingHttpServletRequest request, Page page);

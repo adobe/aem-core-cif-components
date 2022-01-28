@@ -16,7 +16,6 @@
 package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -62,8 +61,8 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.dam.cfm.content.FragmentRenderService;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManagerFactory;
-import com.google.common.base.Function;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.base.Function;
 
 @Component(service = { UrlProvider.class, UrlProviderImpl.class })
 @Designate(ocd = UrlProviderConfiguration.class)
@@ -497,9 +496,9 @@ public class UrlProviderImpl implements UrlProvider {
     @Override
     public ProductUrlFormat.Params parseProductUrlFormatParameters(SlingHttpServletRequest request, Page page) {
         ProductUrlFormat productUrlFormat = getUrlFormatFromContext(request, page, PN_PRODUCT_PAGE_URL_FORMAT,
-                DEFAULT_PRODUCT_URL_FORMATS,
-                systemDefaultProductUrlFormat, productPageUrlFormat, newProductUrlFormat,
-                f -> new ProductPageUrlFormatAdapter(f));
+            DEFAULT_PRODUCT_URL_FORMATS,
+            systemDefaultProductUrlFormat, productPageUrlFormat, newProductUrlFormat,
+            f -> new ProductPageUrlFormatAdapter(f));
 
         return productUrlFormat.parse(request.getRequestPathInfo(), request.getRequestParameterMap());
     }
@@ -507,10 +506,10 @@ public class UrlProviderImpl implements UrlProvider {
     @Override
     public CategoryUrlFormat.Params parseCategoryUrlFormatParameters(SlingHttpServletRequest request, Page page) {
         CategoryUrlFormat categoryUrlFormat = getUrlFormatFromContext(request, page, PN_CATEGORY_PAGE_URL_FORMAT,
-                DEFAULT_CATEGORY_URL_FORMATS, systemDefaultCategoryUrlFormat, categoryPageUrlFormat,
-                newCategoryUrlFormat,
-                f -> new CategoryPageUrlFormatAdapter(f));
-        
+            DEFAULT_CATEGORY_URL_FORMATS, systemDefaultCategoryUrlFormat, categoryPageUrlFormat,
+            newCategoryUrlFormat,
+            f -> new CategoryPageUrlFormatAdapter(f));
+
         return categoryUrlFormat.parse(request.getRequestPathInfo(), request.getRequestParameterMap());
     }
 }
