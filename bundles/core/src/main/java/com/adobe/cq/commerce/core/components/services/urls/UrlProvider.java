@@ -221,7 +221,7 @@ public interface UrlProvider {
      * @param request The current Sling HTTP request.
      * @return the parsed {@link ProductUrlFormat.Params}
      */
-    ProductUrlFormat.Params parseProductUrlFormatParameters(SlingHttpServletRequest request);
+    ProductUrlFormat.Params parseProductUrlFormatParameters(SlingHttpServletRequest request, Page page);
 
     /**
      * Returns the category identifier used in the given Sling HTTP request. The category identifier can be used to load category data.
@@ -238,7 +238,7 @@ public interface UrlProvider {
      * @param request The current Sling HTTP request.
      * @return parsed {@link CategoryUrlFormat.Params}
      */
-    CategoryUrlFormat.Params parseCategoryUrlFormatParameters(SlingHttpServletRequest request);
+    CategoryUrlFormat.Params parseCategoryUrlFormatParameters(SlingHttpServletRequest request, Page page);
 
     /**
      * A helper class used to easily build parameters for the URL templates.
