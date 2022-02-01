@@ -211,7 +211,7 @@ import jQuery from '../../../clientlibs/common/jQueryMockForTest';
                                                                              data-cmp-teaser-v1-dialog-edit-hook="actionProduct"
                                                                              data-foundation-validation=""
                                                                              name="./actions/item0/productSlug"
-                                                                             pickersrc="/mnt/overlay/commerce/gui/content/common/cifproductfield/picker.html?root=%2fvar%2fcommerce%2fproducts&amp;filter=folderOrProduct&amp;selectionCount=single&amp;selectionId=slug"
+                                                                             pickersrc="/mnt/overlay/commerce/gui/content/common/cifproductfield/picker.html?root=%2fvar%2fcommerce%2fproducts&amp;selectionCount=single&amp;selectionId=slug"
                                                                              placeholder="Product slug" role="combobox">
                                                         <div class="foundation-autocomplete-inputgroupwrapper">
                                                             <div class="coral-InputGroup">
@@ -388,7 +388,7 @@ import jQuery from '../../../clientlibs/common/jQueryMockForTest';
                                                                          data-cmp-teaser-v1-dialog-edit-hook="actionProduct"
                                                                          data-foundation-validation=""
                                                                          name="productSlug"
-                                                                         pickersrc="/mnt/overlay/commerce/gui/content/common/cifproductfield/picker.html?root=%2fvar%2fcommerce%2fproducts&amp;filter=folderOrProduct&amp;selectionCount=single&amp;selectionId=slug"
+                                                                         pickersrc="/mnt/overlay/commerce/gui/content/common/cifproductfield/picker.html?root=%2fvar%2fcommerce%2fproducts&amp;selectionCount=single&amp;selectionId=slug"
                                                                          placeholder="Product slug">
                                                     <coral-overlay class="foundation-picker-buttonlist"
                                                                    data-foundation-picker-buttonlist-src=""
