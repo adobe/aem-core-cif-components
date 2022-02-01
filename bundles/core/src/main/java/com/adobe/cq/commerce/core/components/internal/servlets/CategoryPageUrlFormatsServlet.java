@@ -44,8 +44,8 @@ public class CategoryPageUrlFormatsServlet extends AbstractPageUrlFormatsServlet
     static final String RESOURCE_TYPE = "core/cif/components/datasource/categoryurlformats";
     static final String PAGE_URL_FORMAT_KEY = "categoryPageUrlFormat";
     static final List<String> URL_FORMATS = Arrays.asList(
-        CategoryPageWithUrlKey.PATTERN,
-        CategoryPageWithUrlPath.PATTERN);
+        CategoryPageWithUrlKey.PATTERN.replace("#", "\\#"),
+        CategoryPageWithUrlPath.PATTERN.replace("#", "\\#"));
 
     @Reference(
         cardinality = ReferenceCardinality.MULTIPLE,

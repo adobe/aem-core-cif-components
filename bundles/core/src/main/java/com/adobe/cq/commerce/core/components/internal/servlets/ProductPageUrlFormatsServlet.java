@@ -47,11 +47,11 @@ public class ProductPageUrlFormatsServlet extends AbstractPageUrlFormatsServlet 
     static final String RESOURCE_TYPE = "core/cif/components/datasource/producturlformats";
     static final String PAGE_URL_FORMAT_KEY = "productPageUrlFormat";
     static final List<String> URL_FORMATS = Arrays.asList(
-        ProductPageWithSku.PATTERN,
-        ProductPageWithSkuAndUrlKey.PATTERN,
-        ProductPageWithSkuAndUrlPath.PATTERN,
-        ProductPageWithUrlKey.PATTERN,
-        ProductPageWithUrlPath.PATTERN);
+        ProductPageWithSku.PATTERN.replace("#", "\\#"),
+        ProductPageWithSkuAndUrlKey.PATTERN.replace("#", "\\#"),
+        ProductPageWithSkuAndUrlPath.PATTERN.replace("#", "\\#"),
+        ProductPageWithUrlKey.PATTERN.replace("#", "\\#"),
+        ProductPageWithUrlPath.PATTERN.replace("#", "\\#"));
 
     @Reference(
         cardinality = ReferenceCardinality.MULTIPLE,

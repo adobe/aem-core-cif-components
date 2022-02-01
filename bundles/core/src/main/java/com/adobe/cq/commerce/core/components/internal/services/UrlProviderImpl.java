@@ -223,7 +223,6 @@ public class UrlProviderImpl implements UrlProvider {
     public String toProductUrl(SlingHttpServletRequest request, Page page, String productIdentifier) {
         ProductUrlFormat.Params params = null;
         if (StringUtils.isNotBlank(productIdentifier)) {
-            params.setSku(productIdentifier);
             // assume that any other format then the ProductPageWithSku requires more
             // parameters
             if (!(getUrlFormatFromContext(request, page, PN_PRODUCT_PAGE_URL_FORMAT, DEFAULT_PRODUCT_URL_FORMATS,
@@ -306,7 +305,7 @@ public class UrlProviderImpl implements UrlProvider {
             }
         }
 
-        return productUrlFormat.format(params);
+        return productUrlFormat.format(copy);
     }
 
     @Override
