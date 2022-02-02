@@ -16,7 +16,6 @@
                         sling:resourceType="commerce/gui/components/common/cifproductfield" 
                         fieldDescription="Base product used to display related products. If empty, the component will fetch the product based on the selector of the URL." 
                         fieldLabel="Base product - Leave empty to use the current product of the generic product page." 
-                        filter="folderOrProduct" 
                         name="./product" 
                         selectionId="sku" />
                     <relationType jcr:primaryType="nt:unstructured" 
