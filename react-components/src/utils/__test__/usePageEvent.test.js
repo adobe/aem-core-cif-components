@@ -37,7 +37,7 @@ describe('usePageEvent', () => {
         component.parentElement.removeChild(component);
     });
 
-    it('sends a CMS pageView event', () => {
+    it('sends a PageBuilder pageView event', () => {
         renderHook(() => usePageEvent());
         act(() => {
             window.dispatchEvent(new CustomEvent('beforeunload'));
@@ -45,7 +45,7 @@ describe('usePageEvent', () => {
 
         expect(mse.context.setPage).toHaveBeenCalledTimes(1);
         expect(mse.context.setPage.mock.calls[0][0]).toMatchObject({
-            pageType: 'CMS',
+            pageType: 'PageBuilder',
             eventType: 'pageUnload',
             ping_interval: 0,
             pings: 0

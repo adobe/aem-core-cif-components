@@ -54,4 +54,13 @@ public class CategoryPageWithUrlPath extends UrlFormatBase implements CategoryUr
         }
         return params;
     }
+
+    @Override
+    public Params retainParsableParameters(Params parameters) {
+        Params copy = new Params();
+        copy.setPage(parameters.getPage());
+        copy.setUrlPath(parameters.getUrlPath());
+        copy.setUrlKey(getUrlKey(parameters.getUrlPath(), null));
+        return copy;
+    }
 }

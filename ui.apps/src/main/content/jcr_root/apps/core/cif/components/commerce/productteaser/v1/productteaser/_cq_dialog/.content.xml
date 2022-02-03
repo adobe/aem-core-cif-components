@@ -34,7 +34,6 @@
                                                 sling:resourceType="commerce/gui/components/common/cifproductfield"
                                                 fieldDescription="The product or product variant displayed by the teaser"
                                                 fieldLabel="Select Product"
-                                                filter="folderOrProductOrVariant"
                                                 name="./selection"
                                                 selectionId="combinedSku"/>
                                             <call-to-action

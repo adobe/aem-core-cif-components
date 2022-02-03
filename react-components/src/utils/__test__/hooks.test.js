@@ -58,9 +58,55 @@ describe('Custom hooks', () => {
     describe('usePageType', () => {
         beforeEach(() => {
             document.body.innerHTML = '';
+            document.head.innerHTML = '';
         });
 
-        it('detects a product page', () => {
+        it('detects the homepage via template', () => {
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'template');
+            meta.setAttribute('content', 'landing-page');
+            document.head.appendChild(meta);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('CMS');
+        });
+
+        it('it detects the homepage via canonical url (relative)', () => {
+            const link = document.createElement('link');
+            link.setAttribute('rel', 'canonical');
+            link.setAttribute('href', '/content/site/us/en.html');
+            document.head.appendChild(link);
+
+            const storeConfig = { storeRootUrl: '/content/site/us/en.html' };
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'store-config');
+            meta.setAttribute('content', JSON.stringify(storeConfig));
+            document.head.appendChild(meta);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('CMS');
+        });
+
+        it('it detects the homepage via canonical url (absolute)', () => {
+            const link = document.createElement('link');
+            link.setAttribute('rel', 'canonical');
+            link.setAttribute('href', 'http://localhost:4502/content/site/us/en.html');
+            document.head.appendChild(link);
+
+            const storeConfig = { storeRootUrl: '/content/site/us/en.html' };
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'store-config');
+            meta.setAttribute('content', JSON.stringify(storeConfig));
+            document.head.appendChild(meta);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('CMS');
+        });
+
+        it('detects a product page via component', () => {
             const cmp = document.createElement('div');
             cmp.dataset.cifProductContext = '';
             document.body.appendChild(cmp);
@@ -70,7 +116,18 @@ describe('Custom hooks', () => {
             expect(result.current).toEqual('Product');
         });
 
-        it('detects a category page', () => {
+        it('detects a product page via template', () => {
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'template');
+            meta.setAttribute('content', 'product-page');
+            document.head.appendChild(meta);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('Product');
+        });
+
+        it('detects a category page via component', () => {
             const cmp = document.createElement('div');
             cmp.dataset.cifCategoryContext = '';
             document.body.appendChild(cmp);
@@ -80,10 +137,41 @@ describe('Custom hooks', () => {
             expect(result.current).toEqual('Category');
         });
 
-        it('detects a CMS page', () => {
+        it('detects a category page via template', () => {
+            const meta = document.createElement('meta');
+            meta.setAttribute('name', 'template');
+            meta.setAttribute('content', 'category-page');
+            document.head.appendChild(meta);
+
             const { result } = renderHook(() => usePageType());
 
-            expect(result.current).toEqual('CMS');
+            expect(result.current).toEqual('Category');
+        });
+
+        it('detects the cart page', () => {
+            const cmp = document.createElement('div');
+            cmp.className = 'cartcontainer__root';
+            document.body.appendChild(cmp);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('Cart');
+        });
+
+        it('detects the checkout page', () => {
+            const cmp = document.createElement('div');
+            cmp.className = 'checkoutpage__root';
+            document.body.appendChild(cmp);
+
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('Checkout');
+        });
+
+        it('detects a content page', () => {
+            const { result } = renderHook(() => usePageType());
+
+            expect(result.current).toEqual('PageBuilder');
         });
     });
 });

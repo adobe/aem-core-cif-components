@@ -94,21 +94,61 @@ export const useStorefrontEvents = () => {
 };
 
 export const usePageType = () => {
-    // Currently only using CMS, Category and Product. Added other types for completeness
-    // and to be used in the future.
     const PageTypes = {
+        // Pages with landing-page template or pages that match the store root URL
+        // as defined in the store config.
         CMS: 'CMS',
+
+        // Pages with category component or category-page template
         CATEGORY: 'Category',
+
+        // Pages with product component or product-page template
         PRODUCT: 'Product',
+
+        // Pages with cart component
         CART: 'Cart',
-        CHECKOUT: 'Checkout'
+
+        // Pages with checkout component
+        CHECKOUT: 'Checkout',
+
+        // Any other pages
+        PAGE_BUILDER: 'PageBuilder'
     };
 
-    if (document.querySelector('[data-cif-product-context]')) {
+    // Detect homepage, either by template name or by URL
+    let template = document.querySelector('meta[name="template"]');
+    if (template) {
+        template = template.getAttribute('content');
+    }
+
+    let canonicalUrl = document.querySelector('link[rel="canonical"]');
+    if (canonicalUrl) {
+        canonicalUrl = canonicalUrl.getAttribute('href');
+    }
+
+    let storeRootUrl = null;
+    try {
+        let storeConfig = JSON.parse(document.querySelector('meta[name="store-config"]').getAttribute('content'));
+        storeRootUrl = storeConfig.storeRootUrl;
+    } catch (err) {
+        // Could not parse store config, ignore for now
+    }
+
+    if (template == 'landing-page' || (canonicalUrl && storeRootUrl && canonicalUrl.endsWith(storeRootUrl))) {
+        return PageTypes.CMS;
+    }
+    if (document.querySelector('[data-cif-product-context]') || template == 'product-page') {
         return PageTypes.PRODUCT;
     }
-    if (document.querySelector('[data-cif-category-context]')) {
+    if (document.querySelector('[data-cif-category-context]') || template == 'category-page') {
         return PageTypes.CATEGORY;
     }
-    return PageTypes.CMS;
+    if (document.querySelector('.cartcontainer__root')) {
+        return PageTypes.CART;
+    }
+    if (document.querySelector('.checkoutpage__root')) {
+        return PageTypes.CHECKOUT;
+    }
+
+    return PageTypes.PAGE_BUILDER;
 };
