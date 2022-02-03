@@ -111,7 +111,8 @@
                                                 fieldDescription="Select the categories associated with this experience fragment variation."
                                                 fieldLabel="Category IDs."
                                                 multiple="{Boolean}true"
-                                                name="./cq:categories">
+                                                name="./cq:categories"
+                                                enablePreviewDateFilter="{Boolean}true">
                                                 <granite:data
                                                     jcr:primaryType="nt:unstructured"
                                                     metaType="text"/>
