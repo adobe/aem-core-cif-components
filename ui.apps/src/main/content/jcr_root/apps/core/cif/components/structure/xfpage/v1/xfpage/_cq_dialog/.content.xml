@@ -82,7 +82,6 @@
                                                 sling:resourceType="commerce/gui/components/common/cifproductfield"
                                                 fieldDescription="Select the products associated with this experience fragment variation."
                                                 fieldLabel="Product SKUs."
-                                                filter="folderOrProductOrVariant"
                                                 multiple="true"
                                                 name="./cq:products"
                                                 rootPath="/var/commerce/products"
