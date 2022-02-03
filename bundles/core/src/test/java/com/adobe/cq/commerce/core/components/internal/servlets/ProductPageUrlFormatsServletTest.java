@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.granite.ui.components.ds.DataSource;
 import com.google.common.collect.ImmutableMap;
@@ -42,20 +43,19 @@ public class ProductPageUrlFormatsServletTest {
     @Rule
     public AemContext context = new AemContext(ResourceResolverType.JCR_MOCK);
 
-    private String[] expectedValues = new String[] {
-        "",
-        "{{page}}.html/{{sku}}.html\\#{{variant_sku}}",
-        "{{page}}.html/{{sku}}/{{url_key}}.html\\#{{variant_sku}}",
-        "{{page}}.html/{{sku}}/{{url_path}}.html\\#{{variant_sku}}",
-        "{{page}}.html/{{url_key}}.html\\#{{variant_sku}}",
-        "{{page}}.html/{{url_path}}.html\\#{{variant_sku}}",
-        "com.adobe.cq.commerce.core.components.internal.servlets.ProductPageUrlFormatsServletTest$CustomUrlFormat"
-    };
+    private Object[] expectedValues;
     private ProductPageUrlFormatsServlet datasource;
 
     @Before
     public void setUp() {
         datasource = context.registerInjectActivateService(new ProductPageUrlFormatsServlet());
+        List<String> expectedValuesList = new ArrayList<>();
+        expectedValuesList.add("");
+        UrlProviderImpl.DEFAULT_PRODUCT_URL_FORMATS.keySet().forEach(f -> expectedValuesList.add(f.replace(
+            "#", "\\#")));
+        expectedValuesList.add(
+            "com.adobe.cq.commerce.core.components.internal.servlets.ProductPageUrlFormatsServletTest$CustomUrlFormat");
+        expectedValues = expectedValuesList.toArray();
     }
 
     @Test
@@ -68,14 +68,14 @@ public class ProductPageUrlFormatsServletTest {
         datasource.doGet(context.request(), context.response());
         DataSource ds = (DataSource) context.request().getAttribute(DataSource.class.getName());
 
-        Assert.assertNotNull("Datasource is not null", ds);
+        Assert.assertNotNull("Datasource is null", ds);
 
         List<String> formats = new ArrayList<>();
         ds.iterator().forEachRemaining(r -> {
             formats.add(r.getValueMap().get("value", String.class));
         });
 
-        Assert.assertArrayEquals("Data source has the correct data", expectedValues,
+        Assert.assertArrayEquals("Data source does not have the correct data", expectedValues,
             formats.toArray());
     }
 

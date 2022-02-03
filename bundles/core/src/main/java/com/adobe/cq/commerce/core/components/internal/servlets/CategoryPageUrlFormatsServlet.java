@@ -16,8 +16,8 @@
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.Servlet;
 
@@ -29,8 +29,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.granite.ui.components.ds.DataSource;
@@ -45,9 +44,9 @@ import com.adobe.granite.ui.components.ds.DataSource;
 public class CategoryPageUrlFormatsServlet extends AbstractPageUrlFormatsServlet {
     static final String RESOURCE_TYPE = "core/cif/components/datasource/categoryurlformats";
     static final String PAGE_URL_FORMAT_KEY = "categoryPageUrlFormat";
-    static final List<String> URL_FORMATS = Arrays.asList(
-        CategoryPageWithUrlKey.PATTERN.replace("#", "\\#"),
-        CategoryPageWithUrlPath.PATTERN.replace("#", "\\#"));
+    static final List<String> URL_FORMATS = UrlProviderImpl.DEFAULT_CATEGORY_URL_FORMATS.keySet().stream()
+        .map(f -> f.replace("#", "\\#"))
+        .collect(Collectors.toList());
 
     @Reference(
         cardinality = ReferenceCardinality.MULTIPLE,
@@ -72,7 +71,8 @@ public class CategoryPageUrlFormatsServlet extends AbstractPageUrlFormatsServlet
             categoryPageUrlFormats.forEach(f -> customFormatNames.add(f.getClass().getName()));
         }
 
-        request.setAttribute(DataSource.class.getName(), getDataSource(request, URL_FORMATS,
+        request.setAttribute(DataSource.class.getName(), getDataSource(request,
+            URL_FORMATS,
             customFormatNames,
             PAGE_URL_FORMAT_KEY));
     }

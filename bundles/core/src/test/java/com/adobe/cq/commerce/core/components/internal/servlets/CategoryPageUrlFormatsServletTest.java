@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.granite.ui.components.ds.DataSource;
 import com.google.common.collect.ImmutableMap;
@@ -43,14 +44,19 @@ public class CategoryPageUrlFormatsServletTest {
     @Rule
     public AemContext context = new AemContext(ResourceResolverType.JCR_MOCK);
 
-    private String[] expectedValues = new String[] { "", "{{page}}.html/{{url_key}}.html",
-        "{{page}}.html/{{url_path}}.html",
-        "com.adobe.cq.commerce.core.components.internal.servlets.CategoryPageUrlFormatsServletTest$CustomUrlFormat" };
+    private Object[] expectedValues;
     private CategoryPageUrlFormatsServlet datasource;
 
     @Before
     public void setUp() {
         datasource = context.registerInjectActivateService(new CategoryPageUrlFormatsServlet());
+        List<String> expectedValuesList = new ArrayList<>();
+        expectedValuesList.add("");
+        UrlProviderImpl.DEFAULT_CATEGORY_URL_FORMATS.keySet().forEach(f -> expectedValuesList.add(f.replace(
+            "#", "\\#")));
+        expectedValuesList.add(
+            "com.adobe.cq.commerce.core.components.internal.servlets.CategoryPageUrlFormatsServletTest$CustomUrlFormat");
+        expectedValues = expectedValuesList.toArray();
     }
 
     @Test

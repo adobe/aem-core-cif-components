@@ -16,8 +16,8 @@
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.Servlet;
 
@@ -29,11 +29,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlKey;
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlPath;
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
-import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.granite.ui.components.ds.DataSource;
@@ -48,12 +44,8 @@ import com.adobe.granite.ui.components.ds.DataSource;
 public class ProductPageUrlFormatsServlet extends AbstractPageUrlFormatsServlet {
     static final String RESOURCE_TYPE = "core/cif/components/datasource/producturlformats";
     static final String PAGE_URL_FORMAT_KEY = "productPageUrlFormat";
-    static final List<String> URL_FORMATS = Arrays.asList(
-        ProductPageWithSku.PATTERN.replace("#", "\\#"),
-        ProductPageWithSkuAndUrlKey.PATTERN.replace("#", "\\#"),
-        ProductPageWithSkuAndUrlPath.PATTERN.replace("#", "\\#"),
-        ProductPageWithUrlKey.PATTERN.replace("#", "\\#"),
-        ProductPageWithUrlPath.PATTERN.replace("#", "\\#"));
+    static final List<String> URL_FORMATS = UrlProviderImpl.DEFAULT_PRODUCT_URL_FORMATS.keySet().stream().map(f -> f.replace(
+        "#", "\\#")).collect(Collectors.toList());
 
     @Reference(
         cardinality = ReferenceCardinality.MULTIPLE,
@@ -77,7 +69,9 @@ public class ProductPageUrlFormatsServlet extends AbstractPageUrlFormatsServlet 
         if (productPageUrlFormats != null) {
             productPageUrlFormats.forEach(f -> customFormatNames.add(f.getClass().getName()));
         }
-        request.setAttribute(DataSource.class.getName(), getDataSource(request, URL_FORMATS,
+
+        request.setAttribute(DataSource.class.getName(), getDataSource(request,
+            URL_FORMATS,
             customFormatNames,
             PAGE_URL_FORMAT_KEY));
     }
