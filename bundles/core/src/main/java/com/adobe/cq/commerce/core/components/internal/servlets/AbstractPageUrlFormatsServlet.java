@@ -27,17 +27,17 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 
-import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.granite.ui.components.ds.DataSource;
 import com.adobe.granite.ui.components.ds.SimpleDataSource;
 import com.adobe.granite.ui.components.ds.ValueMapResource;
 
-public class AbstractPageUrlFormatsServlet extends SlingSafeMethodsServlet {
+public abstract class AbstractPageUrlFormatsServlet extends SlingSafeMethodsServlet {
     static final String COMPONENT_NAME_KEY = "component.name";
     static final String VALUE_PN = "value";
     static final String TEXT_PN = "text";
 
-    public DataSource getDataSource(SlingHttpServletRequest request, List<String> predefinedUrlFormats, List<UrlFormat> customUrlFormats,
+    public DataSource getDataSource(SlingHttpServletRequest request, List<String> predefinedUrlFormats,
+        List<String> customFormatNames,
         String useAsFilter) {
         List<Resource> resources = new ArrayList<>();
 
@@ -53,7 +53,7 @@ public class AbstractPageUrlFormatsServlet extends SlingSafeMethodsServlet {
             buildValueMapResourceForDefaultFormats(
                 f, request.getResourceResolver(), useAsFilter)));
 
-        customUrlFormats.forEach(r -> resources.add(
+        customFormatNames.forEach(r -> resources.add(
             buildValueMapResourceForCustomFormats(r, request.getResourceResolver(), useAsFilter)));
 
         return new SimpleDataSource(resources.iterator());
@@ -69,11 +69,11 @@ public class AbstractPageUrlFormatsServlet extends SlingSafeMethodsServlet {
             properties);
     }
 
-    private Resource buildValueMapResourceForCustomFormats(UrlFormat customUrlFormat,
+    private Resource buildValueMapResourceForCustomFormats(String formatClassName,
         ResourceResolver resourceResolver, String name) {
         ValueMap properties = new ValueMapDecorator(new HashMap<>());
-        properties.put(TEXT_PN, customUrlFormat.getClass().getName());
-        properties.put(VALUE_PN, customUrlFormat.getClass().getName());
+        properties.put(TEXT_PN, formatClassName);
+        properties.put(VALUE_PN, formatClassName);
         return new ValueMapResource(
             resourceResolver, "/" + name + "/item",
             Resource.RESOURCE_TYPE_NON_EXISTING,

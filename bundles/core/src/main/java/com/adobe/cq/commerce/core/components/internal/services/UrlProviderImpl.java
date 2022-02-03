@@ -60,6 +60,7 @@ import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.dam.cfm.content.FragmentRenderService;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.PageManagerFactory;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
@@ -275,11 +276,11 @@ public class UrlProviderImpl implements UrlProvider {
                     Page currentPage = (Page) slingBindings.get(WCMBindingsConstants.NAME_CURRENT_PAGE);
                     if (currentPage != null) {
                         if (SiteNavigation.isProductPage(currentPage)) {
-                            ProductUrlFormat.Params parseParams = parseProductUrlFormatParameters(request, page);
+                            ProductUrlFormat.Params parseParams = parseProductUrlFormatParameters(request);
                             categoryUrlKey = parseParams.getCategoryUrlParams().getUrlKey();
                             categoryUrlPath = parseParams.getCategoryUrlParams().getUrlPath();
                         } else if (SiteNavigation.isCategoryPage(currentPage)) {
-                            CategoryUrlFormat.Params parsedParams = parseCategoryUrlFormatParameters(request, page);
+                            CategoryUrlFormat.Params parsedParams = parseCategoryUrlFormatParameters(request);
                             categoryUrlKey = parsedParams.getUrlKey();
                             categoryUrlPath = parsedParams.getUrlPath();
                         }
@@ -493,7 +494,8 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     @Override
-    public ProductUrlFormat.Params parseProductUrlFormatParameters(SlingHttpServletRequest request, Page page) {
+    public ProductUrlFormat.Params parseProductUrlFormatParameters(SlingHttpServletRequest request) {
+        Page page = getCurrentPage(request);
         ProductUrlFormat productUrlFormat = getUrlFormatFromContext(request, page, PN_PRODUCT_PAGE_URL_FORMAT,
             DEFAULT_PRODUCT_URL_FORMATS,
             systemDefaultProductUrlFormat, productPageUrlFormat, newProductUrlFormat,
@@ -503,12 +505,34 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     @Override
-    public CategoryUrlFormat.Params parseCategoryUrlFormatParameters(SlingHttpServletRequest request, Page page) {
+    public CategoryUrlFormat.Params parseCategoryUrlFormatParameters(SlingHttpServletRequest request) {
+        Page page = getCurrentPage(request);
         CategoryUrlFormat categoryUrlFormat = getUrlFormatFromContext(request, page, PN_CATEGORY_PAGE_URL_FORMAT,
             DEFAULT_CATEGORY_URL_FORMATS, systemDefaultCategoryUrlFormat, categoryPageUrlFormat,
             newCategoryUrlFormat,
             f -> new CategoryPageUrlFormatAdapter(f));
 
         return categoryUrlFormat.parse(request.getRequestPathInfo(), request.getRequestParameterMap());
+    }
+
+    private Page getCurrentPage(SlingHttpServletRequest request) {
+        Page page = null;
+        SlingBindings slingBindings = request != null
+            ? (SlingBindings) request.getAttribute(SlingBindings.class.getName())
+            : null;
+        if (slingBindings != null) {
+            page = (Page) slingBindings.get(WCMBindingsConstants.NAME_CURRENT_PAGE);
+        } else {
+            Resource resource = request.getResource();
+            page = resource.adaptTo(Page.class);
+            if (page == null) {
+                PageManager pageManager = resource.getResourceResolver().adaptTo(PageManager.class);
+                if (pageManager != null) {
+                    page = pageManager.getContainingPage(resource);
+                }
+            }
+        }
+
+        return page;
     }
 }

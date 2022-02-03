@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,6 +34,7 @@ import com.adobe.cq.commerce.core.components.internal.services.urlformats.Produc
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlPath;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.granite.ui.components.ds.DataSource;
 
@@ -61,10 +63,22 @@ public class ProductPageUrlFormatsServlet extends AbstractPageUrlFormatsServlet 
             + UrlFormat.PROP_USE_AS + "=" + UrlFormat.PRODUCT_PAGE_URL_FORMAT + ")")
     private List<UrlFormat> productPageUrlFormats;
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY)
+    private List<ProductUrlFormat> newProductUrlFormat;
+
     @Override
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) {
+        List<String> customFormatNames = new ArrayList<>();
+
+        if (newProductUrlFormat != null) {
+            newProductUrlFormat.forEach(f -> customFormatNames.add(f.getClass().getName()));
+        }
+
+        if (productPageUrlFormats != null) {
+            productPageUrlFormats.forEach(f -> customFormatNames.add(f.getClass().getName()));
+        }
         request.setAttribute(DataSource.class.getName(), getDataSource(request, URL_FORMATS,
-            productPageUrlFormats,
+            customFormatNames,
             PAGE_URL_FORMAT_KEY));
     }
 

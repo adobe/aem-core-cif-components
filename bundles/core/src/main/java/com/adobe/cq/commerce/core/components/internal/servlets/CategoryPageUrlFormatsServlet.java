@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.granite.ui.components.ds.DataSource;
 
@@ -55,10 +57,23 @@ public class CategoryPageUrlFormatsServlet extends AbstractPageUrlFormatsServlet
             + UrlFormat.PROP_USE_AS + "=" + UrlFormat.CATEGORY_PAGE_URL_FORMAT + ")")
     private List<UrlFormat> categoryPageUrlFormats;
 
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY)
+    private List<CategoryUrlFormat> newCategoryUrlFormat;
+
     @Override
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) {
+        List<String> customFormatNames = new ArrayList<>();
+
+        if (newCategoryUrlFormat != null) {
+            newCategoryUrlFormat.forEach(f -> customFormatNames.add(f.getClass().getName()));
+        }
+
+        if (categoryPageUrlFormats != null) {
+            categoryPageUrlFormats.forEach(f -> customFormatNames.add(f.getClass().getName()));
+        }
+
         request.setAttribute(DataSource.class.getName(), getDataSource(request, URL_FORMATS,
-            categoryPageUrlFormats,
+            customFormatNames,
             PAGE_URL_FORMAT_KEY));
     }
 }

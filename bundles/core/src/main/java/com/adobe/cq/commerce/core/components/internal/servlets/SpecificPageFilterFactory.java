@@ -94,10 +94,10 @@ public class SpecificPageFilterFactory implements Filter {
 
         if (currentPage != null) {
             if (SiteNavigation.isProductPage(currentPage)) {
-                ProductUrlFormat.Params params = urlProvider.parseProductUrlFormatParameters(slingRequest, null);
+                ProductUrlFormat.Params params = urlProvider.parseProductUrlFormatParameters(slingRequest);
                 specificPage = specificPageStrategy.getSpecificPage(currentPage, params);
             } else if (SiteNavigation.isCategoryPage(currentPage)) {
-                CategoryUrlFormat.Params params = urlProvider.parseCategoryUrlFormatParameters(slingRequest, null);
+                CategoryUrlFormat.Params params = urlProvider.parseCategoryUrlFormatParameters(slingRequest);
                 specificPage = specificPageStrategy.getSpecificPage(currentPage, params);
             }
         }
