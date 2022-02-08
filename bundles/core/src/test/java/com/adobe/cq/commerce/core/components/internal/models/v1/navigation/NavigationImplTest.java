@@ -80,6 +80,7 @@ public class NavigationImplTest {
         when(currentPage.getPageManager()).thenReturn(pageManager);
         when(currentPage.getPath()).thenReturn("/content/currentPage");
         Resource currentPageContent = mock(Resource.class);
+        Resource contentResource = mock(Resource.class);
         Map<String, Object> currentPageProperties = new HashMap<>();
         currentPageProperties.put("cq:cifCategoryPage", CATEGORY_PAGE_PATH);
         Page categoryPage = mock(Page.class);
@@ -90,6 +91,8 @@ public class NavigationImplTest {
         when(currentPage.getContentResource()).thenReturn(currentPageContent);
         Resource categoryPageResource = new SyntheticResource(null, CATEGORY_PAGE_PATH, null);
         when(categoryPage.adaptTo(Resource.class)).thenReturn(categoryPageResource);
+        when(categoryPage.getContentResource()).thenReturn(categoryPageResource);
+        when(contentResource.adaptTo(ComponentsConfiguration.class)).thenReturn(null);
         Whitebox.setInternalState(navigation, "currentPage", currentPage);
 
         // WCM navigation model
@@ -118,6 +121,7 @@ public class NavigationImplTest {
         request = mock(SlingHttpServletRequest.class);
         Whitebox.setInternalState(navigation, "request", request);
         when(request.getRequestURI()).thenReturn("uri");
+        when(request.getResource()).thenReturn(contentResource);
 
         navigationModel = new NavigationModelImpl();
         Whitebox.setInternalState(navigationModel, "rootNavigation", navigation);

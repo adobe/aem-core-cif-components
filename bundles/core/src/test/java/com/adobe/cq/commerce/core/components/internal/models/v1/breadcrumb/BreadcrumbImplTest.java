@@ -180,7 +180,7 @@ public class BreadcrumbImplTest {
         // With a newer version of OSGI mock we could re-inject the reference into the existing UrlProviderImpl
         // context.registerInjectActivateService(new SpecificPageStrategy(), "generateSpecificPageUrls", true);
         UrlProvider urlProvider = context.getService(UrlProvider.class);
-        Whitebox.setInternalState(urlProvider, "newProductUrlFormat", ProductPageWithCategoryAndUrlKey.INSTANCE);
+        Whitebox.setInternalState(urlProvider, "systemDefaultProductUrlFormat", ProductPageWithCategoryAndUrlKey.INSTANCE);
         Whitebox.setInternalState(urlProvider, "enableContextAwareProductUrls", true);
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);

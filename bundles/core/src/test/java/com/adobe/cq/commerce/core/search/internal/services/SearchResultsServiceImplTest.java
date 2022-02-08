@@ -184,7 +184,8 @@ public class SearchResultsServiceImplTest {
         // TODO: CIF-2469
         // With a newer version of OSGI mock we could re-register UrlProviderImpl with a different configuration
         UrlProvider urlProvider = context.getService(UrlProvider.class);
-        Whitebox.setInternalState(urlProvider, "newProductUrlFormat", ProductPageWithCategoryAndUrlKey.INSTANCE);
+        Whitebox.setInternalState(urlProvider, "systemDefaultProductUrlFormat",
+            ProductPageWithCategoryAndUrlKey.INSTANCE);
         Whitebox.setInternalState(urlProvider, "enableContextAwareProductUrls", true);
     }
 
@@ -536,7 +537,8 @@ public class SearchResultsServiceImplTest {
         assertEquals(1, items.size());
         ProductListItem item = items.get(0);
         // category is the deepest url_key in the context of the given CategoryTree (descendant of another-url-path/with)
-        assertEquals("/content/product-page.html/category/product.html", item.getURL());
+        String url = item.getURL();
+        assertEquals("/content/product-page.html/category/product.html", url);
     }
 
     @Test
