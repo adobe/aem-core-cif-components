@@ -85,7 +85,8 @@
                                                 multiple="true"
                                                 name="./cq:products"
                                                 rootPath="/var/commerce/products"
-                                                selectionId="combinedSku">
+                                                selectionId="combinedSku"
+                                                enablePreviewDateFilter="{Boolean}true">
                                                 <granite:data
                                                     jcr:primaryType="nt:unstructured"
                                                     metaType="text"/>
