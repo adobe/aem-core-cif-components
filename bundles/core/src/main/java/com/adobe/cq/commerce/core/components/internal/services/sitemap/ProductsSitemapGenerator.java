@@ -147,7 +147,7 @@ public class ProductsSitemapGenerator extends SitemapGeneratorBase implements Si
                 }
                 ProductUrlFormat.Params params = new ProductUrlFormat.Params(product);
                 params.setPage(productPage.getPath());
-                String urlStr = externalizer.toExternalProductUrl(null, null, params);
+                String urlStr = externalizer.toExternalProductUrl(null, productPage, params);
                 Url url = sitemap.addUrl(urlStr);
                 if (addLastModified) {
                     addLastModified(url, product);

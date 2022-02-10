@@ -29,7 +29,9 @@ import org.apache.sling.api.request.RequestParameter;
 import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
 import org.apache.sling.testing.mock.osgi.MockOsgi;
@@ -40,8 +42,12 @@ import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithCategoryAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
@@ -53,6 +59,8 @@ import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
@@ -70,11 +78,13 @@ public class UrlProviderImplTest {
     private MockSlingHttpServletRequest request;
     private CloseableHttpClient httpClient;
     private GraphqlClient graphqlClient;
+    private ComponentsConfiguration caConfig;
 
     @Before
     public void setup() throws Exception {
         urlProvider = context.getService(UrlProvider.class);
         request = context.request();
+        caConfig = ComponentsConfiguration.EMPTY;
 
         httpClient = mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
@@ -82,6 +92,9 @@ public class UrlProviderImplTest {
         graphqlClient = spy(new GraphqlClientImpl());
         context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
         context.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
+
+        Function<Resource, ComponentsConfiguration> adapter = r -> caConfig;
+        context.registerAdapter(Resource.class, ComponentsConfiguration.class, adapter);
 
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
             "{products(filter:{sku:{eq:\"MJ01\"}}");
@@ -125,6 +138,8 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductUrlWithCustomPage() {
+        Page page = context.create().page("/content/custom-page");
+        context.currentPage(page);
         Map<String, String> params = new ParamsBuilder()
             .urlKey("beaumont-summit-kit")
             .page("/content/custom-page")
@@ -459,6 +474,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductIdentifierParsingInSuffixUrlKeyWithGraphqlClientError() {
+        context.currentPage("/content/product-page");
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/beaumont-summit-kit.html");
 
@@ -470,6 +486,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductIdentifierParsingInSuffixSKU() {
+        context.currentPage("/content/product-page");
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/MJ01.html");
         MockOsgi.deactivate(urlProvider, context.bundleContext());
@@ -569,6 +586,126 @@ public class UrlProviderImplTest {
 
         assertEquals("/content/category-page/sub-page-with-urlpath-array.html?uid=category-uid-3", urlProvider.toCategoryUrl(request, page,
             params));
+    }
+
+    @Test
+    public void testCAConfigProductURLFormat() {
+        Page page = context.currentPage("/content/product-page");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            UrlFormat.PRODUCT_PAGE_URL_FORMAT, ProductPageWithSku.PATTERN);
+
+        ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+            ImmutableMap.of(UrlFormat.PRODUCT_PAGE_URL_FORMAT, ProductPageWithUrlKey.PATTERN));
+        caConfig = new ComponentsConfiguration(
+            MOCK_CONFIGURATION);
+
+        Map<String, String> params = new ParamsBuilder()
+            .urlKey("beaumont-summit-kit")
+            .map();
+
+        String url = urlProvider.toProductUrl(request, page, params);
+        Assert.assertEquals("/content/product-page.html/beaumont-summit-kit.html", url);
+    }
+
+    @Test
+    public void testCAConfigCategoryURLFormat() {
+        Page page = context.currentPage("/content/category-page");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            UrlFormat.CATEGORY_PAGE_URL_FORMAT,
+            CategoryPageWithUrlKey.PATTERN);
+
+        ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+            ImmutableMap.of(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CategoryPageWithUrlPath.PATTERN));
+        caConfig = new ComponentsConfiguration(
+            MOCK_CONFIGURATION);
+
+        Map<String, String> params = new ParamsBuilder()
+            .urlPath("men")
+            .map();
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        Assert.assertEquals("/content/category-page.html/men.html", url);
+    }
+
+    @Test
+    public void testCAConfigWithCustomProductPageFormatRegistered() {
+        Page page = context.create().page("/page");
+        context.currentPage(page);
+        context.request().setQueryString("sku=MJ02");
+        context.registerService(UrlFormat.class, new CustomUrlFormat(), UrlFormat.PROP_USE_AS,
+            UrlFormat.PRODUCT_PAGE_URL_FORMAT);
+        // registering the custom format causes a new service to be created
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+
+        ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+            ImmutableMap.of(UrlFormat.PRODUCT_PAGE_URL_FORMAT, ProductPageWithSku.PATTERN));
+        caConfig = new ComponentsConfiguration(
+            MOCK_CONFIGURATION);
+
+        // verify format
+        String url = urlProvider.toProductUrl(request, page, "MJ02");
+        Assert.assertEquals("/page.html/MJ02.html", url);
+    }
+
+    @Test
+    public void testCustomCAConfigWithCustomProductPageFormatRegistered() {
+        Page page = context.create().page("/page");
+        context.currentPage(page);
+        context.request().setQueryString("sku=MJ02");
+        context.registerService(UrlFormat.class, new CustomUrlFormat(), UrlFormat.PROP_USE_AS,
+            UrlFormat.PRODUCT_PAGE_URL_FORMAT);
+        // registering the custom format causes a new service to be created
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+
+        ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+            ImmutableMap.of(UrlFormat.PRODUCT_PAGE_URL_FORMAT, CustomUrlFormat.class.getName()));
+        caConfig = new ComponentsConfiguration(
+            MOCK_CONFIGURATION);
+
+        // verify format
+        String url = urlProvider.toProductUrl(request, page, "MJ02");
+        Assert.assertEquals("/page.html?sku=MJ02", url);
+    }
+
+    @Test
+    public void testCAConfigWithCustomCategoryPageFormat() {
+        Page page = context.create().page("/page");
+        context.currentPage(page);
+        context.request().setQueryString("uid=uid-5");
+        context.registerService(UrlFormat.class, new CustomUrlFormat(), UrlFormat.PROP_USE_AS,
+            UrlFormat.CATEGORY_PAGE_URL_FORMAT);
+        // registering the custom format causes a new service to be created
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+
+        ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+            ImmutableMap.of(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CategoryPageWithUrlKey.PATTERN));
+        caConfig = new ComponentsConfiguration(
+            MOCK_CONFIGURATION);
+        // verify format
+        String url = urlProvider.toCategoryUrl(request, page, "uid-5");
+        Assert.assertEquals("/page.html/equipment.html", url);
+    }
+
+    @Test
+    public void testCustomCAConfigWithCustomCategoryPageFormat() {
+        Page page = context.create().page("/page");
+        context.currentPage(page);
+        context.request().setQueryString("uid=uid-5");
+        context.registerService(UrlFormat.class, new CustomUrlFormat(), UrlFormat.PROP_USE_AS,
+            UrlFormat.CATEGORY_PAGE_URL_FORMAT);
+        // registering the custom format causes a new service to be created
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+
+        ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+            ImmutableMap.of(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CustomUrlFormat.class.getName()));
+        caConfig = new ComponentsConfiguration(
+            MOCK_CONFIGURATION);
+
+        // verify format
+        String url = urlProvider.toCategoryUrl(request, page, "uid-5");
+        Assert.assertEquals("/page.html?uid=uid-5", url);
     }
 
     private static class CustomUrlFormat implements UrlFormat {

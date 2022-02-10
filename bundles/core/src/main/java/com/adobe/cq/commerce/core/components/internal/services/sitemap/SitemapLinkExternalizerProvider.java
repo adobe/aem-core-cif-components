@@ -93,37 +93,32 @@ public class SitemapLinkExternalizerProvider {
 
         @Override
         public String toExternalProductUrl(SlingHttpServletRequest request, Page page, ProductUrlFormat.Params params) {
-            String externalPath = externalize(page, params.getPage());
-            // if externalized we must not pass page to the url provider as this will overwrite the path again. this will break the specific
-            // page selection if enabled but for canonical urls we don't want this to be active anyway
-            if (externalPath != null) {
-                // make a copy
-                params = new ProductUrlFormat.Params(params);
-                params.setPage(externalPath);
-                return urlProvider.toProductUrl(request, null, params);
+            String url = urlProvider.toProductUrl(request, page, params);
+            Resource resolvedResource = resourceResolver.resolve(url);
+            String externalPath = externalizer.externalize(resolvedResource);
+
+            if (externalPath != null && url.startsWith(resolvedResource.getPath())) {
+                return externalPath + url.substring(resolvedResource.getPath().length());
             } else {
-                return urlProvider.toProductUrl(request, page, params);
+                // the url does not start with the resource path, it may already be
+                // externalised?
+                return url;
             }
         }
 
         @Override
         public String toExternalCategoryUrl(SlingHttpServletRequest request, Page page, CategoryUrlFormat.Params params) {
-            String externalPath = externalize(page, params.getPage());
-            // if externalized we must not pass page to the url provider as this will overwrite the path again. this will break the specific
-            // page selection if enabled but for canonical urls we don't want this to be active anyway
-            if (externalPath != null) {
-                // make a copy
-                params = new CategoryUrlFormat.Params(params);
-                params.setPage(externalPath);
-                return urlProvider.toCategoryUrl(request, null, params);
-            } else {
-                return urlProvider.toCategoryUrl(request, page, params);
-            }
-        }
+            String url = urlProvider.toCategoryUrl(request, page, params);
+            Resource resolvedResource = resourceResolver.resolve(url);
+            String externalPath = externalizer.externalize(resolvedResource);
 
-        private String externalize(Page page, String alternativePagePath) {
-            Resource pageResource = page != null ? page.adaptTo(Resource.class) : resourceResolver.getResource(alternativePagePath);
-            return pageResource != null ? externalizer.externalize(pageResource) : null;
+            if (externalPath != null && url.startsWith(resolvedResource.getPath())) {
+                return externalPath + url.substring(resolvedResource.getPath().length());
+            } else {
+                // the url does not start with the resource path, it may already be
+                // externalised?
+                return url;
+            }
         }
     }
 }
