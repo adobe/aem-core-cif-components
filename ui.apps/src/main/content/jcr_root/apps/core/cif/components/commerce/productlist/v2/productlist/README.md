@@ -26,7 +26,7 @@ not having this field in the GraphQL schema.
 
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
-1. `./selection` - the uid of the category to be displayed in the component, if missing the component displays a
+1. `./category` - the uid of the category to be displayed in the component, if missing the component displays a
                    category based on the page URL 
 2. `./pageSize` - the number of products shown on one page
 3. `./showTitle` - if true the component displays the category title

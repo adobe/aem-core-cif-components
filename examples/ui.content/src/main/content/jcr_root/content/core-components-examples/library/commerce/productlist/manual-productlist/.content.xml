@@ -100,7 +100,7 @@
                             sling:resourceType="cif-components-examples/components/productlist"
                             loadClientPrice="{Boolean}true"
                             pageSize="6"
-                            selection="uid-1"
+                            category="uid-1"
                             showImage="true"
                             showTitle="true"/>
                     </component>

@@ -504,7 +504,7 @@
       "root": {
         "responsivegrid": {
           "productlist": {
-            "selection": "MTI==",
+            "category": "MTI==",
             "sling:resourceType": "venia/components/commerce/productlist"
           }
         }

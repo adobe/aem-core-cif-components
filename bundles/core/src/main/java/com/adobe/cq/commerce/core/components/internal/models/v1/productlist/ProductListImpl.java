@@ -76,7 +76,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     private static final boolean SHOW_TITLE_DEFAULT = true;
     private static final boolean SHOW_IMAGE_DEFAULT = true;
-    private static final String SELECTION_PROPERTY = "selection";
+    private static final String CATEGORY_PROPERTY = "category";
 
     private boolean showTitle;
     private boolean showImage;
@@ -88,7 +88,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     private MagentoGraphqlClient magentoGraphqlClient;
     @SlingObject
     private SlingScriptHelper sling;
-    @ValueMapValue(name = SELECTION_PROPERTY, injectionStrategy = InjectionStrategy.OPTIONAL)
+    @ValueMapValue(name = CATEGORY_PROPERTY, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String categoryUid;
 
     protected AbstractCategoryRetriever categoryRetriever;
@@ -115,7 +115,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
 
         if (StringUtils.isBlank(categoryUid)) {
-            // If not provided via the selection property extract category identifier from URL
+            // If not provided via the category property extract category identifier from URL
             categoryUid = urlProvider.getCategoryIdentifier(request);
         }
 
