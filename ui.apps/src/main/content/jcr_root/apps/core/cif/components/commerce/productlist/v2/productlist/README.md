@@ -22,6 +22,18 @@ This hence requires that the Magento backend is at least version 2.4.2 EE
 because the query with the `staged` field will be rejected by Magento versions
 not having this field in the GraphQL schema.
 
+### Edit Dialog Properties
+
+The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
+
+1. `./selection` - the uid of the category to be displayed in the component, if missing the component displays a
+                   category based on the page URL 
+2. `./pageSize` - the number of products shown on one page
+3. `./showTitle` - if true the component displays the category title
+4. `./showImage` - if true the component displays the category image
+5. `./id` - defines the component HTML ID attribute
+
+
 ## BEM Description
 
 In addition to the elements documented for the version 2 of the productcollection component,
