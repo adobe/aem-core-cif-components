@@ -105,6 +105,13 @@ public abstract class AbstractProductsRetriever extends AbstractRetriever {
     }
 
     /**
+     * @return The extended product query part if it was set with {@link AbstractProductsRetriever#extendProductQueryWith(Consumer)}
+     */
+    public Consumer<ProductInterfaceQuery> getProductQueryHook() {
+        return productQueryHook;
+    }
+
+    /**
      * Extend the product variant GraphQL query with a partial query provided by a lambda hook that sets additional fields.
      *
      * Example:
@@ -121,6 +128,13 @@ public abstract class AbstractProductsRetriever extends AbstractRetriever {
      */
     public void extendVariantQueryWith(Consumer<SimpleProductQuery> variantQueryHook) {
         this.variantQueryHook = variantQueryHook;
+    }
+
+    /**
+     * @return The extended product variant query part if it was set with {@link AbstractProductsRetriever#extendVariantQueryWith(Consumer)}
+     */
+    public Consumer<SimpleProductQuery> getVariantQueryHook() {
+        return this.variantQueryHook;
     }
 
     /**
