@@ -14,7 +14,7 @@ For starting a new project please have a look at our [archetype](https://github.
 
 ## Documentation
 
-See our [wiki](https://github.com/adobe/aem-core-cif-components/wiki) for usage and configuration instructions of the AEM CIF Core Components.
+See the [AEM Content & Commerce documentation](https://experienceleague.adobe.com/docs/experience-manager-cloud-service/content/content-and-commerce/storefront/developing/develop.html) for usage and configuration instructions of the AEM CIF Core Components and [Introduction to AEM Component Development](https://experienceleague.adobe.com/docs/experience-manager-learn/sites/components/component-development.html).
 
 ## Available Components
 
