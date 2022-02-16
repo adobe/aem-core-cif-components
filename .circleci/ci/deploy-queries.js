@@ -47,10 +47,8 @@ ci.dir(repo, () => {
     }
 
     // Commit and push changes
-    ci.gitCredentials(ci.env('GITHUB_TOKEN'), '', () => {
-        ci.gitImpersonate('CircleCI', 'no-reply@adobe.com', () => {
-            ci.sh('git commit -m "releng - Update CIF Core Components Queries"');
-            ci.sh(`git push --set-upstream origin master`);
-        });
+    ci.gitImpersonate('CircleCI', 'no-reply@adobe.com', () => {
+        ci.sh('git commit -m "releng - Update CIF Core Components Queries"');
+        ci.sh(`git push --set-upstream origin master`);
     });
 });
