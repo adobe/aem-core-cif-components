@@ -179,7 +179,7 @@ module.exports = class CI {
     }
 
     parsePom() {
-        const metaData = this.sh('printf \'${project.groupId}|${project.artifactId}|${project.name}|${project.version}|${project.packaging}\' | mvn help:evaluate -s --non-recursive | grep -Ev "(Download|\\[)"', true, false).split('|');
+        const metaData = this.sh('printf \'${project.groupId}|${project.artifactId}|${project.name}|${project.version}|${project.packaging}\' | mvn help:evaluate --non-recursive | grep -Ev "(Download|\\[)"', true, false).split('|');
         return {
             groupId: metaData[0],
             artifactId: metaData[1],
