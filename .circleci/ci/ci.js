@@ -99,16 +99,14 @@ module.exports = class CI {
     /**
      * Configure git credentials for the scope of the given function.
      */
-    gitCredentials(repo, func) {
+     gitCredentials(user, password, func) {
         try {
-            this.sh('git config credential.helper \'store --file .git-credentials\'');
-            fs.writeFileSync('.git-credentials', repo);
-            console.log('// Created file .git-credentials.');
-            func()
+            this.sh(`git config credential.helper '!f() { sleep 1; echo "username=${user}"; echo "password=${password}"; }; f'`);
+            console.log("// Credential Helper set");
+            func();
         } finally {
-            this.sh('git config --unset credential.helper');
-            fs.unlinkSync('.git-credentials');
-            console.log('// Deleted file .git-credentials.');
+            this.sh("git config --unset credential.helper");
+            console.log("// Credential Helper unset");
         }
     };
 
@@ -178,6 +176,17 @@ module.exports = class CI {
         output += path.resolve(module.path, 'target', filename);
 
         return output;
+    }
+
+    parsePom() {
+        const metaData = this.sh('printf \'${project.groupId}|${project.artifactId}|${project.name}|${project.version}|${project.packaging}\' | mvn help:evaluate -s --non-recursive | grep -Ev "(Download|\\[)"', true, false).split('|');
+        return {
+            groupId: metaData[0],
+            artifactId: metaData[1],
+            name: metaData[2],
+            version: metaData[3],
+            packaging: metaData[4]
+        };
     }
 
 };

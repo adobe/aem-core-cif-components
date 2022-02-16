@@ -275,91 +275,112 @@ jobs:
             rm -rf /home/circleci/.gnupg
             rm -rf /home/circleci/.npmrc
 
+  deploy-queries:
+    executor: cif_executor
+    steps:
+      - checkout
+      - *restore_cache
+      - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
+          name: Generate Queries
+          command: |
+            mvn -B clean verify
+      - run:
+          name: Deploy Queries
+          command: |
+            node --unhandled-rejections=strict .circleci/ci/deploy-queries.js
+
 workflows:
   version: 2
   build-and-release:
     jobs:
-      - build-java-11:
+      - deploy-queries:
           context:
             - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-      - build-java-8:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-      - karma:
-          filters:
-            tags:
-              only: /.*/
-      - jest:
-          filters:
-            tags:
-              only: /.*/
-      - jest-extension:
-          filters:
-            tags:
-              only: /.*/
-      - integration-test-655:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - build-java-8
-            - karma
-            - jest
-            - jest-extension
-      - integration-test-cloudready-with-addon:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - build-java-8
-            - karma
-            - jest
-            - jest-extension
-      - selenium-chrome-655:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - build-java-8
-            - karma
-            - jest
-            - jest-extension
-      - selenium-chrome-cloudready-with-addon:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - build-java-8
-            - karma
-            - jest
-            - jest-extension
-      - release:
-          context:
-            - CIF Artifactory Cloud
-            - CIF NPM
-            - CIF Maven Central
-          requires:
-            - build-java-11
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^core-cif-components-reactor-\d+\.\d+\.\d+$/
+            - CIF GitHub
+      # - build-java-11:
+      #     context:
+      #       - CIF Artifactory Cloud
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      # - build-java-8:
+      #     context:
+      #       - CIF Artifactory Cloud
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      # - karma:
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      # - jest:
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      # - jest-extension:
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      # - integration-test-655:
+      #     context:
+      #       - CIF Artifactory Cloud
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      #     requires:
+      #       - build-java-11
+      #       - build-java-8
+      #       - karma
+      #       - jest
+      #       - jest-extension
+      # - integration-test-cloudready-with-addon:
+      #     context:
+      #       - CIF Artifactory Cloud
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      #     requires:
+      #       - build-java-11
+      #       - build-java-8
+      #       - karma
+      #       - jest
+      #       - jest-extension
+      # - selenium-chrome-655:
+      #     context:
+      #       - CIF Artifactory Cloud
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      #     requires:
+      #       - build-java-11
+      #       - build-java-8
+      #       - karma
+      #       - jest
+      #       - jest-extension
+      # - selenium-chrome-cloudready-with-addon:
+      #     context:
+      #       - CIF Artifactory Cloud
+      #     filters:
+      #       tags:
+      #         only: /.*/
+      #     requires:
+      #       - build-java-11
+      #       - build-java-8
+      #       - karma
+      #       - jest
+      #       - jest-extension
+      # - release:
+      #     context:
+      #       - CIF Artifactory Cloud
+      #       - CIF NPM
+      #       - CIF Maven Central
+      #     requires:
+      #       - build-java-11
+      #     filters:
+      #       branches:
+      #         ignore: /.*/
+      #       tags:
+      #         only: /^core-cif-components-reactor-\d+\.\d+\.\d+$/
