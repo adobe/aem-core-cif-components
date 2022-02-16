@@ -26,7 +26,7 @@ ci.stage('Push changes to reference repo');
 const { version } = ci.parsePom();
 
 // Checkout public rep
-ci.checkout(`https://github.com/herzog31/${repo}.git`);
+ci.checkout(`https://github.com/adobe/${repo}.git`);
 
 // Commit and push
 ci.dir(repo, () => {
