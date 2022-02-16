@@ -287,6 +287,7 @@ jobs:
           name: Generate Queries
           command: |
             mvn -B clean verify
+          working_directory: bundles/core
       - run:
           name: Deploy Queries
           command: |
