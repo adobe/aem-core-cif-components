@@ -34,11 +34,23 @@
 
     function applySelectionTypeChange(value) {
         if (value === 'product') {
-            $(categoryFieldSelector).parent().parent().parent().hide();
-            $(productsMultiFieldSelector).parent().show();
+            $(categoryFieldSelector)
+                .parent()
+                .parent()
+                .parent()
+                .hide();
+            $(productsMultiFieldSelector)
+                .parent()
+                .show();
         } else if (value === 'category') {
-            $(productsMultiFieldSelector).parent().hide();
-            $(categoryFieldSelector).parent().parent().parent().show();
+            $(productsMultiFieldSelector)
+                .parent()
+                .hide();
+            $(categoryFieldSelector)
+                .parent()
+                .parent()
+                .parent()
+                .show();
         }
     }
 
