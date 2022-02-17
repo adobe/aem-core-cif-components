@@ -15,14 +15,49 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel;
 
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
 
 class ProductsRetriever extends AbstractProductsRetriever {
+    private String categoryUid;
+    private Integer productCount;
+
     ProductsRetriever(MagentoGraphqlClient client) {
         super(client);
+    }
+
+    void setCategoryUid(String categoryUid) {
+        this.categoryUid = categoryUid;
+    }
+
+    void setProductCount(Integer productCount) {
+        this.productCount = productCount;
+    }
+
+    @Override
+    protected String generateQuery(List<String> identifiers) {
+        if (StringUtils.isBlank(categoryUid)) {
+            return super.generateQuery(identifiers);
+        } else {
+            FilterEqualTypeInput uidFilter = new FilterEqualTypeInput().setEq(categoryUid);
+            ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setCategoryUid(uidFilter);
+            QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter).currentPage(1).pageSize(productCount);
+
+            ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
+            return Operations.query(query -> query
+                .products(searchArgs, queryArgs)).toString();
+        }
     }
 
     @Override

@@ -95,6 +95,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
 
     private static final String CATEGORY_UID = "uid-1";
     private static final String CATEGORY_STAGED_PRODUCTS_UID = "uid-2";
+    private static final String CATEGORY_PRODUCT_CAROUSEL_UID = "uid-3";
 
     private static final String STAGED_PRODUCT_URL_KEY = "chaz-crocodile-hoodie";
     private static final String STAGED_PRODUCT_SKU = "MH02";
@@ -424,6 +425,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                     return readProductsFrom(PRODUCTS_COLLECTION_JSON);
                 } else if (CATEGORY_STAGED_PRODUCTS_UID.equals(uidPattern.group(1))) {
                     return readProductsFrom(PRODUCTS_COLLECTION_WITH_STAGED_PRODUCTS_JSON);
+                } else if (CATEGORY_PRODUCT_CAROUSEL_UID.equals(uidPattern.group(1))) {
+                    return readProductsFrom(PRODUCT_CAROUSEL_JSON);
                 }
             } else if (urlKeyEqPattern.matches()) {
                 if (GROUPED_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {

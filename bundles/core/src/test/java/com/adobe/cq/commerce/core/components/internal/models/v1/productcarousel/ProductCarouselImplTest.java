@@ -74,6 +74,7 @@ public class ProductCarouselImplTest {
     private static final String PRODUCT_PAGE = "/content/product-page";
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCTCAROUSEL = "/content/pageA/jcr:content/root/responsivegrid/productcarousel";
+    private static final String PRODUCTCAROUSEL_WITH_CATEGORY = "/content/pageA/jcr:content/root/responsivegrid/productcarousel_with_category";
 
     private Resource carouselResource;
     private ProductCarouselImpl productCarousel;
@@ -112,12 +113,11 @@ public class ProductCarouselImplTest {
 
         productSkuArray = (String[]) carouselResource.getValueMap().get("product"); // The HTL script uses an alias here
         slingBindings.put("productSkuList", productSkuArray);
-
-        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
     }
 
     @Test
     public void getProducts() {
+        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
 
         Assert.assertEquals("h2", productCarousel.getTitleType());
 
@@ -168,7 +168,47 @@ public class ProductCarouselImplTest {
     }
 
     @Test
+    public void getProductsForCategory() {
+        context.currentResource(PRODUCTCAROUSEL_WITH_CATEGORY);
+
+        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
+
+        Assert.assertEquals("h2", productCarousel.getTitleType());
+        int productCount = 2;
+
+        List<ProductListItem> items = productCarousel.getProducts();
+        Assert.assertEquals(productCount, items.size()); // one product is not found and the JSON response contains a "faulty" product
+
+        NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
+
+        for (int i = 0; i < productCount; i++) {
+            ProductListItem item = items.get(i);
+            ProductInterface product = products.get(i);
+
+            Assert.assertEquals(product.getName(), item.getTitle());
+            Assert.assertEquals(product.getSku(), item.getSKU());
+            Assert.assertEquals(product.getUrlKey(), item.getSlug());
+            Assert.assertEquals(toProductUrl(product, null), item.getURL());
+
+            Money amount = product.getPriceRange().getMinimumPrice().getFinalPrice();
+            Assert.assertEquals(amount.getValue(), item.getPriceRange().getFinalPrice(), 0);
+            Assert.assertEquals(amount.getCurrency().toString(), item.getPriceRange().getCurrency());
+            priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
+            Assert.assertEquals(priceFormatter.format(amount.getValue()), item.getPriceRange().getFormattedFinalPrice());
+            ProductImage thumbnail = product.getThumbnail();
+            if (thumbnail == null) {
+                // if thumbnail is missing for a product in GraphQL response then thumbnail is null for the related item
+                Assert.assertNull(item.getImageURL());
+            } else {
+                Assert.assertEquals(thumbnail.getUrl(), item.getImageURL());
+            }
+        }
+    }
+
+    @Test
     public void testGetProductIdentifiers() {
+        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
+
         List<ProductListItem> items = productCarousel.getProductIdentifiers();
         Set<String> expectedIdentifiers = ImmutableSet.of(
             "NOT-FOUND",
@@ -184,6 +224,8 @@ public class ProductCarouselImplTest {
 
     @Test
     public void testJsonExport() {
+        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
+
         Utils.testJSONExport(productCarousel, "/exporter/productcarousel.json");
     }
 

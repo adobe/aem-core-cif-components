@@ -63,6 +63,20 @@ public class ProductsRetrieverTest {
     }
 
     @Test
+    public void testProductQueryWithCategory() {
+        retriever.setCategoryUid("uid-1");
+        retriever.setProductCount(5);
+
+        retriever.fetchProducts();
+
+        final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(mockClient, times(1)).execute(captor.capture());
+
+        String expectedQuery = "{products(filter:{category_uid:{eq:\"uid-1\"}},currentPage:1,pageSize:5){items{__typename,sku,name,thumbnail{label,url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}";
+        Assert.assertEquals(expectedQuery, captor.getValue());
+    }
+
+    @Test
     public void testExtendedProductQuery() {
         retriever.extendProductQueryWith(p -> p.createdAt()
             .addCustomSimpleField("is_returnable"));
