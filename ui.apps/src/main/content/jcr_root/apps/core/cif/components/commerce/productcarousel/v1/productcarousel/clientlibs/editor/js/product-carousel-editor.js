@@ -56,10 +56,12 @@
 
     function init($dialogContent) {
         var currentSelectionType = $dialogContent[0].querySelector(currentSelectionTypeSelector);
-        applySelectionTypeChange(currentSelectionType.value);
+        if (currentSelectionType) {
+            applySelectionTypeChange(currentSelectionType.value);
 
-        $dialogContent.on('change', selectionTypeSelector, function(e) {
-            applySelectionTypeChange(e.target.value);
-        });
+            $dialogContent.on('change', selectionTypeSelector, function(e) {
+                applySelectionTypeChange(e.target.value);
+            });
+        }
     }
 })(jQuery);
