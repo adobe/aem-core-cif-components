@@ -20,11 +20,13 @@
  */
 class Carousel {
     constructor(rootElement, selectors = Carousel.selectors) {
-        this._cardsContainer = rootElement.querySelector(selectors.container);
-        if (!this._cardsContainer) {
+        const cardsContainer = rootElement.querySelector(selectors.container);
+        if (!cardsContainer) {
             // the carousel is empty
             return;
         }
+
+        this._cardsContainer = cardsContainer;
 
         // Re-calculate carousel state when the window size changes
         this._calculate = this._calculate.bind(this);
@@ -33,13 +35,14 @@ class Carousel {
         this._speed = 300;
         this._delay = 0;
         this._effect = 'linear';
-        this._carousel_root = rootElement.querySelector(selectors.root);
+        this._currentPos = 0;
+        this._currentOffset = 0;
         this._currentRootWidth = 0;
+        this._carousel_root = rootElement.querySelector(selectors.root);
         this._carousel_parent = rootElement.querySelector(selectors.parent);
         this._cards = this._cardsContainer.querySelectorAll(selectors.card);
         this._btnPrev = rootElement.querySelector(selectors.btnPrev);
         this._btnNext = rootElement.querySelector(selectors.btnNext);
-        this._currentPos = 0;
 
         this._calculate();
 
@@ -49,80 +52,80 @@ class Carousel {
 
     _calculate() {
         // Only re-calculate when one of the screen size breakpoints changes the size of the component
-        if (this._carousel_root.offsetWidth == this._currentRootWidth) {
+        if (this._cards.length === 0 || this._carousel_root.offsetWidth == this._currentRootWidth) {
             return;
         }
 
-        this._minPos = this._carousel_parent.offsetWidth - this._cards.length * this._cards[0].offsetWidth;
-        this._cardsContainer.style.width = this._cards[0].offsetWidth * this._cards.length + 'px';
-        this._maxPosIndex =
-            (this._cardsContainer.offsetWidth - this._carousel_parent.offsetWidth) / this._cards[0].offsetWidth;
+        const rightMostCard = this._cards[this._cards.length - 1];
+        const leftMostCard = this._cards[0];
+        const rightMostMargin = parseInt(getComputedStyle(rightMostCard).marginRight);
+        const leftMostMargin = parseInt(getComputedStyle(leftMostCard).marginLeft);
+        const contentWidth =
+            rightMostCard.getBoundingClientRect().right +
+            rightMostMargin -
+            (leftMostCard.getBoundingClientRect().left + leftMostMargin);
 
-        if (this._minPos >= 0) {
+        if (this._carousel_parent.offsetWidth >= contentWidth) {
             // Hide buttons if all fit on the screen
             this._btnNext.style.display = 'none';
             this._btnPrev.style.display = 'none';
         } else {
             this._btnNext.style.display = 'block';
             this._btnPrev.style.display = 'block';
-            this._btnPrev.disabled = true;
         }
 
         // Reset carousel to first item
-        this._goToCard(0, 'reset');
+        this._goToCard(0);
         this._currentRootWidth = this._carousel_root.offsetWidth;
     }
 
     // click event handler for Next Button
     _goToNextCard() {
         if (this._btnNext.disabled === false) {
-            var newCurrentPos = 0;
-            newCurrentPos = this._currentPos + 1;
-            this._goToCard(newCurrentPos, 'next');
+            this._goToCard(this._currentPos + 1);
         }
     }
 
     // Click event handler for Prev Button
     _goToPrevCard() {
         if (this._btnPrev.disabled === false) {
-            var newCurrentPos = 0;
-            newCurrentPos = this._currentPos - 1;
-            this._goToCard(newCurrentPos, 'prev');
+            this._goToCard(this._currentPos - 1);
         }
     }
 
     // create card and transition
-    _goToCard(n, dir) {
-        var cardwidth = this._cards[0].offsetWidth,
-            currentPos = Math.max(-cardwidth * this._currentPos, this._minPos),
-            scrollWidth = cardwidth,
-            newPos;
-
-        if (dir === 'next') {
-            newPos = Math.max(this._minPos, currentPos - scrollWidth);
-        } else if (dir === 'prev') {
-            newPos = Math.min(0, currentPos + scrollWidth);
-        } else {
-            newPos = 0;
+    _goToCard(nextPos) {
+        if (nextPos < 0) {
+            // index out of bounds
+            return;
         }
+
+        const lastCard = this._cards[this._cards.length - 1];
+
+        if (
+            nextPos > this._currentPos &&
+            lastCard.getBoundingClientRect().right <= this._carousel_parent.getBoundingClientRect().right
+        ) {
+            // going right but last card is already in view
+            return;
+        }
+
+        const currentCard = this._cards[this._currentPos];
+        const targetCard = this._cards[nextPos];
+        const offsetDiff = currentCard.getBoundingClientRect().left - targetCard.getBoundingClientRect().left;
+        const newOffset = this._currentOffset + offsetDiff;
 
         this._cardsContainer.style.transition =
             'margin-left ' + this._speed + 'ms' + ' ' + this._effect + ' ' + this._delay + 'ms';
-        this._cardsContainer.style.marginLeft = newPos == 0 && this._minPos >= 0 ? 'auto' : newPos + 'px';
-        this._currentPos = n;
+        this._cardsContainer.style.marginLeft = newOffset + 'px';
+        this._currentPos = nextPos;
+        this._currentOffset = newOffset;
 
-        this._btnNext.disabled = false;
-        this._btnPrev.disabled = false;
-
-        if (this._currentPos >= this._maxPosIndex) {
-            this._btnNext.disabled = true;
-            this._btnPrev.disabled = false;
-        }
-
-        if (this._currentPos <= 0) {
-            this._btnPrev.disabled = true;
-            this._btnNext.disabled = false;
-        }
+        // disable _btnNext when the last card is in the carousel parent
+        this._btnNext.disabled =
+            lastCard.getBoundingClientRect().right <= this._carousel_parent.getBoundingClientRect().right - offsetDiff;
+        // disable _btnPrev when the we are at the first card
+        this._btnPrev.disabled = this._currentPos == 0;
     }
 }
 
