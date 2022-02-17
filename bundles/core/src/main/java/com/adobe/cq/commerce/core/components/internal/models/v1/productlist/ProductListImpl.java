@@ -37,6 +37,7 @@ import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +76,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     private static final boolean SHOW_TITLE_DEFAULT = true;
     private static final boolean SHOW_IMAGE_DEFAULT = true;
+    private static final String CATEGORY_PROPERTY = "category";
 
     private boolean showTitle;
     private boolean showImage;
@@ -86,6 +88,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     private MagentoGraphqlClient magentoGraphqlClient;
     @SlingObject
     private SlingScriptHelper sling;
+    @ValueMapValue(name = CATEGORY_PROPERTY, injectionStrategy = InjectionStrategy.OPTIONAL)
+    private String categoryUid;
 
     protected AbstractCategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
@@ -110,8 +114,10 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
         Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
 
-        // Extract category identifier from URL
-        String categoryUid = urlProvider.getCategoryIdentifier(request);
+        if (StringUtils.isBlank(categoryUid)) {
+            // If not provided via the category property extract category identifier from URL
+            categoryUid = urlProvider.getCategoryIdentifier(request);
+        }
 
         if (magentoGraphqlClient != null) {
             if (StringUtils.isNotBlank(categoryUid)) {

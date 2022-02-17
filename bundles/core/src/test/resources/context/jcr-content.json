@@ -493,5 +493,22 @@
         }
       }
     }
+  },
+  "custom-category-page": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "sling:resourceType": "core/cif/components/structure/page/v1/page",
+      "jcr:language": "en_US",
+      "jcr:primaryType": "cq:PageContent",
+      "magentoStore": "my-store",
+      "root": {
+        "responsivegrid": {
+          "productlist": {
+            "category": "MTI==",
+            "sling:resourceType": "venia/components/commerce/productlist"
+          }
+        }
+      }
+    }
   }
 }
