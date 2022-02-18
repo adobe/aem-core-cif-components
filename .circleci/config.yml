@@ -7,9 +7,9 @@ common:
   restore_cache: &restore_cache
     restore_cache:
       keys:
-        - maven-repo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "pom.xml" }}
-        - maven-repo-v2-{{ arch }}-{{ .Branch }}
-        - maven-repo-v2-
+        - maven-repo-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ .Branch }}-{{ checksum "pom.xml" }}
+        - maven-repo-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ .Branch }}
+        - maven-repo-{{ .Environment.CACHE_VERSION }}-
 
   integration_test_steps: &integration_test_steps
     steps:
@@ -97,7 +97,7 @@ jobs:
       - save_cache:
           paths:
             - ~/.m2
-          key: maven-repo-v2-{{ arch }}-{{ .Branch }}-{{ checksum "pom.xml" }}
+          key: maven-repo-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ .Branch }}-{{ checksum "pom.xml" }}
       - persist_to_workspace:
           root: /home/circleci/build
           paths:
