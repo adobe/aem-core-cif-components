@@ -32,17 +32,15 @@ class Carousel {
         this._calculate = this._calculate.bind(this);
         window.addEventListener('resize', this._calculate);
 
-        this._speed = 300;
-        this._delay = 0;
-        this._effect = 'linear';
         this._currentPos = 0;
         this._currentOffset = 0;
         this._currentRootWidth = 0;
         this._carousel_root = rootElement.querySelector(selectors.root);
         this._carousel_parent = rootElement.querySelector(selectors.parent);
-        this._cards = this._cardsContainer.querySelectorAll(selectors.card);
+        this._cards = cardsContainer.querySelectorAll(selectors.card);
         this._btnPrev = rootElement.querySelector(selectors.btnPrev);
         this._btnNext = rootElement.querySelector(selectors.btnNext);
+        this._direction = getComputedStyle(cardsContainer).direction;
 
         this._calculate();
 
@@ -60,10 +58,11 @@ class Carousel {
         const leftMostCard = this._cards[0];
         const rightMostMargin = parseInt(getComputedStyle(rightMostCard).marginRight);
         const leftMostMargin = parseInt(getComputedStyle(leftMostCard).marginLeft);
-        const contentWidth =
+        const contentWidth = Math.abs(
             rightMostCard.getBoundingClientRect().right +
-            rightMostMargin -
-            (leftMostCard.getBoundingClientRect().left + leftMostMargin);
+                rightMostMargin -
+                (leftMostCard.getBoundingClientRect().left + leftMostMargin)
+        );
 
         if (this._carousel_parent.offsetWidth >= contentWidth) {
             // Hide buttons if all fit on the screen
@@ -101,29 +100,36 @@ class Carousel {
         }
 
         const lastCard = this._cards[this._cards.length - 1];
+        const lastCardBB = lastCard.getBoundingClientRect();
+        const carouselParentBB = this._carousel_parent.getBoundingClientRect();
 
         if (
             nextPos > this._currentPos &&
-            lastCard.getBoundingClientRect().right <= this._carousel_parent.getBoundingClientRect().right
+            ((this._direction === 'ltr' && lastCardBB.right <= carouselParentBB.right) ||
+                (this._direction === 'rtl' && lastCardBB.left >= carouselParentBB.left))
         ) {
-            // going right but last card is already in view
+            // going next but last card is already in view
             return;
         }
 
         const currentCard = this._cards[this._currentPos];
         const targetCard = this._cards[nextPos];
-        const offsetDiff = currentCard.getBoundingClientRect().left - targetCard.getBoundingClientRect().left;
+        const offsetDiff =
+            (currentCard.getBoundingClientRect().left - targetCard.getBoundingClientRect().left) *
+            // negate the offsetDiff when rtl
+            (this._direction === 'rtl' ? -1 : 1);
         const newOffset = this._currentOffset + offsetDiff;
 
-        this._cardsContainer.style.transition =
-            'margin-left ' + this._speed + 'ms' + ' ' + this._effect + ' ' + this._delay + 'ms';
-        this._cardsContainer.style.marginLeft = newOffset + 'px';
+        this._cardsContainer.style[this._direction === 'ltr' ? 'marginLeft' : 'marginRight'] = newOffset + 'px';
         this._currentPos = nextPos;
         this._currentOffset = newOffset;
 
         // disable _btnNext when the last card is in the carousel parent
-        this._btnNext.disabled =
-            lastCard.getBoundingClientRect().right <= this._carousel_parent.getBoundingClientRect().right - offsetDiff;
+        if (this._direction === 'ltr') {
+            this._btnNext.disabled = lastCardBB.right <= carouselParentBB.right - offsetDiff;
+        } else {
+            this._btnNext.disabled = lastCardBB.left >= carouselParentBB.left + offsetDiff;
+        }
         // disable _btnPrev when the we are at the first card
         this._btnPrev.disabled = this._currentPos == 0;
     }
