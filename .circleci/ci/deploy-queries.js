@@ -18,7 +18,7 @@
 const ci = new (require('./ci.js'))();
 
 const repo = 'commerce-cif-graphql-integration-reference';
-const path = `actions/resources/components`;
+const path = `schemas/components`;
 
 ci.stage('Push changes to reference repo');
 
@@ -36,7 +36,7 @@ ci.dir(repo, () => {
     ci.sh(`cp -r ../bundles/core/src/test/resources/test-queries/graphql-requests.log ${path}/${fileName}`);
     ci.sh(`ls -aslh ${path}`);
 
-    ci.sh(`git add actions/resources/components/${fileName}`);
+    ci.sh(`git add ${path}/${fileName}`);
     ci.sh('git status');
 
     // Abort early if there aren't any changes staged
