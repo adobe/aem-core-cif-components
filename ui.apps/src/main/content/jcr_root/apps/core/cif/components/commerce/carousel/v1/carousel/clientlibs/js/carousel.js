@@ -54,15 +54,20 @@ class Carousel {
             return;
         }
 
-        const rightMostCard = this._cards[this._cards.length - 1];
-        const leftMostCard = this._cards[0];
-        const rightMostMargin = parseInt(getComputedStyle(rightMostCard).marginRight);
-        const leftMostMargin = parseInt(getComputedStyle(leftMostCard).marginLeft);
-        const contentWidth = Math.abs(
-            rightMostCard.getBoundingClientRect().right +
-                rightMostMargin -
-                (leftMostCard.getBoundingClientRect().left + leftMostMargin)
-        );
+        const lastCard = this._cards[this._cards.length - 1];
+        const lastCardBB = lastCard.getBoundingClientRect();
+        const lastCardStyle = getComputedStyle(lastCard);
+        const firstCard = this._cards[0];
+        const firstCardBB = firstCard.getBoundingClientRect();
+        const firstCardStyle = getComputedStyle(firstCard);
+        const contentWidth =
+            this._direction === 'ltr'
+                ? lastCardBB.right +
+                  parseInt(lastCardStyle.marginRight) -
+                  (firstCardBB.left + parseInt(firstCardStyle.marginLeft))
+                : firstCardBB.right +
+                  parseInt(firstCardStyle.marginRight) -
+                  (lastCardBB.left + parseInt(lastCardStyle.marginLeft));
 
         if (this._carousel_parent.offsetWidth >= contentWidth) {
             // Hide buttons if all fit on the screen
@@ -108,7 +113,6 @@ class Carousel {
             ((this._direction === 'ltr' && lastCardBB.right <= carouselParentBB.right) ||
                 (this._direction === 'rtl' && lastCardBB.left >= carouselParentBB.left))
         ) {
-            // going next but last card is already in view
             return;
         }
 
