@@ -79,9 +79,9 @@ public class CatalogPagePropertiesIT {
         elements = doc.select("coral-panel coral-checkbox coral-checkbox-label:contains(Show catalog page)");
         Assert.assertEquals(1, elements.size());
 
-        // Check that commerce pages section is not displayed
+        // Check that commerce pages section are displayed
         elements = doc.select("coral-panel .coral-Form-fieldset-legend:contains(Commerce Pages)");
-        Assert.assertEquals(0, elements.size());
+        Assert.assertEquals(1, elements.size());
     }
 
     @After
