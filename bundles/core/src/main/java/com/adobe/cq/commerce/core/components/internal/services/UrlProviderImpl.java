@@ -187,8 +187,8 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     private static <T> T getUrlFormatFromContext(SlingHttpServletRequest request, Page page, String propertyName,
-        Map<String, T> defaultUrlFormats,
-        T defaultUrlFormat, List<UrlFormat> urlFormats, List<T> newUrlFormats, Function<UrlFormat, T> adapter) {
+        Map<String, T> defaultUrlFormats, T defaultUrlFormat, List<UrlFormat> urlFormats, List<T> newUrlFormats,
+        Function<UrlFormat, T> adapter) {
 
         if (request == null && page == null) {
             throw new IllegalArgumentException("The request and the page parameters cannot both be null");
