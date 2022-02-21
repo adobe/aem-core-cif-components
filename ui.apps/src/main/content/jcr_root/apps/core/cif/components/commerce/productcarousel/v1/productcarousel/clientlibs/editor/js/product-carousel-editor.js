@@ -19,8 +19,8 @@
     var dialogContentSelector = '.cif-product-carousel__editor';
     var currentSelectionTypeSelector = 'input[name="./selectionType"]:checked';
     var selectionTypeSelector = 'coral-radio[name="./selectionType"]';
-    var productsMultiFieldSelector = 'coral-multifield[data-granite-coral-multifield-name="./product"]';
-    var categoryFieldSelector = 'input[name="./category"]';
+    var productsConfigSelector = '.cif-product-carousel__products-config';
+    var categoryConfigSelector = '.cif-product-carousel__category-config';
 
     $(document).on('dialog-loaded', function(e) {
         var $dialog = e.dialog;
@@ -34,23 +34,11 @@
 
     function applySelectionTypeChange(value) {
         if (value === 'product') {
-            $(categoryFieldSelector)
-                .parent()
-                .parent()
-                .parent()
-                .hide();
-            $(productsMultiFieldSelector)
-                .parent()
-                .show();
+            $(categoryConfigSelector).hide();
+            $(productsConfigSelector).show();
         } else if (value === 'category') {
-            $(productsMultiFieldSelector)
-                .parent()
-                .hide();
-            $(categoryFieldSelector)
-                .parent()
-                .parent()
-                .parent()
-                .show();
+            $(productsConfigSelector).hide();
+            $(categoryConfigSelector).show();
         }
     }
 

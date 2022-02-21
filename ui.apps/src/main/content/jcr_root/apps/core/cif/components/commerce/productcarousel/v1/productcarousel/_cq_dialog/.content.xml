@@ -19,15 +19,14 @@
                         fieldDescription="Select the products one by one or select a category for the products to be displayed."
                         name="./selectionType"
                         deleteHint="{Boolean}false"
-                        text="Selection Type"
                         vertical="{Boolean}false"
-                        fieldLabel="Selection Type">
+                        fieldLabel="Display products from">
                         <granite:data jcr:primaryType="nt:unstructured"
                             display-mode-radio-group="{Boolean}true"/>
                         <items jcr:primaryType="nt:unstructured">
                             <product jcr:primaryType="nt:unstructured"
                                 sling:resourceType="granite/ui/components/coral/foundation/form/radio"
-                                text="Products"
+                                text="Manual selection"
                                 value="product"
                                 checked="{Boolean}true"/>
                             <category jcr:primaryType="nt:unstructured"
@@ -38,7 +37,8 @@
                     </selectionType>
                     <productsConfig jcr:primaryType="nt:unstructured"
                         sling:orderBefore="id"
-                        sling:resourceType="granite/ui/components/coral/foundation/container">
+                        sling:resourceType="granite/ui/components/coral/foundation/container"
+                        granite:class="cif-product-carousel__products-config">
                         <items jcr:primaryType="nt:unstructured">
                             <label jcr:primaryType="nt:unstructured"
                                 sling:resourceType="granite/ui/components/coral/foundation/text"
@@ -57,7 +57,8 @@
                     <categoryConfig
                         jcr:primaryType="nt:unstructured"
                         sling:orderBefore="id"
-                        sling:resourceType="granite/ui/components/coral/foundation/container">
+                        sling:resourceType="granite/ui/components/coral/foundation/container"
+                        granite:class="cif-product-carousel__category-config">
                         <items jcr:primaryType="nt:unstructured">
                             <label jcr:primaryType="nt:unstructured"
                                 sling:resourceType="granite/ui/components/coral/foundation/text"

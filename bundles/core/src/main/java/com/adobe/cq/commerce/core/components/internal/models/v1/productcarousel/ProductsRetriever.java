@@ -47,7 +47,7 @@ class ProductsRetriever extends AbstractProductsRetriever {
 
     @Override
     protected String generateQuery(List<String> identifiers) {
-        if (StringUtils.isBlank(categoryUid)) {
+        if (!isCategoryQuery()) {
             return super.generateQuery(identifiers);
         } else {
             FilterEqualTypeInput uidFilter = new FilterEqualTypeInput().setEq(categoryUid);
@@ -55,8 +55,7 @@ class ProductsRetriever extends AbstractProductsRetriever {
             QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter).currentPage(1).pageSize(productCount);
 
             ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
-            return Operations.query(query -> query
-                .products(searchArgs, queryArgs)).toString();
+            return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
         }
     }
 
@@ -72,17 +71,26 @@ class ProductsRetriever extends AbstractProductsRetriever {
                 .urlRewrites(uq -> uq.url())
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
-                .onConfigurableProduct(cp -> cp
-                    .variants(v -> v
-                        .product(generateSimpleProductQuery()))
-                    .priceRange(r -> r
-                        .maximumPrice(generatePriceQuery())));
+                .onConfigurableProduct(cp -> {
+                    if (!isCategoryQuery()) {
+                        cp.variants(v -> v.product(generateSimpleProductQuery()));
+                    }
+                    cp.priceRange(r -> r.maximumPrice(generatePriceQuery()));
+                });
+
+            if (isCategoryQuery()) {
+                q.categories(cq -> cq.uid().urlKey().urlPath());
+            }
 
             // Apply product query hook
             if (productQueryHook != null) {
                 productQueryHook.accept(q);
             }
         };
+    }
+
+    private boolean isCategoryQuery() {
+        return StringUtils.isNotBlank(categoryUid);
     }
 
     private SimpleProductQueryDefinition generateSimpleProductQuery() {

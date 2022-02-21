@@ -35,6 +35,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -43,12 +44,7 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
-import com.adobe.cq.commerce.magento.graphql.Money;
-import com.adobe.cq.commerce.magento.graphql.ProductImage;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -80,6 +76,7 @@ public class ProductCarouselImplTest {
     private ProductCarouselImpl productCarousel;
     private List<ProductInterface> products;
     private String[] productSkuArray;
+    private GraphqlClient graphqlClient;
 
     @Before
     public void setUp() throws Exception {
@@ -91,7 +88,7 @@ public class ProductCarouselImplTest {
         products = rootQuery.getProducts().getItems();
 
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
-        GraphqlClient graphqlClient = new GraphqlClientImpl();
+        graphqlClient = new GraphqlClientImpl();
         context.registerInjectActivateService(graphqlClient);
         Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-productcarousel-result.json");
         Mockito.when(carouselResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
@@ -168,7 +165,11 @@ public class ProductCarouselImplTest {
     }
 
     @Test
-    public void getProductsForCategory() {
+    public void getProductsForCategory() throws Exception {
+        String productsJson = "graphql/magento-graphql-productcarousel-with-category-result.json";
+        Utils.addHttpResponseFrom(graphqlClient, productsJson);
+        products = Utils.getQueryFromResource(productsJson).getProducts().getItems();
+
         context.currentResource(PRODUCTCAROUSEL_WITH_CATEGORY);
 
         productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
@@ -195,6 +196,12 @@ public class ProductCarouselImplTest {
             Assert.assertEquals(amount.getCurrency().toString(), item.getPriceRange().getCurrency());
             priceFormatter.setCurrency(Currency.getInstance(amount.getCurrency().toString()));
             Assert.assertEquals(priceFormatter.format(amount.getValue()), item.getPriceRange().getFormattedFinalPrice());
+            if (i == 0) {
+                CategoryInterface category = (CategoryInterface) Whitebox.getInternalState(item, "categoryContext");
+                Assert.assertEquals("MTI=", category.getUid().toString());
+                Assert.assertEquals("watch", category.getUrlKey());
+                Assert.assertEquals("watch", category.getUrlPath());
+            }
             ProductImage thumbnail = product.getThumbnail();
             if (thumbnail == null) {
                 // if thumbnail is missing for a product in GraphQL response then thumbnail is null for the related item
@@ -203,6 +210,38 @@ public class ProductCarouselImplTest {
                 Assert.assertEquals(thumbnail.getUrl(), item.getImageURL());
             }
         }
+    }
+
+    @Test
+    public void getProductsForCategoryDefaultProductCount() {
+        context.currentResource(PRODUCTCAROUSEL_WITH_CATEGORY + "_no_product_count");
+        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
+
+        Integer productCount = (Integer) Whitebox.getInternalState(productCarousel, "productCount");
+        Assert.assertEquals(ProductCarouselImpl.DEFAULT_PRODUCT_COUNT, (int) productCount);
+        // one product is not found and the JSON response contains a "faulty" product
+        Assert.assertEquals(3, productCarousel.getProducts().size());
+    }
+
+    @Test
+    public void getProductsForCategoryMinProductCount() {
+        context.currentResource(PRODUCTCAROUSEL_WITH_CATEGORY + "_small_product_count");
+        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
+
+        Integer productCount = (Integer) Whitebox.getInternalState(productCarousel, "productCount");
+        Assert.assertEquals(ProductCarouselImpl.MIN_PRODUCT_COUNT, (int) productCount);
+        Assert.assertEquals(ProductCarouselImpl.MIN_PRODUCT_COUNT, productCarousel.getProducts().size());
+    }
+
+    @Test
+    public void getProductsForCategoryMaxProductCount() {
+        context.currentResource(PRODUCTCAROUSEL_WITH_CATEGORY + "_large_product_count");
+        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
+
+        Integer productCount = (Integer) Whitebox.getInternalState(productCarousel, "productCount");
+        Assert.assertEquals(ProductCarouselImpl.MAX_PRODUCT_COUNT, (int) productCount);
+        // one product is not found and the JSON response contains a "faulty" product
+        Assert.assertEquals(3, productCarousel.getProducts().size());
     }
 
     @Test
