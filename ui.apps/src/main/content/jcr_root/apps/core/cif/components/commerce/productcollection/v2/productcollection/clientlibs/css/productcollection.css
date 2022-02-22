@@ -36,7 +36,7 @@
     display: block;
     width: 18px;
     height: 18px;
-    content: "";
+    content: '';
     background-position: center;
     background-repeat: no-repeat;
     background-image: url('../resources/cross.svg');
@@ -63,7 +63,7 @@
     display: block;
     width: 24px;
     height: 24px;
-    content: "";
+    content: '';
 }
 
 .productcollection__filter-icon.productcollection__filter-icon--closed::before {
@@ -98,7 +98,7 @@
     display: inline-block;
     width: 24px;
     height: 24px;
-    content: "";
+    content: '';
 }
 
 .productcollection__sort-order.productcollection__sort-order--asc::before {
@@ -128,22 +128,26 @@
     display: block;
     width: 24px;
     height: 24px;
-    content: "";
+    content: '';
 }
 
-.productcollection__pagination-arrow.productcollection__pagination-arrow--prev .productcollection__pagination-icon::before {
+.productcollection__pagination-arrow.productcollection__pagination-arrow--prev
+    .productcollection__pagination-icon::before {
     background-image: url('../resources/chevron-left.svg');
 }
 
-.productcollection__pagination-arrow.productcollection__pagination-arrow--prev.productcollection__pagination-arrow--inactive .productcollection__pagination-icon::before {
+.productcollection__pagination-arrow.productcollection__pagination-arrow--prev.productcollection__pagination-arrow--inactive
+    .productcollection__pagination-icon::before {
     background-image: url('../resources/chevron-left.svg');
 }
 
-.productcollection__pagination-arrow.productcollection__pagination-arrow--next .productcollection__pagination-icon::before {
+.productcollection__pagination-arrow.productcollection__pagination-arrow--next
+    .productcollection__pagination-icon::before {
     background-image: url('../resources/chevron-right.svg');
 }
 
-.productcollection__pagination-arrow.productcollection__pagination-arrow--next.productcollection__pagination-arrow--inactive .productcollection__pagination-icon::before {
+.productcollection__pagination-arrow.productcollection__pagination-arrow--next.productcollection__pagination-arrow--inactive
+    .productcollection__pagination-icon::before {
     background-image: url('../resources/chevron-right.svg');
 }
 
