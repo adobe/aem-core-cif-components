@@ -25,13 +25,7 @@
             <span class="productcollection__current-filter">
                 <span>${aggregate.displayLabel}: ${aggregate.appliedFilterDisplayLabel @ context='html'}</span>
                 <a href="${request.requestURI @ query=aggregate.removeFilterMap}">
-                    <span class="productcollection__current-filter-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 19 19" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </span>
+                    <span class="productcollection__current-filter-icon"></span>
                 </a>
             </span>
         </li>
@@ -42,18 +36,8 @@
             <input type="radio" id="${aggregate.identifier}" name="activeFilter" class="productcollection__filter-toggler"/>
             <label for="${aggregate.identifier}" class="productcollection__filter-header">
                 <span class="productcollection__filter-title">${aggregate.displayLabel}</span>
-                <span class="productcollection__filter-icon productcollection__filter-icon--open">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="18 15 12 9 6 15"></polyline>
-                    </svg>
-                </span>
-                <span class="productcollection__filter-icon productcollection__filter-icon--closed">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </span>
+                <span class="productcollection__filter-icon productcollection__filter-icon--open"></span>
+                <span class="productcollection__filter-icon productcollection__filter-icon--closed"></span>
             </label>
             <ul class="productcollection__filter-items" data-sly-list.aggregateOption="${aggregate.options}">
                 <li>
