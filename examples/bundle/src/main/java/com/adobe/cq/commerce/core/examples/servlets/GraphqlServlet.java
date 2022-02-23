@@ -114,6 +114,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String UPSELL_PRODUCTS_JSON = "magento-graphql-upsellproducts.json";
     private static final String CROSSSELL_PRODUCTS_JSON = "magento-graphql-crosssellproducts.json";
     private static final String PRODUCT_CAROUSEL_JSON = "magento-graphql-productcarousel.json";
+    private static final String PRODUCT_CAROUSEL_CATEGORY_JSON = "magento-graphql-productcarousel-category.json";
     private static final String PRODUCT_TEASER_JSON = "magento-graphql-productteaser.json";
     private static final String PRODUCTS_COLLECTION_JSON = "magento-graphql-products-collection.json";
     private static final String PRODUCTS_COLLECTION_WITH_STAGED_PRODUCTS_JSON = "magento-graphql-products-collection-with-staged-products.json";
@@ -425,8 +426,6 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                     return readProductsFrom(PRODUCTS_COLLECTION_JSON);
                 } else if (CATEGORY_STAGED_PRODUCTS_UID.equals(uidPattern.group(1))) {
                     return readProductsFrom(PRODUCTS_COLLECTION_WITH_STAGED_PRODUCTS_JSON);
-                } else if (CATEGORY_PRODUCT_CAROUSEL_UID.equals(uidPattern.group(1))) {
-                    return readProductsFrom(PRODUCT_CAROUSEL_JSON);
                 }
             } else if (urlKeyEqPattern.matches()) {
                 if (GROUPED_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
@@ -503,6 +502,9 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                 } else if (filters.get("category_uid").get("eq").equals("Mg==")) {
                     // The navigation example will require item "Mg==" as the default root category
                     graphqlResponse = readGraphqlResponse(CATEGORY_LIST_TREE_JSON);
+                } else if (filters.get("category_uid").get("eq").equals(CATEGORY_PRODUCT_CAROUSEL_UID)) {
+                    // The products carousel with category example will require "uid-3" as the category uid
+                    graphqlResponse = readGraphqlResponse(PRODUCT_CAROUSEL_CATEGORY_JSON);
                 }
             }
         }
