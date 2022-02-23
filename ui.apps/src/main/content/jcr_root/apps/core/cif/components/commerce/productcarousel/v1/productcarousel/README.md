@@ -46,7 +46,7 @@ The following properties are written to JCR for this component and are expected 
 to the `type` value defined by the component's policy. The property of the policy is called `type` so we can reuse the `core/wcm/components/commons/datasources/allowedheadingelements/v1` Servlet from the WCM components.
 4. `./selectionType` - when set to `product`, the component displays the products defined by the `./product` property; when set to `category`, the products are displayed from the category defined by the `./category` property 
 5. `./category` - stores the UID of the category used for displaying the products when the selection type is `category`
-6. `./productCount` - defines the maximum number of products displayed for a category when the selection type is `category` (default value is 10, minimum 1, maximum 50)
+6. `./productCount` - defines the maximum number of products displayed for a category when the selection type is `category` (default value is 10, minimum 1)
 
 We also use a `SlingPostProcessor` in order to support "drag and drop" in the AEM Sites Editor, so that it is possible to easily add multiple products to the carousel. The custom processor only processes POST parameter keys starting with `./dropTarget->` so make sure that this doesn't collide with any other custom processor you might implement.
 

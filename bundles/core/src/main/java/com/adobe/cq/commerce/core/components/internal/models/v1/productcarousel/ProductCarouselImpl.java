@@ -15,7 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -43,7 +48,12 @@ import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarou
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
-import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
+import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
+import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
 import com.day.cq.wcm.api.Page;
@@ -70,7 +80,6 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
     private static final String SELECTION_TYPE_PROPERTY = "selectionType";
     static final int DEFAULT_PRODUCT_COUNT = 10;
     static final int MIN_PRODUCT_COUNT = 1;
-    static final int MAX_PRODUCT_COUNT = 50;
 
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -112,7 +121,7 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
         }
 
         productCount = resource.getValueMap().get(PRODUCT_COUNT_PROPERTY, currentStyle.get(PRODUCT_COUNT_PROPERTY, DEFAULT_PRODUCT_COUNT));
-        productCount = Math.min(Math.max(MIN_PRODUCT_COUNT, productCount), MAX_PRODUCT_COUNT);
+        productCount = Math.max(MIN_PRODUCT_COUNT, productCount);
 
         if (magentoGraphqlClient == null) {
             LOGGER.warn("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
@@ -159,7 +168,7 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
             if (PRODUCT_SELECTION.equals(selectionType)) {
                 return processManualProducts(productsRetriever.fetchProducts());
             } else if (CATEGORY_SELECTION.equals(selectionType)) {
-                return processCategoryProducts(productsRetriever.fetchProducts(), categoryUid);
+                return processCategoryProducts(productsRetriever.fetchProducts(), productsRetriever.fetchCategory());
             }
         }
 
@@ -254,23 +263,17 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
         return carouselProductList;
     }
 
-    private List<ProductListItem> processCategoryProducts(List<ProductInterface> productInterfaces, String categoryUid) {
+    private List<ProductListItem> processCategoryProducts(List<ProductInterface> productInterfaces, CategoryInterface category) {
         return productInterfaces.stream().map(product -> {
             try {
-                ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(),
-                    productPage, request, urlProvider)
-                        .product(product)
-                        .image(product.getThumbnail())
-                        .sku(product.getSku())
-                        .urlKey(product.getUrlKey())
-                        .urlPath(product.getUrlPath())
-                        .urlRewrites(product.getUrlRewrites());
-                List<CategoryInterface> categories = product.getCategories();
-                if (categories != null) {
-                    categories.stream().filter(category -> categoryUid.equals(category.getUid().toString()))
-                        .findAny().ifPresent(builder::categoryContext);
-                }
-                return builder.build();
+                return new ProductListItemImpl.Builder(getId(), productPage, request, urlProvider)
+                    .product(product)
+                    .image(product.getThumbnail())
+                    .sku(product.getSku())
+                    .urlKey(product.getUrlKey())
+                    .urlPath(product.getUrlPath())
+                    .urlRewrites(product.getUrlRewrites())
+                    .categoryContext(category).build();
             } catch (Exception e) {
                 LOGGER.warn("Failed to instantiate product " + product.getSku(), e);
                 return null;

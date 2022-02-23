@@ -15,23 +15,32 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel;
 
+import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 class ProductsRetriever extends AbstractProductsRetriever {
     private String categoryUid;
     private Integer productCount;
+    private CategoryInterface category;
 
     ProductsRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -45,18 +54,49 @@ class ProductsRetriever extends AbstractProductsRetriever {
         this.productCount = productCount;
     }
 
+    CategoryInterface fetchCategory() {
+        fetchProducts();
+
+        return category;
+    }
+
     @Override
     protected String generateQuery(List<String> identifiers) {
-        if (!isCategoryQuery()) {
-            return super.generateQuery(identifiers);
-        } else {
+        if (isCategoryQuery()) {
             FilterEqualTypeInput uidFilter = new FilterEqualTypeInput().setEq(categoryUid);
-            ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setCategoryUid(uidFilter);
-            QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter).currentPage(1).pageSize(productCount);
-
-            ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
-            return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
+            CategoryFilterInput categoryFilter = new CategoryFilterInput().setCategoryUid(uidFilter);
+            QueryQuery.CategoryListArgumentsDefinition categoryArgs = s -> s.filters(categoryFilter);
+            CategoryTreeQuery.ProductsArgumentsDefinition productArgs = s -> s.currentPage(1).pageSize(productCount);
+            return Operations.query(query -> query.categoryList(categoryArgs, generateCategoryListQuery(productArgs))).toString();
+        } else {
+            return super.generateQuery(identifiers);
         }
+    }
+
+    @Override
+    protected void populate() {
+        if (!isCategoryQuery()) {
+            super.populate();
+            return;
+        }
+
+        GraphqlResponse<Query, Error> response = executeQuery();
+        if (CollectionUtils.isEmpty(response.getErrors())) {
+            Query rootQuery = response.getData();
+            List<CategoryTree> items = rootQuery.getCategoryList();
+            if (CollectionUtils.isNotEmpty(items)) {
+                category = items.get(0);
+                products = category.getProducts().getItems();
+            }
+        }
+
+        if (products == null) {
+            products = Collections.emptyList();
+        }
+    }
+
+    private boolean isCategoryQuery() {
+        return StringUtils.isNotBlank(categoryUid);
     }
 
     @Override
@@ -78,10 +118,6 @@ class ProductsRetriever extends AbstractProductsRetriever {
                     cp.priceRange(r -> r.maximumPrice(generatePriceQuery()));
                 });
 
-            if (isCategoryQuery()) {
-                q.categories(cq -> cq.uid().urlKey().urlPath());
-            }
-
             // Apply product query hook
             if (productQueryHook != null) {
                 productQueryHook.accept(q);
@@ -89,8 +125,9 @@ class ProductsRetriever extends AbstractProductsRetriever {
         };
     }
 
-    private boolean isCategoryQuery() {
-        return StringUtils.isNotBlank(categoryUid);
+    private CategoryTreeQueryDefinition generateCategoryListQuery(CategoryTreeQuery.ProductsArgumentsDefinition productArgs) {
+        return c -> c.uid().urlKey().urlPath()
+            .products(productArgs, q -> q.items(generateProductQuery()));
     }
 
     private SimpleProductQueryDefinition generateSimpleProductQuery() {

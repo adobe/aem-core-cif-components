@@ -83,13 +83,6 @@
               "sling:resourceType": "venia/components/commerce/productcarousel",
               "titleType": "h2"
             },
-            "productcarousel_with_category_large_product_count": {
-              "category": "MTI=",
-              "productCount": "100",
-              "selectionType": "category",
-              "sling:resourceType": "venia/components/commerce/productcarousel",
-              "titleType": "h2"
-            },
             "product": {
                 "sling:resourceType": "venia/components/commerce/product"
             },

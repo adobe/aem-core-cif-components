@@ -168,7 +168,7 @@ public class ProductCarouselImplTest {
     public void getProductsForCategory() throws Exception {
         String productsJson = "graphql/magento-graphql-productcarousel-with-category-result.json";
         Utils.addHttpResponseFrom(graphqlClient, productsJson);
-        products = Utils.getQueryFromResource(productsJson).getProducts().getItems();
+        products = Utils.getQueryFromResource(productsJson).getCategoryList().get(0).getProducts().getItems();
 
         context.currentResource(PRODUCTCAROUSEL_WITH_CATEGORY);
 
@@ -213,7 +213,8 @@ public class ProductCarouselImplTest {
     }
 
     @Test
-    public void getProductsForCategoryDefaultProductCount() {
+    public void getProductsForCategoryDefaultProductCount() throws Exception {
+        Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-productcarousel-with-category-result.json");
         context.currentResource(PRODUCTCAROUSEL_WITH_CATEGORY + "_no_product_count");
         productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
 
@@ -224,24 +225,14 @@ public class ProductCarouselImplTest {
     }
 
     @Test
-    public void getProductsForCategoryMinProductCount() {
+    public void getProductsForCategoryMinProductCount() throws Exception {
+        Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-productcarousel-with-category-result.json");
         context.currentResource(PRODUCTCAROUSEL_WITH_CATEGORY + "_small_product_count");
         productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
 
         Integer productCount = (Integer) Whitebox.getInternalState(productCarousel, "productCount");
         Assert.assertEquals(ProductCarouselImpl.MIN_PRODUCT_COUNT, (int) productCount);
         Assert.assertEquals(ProductCarouselImpl.MIN_PRODUCT_COUNT, productCarousel.getProducts().size());
-    }
-
-    @Test
-    public void getProductsForCategoryMaxProductCount() {
-        context.currentResource(PRODUCTCAROUSEL_WITH_CATEGORY + "_large_product_count");
-        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
-
-        Integer productCount = (Integer) Whitebox.getInternalState(productCarousel, "productCount");
-        Assert.assertEquals(ProductCarouselImpl.MAX_PRODUCT_COUNT, (int) productCount);
-        // one product is not found and the JSON response contains a "faulty" product
-        Assert.assertEquals(3, productCarousel.getProducts().size());
     }
 
     @Test
