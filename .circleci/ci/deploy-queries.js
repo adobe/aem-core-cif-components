@@ -13,7 +13,9 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
- 'use strict';
+'use strict';
+
+const { readFileSync, writeFileSync } = require('fs');
 
 const ci = new (require('./ci.js'))();
 
@@ -31,12 +33,13 @@ ci.checkout(`https://github.com/adobe/${repo}.git`);
 // Commit and push
 ci.dir(repo, () => {
     // Copy query file
-    const fileName = `components-queries-${version}.log`;
+    const targetFile = `${path}/components-queries.log`;
     ci.sh(`mkdir -p ${path}`);
-    ci.sh(`cp -r ../bundles/core/src/test/resources/test-queries/graphql-requests.log ${path}/${fileName}`);
+    ci.sh(`cp -r ../bundles/core/src/test/resources/test-queries/graphql-requests.log ${targetFile}`);
+    sortFile(targetFile);
     ci.sh(`ls -aslh ${path}`);
 
-    ci.sh(`git add ${path}/${fileName}`);
+    ci.sh(`git add ${targetFile}`);
     ci.sh('git status');
 
     // Abort early if there aren't any changes staged
@@ -48,7 +51,25 @@ ci.dir(repo, () => {
 
     // Commit and push changes
     ci.gitImpersonate('CircleCI', 'no-reply@adobe.com', () => {
-        ci.sh('git commit -m "releng - Update CIF Core Components Queries"');
+        ci.sh(`git commit -m "releng - Update Queries for CIF Core Components v${version}"`);
         ci.sh(`git push --set-upstream origin master`);
     });
 });
+
+function sortFile(filePath) {
+    let data;
+
+    try {
+        data = readFileSync(filePath, 'UTF-8');
+    } catch (err) {
+        console.error(`Could not read query log file at ${filePath}`, err);
+    }
+
+    let lines = data.split(/\r?\n/);
+    lines = lines
+        // Remove empty lines
+        .filter(line => line.trim().length > 0)
+        // Sort alphabetically
+        .sort();
+    writeFileSync(filePath, lines.join('\n'), 'UTF-8');
+}
