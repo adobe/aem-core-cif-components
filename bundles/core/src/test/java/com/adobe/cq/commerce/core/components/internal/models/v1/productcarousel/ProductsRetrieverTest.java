@@ -63,7 +63,7 @@ public class ProductsRetrieverTest {
     }
 
     @Test
-    public void testCategoryListQueryQuery() {
+    public void testCategoryListQuery() {
         retriever.setCategoryUid("uid-1");
         retriever.setProductCount(5);
 
