@@ -45,6 +45,8 @@ Note that this is only relevant for AEM author instances.
 BLOCK category
     ELEMENT category__root
         MOD category__root--staged
+        MOD category__root--noimage
+        MOD category__root--notitle
     ELEMENT category__header
     ELEMENT category__image
     ELEMENT category__staged
