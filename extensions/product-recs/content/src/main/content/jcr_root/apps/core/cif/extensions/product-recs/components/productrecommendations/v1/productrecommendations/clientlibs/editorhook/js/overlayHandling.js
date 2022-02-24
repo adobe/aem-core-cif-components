@@ -43,6 +43,11 @@
             'aem.cif.product-recs-loaded',
             removeOverlayInContentFrame
         );
-        ns.ContentFrame.messageChannel.subscribeRequestMessage('cif-destroy-overlay', removeOverlayInEditorFrame);
+        if (ns.ContentFrame.messageChannel) {
+            ns.ContentFrame.messageChannel.subscribeRequestMessage('cif-destroy-overlay', removeOverlayInEditorFrame);
+        } else if (ns.ContentFrame.subscribeRequestMessage) {
+            // support for 6.5
+            ns.ContentFrame.subscribeRequestMessage('cif-destroy-overlay', removeOverlayInEditorFrame);
+        }
     });
 })(Granite.author, jQuery, jQuery(document));

@@ -19,6 +19,7 @@ import org.apache.sling.testing.clients.ClientException;
 import org.apache.sling.testing.clients.SlingHttpResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,16 +30,42 @@ public class ProductCarouselComponentIT extends CommerceTestBase {
     private static final String PRODUCTCAROUSEL_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .productcarousel ";
 
     @Test
-    public void testProductCarouselWithSampleData() throws ClientException {
+    public void testProductCarouselWithSampleProducts() throws ClientException {
         SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productcarousel.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
+        Elements carousels = doc.select(PRODUCTCAROUSEL_SELECTOR);
+
+        Assert.assertTrue(carousels.size() > 0);
+
+        Element carousel = carousels.first();
+
         // Verify component title
-        Elements elements = doc.select(PRODUCTCAROUSEL_SELECTOR + ".productcarousel__title");
+        Elements elements = carousel.select(".productcarousel__title");
         Assert.assertEquals("Summer promotions!", elements.first().html());
 
         // Check that the components shows 4 products
-        elements = doc.select(PRODUCTCAROUSEL_SELECTOR + ".productcarousel__cardscontainer > .product__card");
+        elements = carousel.select(".productcarousel__cardscontainer > .product__card");
         Assert.assertEquals(4, elements.size());
+    }
+
+    @Test
+    public void testProductCarouselWithCategoryProducts() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productcarousel.html", 200);
+        Document doc = Jsoup.parse(response.getContent());
+
+        Elements carousels = doc.select(PRODUCTCAROUSEL_SELECTOR);
+
+        Assert.assertTrue(carousels.size() > 1);
+
+        Element carousel = carousels.get(1);
+
+        // Verify component title
+        Elements elements = carousel.select(".productcarousel__title");
+        Assert.assertEquals("Sports selection", elements.first().html());
+
+        // Check that the components shows 4 products
+        elements = carousel.select(".productcarousel__cardscontainer > .product__card");
+        Assert.assertEquals(3, elements.size());
     }
 }

@@ -1,0 +1,95 @@
+{
+  "data": {
+    "categoryList": [
+      {
+        "uid": "MTI=",
+        "url_key": "watch",
+        "url_path": "watch",
+        "products": {
+          "items": [
+            {
+              "__typename": "SimpleProduct",
+              "sku": "24-MG01",
+              "name": "Endurance Watch",
+              "thumbnail": {
+                "label": "Endurance Watch",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/g/mg01-bk-0.jpg"
+              },
+              "url_key": "endurance-watch",
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 49,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 49,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
+                  }
+                }
+              }
+            },
+            {
+              "__typename": "ConfigurableProduct",
+              "sku": "MJ01",
+              "name": "Beaumont Summit Kit",
+              "thumbnail": {
+                "label": "Beaumont Summit Kit",
+                "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+              },
+              "url_key": "beaumont-summit-kit",
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 42,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
+                  }
+                }
+              }
+            },
+            {
+              "__typename": "ConfigurableProduct",
+              "sku": "WJ01",
+              "name": "Stellar Solar Jacket",
+              "url_key": "stellar-solar-jacket",
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 75,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
+                  }
+                }
+              }
+            },
+            {
+              "__typename": "SimpleProduct",
+              "sku": "faultyproduct",
+              "name": "Faulty product without price",
+              "url_key": "faulty-product"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
