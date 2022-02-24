@@ -23,35 +23,8 @@
                     data-sly-attribute.selected="${key.selected}">${key.label @ i18n}</option>
             </select>
         </label>
-        <a class="productcollection__sort-order" title="${'Change Sort Order' @ i18n}"
-           href="${request.requestURI @ query=searchResultsSet.sorter.currentKey.oppositeOrderParameters}">
-            <svg data-sly-test.descending="${'DESC' == searchResultsSet.sorter.currentKey.order.name}"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 -3 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <polyline points="5 12 12 19 19 12"></polyline>
-            </svg>
-            <svg data-sly-test="${!descending}"
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 -3 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <polyline points="5 12 12 5 19 12"></polyline>
-            </svg>
-        </a>
+        <a class="productcollection__sort-order ${'ASC' == searchResultsSet.sorter.currentKey.order.name ? 'productcollection__sort-order--asc' : 'productcollection__sort-order--desc'}" title="${'Change Sort Order' @ i18n}"
+           href="${request.requestURI @ query=searchResultsSet.sorter.currentKey.oppositeOrderParameters}"></a>
     </div>
 </div>
 
