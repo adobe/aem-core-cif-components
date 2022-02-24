@@ -63,6 +63,26 @@
                 "sling:resourceType": "venia/components/commerce/productcarousel",
                 "titleType": "h2"
             },
+            "productcarousel_with_category": {
+              "category": "MTI=",
+              "productCount": "2",
+              "selectionType": "category",
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "titleType": "h2"
+            },
+            "productcarousel_with_category_no_product_count": {
+              "category": "MTI=",
+              "selectionType": "category",
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "titleType": "h2"
+            },
+            "productcarousel_with_category_small_product_count": {
+              "category": "MTI=",
+              "productCount": "0",
+              "selectionType": "category",
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "titleType": "h2"
+            },
             "product": {
                 "sling:resourceType": "venia/components/commerce/product"
             },
