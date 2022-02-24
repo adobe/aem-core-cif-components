@@ -19,7 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
@@ -63,7 +65,6 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.PageManagerFactory;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
-import com.google.common.base.Function;
 
 @Component(service = { UrlProvider.class, UrlProviderImpl.class })
 @Designate(ocd = UrlProviderConfiguration.class)
@@ -116,21 +117,26 @@ public class UrlProviderImpl implements UrlProvider {
         cardinality = ReferenceCardinality.MULTIPLE,
         policy = ReferencePolicy.STATIC,
         policyOption = ReferencePolicyOption.GREEDY,
-        target = "("
-            + UrlFormat.PROP_USE_AS + "=" + UrlFormat.PRODUCT_PAGE_URL_FORMAT + ")")
+        target = "(" + UrlFormat.PROP_USE_AS + "=" + UrlFormat.PRODUCT_PAGE_URL_FORMAT + ")")
     private List<UrlFormat> productPageUrlFormat;
+
     @Reference(
         cardinality = ReferenceCardinality.MULTIPLE,
         policy = ReferencePolicy.STATIC,
         policyOption = ReferencePolicyOption.GREEDY,
-        target = "("
-            + UrlFormat.PROP_USE_AS + "=" + UrlFormat.CATEGORY_PAGE_URL_FORMAT + ")")
+        target = "(" + UrlFormat.PROP_USE_AS + "=" + UrlFormat.CATEGORY_PAGE_URL_FORMAT + ")")
     private List<UrlFormat> categoryPageUrlFormat;
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY)
+    @Reference(
+        cardinality = ReferenceCardinality.MULTIPLE,
+        policy = ReferencePolicy.STATIC,
+        policyOption = ReferencePolicyOption.GREEDY)
     private List<ProductUrlFormat> newProductUrlFormat;
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.STATIC, policyOption = ReferencePolicyOption.GREEDY)
+    @Reference(
+        cardinality = ReferenceCardinality.MULTIPLE,
+        policy = ReferencePolicy.STATIC,
+        policyOption = ReferencePolicyOption.GREEDY)
     private List<CategoryUrlFormat> newCategoryUrlFormat;
 
     @Reference
@@ -145,8 +151,8 @@ public class UrlProviderImpl implements UrlProvider {
 
     @Activate
     public void activate(UrlProviderConfiguration conf) {
-        if (newProductUrlFormat == null || newProductUrlFormat.isEmpty()) {
-            if (productPageUrlFormat != null && !productPageUrlFormat.isEmpty()) {
+        if (CollectionUtils.isEmpty(newProductUrlFormat)) {
+            if (CollectionUtils.isNotEmpty(productPageUrlFormat)) {
                 systemDefaultProductUrlFormat = new ProductPageUrlFormatAdapter(productPageUrlFormat.get(0));
             } else {
                 systemDefaultProductUrlFormat = DEFAULT_PRODUCT_URL_FORMATS
@@ -156,8 +162,8 @@ public class UrlProviderImpl implements UrlProvider {
             systemDefaultProductUrlFormat = newProductUrlFormat.get(0);
         }
 
-        if (newCategoryUrlFormat == null || newCategoryUrlFormat.isEmpty()) {
-            if (categoryPageUrlFormat != null && !categoryPageUrlFormat.isEmpty()) {
+        if (CollectionUtils.isEmpty(newCategoryUrlFormat)) {
+            if (CollectionUtils.isNotEmpty(categoryPageUrlFormat)) {
                 systemDefaultCategoryUrlFormat = new CategoryPageUrlFormatAdapter(categoryPageUrlFormat.get(0));
             } else {
                 systemDefaultCategoryUrlFormat = DEFAULT_CATEGORY_URL_FORMATS
@@ -166,6 +172,7 @@ public class UrlProviderImpl implements UrlProvider {
         } else {
             systemDefaultCategoryUrlFormat = newCategoryUrlFormat.get(0);
         }
+
         enableContextAwareProductUrls = conf.enableContextAwareProductUrls();
     }
 
@@ -179,40 +186,43 @@ public class UrlProviderImpl implements UrlProvider {
         systemDefaultProductUrlFormat = null;
     }
 
-    private <T> T getUrlFormatFromContext(SlingHttpServletRequest request, Page page, String propertyName, Map<String, T> defaultUrlFormats,
-        T defaultUrlFormat,
-        List<UrlFormat> urlFormats, List<T> newUrlFormats, Function<UrlFormat, T> adapter) {
+    private static <T> T getUrlFormatFromContext(SlingHttpServletRequest request, Page page, String propertyName,
+        Map<String, T> defaultUrlFormats, T defaultUrlFormat, List<UrlFormat> urlFormats, List<T> newUrlFormats,
+        Function<UrlFormat, T> adapter) {
+
         if (request == null && page == null) {
             throw new IllegalArgumentException("The request and the page parameters cannot both be null");
         }
 
-        T urlFormat = defaultUrlFormat;
         Resource resource = page != null ? page.getContentResource() : request.getResource();
 
-        ComponentsConfiguration properties = resource
-            .adaptTo(ComponentsConfiguration.class);
+        ComponentsConfiguration properties = resource.adaptTo(ComponentsConfiguration.class);
 
         if (properties != null) {
             String formatPattern = properties.get(propertyName, String.class);
 
-            if (formatPattern != null && !formatPattern.isEmpty()) {
+            if (StringUtils.isNotBlank(formatPattern)) {
                 if (defaultUrlFormats.containsKey(formatPattern)) {
-                    urlFormat = defaultUrlFormats.get(formatPattern);
-                } else {
-                    if (productPageUrlFormat != null && !productPageUrlFormat.isEmpty()) {
-                        UrlFormat customUrlFormat = productPageUrlFormat.stream()
-                            .filter(f -> f.getClass().getName().equals(formatPattern))
-                            .findFirst()
-                            .orElse(null);
-                        if (customUrlFormat != null) {
-                            urlFormat = adapter.apply(customUrlFormat);
-                        }
+                    return defaultUrlFormats.get(formatPattern);
+                }
+
+                // find a new format if applicable
+                for (T newUrlFormat : newUrlFormats) {
+                    if (newUrlFormat.getClass().getName().equals(formatPattern)) {
+                        return newUrlFormat;
+                    }
+                }
+
+                // try to find legacy pattern
+                for (UrlFormat legacyUrlFormat : urlFormats) {
+                    if (legacyUrlFormat.getClass().getName().equals(formatPattern)) {
+                        return adapter.apply(legacyUrlFormat);
                     }
                 }
             }
         }
 
-        return urlFormat;
+        return defaultUrlFormat;
     }
 
     private ProductUrlFormat getProductUrlFormatFromContext(SlingHttpServletRequest request, Page page) {
