@@ -44,7 +44,7 @@ The following properties are written to JCR for this component and are expected 
 ```
 BLOCK productcollection
     ELEMENT productcollection__root
-    ELEMENT productcollection__results-count    
+    ELEMENT productcollection__results-count
     ELEMENT productcollection__filters
     ELEMENT productcollection__filters-header
     ELEMENT productcollection__filters-title
@@ -52,12 +52,12 @@ BLOCK productcollection
     ELEMENT productcollection__current-filters
     ELEMENT productcollection__current-filter
     ELEMENT productcollection__current-filter-icon
-    ELEMENT productcollection__filter    
+    ELEMENT productcollection__filter
     ELEMENT productcollection__filter-toggler
     ELEMENT productcollection__filter-header
     ELEMENT productcollection__filter-icon
         MOD productcollection__filter-icon--open
-        MOD productcollection__filter-icon--closed    
+        MOD productcollection__filter-icon--closed
     ELEMENT productcollection__filter-items
     ELEMENT productcollection__filter-item
     ELEMENT productcollection__filter-title
@@ -74,16 +74,20 @@ BLOCK productcollection
     ELEMENT productcollection__sort-title
     ELEMENT productcollection__sort-keys
     ELEMENT productcollection__sort-order
+        MOD productcollection__sort-order--asc
+        MOD productcollection__sort-order--desc
     ELEMENT productcollection__loadmore-button
     ELEMENT productcollection__loadmore-spinner
     ELEMENT productcollection__pagination
     ELEMENT productcollection__pagination-arrow
+        MOD productcollection__pagination-arrow--prev
+        MOD productcollection__pagination-arrow--next
         MOD productcollection__pagination-arrow--inactive
-    ELEMENT productcollection__pagination-icon        
+    ELEMENT productcollection__pagination-icon
     ELEMENT productcollection__pagination-button
         MOD productcollection__pagination-button--current
         MOD productcollection__pagination-button--inactive
-    ELEMENT productcollection__pagination-button-title                
+    ELEMENT productcollection__pagination-button-title
 ```
 
 ## Information
