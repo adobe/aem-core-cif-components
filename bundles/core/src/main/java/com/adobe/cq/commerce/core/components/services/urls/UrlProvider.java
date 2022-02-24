@@ -78,82 +78,129 @@ public interface UrlProvider {
     String PAGE_PARAM = "page";
 
     /**
-     * Returns the product page URL. All required attributes to generate a valid category page URL must be provided via the
+     * Returns the product page URL. All required attributes to generate a valid
+     * category page URL must be provided via the
      * {@code params} parameter.
      * <p>
-     * This method should be used if the component already loaded the URL attributes.
-     *
+     * This method should be used if the component already loaded the URL
+     * attributes.
+     * <p>
+     * Either {@code request} or {@code page} parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
+     * 
      * @param request The current Sling HTTP request.
-     * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
+     * @param page This parameter can be null if the URL template does set a
+     *            {{page}} parameter and a request is given.
      * @param params The parameters used in the URL template.
      * @return The product URL.
-     * @deprecated use {@link UrlProvider#toProductUrl(SlingHttpServletRequest, Page, ProductUrlFormat.Params)} instead
+     * @deprecated use
+     *             {@link UrlProvider#toProductUrl(SlingHttpServletRequest, Page, ProductUrlFormat.Params)}
+     *             instead
      */
     @Deprecated
     String toProductUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, Map<String, String> params);
 
     /**
-     * Returns the product page URL. All required attributes to generate a valid category page URL must be provided via the
+     * Returns the product page URL. All required attributes to generate a valid
+     * category page URL must be provided via the
      * {@code params} parameter.
      * <p>
-     * This method should be used if the component already loaded the URL attributes.
-     *
+     * This method should be used if the component already loaded the URL
+     * attributes.
+     * <p>
+     * Either {@code request} or {@code page} parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
+     * 
      * @param request The current Sling HTTP request.
-     * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
+     * @param page This parameter can be null if the URL template does set a
+     *            {{page}} parameter and a request is given.
      * @param params The parameters used in the URL template.
      * @return The product URL.
      */
     String toProductUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, ProductUrlFormat.Params params);
 
     /**
-     * Returns the product page URL. Only the product identifier must be provided, the implementation will query the needed URL
+     * Returns the product page URL. Only the product identifier must be provided,
+     * the implementation will query the needed URL
      * attributes to generate a complete URL based on the configuration.
      * <p>
-     * This method should be used if the component only can provide the product identifier.
+     * This method should be used if the component only can provide the product
+     * identifier.
+     * <p>
+     * Either {@code request} or {@code page} parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
      *
      * @param request The current Sling HTTP request.
-     * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
+     * @param page This parameter can be null if the URL template does
+     *            set a {{page}} parameter and a request is given.
      * @param productIdentifier The product identifier.
      * @return The product URL.
      */
     String toProductUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, String productIdentifier);
 
     /**
-     * Returns the category page URL. All required attributes to generate a valid category page URL must be provided via the
+     * Returns the category page URL. All required attributes to generate a valid
+     * category page URL must be provided via the
      * {@code params} parameter.
      * <p>
-     * This method should be used if the component already loaded the URL attributes.
+     * This method should be used if the component already loaded the URL
+     * attributes.
+     * <p>
+     * Either {@code request} or {@code page} parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
      *
      * @param request The current Sling HTTP request.
-     * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
+     * @param page This parameter can be null if the URL template does set a
+     *            {{page}} parameter and a request is given.
      * @param params The parameters used in the URL template.
      * @return The category URL.
-     * @deprecated use {@link UrlProvider#toCategoryUrl(SlingHttpServletRequest, Page, CategoryUrlFormat.Params)} instead
+     * @deprecated use
+     *             {@link UrlProvider#toCategoryUrl(SlingHttpServletRequest, Page, CategoryUrlFormat.Params)}
+     *             instead
      */
     @Deprecated
     String toCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, Map<String, String> params);
 
     /**
-     * Returns the category page URL. All required attributes to generate a valid category page URL must be provided via the
+     * Returns the category page URL. All required attributes to generate a valid
+     * category page URL must be provided via the
      * {@code params} parameter.
      * <p>
-     * This method should be used if the component already loaded the URL attributes.
+     * This method should be used if the component already loaded the URL
+     * attributes.
+     * <p>
+     * Either {@code request} or {@code page} parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
      *
      * @param request The current Sling HTTP request.
-     * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
+     * @param page This parameter can be null if the URL template does set a
+     *            {{page}} parameter and a request is given.
      * @param params The parameters used in the URL template.
      * @return The category URL.
      */
     String toCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, CategoryUrlFormat.Params params);
 
     /**
-     * Returns the category page URL. Only the category identifier must be provided, the implementation will query the needed URL
+     * Returns the category page URL. Only the category identifier must be provided,
+     * the implementation will query the needed URL
      * attributes to generate a complete URL based on the configuration.
      * <p>
-     * This method should be used if the component only can provide the category identifier.
+     * This method should be used if the component only can provide the category
+     * identifier.
+     * <p>
+     * Either {@code request} or {@code page} parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
      *
      * @param request The current Sling HTTP request.
-     * @param page The target page, if any. This parameter can be null if the URL template does not use the <code>${page}</code> parameter.
+     * @param page This parameter can be null if the URL template
+     *            does set a {{page}} parameter and a request is
+     *            given.
      * @param categoryIdentifier The category identifier.
      * @return The category URL.
      */
