@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 .cif-demo .productteaser {
-    width: 50%;
+    max-width: 360px;
     margin: 0 auto;
 }
 
@@ -22,12 +22,10 @@
     border: none !important;
 }
 
-.cif-demo .productcarousel__container {
-    max-width: 50%;
-}
-
+.cif-demo .productcarousel__container,
 .cif-demo .carousel__container {
-    max-width: 50%;
+    /* 3x the item width, 4 items */
+    max-width: 720px;
 }
 
 .cif-demo .searchBar__root {
