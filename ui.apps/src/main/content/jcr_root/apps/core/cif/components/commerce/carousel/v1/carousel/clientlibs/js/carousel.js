@@ -116,15 +116,45 @@ class Carousel {
             return;
         }
 
+        const firstCard = this._cards[0];
+        const firstCardBB = firstCard.getBoundingClientRect();
         const currentCard = this._cards[this._currentPos];
+        const currentCardBB = currentCard.getBoundingClientRect();
         const targetCard = this._cards[nextPos];
-        const offsetDiff =
-            (currentCard.getBoundingClientRect().left - targetCard.getBoundingClientRect().left) *
-            // negate the offsetDiff when rtl
-            (this._direction === 'rtl' ? -1 : 1);
-        const newOffset = this._currentOffset + offsetDiff;
+        const targetCardBB = targetCard.getBoundingClientRect();
 
-        this._cardsContainer.style[this._direction === 'ltr' ? 'marginLeft' : 'marginRight'] = newOffset + 'px';
+        // difference that needs to be added on the margin-left
+        let offsetDiff;
+        let newOffset;
+        let diffCarouselToLast;
+        let diffCarouselToFirst;
+
+        if (this._direction === 'rtl') {
+            offsetDiff = currentCardBB.right - targetCardBB.right;
+            diffCarouselToLast = carouselParentBB.left - lastCardBB.left;
+            diffCarouselToFirst = carouselParentBB.right - firstCardBB.right;
+        } else {
+            offsetDiff = currentCardBB.left - targetCardBB.left;
+            diffCarouselToLast = carouselParentBB.right - lastCardBB.right;
+            diffCarouselToFirst = carouselParentBB.left - firstCardBB.left;
+        }
+
+        if (nextPos > this._currentPos && Math.abs(diffCarouselToLast) < Math.abs(offsetDiff)) {
+            // navigating forward to the last card (fractional)
+            offsetDiff = diffCarouselToLast;
+        } else if (nextPos < this._currentPos && Math.abs(diffCarouselToFirst) < Math.abs(offsetDiff)) {
+            // navigating backward to the second-last card (fractional)
+            offsetDiff = diffCarouselToFirst;
+        }
+
+        if (this._direction === 'ltr') {
+            newOffset = this._currentOffset + offsetDiff;
+            this._cardsContainer.style.marginLeft = newOffset + 'px';
+        } else {
+            newOffset = this._currentOffset - offsetDiff;
+            this._cardsContainer.style.marginRight = newOffset + 'px';
+        }
+
         this._currentPos = nextPos;
         this._currentOffset = newOffset;
 
@@ -132,7 +162,7 @@ class Carousel {
         if (this._direction === 'ltr') {
             this._btnNext.disabled = lastCardBB.right <= carouselParentBB.right - offsetDiff;
         } else {
-            this._btnNext.disabled = lastCardBB.left >= carouselParentBB.left + offsetDiff;
+            this._btnNext.disabled = lastCardBB.left >= carouselParentBB.left - offsetDiff;
         }
         // disable _btnPrev when the we are at the first card
         this._btnPrev.disabled = this._currentPos == 0;
