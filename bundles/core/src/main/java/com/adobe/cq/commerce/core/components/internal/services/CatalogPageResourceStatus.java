@@ -64,7 +64,7 @@ public class CatalogPageResourceStatus implements ResourceStatusProvider {
         if (isProductPage) {
             return Collections.singletonList(new EditorResourceStatus.Builder(
                 getType(),
-                "Product Page Template",
+                page.getTitle(),
                 "Editing this page will affect all the product pages using it.")
                     .setVariant(EditorResourceStatus.Variant.WARNING)
                     .addAction("create-specific-product-page", "Create Specific Page")
@@ -75,7 +75,7 @@ public class CatalogPageResourceStatus implements ResourceStatusProvider {
         if (isCategoryPage) {
             return Collections.singletonList(new EditorResourceStatus.Builder(
                 getType(),
-                "Category Page Template",
+                page.getTitle(),
                 "Editing this page will affect all the category pages using it.")
                     .setVariant(EditorResourceStatus.Variant.WARNING)
                     .addAction("create-specific-category-page", "Create Specific Page")
