@@ -87,7 +87,7 @@
                                                 rootPath="/var/commerce/products"
                                                 selectionId="combinedSku"
                                                 enablePreviewDateFilter="{Boolean}true"
-                                                showTable="{Boolean}true">
+                                                showLink="{Boolean}true">
                                                 <granite:data
                                                     jcr:primaryType="nt:unstructured"
                                                     metaType="text"/>
@@ -109,7 +109,7 @@
                                                 fieldLabel="Category IDs."
                                                 multiple="{Boolean}true"
                                                 name="./cq:categories"
-                                                showTable="{Boolean}true">
+                                                showLink="{Boolean}true">
                                                 <granite:data
                                                     jcr:primaryType="nt:unstructured"
                                                     metaType="text"/>
