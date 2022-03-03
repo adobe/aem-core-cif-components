@@ -33,7 +33,7 @@ import com.day.cq.wcm.api.PageManagerFactory;
 import com.day.cq.wcm.commons.status.EditorResourceStatus;
 
 @Component(service = ResourceStatusProvider.class)
-public class CatalogPageResourceStatus implements ResourceStatusProvider {
+public class CatalogPageResourceStatusProvider implements ResourceStatusProvider {
 
     @Reference
     private PageManagerFactory pageManagerFactory;
@@ -60,29 +60,27 @@ public class CatalogPageResourceStatus implements ResourceStatusProvider {
 
         boolean isProductPage = SiteNavigation.isProductPage(page);
         boolean isCategoryPage = SiteNavigation.isCategoryPage(page);
+        EditorResourceStatus.Builder builder;
 
         if (isProductPage) {
-            return Collections.singletonList(new EditorResourceStatus.Builder(
+            builder = new EditorResourceStatus.Builder(
                 getType(),
                 page.getTitle(),
-                "Editing this page will affect all the product pages using it.")
-                    .setVariant(EditorResourceStatus.Variant.WARNING)
-                    .addAction("create-specific-product-page", "Create Specific Page")
-                    .setPriority(1500)
-                    .build());
-        }
-
-        if (isCategoryPage) {
-            return Collections.singletonList(new EditorResourceStatus.Builder(
+                "Editing this page may affect many product pages.");
+        } else if (isCategoryPage) {
+            builder = new EditorResourceStatus.Builder(
                 getType(),
                 page.getTitle(),
-                "Editing this page will affect all the category pages using it.")
-                    .setVariant(EditorResourceStatus.Variant.WARNING)
-                    .addAction("create-specific-category-page", "Create Specific Page")
-                    .setPriority(1500)
-                    .build());
+                "Editing this page may affect many category pages.");
+        } else {
+            return Collections.emptyList();
         }
 
-        return Collections.emptyList();
+        builder
+            .addAction("open-template-page", "Open Template Page")
+            .addData("template-page-path", page.getPath())
+            .setVariant(EditorResourceStatus.Variant.WARNING);
+
+        return Collections.singletonList(builder.build());
     }
 }
