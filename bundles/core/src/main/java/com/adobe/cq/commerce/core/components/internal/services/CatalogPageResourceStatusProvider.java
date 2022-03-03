@@ -21,10 +21,16 @@ import java.util.List;
 import org.apache.sling.api.resource.Resource;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.osgi.framework.Version;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.granite.license.ProductInfoProvider;
 import com.adobe.granite.resourcestatus.ResourceStatus;
 import com.adobe.granite.resourcestatus.ResourceStatusProvider;
 import com.day.cq.wcm.api.Page;
@@ -37,6 +43,22 @@ public class CatalogPageResourceStatusProvider implements ResourceStatusProvider
 
     @Reference
     private PageManagerFactory pageManagerFactory;
+
+    @Reference(
+        target = "(name=cif)",
+        cardinality = ReferenceCardinality.OPTIONAL,
+        policy = ReferencePolicy.STATIC,
+        policyOption = ReferencePolicyOption.GREEDY)
+    private ProductInfoProvider cifProductInfo;
+
+    private boolean actionsSupported;
+
+    @Activate
+    protected void activate() {
+        // the action handlers require at least version 2022.02.24.1 of the Commerce AddOn
+        actionsSupported = cifProductInfo != null
+            && cifProductInfo.getProductInfo().getVersion().compareTo(new Version("2022.02.24.1")) >= 0;
+    }
 
     @NotNull
     @Override
@@ -76,10 +98,13 @@ public class CatalogPageResourceStatusProvider implements ResourceStatusProvider
             return Collections.emptyList();
         }
 
-        builder
-            .addAction("open-template-page", "Open Template Page")
-            .addData("template-page-path", page.getPath())
-            .setVariant(EditorResourceStatus.Variant.WARNING);
+        builder.setVariant(EditorResourceStatus.Variant.WARNING);
+
+        if (actionsSupported) {
+            builder
+                .addAction("open-template-page", "Open Template Page")
+                .addData("template-page-path", page.getPath());
+        }
 
         return Collections.singletonList(builder.build());
     }
