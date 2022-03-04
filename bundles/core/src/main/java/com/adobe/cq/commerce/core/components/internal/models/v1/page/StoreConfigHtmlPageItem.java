@@ -38,7 +38,7 @@ class StoreConfigHtmlPageItem implements HtmlPageItem {
         .enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreConfigHtmlPageItem.class);
 
-    private final Map<String, String> attributes = new HashMap<>();
+    private final Map<String, Object> attributes = new HashMap<>();
 
     StoreConfigHtmlPageItem(StoreConfigExporter storeConfigExporter) {
         try {
@@ -61,7 +61,7 @@ class StoreConfigHtmlPageItem implements HtmlPageItem {
     }
 
     @Override
-    public Map<String, String> getAttributes() {
+    public Map<String, Object> getAttributes() {
         return attributes;
     }
 }
