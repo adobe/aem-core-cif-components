@@ -102,7 +102,7 @@ public class CatalogPageResourceStatusProvider implements ResourceStatusProvider
 
         if (actionsSupported) {
             builder
-                .addAction("open-template-page", "Open Template Page")
+                .addAction("open-template-page", "Open")
                 .addData("template-page-path", page.getPath());
         }
 
