@@ -32,17 +32,22 @@ The Related Products component uses the `com.adobe.cq.commerce.core.components.m
 ### Component Policy Configuration Properties
 The following configuration properties are used:
 
-1. `./type` - defines the default HTML heading element type (`h1` - `h6`) this component will use for its rendering
+1. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
+2. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`)
+3. `./type` - defines the default HTML heading element type (`h1` - `h6`) this component will use for its rendering
 
 ### Edit Dialog Properties
 
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
-1. `./product` - an optional product SKU defining the product for which we want to display the related products. If empty, the component will use the URL selector to find the product.
-2. `./relationType` - a mandatory relation type, defining the relation between the product and the "related" products. In Magento, there are 3 possible types for this relation: `related_products`, `upsell_products`, and `crosssell_products`.
-3. `./jcr:title` - Optional title text
-4. `./titleType` - will store the HTML heading element type which will be used for rendering; if no value is defined, the component will fallback
+1. `./jcr:title` - Optional title text
+2. `./titleType` - will store the HTML heading element type which will be used for rendering; if no value is defined, the component will fallback
 to the `type` value defined by the component's policy. The property of the policy is called `type` so we can reuse the `core/wcm/components/commons/datasources/allowedheadingelements/v1` Servlet from the WCM components.
+3. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
+4. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`)
+5. `./product` - an optional product SKU defining the product for which we want to display the related products. If empty, the component will use the URL selector to find the product.
+6. `./relationType` - a mandatory relation type, defining the relation between the product and the "related" products. In Magento, there are 3 possible types for this relation: `related_products`, `upsell_products`, and `crosssell_products`.
+7. `./id` - defines the component HTML ID attribute
 
 ## BEM Description
 

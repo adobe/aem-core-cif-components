@@ -16,5 +16,6 @@
         magentoGraphqlEndpoint="/apps/cif-components-examples/graphql"
         magentoRootCategoryId="Mg=="
         magentoStore="default"
-        enableUIDSupport="true"/>
+        enableUIDSupport="true"
+        enableWishLists="true"/>
 </jcr:root>
