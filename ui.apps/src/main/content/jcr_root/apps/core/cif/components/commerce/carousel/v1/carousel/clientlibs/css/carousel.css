@@ -59,6 +59,16 @@
 
 .carousel__cardscontainer {
     margin: auto;
+    /*
+     * the cardscontainer is within the cardsroot with overflow hidden.
+     * in the default style with a card width of 240px the 12000px width
+     * give enough space for 41 cards, this should be sufficient for all
+     * practical cases.
+     */
+    width: 12000px;
+    transition-property: margin-left, margin-right;
+    transition-duration: 300ms;
+    transition-timing-function: linear;
 }
 
 .carousel__cardsroot {
