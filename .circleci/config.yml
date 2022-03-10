@@ -62,12 +62,10 @@ common:
 executors:
   cif_executor:
     docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-openjdk-azul:11-stretch-node-browsers
-        <<: *docker_auth
+      - image: cimg/openjdk:11.0-browsers
   cif_executor_java8:
     docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-openjdk-azul:8-stretch-node-browsers
-        <<: *docker_auth
+      - image: cimg/openjdk:8.0-browsers
   test_executor_cloudready:
     docker:
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-azul-jdk11
@@ -88,9 +86,6 @@ jobs:
     steps:
       - checkout
       - *restore_cache
-      - run:
-          name: Update permissions
-          command: sudo chown -R circleci /usr/local/lib/node_modules
       - run:
           name: Build
           command: node .circleci/ci/build.js
@@ -126,9 +121,6 @@ jobs:
       - checkout
       - *restore_cache
       - run:
-          name: Update permissions
-          command: sudo chown -R circleci /usr/local/lib/node_modules
-      - run:
           name: Build
           command: node .circleci/ci/build.js
       - store_artifacts:
@@ -136,7 +128,7 @@ jobs:
 
   karma:
     docker:
-      - image: circleci/node:lts-browsers@sha256:4e85b1aa632b9f5a0b9d6247485a9b151f953b2ff588c649aa5dce08b3f6d7d5
+      - image: cimg/node:lts-browsers
     steps:
       - checkout
       - run:
@@ -160,12 +152,9 @@ jobs:
 
   jest:
     docker:
-      - image: circleci/node:lts-browsers@sha256:4e85b1aa632b9f5a0b9d6247485a9b151f953b2ff588c649aa5dce08b3f6d7d5
+      - image: cimg/node:lts-browsers
     steps:
       - checkout
-      - run:
-          name: Update permissions
-          command: sudo chown -R circleci /usr/local/lib/node_modules
       - run:
           name: Provision
           command: |
@@ -186,12 +175,9 @@ jobs:
 
   jest-extension:
     docker:
-      - image: circleci/node:lts-browsers@sha256:4e85b1aa632b9f5a0b9d6247485a9b151f953b2ff588c649aa5dce08b3f6d7d5
+      - image: cimg/node:lts-browsers
     steps:
       - checkout
-      - run:
-          name: Update permissions
-          command: sudo chown -R circleci /usr/local/lib/node_modules
       - run:
           name: Provision (Core)
           command: |
@@ -262,9 +248,6 @@ jobs:
       - checkout
       - *restore_cache
       - run:
-          name: Update permissions
-          command: sudo chown -R circleci /usr/local/lib/node_modules
-      - run:
           name: Release
           # Only performs a 'mvn deploy' after the 'mvn release:prepare' because circleCI
           # already checks out the git tag like 'mvn release:perform' would do.
@@ -280,9 +263,6 @@ jobs:
     steps:
       - checkout
       - *restore_cache
-      - run:
-          name: Update permissions
-          command: sudo chown -R circleci /usr/local/lib/node_modules
       - run:
           name: Generate Queries
           command: |
