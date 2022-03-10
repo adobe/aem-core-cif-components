@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   codecov: codecov/codecov@1.1.1
+  browser-tools: circleci/browser-tools@1.2.4
 
 common:
   restore_cache: &restore_cache
@@ -87,6 +88,9 @@ jobs:
       - checkout
       - *restore_cache
       - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
           name: Build
           command: node .circleci/ci/build.js
       - save_cache:
@@ -121,6 +125,9 @@ jobs:
       - checkout
       - *restore_cache
       - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
           name: Build
           command: node .circleci/ci/build.js
       - store_artifacts:
@@ -131,6 +138,7 @@ jobs:
       - image: cimg/node:lts-browsers
     steps:
       - checkout
+      - browser-tools/install-browser-tools
       - run:
           name: Provision
           command: |
@@ -156,6 +164,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
           name: Provision
           command: |
             node -v
@@ -178,6 +189,9 @@ jobs:
       - image: cimg/node:lts-browsers
     steps:
       - checkout
+      - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
       - run:
           name: Provision (Core)
           command: |
@@ -248,6 +262,9 @@ jobs:
       - checkout
       - *restore_cache
       - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
           name: Release
           # Only performs a 'mvn deploy' after the 'mvn release:prepare' because circleCI
           # already checks out the git tag like 'mvn release:perform' would do.
@@ -263,6 +280,9 @@ jobs:
     steps:
       - checkout
       - *restore_cache
+      - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
       - run:
           name: Generate Queries
           command: |
