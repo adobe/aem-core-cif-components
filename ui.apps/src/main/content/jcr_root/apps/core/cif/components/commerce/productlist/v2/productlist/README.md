@@ -22,6 +22,14 @@ This hence requires that the Magento backend is at least version 2.4.2 EE
 because the query with the `staged` field will be rejected by Magento versions
 not having this field in the GraphQL schema.
 
+### Component Policy Configuration Properties
+The following configuration properties are used:
+
+1. `./loadClientPrice` - enables client-side price fetching
+2. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
+3. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`)  
+4. `./paginationType` - the pagination type, either `paginationbar` or `loadmorebutton`.
+
 ### Edit Dialog Properties
 
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:

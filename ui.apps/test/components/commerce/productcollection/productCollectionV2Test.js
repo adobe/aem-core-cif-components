@@ -16,6 +16,7 @@
 'use strict';
 
 import ProductCollection from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v2/productcollection/clientlibs/js/productcollection.js';
+import ProductCollectionActions from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v2/productcollection/clientlibs/js/actions.js';
 import PriceFormatter from '../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';
 
 describe('Productcollection', () => {
@@ -221,26 +222,45 @@ describe('Productcollection', () => {
                     </ul>
                 </div>
                 <div class="productcollection__items">
-                    <div class="productcollection__item" data-sku="sku-a" role="product">
+                    <a class="productcollection__item" data-sku="sku-a" role="product">
                         <div class="price">
                             <span>123</span>
                         </div>
-                    </div>
-                    <div class="productcollection__item" data-sku="sku-b" role="product">
+                        <div class="productcollection__item-actions">
+                            <button data-action="add-to-cart" data-item-sku="sku-a" class="productcollection__item-button productcollection__item-button--add-to-cart" type="button">
+                                <span class="productcollection__item-button-content">
+                                    <span>Add to Cart</span>
+                                </span>
+                            </button>
+                            <button data-item-sku="sku-a" class="productcollection__item-button productcollection__item-button--add-to-wish-list" type="button" data-cmp-is="add-to-wish-list">
+                                <span class="productcollection__item-button-content">
+                                    <span>Add to Wish List</span>
+                                </span>
+                            </button>
+                        </div>
+                    </a>
+                    <a class="productcollection__item" data-sku="sku-b" role="product">
                         <div class="price">
                             <span>456</span>
                         </div>
-                    </div>
-                    <div class="productcollection__item" data-sku="sku-c" role="product">
+                        <div class="productcollection__item-actions">
+                            <button data-action="details" data-item-sku="sku-b" class="productcollection__item-button productcollection__item-button--add-to-cart" type="button">
+                                <span class="productcollection__item-button-content">
+                                    <span>Add to Cart</span>
+                                </span>
+                            </button>
+                        </div>
+                    </a>
+                    <a class="productcollection__item" data-sku="sku-c" role="product">
                         <div class="price">
                             <span>789</span>
                         </div>
-                    </div>
-                    <div class="productcollection__item" data-sku="sku-d" role="product">
+                    </a>
+                    <a class="productcollection__item" data-sku="sku-d" role="product">
                         <div class="price">
                             <span>101112</span>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>`
         );
@@ -452,5 +472,47 @@ describe('Productcollection', () => {
 
         priceFilter.click();
         assert.isFalse(priceFilter.checked);
+    });
+
+    it('triggers the add-to-cart event for the Add to Cart button add-to-cart call to action', () => {
+        new ProductCollectionActions(listRoot);
+
+        const spy = sinon.spy();
+        document.addEventListener('aem.cif.add-to-cart', spy);
+        const button = listRoot.querySelector('button.productcollection__item-button--add-to-cart');
+
+        button.click();
+
+        assert.isTrue(spy.calledOnce);
+    });
+
+    it('propagates the click to the parent link for the Add to Cart button details call to action', () => {
+        new ProductCollectionActions(listRoot);
+
+        const spy = sinon.spy();
+        document.addEventListener('aem.cif.add-to-cart', spy);
+        const spyLink = sinon.spy();
+        const button = listRoot.querySelector(
+            'button.productcollection__item-button--add-to-cart[data-action="details"]'
+        );
+        const link = button.closest('a');
+        link.addEventListener('click', spyLink);
+
+        button.click();
+
+        assert.isFalse(spy.called);
+        assert.isTrue(spyLink.calledOnce);
+    });
+
+    it('triggers the add-to-wish-list event for the Add to Wish List button', () => {
+        new ProductCollectionActions(listRoot);
+
+        const spy = sinon.spy();
+        document.addEventListener('aem.cif.add-to-wishlist', spy);
+        const button = listRoot.querySelector('button.productcollection__item-button--add-to-wish-list');
+
+        button.click();
+
+        assert.isTrue(spy.calledOnce);
     });
 });

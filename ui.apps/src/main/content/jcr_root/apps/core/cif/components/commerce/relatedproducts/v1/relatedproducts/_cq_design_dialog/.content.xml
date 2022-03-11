@@ -9,7 +9,11 @@
             <items jcr:primaryType="nt:unstructured">
                 <tabs jcr:primaryType="nt:unstructured">
                     <items jcr:primaryType="nt:unstructured">
-                        <general jcr:primaryType="nt:unstructured" sling:hideResource="true"/>
+                        <general jcr:primaryType="nt:unstructured">
+                            <items jcr:primaryType="nt:unstructured">
+                                <productCount jcr:primaryType="nt:unstructured" sling:hideResource="true"/>
+                            </items>
+                        </general>
                     </items>
                 </tabs>
             </items>
