@@ -124,7 +124,8 @@
                                                 fieldLabel="Category ids for which this page will be used."
                                                 multiple="{Boolean}true"
                                                 name="./selectorFilter"
-                                                selectionId="urlPath">
+                                                selectionId="urlPath"
+                                                enablePreviewDateFilter="{Boolean}true">
                                                 <granite:rendercondition jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="core/cif/components/renderconditions/pagetype"
                                                     pageType="category"/>
@@ -135,7 +136,8 @@
                                                 fieldLabel="Category ids for which this page will be used."
                                                 multiple="{Boolean}true"
                                                 name="./useForCategories"
-                                                selectionId="urlPath">
+                                                selectionId="urlPath"
+                                                enablePreviewDateFilter="{Boolean}true">
                                                 <granite:rendercondition jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="core/cif/components/renderconditions/pagetype"
                                                     pageType="product"/>
