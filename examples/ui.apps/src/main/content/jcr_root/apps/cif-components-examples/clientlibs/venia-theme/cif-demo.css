@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 .cif-demo .productteaser {
-    width: 50%;
+    max-width: 360px;
     margin: 0 auto;
 }
 
@@ -22,12 +22,38 @@
     border: none !important;
 }
 
-.cif-demo .productcarousel__container {
-    max-width: 50%;
+.cif-demo .productcarousel__container,
+.cif-demo .carousel__container {
+    /* 3x the item width, 4 items */
+    max-width: 720px;
+    width: 100%;
 }
 
-.cif-demo .carousel__container {
-    max-width: 50%;
+/*
+ * there is a layout gap for 32px left and right of the container
+ * and for a viewport >= 1024px there is the navigation of 280px width
+ */
+
+/* 720 + 64 + 280 */
+@media screen and (max-width:1064px) {
+    .cif-demo .productcarousel__container {
+        max-width: 480px;
+    }
+}
+
+/* 480 + 64 */
+@media screen and (max-width:544px) {
+    .cif-demo .productcarousel__container {
+        max-width: 240px;
+    }
+}
+
+/* undo the styles from the core components */
+
+@media screen and (min-width:790px) {
+    .cif-demo .productcarousel__container {
+        width: 100%;
+    }
 }
 
 .cif-demo .searchBar__root {
