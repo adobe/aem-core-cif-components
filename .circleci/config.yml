@@ -40,6 +40,7 @@ common:
   selenium_test_steps: &selenium_test_steps
     steps:
       - checkout
+      - browser-tools/install-browser-tools
       - *restore_cache
       - attach_workspace:
           at: /home/circleci/build
