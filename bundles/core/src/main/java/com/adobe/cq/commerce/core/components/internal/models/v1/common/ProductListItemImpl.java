@@ -26,6 +26,7 @@ import org.apache.sling.api.SlingHttpServletRequest;
 
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerListItem;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -44,6 +45,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class ProductListItemImpl extends DataLayerListItem implements ProductListItem {
 
     public static final String TYPE = "core/cif/components/commerce/productlistitem";
+    public static final String CALL_TO_ACTION_ADD_TO_CART = "add-to-cart";
+    public static final String CALL_TO_ACTION_DETAILS = "details";
 
     private String sku;
     private String urlKey;
@@ -218,6 +221,11 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     @Override
     public ProductInterface getProduct() {
         return product;
+    }
+
+    @Override
+    public String getCallToAction() {
+        return Utils.isShoppableProduct(product) ? CALL_TO_ACTION_ADD_TO_CART : CALL_TO_ACTION_DETAILS;
     }
 
     public static class Builder {

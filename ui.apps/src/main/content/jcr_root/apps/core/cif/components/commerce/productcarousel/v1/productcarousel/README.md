@@ -32,8 +32,10 @@ The Product Carousel component uses the `com.adobe.cq.commerce.core.components.m
 ### Component Policy Configuration Properties
 The following configuration properties are used:
 
-1. `./productCount` - defines the maximum number of products displayed for a category when category selection is used 
-2. `./type` - defines the default HTML heading element type (`h1` - `h6`) this component will use for its rendering
+1. `./productCount` - defines the maximum number of products displayed for a category when category selection is used
+2. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
+3. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`)  
+4. `./type` - defines the default HTML heading element type (`h1` - `h6`) this component will use for its rendering
 
 
 ### Edit Dialog Properties
@@ -44,9 +46,12 @@ The following properties are written to JCR for this component and are expected 
 2. `./jcr:title` - Optional title text
 3. `./titleType` - will store the HTML heading element type which will be used for rendering; if no value is defined, the component will fallback
 to the `type` value defined by the component's policy. The property of the policy is called `type` so we can reuse the `core/wcm/components/commons/datasources/allowedheadingelements/v1` Servlet from the WCM components.
-4. `./selectionType` - when set to `product`, the component displays the products defined by the `./product` property; when set to `category`, the products are displayed from the category defined by the `./category` property 
-5. `./category` - stores the UID of the category used for displaying the products when the selection type is `category`
-6. `./productCount` - defines the maximum number of products displayed for a category when the selection type is `category` (default value is 10, minimum 1)
+4. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
+5. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`) 
+6. `./selectionType` - when set to `product`, the component displays the products defined by the `./product` property; when set to `category`, the products are displayed from the category defined by the `./category` property 
+7. `./category` - stores the UID of the category used for displaying the products when the selection type is `category`
+8. `./productCount` - defines the maximum number of products displayed for a category when the selection type is `category` (default value is 10, minimum 1)
+9. `./id` - defines the component HTML ID attribute
 
 We also use a `SlingPostProcessor` in order to support "drag and drop" in the AEM Sites Editor, so that it is possible to easily add multiple products to the carousel. The custom processor only processes POST parameter keys starting with `./dropTarget->` so make sure that this doesn't collide with any other custom processor you might implement.
 
@@ -55,8 +60,8 @@ We also use a `SlingPostProcessor` in order to support "drag and drop" in the AE
 ```
 BLOCK productcarousel
     ELEMENT productcarousel__btn
-    ELEMENT productcarousel__btn--next
-    ELEMENT productcarousel__btn--prev
+        MOD productcarousel__btn--next
+        MOD productcarousel__btn--prev
     ELEMENT productcarousel__cardscontainer
     ELEMENT productcarousel__container
     ELEMENT productcarousel__parent
@@ -65,7 +70,14 @@ BLOCK productcarousel
 
 BLOCK product
     ELEMENT product__card
+    ELEMENT product__card-content
+    ELEMENT product__card-actions
+    ELEMENT product__card-button
+        MOD product__card-button--add-to-cart
+        MOD product__card-button--add-to-wish-list
+    ELEMENT product__card-button-content
     ELEMENT product__card__image
+    ELEMENT product__card-title
     ELEMENT product__image
 ```
 
