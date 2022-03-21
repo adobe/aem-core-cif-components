@@ -19,7 +19,7 @@
 
 <sly data-sly-test.hasProducts="${productCollection.products}">
     <sly data-sly-list.product="${productCollection.products}">
-        <sly data-sly-call="${itemTemplate.item @ item = product}"/>
+        <sly data-sly-call="${itemTemplate.item @ item = product, productCollection=productCollection}"/>
     </sly>
     <sly data-sly-call="${loadMoreButtonTemplate.loadmorebutton @ pager = productCollection.searchResultsSet.pager}"></sly>
 </sly>

@@ -45,7 +45,9 @@ This component is targeted for a search result display page showing the product 
 The following configuration properties are used:
 
 1. `./loadClientPrice` - enables client-side price fetching
-2. `./paginationType` - the pagination type, either `paginationbar` or `loadmorebutton`.
+2. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
+3. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`)  
+4. `./paginationType` - the pagination type, either `paginationbar` or `loadmorebutton`.
 
 ### Edit Dialog Properties
 

@@ -23,6 +23,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.Via;
@@ -35,6 +36,7 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerCompone
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
@@ -58,7 +60,10 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/productcollection/v1/productcollection";
 
     protected static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
+    protected static final boolean ENABLE_ADD_TO_CART_DEFAULT = false;
+    protected static final boolean ENABLE_ADD_TO_WISH_LIST_DEFAULT = false;
     protected static final String PAGINATION_TYPE_DEFAULT = "paginationbar";
+    protected static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
 
     protected Page productPage;
     protected boolean loadClientPrice;
@@ -87,6 +92,8 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
 
     protected SearchOptionsImpl searchOptions;
     protected SearchResultsSet searchResultsSet;
+    protected boolean addToCartEnabled;
+    protected boolean addToWishListEnabled;
 
     @PostConstruct
     private void baseInitModel() {
@@ -103,6 +110,14 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
         navPageSize = properties.get(PN_PAGE_SIZE, currentStyle.get(PN_PAGE_SIZE, PAGE_SIZE_DEFAULT));
         loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
         paginationType = properties.get(PN_PAGINATION_TYPE, currentStyle.get(PN_PAGINATION_TYPE, PAGINATION_TYPE_DEFAULT));
+
+        ComponentsConfiguration configProperties = currentPage.adaptTo(Resource.class).adaptTo(ComponentsConfiguration.class);
+
+        addToCartEnabled = currentStyle.get(PN_ENABLE_ADD_TO_CART, ENABLE_ADD_TO_CART_DEFAULT);
+
+        addToWishListEnabled = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS,
+            ENABLE_ADD_TO_WISH_LIST_DEFAULT) : ENABLE_ADD_TO_WISH_LIST_DEFAULT);
+        addToWishListEnabled = addToWishListEnabled && currentStyle.get(PN_ENABLE_ADD_TO_WISH_LIST, ENABLE_ADD_TO_WISH_LIST_DEFAULT);
 
         // get product template page
         productPage = SiteNavigation.getProductPage(currentPage);
@@ -132,6 +147,16 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
     @Override
     public String getPaginationType() {
         return paginationType;
+    }
+
+    @Override
+    public boolean isAddToCartEnabled() {
+        return addToCartEnabled;
+    }
+
+    @Override
+    public boolean isAddToWishListEnabled() {
+        return addToWishListEnabled;
     }
 
     protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {

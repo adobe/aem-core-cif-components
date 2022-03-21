@@ -57,4 +57,22 @@ public interface ProductCarousel extends Component {
      * @return The HTML tag type that should be used to display the component title.
      */
     String getTitleType();
+
+    /**
+     * Indicates whether the 'Add to Cart' button should be displayed on the product carousel item.
+     *
+     * @return {@code true} if the button should be displayed, {@code false} otherwise
+     */
+    default boolean isAddToCartEnabled() {
+        return false;
+    }
+
+    /**
+     * Indicates whether the 'Add to Wish List' button should be displayed on the product carousel item.
+     *
+     * @return {@code true} if the button should be displayed, {@code false} otherwise
+     */
+    default boolean isAddToWishListEnabled() {
+        return false;
+    }
 }
