@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   codecov: codecov/codecov@1.1.1
+  browser-tools: circleci/browser-tools@1.2.4
 
 common:
   restore_cache: &restore_cache
@@ -39,6 +40,7 @@ common:
   selenium_test_steps: &selenium_test_steps
     steps:
       - checkout
+      - browser-tools/install-browser-tools
       - *restore_cache
       - attach_workspace:
           at: /home/circleci/build
@@ -62,23 +64,21 @@ common:
 executors:
   cif_executor:
     docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-openjdk-azul:11-stretch-node-browsers
-        <<: *docker_auth
+      - image: cimg/openjdk:11.0-browsers
   cif_executor_java8:
     docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-openjdk-azul:8-stretch-node-browsers
-        <<: *docker_auth
+      - image: cimg/openjdk:8.0-browsers
   test_executor_cloudready:
     docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-azul-jdk11
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:5852-azul
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:6582-openjdk11
         <<: *docker_auth
   test_executor_655:
     docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-azul-jdk11
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.8-azul
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.8-openjdk11
         <<: *docker_auth
 
 jobs:
@@ -136,9 +136,10 @@ jobs:
 
   karma:
     docker:
-      - image: circleci/node:lts-browsers@sha256:4e85b1aa632b9f5a0b9d6247485a9b151f953b2ff588c649aa5dce08b3f6d7d5
+      - image: cimg/node:lts-browsers
     steps:
       - checkout
+      - browser-tools/install-browser-tools
       - run:
           name: Provision
           command: |
@@ -160,7 +161,7 @@ jobs:
 
   jest:
     docker:
-      - image: circleci/node:lts-browsers@sha256:4e85b1aa632b9f5a0b9d6247485a9b151f953b2ff588c649aa5dce08b3f6d7d5
+      - image: cimg/node:lts-browsers
     steps:
       - checkout
       - run:
@@ -186,7 +187,7 @@ jobs:
 
   jest-extension:
     docker:
-      - image: circleci/node:lts-browsers@sha256:4e85b1aa632b9f5a0b9d6247485a9b151f953b2ff588c649aa5dce08b3f6d7d5
+      - image: cimg/node:lts-browsers
     steps:
       - checkout
       - run:
