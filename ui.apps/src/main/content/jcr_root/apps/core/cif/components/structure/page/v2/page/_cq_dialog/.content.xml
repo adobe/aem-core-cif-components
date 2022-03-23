@@ -131,7 +131,7 @@
                                                     sling:resourceType="core/cif/components/renderconditions/pagetype"
                                                     pageType="category"/>
                                             </categoryFilter>
-                                            <categoryFilter jcr:primaryType="nt:unstructured"
+                                            <categoryFilterProductPage jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="commerce/gui/components/common/cifcategoryfield"
                                                 fieldDescription="Category ids for which this page will be used."
                                                 fieldLabel="Category ids for which this page will be used."
@@ -142,7 +142,7 @@
                                                 <granite:rendercondition jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="core/cif/components/renderconditions/pagetype"
                                                     pageType="product"/>
-                                            </categoryFilter>
+                                            </categoryFilterProductPage>
                                             <includesSubCategories
                                                 jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
@@ -154,11 +154,11 @@
                                                 <granite:rendercondition
                                                     jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="granite/ui/components/coral/foundation/renderconditions/or">
-                                                    <granite:rendercondition
+                                                    <categoryPageCondition
                                                         jcr:primaryType="nt:unstructured"
                                                         sling:resourceType="core/cif/components/renderconditions/pagetype"
                                                         pageType="category"/>
-                                                    <granite:rendercondition
+                                                    <productPageCondition
                                                         jcr:primaryType="nt:unstructured"
                                                         sling:resourceType="core/cif/components/renderconditions/pagetype"
                                                         pageType="product"/>
