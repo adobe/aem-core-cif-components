@@ -65,8 +65,7 @@ import com.day.cq.wcm.api.Page;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = ProductList.class,
-    resourceType = ProductListImpl.RESOURCE_TYPE,
-    cache = true)
+    resourceType = ProductListImpl.RESOURCE_TYPE)
 public class ProductListImpl extends ProductCollectionImpl implements ProductList {
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v1/productlist";
