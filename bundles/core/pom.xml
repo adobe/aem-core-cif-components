@@ -453,7 +453,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-imaging</artifactId>
-            <version>1.0-R1534292</version>
+            <version>1.0-alpha2</version>
             <scope>test</scope>
         </dependency>
         <dependency>

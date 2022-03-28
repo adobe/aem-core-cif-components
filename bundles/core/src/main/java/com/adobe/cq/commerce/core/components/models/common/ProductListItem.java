@@ -85,4 +85,13 @@ public interface ProductListItem extends ListItem {
      * @return The product.
      */
     ProductInterface getProduct();
+
+    /**
+     * Returns the call to action command for the 'Add to Cart' button of the product list item.
+     *
+     * @return {@code add-to-cart} if the related product can be added to the shopping cart, {@code details} otherwise
+     */
+    default String getCallToAction() {
+        return "";
+    }
 }

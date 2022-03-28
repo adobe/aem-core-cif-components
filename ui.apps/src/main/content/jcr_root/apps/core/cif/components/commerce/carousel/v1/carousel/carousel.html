@@ -22,7 +22,7 @@
     <div class="${type == 'carousel' ? '{0}__cardsroot' : '{0}__root' @ format=[type]}">
         <div class="${type}__parent">
             <div class="${type}__cardscontainer" data-sly-list.item="${items ? items : carousel.items}">
-                <sly data-sly-call="${cardTpl.card @ item=item}"/>
+                <sly data-sly-call="${cardTpl.card @ item=item, carousel=carousel}"/>
             </div>
         </div>
     </div>

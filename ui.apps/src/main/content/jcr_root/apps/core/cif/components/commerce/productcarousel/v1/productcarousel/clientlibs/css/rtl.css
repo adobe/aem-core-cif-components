@@ -1,5 +1,5 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ Copyright 2020 Adobe
+ ~ Copyright 2022 Adobe
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -13,7 +13,23 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-@Version("2.1.0")
-package com.adobe.cq.commerce.core.components.models.productcollection;
 
-import org.osgi.annotation.versioning.Version;
+[dir='rtl'] .productcarousel__container {
+    direction: rtl;
+}
+
+[dir='rtl'] .productcarousel__btn--prev {
+    -moz-transform: rotate(225deg);
+    -webkit-transform: rotate(225deg);
+    transform: rotate(225deg);
+    right: 0;
+    left: unset;
+}
+
+[dir='rtl'] .productcarousel__btn--next {
+    -moz-transform: rotate(135deg);
+    -webkit-transform: rotate(135deg);
+    transform: rotate(135deg);
+    left: 0;
+    right: unset;
+}
