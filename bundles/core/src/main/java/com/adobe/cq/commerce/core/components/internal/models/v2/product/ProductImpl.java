@@ -28,8 +28,7 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = Product.class,
-    resourceType = ProductImpl.RESOURCE_TYPE,
-    cache = true)
+    resourceType = ProductImpl.RESOURCE_TYPE)
 public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl implements Product {
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v2/product";

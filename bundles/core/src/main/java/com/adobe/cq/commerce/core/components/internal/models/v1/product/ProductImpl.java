@@ -99,8 +99,7 @@ import static com.adobe.cq.wcm.core.components.util.ComponentUtils.ID_SEPARATOR;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = Product.class,
-    resourceType = ProductImpl.RESOURCE_TYPE,
-    cache = true)
+    resourceType = ProductImpl.RESOURCE_TYPE)
 public class ProductImpl extends DataLayerComponent implements Product {
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";

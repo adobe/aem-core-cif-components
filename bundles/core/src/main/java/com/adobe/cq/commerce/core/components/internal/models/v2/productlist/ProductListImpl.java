@@ -25,8 +25,7 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = ProductList.class,
-    resourceType = ProductListImpl.RESOURCE_TYPE,
-    cache = true)
+    resourceType = ProductListImpl.RESOURCE_TYPE)
 public class ProductListImpl extends com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl implements
     ProductList {
 

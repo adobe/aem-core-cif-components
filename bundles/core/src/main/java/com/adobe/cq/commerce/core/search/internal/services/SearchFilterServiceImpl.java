@@ -21,8 +21,10 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
+import org.apache.sling.api.wrappers.SlingHttpServletRequestWrapper;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +48,7 @@ import com.adobe.cq.commerce.magento.graphql.__TypeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 
-@Component(service = SearchFilterService.class)
+@Component(service = { SearchFilterServiceImpl.class, SearchFilterService.class })
 public class SearchFilterServiceImpl implements SearchFilterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchFilterServiceImpl.class);
@@ -57,6 +59,22 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         // --> com.adobe.cq.commerce.core.search.services.SearchFilterService
         return Optional.ofNullable(page.adaptTo(Resource.class))
             .map(r -> new SyntheticResource(r.getResourceResolver(), r.getPath(), SearchFilterService.class.getName()))
+            .map(r -> r.adaptTo(MagentoGraphqlClient.class))
+            .map(this::retrieveCurrentlyAvailableCommerceFilters)
+            .orElseGet(Collections::emptyList);
+    }
+
+    public List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(final SlingHttpServletRequest request, Page page) {
+        // This is used to configure the cache in the GraphqlClient with a cache name of
+        // --> com.adobe.cq.commerce.core.search.services.SearchFilterService
+        return Optional.ofNullable(page.adaptTo(Resource.class))
+            .map(r -> new SyntheticResource(r.getResourceResolver(), r.getPath(), SearchFilterService.class.getName()))
+            .map(r -> new SlingHttpServletRequestWrapper(request) {
+                @Override
+                public Resource getResource() {
+                    return r;
+                }
+            })
             .map(r -> r.adaptTo(MagentoGraphqlClient.class))
             .map(this::retrieveCurrentlyAvailableCommerceFilters)
             .orElseGet(Collections::emptyList);
