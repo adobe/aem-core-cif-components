@@ -1,0 +1,15 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "ConfigurableProduct",
+          "url_key": "test-url-key",
+          "url_rewrites": [{
+            "url": "test-url-key"
+          }]
+        }
+      ]
+    }
+  }
+}
