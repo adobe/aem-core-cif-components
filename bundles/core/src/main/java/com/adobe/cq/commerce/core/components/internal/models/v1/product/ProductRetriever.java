@@ -89,10 +89,12 @@ class ProductRetriever extends AbstractProductRetriever {
                         .attributeCode()
                         .values(v -> v
                             .valueIndex()
+                            .uid()
                             .label()))
                     .variants(v -> v
                         .attributes(a -> a
                             .code()
+                            .uid()
                             .valueIndex())
                         .product(generateSimpleProductQuery())))
                 .onGroupedProduct(generateGroupedProductQuery())

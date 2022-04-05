@@ -26,4 +26,8 @@ public interface VariantValue {
     String getLabel();
 
     Integer getId();
+
+    default String getUid() {
+        return null;
+    }
 }

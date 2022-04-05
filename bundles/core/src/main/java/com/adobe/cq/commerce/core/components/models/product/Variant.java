@@ -44,5 +44,9 @@ public interface Variant {
 
     Map<String, Integer> getVariantAttributes();
 
+    default Map<String, String> getVariantAttributesUid() {
+        return null;
+    }
+
     List<Asset> getAssets();
 }

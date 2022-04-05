@@ -40,6 +40,8 @@ public class VariantImpl implements Variant {
 
     private Map<String, Integer> variantAttributes = new HashMap<>();
 
+    private Map<String, String> variantAttributesUid = new HashMap<>();
+
     private Price priceRange;
 
     @Override
@@ -104,6 +106,11 @@ public class VariantImpl implements Variant {
     @Override
     public Map<String, Integer> getVariantAttributes() {
         return variantAttributes;
+    }
+
+    @Override
+    public Map<String, String> getVariantAttributesUid() {
+        return variantAttributesUid;
     }
 
     public void setColor(Integer color) {

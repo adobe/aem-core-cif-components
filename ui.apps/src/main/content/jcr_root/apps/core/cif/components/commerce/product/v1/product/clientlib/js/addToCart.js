@@ -61,7 +61,7 @@ class AddToCart {
      * Variant changed event handler.
      */
     _onUpdateVariant(event) {
-        const variant = event.detail.variant;
+        const { variant, attributes } = event.detail;
 
         // Disable add to cart button if no valid variant is available
         if (!variant) {
@@ -75,7 +75,7 @@ class AddToCart {
 
         // Update internal state
         this._state.sku = variant.sku;
-        this._state.attributes = event.detail.attributes;
+        this._state.attributes = attributes;
         this._element.disabled = false;
     }
 
