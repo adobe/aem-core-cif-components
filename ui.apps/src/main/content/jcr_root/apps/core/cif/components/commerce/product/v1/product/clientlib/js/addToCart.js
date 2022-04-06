@@ -25,14 +25,18 @@ class AddToCart {
         let configurable = config.product.dataset.configurable !== undefined;
         let virtual = config.product.dataset.virtual !== undefined;
         let grouped = config.product.dataset.grouped !== undefined;
+        let parentSku = config.product.querySelector(AddToCart.selectors.sku).innerHTML;
         let sku = !configurable ? config.product.querySelector(AddToCart.selectors.sku).innerHTML : null;
+        const useUid = document.querySelector(AddToCart.selectors.quantity).hasAttribute('data-uid-cart');
 
         this._state = {
             sku,
+            parentSku,
             attributes: {},
             configurable,
             virtual,
-            grouped
+            grouped,
+            useUid
         };
 
         // Disable add to cart if configurable product and no variant was selected
@@ -70,8 +74,9 @@ class AddToCart {
         }
 
         // Update sku attribute in select element
-        document.querySelector(AddToCart.selectors.quantity).setAttribute('data-product-sku', variant.sku);
-        document.querySelector(AddToCart.selectors.quantity).setAttribute('data-product-id', variant.id);
+        const quantityEl = document.querySelector(AddToCart.selectors.quantity);
+        quantityEl.setAttribute('data-product-sku', variant.sku);
+        quantityEl.setAttribute('data-product-id', variant.id);
 
         // Update internal state
         this._state.sku = variant.sku;
@@ -108,12 +113,19 @@ class AddToCart {
             return parseInt(selection.value) > 0;
         });
         const items = selections.map(selection => {
-            return {
+            const item = {
                 productId: selection.dataset.productId,
                 sku: selection.dataset.productSku,
                 virtual: this._state.grouped ? selection.dataset.virtual !== undefined : this._state.virtual,
                 quantity: selection.value
             };
+
+            if (this._state.useUid) {
+                item.parentSku = this._state.parentSku;
+                item.selected_options = Object.values(this._state.attributes)
+            }
+
+            return item;
         });
 
         return items;

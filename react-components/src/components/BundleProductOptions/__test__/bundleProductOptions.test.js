@@ -98,7 +98,15 @@ describe('BundleProductOptions', () => {
                     { id: 3, quantity: 1, value: ['5'] },
                     { id: 4, quantity: 1, value: ['7', '8'] }
                 ],
+                parentSku: 'VA24',
                 quantity: 1,
+                selected_options: [
+                    'YnVuZGxlLzEvMS8x',
+                    'YnVuZGxlLzIvMy8x',
+                    'YnVuZGxlLzMvNS8x',
+                    'YnVuZGxlLzQvNy8x',
+                    'YnVuZGxlLzQvOC8x'
+                ],
                 sku: 'VA24',
                 virtual: false
             }

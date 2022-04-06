@@ -32,6 +32,9 @@ const defaultOperations = {
     addPhysicalAndVirtualProductItemsMutation: MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART
 };
 
+/**
+ * @deprecated replace with useAddProductsToCart if you are using Magento >= 2.4.0 and the Product V3 component
+ */
 const useAddToCart = (props = {}) => {
     const operations = mergeOperations(defaultOperations, props.operations || {});
     const [addPhysicalProductItems] = useMutation(operations.addPhysicalProductItemsMutation);

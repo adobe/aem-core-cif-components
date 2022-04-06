@@ -15,3 +15,5 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 export { default as useAddToCart } from './useAddToCart';
 export { default as useAddToCartEvent } from './useAddToCartEvent';
+export { default as useAddProductsToCart } from './useAddProductsToCart';
+export { default as useAddProductsToCartEvent } from './useAddProductsToCartEvent';

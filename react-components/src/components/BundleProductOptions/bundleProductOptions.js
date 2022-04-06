@@ -157,9 +157,16 @@ const BundleProductOptions = () => {
 
     const addToCart = () => {
         const { selections, quantity } = bundleState;
+        const selected_options = [];
+        selections.forEach(s => {
+            s.customization.forEach(c => {
+                selected_options.push(window.btoa(`bundle/${s.option_id}/${c.id}/${s.quantity}`));
+            });
+        });
         const productData = {
             productId,
             sku,
+            parentSku: sku,
             virtual: false,
             bundle: true,
             quantity: quantity,
@@ -169,7 +176,8 @@ const BundleProductOptions = () => {
                     quantity: s.quantity,
                     value: s.customization.map(c => c.id.toString())
                 };
-            })
+            }),
+            selected_options
         };
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
             detail: [productData]

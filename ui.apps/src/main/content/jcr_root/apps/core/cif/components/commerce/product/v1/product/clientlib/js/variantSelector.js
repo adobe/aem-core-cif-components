@@ -45,6 +45,8 @@ class VariantSelector {
             button.addEventListener('click', this._onSelectVariant.bind(this));
         }, this);
 
+        this._state.useUid = document.querySelector(VariantSelector.selectors.quantity).hasAttribute('data-uid-cart');
+
         // Update button state on variant change
         this._element.addEventListener(VariantSelector.events.variantChanged, this._updateButtonActiveClass.bind(this));
 
@@ -135,7 +137,11 @@ class VariantSelector {
             if (sku) continue;
             for (let key in variant.variantAttributes) {
                 let selectedValue = this._state.attributes[key];
-                match = match && selectedValue == variant.variantAttributes[key];
+                if (this._state.useUid) {
+                    match = match && selectedValue == variant.variantAttributesUid[key];
+                } else {
+                    match = match && selectedValue == variant.variantAttributes[key];
+                }
             }
 
             // Return variant if all variant attributes match
@@ -186,7 +192,8 @@ class VariantSelector {
 
 VariantSelector.selectors = {
     self: '.productFullDetail__options',
-    variantButtons: '.productFullDetail__options button'
+    variantButtons: '.productFullDetail__options button',
+    quantity: '.productFullDetail__quantity select'
 };
 
 VariantSelector.events = {

@@ -34,6 +34,9 @@ const giftCardProductMapper = item => ({
     selected_options: item.selected_options
 });
 
+/**
+ * @deprecated replace with useAddProductsToCartEvent if you are using Magento >= 2.4.0 and the Product V3 component
+ */
 const useAddToCartEvent = (props = {}) => {
     const { fallbackHandler } = props;
     const [, defaultAddToCartApi] = useAddToCart();
