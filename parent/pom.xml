@@ -703,6 +703,15 @@
                         <source>8</source>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>com.github.eirslett</groupId>
+                    <artifactId>frontend-maven-plugin</artifactId>
+                    <version>1.12.1</version>
+                    <configuration>
+                        <nodeVersion>v12.14.1</nodeVersion>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
