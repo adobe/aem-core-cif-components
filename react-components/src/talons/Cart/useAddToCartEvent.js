@@ -34,9 +34,6 @@ const giftCardProductMapper = item => ({
     selected_options: item.selected_options
 });
 
-/**
- * @deprecated replace with useAddProductsToCartEvent if you are using Magento >= 2.4.0 and the Product V3 component
- */
 const useAddToCartEvent = (props = {}) => {
     const { fallbackHandler } = props;
     const [, defaultAddToCartApi] = useAddToCart();
@@ -44,10 +41,23 @@ const useAddToCartEvent = (props = {}) => {
 
     useEventListener(document, 'aem.cif.add-to-cart', async event => {
         const items = typeof event.detail === 'string' ? JSON.parse(event.detail) : event.detail;
-        const physicalCartItems = items.filter(item => !item.virtual).map(productMapper);
-        const virtualCartItems = items.filter(item => item.virtual).map(productMapper);
-        const bundleCartItems = items.filter(item => item.bundle).map(bundledProductMapper);
-        const giftCardCartItems = items.filter(item => item.giftCard).map(giftCardProductMapper);
+        const useUidItems = items
+            .filter(item => item.useUid)
+            .map(item => ({
+                sku: item.parentSku,
+                quantity: parseFloat(item.quantity),
+                entered_options: item.entered_options,
+                selected_options: item.selected_options
+            }));
+        const nonUidItems = items.filter(item => !item.useUid);
+        const physicalCartItems = nonUidItems.filter(item => !item.virtual).map(productMapper);
+        const virtualCartItems = nonUidItems.filter(item => item.virtual).map(productMapper);
+        const bundleCartItems = nonUidItems.filter(item => item.bundle).map(bundledProductMapper);
+        const giftCardCartItems = nonUidItems.filter(item => item.giftCard).map(giftCardProductMapper);
+
+        if (useUidItems.length > 0) {
+            await addToCartApi.addProductsToCart(useUidItems);
+        }
 
         if (bundleCartItems.length > 0) {
             await addToCartApi.addBundledProductItems(bundleCartItems);

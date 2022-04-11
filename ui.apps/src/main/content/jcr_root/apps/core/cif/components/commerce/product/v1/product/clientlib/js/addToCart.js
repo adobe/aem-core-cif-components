@@ -121,6 +121,7 @@ class AddToCart {
             };
 
             if (this._state.useUid) {
+                item.useUid = true;
                 item.parentSku = this._state.parentSku;
                 item.selected_options = Object.values(this._state.attributes)
             }

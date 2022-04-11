@@ -43,6 +43,13 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     @PostConstruct
     protected void initModel() {
         super.initModel();
+        if (productRetriever != null) {
+            productRetriever.extendProductQueryWith(p -> p.onConfigurableProduct(cp -> cp
+                .configurableOptions(o -> o
+                    .values(v -> v.uid()))
+                .variants(v -> v
+                    .attributes(a -> a.uid()))));
+        }
     }
 
     @Override

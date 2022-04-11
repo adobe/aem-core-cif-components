@@ -1,0 +1,75 @@
+<!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~ Copyright 2022 Adobe
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
+<template data-sly-template.productFullDetail="${ @ page, product, additionalCssClasses }"
+          data-sly-use.variantsTpl="variantselector.html"
+          data-sly-use.galleryTpl="gallery.html"
+          data-sly-use.actionsTpl="actions.html"
+          data-sly-use.quantityTpl="quantity.html"
+          data-sly-use.titleTpl="title.html"
+          data-sly-use.descriptionTpl="description.html"
+          data-sly-use.skuTpl="sku.html"
+          data-sly-use.priceTpl="core/cif/components/commons/v1/price.html"
+          data-sly-use.groupedProductsTpl="groupedProducts.html">
+
+    <form class="productFullDetail__root ${additionalCssClasses}"
+          data-product-sku="${product.sku}"
+          id="${product.id}"
+          data-configurable="${product.configurable}"
+          data-grouped="${product.groupedProduct}"
+          data-virtual="${product.virtualProduct}"
+          data-cmp-is="product"
+          data-locale="${page.language}"
+          data-cmp-data-layer="${product.data.json}"
+          data-cif-product-context="${product.storefrontContext.json}"
+          data-load-client-price="${product.loadClientPrice}">
+        <sly data-sly-test.found="${product.found}">
+            <sly data-sly-test.isGroupedProduct="${product.isGroupedProduct}" />
+            <sly data-sly-test.isBundleProduct="${product.isBundleProduct}" />
+            <sly data-sly-test.isGiftCardProduct="${product.isGiftCardProduct}" />
+            <section class="productFullDetail__title">
+                <sly data-sly-call="${titleTpl.product @ product=product}"></sly>
+                <sly data-sly-test="${!isGroupedProduct}"
+                     data-sly-call="${priceTpl.price @ priceRange=product.priceRange, displayYouSave=true, sku=product.sku}"></sly>
+            </section>
+            <section class="productFullDetail__imageCarousel">
+                <sly data-sly-call="${galleryTpl.gallery @ product=product}" data-sly-unwrap></sly>
+            </section>
+            <section class="productFullDetail__options" data-sly-test="${product.configurable}" data-variants="${product.variantsJson}">
+                <sly data-sly-call="${variantsTpl.variants @ product=product}" data-sly-unwrap></sly>
+            </section>
+            <section data-sly-test="${isGroupedProduct}" class="productFullDetail__groupedProducts productFullDetail__quantity productFullDetail__section">
+                <sly data-sly-call="${groupedProductsTpl.groupedProducts @ groupedProductItems=product.groupedProductItems}"></sly>
+            </section>
+            <div data-sly-test="${isBundleProduct}" id="bundle-product-options" data-sku="${product.sku}" data-show-add-to-wish-list="${product.addToWishListEnabled}" data-use-uid></div>
+            <div data-sly-test="${isGiftCardProduct}" id="gift-card-product-options" data-sku="${product.sku}" data-show-add-to-wish-list="${product.addToWishListEnabled}" data-use-uid></div>
+            <section data-sly-test="${!isGroupedProduct && !isBundleProduct && !isGiftCardProduct}" class="productFullDetail__quantity productFullDetail__section">
+                <h2 class="productFullDetail__quantityTitle option__title"><span>${'Quantity' @ i18n}</span></h2>
+                <sly data-sly-call="${quantityTpl.quantity @ product=product}"></sly>
+            </section>
+            <section data-sly-test="${!isBundleProduct && !isGiftCardProduct}" class="productFullDetail__cartActions productFullDetail__section">
+                <sly data-sly-call="${actionsTpl.actions @ product=product}"></sly>
+            </section>
+            <section class="productFullDetail__description productFullDetail__section">
+                <sly data-sly-call="${descriptionTpl.product @ product=product}"></sly>
+            </section>
+            <section class="productFullDetail__details productFullDetail__section">
+                <sly data-sly-call="${skuTpl.product @ product=product}"></sly>
+            </section>
+        </sly>
+        <p data-sly-test="${!found}">${'Product not found.' @ i18n}</p>
+    </form>
+
+</template>

@@ -56,6 +56,7 @@ describe('useAddToCart', () => {
                 </button>
                 <button onClick={() => api.addBundledProductItems()}>addBundledProductItems</button>
                 <button onClick={() => api.addGiftCardProductItems()}>addGiftCardProductItems</button>
+                <button onClick={() => api.addProductsToCart()}>addProductsToCart</button>
             </div>
         );
     };
@@ -78,9 +79,10 @@ describe('useAddToCart', () => {
         getByText('addPhysicalAndVirtualProductItems').click();
         getByText('addBundledProductItems').click();
         getByText('addGiftCardProductItems').click();
+        getByText('addProductsToCart').click();
 
         // then
-        expect(defaultHook).toHaveBeenCalledTimes(5);
+        expect(defaultHook).toHaveBeenCalledTimes(6);
         expect(customHook).toHaveBeenCalledTimes(0);
     });
 
@@ -91,7 +93,8 @@ describe('useAddToCart', () => {
             addBundledProductItemsMutation: customHook,
             addVirtualProductItemsMutation: customHook,
             addPhysicalAndVirtualProductItemsMutation: customHook,
-            addGiftCardProductItemsMutation: customHook
+            addGiftCardProductItemsMutation: customHook,
+            addProductsToCartMutation: customHook
         };
         const { getByText } = render(<MockComponet operations={operations} />);
         getByText('addPhysicalProductItems').click();
@@ -99,9 +102,10 @@ describe('useAddToCart', () => {
         getByText('addPhysicalAndVirtualProductItems').click();
         getByText('addBundledProductItems').click();
         getByText('addGiftCardProductItems').click();
+        getByText('addProductsToCart').click();
 
         // then
         expect(defaultHook).toHaveBeenCalledTimes(0);
-        expect(customHook).toHaveBeenCalledTimes(5);
+        expect(customHook).toHaveBeenCalledTimes(6);
     });
 });

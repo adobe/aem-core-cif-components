@@ -223,4 +223,46 @@ describe('useAddToCartEvent', () => {
             ]);
         });
     });
+
+    it('calls addToCartApi#addProductsToCart if gift card product items', async () => {
+        // given
+        const addProductsToCart = jest.fn();
+
+        // when
+        render(<MockComponent addToCartApi={{ addProductsToCart }} />);
+        dispatchEvent([
+            {
+                sku: 'test-sku',
+                parentSku: 'test-sku',
+                virtual: false,
+                useUid: true,
+                quantity: 1,
+                entered_options: [
+                    {
+                        uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ==',
+                        value: 'da'
+                    }
+                ],
+                selected_options: ['Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzEyLjAwMDA=']
+            }
+        ]);
+
+        // then
+        await wait(() => {
+            expect(addProductsToCart).toHaveBeenCalledTimes(1);
+            expect(addProductsToCart).toHaveBeenCalledWith([
+                {
+                    sku: 'test-sku',
+                    quantity: 1,
+                    entered_options: [
+                        {
+                            uid: 'Z2lmdGNhcmQvZ2lmdGNhcmRfbWVzc2FnZQ==',
+                            value: 'da'
+                        }
+                    ],
+                    selected_options: ['Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzEyLjAwMDA=']
+                }
+            ]);
+        });
+    });
 });
