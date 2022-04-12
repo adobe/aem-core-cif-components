@@ -44,6 +44,7 @@ import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithCategoryAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
@@ -93,6 +94,8 @@ public class UrlProviderImplTest {
 
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
             "{products(filter:{sku:{eq:\"MJ01\"}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result-url-parameters.json", httpClient, HttpStatus.SC_OK,
+            "{products(filter:{sku:{eq:\"MJ03\"}}");
         Utils.setupHttpResponse("graphql/magento-graphql-product-not-found-result.json", httpClient, HttpStatus.SC_OK,
             "{products(filter:{sku:{eq:\"MJ02\"}}");
         Utils.setupHttpResponse("graphql/magento-graphql-product-sku.json", httpClient, HttpStatus.SC_OK,
@@ -222,6 +225,21 @@ public class UrlProviderImplTest {
 
         // not required when only sku is used
         verify(graphqlClient, never()).execute(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testProductUrlWithSKUProductNotFound() {
+        Page page = context.currentPage("/content/product-page");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithSkuAndUrlKey.PATTERN);
+
+        // Not found, sku set
+        String url = urlProvider.toProductUrl(request, page, "MJ02");
+        assertEquals("/content/product-page.html/MJ02.html", url);
+
+        // found, parameters queried without sku set
+        url = urlProvider.toProductUrl(request, page, "MJ03");
+        assertEquals("/content/product-page.html/MJ03/test-url-key.html", url);
     }
 
     @Test

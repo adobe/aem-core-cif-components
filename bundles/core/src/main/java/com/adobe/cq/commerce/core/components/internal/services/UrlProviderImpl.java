@@ -255,6 +255,7 @@ public class UrlProviderImpl implements UrlProvider {
                     ProductInterface product = retriever.fetchProduct();
                     if (product != null) {
                         params = new ProductUrlFormat.Params(product);
+                        params.setSku(productIdentifier);
                     } else {
                         LOGGER.debug("Could not generate product page URL for {}.", productIdentifier);
                     }
