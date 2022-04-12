@@ -55,6 +55,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     @Override
     protected VariantValue mapVariantValue(ConfigurableProductOptionsValues value) {
         VariantValueImpl variantValue = new VariantValueImpl();
+        variantValue.setId(value.getValueIndex());
         variantValue.setUid(value.getUid().toString());
         variantValue.setLabel(value.getLabel());
 

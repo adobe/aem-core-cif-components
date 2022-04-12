@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.product;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -45,7 +46,7 @@ public interface Variant {
     Map<String, Integer> getVariantAttributes();
 
     default Map<String, String> getVariantAttributesUid() {
-        return null;
+        return Collections.emptyMap();
     }
 
     List<Asset> getAssets();

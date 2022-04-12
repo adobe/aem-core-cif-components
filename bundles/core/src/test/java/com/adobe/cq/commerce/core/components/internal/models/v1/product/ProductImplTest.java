@@ -113,9 +113,9 @@ public class ProductImplTest {
 
     private Resource productResource;
     private Resource pageResource;
-    private ProductInterface product;
     private GraphqlClient graphqlClient;
 
+    protected ProductInterface product;
     protected Product productModel;
     protected CloseableHttpClient httpClient;
     protected Style style;
