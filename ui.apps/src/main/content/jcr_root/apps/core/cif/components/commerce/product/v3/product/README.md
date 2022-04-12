@@ -15,7 +15,7 @@ limitations under the License.
 -->
 Product (v3)
 ====
-The version 3 of the product component extends the v2 product component by extending the v2 GraphQL query with the `uid` field for product variants and variant attributes in Magento 2.4.0 . This hence requires that the Magento backend is at least version 2.4.0 because the query with the `uid` fields will be rejected by Magento versions not having this field in the GraphQL schema.
+The version 3 of the product component extends the v2 product component by extending the v2 GraphQL query with the `uid` field for product variants and variant attributes in Magento 2.4.4 . This hence requires that the Magento backend is at least version 2.4.4 because the query with the `uid` fields will be rejected by Magento versions not having this field in the GraphQL schema and adding bundled products to cart using these `uid` attributes was broken in previous versions of Magento
 
 ## Information
 * **Vendor**: Adobe
