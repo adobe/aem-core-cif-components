@@ -41,7 +41,7 @@ const useAddToCartEvent = (props = {}) => {
 
     useEventListener(document, 'aem.cif.add-to-cart', async event => {
         const items = typeof event.detail === 'string' ? JSON.parse(event.detail) : event.detail;
-        
+
         // Since the hook is backwards compatible, we need to determine which items can be added to cart with the latest mutation and map the properties to match the mutation input
         const useUidItems = items
             .filter(item => item.useUid)
