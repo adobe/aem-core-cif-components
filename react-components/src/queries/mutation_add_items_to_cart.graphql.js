@@ -25,6 +25,7 @@ export default gql`
                     uid
                     quantity
                     product {
+                        sku
                         name
                         thumbnail {
                             url

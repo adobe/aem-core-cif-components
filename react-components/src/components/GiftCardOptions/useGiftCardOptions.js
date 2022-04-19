@@ -156,6 +156,7 @@ const useGiftCardOptions = props => {
             const productData = {
                 useUid,
                 sku,
+                parentSku: sku,
                 virtual: false,
                 giftCard: true,
                 quantity: quantity,
