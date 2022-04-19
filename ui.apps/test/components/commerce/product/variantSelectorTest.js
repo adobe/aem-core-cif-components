@@ -46,7 +46,6 @@ describe('Product', () => {
 
         beforeEach(() => {
             selectorRoot = document.createElement('div');
-            selectorRoot.dataset.variants = JSON.stringify(variantData);
 
             selectorRoot.insertAdjacentHTML(
                 'afterbegin',
@@ -67,8 +66,9 @@ describe('Product', () => {
                 `
             );
 
+            selectorRoot.querySelector(VariantSelector.selectors.self).dataset.variants = JSON.stringify(variantData);
+
             selectorRootUid = document.createElement('div');
-            selectorRootUid.dataset.variants = JSON.stringify(variantData);
 
             selectorRootUid.insertAdjacentHTML(
                 'afterbegin',
@@ -88,6 +88,10 @@ describe('Product', () => {
                 </div>
                 `
             );
+
+            selectorRootUid.querySelector(VariantSelector.selectors.self).dataset.variants = JSON.stringify(
+                variantData
+            );
         });
 
         afterEach(() => {
@@ -95,7 +99,7 @@ describe('Product', () => {
         });
 
         it('initializes a variantselector component', () => {
-            let selector = new VariantSelector({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot.querySelector(VariantSelector.selectors.self) });
 
             assert.deepEqual(selector._state.variantData, variantData);
             assert.equal(selector._state.buttons.length, 2);
@@ -104,7 +108,7 @@ describe('Product', () => {
         it('initializes variant from a window location hash', () => {
             window.location.hash = '#red';
 
-            let selector = new VariantSelector({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot.querySelector(VariantSelector.selectors.self) });
 
             assert.equal(selector._state.variant.sku, 'red');
         });
@@ -112,7 +116,9 @@ describe('Product', () => {
         it('initializes variant from a window location hash (UID)', () => {
             window.location.hash = '#red';
 
-            let selector = new VariantSelector({ element: selectorRootUid });
+            let selector = new VariantSelector({
+                element: selectorRootUid.querySelector(VariantSelector.selectors.self)
+            });
 
             assert.equal(selector._state.variant.sku, 'red');
         });
@@ -120,7 +126,7 @@ describe('Product', () => {
         it('initializes base product for invalid window location hash', () => {
             window.location.hash = '#purple';
 
-            let selector = new VariantSelector({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot.querySelector(VariantSelector.selectors.self) });
 
             assert.isNull(selector._state.variant);
         });
@@ -128,13 +134,15 @@ describe('Product', () => {
         it('initializes base product for invalid window location hash (UID)', () => {
             window.location.hash = '#purple';
 
-            let selector = new VariantSelector({ element: selectorRootUid });
+            let selector = new VariantSelector({
+                element: selectorRootUid.querySelector(VariantSelector.selectors.self)
+            });
 
             assert.isNull(selector._state.variant);
         });
 
         it('returns the selected variant based on attributes', () => {
-            let selector = new VariantSelector({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot.querySelector(VariantSelector.selectors.self) });
             selector._state.attributes['color'] = 'red';
 
             let selectedVariant = selector._findSelectedVariant();
@@ -142,7 +150,9 @@ describe('Product', () => {
         });
 
         it('returns the selected variant based on attributes (UID)', () => {
-            let selector = new VariantSelector({ element: selectorRootUid });
+            let selector = new VariantSelector({
+                element: selectorRootUid.querySelector(VariantSelector.selectors.self)
+            });
             selector._state.attributes['color'] = 'cmVk';
 
             let selectedVariant = selector._findSelectedVariant();
@@ -150,21 +160,23 @@ describe('Product', () => {
         });
 
         it('returns the selected variant based on sku', () => {
-            let selector = new VariantSelector({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot.querySelector(VariantSelector.selectors.self) });
 
             let selectedVariant = selector._findSelectedVariant('blue');
             assert.equal(selectedVariant.name, variantData[1].name);
         });
 
         it('returns the selected variant based on sku (UID)', () => {
-            let selector = new VariantSelector({ element: selectorRootUid });
+            let selector = new VariantSelector({
+                element: selectorRootUid.querySelector(VariantSelector.selectors.self)
+            });
 
             let selectedVariant = selector._findSelectedVariant('blue');
             assert.equal(selectedVariant.name, variantData[1].name);
         });
 
         it('returns null if no variant can be found', () => {
-            let selector = new VariantSelector({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot.querySelector(VariantSelector.selectors.self) });
             selector._state.attributes['color'] = 'purple';
 
             let selectedVariant = selector._findSelectedVariant();
@@ -172,7 +184,9 @@ describe('Product', () => {
         });
 
         it('returns null if no variant can be found (UID)', () => {
-            let selector = new VariantSelector({ element: selectorRootUid });
+            let selector = new VariantSelector({
+                element: selectorRootUid.querySelector(VariantSelector.selectors.self)
+            });
             selector._state.attributes['color'] = 'cHVycGxl';
 
             let selectedVariant = selector._findSelectedVariant();
@@ -180,7 +194,7 @@ describe('Product', () => {
         });
 
         it('dispatches a variantchanged event on changing the variant', () => {
-            let selector = new VariantSelector({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot.querySelector(VariantSelector.selectors.self) });
             let spy = sinon.spy();
             selectorRoot.addEventListener(VariantSelector.events.variantChanged, spy);
 
@@ -194,7 +208,9 @@ describe('Product', () => {
         });
 
         it('dispatches a variantchanged event on changing the variant (UID)', () => {
-            let selector = new VariantSelector({ element: selectorRootUid });
+            let selector = new VariantSelector({
+                element: selectorRootUid.querySelector(VariantSelector.selectors.self)
+            });
             let spy = sinon.spy();
             selectorRootUid.addEventListener(VariantSelector.events.variantChanged, spy);
 
@@ -208,7 +224,7 @@ describe('Product', () => {
         });
 
         it('updates the window location hash on changing the variant', () => {
-            let selector = new VariantSelector({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot.querySelector(VariantSelector.selectors.self) });
 
             // Simulate button click
             selector._onSelectVariant({
@@ -221,7 +237,9 @@ describe('Product', () => {
         });
 
         it('updates the window location hash on changing the variant (UID)', () => {
-            let selector = new VariantSelector({ element: selectorRootUid });
+            let selector = new VariantSelector({
+                element: selectorRootUid.querySelector(VariantSelector.selectors.self)
+            });
 
             // Simulate button click
             selector._onSelectVariant({
@@ -234,7 +252,7 @@ describe('Product', () => {
         });
 
         it('updates swatch button on receiving a variantchanged event', () => {
-            let selector = new VariantSelector({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot.querySelector(VariantSelector.selectors.self) });
             selector._state.attributes['color'] = 'red';
 
             selector._updateButtonActiveClass();
@@ -246,7 +264,9 @@ describe('Product', () => {
         });
 
         it('updates swatch button on receiving a variantchanged event (UID)', () => {
-            let selector = new VariantSelector({ element: selectorRootUid });
+            let selector = new VariantSelector({
+                element: selectorRootUid.querySelector(VariantSelector.selectors.self)
+            });
             selector._state.attributes['color'] = 'cmVk';
 
             selector._updateButtonActiveClass();
@@ -258,7 +278,7 @@ describe('Product', () => {
         });
 
         it('updates tile button on receiving a variantchanged event', () => {
-            let selector = new VariantSelector({ element: selectorRoot });
+            let selector = new VariantSelector({ element: selectorRoot.querySelector(VariantSelector.selectors.self) });
             selector._state.attributes['color'] = 'blue';
 
             selector._updateButtonActiveClass();
@@ -270,7 +290,9 @@ describe('Product', () => {
         });
 
         it('updates tile button on receiving a variantchanged event (UID)', () => {
-            let selector = new VariantSelector({ element: selectorRootUid });
+            let selector = new VariantSelector({
+                element: selectorRootUid.querySelector(VariantSelector.selectors.self)
+            });
             selector._state.attributes['color'] = 'Ymx1ZQ==';
 
             selector._updateButtonActiveClass();

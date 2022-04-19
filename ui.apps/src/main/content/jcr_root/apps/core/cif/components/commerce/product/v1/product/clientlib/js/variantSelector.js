@@ -45,7 +45,7 @@ class VariantSelector {
             button.addEventListener('click', this._onSelectVariant.bind(this));
         }, this);
 
-        this._state.useUid = this._element
+        this._state.useUid = this._element.parentElement
             .querySelector(VariantSelector.selectors.quantity)
             .hasAttribute('data-uid-cart');
 
