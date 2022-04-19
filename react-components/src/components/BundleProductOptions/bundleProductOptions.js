@@ -44,6 +44,11 @@ const BundleProductOptions = () => {
         showAddToWishList = true;
     }
 
+    if (useUid === '') {
+        // same as above
+        useUid = true;
+    }
+
     const fetchBundleDetails = async sku => {
         const { data, error } = await bundleProductQuery({ variables: { sku }, fetchPolicy: 'network-only' });
 
