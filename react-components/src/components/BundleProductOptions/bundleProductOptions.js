@@ -148,6 +148,9 @@ const BundleProductOptions = () => {
             case 'select': {
                 return <Select item={{ option_id, required, quantity }} {...otherProps} />;
             }
+            case 'drop-down': {
+                return <Select item={{ option_id, required, quantity }} {...otherProps} />;
+            }
             case 'multi': {
                 return <MultiSelect item={{ option_id, required }} {...otherProps} />;
             }
