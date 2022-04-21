@@ -352,7 +352,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     }
 
     /* --- Mapping methods --- */
-    private Variant mapVariant(ConfigurableVariant variant) {
+    protected Variant mapVariant(ConfigurableVariant variant) {
         SimpleProduct product = variant.getProduct();
 
         VariantImpl productVariant = new VariantImpl();
@@ -408,7 +408,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         return asset;
     }
 
-    private VariantValue mapVariantValue(ConfigurableProductOptionsValues value) {
+    protected VariantValue mapVariantValue(ConfigurableProductOptionsValues value) {
         VariantValueImpl variantValue = new VariantValueImpl();
         variantValue.setId(value.getValueIndex());
         variantValue.setLabel(value.getLabel());
@@ -416,7 +416,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         return variantValue;
     }
 
-    private VariantAttribute mapVariantAttribute(ConfigurableProductOptions option) {
+    protected VariantAttribute mapVariantAttribute(ConfigurableProductOptions option) {
         // Get list of values
         List<VariantValue> values = option.getValues().parallelStream().map(this::mapVariantValue).collect(Collectors.toList());
 
@@ -429,7 +429,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         return attribute;
     }
 
-    private String safeDescription(ProductInterface product) {
+    protected String safeDescription(ProductInterface product) {
         ComplexTextValue description = product.getDescription();
         if (description == null) {
             return null;

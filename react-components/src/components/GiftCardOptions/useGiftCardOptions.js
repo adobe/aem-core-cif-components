@@ -20,7 +20,7 @@ import GIFT_CARD_PRODUCT_QUERY from '../../queries/query_gift_card_product.graph
 const OPEN_AMOUNT = 'open_amount';
 
 const useGiftCardOptions = props => {
-    const { sku } = props;
+    const { sku, useUid } = props;
 
     const [giftCardState, setGiftCardState] = useState(null);
     const giftCardProductQuery = useAwaitQuery(GIFT_CARD_PRODUCT_QUERY);
@@ -154,7 +154,9 @@ const useGiftCardOptions = props => {
             } = giftCardState;
 
             const productData = {
+                useUid,
                 sku,
+                parentSku: sku,
                 virtual: false,
                 giftCard: true,
                 quantity: quantity,

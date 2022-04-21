@@ -36,12 +36,17 @@ const BundleProductOptions = () => {
     const productId = document.querySelector('[data-cmp-is=product]')?.id;
     const [bundleState, setBundleState] = useState(null);
     const intl = useIntl();
-    let { sku, showAddToWishList } = document.querySelector(bundleProductOptionsContainer)?.dataset || {};
+    let { sku, showAddToWishList, useUid } = document.querySelector(bundleProductOptionsContainer)?.dataset || {};
 
     if (showAddToWishList === '') {
         // show-add-to-wish-list is set without a value to the dom,
         // the returned value from the data set is an empty string: ''
         showAddToWishList = true;
+    }
+
+    if (useUid === '') {
+        // same as above
+        useUid = true;
     }
 
     const fetchBundleDetails = async sku => {
@@ -50,6 +55,7 @@ const BundleProductOptions = () => {
         if (error) {
             throw new Error(error);
         }
+
         let currencyCode;
         const bundleOptions = data.products.items[0];
         const selections = bundleOptions.items.map(item => {
@@ -142,6 +148,9 @@ const BundleProductOptions = () => {
             case 'select': {
                 return <Select item={{ option_id, required, quantity }} {...otherProps} />;
             }
+            case 'drop-down': {
+                return <Select item={{ option_id, required, quantity }} {...otherProps} />;
+            }
             case 'multi': {
                 return <MultiSelect item={{ option_id, required }} {...otherProps} />;
             }
@@ -157,9 +166,17 @@ const BundleProductOptions = () => {
 
     const addToCart = () => {
         const { selections, quantity } = bundleState;
+        const selected_options = [];
+        selections.forEach(s => {
+            s.customization.forEach(c => {
+                selected_options.push(window.btoa(`bundle/${s.option_id}/${c.id}/${s.quantity}`));
+            });
+        });
         const productData = {
+            useUid,
             productId,
             sku,
+            parentSku: sku,
             virtual: false,
             bundle: true,
             quantity: quantity,
@@ -169,7 +186,8 @@ const BundleProductOptions = () => {
                     quantity: s.quantity,
                     value: s.customization.map(c => c.id.toString())
                 };
-            })
+            }),
+            selected_options
         };
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
             detail: [productData]

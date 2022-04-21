@@ -41,10 +41,25 @@ const useAddToCartEvent = (props = {}) => {
 
     useEventListener(document, 'aem.cif.add-to-cart', async event => {
         const items = typeof event.detail === 'string' ? JSON.parse(event.detail) : event.detail;
-        const physicalCartItems = items.filter(item => !item.virtual).map(productMapper);
-        const virtualCartItems = items.filter(item => item.virtual).map(productMapper);
-        const bundleCartItems = items.filter(item => item.bundle).map(bundledProductMapper);
-        const giftCardCartItems = items.filter(item => item.giftCard).map(giftCardProductMapper);
+
+        // Since the hook is backwards compatible, we need to determine which items can be added to cart with the latest mutation and map the properties to match the mutation input
+        const useUidItems = items
+            .filter(item => item.useUid)
+            .map(item => ({
+                sku: item.parentSku,
+                quantity: parseFloat(item.quantity),
+                entered_options: item.entered_options,
+                selected_options: item.selected_options
+            }));
+        const nonUidItems = items.filter(item => !item.useUid);
+        const physicalCartItems = nonUidItems.filter(item => !item.virtual).map(productMapper);
+        const virtualCartItems = nonUidItems.filter(item => item.virtual).map(productMapper);
+        const bundleCartItems = nonUidItems.filter(item => item.bundle).map(bundledProductMapper);
+        const giftCardCartItems = nonUidItems.filter(item => item.giftCard).map(giftCardProductMapper);
+
+        if (useUidItems.length > 0) {
+            await addToCartApi.addProductsToCart(useUidItems);
+        }
 
         if (bundleCartItems.length > 0) {
             await addToCartApi.addBundledProductItems(bundleCartItems);

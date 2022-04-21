@@ -20,6 +20,7 @@ See the [AEM Content & Commerce documentation](https://experienceleague.adobe.co
 
 - [Product v1](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product)
 - [Product v2](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v2/product) - Adobe Commerce EE only with version >= 2.4.2
+- [Product v3](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v3/product) - Adobe Commerce EE only with version >= 2.4.4
 - [Product List v1](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/v1/productlist)
 - [Product List v2](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/v2/productlist) - Adobe Commerce EE only with version >= 2.4.2
 - [Product Collection v1](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v1/productcollection)

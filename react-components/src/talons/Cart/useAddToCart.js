@@ -18,22 +18,24 @@ import { useMutation } from '@apollo/client';
 import mergeOperations from '@magento/peregrine/lib/util/shallowMerge';
 import { useCartContext } from '@magento/peregrine/lib/context/cart';
 
+import MUTATION_ADD_ITEMS_TO_CART from '../../queries/mutation_add_items_to_cart.graphql';
 import MUTATION_ADD_TO_CART from '../../queries/mutation_add_to_cart.graphql';
 import MUTATION_ADD_BUNDLE_TO_CART from '../../queries/mutation_add_bundle_to_cart.graphql';
 import MUTATION_ADD_VIRTUAL_TO_CART from '../../queries/mutation_add_virtual_to_cart.graphql';
-import MUTATION_ADD_GIFT_CARD_TO_CART from '../../queries/mutation_add_items_to_cart.graphql';
 import MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART from '../../queries/mutation_add_simple_and_virtual_to_cart.graphql';
 
 const defaultOperations = {
+    addProductsToCartMutation: MUTATION_ADD_ITEMS_TO_CART,
     addPhysicalProductItemsMutation: MUTATION_ADD_TO_CART,
     addBundledProductItemsMutation: MUTATION_ADD_BUNDLE_TO_CART,
     addVirtualProductItemsMutation: MUTATION_ADD_VIRTUAL_TO_CART,
-    addGiftCardProductItemsMutation: MUTATION_ADD_GIFT_CARD_TO_CART,
+    addGiftCardProductItemsMutation: MUTATION_ADD_ITEMS_TO_CART,
     addPhysicalAndVirtualProductItemsMutation: MUTATION_ADD_SIMPLE_AND_VIRTUAL_TO_CART
 };
 
 const useAddToCart = (props = {}) => {
     const operations = mergeOperations(defaultOperations, props.operations || {});
+    const [addProductsToCart] = useMutation(operations.addProductsToCartMutation);
     const [addPhysicalProductItems] = useMutation(operations.addPhysicalProductItemsMutation);
     const [addBundledProductItems] = useMutation(operations.addBundledProductItemsMutation);
     const [addVirtualProductItems] = useMutation(operations.addVirtualProductItemsMutation);
@@ -48,6 +50,12 @@ const useAddToCart = (props = {}) => {
         },
         // api
         {
+            addProductsToCart: useCallback(
+                async cartItems => {
+                    await addProductsToCart({ variables: { cartId, cartItems } });
+                },
+                [cartId]
+            ),
             addPhysicalProductItems: useCallback(
                 async cartItems => {
                     await addPhysicalProductItems({ variables: { cartId, cartItems } });
