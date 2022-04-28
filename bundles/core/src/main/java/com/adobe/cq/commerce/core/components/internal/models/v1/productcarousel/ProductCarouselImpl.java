@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -32,7 +33,6 @@ import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.OSGiService;
-import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.slf4j.Logger;
@@ -47,6 +47,7 @@ import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarou
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -55,7 +56,6 @@ import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
 import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -70,129 +70,107 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
+    private static final String PRODUCT_SELECTION = "product";
+    private static final String CATEGORY_SELECTION = "category";
+    private static final String PRODUCT_COUNT_PROPERTY = "productCount";
+    private static final String CATEGORY_PROPERTY = "category";
+    private static final String PRODUCT_PROPERTY = "product";
+    private static final String SELECTION_TYPE_PROPERTY = "selectionType";
+    static final int DEFAULT_PRODUCT_COUNT = 10;
+    static final int MIN_PRODUCT_COUNT = 1;
 
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
 
     @ValueMapValue(
-        name = "product",
+        name = SELECTION_TYPE_PROPERTY,
+        injectionStrategy = InjectionStrategy.OPTIONAL)
+    private String selectionType;
+
+    @ValueMapValue(
+        name = PRODUCT_PROPERTY,
         injectionStrategy = InjectionStrategy.OPTIONAL)
     private String[] productSkuList;
 
-    @ScriptVariable
-    private Page currentPage;
+    @ValueMapValue(
+        name = CATEGORY_PROPERTY,
+        injectionStrategy = InjectionStrategy.OPTIONAL)
+    private String categoryUid;
 
     @OSGiService
     private UrlProvider urlProvider;
 
-    @ScriptVariable
-    protected Style currentStyle;
-
+    private Integer productCount;
     private Page productPage;
     private List<String> baseProductSkus = Collections.emptyList();
 
-    private AbstractProductsRetriever productsRetriever;
+    private ProductsRetriever productsRetriever;
 
     @PostConstruct
     private void initModel() {
+        if (StringUtils.isBlank(selectionType)) {
+            selectionType = PRODUCT_SELECTION;
+        }
+
+        productCount = resource.getValueMap().get(PRODUCT_COUNT_PROPERTY, currentStyle.get(PRODUCT_COUNT_PROPERTY, DEFAULT_PRODUCT_COUNT));
+        productCount = Math.max(MIN_PRODUCT_COUNT, productCount);
+
+        if (magentoGraphqlClient == null) {
+            LOGGER.warn("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
+            return;
+        }
 
         if (!isConfigured()) {
             return;
         }
 
-        List<String> productSkus = Arrays.asList(productSkuList);
         productPage = SiteNavigation.getProductPage(currentPage);
         if (productPage == null) {
             productPage = currentPage;
         }
 
-        // Make sure we use the base product sku for each selected product (can be a variant)
-        baseProductSkus = productSkus
-            .stream()
-            .map(s -> s.startsWith("/") ? StringUtils.substringAfterLast(s, "/") : s)
-            .map(s -> SiteNavigation.toProductSkus(s).getLeft())
-            .distinct()
-            .collect(Collectors.toList());
-
-        if (magentoGraphqlClient == null) {
-            LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
-        } else {
-            productsRetriever = new ProductsRetriever(magentoGraphqlClient);
+        productsRetriever = new ProductsRetriever(magentoGraphqlClient);
+        if (PRODUCT_SELECTION.equals(selectionType)) {
+            // Make sure we use the base product sku for each selected product (can be a variant)
+            List<String> productSkus = Arrays.asList(productSkuList);
+            baseProductSkus = productSkus
+                .stream()
+                .map(s -> s.startsWith("/") ? StringUtils.substringAfterLast(s, "/") : s)
+                .map(s -> SiteNavigation.toProductSkus(s).getLeft())
+                .distinct()
+                .collect(Collectors.toList());
             productsRetriever.setIdentifiers(baseProductSkus);
+        } else {
+            productsRetriever.setCategoryUid(categoryUid);
+            productsRetriever.setProductCount(productCount);
         }
     }
 
     @Override
     public boolean isConfigured() {
-        return productSkuList != null;
+        return selectionType.equals(PRODUCT_SELECTION) && productSkuList != null ||
+            selectionType.equals(CATEGORY_SELECTION) && categoryUid != null;
     }
 
     @Override
     @JsonIgnore
     @Nonnull
     public List<ProductListItem> getProducts() {
-        if (productsRetriever == null) {
-            return Collections.emptyList();
-        }
-
-        List<ProductInterface> products = productsRetriever.fetchProducts();
-        Collections.sort(products, Comparator.comparing(item -> baseProductSkus.indexOf(item.getSku())));
-
-        List<ProductListItem> carouselProductList = new ArrayList<>();
-        if (!products.isEmpty()) {
-            for (String combinedSku : productSkuList) {
-
-                if (combinedSku.startsWith("/")) {
-                    combinedSku = StringUtils.substringAfterLast(combinedSku, "/");
-                }
-
-                Pair<String, String> skus = SiteNavigation.toProductSkus(combinedSku);
-                ProductInterface product = products.stream().filter(p -> p.getSku().equals(skus.getLeft())).findFirst().orElse(null);
-                if (product == null) {
-                    continue; // Can happen that a product is not found
-                }
-
-                // retain urlKey, urlPath and urlRewrites from the base product
-                String urlKey = product.getUrlKey();
-                String urlPath = product.getUrlPath();
-                List<UrlRewrite> urlRewrites = product.getUrlRewrites();
-                if (skus.getRight() != null && product instanceof ConfigurableProduct) {
-                    SimpleProduct variant = findVariant((ConfigurableProduct) product, skus.getRight());
-                    if (variant != null) {
-                        product = variant;
-                    }
-                }
-
-                try {
-                    ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), productPage, request, urlProvider)
-                        .product(product)
-                        .image(product.getThumbnail())
-                        .sku(skus.getLeft())
-                        .urlKey(urlKey)
-                        .urlPath(urlPath)
-                        .urlRewrites(urlRewrites)
-                        .variantSku(skus.getRight());
-                    carouselProductList.add(builder.build());
-                } catch (Exception e) {
-                    LOGGER.error("Failed to instantiate product " + combinedSku, e);
-                }
+        if (productsRetriever != null) {
+            if (PRODUCT_SELECTION.equals(selectionType)) {
+                return processManualProducts(productsRetriever.fetchProducts());
+            } else if (CATEGORY_SELECTION.equals(selectionType)) {
+                return processCategoryProducts(productsRetriever.fetchProducts(), productsRetriever.fetchCategory());
             }
         }
-        return carouselProductList;
+
+        return Collections.emptyList();
     }
 
     @Override
     @JsonIgnore
     public AbstractProductsRetriever getProductsRetriever() {
         return productsRetriever;
-    }
-
-    protected SimpleProduct findVariant(ConfigurableProduct configurableProduct, String variantSku) {
-        List<ConfigurableVariant> variants = configurableProduct.getVariants();
-        if (variants == null || variants.isEmpty()) {
-            return null;
-        }
-        return variants.stream().map(v -> v.getProduct()).filter(sp -> variantSku.equals(sp.getSku())).findFirst().orElse(null);
     }
 
     @Override
@@ -219,5 +197,79 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
     @Override
     public String getExportedType() {
         return RESOURCE_TYPE;
+    }
+
+    protected SimpleProduct findVariant(ConfigurableProduct configurableProduct, String variantSku) {
+        List<ConfigurableVariant> variants = configurableProduct.getVariants();
+        if (variants == null || variants.isEmpty()) {
+            return null;
+        }
+        return variants.stream().map(v -> v.getProduct()).filter(sp -> variantSku.equals(sp.getSku())).findFirst().orElse(null);
+    }
+
+    private List<ProductListItem> processManualProducts(List<ProductInterface> products) {
+        products.sort(Comparator.comparing(item -> baseProductSkus.indexOf(item.getSku())));
+        List<ProductListItem> carouselProductList = new ArrayList<>();
+        if (products.isEmpty()) {
+            return carouselProductList;
+        }
+
+        for (String combinedSku : productSkuList) {
+            if (combinedSku.startsWith("/")) {
+                combinedSku = StringUtils.substringAfterLast(combinedSku, "/");
+            }
+
+            Pair<String, String> skus = SiteNavigation.toProductSkus(combinedSku);
+            ProductInterface product = products.stream().filter(p -> p.getSku().equals(skus.getLeft()))
+                .findFirst().orElse(null);
+            if (product == null) {
+                continue; // Can happen that a product is not found
+            }
+
+            // retain urlKey, urlPath and urlRewrites from the base product
+            String urlKey = product.getUrlKey();
+            String urlPath = product.getUrlPath();
+            List<UrlRewrite> urlRewrites = product.getUrlRewrites();
+            if (skus.getRight() != null && product instanceof ConfigurableProduct) {
+                SimpleProduct variant = findVariant((ConfigurableProduct) product, skus.getRight());
+                if (variant != null) {
+                    product = variant;
+                }
+            }
+
+            try {
+                ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), productPage,
+                    request, urlProvider)
+                        .product(product)
+                        .image(product.getThumbnail())
+                        .sku(skus.getLeft())
+                        .urlKey(urlKey)
+                        .urlPath(urlPath)
+                        .urlRewrites(urlRewrites)
+                        .variantSku(skus.getRight());
+                carouselProductList.add(builder.build());
+            } catch (Exception e) {
+                LOGGER.warn("Failed to instantiate product " + combinedSku, e);
+            }
+        }
+        return carouselProductList;
+    }
+
+    private List<ProductListItem> processCategoryProducts(List<ProductInterface> productInterfaces, CategoryInterface category) {
+        return productInterfaces.stream().map(product -> {
+            try {
+                return new ProductListItemImpl.Builder(getId(), productPage, request, urlProvider)
+                    .product(product)
+                    .image(product.getThumbnail())
+                    .sku(product.getSku())
+                    .urlKey(product.getUrlKey())
+                    .urlPath(product.getUrlPath())
+                    .urlRewrites(product.getUrlRewrites())
+                    .categoryContext(category).build();
+            } catch (Exception e) {
+                LOGGER.warn("Failed to instantiate product " + product.getSku(), e);
+                return null;
+            }
+        }).filter(Objects::nonNull).limit(productCount).collect(Collectors.toList());
     }
 }

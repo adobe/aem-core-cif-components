@@ -3,25 +3,106 @@
     xmlns:cq="http://www.day.com/jcr/cq/1.0"
     xmlns:jcr="http://www.jcp.org/jcr/1.0"
     xmlns:nt="http://www.jcp.org/jcr/nt/1.0" 
+    xmlns:granite="http://www.adobe.com/jcr/granite/1.0" 
     jcr:primaryType="nt:unstructured" 
     jcr:title="Product Carousel"
-    extraClientlibs="[cif.shell.picker]"
+    extraClientlibs="[core.cif.components.productcarousel.v1.editor,cif.shell.picker]"
     trackingFeature="cif-core-components:productcarousel:v1">
-    <content jcr:primaryType="nt:unstructured">
+    <content jcr:primaryType="nt:unstructured"
+        granite:class="cif-product-carousel__editor">
         <items jcr:primaryType="nt:unstructured">
             <column jcr:primaryType="nt:unstructured">
                 <items jcr:primaryType="nt:unstructured">
-                    <content jcr:primaryType="nt:unstructured"
-                        sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                    <enableAddToCart
+                        jcr:primaryType="nt:unstructured"
                         sling:orderBefore="id"
-                        fieldLabel="Carousel content" 
-                        typeHint="[product@String[]]">
-                        <field jcr:primaryType="nt:unstructured" 
-                            sling:resourceType="commerce/gui/components/common/cifproductfield" 
-                            fieldLabel="Product" 
-                            name="./product" 
-                            selectionId="combinedSku" />
-                    </content>
+                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                        fieldDescription="Enable Add to Cart button"
+                        name="./enableAddToCart"
+                        text="Add to Cart"
+                        uncheckedValue="false"
+                        value="true"/>
+                    <enableAddToWishList
+                        jcr:primaryType="nt:unstructured"
+                        sling:orderBefore="id"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                        fieldDescription="Enable Add to Wish List button"
+                        name="./enableAddToWishList"
+                        text="Add to Wish List"
+                        uncheckedValue="false"
+                        value="true"/>
+                    <selectionType jcr:primaryType="nt:unstructured"
+                        sling:orderBefore="id"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/radiogroup"
+                        fieldDescription="Select the products one by one or select a category for the products to be displayed."
+                        name="./selectionType"
+                        deleteHint="{Boolean}false"
+                        vertical="{Boolean}false"
+                        fieldLabel="Display products from">
+                        <granite:data jcr:primaryType="nt:unstructured"
+                            display-mode-radio-group="{Boolean}true"/>
+                        <items jcr:primaryType="nt:unstructured">
+                            <product jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/radio"
+                                text="Manual selection"
+                                value="product"
+                                checked="{Boolean}true"/>
+                            <category jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/radio"
+                                text="Category"
+                                value="category"/>
+                        </items>
+                    </selectionType>
+                    <productsConfig jcr:primaryType="nt:unstructured"
+                        sling:orderBefore="id"
+                        sling:resourceType="granite/ui/components/coral/foundation/container"
+                        granite:class="cif-product-carousel__products-config">
+                        <items jcr:primaryType="nt:unstructured">
+                            <label jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/text"
+                                text="Carousel products" />
+                            <products jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                                typeHint="[product@String[]]">
+                                <field jcr:primaryType="nt:unstructured" 
+                                    sling:resourceType="commerce/gui/components/common/cifproductfield"
+                                    fieldLabel="Product"
+                                    name="./product"
+                                    selectionId="combinedSku" />
+                            </products>
+                        </items>
+                    </productsConfig>
+                    <categoryConfig
+                        jcr:primaryType="nt:unstructured"
+                        sling:orderBefore="id"
+                        sling:resourceType="granite/ui/components/coral/foundation/container"
+                        granite:class="cif-product-carousel__category-config">
+                        <items jcr:primaryType="nt:unstructured">
+                            <label jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/text"
+                                text="Carousel category"/>
+                            <well jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/well">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <category jcr:primaryType="nt:unstructured" 
+                                        sling:resourceType="commerce/gui/components/common/cifcategoryfield"
+                                        multiple="{Boolean}false"
+                                        fieldDescription="The category of the products to be displayed."
+                                        fieldLabel="Category"
+                                        name="./category"/>
+                                    <productCount jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                                        fieldDescription="The maximum number of products displayed for the category."
+                                        fieldLabel="Number of displayed products"
+                                        max="50"
+                                        min="1"
+                                        name="./productCount"
+                                        step="1"
+                                        typeHint="Long"/>
+                                </items>
+                            </well>
+                        </items>
+                    </categoryConfig>
                 </items>
             </column>
         </items>

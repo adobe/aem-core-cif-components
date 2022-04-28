@@ -63,6 +63,35 @@
                 "sling:resourceType": "venia/components/commerce/productcarousel",
                 "titleType": "h2"
             },
+            "productcarousel_with_category": {
+              "category": "MTI=",
+              "productCount": "2",
+              "selectionType": "category",
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "titleType": "h2"
+            },
+            "productcarousel_with_category_no_product_count": {
+              "category": "MTI=",
+              "selectionType": "category",
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "titleType": "h2"
+            },
+            "productcarousel_with_category_small_product_count": {
+              "category": "MTI=",
+              "productCount": "0",
+              "selectionType": "category",
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "titleType": "h2"
+            },
+            "productcarousel_with_add_to_buttons": {
+              "category": "MTI=",
+              "productCount": "0",
+              "selectionType": "category",
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "titleType": "h2",
+              "enableAddToCart": true,
+              "enableAddToWishList": true
+            },
             "product": {
                 "sling:resourceType": "venia/components/commerce/product"
             },
@@ -489,6 +518,23 @@
           "product": {
             "selection": "MJ01",
             "sling:resourceType": "venia/components/commerce/product"
+          }
+        }
+      }
+    }
+  },
+  "custom-category-page": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "sling:resourceType": "core/cif/components/structure/page/v1/page",
+      "jcr:language": "en_US",
+      "jcr:primaryType": "cq:PageContent",
+      "magentoStore": "my-store",
+      "root": {
+        "responsivegrid": {
+          "productlist": {
+            "category": "MTI==",
+            "sling:resourceType": "venia/components/commerce/productlist"
           }
         }
       }

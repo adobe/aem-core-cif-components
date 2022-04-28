@@ -69,7 +69,7 @@
                     jcr:lastModified="{Date}2019-05-22T11:01:40.926+03:00"
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
-                    jcr:title="Standard"
+                    jcr:title="Sample products"
                     sling:resourceType="core-components-examples/components/title"
                     type="h3"/>
                 <text_1337506761
@@ -79,7 +79,7 @@
                     jcr:lastModifiedBy="admin"
                     jcr:primaryType="nt:unstructured"
                     sling:resourceType="core-components-examples/components/text"
-                    text="&lt;p>The component, simply displaying sample data.&lt;/p>"
+                    text="&lt;p>Product carousel displaying products for the provided SKUs.&lt;/p>"
                     textIsRich="true"/>
                 <demo
                     jcr:created="{Date}2018-12-07T12:55:03.496+01:00"
@@ -116,6 +116,121 @@
                             reference="../../component"/>
                     </info>
                 </demo>
+                <title_demo2
+                        cq:styleIds="[1544759676459]"
+                        jcr:created="{Date}2018-12-06T19:22:48.620+01:00"
+                        jcr:createdBy="admin"
+                        jcr:lastModified="{Date}2019-05-22T11:01:40.926+03:00"
+                        jcr:lastModifiedBy="admin"
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Category products"
+                        sling:resourceType="core-components-examples/components/title"
+                        type="h3"/>
+                <text_demo2
+                        jcr:created="{Date}2018-12-06T19:23:41.968+01:00"
+                        jcr:createdBy="admin"
+                        jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00"
+                        jcr:lastModifiedBy="admin"
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="core-components-examples/components/text"
+                        text="&lt;p>Product carousel displaying products of the provided category.&lt;/p>"
+                        textIsRich="true"/>
+                <demo2
+                        jcr:created="{Date}2018-12-07T12:55:03.496+01:00"
+                        jcr:createdBy="admin"
+                        jcr:lastModified="{Date}2018-12-07T12:55:03.496+01:00"
+                        jcr:lastModifiedBy="admin"
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="cif-components-examples/components/demo">
+                    <component
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core-components-examples/components/demo/component">
+                        <productcarousel
+                                jcr:created="{Date}2020-05-11T14:27:49.051+02:00"
+                                jcr:createdBy="admin"
+                                jcr:lastModified="{Date}2020-05-11T15:34:00.026+02:00"
+                                jcr:lastModifiedBy="admin"
+                                jcr:primaryType="nt:unstructured"
+                                jcr:title="Sports selection"
+                                sling:resourceType="cif-components-examples/components/productcarousel"
+                                selectionType="category"
+                                category="uid-3"
+                                productCount="3"
+                        />
+                    </component>
+                    <info
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core-components-examples/components/tabs">
+                        <properties
+                                cq:panelTitle="Properties"
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="core-components-examples/components/demo/properties"
+                                reference="../../component"/>
+                        <markup
+                                cq:panelTitle="Markup"
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="core-components-examples/components/demo/markup"
+                                reference="../../component"/>
+                    </info>
+                </demo2>
+                <title_demo3
+                    cq:styleIds="[1544759676459]"
+                    jcr:created="{Date}2018-12-06T19:22:48.620+01:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2019-05-22T11:01:40.926+03:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    jcr:title="Add to Cart and Add to Wish List button"
+                    sling:resourceType="core-components-examples/components/title"
+                    type="h3"/>
+                <text_demo3
+                    jcr:created="{Date}2018-12-06T19:23:41.968+01:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="core-components-examples/components/text"
+                    text="&lt;p>Product carousel with Add to Cart button and Add to Wish List button.&lt;/p>"
+                    textIsRich="true"/>
+                <demo3
+                    jcr:created="{Date}2018-12-07T12:55:03.496+01:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2018-12-07T12:55:03.496+01:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="cif-components-examples/components/demo">
+                    <component
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="core-components-examples/components/demo/component">
+                        <productcarousel
+                            jcr:created="{Date}2020-05-11T14:27:49.051+02:00"
+                            jcr:createdBy="admin"
+                            jcr:lastModified="{Date}2020-05-11T15:34:00.026+02:00"
+                            jcr:lastModifiedBy="admin"
+                            jcr:primaryType="nt:unstructured"
+                            jcr:title="Sports selection"
+                            sling:resourceType="cif-components-examples/components/productcarousel"
+                            selectionType="category"
+                            category="uid-3"
+                            productCount="3"
+                            enableAddToCart="true"
+                            enableAddToWishList="true"/>
+                    </component>
+                    <info
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="core-components-examples/components/tabs">
+                        <properties
+                            cq:panelTitle="Properties"
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core-components-examples/components/demo/properties"
+                            reference="../../component"/>
+                        <markup
+                            cq:panelTitle="Markup"
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core-components-examples/components/demo/markup"
+                            reference="../../component"/>
+                    </info>
+                </demo3>
             </responsivegrid>
         </root>
     </jcr:content>

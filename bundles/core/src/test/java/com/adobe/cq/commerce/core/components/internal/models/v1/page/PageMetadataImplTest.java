@@ -76,6 +76,8 @@ public class PageMetadataImplTest {
         "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
+    private final CommerceComponentModelFinder componentModelFinder = new CommerceComponentModelFinder();
+
     @Rule
     public final AemContext context = buildAemContext("/context/jcr-content-breadcrumb.json")
         .<AemContext>afterSetUp(context -> {
@@ -90,9 +92,8 @@ public class PageMetadataImplTest {
             context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
 
             // TODO: CIF-2469
-            CommerceComponentModelFinder commerceModelFinder = new CommerceComponentModelFinder();
-            Whitebox.setInternalState(commerceModelFinder, "modelFactory", context.getService(ModelFactory.class));
-            context.registerService(CommerceComponentModelFinder.class, commerceModelFinder);
+            Whitebox.setInternalState(componentModelFinder, "modelFactory", context.getService(ModelFactory.class));
+            context.registerService(CommerceComponentModelFinder.class, componentModelFinder);
         })
         .build();
 
@@ -134,7 +135,7 @@ public class PageMetadataImplTest {
     public void testPageMetadataModelOnProductPage() throws Exception {
         testPageMetadataModelOnProductPage("/content/venia/us/en/products/product-page");
 
-        Product productModel = context.request().adaptTo(Product.class);
+        Product productModel = componentModelFinder.findProductComponentModel(context.request());
         assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl);
         assertEquals("MJ01", productModel.getSku()); // This ensures the data is fetched
         assertFalse("The product doesn't have staged data", productModel.isStaged());
@@ -155,7 +156,7 @@ public class PageMetadataImplTest {
 
         // see jcr-content-breadcrumb.json : this product component is configured to be version 2
         // so we test that the adaptation in PageMetadataImpl is done with the right resource type
-        Product productModel = context.request().adaptTo(Product.class);
+        Product productModel = componentModelFinder.findProductComponentModel(context.request());
         assertTrue(productModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImpl);
         assertEquals("MJ01", productModel.getSku()); // This ensures the data is fetched
         assertTrue("The product has staged data", productModel.isStaged());
@@ -209,7 +210,7 @@ public class PageMetadataImplTest {
     public void testPageMetadataModelOnCategoryPage() throws Exception {
         testPageMetadataModelOnCategoryPage("/content/venia/us/en/products/category-page");
 
-        ProductList productListModel = context.request().adaptTo(ProductList.class);
+        ProductList productListModel = componentModelFinder.findProductListComponentModel(context.request());
         assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v1.productlist.ProductListImpl);
         assertEquals("Running", productListModel.getTitle()); // This ensures the data is fetched
         assertFalse("The category doesn't have staged data", productListModel.isStaged());
@@ -237,7 +238,7 @@ public class PageMetadataImplTest {
 
         // see jcr-content-breadcrumb.json : this productlist component is configured to be version 2
         // so we test that the adaptation in PageMetadataImpl is done with the right resource type
-        ProductList productListModel = context.request().adaptTo(ProductList.class);
+        ProductList productListModel = componentModelFinder.findProductListComponentModel(context.request());
         assertTrue(productListModel instanceof com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl);
         assertTrue("The category has staged data", productListModel.isStaged());
     }

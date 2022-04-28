@@ -19,7 +19,7 @@
      data-sly-use.productList="com.adobe.cq.commerce.core.components.models.productlist.ProductList"
      data-sly-use.page="com.adobe.cq.wcm.core.components.models.Page"/>
 
-<article class="category__root${ productList.isStaged ? ' category__root--staged' : ''}"
+<article class="category__root${ productList.isStaged ? ' category__root--staged' : ''}${!productList.showTitle || !productList.title ? ' category__root--notitle' : ''}${!productList.showImage || !productList.image ? ' category__root--noimage' : ''}"
          data-locale="${page.language}"
          data-cif-category-context="${productList.storefrontContext.json}">
     <sly data-sly-test="${productList.showTitle && productList.title}" data-sly-call="${titleTemplate.title @ productList = productList}"/>

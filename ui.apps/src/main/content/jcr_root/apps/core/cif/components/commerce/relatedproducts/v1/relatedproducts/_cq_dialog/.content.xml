@@ -12,7 +12,11 @@
         <items jcr:primaryType="nt:unstructured">
             <column jcr:primaryType="nt:unstructured">
                 <items jcr:primaryType="nt:unstructured">
-                    <content jcr:primaryType="nt:unstructured" 
+                    <selectionType jcr:primaryType="nt:unstructured" sling:hideResource="true"/>
+                    <productsConfig jcr:primaryType="nt:unstructured" sling:hideResource="true"/>
+                    <categoryConfig jcr:primaryType="nt:unstructured" sling:hideResource="true"/>
+                    <content jcr:primaryType="nt:unstructured"
+                        sling:orderBefore="id"
                         sling:resourceType="commerce/gui/components/common/cifproductfield" 
                         fieldDescription="Base product used to display related products. If empty, the component will fetch the product based on the selector of the URL." 
                         fieldLabel="Base product - Leave empty to use the current product of the generic product page." 

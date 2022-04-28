@@ -225,6 +225,23 @@ public class ProductListImplTest {
     }
 
     @Test
+    public void testPropertyIdentifier() {
+        String customPage = "/content/custom-category-page";
+        context.currentResource(customPage + "/jcr:content/root/responsivegrid/productlist");
+        context.request().setServletPath(customPage + ".html");
+
+        adaptToProductList();
+
+        String uid = (String) Whitebox.getInternalState(productListModel.getCategoryRetriever(), "identifier");
+        assertEquals("MTI==", uid);
+        Assert.assertEquals(category.getName(), productListModel.getTitle());
+        Assert.assertEquals(category.getMetaDescription(), productListModel.getMetaDescription());
+        Assert.assertEquals(category.getMetaKeywords(), productListModel.getMetaKeywords());
+        Assert.assertEquals(category.getMetaTitle(), productListModel.getMetaTitle());
+        Assert.assertEquals("https://author" + customPage + ".html", productListModel.getCanonicalUrl());
+    }
+
+    @Test
     public void getImage() {
         adaptToProductList();
         Assert.assertEquals(category.getImage(), productListModel.getImage());

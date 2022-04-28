@@ -18,21 +18,17 @@
         <sly data-sly-list.page="${pager.pages}">
             <!--/*First Page button & Previous page button inactive */-->
             <sly data-sly-test="${pageList.first && pager.currentPage==1} ">
-                <a class="productcollection__pagination-arrow productcollection__pagination-arrow--inactive" aria-label="${'Show previous' @ i18n}">
-                    <span class="productcollection__pagination-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                    </span>
+                <a class="productcollection__pagination-arrow productcollection__pagination-arrow--prev productcollection__pagination-arrow--inactive" aria-label="${'Show previous' @ i18n}">
+                    <span class="productcollection__pagination-icon"></span>
                 </a>
             </sly>
 
             <!--/*First Page button & Previous page button Active */-->
             <sly data-sly-test="${pageList.first && pager.currentPage!=1} ">
-                <a class="productcollection__pagination-arrow" aria-label="${'Show previous' @ i18n}"
+                <a class="productcollection__pagination-arrow productcollection__pagination-arrow--prev" aria-label="${'Show previous' @ i18n}"
                    href="${request.requestURI @ query=pager.previousPageParameters}"
                    title="${'Show previous' @ i18n}">
-                    <span class="productcollection__pagination-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                    </span>
+                    <span class="productcollection__pagination-icon"></span>
                 </a>
             </sly>
 
@@ -69,25 +65,17 @@
 
             <!--/* Next page button & Last Page button Active */-->
             <sly data-sly-test="${pageList.last && pager.currentPage!=page.pageNumber}">
-                <a class="productcollection__pagination-arrow" aria-label="${'Show next' @ i18n}"
+                <a class="productcollection__pagination-arrow productcollection__pagination-arrow--next" aria-label="${'Show next' @ i18n}"
                    href="${request.requestURI @ query=pager.nextPageParameters}"
                    title="${'Show next' @ i18n}">
-                    <span class="productcollection__pagination-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </span>
+                    <span class="productcollection__pagination-icon"></span>
                 </a>
             </sly>
 
             <!--/* Next page button & Last Page button Inactive */-->
             <sly data-sly-test="${pageList.last && pager.currentPage==page.pageNumber}">
-                <a class="productcollection__pagination-arrow productcollection__pagination-arrow--inactive" aria-label="${'Show next' @ i18n}">
-                    <span class="productcollection__pagination-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </span>
+                <a class="productcollection__pagination-arrow productcollection__pagination-arrow--next productcollection__pagination-arrow--inactive" aria-label="${'Show next' @ i18n}">
+                    <span class="productcollection__pagination-icon"></span>
                 </a>
             </sly>
         </sly>

@@ -30,9 +30,21 @@ public interface ProductCollection {
     String PN_PAGE_SIZE = "pageSize";
 
     /**
-     * Name of the boolean resource property indicating if the product list should load prices on the client-side.
+     * Name of the boolean resource property indicating if the product collection should load prices on the client-side.
      */
     String PN_LOAD_CLIENT_PRICE = "loadClientPrice";
+
+    /**
+     * Name of the boolean resource property indicating if the product collection should display the 'Add to Cart' button on the product
+     * collection items.
+     */
+    String PN_ENABLE_ADD_TO_CART = "enableAddToCart";
+
+    /**
+     * Name of the boolean resource property indicating if the product collection should display the 'Add to Wish List' button on the
+     * product collection items.
+     */
+    String PN_ENABLE_ADD_TO_WISH_LIST = "enableAddToWishList";
 
     /**
      * Name of the String resource property indicating the type of pagination that should be displayed.
@@ -68,4 +80,22 @@ public interface ProductCollection {
      * @return The pagination type.
      */
     String getPaginationType();
+
+    /**
+     * Indicates whether the 'Add to Cart' button should be displayed on the product collection item.
+     *
+     * @return {@code true} if the button should be displayed, {@code false} otherwise
+     */
+    default boolean isAddToCartEnabled() {
+        return false;
+    }
+
+    /**
+     * Indicates whether the 'Add to Wish List' button should be displayed on the product collection item.
+     *
+     * @return {@code true} if the button should be displayed, {@code false} otherwise
+     */
+    default boolean isAddToWishListEnabled() {
+        return false;
+    }
 }

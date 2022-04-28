@@ -1,6 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jcr:root xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0"
+          xmlns:cq="http://www.day.com/jcr/cq/1.0"
+          xmlns:jcr="http://www.jcp.org/jcr/1.0"
+          xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
     jcr:primaryType="nt:unstructured"
     jcr:title="Product Carousel"
     trackingFeature="cif-core-components:productcarousel:v1">
+    <content jcr:primaryType="nt:unstructured">
+        <items jcr:primaryType="nt:unstructured">
+            <tabs jcr:primaryType="nt:unstructured">
+                <items jcr:primaryType="nt:unstructured">
+                    <general jcr:primaryType="nt:unstructured"
+                        jcr:title="General"
+                        sling:orderBefore="titletypes"
+                        sling:resourceType="granite/ui/components/coral/foundation/container"
+                        margin="{Boolean}true">
+                        <items jcr:primaryType="nt:unstructured">
+                            <productCount jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                                fieldDescription="The maximum number of products displayed for a category."
+                                fieldLabel="Number of displayed products"
+                                max="50"
+                                min="1"
+                                name="./productCount"
+                                step="1"
+                                typeHint="Long"/>
+                            <enableAddToCart
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                fieldDescription="Enable Add to Cart button"
+                                name="./enableAddToCart"
+                                text="Add to Cart"
+                                uncheckedValue="false"
+                                value="true"/>
+                            <enableAddToWishList
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                fieldDescription="Enable Add to Wish List button"
+                                name="./enableAddToWishList"
+                                text="Add to Wish List"
+                                uncheckedValue="false"
+                                value="true"/>
+                        </items>
+                    </general>
+                </items>
+            </tabs>
+        </items>
+    </content>
 </jcr:root>

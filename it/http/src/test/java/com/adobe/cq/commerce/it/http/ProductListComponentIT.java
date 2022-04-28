@@ -102,6 +102,16 @@ public class ProductListComponentIT extends CommerceTestBase {
     }
 
     @Test
+    public void testProductListPageWithManualSelection() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/manual-productlist.html", 200);
+        Document doc = Jsoup.parse(response.getContent());
+
+        // Verify category title
+        Elements elements = doc.select(PRODUCTLIST_SELECTOR + ".category__title");
+        assertEquals("Outdoor Collection", elements.first().html());
+    }
+
+    @Test
     public void testProductListPageWithPlaceholderData() throws ClientException {
         SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html", 200);
         Document doc = Jsoup.parse(response.getContent());

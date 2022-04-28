@@ -1,0 +1,121 @@
+{
+  "data": {
+    "categoryList": [
+      {
+        "uid": "uid-1",
+        "url_key": "sports",
+        "url_path": "sports",
+        "products": {
+          "items": [
+            {
+              "__typename": "SimpleProduct",
+              "sku": "24-MB02",
+              "name": "Fusion Backpack",
+              "thumbnail": {
+                "label": "Fusion Backpack",
+                "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/fusion-backpack/mb02-gray-0.jpg"
+              },
+              "url_key": "fusion-backpack",
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 59,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 59,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
+                  }
+                }
+              }
+            },
+            {
+              "__typename": "ConfigurableProduct",
+              "sku": "MH01",
+              "name": "Chaz Kangeroo Hoodie",
+              "thumbnail": {
+                "label": "Chaz Kangeroo Hoodie",
+                "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg"
+              },
+              "url_key": "chaz-kangeroo-hoodie",
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 52,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 52,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
+                  }
+                },
+                "maximum_price": {
+                  "regular_price": {
+                    "value": 52,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 52,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
+                  }
+                }
+              }
+            },
+            {
+              "__typename": "ConfigurableProduct",
+              "sku": "WJ04",
+              "name": "Ingrid Running Jacket",
+              "thumbnail": {
+                "label": "Ingrid Running Jacket",
+                "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/ingrid-running-jacket/wj04-white_main_2.jpg"
+              },
+              "url_key": "ingrid-running-jacket",
+              "price_range": {
+                "minimum_price": {
+                  "regular_price": {
+                    "value": 84,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 84,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
+                  }
+                },
+                "maximum_price": {
+                  "regular_price": {
+                    "value": 84,
+                    "currency": "USD"
+                  },
+                  "final_price": {
+                    "value": 84,
+                    "currency": "USD"
+                  },
+                  "discount": {
+                    "amount_off": 0,
+                    "percent_off": 0
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

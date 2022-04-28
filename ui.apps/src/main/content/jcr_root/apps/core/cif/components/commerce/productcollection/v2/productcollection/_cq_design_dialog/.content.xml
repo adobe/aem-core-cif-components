@@ -27,6 +27,22 @@
                                 text="Load Prices"
                                 uncheckedValue="false"
                                 value="true"/>
+                            <enableAddToCart
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                fieldDescription="Enable Add to Cart button"
+                                name="./enableAddToCart"
+                                text="Add to Cart"
+                                uncheckedValue="false"
+                                value="true"/>
+                            <enableAddToWishList
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                fieldDescription="Enable Add to Wish List button"
+                                name="./enableAddToWishList"
+                                text="Add to Wish List"
+                                uncheckedValue="false"
+                                value="true"/>
                             <paginationType
                                 jcr:primaryType="nt:unstructured"
                                 sling:resourceType="granite/ui/components/coral/foundation/form/select"

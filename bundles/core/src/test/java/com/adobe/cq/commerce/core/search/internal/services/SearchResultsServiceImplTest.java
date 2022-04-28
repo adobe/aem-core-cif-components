@@ -53,7 +53,6 @@ import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
-import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Aggregation;
 import com.adobe.cq.commerce.magento.graphql.AggregationOption;
@@ -91,7 +90,7 @@ public class SearchResultsServiceImplTest {
     public final AemContext context = newAemContext("/context/jcr-content.json");
 
     @Mock
-    SearchFilterService searchFilterService;
+    SearchFilterServiceImpl searchFilterService;
     @Mock
     MagentoGraphqlClient magentoGraphqlClient;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -152,7 +151,7 @@ public class SearchResultsServiceImplTest {
             new UrlRewrite().setUrl("just-another/category/product")));
         productHits.add(product);
 
-        when(searchFilterService.retrieveCurrentlyAvailableCommerceFilters(any())).thenReturn(Arrays.asList(
+        when(searchFilterService.retrieveCurrentlyAvailableCommerceFilters(any(), any())).thenReturn(Arrays.asList(
             createMatchFilterAttributeMetadata(FILTER_ATTRIBUTE_NAME_CODE),
             createStringEqualFilterAttributeMetadata(FILTER_ATTRIBUTE_COLOR_CODE),
             createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE1_CODE),
@@ -175,7 +174,7 @@ public class SearchResultsServiceImplTest {
 
         categoryTree.setUid(new ID("foobar"));
 
-        context.registerService(SearchFilterService.class, searchFilterService);
+        context.registerService(SearchFilterServiceImpl.class, searchFilterService);
         context.registerAdapter(SlingHttpServletRequest.class, MagentoGraphqlClient.class, magentoGraphqlClient);
 
         prepareSearchOptions();
@@ -184,7 +183,8 @@ public class SearchResultsServiceImplTest {
         // TODO: CIF-2469
         // With a newer version of OSGI mock we could re-register UrlProviderImpl with a different configuration
         UrlProvider urlProvider = context.getService(UrlProvider.class);
-        Whitebox.setInternalState(urlProvider, "newProductUrlFormat", ProductPageWithCategoryAndUrlKey.INSTANCE);
+        Whitebox.setInternalState(urlProvider, "systemDefaultProductUrlFormat",
+            ProductPageWithCategoryAndUrlKey.INSTANCE);
         Whitebox.setInternalState(urlProvider, "enableContextAwareProductUrls", true);
     }
 
@@ -255,7 +255,7 @@ public class SearchResultsServiceImplTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(magentoGraphqlClient, times(1)).execute(captor.capture());
 
-        verify(searchFilterService, times(1)).retrieveCurrentlyAvailableCommerceFilters(any());
+        verify(searchFilterService, times(1)).retrieveCurrentlyAvailableCommerceFilters(any(), any());
         assertThat(searchResultsSet).isNotNull();
         assertThat(searchResultsSet.getTotalResults()).isEqualTo(0);
         assertThat(searchResultsSet.getAppliedQueryParameters()).containsKeys("search_query");
@@ -536,7 +536,8 @@ public class SearchResultsServiceImplTest {
         assertEquals(1, items.size());
         ProductListItem item = items.get(0);
         // category is the deepest url_key in the context of the given CategoryTree (descendant of another-url-path/with)
-        assertEquals("/content/product-page.html/category/product.html", item.getURL());
+        String url = item.getURL();
+        assertEquals("/content/product-page.html/category/product.html", url);
     }
 
     @Test

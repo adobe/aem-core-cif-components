@@ -32,6 +32,16 @@
     list-style-type: none;
 }
 
+.productcollection__current-filter-icon::before {
+    display: block;
+    width: 18px;
+    height: 18px;
+    content: '';
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url('../resources/cross.svg');
+}
+
 .productcollection__filters-body {
     grid-row-end: 2 span;
     list-style-type: none;
@@ -48,6 +58,20 @@
 
 .productcollection__filter-icon {
     display: none;
+}
+.productcollection__filter-icon::before {
+    display: block;
+    width: 24px;
+    height: 24px;
+    content: '';
+}
+
+.productcollection__filter-icon.productcollection__filter-icon--closed::before {
+    background-image: url('../resources/chevron-down.svg');
+}
+
+.productcollection__filter-icon.productcollection__filter-icon--open::before {
+    background-image: url('../resources/chevron-up.svg');
 }
 
 .productcollection__filter-items {
@@ -70,6 +94,21 @@
     float: right;
 }
 
+.productcollection__sort-order::before {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    content: '';
+}
+
+.productcollection__sort-order.productcollection__sort-order--asc::before {
+    background-image: url('../resources/arrow-up.svg');
+}
+
+.productcollection__sort-order.productcollection__sort-order--desc::before {
+    background-image: url('../resources/arrow-down.svg');
+}
+
 .productcollection__loadmore-button {
     display: block;
     margin: 0 auto auto auto;
@@ -83,6 +122,33 @@
 
 .productcollection__pagination-arrow {
     grid-row-start: 1;
+}
+
+.productcollection__pagination-icon::before {
+    display: block;
+    width: 24px;
+    height: 24px;
+    content: '';
+}
+
+.productcollection__pagination-arrow.productcollection__pagination-arrow--prev
+    .productcollection__pagination-icon::before {
+    background-image: url('../resources/chevron-left.svg');
+}
+
+.productcollection__pagination-arrow.productcollection__pagination-arrow--prev.productcollection__pagination-arrow--inactive
+    .productcollection__pagination-icon::before {
+    background-image: url('../resources/chevron-left.svg');
+}
+
+.productcollection__pagination-arrow.productcollection__pagination-arrow--next
+    .productcollection__pagination-icon::before {
+    background-image: url('../resources/chevron-right.svg');
+}
+
+.productcollection__pagination-arrow.productcollection__pagination-arrow--next.productcollection__pagination-arrow--inactive
+    .productcollection__pagination-icon::before {
+    background-image: url('../resources/chevron-right.svg');
 }
 
 .productcollection__pagination-button {

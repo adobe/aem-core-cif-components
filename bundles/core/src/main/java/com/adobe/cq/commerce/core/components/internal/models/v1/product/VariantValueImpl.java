@@ -23,6 +23,8 @@ public class VariantValueImpl implements VariantValue {
 
     private Integer id;
 
+    private String uid;
+
     @Override
     public String getLabel() {
         return label;
@@ -39,5 +41,14 @@ public class VariantValueImpl implements VariantValue {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    @Override
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }

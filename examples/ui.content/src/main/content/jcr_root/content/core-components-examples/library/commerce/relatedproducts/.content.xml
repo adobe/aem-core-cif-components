@@ -117,6 +117,63 @@
                             reference="../../component"/>
                     </info>
                 </demo>
+                <title2
+                    cq:styleIds="[1544759676459]"
+                    jcr:created="{Date}2018-12-06T19:22:48.620+01:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2019-05-22T11:01:40.926+03:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    jcr:title="Add to Cart and Add to Wish List button"
+                    sling:resourceType="core-components-examples/components/title"
+                    type="h3"/>
+                <text2
+                    jcr:created="{Date}2018-12-06T19:23:41.968+01:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="core-components-examples/components/text"
+                    text="&lt;p>Related products with Add to Cart button and Add to Wish List button.&lt;/p>"
+                    textIsRich="true"/>
+                <demo2
+                    jcr:created="{Date}2018-12-07T12:55:03.496+01:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2018-12-07T12:55:03.496+01:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="cif-components-examples/components/demo">
+                    <component
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="core-components-examples/components/demo/component">
+                        <relatedproducts
+                            jcr:created="{Date}2020-05-11T14:27:49.051+02:00"
+                            jcr:createdBy="admin"
+                            jcr:lastModified="{Date}2020-05-18T14:58:10.473+02:00"
+                            jcr:lastModifiedBy="admin"
+                            jcr:primaryType="nt:unstructured"
+                            jcr:title="Upsells for the Summit Backback!"
+                            sling:resourceType="cif-components-examples/components/relatedproducts"
+                            product="24-MB02"
+                            relationType="UPSELL_PRODUCTS"
+                            enableAddToCart="true"
+                            enableAddToWishList="true"/>
+                    </component>
+                    <info
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="core-components-examples/components/tabs">
+                        <properties
+                            cq:panelTitle="Properties"
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core-components-examples/components/demo/properties"
+                            reference="../../component"/>
+                        <markup
+                            cq:panelTitle="Markup"
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core-components-examples/components/demo/markup"
+                            reference="../../component"/>
+                    </info>
+                </demo2>
             </responsivegrid>
         </root>
     </jcr:content>
