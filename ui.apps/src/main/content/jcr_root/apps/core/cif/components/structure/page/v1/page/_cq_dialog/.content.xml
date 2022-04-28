@@ -111,7 +111,9 @@
                                                 multiple="{Boolean}true"
                                                 name="./selectorFilter"
                                                 selectionId="uidAndUrlPath"
-                                                showLink="{Boolean}true">
+                                                showLink="{Boolean}true"
+                                                trackingElement="category filter"
+                                                trackingFeature="aem:cif:specificcategorytemplate">
                                                 <granite:rendercondition jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="core/cif/components/renderconditions/pagetype"
                                                     pageType="category"/>
@@ -138,7 +140,9 @@
                                                 rootPath="/var/commerce/products"
                                                 selectionId="slug"
                                                 enablePreviewDateFilter="{Boolean}true"
-                                                showLink="{Boolean}true">
+                                                showLink="{Boolean}true"
+                                                trackingElement="product filter"
+                                                trackingFeature="aem:cif:specificproducttemplate">
                                                 <granite:rendercondition
                                                     jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="core/cif/components/renderconditions/pagetype"
