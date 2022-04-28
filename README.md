@@ -20,7 +20,6 @@ See the [AEM Content & Commerce documentation](https://experienceleague.adobe.co
 
 - [Product v1](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product)
 - [Product v2](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v2/product) - Adobe Commerce EE only with version >= 2.4.2
-- [Product v3](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v3/product) - Adobe Commerce EE only with version >= 2.4.4
 - [Product List v1](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/v1/productlist)
 - [Product List v2](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productlist/v2/productlist) - Adobe Commerce EE only with version >= 2.4.2
 - [Product Collection v1](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v1/productcollection)
@@ -53,6 +52,12 @@ See the [AEM Content & Commerce documentation](https://experienceleague.adobe.co
 ### Extension Components
 
 -   [Product Recommendations](extensions/product-recs) - requires [Adobe Commerce Product Recommendations](https://docs.magento.com/user-guide/marketing/product-recommendations.html)
+
+### Technical Preview
+
+Components that are in technical preview may change in a none backward compatible way at any time. This includes all asepects and in particular the content structure, API, markup and styling if applicable. Do not use these components in production.
+
+- [Product v3](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v3/product) - Adobe Commerce EE only with version >= 2.4.4
 
 ## System Requirements
 
