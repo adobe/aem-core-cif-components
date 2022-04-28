@@ -147,6 +147,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             searchOptions.setAttributeFilters(searchFilters);
 
             // configure sorting
+            searchOptions.addSorterKey("relevance", "Relevance", Sorter.Order.ASC);
             searchOptions.addSorterKey("price", "Price", Sorter.Order.ASC);
             searchOptions.addSorterKey("name", "Product Name", Sorter.Order.ASC);
         }
