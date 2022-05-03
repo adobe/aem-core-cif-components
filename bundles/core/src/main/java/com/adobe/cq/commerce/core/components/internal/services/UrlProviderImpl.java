@@ -442,20 +442,27 @@ public class UrlProviderImpl implements UrlProvider {
 
         if (StringUtils.isNotEmpty(categoryIdentifiers.getUid())) {
             identifier = categoryIdentifiers.getUid();
-        } else if (StringUtils.isNotEmpty(categoryIdentifiers.getUrlKey())) {
-            // lookup internal product identifier (sku) based on URL product identifier
-            // (url_key)
+        } else {
+            // lookup internal category identifier (uid) based on URL category identifier (url_key)
             MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
-            if (magentoGraphqlClient != null) {
-                UrlToCategoryRetriever categoryRetriever = new UrlToCategoryRetriever(magentoGraphqlClient);
-                categoryRetriever.setIdentifier(categoryIdentifiers.getUrlKey());
-                CategoryInterface category = categoryRetriever.fetchCategory();
-                identifier = category != null ? category.getUid().toString() : null;
-            } else {
-                LOGGER.warn("No backend GraphQL client provided, cannot retrieve product identifier for {}",
-                    request.getRequestURL()
+            if (magentoGraphqlClient == null) {
+                LOGGER.warn("No backend GraphQL client provided, cannot retrieve category identifier for {}", request.getRequestURL()
                         .toString());
+                return null;
             }
+
+            UrlToCategoryRetriever categoryRetriever = null;
+
+            if (StringUtils.isNotEmpty(categoryIdentifiers.getUrlPath())) {
+                categoryRetriever = new UrlToCategoryRetriever.ByUrlPath(magentoGraphqlClient);
+                categoryRetriever.setIdentifier(categoryIdentifiers.getUrlPath());
+            } else if (StringUtils.isNotEmpty(categoryIdentifiers.getUrlKey())) {
+                categoryRetriever = new UrlToCategoryRetriever.ByUrlKey(magentoGraphqlClient);
+                categoryRetriever.setIdentifier(categoryIdentifiers.getUrlKey());
+            }
+
+            CategoryInterface category = categoryRetriever != null ? categoryRetriever.fetchCategory() : null;
+            identifier = category != null ? category.getUid().toString() : null;
         }
 
         if (identifier != null) {
