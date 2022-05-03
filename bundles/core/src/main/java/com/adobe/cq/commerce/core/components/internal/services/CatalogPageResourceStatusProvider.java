@@ -55,9 +55,9 @@ public class CatalogPageResourceStatusProvider implements ResourceStatusProvider
 
     @Activate
     protected void activate() {
-        // the action handlers require at least version 2022.02.24.1 of the Commerce AddOn
+        // the action handlers require at least version 2022.04.28.1 of the Commerce AddOn
         actionsSupported = cifProductInfo != null
-            && cifProductInfo.getProductInfo().getVersion().compareTo(new Version("2022.02.24.1")) >= 0;
+            && cifProductInfo.getProductInfo().getVersion().compareTo(new Version("2022.04.28.1")) >= 0;
     }
 
     @NotNull
