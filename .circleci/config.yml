@@ -165,9 +165,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Update permissions
-          command: sudo chown -R circleci /usr/local/lib/node_modules
-      - run:
           name: Provision
           command: |
             node -v
@@ -190,9 +187,6 @@ jobs:
       - image: cimg/node:lts-browsers
     steps:
       - checkout
-      - run:
-          name: Update permissions
-          command: sudo chown -R circleci /usr/local/lib/node_modules
       - run:
           name: Provision (Core)
           command: |
