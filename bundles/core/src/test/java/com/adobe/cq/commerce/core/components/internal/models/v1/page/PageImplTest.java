@@ -316,10 +316,10 @@ public class PageImplTest extends AbstractPageDelegatorTest {
         assertEquals(HtmlPageItem.Element.META, htmlPageItem.getElement());
         assertEquals(HtmlPageItem.Location.HEADER, htmlPageItem.getLocation());
 
-        Map<String, String> attributes = htmlPageItem.getAttributes();
+        Map<String, Object> attributes = htmlPageItem.getAttributes();
         assertEquals("store-config", attributes.get("name"));
 
-        String content = attributes.getOrDefault("content", "{}");
+        String content = (String) attributes.getOrDefault("content", "{}");
         ObjectMapper mapper = new ObjectMapper();
         JsonNode expected = mapper.readTree("{"
             + "\"graphqlEndpoint\": \"/my/api/graphql\","

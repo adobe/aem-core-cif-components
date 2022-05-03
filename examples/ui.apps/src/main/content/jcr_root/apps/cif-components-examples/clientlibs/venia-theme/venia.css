@@ -4529,4 +4529,31 @@ main.container {
     right     : 0
 }
 
-;
+.cif-demo .product__card-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.2rem;
+    padding: 0.5rem;
+}
+
+.cif-demo .product__card-button {
+    background: none;
+    border: 1px solid rgba(var(--color),1);
+    border-radius: 1.5rem;
+    color: rgba(var(--color),1);
+    font-size: 0.75rem;
+    font-weight: 600;
+    height: 2rem;
+    min-width: 7.7rem;
+    padding: 0 0.2rem;
+    transition-duration: 384ms;
+    transition-property: background-color, color;
+    transition-timing-function: var(--venia-anim-standard);
+    --color: var(--venia-text);
+}
+
+.cif-demo .product__card-button--add-to-cart {
+    background-color: rgba(var(--color),1);
+    min-width: 6.3rem;
+    color: white;
+}

@@ -65,6 +65,10 @@
 
 .productcarousel__cardscontainer {
     margin: auto;
+    width: 12000px;
+    transition-property: margin-left, margin-right;
+    transition-duration: 300ms;
+    transition-timing-function: linear;
 }
 
 .productcarousel__container {

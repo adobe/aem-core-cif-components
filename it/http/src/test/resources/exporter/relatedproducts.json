@@ -2,6 +2,8 @@
   "id": "relatedproducts-e9a4c0745d",
   "relationType": "UPSELL_PRODUCTS",
   "configured": true,
+  "addToCartEnabled": false,
+  "addToWishListEnabled": false,
   "commerceIdentifier": {
     "entityType": "PRODUCT",
     "value": "24-MB02",

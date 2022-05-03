@@ -13,6 +13,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.card="${@ item}" data-sly-use.productTpl="productcard.html" >
-    <sly data-sly-call="${productTpl.productcard @ product=item}"></sly>
+<template data-sly-template.card="${@ item, carousel}" data-sly-use.productTpl="productcard.html" >
+    <sly data-sly-call="${productTpl.productcard @ product=item, productCarousel=carousel}"></sly>
 </template>

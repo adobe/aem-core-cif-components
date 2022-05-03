@@ -2,6 +2,8 @@
   "id": "relatedproducts-d8575a4daf",
   "relationType": "RELATED_PRODUCTS",
   "configured": true,
+  "addToCartEnabled":false,
+  "addToWishListEnabled":false,
   "commerceIdentifier": {
     "entityType": "PRODUCT",
     "value": "24-MG01",

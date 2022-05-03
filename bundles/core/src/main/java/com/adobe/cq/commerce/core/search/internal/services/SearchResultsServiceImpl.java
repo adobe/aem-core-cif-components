@@ -56,7 +56,6 @@ import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
-import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Aggregation;
@@ -89,7 +88,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     private static final String CATEGORY_UID_FILTER = "category_uid";
 
     @Reference
-    private SearchFilterService searchFilterService;
+    private SearchFilterServiceImpl searchFilterService;
     @Reference
     private UrlProvider urlProvider;
 
@@ -178,7 +177,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
         // has available for querying against
-        List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(page);
+        List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(request, page);
         SorterKey currentSorterKey = prepareSorting(mutableSearchOptions, searchResultsSet);
 
         String productsQueryString = generateProductsQueryString(mutableSearchOptions, availableFilters, productQueryHook,

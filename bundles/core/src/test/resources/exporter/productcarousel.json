@@ -1,6 +1,8 @@
 {
   "id": "productcarousel-15914e2010",
   "configured": true,
+  "addToCartEnabled":false,
+  "addToWishListEnabled":false,
   "productIdentifiers": [
     {
       "id": "productcarousel-15914e2010-item-f70dc07ce5",

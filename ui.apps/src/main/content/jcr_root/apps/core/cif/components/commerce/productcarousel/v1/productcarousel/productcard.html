@@ -11,20 +11,23 @@
   ~ governing permissions and limitations under the License.
   ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-  <template data-sly-template.productcard="${@ product}">
-      <div data-product-sku="${product.commerceIdentifier.value}"
-           id="${product.id}"
-           data-cmp-data-layer="${product.data.json}"
-           class="card product__card">
-          <a href="${product.URL}" 
-             title="${product.title}"
-             data-cmp-clickable="${product.data ? true : false}">
-              <div class="product__card__image">
-                  <img class="product__image" src="${product.imageURL}" alt="${product.imageAlt}" />
-              </div>
-              <div>${product.Title}</div>
-              <sly data-sly-use.template="core/cif/components/commons/v1/price.html"
-                   data-sly-call="${template.price @ priceRange=product.priceRange, displayYouSave=false}"></sly>
-          </a>
-      </div>
+<template data-sly-template.productcard="${@ product, productCarousel}"
+    data-sly-use.priceTemplate="core/cif/components/commons/v1/price.html"
+    data-sly-use.actionsTemplate="actions.html">
+    <div data-product-sku="${product.commerceIdentifier.value}"
+        id="${product.id}"
+        data-cmp-data-layer="${product.data.json}"
+        class="card product__card">
+        <a href="${product.URL}"
+            title="${product.title}"
+            data-cmp-clickable="${product.data ? true : false}"
+            class="product__card-content">
+            <div class="product__card__image">
+                <img class="product__image" src="${product.imageURL}" alt="${product.imageAlt}" />
+            </div>
+            <div class="product__card-title">${product.Title}</div>
+            <sly data-sly-call="${priceTemplate.price @ priceRange=product.priceRange, displayYouSave=false}"></sly>
+            <sly data-sly-call="${actionsTemplate.actions @ product=product, productCarousel=productCarousel}"></sly>
+        </a>
+    </div>
 </template>

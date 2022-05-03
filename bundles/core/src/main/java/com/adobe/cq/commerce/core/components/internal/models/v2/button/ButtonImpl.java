@@ -62,7 +62,7 @@ public class ButtonImpl implements Button {
     private static final String LINK_TO = "linkTo";
 
     // the link property used by the WCM Core Component Button
-    private static final String PN_BUTTON_LINK = "link";
+    private static final String PN_BUTTON_LINK_URL = "linkURL";
 
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -108,7 +108,7 @@ public class ButtonImpl implements Button {
             link = linkTo + ".html";
         }
 
-        allProperties.put(PN_BUTTON_LINK, link);
+        allProperties.put(PN_BUTTON_LINK_URL, link);
         Resource delegateResource = new ValueMapResource(resource, SUPER_RESOURCE_TYPE, new ValueMapDecorator(allProperties));
         delegate = modelFactory.getModelFromWrappedRequest(request, delegateResource, Button.class);
     }

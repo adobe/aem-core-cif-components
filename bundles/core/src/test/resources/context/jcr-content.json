@@ -83,6 +83,15 @@
               "sling:resourceType": "venia/components/commerce/productcarousel",
               "titleType": "h2"
             },
+            "productcarousel_with_add_to_buttons": {
+              "category": "MTI=",
+              "productCount": "0",
+              "selectionType": "category",
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "titleType": "h2",
+              "enableAddToCart": true,
+              "enableAddToWishList": true
+            },
             "product": {
                 "sling:resourceType": "venia/components/commerce/product"
             },

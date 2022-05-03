@@ -106,6 +106,7 @@ describe('GiftCardProductOptions', () => {
         expect(dispatchEventSpy).toHaveReturnedWith([
             {
                 sku: 'gift-card',
+                parentSku: 'gift-card',
                 virtual: false,
                 giftCard: true,
                 quantity: 1,

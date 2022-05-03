@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -81,6 +82,8 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     private static final Set<String> DENIED_HEADERS = DeniedHttpHeaders.DENYLIST.stream()
         .map(headerName -> headerName.toLowerCase(Locale.ROOT))
         .collect(Collectors.toSet());
+    private static final String LOCAL_CACHE_ATTR = MagentoGraphqlClient.class.getName() + ".LocalCache";
+
     private SlingHttpServletRequest request;
     private Resource resource;
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
@@ -89,6 +92,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     private GraphqlClient graphqlClient;
     private RequestOptions requestOptions;
     private List<Header> httpHeaders;
+    private Map<String, GraphqlResponse<Query, Error>> localResponseCache;
 
     public MagentoGraphqlClientImpl(Resource resource) {
         this.resource = resource;
@@ -205,27 +209,55 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
                 .withDataFetchingPolicy(DataFetchingPolicy.CACHE_FIRST))
             .withHeaders(headers.size() > 0 ? headers : null)
             .withHttpMethod(httpMethod);
-    }
 
-    @Override
-    public GraphqlResponse<Query, Error> execute(String query) {
-        try {
-            return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, requestOptions);
-        } catch (RuntimeException ex) {
-            LOGGER.error("Failed to execute query: {}", query, ex);
-            return newErrorResponse(ex);
+        if (request != null) {
+            localResponseCache = (Map<String, GraphqlResponse<Query, Error>>) request.getAttribute(LOCAL_CACHE_ATTR);
+            if (localResponseCache == null) {
+                localResponseCache = new HashMap<>();
+                request.setAttribute(LOCAL_CACHE_ATTR, localResponseCache);
+            }
         }
     }
 
     @Override
-    public GraphqlResponse<Query, Error> execute(String query, HttpMethod httpMethod) {
-        try {
-            // We do not set the HTTP method in 'this.requestOptions' to avoid setting it as the new default
-            RequestOptions options = new RequestOptions().withGson(requestOptions.getGson())
-                .withHeaders(requestOptions.getHeaders())
-                .withHttpMethod(httpMethod);
+    public GraphqlResponse<Query, Error> execute(String query) {
+        return executeCached(query, requestOptions);
+    }
 
-            return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
+    @Override
+    public GraphqlResponse<Query, Error> execute(String query, HttpMethod httpMethod) {
+        // We do not set the HTTP method in 'this.requestOptions' to avoid setting it as the new default
+        RequestOptions options = new RequestOptions().withGson(requestOptions.getGson())
+            .withHeaders(requestOptions.getHeaders())
+            .withHttpMethod(httpMethod);
+
+        if (httpMethod == HttpMethod.POST) {
+            // skip caching if POST is enforced by the caller
+            try {
+                return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
+            } catch (RuntimeException ex) {
+                LOGGER.error("Failed to execute query: {}", query, ex);
+                return newErrorResponse(ex);
+            }
+        }
+
+        return executeCached(query, options);
+    }
+
+    private GraphqlResponse<Query, Error> executeCached(String query, RequestOptions options) {
+        try {
+            if (localResponseCache != null && localResponseCache.containsKey(query)) {
+                return localResponseCache.get(query);
+            }
+
+            GraphqlRequest request = new GraphqlRequest(query);
+            GraphqlResponse<Query, Error> response = graphqlClient.execute(request, Query.class, Error.class, options);
+
+            if (localResponseCache != null) {
+                localResponseCache.put(query, response);
+            }
+
+            return response;
         } catch (RuntimeException ex) {
             LOGGER.error("Failed to execute query: {}", query, ex);
             return newErrorResponse(ex);

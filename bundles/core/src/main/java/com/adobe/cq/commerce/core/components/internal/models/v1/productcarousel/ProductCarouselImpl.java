@@ -33,7 +33,6 @@ import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.OSGiService;
-import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.slf4j.Logger;
@@ -57,7 +56,6 @@ import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
 import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -99,14 +97,8 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
         injectionStrategy = InjectionStrategy.OPTIONAL)
     private String categoryUid;
 
-    @ScriptVariable
-    private Page currentPage;
-
     @OSGiService
     private UrlProvider urlProvider;
-
-    @ScriptVariable
-    protected Style currentStyle;
 
     private Integer productCount;
     private Page productPage;

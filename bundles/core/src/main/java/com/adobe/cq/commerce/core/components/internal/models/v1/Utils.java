@@ -25,6 +25,10 @@ import org.apache.sling.api.resource.ValueMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.magento.graphql.DownloadableProduct;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
+import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.day.cq.wcm.api.designer.Designer;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.api.policies.ContentPolicy;
@@ -90,5 +94,18 @@ public class Utils {
         }
 
         return formatter;
+    }
+
+    /**
+     * Returns true if add to cart is possible for the the given product.
+     *
+     * @param product a ProductInterface instance
+     *
+     * @return {@code true} if the product can be added to the shopping cart, {@code false} otherwise
+     */
+    public static boolean isShoppableProduct(ProductInterface product) {
+        return product instanceof SimpleProduct ||
+            product instanceof VirtualProduct ||
+            product instanceof DownloadableProduct;
     }
 }

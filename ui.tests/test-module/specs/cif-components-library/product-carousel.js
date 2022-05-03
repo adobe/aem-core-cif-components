@@ -46,7 +46,7 @@ describe('Product Carousel component in CIF components library', () => {
 
         // Check that the 3rd product is not yet displayed in viewport
         // Expect's toBeDisplayedInViewport and all similar functions do not work so we use the 'x' coordinates
-        let product = $(`${productcarousel_selector} .product__card[data-cmp-data-layer*="Chaz Kangeroo Hoodie"]`);
+        let product = $(`${productcarousel_selector} .product__card[data-product-sku="MH01-XS-Orange"]`);
 
         // Verify that the product is NOT displayed: it''s positioned at the right of the arrow
         expect(product.getLocation('x') < rightButton.getLocation('x')).toBe(false);
