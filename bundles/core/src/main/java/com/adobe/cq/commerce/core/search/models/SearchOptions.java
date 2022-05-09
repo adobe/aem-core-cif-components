@@ -57,4 +57,10 @@ public interface SearchOptions {
      * @return The configured sort keys. The first key is the default used for the initial sorting of search results.
      */
     List<SorterKey> getSorterKeys();
+
+    default void setDefaultSorter(String sortField, Sorter.Order sortOrder) {};
+
+    default SorterKey getDefaultSorter() {
+        return null;
+    }
 }

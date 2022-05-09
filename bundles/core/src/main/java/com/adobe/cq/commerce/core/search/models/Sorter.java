@@ -17,6 +17,8 @@ package com.adobe.cq.commerce.core.search.models;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Provides sorting support for product search results and represents the data model for the product sorter UI.
  */
@@ -41,6 +43,14 @@ public interface Sorter {
          */
         public Order opposite() {
             return this == ASC ? DESC : ASC;
+        }
+
+        public static Order fromString(String s, Order defaultValue) {
+            try {
+                return valueOf(StringUtils.trimToEmpty(s).toUpperCase());
+            } catch (IllegalArgumentException x) {
+                return defaultValue;
+            }
         }
     }
 

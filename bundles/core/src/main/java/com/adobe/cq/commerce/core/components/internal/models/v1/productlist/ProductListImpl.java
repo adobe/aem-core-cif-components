@@ -147,6 +147,14 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             searchOptions.setAttributeFilters(searchFilters);
 
             // configure sorting
+            String defaultSortField = properties.get(PN_DEFAULT_SORT_FIELD, String.class);
+            String defaultSortOrder = properties.get(PN_DEFAULT_SORT_ORDER, Sorter.Order.ASC.name());
+
+            if (StringUtils.isNotBlank(defaultSortField)) {
+                Sorter.Order value = Sorter.Order.fromString(defaultSortOrder, Sorter.Order.ASC);
+                searchOptions.setDefaultSorter(defaultSortField, value);
+            }
+
             searchOptions.addSorterKey("price", "Price", Sorter.Order.ASC);
             searchOptions.addSorterKey("name", "Product Name", Sorter.Order.ASC);
         }

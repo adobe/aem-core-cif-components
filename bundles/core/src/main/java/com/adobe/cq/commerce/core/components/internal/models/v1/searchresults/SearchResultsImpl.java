@@ -74,6 +74,13 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
         searchOptions.setSearchQuery(searchTerm);
 
         // configure sorting
+        String defaultSortField = properties.get(PN_DEFAULT_SORT_FIELD, String.class);
+        String defaultSortOrder = properties.get(PN_DEFAULT_SORT_ORDER, Sorter.Order.ASC.name());
+
+        if (StringUtils.isNotBlank(defaultSortField)) {
+            Sorter.Order value = Sorter.Order.fromString(defaultSortOrder, Sorter.Order.ASC);
+            searchOptions.setDefaultSorter(defaultSortField, value);
+        }
         searchOptions.addSorterKey("relevance", "Relevance", Sorter.Order.DESC);
         searchOptions.addSorterKey("price", "Price", Sorter.Order.ASC);
         searchOptions.addSorterKey("name", "Product Name", Sorter.Order.ASC);

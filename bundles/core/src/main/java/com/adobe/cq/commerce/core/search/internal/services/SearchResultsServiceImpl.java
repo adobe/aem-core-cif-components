@@ -15,13 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.search.internal.services;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -58,24 +52,7 @@ import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.Aggregation;
-import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
-import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
-import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
-import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
-import com.adobe.cq.commerce.magento.graphql.FilterRangeTypeInput;
-import com.adobe.cq.commerce.magento.graphql.Operations;
-import com.adobe.cq.commerce.magento.graphql.ProductAttributeSortInput;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.Products;
-import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.Query;
-import com.adobe.cq.commerce.magento.graphql.QueryQuery;
-import com.adobe.cq.commerce.magento.graphql.SortEnum;
+import com.adobe.cq.commerce.magento.graphql.*;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.day.cq.wcm.api.Page;
@@ -178,7 +155,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
         // has available for querying against
         List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(request, page);
-        SorterKey currentSorterKey = prepareSorting(mutableSearchOptions, searchResultsSet);
+        SorterKey currentSorterKey = findSortKey(mutableSearchOptions);
 
         String productsQueryString = generateProductsQueryString(mutableSearchOptions, availableFilters, productQueryHook,
             currentSorterKey);
@@ -198,6 +175,8 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final List<ProductListItem> productListItems = extractProductsFromResponse(products.getItems(), productPage, request, resource,
             category);
 
+        prepareSortKeys(currentSorterKey, products.getSortFields(), mutableSearchOptions, searchResultsSet);
+
         List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(products.getAggregations(),
             mutableSearchOptions.getAllFilters(), availableFilters);
 
@@ -212,40 +191,56 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         return new ImmutablePair<>(category, searchResultsSet);
     }
 
-    private SorterKey prepareSorting(SearchOptions searchOptions, SearchResultsSetImpl searchResultsSet) {
-        List<SorterKey> availableSorterKeys = searchOptions.getSorterKeys();
-        if (CollectionUtils.isEmpty(availableSorterKeys)) {
-            return null;
-        }
-
-        SorterKey resultSorterKey = null;
-
-        SorterKey defaultSorterKey = availableSorterKeys.get(0);
+    private SorterKey findSortKey(SearchOptionsImpl searchOptions) {
+        SorterKey defaultSorterKey = searchOptions.getDefaultSorter();
         String sortKeyParam = searchOptions.getAllFilters().get(Sorter.PARAMETER_SORT_KEY);
         if (sortKeyParam == null) {
-            sortKeyParam = defaultSorterKey.getName();
-        }
-        String sortOrderParam = searchOptions.getAllFilters().get(Sorter.PARAMETER_SORT_ORDER);
-        Sorter.Order sortOrder;
-        try {
-            if (sortOrderParam != null) {
-                sortOrderParam = Sorter.Order.valueOf(sortOrderParam.toUpperCase()).name();
+            if (defaultSorterKey != null) {
+                sortKeyParam = defaultSorterKey.getName();
+            } else {
+                return null;
             }
-        } catch (RuntimeException x) {
-            sortOrderParam = null;
-        }
-        if (sortOrderParam == null) {
-            sortOrder = defaultSorterKey.getOrder();
-            if (sortOrder == null) {
-                sortOrder = Sorter.Order.ASC;
-            }
-        } else {
-            sortOrder = Sorter.Order.valueOf(sortOrderParam.toUpperCase());
         }
 
+        Sorter.Order defaultSortOrder;
+        if (defaultSorterKey != null) {
+            defaultSortOrder = defaultSorterKey.getOrder();
+            if (defaultSortOrder == null) {
+                defaultSortOrder = Sorter.Order.ASC;
+            }
+        } else {
+            defaultSortOrder = Sorter.Order.ASC;
+        }
+
+        String sortOrderParam = searchOptions.getAllFilters().get(Sorter.PARAMETER_SORT_ORDER);
+        Sorter.Order sortOrder = Sorter.Order.fromString(sortOrderParam, defaultSortOrder);
+
+        SorterKeyImpl resultSorterKey = new SorterKeyImpl(sortKeyParam, sortKeyParam);
+        resultSorterKey.setOrder(sortOrder);
+        resultSorterKey.setSelected(true);
+
+        return resultSorterKey;
+    }
+
+    private void prepareSortKeys(SorterKey currentSorterKey, SortFields sortFields, SearchOptions searchOptions,
+        SearchResultsSetImpl searchResultsSet) {
+
+        String defaultSortField = null;
+        if (sortFields != null) {
+            for (SortField sortField : sortFields.getOptions()) {
+                if (searchOptions.getSorterKeys().stream().noneMatch(sk -> sk.getName().equals(sortField.getValue()))) {
+                    searchOptions.addSorterKey(sortField.getValue(), sortField.getLabel(), Sorter.Order.ASC);
+                }
+            }
+
+            defaultSortField = sortFields.getDefault();
+        }
+
+        List<SorterKey> availableSorterKeys = searchOptions.getSorterKeys();
+
         SorterImpl sorter = searchResultsSet.getSorter();
-        List<SorterKey> keys = new ArrayList<>();
-        keys.addAll(availableSorterKeys);
+        List<SorterKey> keys = new ArrayList<>(availableSorterKeys);
+        keys.sort(Comparator.comparing(SorterKey::getLabel));
         sorter.setKeys(keys);
 
         for (SorterKey key : keys) {
@@ -254,13 +249,19 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             Map<String, String> cParams = new HashMap<>(searchOptions.getAllFilters());
             cParams.put(Sorter.PARAMETER_SORT_KEY, key.getName());
             Sorter.Order keyOrder = keyImpl.getOrder();
-            if (sortKeyParam.equals(key.getName())) {
-                keyImpl.setSelected(true);
-                sorter.setCurrentKey(key);
-                keyOrder = sortOrder;
-                resultSorterKey = keyImpl;
-            } else if (keyOrder == null) {
-                keyOrder = sortOrder;
+            if (currentSorterKey == null) {
+                if (defaultSortField != null && defaultSortField.equals(key.getName())) {
+                    keyImpl.setSelected(true);
+                    sorter.setCurrentKey(key);
+                }
+            } else {
+                if (currentSorterKey.getName().equals(key.getName())) {
+                    keyImpl.setSelected(true);
+                    sorter.setCurrentKey(key);
+                    keyOrder = currentSorterKey.getOrder();
+                } else if (keyOrder == null) {
+                    keyOrder = currentSorterKey.getOrder();
+                }
             }
             keyImpl.setOrder(keyOrder);
             cParams.put(Sorter.PARAMETER_SORT_ORDER, keyOrder.name().toLowerCase());
@@ -271,8 +272,6 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             oParams.put(Sorter.PARAMETER_SORT_ORDER, keyOrder.opposite().name().toLowerCase());
             keyImpl.setOppositeOrderParameters(oParams);
         }
-
-        return resultSorterKey;
     }
 
     private String generateProductsQueryString(
@@ -348,10 +347,21 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                     sort.setPosition(sortEnum);
                 } else {
                     validSortKey = false;
-                    LOGGER.warn("Unknown sort key: " + sortKey);
+                    LOGGER.debug("Unrecognized sort key: " + sortKey);
                 }
                 if (validSortKey) {
                     productArguments.sort(sort);
+                } else {
+                    // handle sort keys not supported in the current magento-graphql library
+                    productArguments.sort(new ProductAttributeSortInput() {
+                        @Override
+                        public void appendTo(StringBuilder _queryBuilder) {
+                            _queryBuilder.append('{');
+                            _queryBuilder.append(sortKey + ":");
+                            _queryBuilder.append(sortEnum.toString());
+                            _queryBuilder.append('}');
+                        }
+                    });
                 }
             }
         };
@@ -366,7 +376,8 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                     .value())
                 .attributeCode()
                 .count()
-                .label());
+                .label())
+            .sortFields(s -> s.options(sf -> sf.value().label()).defaultValue());
 
         return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
     }

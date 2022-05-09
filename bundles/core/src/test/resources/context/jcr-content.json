@@ -103,10 +103,14 @@
                 "loadClientPrice": true,
                 "showImage": true,
                 "showTitle": true,
+                "defaultSortField": "price",
+                "defaultSortOrder": "ASC",
                 "sling:resourceType": "venia/components/commerce/productlist"
             },
             "searchresults": {
-                "sling:resourceType": "venia/components/commerce/searchresults"
+                "sling:resourceType": "venia/components/commerce/searchresults",
+                "defaultSortField": "relevance",
+                "defaultSortOrder": "DESC"
             },
             "relatedproducts": {
                 "product": "24-MG01",
