@@ -45,6 +45,7 @@ public interface SearchOptions {
     /**
      * Add a possible sorter key to this search options.
      * The preferred sort order for a sort key is used in favor of the current sort order when the sort key is selected for sorting.
+     * Only those sorter keys should be added by this method which are not provided already in the products result.
      *
      * @param name the nonempty sort key name
      * @param label the nonempty sort key label

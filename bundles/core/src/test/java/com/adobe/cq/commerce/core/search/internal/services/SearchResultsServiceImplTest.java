@@ -429,28 +429,6 @@ public class SearchResultsServiceImplTest {
         assertThat(query).contains("sort:{position:ASC}");
     }
 
-    // @Test
-    // public void testSearchWithInvalidSortKey() {
-    // searchOptions.addSorterKey("invalid", "Invalid", null);
-    // searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "invalid");
-    // searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_ORDER, Sorter.Order.ASC.name());
-    //
-    // SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
-    // searchOptions,
-    // resource,
-    // productPage,
-    // request);
-    //
-    // assertThat(searchResultsSet.getSorter().getKeys()).hasSize(1);
-    // assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("invalid");
-    // assertThat(searchResultsSet.getSorter().getCurrentKey().getOrder()).isEqualTo(Sorter.Order.ASC);
-    //
-    // ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-    // verify(magentoGraphqlClient, times(1)).execute(captor.capture());
-    // String query = captor.getValue();
-    // assertThat(query).doesNotContain("sort:{invalid:ASC}");
-    // }
-
     @Test
     public void testNullMagentoClient() {
         GraphqlResponse<Query, Error> response = new GraphqlResponse<Query, Error>();

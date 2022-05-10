@@ -79,6 +79,7 @@ public class ProductSortFieldsDataSourceServlet extends SlingSafeMethodsServlet 
             values.add(new ValueMapResource(resourceResolver, new ResourceMetadata(), JcrConstants.NT_UNSTRUCTURED, vm));
         }
 
+        // relevance is not provided in the products search results, we add it manually
         if (suffixResource.isResourceType("core/cif/components/commerce/searchresults/v2/searchresults")) {
             if (values.stream().noneMatch(res -> "relevance".equals(res.getValueMap().get("value", String.class)))) {
                 ValueMap vm = new ValueMapDecorator(new HashMap<>());

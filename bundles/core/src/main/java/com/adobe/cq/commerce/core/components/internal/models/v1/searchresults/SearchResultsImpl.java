@@ -81,9 +81,8 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
             Sorter.Order value = Sorter.Order.fromString(defaultSortOrder, Sorter.Order.ASC);
             searchOptions.setDefaultSorter(defaultSortField, value);
         }
+        // relevance is not provided in the products search results, we add it manually
         searchOptions.addSorterKey("relevance", "Relevance", Sorter.Order.DESC);
-        searchOptions.addSorterKey("price", "Price", Sorter.Order.ASC);
-        searchOptions.addSorterKey("name", "Product Name", Sorter.Order.ASC);
     }
 
     protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {

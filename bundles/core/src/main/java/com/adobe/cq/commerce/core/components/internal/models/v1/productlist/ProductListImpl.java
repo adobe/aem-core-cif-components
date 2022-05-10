@@ -154,9 +154,6 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                 Sorter.Order value = Sorter.Order.fromString(defaultSortOrder, Sorter.Order.ASC);
                 searchOptions.setDefaultSorter(defaultSortField, value);
             }
-
-            searchOptions.addSorterKey("price", "Price", Sorter.Order.ASC);
-            searchOptions.addSorterKey("name", "Product Name", Sorter.Order.ASC);
         }
     }
 
