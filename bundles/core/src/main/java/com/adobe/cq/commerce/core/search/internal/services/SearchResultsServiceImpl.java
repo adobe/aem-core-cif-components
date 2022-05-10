@@ -15,7 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.search.internal.services;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -52,7 +59,26 @@ import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.*;
+import com.adobe.cq.commerce.magento.graphql.Aggregation;
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterRangeTypeInput;
+import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeSortInput;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.ProductPriceQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Products;
+import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.QueryQuery;
+import com.adobe.cq.commerce.magento.graphql.SortEnum;
+import com.adobe.cq.commerce.magento.graphql.SortField;
+import com.adobe.cq.commerce.magento.graphql.SortFields;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.day.cq.wcm.api.Page;

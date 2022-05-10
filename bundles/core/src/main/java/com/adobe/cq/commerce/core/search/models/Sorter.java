@@ -45,6 +45,14 @@ public interface Sorter {
             return this == ASC ? DESC : ASC;
         }
 
+        /**
+         * Returns the Sort.Order matching the parameter string or returns the default value if the string is invalid.
+         *
+         * @param s the case-insensitive name of the sort order
+         * @param defaultValue the default sort order
+         *
+         * @return the matching sort order
+         */
         public static Order fromString(String s, Order defaultValue) {
             try {
                 return valueOf(StringUtils.trimToEmpty(s).toUpperCase());

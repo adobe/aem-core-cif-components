@@ -148,6 +148,7 @@ public class SearchOptionsImpl implements SearchOptions {
         this.defaultSorter = defaultSorter;
     }
 
+    @Override
     public SorterKey getDefaultSorter() {
         return defaultSorter;
     }
