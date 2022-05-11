@@ -59,7 +59,9 @@ import static org.mockito.Mockito.when;
 
 public class NavigationImplTest {
     private static final String CATALOG_PAGE_PATH = "catalog_page_path";
+    private static final String CATALOG_PAGE_PATH_2 = "catalog_page_path_2";
     private static final String CATEGORY_PAGE_PATH = "category_page_path";
+    private static final String CATEGORY_PAGE_PATH_2 = "category_page_path_2";
     NavigationImpl navigation;
     com.adobe.cq.wcm.core.components.internal.models.v1.NavigationImpl wcmNavigation;
     GraphQLCategoryProvider categoryProvider;
@@ -81,19 +83,24 @@ public class NavigationImplTest {
         when(currentPage.getPath()).thenReturn("/content/currentPage");
         Resource currentPageContent = mock(Resource.class);
         Resource contentResource = mock(Resource.class);
-        Map<String, Object> currentPageProperties = new HashMap<>();
-        currentPageProperties.put("cq:cifCategoryPage", CATEGORY_PAGE_PATH);
         Page categoryPage = mock(Page.class);
         when(categoryPage.getPath()).thenReturn(CATEGORY_PAGE_PATH);
         when(currentPageContent.getPath()).thenReturn(CATEGORY_PAGE_PATH + "/jcr:content");
         when(pageManager.getPage(CATEGORY_PAGE_PATH)).thenReturn(categoryPage);
-        when(currentPageContent.getValueMap()).thenReturn(new ValueMapDecorator(currentPageProperties));
         when(currentPage.getContentResource()).thenReturn(currentPageContent);
         Resource categoryPageResource = new SyntheticResource(null, CATEGORY_PAGE_PATH, null);
         when(categoryPage.adaptTo(Resource.class)).thenReturn(categoryPageResource);
         when(categoryPage.getContentResource()).thenReturn(categoryPageResource);
         when(contentResource.adaptTo(ComponentsConfiguration.class)).thenReturn(null);
         Whitebox.setInternalState(navigation, "currentPage", currentPage);
+
+        // category page 2
+        categoryPage = mock(Page.class);
+        when(categoryPage.getPath()).thenReturn(CATEGORY_PAGE_PATH_2);
+        when(pageManager.getPage(CATEGORY_PAGE_PATH_2)).thenReturn(categoryPage);
+        categoryPageResource = new SyntheticResource(null, CATEGORY_PAGE_PATH_2, null);
+        when(categoryPage.adaptTo(Resource.class)).thenReturn(categoryPageResource);
+        when(categoryPage.getContentResource()).thenReturn(categoryPageResource);
 
         // WCM navigation model
         wcmNavigation = mock(com.adobe.cq.wcm.core.components.internal.models.v1.NavigationImpl.class);
@@ -522,6 +529,43 @@ public class NavigationImplTest {
         testNavigationItemOrdering(false);
     }
 
+    @Test
+    public void testNavigationCategoriesForTwoCatalogPages() {
+
+        String categoryId = "uid-0";
+        String categoryUrlPath = "category-1";
+        String categoryName = "Category 1";
+
+        initCatalogPage(true, true, false);
+        initCatalogPage(true, true, false, CATALOG_PAGE_PATH_2, CATEGORY_PAGE_PATH_2);
+
+        NavigationItem item = mock(NavigationItem.class);
+        when(item.getPath()).thenReturn(CATALOG_PAGE_PATH);
+        navigationItems.add(item);
+
+        NavigationItem item2 = mock(NavigationItem.class);
+        when(item2.getPath()).thenReturn(CATALOG_PAGE_PATH_2);
+        navigationItems.add(item2);
+
+        CategoryTree category = mock(CategoryTree.class);
+        when(category.getUid()).thenReturn(new ID(categoryId));
+        when(category.getUrlPath()).thenReturn(categoryUrlPath);
+        when(category.getName()).thenReturn(categoryName);
+        categoryList.add(category);
+
+        List<com.adobe.cq.commerce.core.components.models.navigation.NavigationItem> items = navigation.getItems();
+        Assert.assertEquals(2, items.size());
+
+        // the two items are rendered with two different category pages
+        com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
+        Assert.assertEquals(categoryName, navigationItem.getTitle());
+        Assert.assertEquals(CATEGORY_PAGE_PATH + ".html/" + categoryUrlPath + ".html", navigationItem.getURL());
+
+        navigationItem = items.get(1);
+        Assert.assertEquals(categoryName, navigationItem.getTitle());
+        Assert.assertEquals(CATEGORY_PAGE_PATH_2 + ".html/" + categoryUrlPath + ".html", navigationItem.getURL());
+    }
+
     private void testNavigationItemOrdering(boolean pageBeforeCategory) {
         // checks that the navigation items are ordered according to the underlying page nodes
 
@@ -567,11 +611,18 @@ public class NavigationImplTest {
     }
 
     private void initCatalogPage(boolean catalogRoot, boolean showMainCategories, boolean useCaConfig) {
+        initCatalogPage(catalogRoot, showMainCategories, useCaConfig, CATALOG_PAGE_PATH, CATEGORY_PAGE_PATH);
+    }
+
+    private void initCatalogPage(boolean catalogRoot, boolean showMainCategories, boolean useCaConfig, String catalogPagePath,
+        String categoryPagePath) {
         Page catalogPage = mock(Page.class);
         Resource catalogPageContent = mock(Resource.class);
         when(catalogPageContent.isResourceType(RT_CATALOG_PAGE)).thenReturn(catalogRoot);
+        when(catalogPage.getPageManager()).thenReturn(pageManager);
         Map<String, Object> catalogPageProperties = new HashMap<>();
         catalogPageProperties.put(PN_SHOW_MAIN_CATEGORIES, showMainCategories);
+        catalogPageProperties.put("cq:cifCategoryPage", categoryPagePath);
 
         if (!useCaConfig) {
             catalogPageProperties.put(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4);
@@ -585,7 +636,7 @@ public class NavigationImplTest {
         ResourceResolver mockResourceResolver = mock(ResourceResolver.class);
         when(mockResourceResolver.getResource(any(String.class))).thenReturn(null);
         when(catalogPageContent.getResourceResolver()).thenReturn(mockResourceResolver);
-        when(pageManager.getPage(CATALOG_PAGE_PATH)).thenReturn(catalogPage);
+        when(pageManager.getPage(catalogPagePath)).thenReturn(catalogPage);
 
         ValueMap configProperties = new ValueMapDecorator(ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4));
 

@@ -180,7 +180,7 @@ public class NavigationImpl implements Navigation {
     }
 
     private void expandCatalogRoot(Page catalogPage, List<NavigationItem> pages) {
-        Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
+        Page categoryPage = SiteNavigation.getCategoryPage(catalogPage);
         if (categoryPage == null) {
             return;
         }
