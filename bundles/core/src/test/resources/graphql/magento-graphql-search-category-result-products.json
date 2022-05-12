@@ -329,6 +329,7 @@
         }
       ],
       "sort_fields": {
+        "default": "price",
         "options": [
           {
             "value": "name",

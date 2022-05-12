@@ -430,6 +430,49 @@ public class SearchResultsServiceImplTest {
     }
 
     @Test
+    public void testSearchWithUnknownSortFieldParam() {
+        searchOptions.addSorterKey("brand", "Brand", Sorter.Order.DESC);
+        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "brand");
+        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_ORDER, Sorter.Order.ASC.name());
+
+        SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
+            searchOptions,
+            resource,
+            productPage,
+            request);
+
+        assertThat(searchResultsSet.getSorter().getKeys()).hasSize(1);
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("brand");
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getOrder()).isEqualTo(Sorter.Order.ASC);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(magentoGraphqlClient, times(1)).execute(captor.capture());
+        String query = captor.getValue();
+        assertThat(query).contains("sort:{brand:ASC}");
+    }
+
+    @Test
+    public void testSearchWithDefaultSortField() {
+        searchOptions.addSorterKey("name", "Name", Sorter.Order.ASC);
+        searchOptions.setDefaultSorter("name", Sorter.Order.ASC);
+
+        SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
+            searchOptions,
+            resource,
+            productPage,
+            request);
+
+        assertThat(searchResultsSet.getSorter().getKeys()).hasSize(1);
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("name");
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getOrder()).isEqualTo(Sorter.Order.ASC);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(magentoGraphqlClient, times(1)).execute(captor.capture());
+        String query = captor.getValue();
+        assertThat(query).contains("sort:{name:ASC}");
+    }
+
+    @Test
     public void testNullMagentoClient() {
         GraphqlResponse<Query, Error> response = new GraphqlResponse<Query, Error>();
         response.setData(query);

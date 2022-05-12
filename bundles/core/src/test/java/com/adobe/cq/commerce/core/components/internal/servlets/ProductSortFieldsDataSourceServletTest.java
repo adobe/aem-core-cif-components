@@ -30,7 +30,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
@@ -80,7 +79,7 @@ public class ProductSortFieldsDataSourceServletTest {
         };
         context.currentResource(PAGE);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
-        graphqlClient = Mockito.spy(new GraphqlClientImpl());
+        graphqlClient = new GraphqlClientImpl();
         context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
         Utils.setupHttpResponse("graphql/magento-graphql-sortkeys-result.json", httpClient, HttpStatus.SC_OK, "{products");
         context.registerAdapter(Resource.class, ComponentsConfiguration.class,

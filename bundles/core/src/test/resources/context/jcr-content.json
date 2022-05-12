@@ -107,6 +107,12 @@
                 "defaultSortOrder": "ASC",
                 "sling:resourceType": "venia/components/commerce/productlist"
             },
+            "productlist_no_sorting": {
+              "loadClientPrice": true,
+              "showImage": true,
+              "showTitle": true,
+              "sling:resourceType": "venia/components/commerce/productlist"
+            },
             "searchresults": {
                 "sling:resourceType": "core/cif/components/commerce/searchresults/v2/searchresults",
                 "defaultSortField": "relevance",
