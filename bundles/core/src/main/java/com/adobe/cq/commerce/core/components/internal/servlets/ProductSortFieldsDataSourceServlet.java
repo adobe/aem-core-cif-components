@@ -1,5 +1,5 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ Copyright 2019 Adobe
+ ~ Copyright 2022 Adobe
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -45,8 +45,10 @@ import com.day.cq.commons.jcr.JcrConstants;
 @Component(
     immediate = true,
     service = Servlet.class,
-    property = { "sling.servlet.resourceTypes=core/cif/components/commerce/productcollection/sortfields" })
+    property = { ProductSortFieldsDataSourceServlet.RT_PRODUCTCOLLECTION_SORTFIELDS })
 public class ProductSortFieldsDataSourceServlet extends SlingSafeMethodsServlet {
+    static final String RT_PRODUCTCOLLECTION_SORTFIELDS = "sling.servlet.resourceTypes=core/cif/components/commerce/productcollection/sortfields";
+    static final String RT_SEARCHRESULTS = "core/cif/components/commerce/searchresults/v2/searchresults";
 
     @Override
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) {
@@ -80,7 +82,7 @@ public class ProductSortFieldsDataSourceServlet extends SlingSafeMethodsServlet 
         }
 
         // relevance is not provided in the products search results, we add it manually
-        if (suffixResource.isResourceType("core/cif/components/commerce/searchresults/v2/searchresults")) {
+        if (suffixResource.isResourceType(RT_SEARCHRESULTS)) {
             if (values.stream().noneMatch(res -> "relevance".equals(res.getValueMap().get("value", String.class)))) {
                 ValueMap vm = new ValueMapDecorator(new HashMap<>());
                 vm.put("value", "relevance");
