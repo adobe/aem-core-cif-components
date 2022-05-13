@@ -44,7 +44,8 @@ The following properties are written to JCR for this component and are expected 
 1. `./selection` - identifies the product to be displayed.
 2. `./cta` - defines the call to action of the product teaser, may one of `add-to-card`, `details` or empty.
 3. `./ctaText` - defines a text that overwrites the default call to action label.
-4. `./id` - defines the component HTML ID attribute.
+4. `./linkTarget` - defines the link target of the links generated for the component.
+5. `./id` - defines the component HTML ID attribute.
 
 ## BEM Description
 

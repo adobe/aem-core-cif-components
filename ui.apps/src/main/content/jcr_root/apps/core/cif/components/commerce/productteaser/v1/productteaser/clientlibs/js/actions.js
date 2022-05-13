@@ -17,8 +17,12 @@
 'use strict';
 
 const LocationAdapter = {
-    setHref(url) {
-        window.location.assign(url);
+    setHref(url, target) {
+        if (target) {
+            window.open(url, target) || window.location.assign(url);
+        } else {
+            window.location.assign(url);
+        }
     }
 };
 
@@ -73,7 +77,8 @@ class ProductTeaser {
 
     _seeDetailsHandler(dataset) {
         const url = dataset['url'];
-        LocationAdapter.setHref(url);
+        const target = dataset['target'];
+        LocationAdapter.setHref(url, target);
     }
 }
 
