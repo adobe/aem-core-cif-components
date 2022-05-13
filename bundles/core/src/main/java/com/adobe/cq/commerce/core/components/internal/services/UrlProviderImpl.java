@@ -447,7 +447,7 @@ public class UrlProviderImpl implements UrlProvider {
             MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
             if (magentoGraphqlClient == null) {
                 LOGGER.warn("No backend GraphQL client provided, cannot retrieve category identifier for {}", request.getRequestURL()
-                        .toString());
+                    .toString());
                 return null;
             }
 
