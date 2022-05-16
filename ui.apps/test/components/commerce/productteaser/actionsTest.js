@@ -29,6 +29,11 @@ let seeMoreDetailsAction = `<button data-action="details" data-url="/some/random
             <span class="button__content"><span>See more details</span></span>
         </button>`;
 
+let seeMoreDetailsActionWithLinkTarget = `<button data-action="details" data-url="/some/random/url" data-target="_blank"
+                class="button__root_highPriority button__root clickable__root button__filled" type="button">
+            <span class="button__content"><span>See more details</span></span>
+        </button>`;
+
 let misconfiguredAction = `<button data-action="" data-url="/some/random/url"
                 class="button__root_highPriority button__root clickable__root button__filled" type="button">
             <span class="button__content"><span>See more details</span></span>
@@ -120,6 +125,21 @@ describe('ProductTeaser', () => {
             .withArgs('/some/random/url');
 
         pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(seeMoreDetailsAction));
+        teaserRoot = pageRoot.querySelector(ProductTeaser.selectors.rootElement);
+
+        const productTeaser = new ProductTeaser(teaserRoot);
+        const button = teaserRoot.querySelector('button.button__root_highPriority');
+        button.click();
+        mockLocation.verify();
+    });
+
+    it('opens another location for the See Details CTA with link target specified', () => {
+        mockLocation
+            .expects('openHref')
+            .atLeast(1)
+            .withArgs('/some/random/url', '_blank');
+
+        pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(seeMoreDetailsActionWithLinkTarget));
         teaserRoot = pageRoot.querySelector(ProductTeaser.selectors.rootElement);
 
         const productTeaser = new ProductTeaser(teaserRoot);

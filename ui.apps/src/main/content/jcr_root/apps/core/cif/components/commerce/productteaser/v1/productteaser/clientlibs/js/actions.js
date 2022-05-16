@@ -19,6 +19,10 @@
 const LocationAdapter = {
     setHref(url) {
         window.location.assign(url);
+    },
+
+    openHref(url, target) {
+        window.open(url, target) || window.location.assign(url);
     }
 };
 
@@ -73,7 +77,12 @@ class ProductTeaser {
 
     _seeDetailsHandler(dataset) {
         const url = dataset['url'];
-        LocationAdapter.setHref(url);
+        const target = dataset['target'];
+        if (target) {
+            LocationAdapter.openHref(url, target);
+        } else {
+            LocationAdapter.setHref(url);
+        }
     }
 }
 

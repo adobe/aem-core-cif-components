@@ -64,6 +64,15 @@ public interface ProductTeaser extends Component {
     String getUrl();
 
     /**
+     * Returns the link target for the links generated on the product teaser.
+     *
+     * @return the link target or {@code null} if no link target is configured
+     */
+    default String getLinkTarget() {
+        return null;
+    };
+
+    /**
      * Returns the SKU of the product displayed by this {@code ProductTeaser}
      * 
      * @return a String value representing the SKU

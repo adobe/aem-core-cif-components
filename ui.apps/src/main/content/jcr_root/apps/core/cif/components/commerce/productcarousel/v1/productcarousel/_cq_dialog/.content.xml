@@ -68,6 +68,7 @@
                                     sling:resourceType="commerce/gui/components/common/cifproductfield"
                                     fieldLabel="Product"
                                     name="./product"
+                                    showLink="{Boolean}true"
                                     selectionId="combinedSku" />
                             </products>
                         </items>
@@ -89,6 +90,7 @@
                                         multiple="{Boolean}false"
                                         fieldDescription="The category of the products to be displayed."
                                         fieldLabel="Category"
+                                        showLink="{Boolean}true"
                                         name="./category"/>
                                     <productCount jcr:primaryType="nt:unstructured"
                                         sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
