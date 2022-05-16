@@ -49,6 +49,7 @@ import com.day.cq.commons.jcr.JcrConstants;
 public class ProductSortFieldsDataSourceServlet extends SlingSafeMethodsServlet {
     static final String RT_PRODUCTCOLLECTION_SORTFIELDS = "sling.servlet.resourceTypes=core/cif/components/commerce/productcollection/sortfields";
     static final String RT_SEARCHRESULTS = "core/cif/components/commerce/searchresults/v2/searchresults";
+    static final String ICON_IMPLICIT_SORTFIELD = "CloudOutline";
 
     @Override
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) {
@@ -75,7 +76,7 @@ public class ProductSortFieldsDataSourceServlet extends SlingSafeMethodsServlet 
             vm.put("value", sortField.getValue());
             vm.put("text", sortField.getLabel());
             if (defaultSortField != null && defaultSortField.equals(sortField.getValue())) {
-                vm.put("icon", "starStroke");
+                vm.put("icon", ICON_IMPLICIT_SORTFIELD);
 
             }
             values.add(new ValueMapResource(resourceResolver, new ResourceMetadata(), JcrConstants.NT_UNSTRUCTURED, vm));

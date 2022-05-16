@@ -42,6 +42,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
+import static com.adobe.cq.commerce.core.components.internal.servlets.ProductSortFieldsDataSourceServlet.ICON_IMPLICIT_SORTFIELD;
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -101,7 +102,7 @@ public class ProductSortFieldsDataSourceServletTest {
         Iterator<Resource> iterator = dataSource.iterator();
         assertNotNull(iterator);
         assertTrue(iterator.hasNext());
-        checkResource(iterator.next(), "position", "Position", "starStroke");
+        checkResource(iterator.next(), "position", "Position", ICON_IMPLICIT_SORTFIELD);
         assertTrue(iterator.hasNext());
         checkResource(iterator.next(), "name", "Product Name");
         assertTrue(iterator.hasNext());
@@ -121,7 +122,7 @@ public class ProductSortFieldsDataSourceServletTest {
         Iterator<Resource> iterator = dataSource.iterator();
         assertNotNull(iterator);
         assertTrue(iterator.hasNext());
-        checkResource(iterator.next(), "position", "Position", "starStroke");
+        checkResource(iterator.next(), "position", "Position", ICON_IMPLICIT_SORTFIELD);
         assertTrue(iterator.hasNext());
         checkResource(iterator.next(), "name", "Product Name");
         assertTrue(iterator.hasNext());
