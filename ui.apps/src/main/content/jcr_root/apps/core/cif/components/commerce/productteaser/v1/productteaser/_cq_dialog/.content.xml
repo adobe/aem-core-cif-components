@@ -35,6 +35,7 @@
                                                 fieldDescription="The product or product variant displayed by the teaser"
                                                 fieldLabel="Select Product"
                                                 name="./selection"
+                                                showLink="{Boolean}true"
                                                 selectionId="combinedSku"/>
                                             <call-to-action
                                                 jcr:primaryType="nt:unstructured"

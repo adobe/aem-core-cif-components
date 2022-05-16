@@ -102,6 +102,7 @@
                                                             fieldLabel="Product"
                                                             name="productSku"
                                                             required="{Boolean}false"
+                                                            showLink="{Boolean}true"
                                                             selectionId="sku">
                                                             <granite:data
                                                                 jcr:primaryType="nt:unstructured"
@@ -113,6 +114,7 @@
                                                             sling:resourceType="commerce/gui/components/common/cifcategoryfield"
                                                             fieldLabel="Category"
                                                             name="categoryId"
+                                                            showLink="{Boolean}true"
                                                             required="{Boolean}false">
                                                             <granite:data
                                                                 jcr:primaryType="nt:unstructured"
