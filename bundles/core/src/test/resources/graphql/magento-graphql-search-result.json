@@ -327,7 +327,19 @@
           "count": 1,
           "label": "Performance Fabric"
         }
-      ]
+      ],
+      "sort_fields": {
+        "options": [
+          {
+            "value": "name",
+            "label": "Product Name"
+          },
+          {
+            "value": "price",
+            "label": "Price"
+          }
+        ]
+      }
     }
   }
 }

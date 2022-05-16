@@ -50,7 +50,6 @@ import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
 import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -73,17 +72,11 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
 
-    @ScriptVariable
-    private Page currentPage;
-
     @OSGiService
     private UrlProvider urlProvider;
 
     @ScriptVariable
     private ValueMap properties;
-
-    @ScriptVariable
-    protected Style currentStyle;
 
     private Page productPage;
     private AbstractProductsRetriever productsRetriever;

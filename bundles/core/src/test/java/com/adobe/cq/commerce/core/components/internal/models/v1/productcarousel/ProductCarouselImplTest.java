@@ -38,6 +38,7 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
@@ -61,7 +62,7 @@ import static org.mockito.Mockito.when;
 public class ProductCarouselImplTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-        "my-store", "enableUIDSupport", "true"));
+        "my-store", "enableUIDSupport", "true", ProductCarouselBase.PN_CONFIG_ENABLE_WISH_LISTS, "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
@@ -117,6 +118,8 @@ public class ProductCarouselImplTest {
         productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
 
         Assert.assertEquals("h2", productCarousel.getTitleType());
+        Assert.assertFalse(productCarousel.isAddToCartEnabled());
+        Assert.assertFalse(productCarousel.isAddToWishListEnabled());
 
         List<ProductListItem> items = productCarousel.getProducts();
         Assert.assertEquals(4, items.size()); // one product is not found and the JSON response contains a "faulty" product
@@ -146,6 +149,12 @@ public class ProductCarouselImplTest {
             Assert.assertEquals(product.getSku(), item.getSKU());
             Assert.assertEquals(product.getUrlKey(), item.getSlug());
             Assert.assertEquals(toProductUrl(product, skus.getRight()), item.getURL());
+
+            if (idx == 2 || idx == 3) {
+                Assert.assertEquals(ProductListItemImpl.CALL_TO_ACTION_DETAILS, item.getCallToAction());
+            } else {
+                Assert.assertEquals(ProductListItemImpl.CALL_TO_ACTION_ADD_TO_CART, item.getCallToAction());
+            }
 
             Money amount = productOrVariant.getPriceRange().getMinimumPrice().getFinalPrice();
             Assert.assertEquals(amount.getValue(), item.getPriceRange().getFinalPrice(), 0);
@@ -233,6 +242,16 @@ public class ProductCarouselImplTest {
         Integer productCount = (Integer) Whitebox.getInternalState(productCarousel, "productCount");
         Assert.assertEquals(ProductCarouselImpl.MIN_PRODUCT_COUNT, (int) productCount);
         Assert.assertEquals(ProductCarouselImpl.MIN_PRODUCT_COUNT, productCarousel.getProducts().size());
+    }
+
+    @Test
+    public void addToCartAndAddToWishList() {
+        context.currentResource(PRODUCTCAROUSEL + "_with_add_to_buttons");
+
+        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
+
+        Assert.assertTrue(productCarousel.isAddToCartEnabled());
+        Assert.assertTrue(productCarousel.isAddToWishListEnabled());
     }
 
     @Test

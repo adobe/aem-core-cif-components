@@ -91,14 +91,17 @@
               "values": [
                 {
                   "value_index": 49,
+                  "uid": "NDk=",
                   "label": "Black"
                 },
                 {
                   "value_index": 52,
+                  "uid": "NTI=",
                   "label": "Gray"
                 },
                 {
                   "value_index": 56,
+                  "uid": "NTY=",
                   "label": "Orange"
                 }
               ]
@@ -109,22 +112,27 @@
               "values": [
                 {
                   "value_index": 169,
+                  "uid": "MTY5",
                   "label": "XS"
                 },
                 {
                   "value_index": 170,
+                  "uid": "MTcw",
                   "label": "S"
                 },
                 {
                   "value_index": 171,
+                  "uid": "MTcx",
                   "label": "M"
                 },
                 {
                   "value_index": 172,
+                  "uid": "MTcy",
                   "label": "L"
                 },
                 {
                   "value_index": 173,
+                  "uid": "MTcz",
                   "label": "XL"
                 }
               ]
@@ -135,10 +143,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NDk=",
                   "value_index": 49
                 },
                 {
                   "code": "size",
+                  "uid": "MTY5",
                   "value_index": 169
                 }
               ],
@@ -199,10 +209,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NTI=",
                   "value_index": 52
                 },
                 {
                   "code": "size",
+                  "uid": "MTY5",
                   "value_index": 169
                 }
               ],
@@ -277,10 +289,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NTY=",
                   "value_index": 56
                 },
                 {
                   "code": "size",
+                  "uid": "MTY5",
                   "value_index": 169
                 }
               ],
@@ -341,10 +355,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NDk=",
                   "value_index": 49
                 },
                 {
                   "code": "size",
+                  "uid": "MTcw",
                   "value_index": 170
                 }
               ],
@@ -405,10 +421,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NTI=",
                   "value_index": 52
                 },
                 {
                   "code": "size",
+                  "uid": "MTcw",
                   "value_index": 170
                 }
               ],
@@ -483,10 +501,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NTY=",
                   "value_index": 56
                 },
                 {
                   "code": "size",
+                  "uid": "MTcw",
                   "value_index": 170
                 }
               ],
@@ -547,10 +567,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NDk=",
                   "value_index": 49
                 },
                 {
                   "code": "size",
+                  "uid": "MTcx",
                   "value_index": 171
                 }
               ],
@@ -611,10 +633,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NTI=",
                   "value_index": 52
                 },
                 {
                   "code": "size",
+                  "uid": "MTcx",
                   "value_index": 171
                 }
               ],
@@ -689,10 +713,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NTY=",
                   "value_index": 56
                 },
                 {
                   "code": "size",
+                  "uid": "MTcx",
                   "value_index": 171
                 }
               ],
@@ -753,10 +779,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NDk=",
                   "value_index": 49
                 },
                 {
                   "code": "size",
+                  "uid": "MTcy",
                   "value_index": 172
                 }
               ],
@@ -817,10 +845,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NTI=",
                   "value_index": 52
                 },
                 {
                   "code": "size",
+                  "uid": "MTcy",
                   "value_index": 172
                 }
               ],
@@ -895,10 +925,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NTY=",
                   "value_index": 56
                 },
                 {
                   "code": "size",
+                  "uid": "MTcy",
                   "value_index": 172
                 }
               ],
@@ -959,10 +991,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NDk=",
                   "value_index": 49
                 },
                 {
                   "code": "size",
+                  "uid": "MTcz",
                   "value_index": 173
                 }
               ],
@@ -1023,10 +1057,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NTI=",
                   "value_index": 52
                 },
                 {
                   "code": "size",
+                  "uid": "MTcz",
                   "value_index": 173
                 }
               ],
@@ -1101,10 +1137,12 @@
               "attributes": [
                 {
                   "code": "color",
+                  "uid": "NTY=",
                   "value_index": 56
                 },
                 {
                   "code": "size",
+                  "uid": "MTcz",
                   "value_index": 173
                 }
               ],

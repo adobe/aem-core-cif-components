@@ -1,0 +1,737 @@
+[
+    {
+        "id": "product-91a1ee87ce",
+        "name": "Beaumont Summit Kit-XS-Orange",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-XS-Orange",
+        "inStock": true,
+        "color": 56,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-orange_main_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 56,
+            "size": 167
+        },
+        "variantAttributesUid": {
+            "color": "NTY=",
+            "size": "MTY3"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-e51b71575f",
+        "name": "Beaumont Summit Kit-XS-Red",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-XS-Red",
+        "inStock": true,
+        "color": 58,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 58,
+            "size": 167
+        },
+        "variantAttributesUid": {
+            "color": "NTg=",
+            "size": "MTY3"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-eb600991cf",
+        "name": "Beaumont Summit Kit-XS-Yellow",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-XS-Yellow",
+        "inStock": true,
+        "color": 60,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg"
+            },
+            {
+                "label": "",
+                "position": 2,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg"
+            },
+            {
+                "label": "",
+                "position": 3,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 60,
+            "size": 167
+        },
+        "variantAttributesUid": {
+            "color": "NjA=",
+            "size": "MTY3"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-b6f717d62f",
+        "name": "Beaumont Summit Kit-S-Orange",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-S-Orange",
+        "inStock": true,
+        "color": 56,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-orange_main_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 56,
+            "size": 168
+        },
+        "variantAttributesUid": {
+            "color": "NTY=",
+            "size": "MTY4"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-7d39f7958b",
+        "name": "Beaumont Summit Kit-S-Red",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-S-Red",
+        "inStock": true,
+        "color": 58,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 58,
+            "size": 168
+        },
+        "variantAttributesUid": {
+            "color": "NTg=",
+            "size": "MTY4"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-03d891fade",
+        "name": "Beaumont Summit Kit-S-Yellow",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-S-Yellow",
+        "inStock": true,
+        "color": 60,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg"
+            },
+            {
+                "label": "",
+                "position": 2,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg"
+            },
+            {
+                "label": "",
+                "position": 3,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 60,
+            "size": 168
+        },
+        "variantAttributesUid": {
+            "color": "NjA=",
+            "size": "MTY4"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": false,
+            "regularPrice": 58.0,
+            "finalPrice": 45.0,
+            "discountAmount": 0.0,
+            "discountPercent": 0.0,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$45.00",
+            "formattedDiscountAmount": "$0.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-a7188c89a5",
+        "name": "Beaumont Summit Kit-M-Orange",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-M-Orange",
+        "inStock": true,
+        "color": 56,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-orange_main_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 56,
+            "size": 169
+        },
+        "variantAttributesUid": {
+            "color": "NTY=",
+            "size": "MTY5"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-8575fc3652",
+        "name": "Beaumont Summit Kit-M-Red",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-M-Red",
+        "inStock": true,
+        "color": 58,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 58,
+            "size": 169
+        },
+        "variantAttributesUid": {
+            "color": "NTg=",
+            "size": "MTY5"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-6e9d6d8f1a",
+        "name": "Beaumont Summit Kit-M-Yellow",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-M-Yellow",
+        "inStock": true,
+        "color": 60,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg"
+            },
+            {
+                "label": "",
+                "position": 2,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg"
+            },
+            {
+                "label": "",
+                "position": 3,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 60,
+            "size": 169
+        },
+        "variantAttributesUid": {
+            "color": "NjA=",
+            "size": "MTY5"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-59a0995f2b",
+        "name": "Beaumont Summit Kit-L-Orange",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-L-Orange",
+        "inStock": true,
+        "color": 56,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-orange_main_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 56,
+            "size": 170
+        },
+        "variantAttributesUid": {
+            "color": "NTY=",
+            "size": "MTcw"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-fd8165cc3c",
+        "name": "Beaumont Summit Kit-L-Red",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-L-Red",
+        "inStock": true,
+        "color": 58,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 58,
+            "size": 170
+        },
+        "variantAttributesUid": {
+            "color": "NTg=",
+            "size": "MTcw"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-1d52d386c2",
+        "name": "Beaumont Summit Kit-L-Yellow",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-L-Yellow",
+        "inStock": true,
+        "color": 60,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg"
+            },
+            {
+                "label": "",
+                "position": 2,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg"
+            },
+            {
+                "label": "",
+                "position": 3,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 60,
+            "size": 170
+        },
+        "variantAttributesUid": {
+            "color": "NjA=",
+            "size": "MTcw"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-8d86578fb5",
+        "name": "Beaumont Summit Kit-XL-Orange",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-XL-Orange",
+        "inStock": true,
+        "color": 56,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-orange_main_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 56,
+            "size": 171
+        },
+        "variantAttributesUid": {
+            "color": "NTY=",
+            "size": "MTcx"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-d48a0181a6",
+        "name": "Beaumont Summit Kit-XL-Red",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-XL-Red",
+        "inStock": true,
+        "color": 58,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 58,
+            "size": 171
+        },
+        "variantAttributesUid": {
+            "color": "NTg=",
+            "size": "MTcx"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    },
+    {
+        "id": "product-317511da62",
+        "name": "Beaumont Summit Kit-XL-Yellow",
+        "description": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>",
+        "sku": "MJ01-XL-Yellow",
+        "inStock": true,
+        "color": 60,
+        "assets": [
+            {
+                "label": "",
+                "position": 1,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg"
+            },
+            {
+                "label": "",
+                "position": 2,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg"
+            },
+            {
+                "label": "",
+                "position": 3,
+                "type": "image",
+                "path": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg"
+            }
+        ],
+        "variantAttributes": {
+            "color": 60,
+            "size": 171
+        },
+        "variantAttributesUid": {
+            "color": "NjA=",
+            "size": "MTcx"
+        },
+        "priceRange": {
+            "currency": "USD",
+            "regularPriceMax": "NaN",
+            "finalPriceMax": "NaN",
+            "discountAmountMax": "NaN",
+            "discountPercentMax": "NaN",
+            "range": false,
+            "discounted": true,
+            "regularPrice": 58.0,
+            "finalPrice": 46.0,
+            "discountAmount": 12.0,
+            "discountPercent": 20.69,
+            "empty": false,
+            "startPrice": false,
+            "formattedRegularPrice": "$58.00",
+            "formattedFinalPrice": "$46.00",
+            "formattedDiscountAmount": "$12.00",
+            "formattedRegularPriceMax": "",
+            "formattedFinalPriceMax": "",
+            "formattedDiscountAmountMax": ""
+        }
+    }
+]

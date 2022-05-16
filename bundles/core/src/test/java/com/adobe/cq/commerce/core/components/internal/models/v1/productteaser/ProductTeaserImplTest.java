@@ -96,6 +96,8 @@ public class ProductTeaserImplTest {
     private static final String PRODUCTTEASER_FULL = "/content/pageA/jcr:content/root/responsivegrid/productteaser-full";
     private static final String PRODUCTTEASER_CTA_TEST = "/content/pageA/jcr:content/root/responsivegrid/productteaser-cta-test";
     private static final String PRODUCTTEASER_CTA_TEXT_TEST = "/content/pageA/jcr:content/root/responsivegrid/productteaser-cta-text-test";
+    private static final String PRODUCTTEASER_LINK_TARGET_UNCHECKED = "/content/pageA/jcr:content/root/responsivegrid/productteaser-link-target-unchecked";
+    private static final String PRODUCTTEASER_LINK_TARGET_CHECKED = "/content/pageA/jcr:content/root/responsivegrid/productteaser-link-target-checked";
 
     private Style style;
     private Resource teaserResource;
@@ -175,6 +177,7 @@ public class ProductTeaserImplTest {
 
         // There is a dedicated specific subpage for that product
         assertTrue(productTeaser.getUrl().startsWith(PRODUCT_SPECIFIC_PAGE));
+        assertNull(productTeaser.getLinkTarget());
         assertEquals(toProductUrl(product), productTeaser.getUrl());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
@@ -349,6 +352,18 @@ public class ProductTeaserImplTest {
         when(style.get(eq(PN_STYLE_ADD_TO_WISHLIST_ENABLED), anyBoolean())).thenReturn(Boolean.TRUE);
         setUp(PRODUCTTEASER_SIMPLE, false);
         assertTrue(productTeaser.getAddToWishListEnabled());
+    }
+
+    @Test
+    public void testLinkTargetUnchecked() throws Exception {
+        setUp(PRODUCTTEASER_LINK_TARGET_UNCHECKED, false);
+        assertNull(productTeaser.getLinkTarget());
+    }
+
+    @Test
+    public void testLinkTargetChecked() throws Exception {
+        setUp(PRODUCTTEASER_LINK_TARGET_CHECKED, false);
+        assertEquals("_blank", productTeaser.getLinkTarget());
     }
 
     private String toProductUrl(ProductInterface product) {

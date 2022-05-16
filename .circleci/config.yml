@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   codecov: codecov/codecov@1.1.1
+  browser-tools: circleci/browser-tools@1.2.4
 
 common:
   restore_cache: &restore_cache
@@ -39,6 +40,7 @@ common:
   selenium_test_steps: &selenium_test_steps
     steps:
       - checkout
+      - browser-tools/install-browser-tools
       - *restore_cache
       - attach_workspace:
           at: /home/circleci/build
@@ -62,23 +64,21 @@ common:
 executors:
   cif_executor:
     docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-openjdk-azul:11-stretch-node-browsers
-        <<: *docker_auth
+      - image: cimg/openjdk:11.0-browsers
   cif_executor_java8:
     docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-openjdk-azul:8-stretch-node-browsers
-        <<: *docker_auth
+      - image: cimg/openjdk:8.0-browsers
   test_executor_cloudready:
     docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-azul-jdk11
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:6433-azul
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:6582-openjdk11
         <<: *docker_auth
   test_executor_655:
     docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.4-azul-jdk11
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.8-azul
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.8-openjdk11
         <<: *docker_auth
 
 jobs:
@@ -136,9 +136,10 @@ jobs:
 
   karma:
     docker:
-      - image: circleci/node:lts-browsers@sha256:4e85b1aa632b9f5a0b9d6247485a9b151f953b2ff588c649aa5dce08b3f6d7d5
+      - image: cimg/node:lts-browsers
     steps:
       - checkout
+      - browser-tools/install-browser-tools
       - run:
           name: Provision
           command: |
@@ -160,12 +161,9 @@ jobs:
 
   jest:
     docker:
-      - image: circleci/node:lts-browsers@sha256:4e85b1aa632b9f5a0b9d6247485a9b151f953b2ff588c649aa5dce08b3f6d7d5
+      - image: cimg/node:lts-browsers
     steps:
       - checkout
-      - run:
-          name: Update permissions
-          command: sudo chown -R circleci /usr/local/lib/node_modules
       - run:
           name: Provision
           command: |
@@ -186,12 +184,9 @@ jobs:
 
   jest-extension:
     docker:
-      - image: circleci/node:lts-browsers@sha256:4e85b1aa632b9f5a0b9d6247485a9b151f953b2ff588c649aa5dce08b3f6d7d5
+      - image: cimg/node:lts-browsers
     steps:
       - checkout
-      - run:
-          name: Update permissions
-          command: sudo chown -R circleci /usr/local/lib/node_modules
       - run:
           name: Provision (Core)
           command: |
@@ -275,6 +270,27 @@ jobs:
             rm -rf /home/circleci/.gnupg
             rm -rf /home/circleci/.npmrc
 
+  deploy-queries:
+    executor: cif_executor
+    steps:
+      - checkout
+      - *restore_cache
+      - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
+          name: Generate Queries
+          command: |
+            mvn -B clean verify
+          working_directory: bundles/core
+      - add_ssh_keys:
+          fingerprints:
+            - "16:2d:61:b7:70:89:21:ee:5f:53:30:ed:34:33:90:06"
+      - run:
+          name: Deploy Queries
+          command: |
+            node --unhandled-rejections=strict .circleci/ci/deploy-queries.js
+
 workflows:
   version: 2
   build-and-release:
@@ -356,6 +372,16 @@ workflows:
             - CIF Artifactory Cloud
             - CIF NPM
             - CIF Maven Central
+          requires:
+            - build-java-11
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^core-cif-components-reactor-\d+\.\d+\.\d+$/
+      - deploy-queries:
+          context:
+            - CIF Artifactory Cloud
           requires:
             - build-java-11
           filters:

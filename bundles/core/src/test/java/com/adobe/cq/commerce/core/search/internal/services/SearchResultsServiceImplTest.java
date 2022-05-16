@@ -53,7 +53,6 @@ import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
-import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Aggregation;
 import com.adobe.cq.commerce.magento.graphql.AggregationOption;
@@ -91,7 +90,7 @@ public class SearchResultsServiceImplTest {
     public final AemContext context = newAemContext("/context/jcr-content.json");
 
     @Mock
-    SearchFilterService searchFilterService;
+    SearchFilterServiceImpl searchFilterService;
     @Mock
     MagentoGraphqlClient magentoGraphqlClient;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -152,7 +151,7 @@ public class SearchResultsServiceImplTest {
             new UrlRewrite().setUrl("just-another/category/product")));
         productHits.add(product);
 
-        when(searchFilterService.retrieveCurrentlyAvailableCommerceFilters(any())).thenReturn(Arrays.asList(
+        when(searchFilterService.retrieveCurrentlyAvailableCommerceFilters(any(), any())).thenReturn(Arrays.asList(
             createMatchFilterAttributeMetadata(FILTER_ATTRIBUTE_NAME_CODE),
             createStringEqualFilterAttributeMetadata(FILTER_ATTRIBUTE_COLOR_CODE),
             createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE1_CODE),
@@ -175,7 +174,7 @@ public class SearchResultsServiceImplTest {
 
         categoryTree.setUid(new ID("foobar"));
 
-        context.registerService(SearchFilterService.class, searchFilterService);
+        context.registerService(SearchFilterServiceImpl.class, searchFilterService);
         context.registerAdapter(SlingHttpServletRequest.class, MagentoGraphqlClient.class, magentoGraphqlClient);
 
         prepareSearchOptions();
@@ -256,12 +255,12 @@ public class SearchResultsServiceImplTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(magentoGraphqlClient, times(1)).execute(captor.capture());
 
-        verify(searchFilterService, times(1)).retrieveCurrentlyAvailableCommerceFilters(any());
+        verify(searchFilterService, times(1)).retrieveCurrentlyAvailableCommerceFilters(any(), any());
         assertThat(searchResultsSet).isNotNull();
         assertThat(searchResultsSet.getTotalResults()).isEqualTo(0);
         assertThat(searchResultsSet.getAppliedQueryParameters()).containsKeys("search_query");
         assertThat(searchResultsSet.getProductListItems()).hasSize(1);
-        assertThat(searchResultsSet.getSorter().getKeys()).isNull();
+        assertThat(searchResultsSet.getSorter().getKeys()).isEmpty();
         assertThat(searchResultsSet.getSorter().getCurrentKey()).isNull();
 
         String query = captor.getValue();
@@ -431,9 +430,9 @@ public class SearchResultsServiceImplTest {
     }
 
     @Test
-    public void testSearchWithInvalidSortKey() {
-        searchOptions.addSorterKey("invalid", "Invalid", null);
-        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "invalid");
+    public void testSearchWithUnknownSortFieldParam() {
+        searchOptions.addSorterKey("brand", "Brand", Sorter.Order.DESC);
+        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "brand");
         searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_ORDER, Sorter.Order.ASC.name());
 
         SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
@@ -443,13 +442,34 @@ public class SearchResultsServiceImplTest {
             request);
 
         assertThat(searchResultsSet.getSorter().getKeys()).hasSize(1);
-        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("invalid");
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("brand");
         assertThat(searchResultsSet.getSorter().getCurrentKey().getOrder()).isEqualTo(Sorter.Order.ASC);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(magentoGraphqlClient, times(1)).execute(captor.capture());
         String query = captor.getValue();
-        assertThat(query).doesNotContain("sort:{invalid:ASC}");
+        assertThat(query).contains("sort:{brand:ASC}");
+    }
+
+    @Test
+    public void testSearchWithDefaultSortField() {
+        searchOptions.addSorterKey("name", "Name", Sorter.Order.ASC);
+        searchOptions.setDefaultSorter("name", Sorter.Order.ASC);
+
+        SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
+            searchOptions,
+            resource,
+            productPage,
+            request);
+
+        assertThat(searchResultsSet.getSorter().getKeys()).hasSize(1);
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("name");
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getOrder()).isEqualTo(Sorter.Order.ASC);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(magentoGraphqlClient, times(1)).execute(captor.capture());
+        String query = captor.getValue();
+        assertThat(query).contains("sort:{name:ASC}");
     }
 
     @Test

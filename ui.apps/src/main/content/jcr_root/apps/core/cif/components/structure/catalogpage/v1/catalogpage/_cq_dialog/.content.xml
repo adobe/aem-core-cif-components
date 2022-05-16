@@ -69,6 +69,7 @@
                                                 fieldLabel="Root Category Identifier"
                                                 name="./magentoRootCategoryId"
                                                 renderReadOnly="{Boolean}true"
+                                                showLink="{Boolean}true"
                                                 translateOptions="{Boolean}false">
                                                 <granite:data jcr:primaryType="nt:unstructured"
                                                     cq-msm-lockable="magentoRootCategoryId" />

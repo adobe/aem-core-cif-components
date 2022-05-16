@@ -45,7 +45,9 @@ This component is targeted for a search result display page showing the product 
 The following configuration properties are used:
 
 1. `./loadClientPrice` - enables client-side price fetching
-2. `./paginationType` - the pagination type, either `paginationbar` or `loadmorebutton`.
+2. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
+3. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`)  
+4. `./paginationType` - the pagination type, either `paginationbar` or `loadmorebutton`.
 
 ### Edit Dialog Properties
 
@@ -53,6 +55,9 @@ The following properties are written to JCR for this component and are expected 
 as `Resource` properties:
 
 1. `./pageSize` - the number of products shown on one page
+2. `./defaultSortField` - the default sort field for products
+3. `./defaultSortOrder` - the default sort order for products
+4. `./id` - defines the component HTML ID attribute
 
 ## BEM Description
 

@@ -1,6 +1,8 @@
 {
   "id": "productcarousel-17f70f37f7",
   "configured": true,
+  "addToCartEnabled": false,
+  "addToWishListEnabled": false,
   "productIdentifiers": [
     {
       "id": "productcarousel-17f70f37f7-item-d8f7aa6253",

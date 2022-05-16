@@ -1,5 +1,5 @@
 {
   "searchresults-31385d3306": {
-    "@type": "venia/components/commerce/searchresults"
+    "@type": "core/cif/components/commerce/searchresults/v2/searchresults"
   }
 }

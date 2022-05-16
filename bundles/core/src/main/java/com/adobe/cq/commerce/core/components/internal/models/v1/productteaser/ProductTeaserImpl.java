@@ -36,6 +36,7 @@ import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
@@ -48,7 +49,6 @@ import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
-import com.adobe.cq.commerce.magento.graphql.DownloadableProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
@@ -97,6 +97,10 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
         name = "ctaText",
         injectionStrategy = InjectionStrategy.OPTIONAL)
     private String ctaText;
+    @ValueMapValue(
+        name = "linkTarget",
+        injectionStrategy = InjectionStrategy.OPTIONAL)
+    private String linkTarget;
     @ScriptVariable(name = WCMBindingsConstants.NAME_CURRENT_STYLE)
     private Style currentStyle;
 
@@ -131,16 +135,12 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
             if (magentoGraphqlClient != null) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
                 productRetriever.setIdentifier(combinedSku.getLeft());
-                ctaOverride = CALL_TO_ACTION_TYPE_ADD_TO_CART.equals(cta) && !oneClickShoppable(getProduct());
+                ctaOverride = CALL_TO_ACTION_TYPE_ADD_TO_CART.equals(cta) && !Utils.isShoppableProduct(getProduct());
             }
         }
 
         enableAddToWishList = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS, Boolean.TRUE) : Boolean.TRUE)
             && currentStyle.get(PN_STYLE_ADD_TO_WISHLIST_ENABLED, ProductTeaser.super.getAddToWishListEnabled());
-    }
-
-    private boolean oneClickShoppable(ProductInterface product) {
-        return product instanceof SimpleProduct || product instanceof VirtualProduct || product instanceof DownloadableProduct;
     }
 
     @JsonIgnore
@@ -227,6 +227,12 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
             return urlProvider.toProductUrl(request, productPage, params);
         }
         return null;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getLinkTarget() {
+        return "_self".equals(linkTarget) ? null : linkTarget;
     }
 
     @Override

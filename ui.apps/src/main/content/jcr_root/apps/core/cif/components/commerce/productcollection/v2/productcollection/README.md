@@ -32,13 +32,18 @@ The Product Collection component uses the `com.adobe.cq.commerce.core.components
 The following configuration properties are used:
 
 1. `./loadClientPrice` - enables client-side price fetching
-2. `./paginationType` - the pagination type, either `paginationbar` or `loadmorebutton`.
+2. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
+3. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`)  
+4. `./paginationType` - the pagination type, either `paginationbar` or `loadmorebutton`.
 
 ### Edit Dialog Properties
 
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
 1. `./pageSize` - the number of products shown on one page
+2. `./defaultSortField` - the default sort field for products
+3. `./defaultSortOrder` - the default sort order for products
+4. `./id` - defines the component HTML ID attribute
 
 ## BEM Description
 ```
@@ -64,6 +69,11 @@ BLOCK productcollection
     ELEMENT productcollection__items
     ELEMENT productcollection__item
         MOD productcollection__item--staged
+    ELEMENT productcollection__item-actions
+    ELEMENT productcollection__item-button
+        MOD productcollection__item-button--add-to-cart
+        MOD productcollection__item-button--add-to-wish-list
+    ELEMENT productcollection__item-button-content
     ELEMENT productcollection__item-images
     ELEMENT productcollection__item-image
         MOD productcollection__item-image--placeholder

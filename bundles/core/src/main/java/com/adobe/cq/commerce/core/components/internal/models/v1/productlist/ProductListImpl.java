@@ -65,8 +65,7 @@ import com.day.cq.wcm.api.Page;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = ProductList.class,
-    resourceType = ProductListImpl.RESOURCE_TYPE,
-    cache = true)
+    resourceType = ProductListImpl.RESOURCE_TYPE)
 public class ProductListImpl extends ProductCollectionImpl implements ProductList {
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v1/productlist";
@@ -148,8 +147,13 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             searchOptions.setAttributeFilters(searchFilters);
 
             // configure sorting
-            searchOptions.addSorterKey("price", "Price", Sorter.Order.ASC);
-            searchOptions.addSorterKey("name", "Product Name", Sorter.Order.ASC);
+            String defaultSortField = properties.get(PN_DEFAULT_SORT_FIELD, String.class);
+            String defaultSortOrder = properties.get(PN_DEFAULT_SORT_ORDER, Sorter.Order.ASC.name());
+
+            if (StringUtils.isNotBlank(defaultSortField)) {
+                Sorter.Order value = Sorter.Order.fromString(defaultSortOrder, Sorter.Order.ASC);
+                searchOptions.setDefaultSorter(defaultSortField, value);
+            }
         }
     }
 

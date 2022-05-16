@@ -64,8 +64,34 @@ public class ProductCarouselComponentIT extends CommerceTestBase {
         Elements elements = carousel.select(".productcarousel__title");
         Assert.assertEquals("Sports selection", elements.first().html());
 
-        // Check that the components shows 4 products
+        // Check that the components shows 3 products
         elements = carousel.select(".productcarousel__cardscontainer > .product__card");
         Assert.assertEquals(3, elements.size());
+    }
+
+    @Test
+    public void testProductCarouselWithAddToCartAndAddToWishList() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productcarousel.html", 200);
+        Document doc = Jsoup.parse(response.getContent());
+
+        Elements carousels = doc.select(PRODUCTCAROUSEL_SELECTOR);
+
+        Assert.assertTrue(carousels.size() > 2);
+
+        Element carousel = carousels.get(2);
+
+        // Check that the components shows 3 products with add to cart and add to wish list button
+        Elements elements = carousel.select(".productcarousel__cardscontainer > .product__card");
+        Assert.assertEquals(3, elements.size());
+
+        for (Element element : elements) {
+            Elements addToCart = element.select(".product__card-button--add-to-cart");
+            Assert.assertEquals(1, addToCart.size());
+            Assert.assertTrue(addToCart.first().html().contains("Add to Cart"));
+
+            Elements addToWishList = element.select(".product__card-button--add-to-wish-list");
+            Assert.assertEquals(1, addToWishList.size());
+            Assert.assertTrue(addToWishList.first().html().contains("Add to Wish List"));
+        }
     }
 }

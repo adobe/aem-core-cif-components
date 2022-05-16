@@ -2,6 +2,8 @@
   "id": "relatedproducts-44ab3d0edb",
   "relationType": "UPSELL_PRODUCTS",
   "configured": true,
+  "addToCartEnabled":false,
+  "addToWishListEnabled":false,
   "commerceIdentifier": {
     "entityType": "PRODUCT",
     "value": "MJ01",

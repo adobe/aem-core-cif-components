@@ -61,7 +61,7 @@ public class ButtonImpl implements Button {
     private static final String EXTERNAL_LINK = "externalLink";
     private static final String LINK_TO = "linkTo";
 
-    // the link properties used by the WCM Core Component Button
+    // the link property used by the WCM Core Component Button
     private static final String PN_BUTTON_LINK_URL = "linkURL";
 
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
