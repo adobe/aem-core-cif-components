@@ -20,6 +20,7 @@
                         sling:resourceType="commerce/gui/components/common/cifcategoryfield"
                         fieldDescription="The category that should be displayed by the product list component."
                         fieldLabel="Manual Category Selection"
+                        showLink="{Boolean}true"
                         name="./category"/>
                     <well
                         jcr:primaryType="nt:unstructured"
