@@ -51,6 +51,18 @@
               "selection": "sku",
               "ctaText": "custom"
             },
+            "productteaser-link-target-unchecked": {
+              "sling:resourceType": "venia/components/commerce/productteaser",
+              "cta": "details",
+              "selection": "sku",
+              "linkTarget": "_self"
+            },
+            "productteaser-link-target-checked": {
+              "sling:resourceType": "venia/components/commerce/productteaser",
+              "cta": "details",
+              "selection": "sku",
+              "linkTarget": "_blank"
+            },
             "productcarousel": {
                 "product": [
                     "NOT-FOUND",
