@@ -252,15 +252,15 @@ public class SearchResultsImplTest {
         List<SorterKey> keys = sorter.getKeys();
         Assert.assertNotNull(keys);
         Assert.assertEquals(3, keys.size());
-        SorterKey defaultKey = keys.get(0);
+        SorterKey defaultKey = keys.get(2);
         Assert.assertEquals(currentKey.getName(), defaultKey.getName());
 
-        SorterKey otherKey = keys.get(1);
+        SorterKey otherKey = keys.get(0);
         Assert.assertEquals("price", otherKey.getName());
         Assert.assertEquals("Price", otherKey.getLabel());
         Assert.assertEquals(Sorter.Order.ASC, otherKey.getOrder());
 
-        otherKey = keys.get(2);
+        otherKey = keys.get(1);
         Assert.assertEquals("name", otherKey.getName());
         Assert.assertEquals("Product Name", otherKey.getLabel());
         Assert.assertEquals(Sorter.Order.ASC, otherKey.getOrder());

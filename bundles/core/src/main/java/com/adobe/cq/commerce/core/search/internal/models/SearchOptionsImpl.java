@@ -44,6 +44,8 @@ public class SearchOptionsImpl implements SearchOptions {
 
     List<SorterKey> sorterKeys = new ArrayList<>();
 
+    SorterKey defaultSorter;
+
     public SearchOptionsImpl() {
         attributeFilters = new HashMap<>();
     }
@@ -64,6 +66,7 @@ public class SearchOptionsImpl implements SearchOptions {
             searchQuery = searchOptions.getSearchQuery().get();
         }
 
+        this.defaultSorter = searchOptions.getDefaultSorter();
     }
 
     @Override
@@ -136,5 +139,17 @@ public class SearchOptionsImpl implements SearchOptions {
     @Override
     public List<SorterKey> getSorterKeys() {
         return sorterKeys;
+    }
+
+    @Override
+    public void setDefaultSorter(String sortField, Sorter.Order sortOrder) {
+        SorterKeyImpl defaultSorter = new SorterKeyImpl(sortField, sortField);
+        defaultSorter.setOrder(sortOrder);
+        this.defaultSorter = defaultSorter;
+    }
+
+    @Override
+    public SorterKey getDefaultSorter() {
+        return defaultSorter;
     }
 }

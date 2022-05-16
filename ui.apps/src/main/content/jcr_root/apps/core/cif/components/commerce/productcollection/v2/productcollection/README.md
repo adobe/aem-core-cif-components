@@ -41,6 +41,9 @@ The following configuration properties are used:
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
 1. `./pageSize` - the number of products shown on one page
+2. `./defaultSortField` - the default sort field for products
+3. `./defaultSortOrder` - the default sort order for products
+4. `./id` - defines the component HTML ID attribute
 
 ## BEM Description
 ```
