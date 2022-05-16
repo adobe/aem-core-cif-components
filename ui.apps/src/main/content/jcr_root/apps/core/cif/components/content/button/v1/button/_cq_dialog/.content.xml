@@ -104,6 +104,7 @@
                                                                 sling:resourceType="commerce/gui/components/common/cifproductfield"
                                                                 fieldLabel="Product"
                                                                 name="./productSlug"
+                                                                showLink="{Boolean}true"
                                                                 selectionId="slug"/>
                                                         </items>
                                                     </well>
@@ -125,6 +126,7 @@
                                                                 jcr:primaryType="nt:unstructured"
                                                                 sling:resourceType="commerce/gui/components/common/cifcategoryfield"
                                                                 fieldLabel="Category"
+                                                                showLink="{Boolean}true"
                                                                 name="./categoryId" />
                                                         </items>
                                                     </well>
