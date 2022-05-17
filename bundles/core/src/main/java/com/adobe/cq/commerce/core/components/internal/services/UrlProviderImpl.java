@@ -443,7 +443,8 @@ public class UrlProviderImpl implements UrlProvider {
         if (StringUtils.isNotEmpty(categoryIdentifiers.getUid())) {
             identifier = categoryIdentifiers.getUid();
         } else {
-            // lookup internal category identifier (uid) based on URL category identifier (url_key)
+            // lookup internal category identifier (uid) based on URL category identifier (url_path or url_key, depending on the 
+            // url format)
             MagentoGraphqlClient magentoGraphqlClient = request.adaptTo(MagentoGraphqlClient.class);
             if (magentoGraphqlClient == null) {
                 LOGGER.warn("No backend GraphQL client provided, cannot retrieve category identifier for {}", request.getRequestURL()
