@@ -104,6 +104,16 @@
               "enableAddToCart": true,
               "enableAddToWishList": true
             },
+            "productcarousel_with_link_target_unchecked": {
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "product": ["24-MG01", "MJ01#MJ01-L-Red"],
+              "linkTarget": "_self"
+            },
+            "productcarousel_with_link_target_checked": {
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "product": ["24-MG01", "MJ01#MJ01-L-Red"],
+              "linkTarget": "_blank"
+            },
             "product": {
                 "sling:resourceType": "venia/components/commerce/product"
             },
@@ -262,6 +272,17 @@
                         "categoryId": "uid-7"
                     }
                 }
+            },
+            "featuredcategorylist_with_link_target_unchecked": {
+              "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+              "product": ["24-MG01", "MJ01#MJ01-L-Red"],
+              "items": { "item0": { "categoryId": "uid-5"}},
+              "linkTarget": "_self"
+            },
+            "featuredcategorylist_with_link_target_checked": {
+              "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+              "items": { "item0": { "categoryId": "uid-5"}},
+              "linkTarget": "_blank"
             },
             "productcollection": {
                 "sling:resourceType": "venia/components/commerce/productcollection"

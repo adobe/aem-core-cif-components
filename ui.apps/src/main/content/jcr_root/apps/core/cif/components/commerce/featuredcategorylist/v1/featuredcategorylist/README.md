@@ -51,9 +51,11 @@ The following configuration properties are used:
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
 1. `./jcr:title` - Optional title text
-2. `./categoryIds` - Category ids in an Array of string saved by Category Picker.
-3. `./titleType` - will store the HTML heading element type which will be used for rendering; if no value is defined, the component will fallback
+2. `./titleType` - will store the HTML heading element type which will be used for rendering; if no value is defined, the component will fallback
 to the `type` value defined by the component's policy. The property of the policy is called `type` so we can reuse the `core/wcm/components/commons/datasources/allowedheadingelements/v1` Servlet from the WCM components.
+3. `./linkTarget` - defines the link target of the links generated for the component.
+4. `./categoryIds` - Category ids in an Array of string saved by Category Picker.
+5. `./id` - defines the component HTML ID attribute.
 
 ### CSS API (BEM)
 

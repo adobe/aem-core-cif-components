@@ -25,7 +25,7 @@
         <h2 data-sly-element="${category.titleType}" class="cmp-categorylist__title">${properties.jcr:title}</h2>
     </div>
     <div data-sly-list="${category.categories}" class="cmp-categorylist__content">
-        <sly data-sly-call="${cardTpl.card @ item=item}"/>
+        <sly data-sly-call="${cardTpl.card @ item=item, component=category}"/>
     </div>
 </div>
 

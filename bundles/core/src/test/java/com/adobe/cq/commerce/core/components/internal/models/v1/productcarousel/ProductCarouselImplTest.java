@@ -72,6 +72,8 @@ public class ProductCarouselImplTest {
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCTCAROUSEL = "/content/pageA/jcr:content/root/responsivegrid/productcarousel";
     private static final String PRODUCTCAROUSEL_WITH_CATEGORY = "/content/pageA/jcr:content/root/responsivegrid/productcarousel_with_category";
+    private static final String PRODUCTCAROUSEL_WITH_LINK_TARGET_UNCHECKED = "/content/pageA/jcr:content/root/responsivegrid/productcarousel_with_link_target_unchecked";
+    private static final String PRODUCTCAROUSEL_WITH_LINK_TARGET_CHECKED = "/content/pageA/jcr:content/root/responsivegrid/productcarousel_with_link_target_checked";
 
     private Resource carouselResource;
     private ProductCarouselImpl productCarousel;
@@ -120,6 +122,7 @@ public class ProductCarouselImplTest {
         Assert.assertEquals("h2", productCarousel.getTitleType());
         Assert.assertFalse(productCarousel.isAddToCartEnabled());
         Assert.assertFalse(productCarousel.isAddToWishListEnabled());
+        Assert.assertNull(productCarousel.getLinkTarget());
 
         List<ProductListItem> items = productCarousel.getProducts();
         Assert.assertEquals(4, items.size()); // one product is not found and the JSON response contains a "faulty" product
@@ -269,6 +272,26 @@ public class ProductCarouselImplTest {
         assertThat(items.stream().map(ProductListItem::getSKU).collect(Collectors.toList()))
             .hasSize(expectedIdentifiers.size())
             .containsOnlyElementsOf(expectedIdentifiers);
+    }
+
+    @Test
+    public void getLinkTargetUnchecked() {
+        context.currentResource(PRODUCTCAROUSEL_WITH_LINK_TARGET_UNCHECKED);
+
+        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
+
+        Assert.assertNotNull(productCarousel);
+        Assert.assertNull(productCarousel.getLinkTarget());
+    }
+
+    @Test
+    public void getLinkTargetChecked() {
+        context.currentResource(PRODUCTCAROUSEL_WITH_LINK_TARGET_CHECKED);
+
+        productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
+
+        Assert.assertNotNull(productCarousel);
+        Assert.assertEquals("_blank", productCarousel.getLinkTarget());
     }
 
     @Test

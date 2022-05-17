@@ -75,4 +75,13 @@ public interface ProductCarousel extends Component {
     default boolean isAddToWishListEnabled() {
         return false;
     }
+
+    /**
+     * Returns the link target for the links generated on the product carousel.
+     *
+     * @return the link target or {@code null} if no link target is configured
+     */
+    default String getLinkTarget() {
+        return null;
+    };
 }
