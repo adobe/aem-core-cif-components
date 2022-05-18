@@ -38,10 +38,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithCategoryAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlKey;
@@ -54,6 +56,7 @@ import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.day.cq.wcm.api.Page;
@@ -104,6 +107,8 @@ public class UrlProviderImplTest {
             "{categoryList(filters:{category_uid:{eq:\"uid-5\"}}");
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid:{eq:\"uid-99\"}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{url_path:{eq:\"men/tops-men/jackets-men\"}}");
         // from url_path men/tops-men/jackets-men
         Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{url_key:{eq:\"jackets-men\"}}");
@@ -513,9 +518,12 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCategoryIdentifierParsingUrlPath() {
+        ArgumentCaptor<GraphqlRequest> reqCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
         context.currentPage("/content/catalog-page");
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/men/tops-men/jackets-men");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(), "categoryPageUrlFormat", CategoryPageWithUrlPath.PATTERN);
 
         String identifier = urlProvider.getCategoryIdentifier(context.request());
         assertEquals("MTI==", identifier);
@@ -523,7 +531,31 @@ public class UrlProviderImplTest {
         identifier = urlProvider.getCategoryIdentifier(context.request());
         assertEquals("MTI==", identifier);
 
-        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+        verify(graphqlClient, times(1)).execute(reqCaptor.capture(), any(), any(), any());
+
+        GraphqlRequest gqlReq = reqCaptor.getValue();
+        assertEquals("{categoryList(filters:{url_path:{eq:\"men/tops-men/jackets-men\"}}){uid}}", gqlReq.getQuery());
+    }
+
+    @Test
+    public void testCategoryIdentifierParsingUrlKey() {
+        ArgumentCaptor<GraphqlRequest> reqCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        context.currentPage("/content/catalog-page");
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/jackets-men");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(), "categoryPageUrlFormat", CategoryPageWithUrlKey.PATTERN);
+
+        String identifier = urlProvider.getCategoryIdentifier(context.request());
+        assertEquals("MTI==", identifier);
+        // second access should be cached in request attributes
+        identifier = urlProvider.getCategoryIdentifier(context.request());
+        assertEquals("MTI==", identifier);
+
+        verify(graphqlClient, times(1)).execute(reqCaptor.capture(), any(), any(), any());
+
+        GraphqlRequest gqlReq = reqCaptor.getValue();
+        assertEquals("{categoryList(filters:{url_key:{eq:\"jackets-men\"}}){uid}}", gqlReq.getQuery());
     }
 
     @Test
