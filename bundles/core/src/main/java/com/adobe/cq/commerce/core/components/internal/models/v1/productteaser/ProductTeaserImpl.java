@@ -114,8 +114,6 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     private boolean ctaOverride;
     private boolean enableAddToWishList;
 
-    public ProductTeaserImpl() {}
-
     @PostConstruct
     protected void initModel() {
         locale = currentPage.getLanguage(false);
