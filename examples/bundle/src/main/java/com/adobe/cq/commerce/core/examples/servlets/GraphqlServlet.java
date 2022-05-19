@@ -473,6 +473,11 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         Map<String, Map<String, Object>> filters = env.getArgument("filters");
         DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
 
+        if (filters.containsKey("url_path") && !filters.containsKey("url_key")) {
+            // handle the url_path as url_key in order to simplify the query resolution logic
+            filters.put("url_key", filters.get("url_path"));
+        }
+
         // Only category the Breadcrumb components selects this field
         if (selectionSet.contains("breadcrumbs")) {
             graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
