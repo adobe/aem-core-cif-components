@@ -17,11 +17,13 @@
 
 import TeaserConfigV1 from '../../../../src/main/content/jcr_root/apps/core/cif/components/content/teaser/v1/teaser/clientlib/editor/js/teaser';
 import TeaserConfigV2 from '../../../../src/main/content/jcr_root/apps/core/cif/components/content/teaser/v2/teaser/clientlib/editor/js/teaser';
+import TeaserConfigV3 from '../../../../src/main/content/jcr_root/apps/core/cif/components/content/teaser/v3/teaser/clientlib/editor/js/teaser';
 import jQuery from '../../../clientlibs/common/jQueryMockForTest';
 
 [
     ['TeaserConfig v1', TeaserConfigV1],
-    ['TeaserConfig v2', TeaserConfigV2]
+    ['TeaserConfig v2', TeaserConfigV2],
+    ['TeaserConfig v3', TeaserConfigV3]
 ].forEach(([name, TeaserConfig]) =>
     describe(name, () => {
         var body;

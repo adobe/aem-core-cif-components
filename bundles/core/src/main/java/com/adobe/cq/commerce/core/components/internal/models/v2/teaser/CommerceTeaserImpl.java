@@ -48,6 +48,7 @@ import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@Deprecated
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = { Teaser.class, ComponentExporter.class },

@@ -1,5 +1,5 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ Copyright 2019 Adobe
+ ~ Copyright 2022 Adobe
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -13,10 +13,12 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
+package com.adobe.cq.commerce.core.components.internal.models.v3.teaser;
 
 import java.util.List;
 
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
@@ -28,7 +30,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
@@ -39,6 +40,8 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.testing.MockPathProcessor;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.adobe.cq.wcm.core.components.services.link.PathProcessor;
@@ -51,9 +54,12 @@ import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
-@Deprecated
 public class CommerceTeaserImplTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
@@ -67,17 +73,26 @@ public class CommerceTeaserImplTest {
     private static final String PRODUCT_SPECIFIC_PAGE = PRODUCT_PAGE + "/product-specific-page";
     private static final String CATEGORY_PAGE = "/content/category-page";
     private static final String PAGE = "/content/pageA";
-    private static final String TEASER = "/content/pageA/jcr:content/root/responsivegrid/commerceteaser";
+    private static final String TEASER = "/content/pageA/jcr:content/root/responsivegrid/commerceteaser3";
 
     private Resource commerceTeaserResource;
     private CommerceTeaser commerceTeaser;
 
     @Before
     public void setup() throws Exception {
-        GraphqlClient graphqlClient = new GraphqlClientImpl();
-        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
+        GraphqlClientConfiguration graphqlClientConfiguration = mock(GraphqlClientConfiguration.class);
+        when(graphqlClientConfiguration.httpMethod()).thenReturn(HttpMethod.POST);
+
+        CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
+        context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
+        GraphqlClient graphqlClient = spy(new GraphqlClientImpl());
         context.registerInjectActivateService(graphqlClient);
-        Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-category-list-result.json");
+
+        Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{category_uid:{eq:");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
+            "{products(filter:{sku:{eq:\"MJ01\"}}");
+
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
@@ -104,7 +119,7 @@ public class CommerceTeaserImplTest {
         ComponentManager componentManager = commerceTeaserResource.getResourceResolver().adaptTo(ComponentManager.class);
         slingBindings.put(WCMBindingsConstants.NAME_COMPONENT, componentManager.getComponent(TEASER));
         Style style = mock(Style.class);
-        when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
+        when(style.get(anyString(), anyInt())).then(i -> i.getArgumentAt(1, Object.class));
         slingBindings.put("currentStyle", style);
 
         // TODO: CIF-2469
@@ -117,7 +132,7 @@ public class CommerceTeaserImplTest {
     @Test
     public void verifyProperties() {
         commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
-        Assert.assertNotNull("The CommerceTeaser object is not null", commerceTeaser);
+        Assert.assertNotNull("The CommerceTeaser object is null", commerceTeaser);
 
         Assert.assertEquals("The pre-title is correct", "Pretitle", commerceTeaser.getPretitle());
         Assert.assertEquals("The title is correct", "Title", commerceTeaser.getTitle());
@@ -125,7 +140,7 @@ public class CommerceTeaserImplTest {
         Assert.assertEquals("The id is correct", "id", commerceTeaser.getId());
         Assert.assertNull("The link URL is null", commerceTeaser.getLinkURL());
         Assert.assertNull(commerceTeaser.getData());
-        Assert.assertEquals("The exported resource type is correct", "core/cif/components/content/teaser/v1/teaser",
+        Assert.assertEquals("The exported resource type is correct", "core/cif/components/content/teaser/v3/teaser",
             commerceTeaser.getExportedType());
     }
 
@@ -140,19 +155,19 @@ public class CommerceTeaserImplTest {
         // Product slug is configured and there is a dedicated specific subpage for that product
         Assert.assertEquals(PRODUCT_SPECIFIC_PAGE + ".html/beaumont-summit-kit.html", actionItems.get(0).getURL());
         Assert.assertEquals("A product", actionItems.get(0).getTitle());
-        Assert.assertEquals("The action points to the right product slug", "beaumont-summit-kit", ((CommerceTeaserActionItem) actionItems
+        Assert.assertEquals("MJ01", ((CommerceTeaserActionItem) actionItems
             .get(0)).getEntityIdentifier().getValue());
 
         // Category id is configured
         Assert.assertEquals(CATEGORY_PAGE + ".html/equipment.html", actionItems.get(1).getURL());
         Assert.assertEquals("A category", actionItems.get(1).getTitle());
-        Assert.assertEquals("The action points to the right category id", "uid-5",
+        Assert.assertEquals("uid-5",
             ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getValue());
 
         // Both are configured, category links "wins"
-        Assert.assertEquals(CATEGORY_PAGE + ".html/equipment/running.html", actionItems.get(2).getURL());
+        Assert.assertEquals(CATEGORY_PAGE + ".html/equipment.html", actionItems.get(2).getURL());
         Assert.assertEquals("A category", actionItems.get(2).getTitle());
-        Assert.assertEquals("The action points to the right category id", "uid-6", ((CommerceTeaserActionItem) actionItems.get(2))
+        Assert.assertEquals("uid-5", ((CommerceTeaserActionItem) actionItems.get(2))
             .getEntityIdentifier().getValue());
 
         // Some text is entered, current page is used
@@ -176,6 +191,6 @@ public class CommerceTeaserImplTest {
     @Test
     public void verifyJsonExport() {
         commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
-        Utils.testJSONExport(commerceTeaser, "/exporter/commerce-teaser.json");
+        Utils.testJSONExport(commerceTeaser, "/exporter/commerce-teaser-v3.json");
     }
 }

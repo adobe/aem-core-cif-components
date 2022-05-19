@@ -91,5 +91,5 @@ BLOCK cmp-teaser
 * **Vendor**: Adobe
 * **Version**: v1
 * **Compatibility**: AEM 6.4.4
-* **Status**: production-ready
+* **Status**: deprecated
 * **Author**: deesingh@adobe.com
