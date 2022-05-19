@@ -46,12 +46,13 @@ The following properties are written to JCR for this component and are expected 
 2. `./jcr:title` - Optional title text
 3. `./titleType` - will store the HTML heading element type which will be used for rendering; if no value is defined, the component will fallback
 to the `type` value defined by the component's policy. The property of the policy is called `type` so we can reuse the `core/wcm/components/commons/datasources/allowedheadingelements/v1` Servlet from the WCM components.
-4. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
-5. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`) 
-6. `./selectionType` - when set to `product`, the component displays the products defined by the `./product` property; when set to `category`, the products are displayed from the category defined by the `./category` property 
-7. `./category` - stores the UID of the category used for displaying the products when the selection type is `category`
-8. `./productCount` - defines the maximum number of products displayed for a category when the selection type is `category` (default value is 10, minimum 1)
-9. `./id` - defines the component HTML ID attribute
+4. `./linkTarget` - defines the link target of the links generated for the component.
+5. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
+6. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`) 
+7. `./selectionType` - when set to `product`, the component displays the products defined by the `./product` property; when set to `category`, the products are displayed from the category defined by the `./category` property 
+8. `./category` - stores the UID of the category used for displaying the products when the selection type is `category`
+9. `./productCount` - defines the maximum number of products displayed for a category when the selection type is `category` (default value is 10, minimum 1)
+10. `./id` - defines the component HTML ID attribute
 
 We also use a `SlingPostProcessor` in order to support "drag and drop" in the AEM Sites Editor, so that it is possible to easily add multiple products to the carousel. The custom processor only processes POST parameter keys starting with `./dropTarget->` so make sure that this doesn't collide with any other custom processor you might implement.
 

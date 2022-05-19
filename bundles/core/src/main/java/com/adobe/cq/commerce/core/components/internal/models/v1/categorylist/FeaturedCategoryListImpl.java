@@ -33,12 +33,14 @@ import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.datalayer.CategoryData;
 import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryDataImpl;
 import com.adobe.cq.commerce.core.components.internal.datalayer.CategoryListDataImpl;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
@@ -89,6 +91,11 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
     @ScriptVariable
     protected Style currentStyle;
+
+    @ValueMapValue(
+        name = "linkTarget",
+        injectionStrategy = InjectionStrategy.OPTIONAL)
+    protected String linkTarget;
 
     private Map<String, Asset> assetOverride;
     private Page categoryPage;
@@ -228,6 +235,11 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     @Override
     public String getTitleType() {
         return TitleTypeProvider.getTitleType(currentStyle, resource.getValueMap());
+    }
+
+    @JsonIgnore
+    public String getLinkTarget() {
+        return Utils.normalizeLinkTarget(linkTarget);
     }
 
     @Override

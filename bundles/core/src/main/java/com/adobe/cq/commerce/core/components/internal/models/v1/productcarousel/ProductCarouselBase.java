@@ -20,12 +20,15 @@ import javax.annotation.PostConstruct;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
+import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerListItem;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
@@ -50,6 +53,10 @@ public class ProductCarouselBase extends DataLayerComponent {
     protected Style currentStyle;
     protected boolean addToCartEnabled;
     protected boolean addToWishListEnabled;
+    @ValueMapValue(
+        name = "linkTarget",
+        injectionStrategy = InjectionStrategy.OPTIONAL)
+    protected String linkTarget;
 
     @PostConstruct
     private void initModel0() {
@@ -68,6 +75,11 @@ public class ProductCarouselBase extends DataLayerComponent {
 
     public boolean isAddToWishListEnabled() {
         return addToWishListEnabled;
+    }
+
+    @JsonIgnore
+    public String getLinkTarget() {
+        return Utils.normalizeLinkTarget(linkTarget);
     }
 
     /**

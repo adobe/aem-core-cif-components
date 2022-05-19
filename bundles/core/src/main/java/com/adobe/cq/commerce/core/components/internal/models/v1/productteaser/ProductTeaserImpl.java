@@ -232,7 +232,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @Override
     @JsonIgnore
     public String getLinkTarget() {
-        return "_self".equals(linkTarget) ? null : linkTarget;
+        return Utils.normalizeLinkTarget(linkTarget);
     }
 
     @Override
