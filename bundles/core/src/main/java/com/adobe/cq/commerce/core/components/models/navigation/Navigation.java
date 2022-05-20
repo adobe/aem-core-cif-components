@@ -26,6 +26,7 @@ public interface Navigation {
      * Sling resource type for catalog landing page.
      */
     String RT_CATALOG_PAGE = "core/cif/components/structure/catalogpage/v1/catalogpage";
+    String RT_CATALOG_PAGE_V3 = "core/cif/components/structure/catalogpage/v3/catalogpage";
 
     /**
      * Boolean property for adding to navigation the main categories of the catalog instead of the catalog
