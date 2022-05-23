@@ -15,7 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-window.CIF = window.CIF || {};
 class CommerceGraphqlApi {
     constructor(props) {
         if (!props || !props.graphqlEndpoint) {
@@ -168,29 +167,5 @@ class CommerceGraphqlApi {
         return dict;
     }
 }
-
-(function() {
-    function onDocumentReady() {
-        const storeConfigEl = document.querySelector('meta[name="store-config"]');
-        if (storeConfigEl) {
-            window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi(JSON.parse(storeConfigEl.content));
-        } else {
-            // TODO: deprecated - the store configuration on the <body> has been deprecated and will be removed
-            const { storeView, graphqlEndpoint, graphqlMethod, httpHeaders } = document.body.dataset;
-            window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({
-                graphqlEndpoint,
-                storeView,
-                graphqlMethod,
-                headers: httpHeaders ? JSON.parse(httpHeaders) : {}
-            });
-        }
-    }
-
-    if (document.readyState !== 'loading') {
-        onDocumentReady();
-    } else {
-        document.addEventListener('DOMContentLoaded', onDocumentReady);
-    }
-})();
 
 export default CommerceGraphqlApi;
