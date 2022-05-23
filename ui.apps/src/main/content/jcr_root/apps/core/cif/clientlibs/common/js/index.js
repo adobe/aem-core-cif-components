@@ -17,8 +17,6 @@
 import PriceFormatter from './PriceFormatter';
 import CommerceGraphqlApi from './CommerceGraphqlApi';
 
-window.CIF = window.CIF || {};
-
 (function() {
     function onDocumentReady() {
         try {

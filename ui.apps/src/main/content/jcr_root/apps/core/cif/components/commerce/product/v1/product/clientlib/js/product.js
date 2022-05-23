@@ -219,15 +219,21 @@ Product.events = {
 (function(document) {
     function onDocumentReady() {
         // Initialize product component
-        const productCmp = document.querySelector(Product.selectors.self);
-        if (productCmp) new Product({ element: productCmp });
+        const productCmps = document.querySelectorAll(Product.selectors.self);
+        for (let productCmp of productCmps) {
+            new Product({ element: productCmp });
+        }
     }
 
-    if (document.readyState !== 'loading') {
-        onDocumentReady();
-    } else {
-        document.addEventListener('DOMContentLoaded', onDocumentReady);
-    }
+    const documentReady =
+        document.readyState !== 'loading'
+            ? Promise.resolve()
+            : new Promise(r => document.addEventListener('DOMContentLoaded', r));
+    const cifReady = window.CIF
+        ? Promise.resolve()
+        : new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
+
+    Promise.all([documentReady, cifReady]).then(onDocumentReady);
 })(window.document);
 
 export default Product;
