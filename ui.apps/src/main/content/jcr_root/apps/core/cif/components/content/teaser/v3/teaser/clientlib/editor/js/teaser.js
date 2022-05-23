@@ -72,6 +72,20 @@ class TeaserConfig {
     }
 
     setFieldsDisabled(disabled) {
+        this.$(document.querySelector(TeaserConfig.selectors.actionsMultifieldSelector))
+            .adaptTo('foundation-field')
+            .setDisabled(disabled);
+
+        document.querySelectorAll(TeaserConfig.selectors.pageFieldSelector).forEach(el => {
+            this.$(el)
+                .adaptTo('foundation-field')
+                .setDisabled(disabled);
+        });
+        document.querySelectorAll(TeaserConfig.selectors.targetFieldSelector).forEach(el => {
+            this.$(el)
+                .adaptTo('foundation-field')
+                .setDisabled(disabled);
+        });
         document.querySelectorAll(TeaserConfig.selectors.categoryFieldSelector).forEach(catEl => {
             this.$(catEl)
                 .adaptTo('foundation-field')
@@ -79,6 +93,11 @@ class TeaserConfig {
         });
         document.querySelectorAll(TeaserConfig.selectors.productFieldSelector).forEach(prodEl => {
             this.$(prodEl)
+                .adaptTo('foundation-field')
+                .setDisabled(disabled);
+        });
+        document.querySelectorAll(TeaserConfig.selectors.titleFieldSelector).forEach(el => {
+            this.$(el)
                 .adaptTo('foundation-field')
                 .setDisabled(disabled);
         });
@@ -143,8 +162,10 @@ class TeaserConfig {
 TeaserConfig.selectors = {
     dialogContentSelector: '[data-cmp-is="commerceteaser-editor"].cmp-teaser__editor',
     pageFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionLink"]',
+    targetFieldSelector: '[data-cmp-teaser-v2-dialog-edit-hook="actionTarget"]',
     productFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionProduct"]',
     categoryFieldSelector: '[data-cmp-teaser-v1-dialog-edit-hook="actionCategory"]',
+    titleFieldSelector: '[data-cmp-teaser-v2-dialog-edit-hook="actionTitle"]',
     actionsMultifieldSelector: '.cmp-teaser__editor-multifield_actions',
     actionsMultifieldItemSelector: 'coral-multifield-item',
     actionsEnabledCheckboxSelector: 'coral-checkbox[name="./actionsEnabled"]'
