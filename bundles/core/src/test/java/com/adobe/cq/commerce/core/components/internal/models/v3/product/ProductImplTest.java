@@ -25,6 +25,10 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.testing.Utils;
+import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
+import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
+import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
+import com.adobe.cq.commerce.magento.graphql.Query;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.Assert.assertEquals;
@@ -70,6 +74,41 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
             for (int j = 0; j < attribute.getValues().size(); j++) {
                 VariantValue value = attribute.getValues().get(j);
                 assertNotNull(value.getUid());
+            }
+        }
+    }
+
+    @Test
+    public void testSwatchDataInVariantAttributes() throws IOException {
+        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-configurableproduct-uid-result.json");
+        product = rootQuery.getProducts().getItems().get(0);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-configurableproduct-uid-result.json", httpClient, 200,
+            "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-configurableproduct-uid-result.json", httpClient, 200, "{products(filter:{sku");
+
+        adaptToProduct();
+        List<VariantAttribute> attributes = productModel.getVariantAttributes();
+        assertNotNull(attributes);
+
+        ConfigurableProduct cp = (ConfigurableProduct) product;
+        assertEquals(cp.getConfigurableOptions().size(), attributes.size());
+
+        for (int i = 0; i < attributes.size(); i++) {
+            VariantAttribute attribute = attributes.get(i);
+            ConfigurableProductOptions option = cp.getConfigurableOptions().get(i);
+
+            assertEquals(option.getAttributeCode(), attribute.getId());
+            assertEquals(option.getLabel(), attribute.getLabel());
+
+            for (int j = 0; j < attribute.getValues().size(); j++) {
+                VariantValue value = attribute.getValues().get(j);
+                ConfigurableProductOptionsValues optionValue = option.getValues().get(j);
+                assertEquals(optionValue.getUid().toString(), value.getUid());
+                assertEquals(optionValue.getLabel(), value.getLabel());
+                assertEquals(optionValue.getDefaultLabel().trim().replaceAll("\\s+", "-").toLowerCase(), value.getDefaultLabel());
+                assertEquals(optionValue.getSwatchData().getValue(), value.getSwatchData().getValue());
+                assertEquals(optionValue.getSwatchData().getGraphQlTypeName(), value.getSwatchData().getGraphQlTypeName());
             }
         }
     }

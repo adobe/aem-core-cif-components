@@ -412,7 +412,8 @@ public class ProductImpl extends DataLayerComponent implements Product {
         VariantValueImpl variantValue = new VariantValueImpl();
         variantValue.setId(value.getValueIndex());
         variantValue.setLabel(value.getLabel());
-        variantValue.setDefaultLabel(value.getDefaultLabel());
+        variantValue.setDefaultLabel(value.getDefaultLabel() != null ? value.getDefaultLabel().trim().replaceAll("\\s+", "-").toLowerCase()
+            : null);
         variantValue.setSwatchData(value.getSwatchData());
 
         return variantValue;
