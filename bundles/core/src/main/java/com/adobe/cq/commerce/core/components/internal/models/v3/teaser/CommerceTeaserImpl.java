@@ -88,6 +88,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
 
             Page productPage = SiteNavigation.getProductPage(currentPage);
             Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
+            List<ListItem> wcmActions = wcmTeaser.getActions();
 
             // build teaser action items for all configured actions
             for (Resource action : configuredActions) {
@@ -96,7 +97,8 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 String categoryUid = actionProperties.get(PN_ACTION_CATEGORY_ID, String.class);
                 String link = actionProperties.get(Teaser.PN_ACTION_LINK, String.class);
 
-                String actionUrl = null;
+                ListItem wcmAction = null;
+                String actionUrl;
                 CommerceIdentifier identifier = null;
 
                 if (StringUtils.isNotBlank(categoryUid)) {
@@ -108,13 +110,18 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                     identifier = new CommerceIdentifierImpl(productSku, CommerceIdentifier.IdentifierType.SKU,
                         CommerceIdentifier.EntityType.PRODUCT);
                 } else if (StringUtils.isNotBlank(link)) {
+                    wcmAction = wcmActions.stream().filter(a -> link.equals(a.getPath())).findAny().orElse(null);
                     actionUrl = link + ".html";
                 } else {
                     actionUrl = currentPage.getPath() + ".html";
                 }
 
-                String title = actionProperties.get(PN_ACTION_TEXT, String.class);
-                actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, identifier, action, wcmTeaser.getId()));
+                if (wcmAction != null) {
+                    actions.add(wcmAction);
+                } else {
+                    String title = actionProperties.get(PN_ACTION_TEXT, String.class);
+                    actions.add(new CommerceTeaserActionItemImpl(title, actionUrl, identifier, action, wcmTeaser.getId()));
+                }
             }
         }
     }

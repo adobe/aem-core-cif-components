@@ -65,16 +65,10 @@
             }
         },
         {
-            "id": "id-item-5dec02c9a2",
+            "id": "id-cta-5dec02c9a2",
+            "url": "/content/page",
             "title": "A page",
-            "url": "/content/page.html",
-            "link": {
-                "htmlAttributes": {
-                    "href": "/content/page.html"
-                },
-                "url": "/content/page.html",
-                "valid": true
-            }
+            ":type": "nt:unstructured"
         }
     ],
     "title": "Title",
