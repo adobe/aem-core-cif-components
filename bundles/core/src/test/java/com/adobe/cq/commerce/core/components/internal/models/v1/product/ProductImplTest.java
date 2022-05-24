@@ -290,6 +290,8 @@ public class ProductImplTest {
                 ConfigurableProductOptionsValues optionValue = option.getValues().get(j);
                 assertEquals(optionValue.getValueIndex(), value.getId());
                 assertEquals(optionValue.getLabel(), value.getLabel());
+                assertNull(value.getDefaultLabel());
+                assertNull(value.getSwatchData());
             }
         }
     }
