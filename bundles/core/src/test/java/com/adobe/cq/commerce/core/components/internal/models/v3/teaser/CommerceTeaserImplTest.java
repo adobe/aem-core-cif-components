@@ -153,29 +153,29 @@ public class CommerceTeaserImplTest {
         Assert.assertTrue(actionItems.size() == 5);
 
         // Product slug is configured and there is a dedicated specific subpage for that product
-        Assert.assertEquals(PRODUCT_SPECIFIC_PAGE + ".html/beaumont-summit-kit.html", actionItems.get(0).getURL());
+        Assert.assertEquals(PRODUCT_SPECIFIC_PAGE + ".html/beaumont-summit-kit.html", actionItems.get(0).getLink().getURL());
         Assert.assertEquals("A product", actionItems.get(0).getTitle());
         Assert.assertEquals("MJ01", ((CommerceTeaserActionItem) actionItems
             .get(0)).getEntityIdentifier().getValue());
 
         // Category id is configured
-        Assert.assertEquals(CATEGORY_PAGE + ".html/equipment.html", actionItems.get(1).getURL());
+        Assert.assertEquals(CATEGORY_PAGE + ".html/equipment.html", actionItems.get(1).getLink().getURL());
         Assert.assertEquals("A category", actionItems.get(1).getTitle());
         Assert.assertEquals("uid-5",
             ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getValue());
 
         // Both are configured, category links "wins"
-        Assert.assertEquals(CATEGORY_PAGE + ".html/equipment.html", actionItems.get(2).getURL());
+        Assert.assertEquals(CATEGORY_PAGE + ".html/equipment.html", actionItems.get(2).getLink().getURL());
         Assert.assertEquals("A category", actionItems.get(2).getTitle());
         Assert.assertEquals("uid-5", ((CommerceTeaserActionItem) actionItems.get(2))
             .getEntityIdentifier().getValue());
 
         // Some text is entered, current page is used
-        Assert.assertEquals(PAGE + ".html", actionItems.get(3).getURL());
+        Assert.assertEquals(PAGE + ".html", actionItems.get(3).getLink().getURL());
         Assert.assertEquals("Some text", actionItems.get(3).getTitle());
 
         // Link is configured
-        Assert.assertEquals("/content/page.html", actionItems.get(4).getURL());
+        Assert.assertEquals("/content/page", actionItems.get(4).getLink().getURL());
         Assert.assertEquals("A page", actionItems.get(4).getTitle());
     }
 
