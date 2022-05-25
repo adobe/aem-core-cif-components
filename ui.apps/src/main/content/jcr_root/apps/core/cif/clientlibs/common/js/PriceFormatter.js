@@ -46,17 +46,4 @@ class PriceFormatter {
     }
 }
 
-(function() {
-    function onDocumentReady() {
-        window.CIF = window.CIF || {};
-        window.CIF.PriceFormatter = PriceFormatter;
-    }
-
-    if (document.readyState !== 'loading') {
-        onDocumentReady();
-    } else {
-        document.addEventListener('DOMContentLoaded', onDocumentReady);
-    }
-})();
-
 export default PriceFormatter;
