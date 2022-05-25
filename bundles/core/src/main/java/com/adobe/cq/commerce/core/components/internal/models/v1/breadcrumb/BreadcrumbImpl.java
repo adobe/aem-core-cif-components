@@ -118,7 +118,8 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         Resource contentResource = page.getContentResource();
 
         // If we encounter the catalog page and it's configured to show the main categories, we skip that page
-        if (contentResource != null && contentResource.isResourceType(Navigation.RT_CATALOG_PAGE)) {
+        if (contentResource != null &&
+            (contentResource.isResourceType(Navigation.RT_CATALOG_PAGE) || contentResource.isResourceType(Navigation.RT_CATALOG_PAGE_V3))) {
             if (page.getContentResource().getValueMap().get(Navigation.PN_SHOW_MAIN_CATEGORIES, Boolean.TRUE)) {
                 return;
             }
