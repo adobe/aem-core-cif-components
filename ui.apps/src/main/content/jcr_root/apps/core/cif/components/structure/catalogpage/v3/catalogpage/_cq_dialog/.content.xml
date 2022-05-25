@@ -9,7 +9,7 @@
     sling:resourceType="cq/gui/components/authoring/dialog"
     extraClientlibs="[cq.common.wcm,core.wcm.components.page.v2.editor,cq.wcm.msm.properties,granite.contexthub.configuration,cq.siteadmin.admin.properties,cif.shell.picker]"
     mode="edit"
-    trackingFeature="cif-core-components:catalogpage:v1">
+    trackingFeature="cif-core-components:catalogpage:v3">
     <content granite:class="cq-dialog-content-page"
         jcr:primaryType="nt:unstructured"
         sling:resourceType="granite/ui/components/coral/foundation/container">
