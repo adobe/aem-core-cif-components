@@ -17,17 +17,21 @@ package com.adobe.cq.commerce.core.components.models.product;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
-import com.adobe.cq.commerce.magento.graphql.SwatchDataInterface;
-
 /**
  * VariantValue is a view model interface representing a possible value for
  * a VariantAttribute.
  */
 @ConsumerType
 public interface VariantValue {
+    enum SwatchType {
+        IMAGE,
+        TEXT,
+        COLOR
+    }
+
     String getLabel();
 
-    default String getDefaultLabel() {
+    default String getCssClassModifier() {
         return null;
     }
 
@@ -37,7 +41,7 @@ public interface VariantValue {
         return null;
     }
 
-    default SwatchDataInterface getSwatchData() {
+    default SwatchType getSwatchType() {
         return null;
     }
 }

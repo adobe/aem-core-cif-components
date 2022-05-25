@@ -290,8 +290,8 @@ public class ProductImplTest {
                 ConfigurableProductOptionsValues optionValue = option.getValues().get(j);
                 assertEquals(optionValue.getValueIndex(), value.getId());
                 assertEquals(optionValue.getLabel(), value.getLabel());
-                assertNull(value.getDefaultLabel());
-                assertNull(value.getSwatchData());
+                assertNull(value.getCssClassModifier());
+                assertNull(value.getSwatchType());
             }
         }
     }
@@ -323,9 +323,9 @@ public class ProductImplTest {
                 ConfigurableProductOptionsValues optionValue = option.getValues().get(j);
                 assertEquals(optionValue.getValueIndex(), value.getId());
                 assertEquals(optionValue.getLabel(), value.getLabel());
-                assertEquals(optionValue.getDefaultLabel().trim().replaceAll("\\s+", "-").toLowerCase(), value.getDefaultLabel());
-                assertEquals(optionValue.getSwatchData().getValue(), value.getSwatchData().getValue());
-                assertEquals(optionValue.getSwatchData().getGraphQlTypeName(), value.getSwatchData().getGraphQlTypeName());
+                assertEquals(optionValue.getDefaultLabel().trim().replaceAll("\\s+", "-").toLowerCase(), value.getCssClassModifier());
+                assertTrue("SwatchData type mismatch", optionValue.getSwatchData().getGraphQlTypeName().toUpperCase().startsWith(
+                    value.getSwatchType().toString()));
             }
         }
     }

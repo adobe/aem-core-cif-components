@@ -61,7 +61,25 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         variantValue.setDefaultLabel(
             value.getDefaultLabel() != null ? value.getDefaultLabel().trim().replaceAll("\\s+", "-").toLowerCase()
                 : null);
-        variantValue.setSwatchData(value.getSwatchData());
+        VariantValue.SwatchType swatchType = null;
+
+        if (value.getSwatchData() != null) {
+            switch (value.getSwatchData().getGraphQlTypeName()) {
+                case "ImageSwatchData":
+                    swatchType = VariantValue.SwatchType.IMAGE;
+                    break;
+                case "TextSwatchData":
+                    swatchType = VariantValue.SwatchType.TEXT;
+                    break;
+                case "ColorSwatchData":
+                    swatchType = VariantValue.SwatchType.COLOR;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        variantValue.setSwatchType(swatchType);
 
         return variantValue;
     }

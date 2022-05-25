@@ -16,7 +16,6 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
-import com.adobe.cq.commerce.magento.graphql.SwatchDataInterface;
 
 public class VariantValueImpl implements VariantValue {
 
@@ -28,7 +27,7 @@ public class VariantValueImpl implements VariantValue {
 
     private String uid;
 
-    private SwatchDataInterface swatchData;
+    private SwatchType swatchType;
 
     @Override
     public String getLabel() {
@@ -40,7 +39,7 @@ public class VariantValueImpl implements VariantValue {
     }
 
     @Override
-    public String getDefaultLabel() {
+    public String getCssClassModifier() {
         return defaultLabel;
     }
 
@@ -49,12 +48,12 @@ public class VariantValueImpl implements VariantValue {
     }
 
     @Override
-    public SwatchDataInterface getSwatchData() {
-        return swatchData;
+    public SwatchType getSwatchType() {
+        return swatchType;
     }
 
-    public void setSwatchData(SwatchDataInterface swatchData) {
-        this.swatchData = swatchData;
+    public void setSwatchType(SwatchType swatchType) {
+        this.swatchType = swatchType;
     }
 
     @Override

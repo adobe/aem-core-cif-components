@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ProductImplTest extends com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImplTest {
 
@@ -106,9 +107,9 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
                 ConfigurableProductOptionsValues optionValue = option.getValues().get(j);
                 assertEquals(optionValue.getUid().toString(), value.getUid());
                 assertEquals(optionValue.getLabel(), value.getLabel());
-                assertEquals(optionValue.getDefaultLabel().trim().replaceAll("\\s+", "-").toLowerCase(), value.getDefaultLabel());
-                assertEquals(optionValue.getSwatchData().getValue(), value.getSwatchData().getValue());
-                assertEquals(optionValue.getSwatchData().getGraphQlTypeName(), value.getSwatchData().getGraphQlTypeName());
+                assertEquals(optionValue.getDefaultLabel().trim().replaceAll("\\s+", "-").toLowerCase(), value.getCssClassModifier());
+                assertTrue("SwatchData type mismatch", optionValue.getSwatchData().getGraphQlTypeName().toUpperCase().startsWith(
+                    value.getSwatchType().toString()));
             }
         }
     }

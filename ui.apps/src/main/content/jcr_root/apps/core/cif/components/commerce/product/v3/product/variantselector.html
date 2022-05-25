@@ -15,8 +15,8 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.variants="${ @ product}">
     <sly data-sly-list.variantAttribute="${product.variantAttributes}">
-        <sly data-sly-test.hasSwatchData="${variantAttribute.values[0].swatchData}"></sly>
-        <sly data-sly-test.isColorOption="${hasSwatchData && variantAttribute.values[0].swatchData.graphQlTypeName == 'ColorSwatchData'}"></sly>
+        <sly data-sly-test.hasSwatchData="${variantAttribute.values[0].swatchType}"></sly>
+        <sly data-sly-test.isColorOption="${hasSwatchData && variantAttribute.values[0].swatchType == 'COLOR'}"></sly>
         <div class="option__root">
             <h3 class="option__title"><span>${variantAttribute.label}</span></h3>
             <div
@@ -26,7 +26,7 @@
             >
                 <sly data-sly-list.variantValue="${variantAttribute.values}">
                     <button
-                        class="${'swatch__root clickable__root tile__root{0}{1}' @ format=[hasSwatchData ? ' tile__root--' : '', hasSwatchData ? variantValue.defaultLabel : ''], context='text' }"
+                        class="${'swatch__root clickable__root tile__root{0}{1}' @ format=[hasSwatchData ? ' tile__root--' : '', hasSwatchData ? variantValue.cssClassModifier : ''], context='text' }"
                         title="${variantValue.label}"
                         data-id="${variantValue.uid}"
                         style="${'background-color: {0};' @ format=[variantValue.label], context='styleString'}"
@@ -36,7 +36,7 @@
             <div class="tileList__root" data-sly-test="${!isColor}" data-id="${variantAttribute.id}">
                 <sly data-sly-list.variantValue="${variantAttribute.values}">
                     <button 
-                        class="${'clickable__root tile__root{0}{1}' @ format=[hasSwatchData ? ' tile__root--' : '', hasSwatchData ? variantValue.defaultLabel : ''], context='text'}" 
+                        class="${'clickable__root tile__root{0}{1}' @ format=[hasSwatchData ? ' tile__root--' : '', hasSwatchData ? variantValue.cssClassModifier : ''], context='text'}" 
                         data-id="${variantValue.uid}"
                     >
                         <span>${variantValue.label}</span>
