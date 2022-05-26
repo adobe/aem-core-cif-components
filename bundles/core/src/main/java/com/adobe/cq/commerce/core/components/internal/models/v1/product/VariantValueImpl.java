@@ -43,7 +43,7 @@ public class VariantValueImpl implements VariantValue {
         return defaultLabel;
     }
 
-    public void setDefaultLabel(String defaultLabel) {
+    public void setCssClassModifier(String defaultLabel) {
         this.defaultLabel = defaultLabel;
     }
 

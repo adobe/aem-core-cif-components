@@ -290,7 +290,7 @@ public class ProductImplTest {
                 ConfigurableProductOptionsValues optionValue = option.getValues().get(j);
                 assertEquals(optionValue.getValueIndex(), value.getId());
                 assertEquals(optionValue.getLabel(), value.getLabel());
-                assertNull(value.getCssClassModifier());
+                assertEquals(optionValue.getLabel().trim().replaceAll("\\s+", "-").toLowerCase(), value.getCssClassModifier());
                 assertNull(value.getSwatchType());
             }
         }

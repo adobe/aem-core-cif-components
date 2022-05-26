@@ -26,7 +26,7 @@
             >
                 <sly data-sly-list.variantValue="${variantAttribute.values}">
                     <button
-                        class="${'swatch__root clickable__root tile__root{0}{1}' @ format=[hasSwatchData ? ' tile__root--' : '', hasSwatchData ? variantValue.cssClassModifier : ''], context='text'}"
+                        class="${'swatch__root clickable__root tile__root{0}{1}' @ format=[hasSwatchData ? ' tile__root--' : '', variantValue.cssClassModifier : ''], context='text'}"
                         title="${variantValue.label}"
                         data-id="${variantValue.id}"
                         style="${'background-color: {0};' @ format=[variantValue.label], context='styleString'}"
