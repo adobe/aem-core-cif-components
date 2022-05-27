@@ -173,8 +173,10 @@ TeaserConfig.selectors = {
 
 (function(jQuery) {
     function onDocumentReady() {
-        // Initialize TeaserConfig component
-        new TeaserConfig(jQuery);
+        if (jQuery) {
+            // Initialize TeaserConfig component
+            new TeaserConfig(jQuery);
+        }
     }
 
     if (document.readyState !== 'loading') {
