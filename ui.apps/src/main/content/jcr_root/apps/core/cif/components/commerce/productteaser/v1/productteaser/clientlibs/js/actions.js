@@ -99,9 +99,13 @@ export default ProductTeaser;
         rootElements.forEach(element => new ProductTeaser(element));
     }
 
-    if (document.readyState !== 'loading') {
-        onDocumentReady();
-    } else {
-        document.addEventListener('DOMContentLoaded', onDocumentReady);
-    }
+    const documentReady =
+        document.readyState !== 'loading'
+            ? Promise.resolve()
+            : new Promise(r => document.addEventListener('DOMContentLoaded', r));
+    const cifReady = window.CIF
+        ? Promise.resolve()
+        : new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
+
+    Promise.all([documentReady, cifReady]).then(onDocumentReady);
 })(window.document);

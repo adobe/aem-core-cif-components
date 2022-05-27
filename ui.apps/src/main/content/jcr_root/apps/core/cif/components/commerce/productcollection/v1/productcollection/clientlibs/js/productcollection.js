@@ -232,15 +232,21 @@ ProductCollection.selectors = {
 (function(document) {
     function onDocumentReady() {
         // Initialize product collection component
-        const productCollectionCmp = document.querySelector(ProductCollection.selectors.self);
-        if (productCollectionCmp) new ProductCollection({ element: productCollectionCmp });
+        const productCollectionCmps = document.querySelectorAll(ProductCollection.selectors.self);
+        for (let productCollectionCmp of productCollectionCmps) {
+            new ProductCollection({ element: productCollectionCmp });
+        }
     }
 
-    if (document.readyState !== 'loading') {
-        onDocumentReady();
-    } else {
-        document.addEventListener('DOMContentLoaded', onDocumentReady);
-    }
+    const documentReady =
+        document.readyState !== 'loading'
+            ? Promise.resolve()
+            : new Promise(r => document.addEventListener('DOMContentLoaded', r));
+    const cifReady = window.CIF
+        ? Promise.resolve()
+        : new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
+
+    Promise.all([documentReady, cifReady]).then(onDocumentReady);
 })(window.document);
 
 export default ProductCollection;

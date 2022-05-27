@@ -16,6 +16,8 @@
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.servlet.Servlet;
@@ -58,8 +60,13 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
     private static final String CATEGORY_PAGE_TYPE = "category";
     private static final String CATALOG_PAGE_TYPE = "catalog";
     private static final String LANDING_PAGE_TYPE = "landing";
-    private static final String CATALOG_PAGE_RESOURCE_TYPE = "core/cif/components/structure/catalogpage/v1/catalogpage";
+    private static final Set<String> CATALOG_PAGE_RESOURCE_TYPES = new HashSet<>();
     private static final String PN_NAV_ROOT = "navRoot";
+
+    static {
+        CATALOG_PAGE_RESOURCE_TYPES.add("core/cif/components/structure/catalogpage/v1/catalogpage");
+        CATALOG_PAGE_RESOURCE_TYPES.add("core/cif/components/structure/catalogpage/v3/catalogpage");
+    }
 
     @Override
     protected void doGet(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response) {
@@ -98,7 +105,8 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
         }
 
         if (CATALOG_PAGE_TYPE.equals(pageType)) {
-            return page.hasContent() && page.getContentResource().isResourceType(CATALOG_PAGE_RESOURCE_TYPE);
+            return page.hasContent() &&
+                CATALOG_PAGE_RESOURCE_TYPES.stream().anyMatch(rt -> page.getContentResource().isResourceType(rt));
         }
 
         // perform the appropriate checks according to the pageType property

@@ -48,8 +48,7 @@ module.exports = function(config) {
       'src/main/content/jcr_root/apps/core/cif/components/structure/navigation/**/js/*.js',
       'src/main/content/jcr_root/apps/core/cif/components/content/teaser/**/js/*.js',
 
-      'src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js',
-      'src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js',
+      'src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/index.js',
 
       'test/**/*Test.js'
     ],

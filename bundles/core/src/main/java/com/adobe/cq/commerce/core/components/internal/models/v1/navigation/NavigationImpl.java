@@ -158,7 +158,7 @@ public class NavigationImpl implements Navigation {
             return false;
         }
 
-        return contentResource.isResourceType(RT_CATALOG_PAGE);
+        return contentResource.isResourceType(RT_CATALOG_PAGE) || contentResource.isResourceType(RT_CATALOG_PAGE_V3);
     }
 
     private boolean shouldExpandCatalogRoot(Page page) {
