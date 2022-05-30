@@ -15,7 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.product;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
@@ -30,6 +33,18 @@ import com.adobe.cq.wcm.core.components.models.Component;
  */
 @ConsumerType
 public interface Product extends Component, PageMetadata {
+
+    enum Section {
+        TITLE,
+        PRICE,
+        SKU,
+        IMAGE,
+        OPTIONS,
+        QUANTITY,
+        ACTIONS,
+        DESCRIPTION,
+        DETAILS
+    }
 
     /**
      * Name of the boolean resource property indicating if the product component should load prices on the client-side.
@@ -64,7 +79,7 @@ public interface Product extends Component, PageMetadata {
      * The version 1 of the product component always returns <code>false</code> as it does not support this feature.
      * The version 2 of the product component does support this feature but it requires a Magento EE instance with
      * at least Magento version 2.4.2.
-     * 
+     *
      * @return <code>true</code> if the product data contains staged changes, <code>false</code> otherwise.
      * @since com.adobe.cq.commerce.core.components.models.product 3.1.0
      */
@@ -102,5 +117,14 @@ public interface Product extends Component, PageMetadata {
      */
     default boolean getAddToWishListEnabled() {
         return false;
+    }
+
+    /**
+     * Returns a set of sections to be displayed.
+     *
+     * @return
+     */
+    default Set<Section> getVisibleSections() {
+        return new HashSet<>(Arrays.asList(Section.values()));
     }
 }

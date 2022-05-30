@@ -128,7 +128,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @ScriptVariable(
         name = WCMBindingsConstants.NAME_CURRENT_STYLE,
         injectionStrategy = InjectionStrategy.OPTIONAL)
-    private ValueMap currentStyle;
+    protected ValueMap currentStyle;
     @ScriptVariable(name = "wcmmode", injectionStrategy = InjectionStrategy.OPTIONAL)
     private SightlyWCMMode wcmMode;
     @SlingObject
