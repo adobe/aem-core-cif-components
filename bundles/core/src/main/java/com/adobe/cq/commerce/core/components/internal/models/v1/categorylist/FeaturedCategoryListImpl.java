@@ -53,6 +53,7 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
+import com.adobe.cq.wcm.core.components.commons.link.Link;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.dam.api.Asset;
 import com.day.cq.dam.api.Rendition;
@@ -93,7 +94,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     protected Style currentStyle;
 
     @ValueMapValue(
-        name = "linkTarget",
+        name = Link.PN_LINK_TARGET,
         injectionStrategy = InjectionStrategy.OPTIONAL)
     protected String linkTarget;
 

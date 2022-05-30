@@ -33,6 +33,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceI
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.wcm.core.components.commons.link.Link;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -54,7 +55,7 @@ public class ProductCarouselBase extends DataLayerComponent {
     protected boolean addToCartEnabled;
     protected boolean addToWishListEnabled;
     @ValueMapValue(
-        name = "linkTarget",
+        name = Link.PN_LINK_TARGET,
         injectionStrategy = InjectionStrategy.OPTIONAL)
     protected String linkTarget;
 

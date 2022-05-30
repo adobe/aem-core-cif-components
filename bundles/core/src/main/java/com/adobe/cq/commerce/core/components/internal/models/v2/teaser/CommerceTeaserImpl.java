@@ -48,6 +48,10 @@ import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/**
+ * @deprecated use {@link com.adobe.cq.commerce.core.components.internal.models.v3.teaser.CommerceTeaserImpl} instead
+ */
+@Deprecated
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = { Teaser.class, ComponentExporter.class },

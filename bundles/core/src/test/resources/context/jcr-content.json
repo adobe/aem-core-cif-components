@@ -224,6 +224,41 @@
                     }
                 }
             },
+            "commerceteaser3": {
+              "actionsEnabled": true,
+              "sling:resourceType": "venia/components/content/teaser",
+              "pretitle": "Pretitle",
+              "titleFromPage": "flase",
+              "jcr:title": "Title",
+              "descriptionFromPage": false,
+              "jcr:description": "Description",
+              "id": "id",
+              "fileReference": "/content/dam/image.jpg",
+              "actions": {
+                "item0": {
+                  "productSku": "MJ01",
+                  "text": "A product",
+                  "linkTarget": "_blank"
+                },
+                "item1": {
+                  "categoryId": "uid-5",
+                  "text": "A category",
+                  "linkTarget": "_self"
+                },
+                "item2": {
+                  "categoryId": "uid-5",
+                  "productSku": "MJ01",
+                  "text": "A category"
+                },
+                "item3": {
+                  "text": "Some text"
+                },
+                "item4": {
+                  "link": "/content/page",
+                  "text": "A page"
+                }
+              }
+            },
             "featuredcategorylist": {
                 "sling:resourceType": "venia/components/commerce/featuredcategorylist",
                 "titleType": "h2",
