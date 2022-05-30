@@ -1,0 +1,1247 @@
+{
+  "data": {
+    "products": {
+      "items": [
+        {
+          "__typename": "ConfigurableProduct",
+          "sku": "MJ01",
+          "staged": false,
+          "name": "Beaumont Summit Kit",
+          "description": {
+            "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+          },
+          "image": {
+            "label": "Beaumont Summit Kit",
+            "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+          },
+          "thumbnail": {
+            "label": "Beaumont Summit Kit",
+            "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+          },
+          "url_key": "beaumont-summit-kit",
+          "stock_status": "IN_STOCK",
+          "meta_description": "Some product meta description",
+          "meta_keyword": "Some product meta keywords",
+          "meta_title": "Some product meta title",
+          "price_range": {
+            "maximum_price": {
+              "regular_price": {
+                "value": 62,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 62,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            },
+            "minimum_price": {
+              "regular_price": {
+                "value": 58,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 58,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          },
+          "media_gallery": [
+            {
+              "__typename": "ProductImage",
+              "disabled": false,
+              "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg",
+              "label": "",
+              "position": 1
+            },
+            {
+              "__typename": "ProductImage",
+              "disabled": false,
+              "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg",
+              "label": "",
+              "position": 2
+            },
+            {
+              "__typename": "ProductImage",
+              "disabled": false,
+              "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg",
+              "label": "",
+              "position": 3
+            }
+          ],
+          "categories": [
+            {
+              "__typename": "CategoryTree",
+              "uid": "Nw==",
+              "name": "category-1",
+              "image": "/url/to/image"
+            }
+          ],
+          "configurable_options": [
+            {
+              "label": "Color",
+              "attribute_code": "color",
+              "values": [
+                {
+                  "value_index": 56,
+                  "uid": "NTY=",
+                  "label": " Orange",
+                  "default_label": "Orange",
+                  "swatch_data": {
+                    "__typename": "ColorSwatchData",
+                    "value": "#F29014"
+                  }
+                },
+                {
+                  "value_index": 58,
+                  "uid": "NTg=",
+                  "label": "Red",
+                  "default_label": "Red ",
+                  "swatch_data": {
+                    "__typename": "ColorSwatchData",
+                    "value": "#612837"
+                  }
+                },
+                {
+                  "value_index": 60,
+                  "uid": "NjA=",
+                  "label": "Yellow",
+                  "default_label": "Yellow Test",
+                  "swatch_data": {
+                    "__typename": "ColorSwatchData",
+                    "value": "#FFE745"
+                  }
+                }
+              ]
+            },
+            {
+              "label": "Size",
+              "attribute_code": "size",
+              "values": [
+                {
+                  "value_index": 167,
+                  "uid": "MTY3",
+                  "label": "XS",
+                  "default_label": "XS",
+                  "swatch_data": {
+                    "__typename": "TextSwatchData",
+                    "value": "XS"
+                  }
+                },
+                {
+                  "value_index": 168,
+                  "uid": "MTY4",
+                  "label": "S",
+                  "default_label": "S",
+                  "swatch_data": {
+                    "__typename": "TextSwatchData",
+                    "value": "S"
+                  }
+                },
+                {
+                  "value_index": 169,
+                  "uid": "MTY5",
+                  "label": "M",
+                  "default_label": "M",
+                  "swatch_data": {
+                    "__typename": "TextSwatchData",
+                    "value": "M"
+                  }
+                },
+                {
+                  "value_index": 170,
+                  "uid": "MTcw",
+                  "label": "L",
+                  "default_label": "L",
+                  "swatch_data": {
+                    "__typename": "TextSwatchData",
+                    "value": "L"
+                  }
+                },
+                {
+                  "value_index": 171,
+                  "uid": "MTcx",
+                  "label": "XL",
+                  "default_label": "XL",
+                  "swatch_data": {
+                    "__typename": "TextSwatchData",
+                    "value": "XL"
+                  }
+                }
+              ]
+            }
+          ],
+          "variants": [
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 56,
+                  "uid": "NTY="
+                },
+                {
+                  "code": "size",
+                  "value_index": 167,
+                  "uid": "MTY3"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-XS-Orange",
+                "staged": true,
+                "name": "Beaumont Summit Kit-XS-Orange",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-XS-Orange",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-XS-Orange",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-xs-orange",
+                "stock_status": "IN_STOCK",
+                "color": 56,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-orange_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 58,
+                  "uid": "NTg="
+                },
+                {
+                  "code": "size",
+                  "value_index": 167,
+                  "uid": "MTY3"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-XS-Red",
+                "staged": false,
+                "name": "Beaumont Summit Kit-XS-Red",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-XS-Red",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-XS-Red",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-xs-red",
+                "stock_status": "IN_STOCK",
+                "color": 58,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 60,
+                  "uid": "NjA="
+                },
+                {
+                  "code": "size",
+                  "value_index": 167,
+                  "uid": "MTY3"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-XS-Yellow",
+                "staged": false,
+                "name": "Beaumont Summit Kit-XS-Yellow",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-XS-Yellow",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-XS-Yellow",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-xs-yellow",
+                "stock_status": "IN_STOCK",
+                "color": 60,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  },
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg",
+                    "label": "",
+                    "position": 2
+                  },
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg",
+                    "label": "",
+                    "position": 3
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 56,
+                  "uid": "NTY="
+                },
+                {
+                  "code": "size",
+                  "value_index": 168,
+                  "uid": "MTY4"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-S-Orange",
+                "staged": false,
+                "name": "Beaumont Summit Kit-S-Orange",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-S-Orange",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-S-Orange",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-s-orange",
+                "stock_status": "IN_STOCK",
+                "color": 56,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-orange_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 58,
+                  "uid": "NTg="
+                },
+                {
+                  "code": "size",
+                  "value_index": 168,
+                  "uid": "MTY4"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-S-Red",
+                "staged": false,
+                "name": "Beaumont Summit Kit-S-Red",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-S-Red",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-S-Red",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-s-red",
+                "stock_status": "IN_STOCK",
+                "color": 58,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 60,
+                  "uid": "NjA="
+                },
+                {
+                  "code": "size",
+                  "value_index": 168,
+                  "uid": "MTY4"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-S-Yellow",
+                "staged": false,
+                "name": "Beaumont Summit Kit-S-Yellow",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-S-Yellow",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-S-Yellow",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-s-yellow",
+                "stock_status": "IN_STOCK",
+                "color": 60,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 45,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 0,
+                      "percent_off": 0
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  },
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg",
+                    "label": "",
+                    "position": 2
+                  },
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg",
+                    "label": "",
+                    "position": 3
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 56,
+                  "uid": "NTY="
+                },
+                {
+                  "code": "size",
+                  "value_index": 169,
+                  "uid": "MTY5"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-M-Orange",
+                "staged": false,
+                "name": "Beaumont Summit Kit-M-Orange",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-M-Orange",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-M-Orange",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-m-orange",
+                "stock_status": "IN_STOCK",
+                "color": 56,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-orange_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 58,
+                  "uid": "NTg="
+                },
+                {
+                  "code": "size",
+                  "value_index": 169,
+                  "uid": "MTY5"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-M-Red",
+                "staged": false,
+                "name": "Beaumont Summit Kit-M-Red",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-M-Red",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-M-Red",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-m-red",
+                "stock_status": "IN_STOCK",
+                "color": 58,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 60,
+                  "uid": "NjA="
+                },
+                {
+                  "code": "size",
+                  "value_index": 169,
+                  "uid": "MTY5"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-M-Yellow",
+                "staged": false,
+                "name": "Beaumont Summit Kit-M-Yellow",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-M-Yellow",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-M-Yellow",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-m-yellow",
+                "stock_status": "IN_STOCK",
+                "color": 60,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  },
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg",
+                    "label": "",
+                    "position": 2
+                  },
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg",
+                    "label": "",
+                    "position": 3
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 56,
+                  "uid": "NTY="
+                },
+                {
+                  "code": "size",
+                  "value_index": 170,
+                  "uid": "MTcw"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-L-Orange",
+                "staged": false,
+                "name": "Beaumont Summit Kit-L-Orange",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-L-Orange",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-L-Orange",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-l-orange",
+                "stock_status": "IN_STOCK",
+                "color": 56,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-orange_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 58,
+                  "uid": "NTg="
+                },
+                {
+                  "code": "size",
+                  "value_index": 170,
+                  "uid": "MTcw"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-L-Red",
+                "staged": false,
+                "name": "Beaumont Summit Kit-L-Red",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-L-Red",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-L-Red",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-l-red",
+                "stock_status": "IN_STOCK",
+                "color": 58,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 60,
+                  "uid": "NjA="
+                },
+                {
+                  "code": "size",
+                  "value_index": 170,
+                  "uid": "MTcw"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-L-Yellow",
+                "staged": false,
+                "name": "Beaumont Summit Kit-L-Yellow",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-L-Yellow",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-L-Yellow",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-l-yellow",
+                "stock_status": "IN_STOCK",
+                "color": 60,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  },
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg",
+                    "label": "",
+                    "position": 2
+                  },
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg",
+                    "label": "",
+                    "position": 3
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 56,
+                  "uid": "NTY="
+                },
+                {
+                  "code": "size",
+                  "value_index": 171,
+                  "uid": "MTcx"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-XL-Orange",
+                "staged": false,
+                "name": "Beaumont Summit Kit-XL-Orange",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-XL-Orange",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-XL-Orange",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-orange_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-xl-orange",
+                "stock_status": "IN_STOCK",
+                "color": 56,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-orange_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 58,
+                  "uid": "NTg="
+                },
+                {
+                  "code": "size",
+                  "value_index": 171,
+                  "uid": "MTcx"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-XL-Red",
+                "staged": false,
+                "name": "Beaumont Summit Kit-XL-Red",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-XL-Red",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-XL-Red",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-red_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-xl-red",
+                "stock_status": "IN_STOCK",
+                "color": 58,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-red_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            },
+            {
+              "attributes": [
+                {
+                  "code": "color",
+                  "value_index": 60,
+                  "uid": "NjA="
+                },
+                {
+                  "code": "size",
+                  "value_index": 171,
+                  "uid": "MTcx"
+                }
+              ],
+              "product": {
+                "sku": "MJ01-XL-Yellow",
+                "staged": false,
+                "name": "Beaumont Summit Kit-XL-Yellow",
+                "description": {
+                  "html": "<p>The smooth nylon shell around the Beaumont Summit Kit combats wind, reinforced with a cold-fighting brushed fleece layer. The jacket is reversible, giving you a new look for the return trek. Ample pocket space rounds out this hiker's paradise package.</p>\n<p>&bull; Yellow full zip rain jacket.<br />&bull; Full-zip front. <br />&bull; Stand-up collar. <br />&bull; Elasticized cuffs. <br />&bull; Machine wash/dry.</p>"
+                },
+                "image": {
+                  "label": "Beaumont Summit Kit-XL-Yellow",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                },
+                "thumbnail": {
+                  "label": "Beaumont Summit Kit-XL-Yellow",
+                  "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/74c1057f7991b4edb2bc7bdaa94de933/m/j/mj01-yellow_main_6.jpg"
+                },
+                "url_key": "beaumont-summit-kit-xl-yellow",
+                "stock_status": "IN_STOCK",
+                "color": 60,
+                "price_range": {
+                  "minimum_price": {
+                    "regular_price": {
+                      "value": 58,
+                      "currency": "USD"
+                    },
+                    "final_price": {
+                      "value": 46,
+                      "currency": "USD"
+                    },
+                    "discount": {
+                      "amount_off": 12,
+                      "percent_off": 20.69
+                    }
+                  }
+                },
+                "media_gallery": [
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_main_6.jpg",
+                    "label": "",
+                    "position": 1
+                  },
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_alt1_6.jpg",
+                    "label": "",
+                    "position": 2
+                  },
+                  {
+                    "__typename": "ProductImage",
+                    "disabled": false,
+                    "url": "https://test-url.magentosite.cloud/pub/media/catalog/product/cache/m/j/mj01-yellow_back_6.jpg",
+                    "label": "",
+                    "position": 3
+                  }
+                ],
+                "categories": [
+                  {
+                    "__typename": "CategoryTree",
+                    "uid": "Nw==",
+                    "name": "category-1",
+                    "image": "/url/to/image"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

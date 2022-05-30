@@ -290,6 +290,42 @@ public class ProductImplTest {
                 ConfigurableProductOptionsValues optionValue = option.getValues().get(j);
                 assertEquals(optionValue.getValueIndex(), value.getId());
                 assertEquals(optionValue.getLabel(), value.getLabel());
+                assertEquals(optionValue.getLabel().trim().replaceAll("\\s+", "-").toLowerCase(), value.getCssClassModifier());
+                assertNull(value.getSwatchType());
+            }
+        }
+    }
+
+    @Test
+    public void testSwatchDataInVariantAttributes() throws IOException {
+        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-configurableproduct-result.json");
+        product = rootQuery.getProducts().getItems().get(0);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-configurableproduct-result.json", httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-configurableproduct-result.json", httpClient, 200, "{products(filter:{sku");
+
+        adaptToProduct();
+        List<VariantAttribute> attributes = productModel.getVariantAttributes();
+        assertNotNull(attributes);
+
+        ConfigurableProduct cp = (ConfigurableProduct) product;
+        assertEquals(cp.getConfigurableOptions().size(), attributes.size());
+
+        for (int i = 0; i < attributes.size(); i++) {
+            VariantAttribute attribute = attributes.get(i);
+            ConfigurableProductOptions option = cp.getConfigurableOptions().get(i);
+
+            assertEquals(option.getAttributeCode(), attribute.getId());
+            assertEquals(option.getLabel(), attribute.getLabel());
+
+            for (int j = 0; j < attribute.getValues().size(); j++) {
+                VariantValue value = attribute.getValues().get(j);
+                ConfigurableProductOptionsValues optionValue = option.getValues().get(j);
+                assertEquals(optionValue.getValueIndex(), value.getId());
+                assertEquals(optionValue.getLabel(), value.getLabel());
+                assertEquals(optionValue.getDefaultLabel().trim().replaceAll("\\s+", "-").toLowerCase(), value.getCssClassModifier());
+                assertTrue("SwatchData type mismatch", optionValue.getSwatchData().getGraphQlTypeName().toUpperCase().startsWith(
+                    value.getSwatchType().toString()));
             }
         }
     }
