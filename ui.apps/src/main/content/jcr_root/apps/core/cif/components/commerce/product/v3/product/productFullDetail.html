@@ -44,34 +44,34 @@
             <section data-sly-test="${'TITLE' in visibleSections}" class="productFullDetail__title">
                 <sly data-sly-call="${titleTpl.product @ product=product}"></sly>
             </section>
-            <section data-sly-test="${!isGroupedProduct}" class="productFullDetail__price">
+            <section data-sly-test="${!isGroupedProduct && 'PRICE' in visibleSections}" class="productFullDetail__price">
                 <sly data-sly-call="${priceTpl.price @ priceRange=product.priceRange, displayYouSave=true, sku=product.sku}"></sly>
             </section>
-            <section class="productFullDetail__sku productFullDetail__section">
+            <section data-sly-test="${'SKU' in visibleSections}" class="productFullDetail__sku productFullDetail__section">
                 <sly data-sly-call="${skuTpl.product @ product=product}"></sly>
             </section>
-            <section class="productFullDetail__imageCarousel">
+            <section data-sly-test="${'IMAGE' in visibleSections}" class="productFullDetail__imageCarousel">
                 <sly data-sly-call="${galleryTpl.gallery @ product=product}" data-sly-unwrap></sly>
             </section>
-            <section class="productFullDetail__options" data-sly-test="${product.configurable}" data-variants="${product.variantsJson}">
+            <section data-sly-test="${'OPTIONS' in visibleSections}" class="productFullDetail__options" data-sly-test="${product.configurable}" data-variants="${product.variantsJson}">
                 <sly data-sly-call="${variantsTpl.variants @ product=product}" data-sly-unwrap></sly>
             </section>
-            <section data-sly-test="${isGroupedProduct}" class="productFullDetail__groupedProducts productFullDetail__quantity productFullDetail__section">
+            <section data-sly-test="${isGroupedProduct && 'QUANTITY' in visibleSections}" class="productFullDetail__groupedProducts productFullDetail__quantity productFullDetail__section">
                 <sly data-sly-call="${groupedProductsTpl.groupedProducts @ groupedProductItems=product.groupedProductItems}"></sly>
             </section>
             <div data-sly-test="${isBundleProduct}" id="bundle-product-options" data-sku="${product.sku}" data-show-add-to-wish-list="${product.addToWishListEnabled}" data-use-uid></div>
             <div data-sly-test="${isGiftCardProduct}" id="gift-card-product-options" data-sku="${product.sku}" data-show-add-to-wish-list="${product.addToWishListEnabled}" data-use-uid></div>
-            <section data-sly-test="${!isGroupedProduct && !isBundleProduct && !isGiftCardProduct}" class="productFullDetail__quantity productFullDetail__section">
+            <section data-sly-test="${!isGroupedProduct && !isBundleProduct && !isGiftCardProduct && 'QUANTITY' in visibleSections}" class="productFullDetail__quantity productFullDetail__section">
                 <h2 class="productFullDetail__quantityTitle option__title"><span>${'Quantity' @ i18n}</span></h2>
                 <sly data-sly-call="${quantityTpl.quantity @ product=product}"></sly>
             </section>
-            <section data-sly-test="${!isBundleProduct && !isGiftCardProduct}" class="productFullDetail__actions productFullDetail__section">
+            <section data-sly-test="${!isBundleProduct && !isGiftCardProduct  && 'ACTIONS' in visibleSections}" class="productFullDetail__actions productFullDetail__section">
                 <sly data-sly-call="${actionsTpl.actions @ product=product}"></sly>
             </section>
-            <section class="productFullDetail__description productFullDetail__section">
+            <section data-sly-test="${'DESCRIPTION' in visibleSections}" class="productFullDetail__description productFullDetail__section">
                 <sly data-sly-call="${descriptionTpl.product @ product=product}"></sly>
             </section>
-            <section class="productFullDetail__details productFullDetail__section">
+            <section data-sly-test="${'DETAILS' in visibleSections}" class="productFullDetail__details productFullDetail__section">
                 <sly data-sly-call="${detailsTpl.product @ product=product}"></sly>
             </section>
         </sly>

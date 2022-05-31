@@ -105,7 +105,8 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     }
 
     @Override
-    public Set<Section> getVisibleSections() {
-        return SECTIONS_MAP.keySet().stream().filter(k -> currentStyle.get(SECTIONS_MAP.get(k), true)).collect(Collectors.toSet());
+    public Set<String> getVisibleSections() {
+        return SECTIONS_MAP.keySet().stream().filter(k -> currentStyle.get(SECTIONS_MAP.get(k), true)).map(Enum::toString).collect(
+            Collectors.toSet());
     }
 }

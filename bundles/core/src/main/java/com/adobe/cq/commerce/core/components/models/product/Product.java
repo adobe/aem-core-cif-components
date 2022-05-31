@@ -16,9 +16,9 @@
 package com.adobe.cq.commerce.core.components.models.product;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
@@ -124,7 +124,7 @@ public interface Product extends Component, PageMetadata {
      *
      * @return
      */
-    default Set<Section> getVisibleSections() {
-        return new HashSet<>(Arrays.asList(Section.values()));
+    default Set<String> getVisibleSections() {
+        return Arrays.stream(Section.values()).map(Enum::toString).collect(Collectors.toSet());
     }
 }
