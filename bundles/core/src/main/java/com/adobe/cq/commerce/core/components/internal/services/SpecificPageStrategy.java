@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -79,145 +78,158 @@ public class SpecificPageStrategy {
         return generateSpecificPageUrls;
     }
 
-    private Stream<Page> traverse(Page startPage) {
-        Iterable<Page> children = startPage != null ? startPage::listChildren : Collections.emptyList();
+    private Stream<Page> traverse(Page page) {
+        Iterable<Page> children = page != null ? page::listChildren : Collections.emptyList();
         return StreamSupport.stream(children.spliterator(), false)
             // depth first traversal
-            .flatMap(child -> Stream.concat(traverse(child), Stream.of(child)))
-            // include only pages that have a filter set
-            .filter(child -> Optional.ofNullable(child.getProperties())
-                .filter(properties -> properties.get(SELECTOR_FILTER_PROPERTY, String[].class) != null
-                    || properties.get(PN_USE_FOR_CATEGORIES, String[].class) != null)
-                .isPresent());
+            .flatMap(child -> Stream.concat(traverse(child), Stream.of(child)));
+    }
+
+    private Stream<Page> findSpecificPages(Page startPage) {
+        return Stream.concat(traverse(startPage), Stream.of(startPage)).filter(this::isSpecificPage);
     }
 
     public Page getSpecificPage(Page startPage, ProductUrlFormat.Params params) {
+        return findSpecificPages(startPage)
+            .filter(candidate -> isSpecificPageFor(candidate, params))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public boolean isSpecificPage(Page candidate) {
+        // include only pages that have a filter set
+        ValueMap properties = candidate.getProperties();
+        return properties.get(SELECTOR_FILTER_PROPERTY, String[].class) != null
+            || properties.get(PN_USE_FOR_CATEGORIES, String[].class) != null;
+    }
+
+    public boolean isSpecificPageFor(Page candidate, ProductUrlFormat.Params params) {
         boolean checkCategoryUrlPath = StringUtils.isNotEmpty(params.getCategoryUrlParams().getUrlPath());
         boolean checkCategoryUrlKey = StringUtils.isNotEmpty(params.getCategoryUrlParams().getUrlKey());
+        ValueMap properties = candidate.getProperties();
+        String[] productUrlKeys = properties.get(SELECTOR_FILTER_PROPERTY, new String[0]);
 
-        Iterable<Page> candidates = traverse(startPage)::iterator;
-        for (Page candidate : candidates) {
-            ValueMap properties = candidate.getProperties();
-            String[] productUrlKeys = properties.get(SELECTOR_FILTER_PROPERTY, new String[0]);
-
-            for (String productUrlKey : productUrlKeys) {
-                if (productUrlKey.equals(params.getUrlKey())
-                    || productUrlKey.equals(params.getSku())) {
-                    return candidate;
-                }
+        for (String productUrlKey : productUrlKeys) {
+            if (productUrlKey.equals(params.getUrlKey())
+                || productUrlKey.equals(params.getSku())) {
+                return true;
             }
+        }
 
-            if (!checkCategoryUrlKey && !checkCategoryUrlPath) {
-                continue;
-            }
+        if (!checkCategoryUrlKey && !checkCategoryUrlPath) {
+            return false;
+        }
 
-            String[] categoryUrlPaths = properties.get(PN_USE_FOR_CATEGORIES, new String[0]);
-            boolean includesSubCategories = properties.get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
-            CategoryUrlFormat.Params categoryParams = params.getCategoryUrlParams();
+        String[] categoryUrlPaths = properties.get(PN_USE_FOR_CATEGORIES, new String[0]);
+        boolean includesSubCategories = properties.get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
+        CategoryUrlFormat.Params categoryParams = params.getCategoryUrlParams();
 
-            if (checkCategoryUrlPath) {
-                for (String categoryUrlPath : categoryUrlPaths) {
-                    if (categoryUrlPath.equals(categoryParams.getUrlPath())
-                        || (includesSubCategories && StringUtils.startsWith(categoryParams.getUrlPath(), categoryUrlPath + "/"))) {
-                        return candidate;
-                    }
-                }
-            }
-
-            if (checkCategoryUrlKey) {
-                for (String categoryUrlPath : categoryUrlPaths) {
-                    String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath, "/");
-                    if (categoryUrlPath.equals(categoryParams.getUrlKey()) || categoryUrlKey.equals(categoryParams.getUrlKey())) {
-                        return candidate;
-                    }
+        if (checkCategoryUrlPath) {
+            for (String categoryUrlPath : categoryUrlPaths) {
+                if (categoryUrlPath.equals(categoryParams.getUrlPath())
+                    || (includesSubCategories && StringUtils.startsWith(categoryParams.getUrlPath(), categoryUrlPath + "/"))) {
+                    return true;
                 }
             }
         }
 
-        return null;
+        if (checkCategoryUrlKey) {
+            for (String categoryUrlPath : categoryUrlPaths) {
+                String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath, "/");
+                if (categoryUrlPath.equals(categoryParams.getUrlKey()) || categoryUrlKey.equals(categoryParams.getUrlKey())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public Page getSpecificPage(Page startPage, CategoryUrlFormat.Params params) {
+        return findSpecificPages(startPage)
+            .filter(candidate -> isSpecificPageFor(candidate, params))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public boolean isSpecificPageFor(Page candidate, CategoryUrlFormat.Params params) {
         // check for uids only as fallback when there is no url_path and url_key
         boolean checkUids = StringUtils.isNotEmpty(params.getUid());
         boolean checkUrlPath = StringUtils.isNotEmpty(params.getUrlPath());
         boolean checkUrlKey = StringUtils.isNotEmpty(params.getUrlKey());
 
-        Iterable<Page> candidates = traverse(startPage)::iterator;
-        for (Page candidate : candidates) {
-            ValueMap properties = candidate.getProperties();
-            String[] filters = properties.get(SELECTOR_FILTER_PROPERTY, new String[0]);
-            String filterType = properties.get(SELECTOR_FILTER_TYPE_PROPERTY, "uidAndUrlPath");
-            boolean includesSubCategories = properties.get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
+        ValueMap properties = candidate.getProperties();
+        String[] filters = properties.get(SELECTOR_FILTER_PROPERTY, new String[0]);
+        String filterType = properties.get(SELECTOR_FILTER_TYPE_PROPERTY, "uidAndUrlPath");
+        boolean includesSubCategories = properties.get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
 
-            List<String> categoryUrlPaths;
-            List<String> categoryUids;
+        List<String> categoryUrlPaths;
+        List<String> categoryUids;
 
-            if (filterType.equals("uidAndUrlPath")) {
-                categoryUrlPaths = new ArrayList<>(filters.length);
-                categoryUids = checkUids ? new ArrayList<>(filters.length) : null;
-                // When used with the category picker and the 'uidAndUrlPath' option, the values might have a format like
-                // 'Mjg=|men/men-tops'.
-                // if there is no uid in the params we ignore the uid
+        if (filterType.equals("uidAndUrlPath")) {
+            categoryUrlPaths = new ArrayList<>(filters.length);
+            categoryUids = checkUids ? new ArrayList<>(filters.length) : null;
+            // When used with the category picker and the 'uidAndUrlPath' option, the values might have a format like
+            // 'Mjg=|men/men-tops'.
+            // if there is no uid in the params we ignore the uid
 
-                for (String filter : filters) {
-                    if (StringUtils.isNotEmpty(filter) && !StringUtils.contains(filter, UID_AND_URL_PATH_SEPARATOR)) {
-                        // weird data, should not happen but is used in tests
-                        // consider the filter to be both
-                        categoryUrlPaths.add(filter);
-                        if (checkUids) {
-                            categoryUids.add(filter);
-                        }
-                        continue;
-                    }
-
+            for (String filter : filters) {
+                if (StringUtils.isNotEmpty(filter) && !StringUtils.contains(filter, UID_AND_URL_PATH_SEPARATOR)) {
+                    // weird data, should not happen but is used in tests
+                    // consider the filter to be both
+                    categoryUrlPaths.add(filter);
                     if (checkUids) {
-                        String uid = StringUtils.substringBefore(filter, UID_AND_URL_PATH_SEPARATOR);
-                        if (StringUtils.isNotEmpty(uid)) {
-                            categoryUids.add(uid);
-                        }
+                        categoryUids.add(filter);
                     }
+                    continue;
+                }
 
-                    String urlPath = StringUtils.substringAfter(filter, UID_AND_URL_PATH_SEPARATOR);
-                    if (StringUtils.isNotEmpty(urlPath)) {
-                        categoryUrlPaths.add(urlPath);
+                if (checkUids) {
+                    String uid = StringUtils.substringBefore(filter, UID_AND_URL_PATH_SEPARATOR);
+                    if (StringUtils.isNotEmpty(uid)) {
+                        categoryUids.add(uid);
                     }
                 }
-            } else {
-                categoryUrlPaths = Arrays.asList(filters);
-                categoryUids = null;
-            }
 
-            // check for url path
-            if (checkUrlPath) {
-                for (String categoryUrlPath : categoryUrlPaths) {
-                    if (categoryUrlPath.equals(params.getUrlPath())
-                        || (includesSubCategories && StringUtils.startsWith(params.getUrlPath(), categoryUrlPath + "/"))) {
-                        return candidate;
-                    }
+                String urlPath = StringUtils.substringAfter(filter, UID_AND_URL_PATH_SEPARATOR);
+                if (StringUtils.isNotEmpty(urlPath)) {
+                    categoryUrlPaths.add(urlPath);
                 }
             }
+        } else {
+            categoryUrlPaths = Arrays.asList(filters);
+            categoryUids = null;
+        }
 
-            // check for url key
-            if (checkUrlKey) {
-                for (String categoryUrlPath : categoryUrlPaths) {
-                    String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath, "/");
-                    if (categoryUrlPath.equals(params.getUrlKey()) || categoryUrlKey.equals(params.getUrlKey())) {
-                        return candidate;
-                    }
-                }
-            }
-
-            // check for uid last, as fallback
-            if (checkUids && categoryUids != null) {
-                for (String categoryUid : categoryUids) {
-                    if (categoryUid.equals(params.getUid())) {
-                        return candidate;
-                    }
+        // check for url path
+        if (checkUrlPath) {
+            for (String categoryUrlPath : categoryUrlPaths) {
+                if (categoryUrlPath.equals(params.getUrlPath())
+                    || (includesSubCategories && StringUtils.startsWith(params.getUrlPath(), categoryUrlPath + "/"))) {
+                    return true;
                 }
             }
         }
 
-        return null;
+        // check for url key
+        if (checkUrlKey) {
+            for (String categoryUrlPath : categoryUrlPaths) {
+                String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath, "/");
+                if (categoryUrlPath.equals(params.getUrlKey()) || categoryUrlKey.equals(params.getUrlKey())) {
+                    return true;
+                }
+            }
+        }
+
+        // check for uid last, as fallback
+        if (checkUids && categoryUids != null) {
+            for (String categoryUid : categoryUids) {
+                if (categoryUid.equals(params.getUid())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

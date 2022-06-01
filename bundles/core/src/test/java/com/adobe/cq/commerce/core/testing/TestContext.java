@@ -19,6 +19,7 @@ import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.apache.sling.xss.XSSAPI;
 import org.mockito.Mockito;
 
+import com.adobe.cq.commerce.core.components.internal.services.SiteNavigationImpl;
 import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.wcm.core.components.internal.link.DefaultPathProcessor;
@@ -72,6 +73,7 @@ public class TestContext {
 
                 // register commonly used cif services
                 context.registerInjectActivateService(new SpecificPageStrategy());
+                context.registerInjectActivateService(new SiteNavigationImpl());
                 context.registerInjectActivateService(new UrlProviderImpl());
             });
     }

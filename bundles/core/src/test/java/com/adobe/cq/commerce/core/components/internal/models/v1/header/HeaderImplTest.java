@@ -81,7 +81,9 @@ public class HeaderImplTest {
 
     @Test
     public void testHeaderNoRootPage() {
-        setupPage("/content/pageK", "/content/pageK/jcr:content/header");
+        context.create().page("/var/pageK");
+        context.create().resource("/var/pageK/jcr:content/header");
+        setupPage("/var/pageK", "/var/pageK/jcr:content/header");
 
         Assert.assertNull(header.getNavigationRootPageUrl());
         Assert.assertNull(header.getNavigationRootPageTitle());
