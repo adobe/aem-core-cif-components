@@ -71,6 +71,11 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
     @Reference
     private SiteNavigation siteNavigation;
 
+    static {
+        CATALOG_PAGE_RESOURCE_TYPES.add("core/cif/components/structure/catalogpage/v1/catalogpage");
+        CATALOG_PAGE_RESOURCE_TYPES.add("core/cif/components/structure/catalogpage/v3/catalogpage");
+    }
+
     @Override
     protected void doGet(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response) {
         String pageType = request.getResource().getValueMap().get(PAGE_TYPE_PROPERTY, "");

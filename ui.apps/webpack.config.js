@@ -31,6 +31,8 @@ const LIB = {
     NAVIGATION: 'apps/core/cif/components/structure/navigation/v1/navigation/clientlibs',
     PRODUCTTEASER: 'apps/core/cif/components/commerce/productteaser/v1/productteaser/clientlibs',
     CONTENTTEASER_EDITOR: 'apps/core/cif/components/content/teaser/v1/teaser/clientlib/editor',
+    CONTENTTEASER_EDITOR_V2: 'apps/core/cif/components/content/teaser/v2/teaser/clientlib/editor',
+    CONTENTTEASER_EDITOR_V3: 'apps/core/cif/components/content/teaser/v3/teaser/clientlib/editor',
     CAROUSEL: 'apps/core/cif/components/commerce/carousel/v1/carousel/clientlibs',
 };
 
@@ -97,7 +99,9 @@ module.exports = function (env, argv) {
                 [LIB.SEARCHBAR_V2]: glob.sync(JCR_ROOT + LIB.SEARCHBAR_V2 + '/js/**/*.js'),
                 [LIB.NAVIGATION]: glob.sync(JCR_ROOT + LIB.NAVIGATION + '/js/**/*.js'),
                 [LIB.PRODUCTTEASER]: glob.sync(`${JCR_ROOT}${LIB.PRODUCTTEASER}/js/**/*.js`),
-                [LIB.CONTENTTEASER_EDITOR]: glob.sync(`${JCR_ROOT}${LIB.CONTENTTEASER_EDITOR}/js/**/*.js`)
+                [LIB.CONTENTTEASER_EDITOR]: glob.sync(`${JCR_ROOT}${LIB.CONTENTTEASER_EDITOR}/js/**/*.js`),
+                [LIB.CONTENTTEASER_EDITOR_V2]: glob.sync(`${JCR_ROOT}${LIB.CONTENTTEASER_EDITOR_V2}/js/**/*.js`),
+                [LIB.CONTENTTEASER_EDITOR_V3]: glob.sync(`${JCR_ROOT}${LIB.CONTENTTEASER_EDITOR_V3}/js/**/*.js`)
             },
             output: {
                 path: path.resolve(__dirname, "src/main/content/jcr_root"),

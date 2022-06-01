@@ -53,6 +53,7 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.mockito.Mockito.*;
 
+@Deprecated
 public class CommerceTeaserImplTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
