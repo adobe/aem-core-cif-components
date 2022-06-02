@@ -23,11 +23,25 @@ import org.osgi.annotation.versioning.ConsumerType;
  */
 @ConsumerType
 public interface VariantValue {
+    enum SwatchType {
+        IMAGE,
+        TEXT,
+        COLOR
+    }
+
     String getLabel();
+
+    default String getCssClassModifier() {
+        return null;
+    }
 
     Integer getId();
 
     default String getUid() {
+        return null;
+    }
+
+    default SwatchType getSwatchType() {
         return null;
     }
 }

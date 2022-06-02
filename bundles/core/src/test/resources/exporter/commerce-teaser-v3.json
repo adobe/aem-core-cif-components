@@ -1,0 +1,82 @@
+{
+    "actions": [
+        {
+            "id": "id-item-2aee53d3c5",
+            "title": "A product",
+            "url": "/content/product-page/product-specific-page.html/beaumont-summit-kit.html",
+            "link": {
+                "htmlAttributes": {
+                    "href": "/content/product-page/product-specific-page.html/beaumont-summit-kit.html",
+                    "target":"_blank"
+                },
+                "url": "/content/product-page/product-specific-page.html/beaumont-summit-kit.html",
+                "valid": true
+            },
+            "entityIdentifier": {
+                "entityType": "PRODUCT",
+                "value": "MJ01",
+                "type": "SKU"
+            }
+        },
+        {
+            "id": "id-item-9a92002423",
+            "title": "A category",
+            "url": "/content/category-page.html/equipment.html",
+            "link": {
+                "htmlAttributes": {
+                    "href": "/content/category-page.html/equipment.html"
+                },
+                "url": "/content/category-page.html/equipment.html",
+                "valid": true
+            },
+            "entityIdentifier": {
+                "entityType": "CATEGORY",
+                "value": "uid-5",
+                "type": "UID"
+            }
+        },
+        {
+            "id": "id-item-39c1b201a3",
+            "title": "A category",
+            "url": "/content/category-page.html/equipment.html",
+            "link": {
+                "htmlAttributes": {
+                    "href": "/content/category-page.html/equipment.html"
+                },
+                "url": "/content/category-page.html/equipment.html",
+                "valid": true
+            },
+            "entityIdentifier": {
+                "entityType": "CATEGORY",
+                "value": "uid-5",
+                "type": "UID"
+            }
+        },
+        {
+            "id": "id-item-884c206935",
+            "title": "Some text",
+            "url": "/content/pageA.html",
+            "link": {
+                "htmlAttributes": {
+                    "href": "/content/pageA.html"
+                },
+                "url": "/content/pageA.html",
+                "valid": true
+            }
+        },
+        {
+            "id": "id-cta-5dec02c9a2",
+            "url": "/content/page",
+            "title": "A page",
+            ":type": "nt:unstructured"
+        }
+    ],
+    "title": "Title",
+    "description": "Description",
+    "pretitle": "Pretitle",
+    "actionsEnabled": true,
+    "imageLinkHidden": false,
+    "titleLinkHidden": false,
+    "id": "id",
+    ":type": "core/cif/components/content/teaser/v3/teaser"
+}

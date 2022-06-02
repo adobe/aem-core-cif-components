@@ -79,6 +79,8 @@ public class FeaturedCategoryListImplTest {
     private static final String COMPONENT_PATH_NOCONFIG = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist2";
     private static final String COMPONENT_PATH_NOCLIENT = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist3";
     private static final String COMPONENT_PATH_FALLBACK_ID_TYPE = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist4";
+    private static final String COMPONENT_PATH_LINK_TARGET_UNCHECKED = "/content/pageA/jcr:content/root/responsivegrid/productcarousel_with_link_target_unchecked";
+    private static final String COMPONENT_PATH_LINK_TARGET_CHECKED = "/content/pageA/jcr:content/root/responsivegrid/productcarousel_with_link_target_checked";
 
     @Rule
     public final AemContext context = buildAemContext("/context/jcr-content.json")
@@ -149,6 +151,7 @@ public class FeaturedCategoryListImplTest {
         List<CategoryTree> list = featuredCategoryList.getCategories();
         Assert.assertNotNull(list);
         Assert.assertEquals(list.size(), 3);
+        Assert.assertNull(featuredCategoryList.getLinkTarget());
     }
 
     @Test
@@ -220,6 +223,24 @@ public class FeaturedCategoryListImplTest {
         String query = (String) retrieverQueryField.get(retriever);
 
         Assert.assertTrue(query.contains("categoryList(filters:{category_uid:{in:[\"uid-5\",\"uid-6\",\"uid-7\"]}})"));
+    }
+
+    @Test
+    public void testLinkTargetUnchecked() throws Exception {
+        setupTest(COMPONENT_PATH_LINK_TARGET_UNCHECKED);
+
+        categories = featuredCategoryList.getCategories();
+        Assert.assertNotNull(categories);
+        Assert.assertNull(featuredCategoryList.getLinkTarget());
+    }
+
+    @Test
+    public void testLinkTargetChecked() throws Exception {
+        setupTest(COMPONENT_PATH_LINK_TARGET_CHECKED);
+
+        categories = featuredCategoryList.getCategories();
+        Assert.assertNotNull(categories);
+        Assert.assertEquals("_blank", featuredCategoryList.getLinkTarget());
     }
 
     @Test

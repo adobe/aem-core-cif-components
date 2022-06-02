@@ -260,7 +260,7 @@ public class SearchResultsServiceImplTest {
         assertThat(searchResultsSet.getTotalResults()).isEqualTo(0);
         assertThat(searchResultsSet.getAppliedQueryParameters()).containsKeys("search_query");
         assertThat(searchResultsSet.getProductListItems()).hasSize(1);
-        assertThat(searchResultsSet.getSorter().getKeys()).isNull();
+        assertThat(searchResultsSet.getSorter().getKeys()).isEmpty();
         assertThat(searchResultsSet.getSorter().getCurrentKey()).isNull();
 
         String query = captor.getValue();
@@ -430,9 +430,9 @@ public class SearchResultsServiceImplTest {
     }
 
     @Test
-    public void testSearchWithInvalidSortKey() {
-        searchOptions.addSorterKey("invalid", "Invalid", null);
-        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "invalid");
+    public void testSearchWithUnknownSortFieldParam() {
+        searchOptions.addSorterKey("brand", "Brand", Sorter.Order.DESC);
+        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "brand");
         searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_ORDER, Sorter.Order.ASC.name());
 
         SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
@@ -442,13 +442,34 @@ public class SearchResultsServiceImplTest {
             request);
 
         assertThat(searchResultsSet.getSorter().getKeys()).hasSize(1);
-        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("invalid");
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("brand");
         assertThat(searchResultsSet.getSorter().getCurrentKey().getOrder()).isEqualTo(Sorter.Order.ASC);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(magentoGraphqlClient, times(1)).execute(captor.capture());
         String query = captor.getValue();
-        assertThat(query).doesNotContain("sort:{invalid:ASC}");
+        assertThat(query).contains("sort:{brand:ASC}");
+    }
+
+    @Test
+    public void testSearchWithDefaultSortField() {
+        searchOptions.addSorterKey("name", "Name", Sorter.Order.ASC);
+        searchOptions.setDefaultSorter("name", Sorter.Order.ASC);
+
+        SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
+            searchOptions,
+            resource,
+            productPage,
+            request);
+
+        assertThat(searchResultsSet.getSorter().getKeys()).hasSize(1);
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("name");
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getOrder()).isEqualTo(Sorter.Order.ASC);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(magentoGraphqlClient, times(1)).execute(captor.capture());
+        String query = captor.getValue();
+        assertThat(query).contains("sort:{name:ASC}");
     }
 
     @Test

@@ -17,6 +17,7 @@
                         sling:resourceType="commerce/gui/components/common/cifproductfield"
                         fieldDescription="The product that should be displayed by the product detail component."
                         fieldLabel="Manual Product Selection"
+                        showLink="{Boolean}true"
                         name="./selection"
                         selectionId="sku"/>
                     <well

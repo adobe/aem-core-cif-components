@@ -113,6 +113,7 @@ public class ProductListImplTest {
     private static final String PRODUCT_PAGE = "/content/product-page";
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCTLIST = "/content/pageA/jcr:content/root/responsivegrid/productlist";
+    private static final String PRODUCT_LIST_NO_SORTING = "/content/pageA/jcr:content/root/responsivegrid/productlist_no_sorting";
 
     private Resource productListResource;
     private Resource pageResource;
@@ -141,7 +142,7 @@ public class ProductListImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
         Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_key");
+            "{categoryList(filters:{url_path");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
@@ -330,7 +331,7 @@ public class ProductListImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
         Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_key");
+            "{categoryList(filters:{url_path");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid");
 
@@ -420,6 +421,49 @@ public class ProductListImplTest {
 
     @Test
     public void testSorting() {
+        adaptToProductList();
+        SearchResultsSet resultSet = productListModel.getSearchResultsSet();
+        Assert.assertNotNull(resultSet);
+        Assert.assertTrue(resultSet.hasSorting());
+        Sorter sorter = resultSet.getSorter();
+        Assert.assertNotNull(sorter);
+
+        SorterKey currentKey = sorter.getCurrentKey();
+        Assert.assertNotNull(currentKey);
+        Assert.assertEquals("price", currentKey.getName());
+        Assert.assertEquals("Price", currentKey.getLabel());
+        Assert.assertEquals(Sorter.Order.ASC, currentKey.getOrder());
+        Assert.assertTrue(currentKey.isSelected());
+
+        Map<String, String> currentOrderParameters = currentKey.getCurrentOrderParameters();
+        Assert.assertNotNull(currentOrderParameters);
+        Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, currentOrderParameters.size());
+        resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, currentOrderParameters.get(key)));
+        Assert.assertEquals("price", currentOrderParameters.get(Sorter.PARAMETER_SORT_KEY));
+        Assert.assertEquals("asc", currentOrderParameters.get(Sorter.PARAMETER_SORT_ORDER));
+
+        Map<String, String> oppositeOrderParameters = currentKey.getOppositeOrderParameters();
+        Assert.assertNotNull(oppositeOrderParameters);
+        Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, oppositeOrderParameters.size());
+        resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, oppositeOrderParameters.get(key)));
+        Assert.assertEquals("price", oppositeOrderParameters.get(Sorter.PARAMETER_SORT_KEY));
+        Assert.assertEquals("desc", oppositeOrderParameters.get(Sorter.PARAMETER_SORT_ORDER));
+
+        List<SorterKey> keys = sorter.getKeys();
+        Assert.assertNotNull(keys);
+        Assert.assertEquals(2, keys.size());
+        SorterKey defaultKey = keys.get(0);
+        Assert.assertEquals(currentKey.getName(), defaultKey.getName());
+
+        SorterKey otherKey = keys.get(1);
+        Assert.assertEquals("name", otherKey.getName());
+        Assert.assertEquals("Product Name", otherKey.getLabel());
+        Assert.assertEquals(Sorter.Order.ASC, otherKey.getOrder());
+    }
+
+    @Test
+    public void testDefaultSorting() {
+        context.currentResource(PRODUCT_LIST_NO_SORTING);
         adaptToProductList();
         SearchResultsSet resultSet = productListModel.getSearchResultsSet();
         Assert.assertNotNull(resultSet);

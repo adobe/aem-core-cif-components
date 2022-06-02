@@ -19,6 +19,10 @@
 const LocationAdapter = {
     setHref(url) {
         window.location.assign(url);
+    },
+
+    openHref(url, target) {
+        window.open(url, target) || window.location.assign(url);
     }
 };
 
@@ -73,7 +77,12 @@ class ProductTeaser {
 
     _seeDetailsHandler(dataset) {
         const url = dataset['url'];
-        LocationAdapter.setHref(url);
+        const target = dataset['target'];
+        if (target) {
+            LocationAdapter.openHref(url, target);
+        } else {
+            LocationAdapter.setHref(url);
+        }
     }
 }
 
@@ -90,9 +99,13 @@ export default ProductTeaser;
         rootElements.forEach(element => new ProductTeaser(element));
     }
 
-    if (document.readyState !== 'loading') {
-        onDocumentReady();
-    } else {
-        document.addEventListener('DOMContentLoaded', onDocumentReady);
-    }
+    const documentReady =
+        document.readyState !== 'loading'
+            ? Promise.resolve()
+            : new Promise(r => document.addEventListener('DOMContentLoaded', r));
+    const cifReady = window.CIF
+        ? Promise.resolve()
+        : new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
+
+    Promise.all([documentReady, cifReady]).then(onDocumentReady);
 })(window.document);

@@ -76,6 +76,7 @@
                                             multiple="{Boolean}true"
                                             fieldLabel="Included categories"
                                             selectionId="slug"
+                                            showLink="{Boolean}true"
                                             name="./includedCategories" />
                                     <useFilter
                                             jcr:primaryType="nt:unstructured"
@@ -151,6 +152,7 @@
                                             fieldLabel="Excluded categories"
                                             multiple="{Boolean}true"
                                             selectionId="slug"
+                                            showLink="{Boolean}true"
                                             name="./excludedCategories" />
                                     <useFilter
                                             jcr:primaryType="nt:unstructured"

@@ -37,10 +37,11 @@ The following properties are written to JCR for this component and are expected 
 1. `./category` - the uid of the category to be displayed in the component, if missing the component displays a
                    category based on the page URL 
 2. `./pageSize` - the number of products shown on one page
-3. `./showTitle` - if true the component displays the category title
-4. `./showImage` - if true the component displays the category image
-5. `./id` - defines the component HTML ID attribute
-
+3. `./defaultSortField` - the default sort field for products
+4. `./defaultSortOrder` - the default sort order for products
+5. `./showTitle` - if true the component displays the category title
+6. `./showImage` - if true the component displays the category image
+7. `./id` - defines the component HTML ID attribute
 
 ## BEM Description
 

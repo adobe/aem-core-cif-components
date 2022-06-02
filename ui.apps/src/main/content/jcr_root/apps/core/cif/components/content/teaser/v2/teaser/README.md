@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
+**Deprecated**, use [Commerce Teaser v3](../../v3/teaser) instead.
+
 # Commerce Teaser (v2)
 
 Commerce Teaser component written in HTL extends core wcm component Teaser, In addition to allowing definition of an image, title, rich text description and actions/links it also supports Call-To-Action to a commerce product or category page.
@@ -95,4 +97,4 @@ BLOCK cmp-teaser
 * **Vendor**: Adobe
 * **Version**: v2
 * **Compatibility**: AEM as a Cloud Service / AEM 6.5
-* **Status**: production-ready
+* **Status**: deprecated

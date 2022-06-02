@@ -54,6 +54,7 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
+import com.adobe.cq.wcm.core.components.commons.link.Link;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -97,6 +98,10 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
         name = "ctaText",
         injectionStrategy = InjectionStrategy.OPTIONAL)
     private String ctaText;
+    @ValueMapValue(
+        name = Link.PN_LINK_TARGET,
+        injectionStrategy = InjectionStrategy.OPTIONAL)
+    private String linkTarget;
     @ScriptVariable(name = WCMBindingsConstants.NAME_CURRENT_STYLE)
     private Style currentStyle;
 
@@ -223,6 +228,12 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
             return urlProvider.toProductUrl(request, productPage, params);
         }
         return null;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getLinkTarget() {
+        return Utils.normalizeLinkTarget(linkTarget);
     }
 
     @Override

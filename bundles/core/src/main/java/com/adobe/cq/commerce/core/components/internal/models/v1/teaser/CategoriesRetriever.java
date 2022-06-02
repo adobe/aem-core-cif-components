@@ -19,6 +19,10 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 
+/**
+ * @deprecated This class is deprecated with no replacement.
+ */
+@Deprecated
 public class CategoriesRetriever extends AbstractCategoriesRetriever {
 
     CategoriesRetriever(MagentoGraphqlClient client) {

@@ -24,6 +24,10 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerListIte
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaserActionItem;
 
+/**
+ * @deprecated use {@link com.adobe.cq.commerce.core.components.internal.models.v3.teaser.CommerceTeaserActionItemImpl} instead
+ */
+@Deprecated
 public class CommerceTeaserActionItemImpl extends DataLayerListItem implements CommerceTeaserActionItem {
 
     private final String title;

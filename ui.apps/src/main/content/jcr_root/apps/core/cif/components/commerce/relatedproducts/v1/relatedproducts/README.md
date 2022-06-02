@@ -43,11 +43,12 @@ The following properties are written to JCR for this component and are expected 
 1. `./jcr:title` - Optional title text
 2. `./titleType` - will store the HTML heading element type which will be used for rendering; if no value is defined, the component will fallback
 to the `type` value defined by the component's policy. The property of the policy is called `type` so we can reuse the `core/wcm/components/commons/datasources/allowedheadingelements/v1` Servlet from the WCM components.
-3. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
-4. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`)
-5. `./product` - an optional product SKU defining the product for which we want to display the related products. If empty, the component will use the URL selector to find the product.
-6. `./relationType` - a mandatory relation type, defining the relation between the product and the "related" products. In Magento, there are 3 possible types for this relation: `related_products`, `upsell_products`, and `crosssell_products`.
-7. `./id` - defines the component HTML ID attribute
+3. `./linkTarget` - defines the link target of the links generated for the component.
+4. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
+5. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`)
+6. `./product` - an optional product SKU defining the product for which we want to display the related products. If empty, the component will use the URL selector to find the product.
+7. `./relationType` - a mandatory relation type, defining the relation between the product and the "related" products. In Magento, there are 3 possible types for this relation: `related_products`, `upsell_products`, and `crosssell_products`.
+8. `./id` - defines the component HTML ID attribute
 
 ## BEM Description
 

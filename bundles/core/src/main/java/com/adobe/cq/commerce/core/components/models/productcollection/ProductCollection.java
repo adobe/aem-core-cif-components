@@ -52,6 +52,16 @@ public interface ProductCollection {
     String PN_PAGINATION_TYPE = "paginationType";
 
     /**
+     * Name of the String resource property for the default product sort field.
+     */
+    String PN_DEFAULT_SORT_FIELD = "defaultSortField";
+
+    /**
+     * Name of the String resource property for the default product sort order.
+     */
+    String PN_DEFAULT_SORT_ORDER = "defaultSortOrder";
+
+    /**
      * Returns the product list's items collection, as {@link ProductListItem}s elements.
      *
      * @return {@link Collection} of {@link ProductListItem}s

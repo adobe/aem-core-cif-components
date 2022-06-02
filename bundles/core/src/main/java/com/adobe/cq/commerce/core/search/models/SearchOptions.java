@@ -44,12 +44,12 @@ public interface SearchOptions {
 
     /**
      * Add a possible sorter key to this search options.
-     * Sorter keys are displayed in the UI in the order of addition. The first sorter key is considered to be the default.
-     * The preferred sort order for a sort key is used in favor or the current sort order when the sort key is selected for sorting.
+     * The preferred sort order for a sort key is used in favor of the current sort order when the sort key is selected for sorting.
+     * Only those sorter keys should be added by this method which are not provided already in the products result.
      *
      * @param name the nonempty sort key name
      * @param label the nonempty sort key label
-     * @param preferredOrder preferred ordering for this sort key or null if not specified
+     * @param preferredOrder preferred ordering for this sort key or {@code null} if not specified
      */
     void addSorterKey(String name, String label, Sorter.Order preferredOrder);
 
@@ -57,4 +57,22 @@ public interface SearchOptions {
      * @return The configured sort keys. The first key is the default used for the initial sorting of search results.
      */
     List<SorterKey> getSorterKeys();
+
+    /**
+     * Sets the default sort order of products which is used when no sorting related requests parameters
+     * exist in the request.
+     * If default sorting is not set, then the products are displayed in the order as returned by the commerce engine.
+     *
+     * @param sortField the name of the default sort field
+     * @param sortOrder the default sort order
+     */
+    default void setDefaultSorter(String sortField, Sorter.Order sortOrder) {};
+
+    /**
+     * Returns the default sort parameters in a SorterKey or returns {@code null} if default sorting was not
+     * set with {@link #setDefaultSorter(String, Sorter.Order)}.
+     */
+    default SorterKey getDefaultSorter() {
+        return null;
+    }
 }

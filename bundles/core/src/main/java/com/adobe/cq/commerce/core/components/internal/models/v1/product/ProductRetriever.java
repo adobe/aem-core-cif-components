@@ -21,6 +21,7 @@ import com.adobe.cq.commerce.magento.graphql.BundleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.GroupedProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.SwatchDataInterfaceQuery;
 
 class ProductRetriever extends AbstractProductRetriever {
 
@@ -89,7 +90,9 @@ class ProductRetriever extends AbstractProductRetriever {
                         .attributeCode()
                         .values(v -> v
                             .valueIndex()
-                            .label()))
+                            .label()
+                            .defaultLabel()
+                            .swatchData(SwatchDataInterfaceQuery::value)))
                     .variants(v -> v
                         .attributes(a -> a
                             .code()

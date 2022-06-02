@@ -13,8 +13,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.card="${@ item}">
-    <a class="cmp-categorylist__anchor" href="${item.path}" 
+<template data-sly-template.card="${@ item, component}">
+    <a class="cmp-categorylist__anchor" href="${item.path}" target="${component.linkTarget}"
        data-cmp-clickable="${item.data ? true : false}" title="${item.name}">
             <span data-sly-test.hasImage=${item.image} class="cmp-categorylist__imagewrapper" style="background-image: url(${item.image @context='uri'});">
                 <img class="cmp-categorylist__image" src='${item.image}' alt="${item.name}">
