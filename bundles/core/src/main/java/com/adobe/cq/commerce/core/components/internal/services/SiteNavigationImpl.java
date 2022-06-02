@@ -102,7 +102,7 @@ public class SiteNavigationImpl implements SiteNavigation {
         Page navigationRoot = null;
 
         if (launch != null) {
-            productionPage = getProductionPage(givenPage);
+            productionPage = getProductionPage(givenPage, launch);
 
             // the given page can be in a launch, which may
             // a) contain the navigation root page with all descendants (references rewritten to the launch)
@@ -181,7 +181,7 @@ public class SiteNavigationImpl implements SiteNavigation {
                 return launchPage;
             } else {
                 // did not find the generic page, cut the launch path from the reference and look for the production page
-                reference = reference.substring(0, launchPath.length());
+                reference = reference.substring(launchPath.length());
             }
         }
 
@@ -221,10 +221,22 @@ public class SiteNavigationImpl implements SiteNavigation {
         return launchResource.adaptTo(Launch.class);
     }
 
-    private Page getProductionPage(Page launchPage) {
-        return Optional.ofNullable(launchPage.adaptTo(Resource.class))
-            .map(resource -> LaunchUtils.getTargetResource(resource, null))
-            .map(productionResource -> productionResource.adaptTo(Page.class))
-            .orElse(null);
+    private Page getProductionPage(Page launchPage, Launch launch) {
+        Resource launchResource = launchPage.adaptTo(Resource.class);
+        Resource productionResource = null;
+
+        while (launchResource != null && launch.containsResource(launchResource)) {
+            productionResource = LaunchUtils.getTargetResource(launchResource,null);
+
+            if (productionResource != null) {
+                break;
+            } else {
+                // go up the tree to include parents of the given launchPage as well. this makes it possible to get a production page of a
+                // newly created page of which only an ancestor exists in the production
+                launchResource = launchResource.getParent();
+            }
+        }
+
+        return productionResource != null ? productionResource.adaptTo(Page.class) : null;
     }
 }

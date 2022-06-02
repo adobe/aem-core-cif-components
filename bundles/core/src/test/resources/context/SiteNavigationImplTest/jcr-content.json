@@ -27,5 +27,11 @@
                 "jcr:primaryType": "cq:Page"
             }
         }
+    },
+    "no-nav-root": {
+        "jcr:primaryType": "cq:Page",
+        "content-page": {
+            "jcr:primaryType": "cq:Page"
+        }
     }
 }
