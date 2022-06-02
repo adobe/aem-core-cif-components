@@ -46,6 +46,18 @@ class CommerceGraphqlApi {
             .join(' ');
         query = { query };
 
+        // Check if authorization token available
+        const checkCookie = cookieName => {
+            return document.cookie.split(';').filter(item => item.trim().startsWith(`${cookieName}=`)).length > 0;
+        };
+
+        const cookieValue = cookieName => {
+            let b = document.cookie.match(`(^|[^;]+)\\s*${cookieName}\\s*=\\s*([^;]+)`);
+            return b ? b.pop() : '';
+        };
+
+        let token = checkCookie('cif.userToken') ? cookieValue('cif.userToken') : '';
+
         let params = {
             method: this.method === 'GET' && !ignoreCache ? 'GET' : 'POST',
             headers: {
@@ -53,6 +65,10 @@ class CommerceGraphqlApi {
                 'Content-Type': 'application/json'
             }
         };
+
+        if (token.length > 0) {
+            params.headers['authorization'] = `Bearer ${token && token.length > 0 ? token : ''}`;
+        }
 
         if (this.storeView) {
             params.headers['Store'] = this.storeView;
