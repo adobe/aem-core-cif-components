@@ -47,8 +47,10 @@ import com.adobe.cq.commerce.core.components.internal.services.urlformats.Catego
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithCategoryAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlKey;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlPath;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
@@ -62,6 +64,7 @@ import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
@@ -81,6 +84,9 @@ public class UrlProviderImplTest {
     private GraphqlClient graphqlClient;
     private Map<String, Object> caConfig = new HashMap<>();
 
+    private Function<Resource, ComponentsConfiguration> caConfigSupplier = r -> new ComponentsConfiguration(
+        new ValueMapDecorator(caConfig));
+
     @Before
     public void setup() throws Exception {
         urlProvider = context.getService(UrlProvider.class);
@@ -93,7 +99,7 @@ public class UrlProviderImplTest {
         context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
         context.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
         context.registerAdapter(Resource.class, ComponentsConfiguration.class,
-            (Function<Resource, ComponentsConfiguration>) resource -> new ComponentsConfiguration(new ValueMapDecorator(caConfig)));
+            (Function<Resource, ComponentsConfiguration>) r -> caConfigSupplier.apply(r));
 
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
             "{products(filter:{sku:{eq:\"MJ01\"}}");
@@ -354,6 +360,50 @@ public class UrlProviderImplTest {
 
         String url = urlProvider.toProductUrl(request, productPage, params);
         assertEquals("/content/product-page/sub-page/nested-page-category.html/category-b/product.html", url);
+    }
+
+    @Test
+    public void testProductPageWithMultipleCatalogPagesFormatFromSearchRoot() {
+        Page currentPage = context.currentPage("/content");
+
+        // provide a ComponentsConfiguration specific for the specific search root
+        Function<Resource, ComponentsConfiguration> originalSupplier = caConfigSupplier;
+        ComponentsConfiguration specificCaConfig = new ComponentsConfiguration(new ValueMapDecorator(ImmutableMap.of(
+            UrlFormat.PRODUCT_PAGE_URL_FORMAT, ProductPageWithSkuAndUrlKey.PATTERN
+        )));
+        caConfigSupplier = r -> !r.getPath().equals("/content/new-catalog/jcr:content")
+            ? originalSupplier.apply(r)
+            : specificCaConfig;
+
+        // create a catalog page as specific search root
+        context.create().page("/content/new-catalog", "catalogpage", ImmutableMap.of(
+            "sling:resourceType", SiteNavigation.RT_CATALOG_PAGE_V3,
+            SiteNavigationImpl.PN_CIF_PRODUCT_PAGE, "/content/new-catalog",
+            "selectorFilter", "bar"
+        ));
+
+        // enabled specific page strategy and set another product url format than used by the specific search root
+        configureSpecificPageStrategy(true);
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            "productPageUrlFormat", ProductPageWithSkuAndUrlPath.PATTERN,
+            "enableContextAwareProductUrls", true);
+
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setUrlKey("bar");
+        params.setUrlPath("foo/bar");
+        params.setSku("1234");
+
+        String url = urlProvider.toProductUrl(request, currentPage, params);
+        assertEquals("/content/new-catalog.html/1234/bar.html", url);
+
+        // repeat with parameters that are handled by the default/generic catalog page
+        params.setUrlKey("foo");
+        params.setUrlPath("bar/foo");
+        params.setSku("5678");
+
+        url = urlProvider.toProductUrl(request, currentPage, params);
+        assertEquals("/content/product-page.html/5678/bar/foo.html", url);
     }
 
     @Test
