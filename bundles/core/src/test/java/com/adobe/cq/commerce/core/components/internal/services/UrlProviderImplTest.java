@@ -369,8 +369,7 @@ public class UrlProviderImplTest {
         // provide a ComponentsConfiguration specific for the specific search root
         Function<Resource, ComponentsConfiguration> originalSupplier = caConfigSupplier;
         ComponentsConfiguration specificCaConfig = new ComponentsConfiguration(new ValueMapDecorator(ImmutableMap.of(
-            UrlFormat.PRODUCT_PAGE_URL_FORMAT, ProductPageWithSkuAndUrlKey.PATTERN
-        )));
+            UrlFormat.PRODUCT_PAGE_URL_FORMAT, ProductPageWithSkuAndUrlKey.PATTERN)));
         caConfigSupplier = r -> !r.getPath().equals("/content/new-catalog/jcr:content")
             ? originalSupplier.apply(r)
             : specificCaConfig;
@@ -379,8 +378,7 @@ public class UrlProviderImplTest {
         context.create().page("/content/new-catalog", "catalogpage", ImmutableMap.of(
             "sling:resourceType", SiteNavigation.RT_CATALOG_PAGE_V3,
             SiteNavigationImpl.PN_CIF_PRODUCT_PAGE, "/content/new-catalog",
-            "selectorFilter", "bar"
-        ));
+            "selectorFilter", "bar"));
 
         // enabled specific page strategy and set another product url format than used by the specific search root
         configureSpecificPageStrategy(true);

@@ -179,7 +179,6 @@ public class SiteNavigationImplTest {
             "sling:resourceType", SiteNavigation.RT_CATALOG_PAGE_V3,
             SiteNavigationImpl.PN_CIF_PRODUCT_PAGE, "/content/nav-root/adventures"));
 
-
         List<Page> productPages = subject.getProductPages(contentPage);
         assertEquals(2, productPages.size());
         assertEquals(prodSpecificProductPage, productPages.get(0));

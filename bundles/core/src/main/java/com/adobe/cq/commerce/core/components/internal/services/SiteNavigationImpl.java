@@ -226,7 +226,7 @@ public class SiteNavigationImpl implements SiteNavigation {
         Resource productionResource = null;
 
         while (launchResource != null && launch.containsResource(launchResource)) {
-            productionResource = LaunchUtils.getTargetResource(launchResource,null);
+            productionResource = LaunchUtils.getTargetResource(launchResource, null);
 
             if (productionResource != null) {
                 break;
