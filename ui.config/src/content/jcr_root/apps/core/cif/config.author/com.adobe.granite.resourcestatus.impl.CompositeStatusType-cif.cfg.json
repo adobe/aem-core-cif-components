@@ -1,0 +1,9 @@
+{
+  "name": "editor",
+  "types": [
+    "catalog-page",
+    "workflow",
+    "launches"
+  ],
+  "service.ranking": 1000
+}
