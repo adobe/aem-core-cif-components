@@ -1,0 +1,33 @@
+{
+  "brand": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "cq:cifProductPage": "/content/brand/product-page",
+      "cq:cifCategoryPage": "/content/brand/category-page"
+    },
+    "content-page": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:title": "Content Page"
+      }
+    },
+    "product-page": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:title": "Product Page"
+      },
+      "product-specific-page": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:title": "Specific Product Page"
+        }
+      }
+    },
+    "category-page": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:title": "Category Page"
+      }
+    }
+  }
+}
