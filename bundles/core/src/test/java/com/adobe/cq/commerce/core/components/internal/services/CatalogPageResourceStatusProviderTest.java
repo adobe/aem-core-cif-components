@@ -108,7 +108,7 @@ public class CatalogPageResourceStatusProviderTest {
     @Test
     public void testContainsOpenTemplatePageActionForAddOnNewerThen202202241() {
         ProductInfo info = mock(ProductInfo.class);
-        when(info.getVersion()).thenReturn(new Version("2022.04.28.1"));
+        when(info.getVersion()).thenReturn(new Version("2022.05.31.1"));
         aemContext.registerService(ProductInfoProvider.class, () -> info, "name", "cif");
         aemContext.registerInjectActivateService(subject);
 
