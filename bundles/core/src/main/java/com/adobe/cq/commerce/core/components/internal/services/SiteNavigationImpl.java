@@ -43,8 +43,8 @@ public class SiteNavigationImpl implements SiteNavigation {
 
     private static final Logger LOG = LoggerFactory.getLogger(SiteNavigationImpl.class);
 
-    private static final String PN_CIF_CATEGORY_PAGE = "cq:cifCategoryPage";
-    private static final String PN_CIF_PRODUCT_PAGE = "cq:cifProductPage";
+    static final String PN_CIF_CATEGORY_PAGE = "cq:cifCategoryPage";
+    static final String PN_CIF_PRODUCT_PAGE = "cq:cifProductPage";
 
     @Override
     public boolean isCatalogPage(Page page) {

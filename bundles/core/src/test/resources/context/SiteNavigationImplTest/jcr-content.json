@@ -1,0 +1,31 @@
+{
+    "nav-root": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "navRoot": true,
+            "cq:cifProductPage": "/content/nav-root/shop/product",
+            "cq:cifCategoryPage": "/content/nav-root/shop/category"
+        },
+        "content-page": {
+            "jcr:primaryType": "cq:Page",
+            "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "sling:resourceType": "test/components/page"
+            }
+        },
+        "shop": {
+            "jcr:primaryType": "cq:Page",
+            "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "sling:resourceType": "core/cif/components/structure/catalogpage/v1/catalogpage"
+            },
+            "product": {
+                "jcr:primaryType": "cq:Page"
+            },
+            "category": {
+                "jcr:primaryType": "cq:Page"
+            }
+        }
+    }
+}
