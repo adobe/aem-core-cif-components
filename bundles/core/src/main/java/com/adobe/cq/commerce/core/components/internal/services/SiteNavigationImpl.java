@@ -212,8 +212,10 @@ public class SiteNavigationImpl implements SiteNavigation {
     }
 
     private Page findNavigationRoot(Page page) {
-        for (Page currentPage = page; currentPage != null; currentPage = currentPage.getParent()) {
-            ValueMap properties = currentPage.getProperties();
+        // walk up the tree using resources in order to support non-Page intermediates
+        for (Resource pageResource = page.adaptTo(Resource.class); pageResource != null; pageResource = pageResource.getParent()) {
+            Page currentPage = pageResource.adaptTo(Page.class);
+            ValueMap properties = currentPage != null ? currentPage.getProperties() : null;
             if (properties != null && properties.get(PN_NAV_ROOT, false)) {
                 return currentPage;
             }

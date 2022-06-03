@@ -141,7 +141,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private Boolean isVirtualProduct;
     private Boolean isBundleProduct;
     private Boolean isGiftCardProduct;
-    private Boolean loadClientPrice;
+    private Boolean loadClientPrice = Boolean.FALSE;
     private boolean usePlaceholderData = false;
     private boolean isAuthor = true;
     private String canonicalUrl;
@@ -192,7 +192,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
                     LOGGER.warn("Cannot use placeholder data", e);
                 }
                 usePlaceholderData = true;
-                loadClientPrice = false;
             }
         }
 
