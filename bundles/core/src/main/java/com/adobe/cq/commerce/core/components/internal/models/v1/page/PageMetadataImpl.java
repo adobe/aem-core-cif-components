@@ -30,7 +30,7 @@ import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 
 import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.Page;
 
@@ -51,6 +51,9 @@ public class PageMetadataImpl implements PageMetadata {
     @OSGiService
     private CommerceComponentModelFinder componentFinder;
 
+    @OSGiService
+    private SiteNavigation siteNavigation;
+
     private PageMetadata provider;
 
     @PostConstruct
@@ -59,9 +62,9 @@ public class PageMetadataImpl implements PageMetadata {
         // into the product or productlist component.
         // We hence use a dedicated method in modelFactory to inject the right component resource.
 
-        if (SiteNavigation.isProductPage(currentPage)) {
+        if (siteNavigation.isProductPage(currentPage)) {
             provider = componentFinder.findProductComponentModel(request);
-        } else if (SiteNavigation.isCategoryPage(currentPage)) {
+        } else if (siteNavigation.isCategoryPage(currentPage)) {
             provider = componentFinder.findProductListComponentModel(request);
         }
     }

@@ -43,7 +43,7 @@ import com.adobe.cq.commerce.core.components.internal.services.CommerceComponent
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
@@ -75,6 +75,8 @@ public class CatalogPageNotFoundFilter implements Filter {
     private PageManagerFactory pageManagerFactory;
     @Reference
     private CommerceComponentModelFinder commerceModelFinder;
+    @Reference
+    private SiteNavigation siteNavigation;
 
     private BundleContext bundleContext;
 
@@ -103,14 +105,14 @@ public class CatalogPageNotFoundFilter implements Filter {
 
         if (currentPage != null) {
             boolean removeSlingScriptHelperFromBindings = false;
-            if (SiteNavigation.isProductPage(currentPage)) {
+            if (siteNavigation.isProductPage(currentPage)) {
                 removeSlingScriptHelperFromBindings = addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
                 Product product = commerceModelFinder.findProductComponentModel(slingRequest, currentPage.getContentResource());
                 if (product != null && !product.getFound()) {
                     slingResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
                     return;
                 }
-            } else if (SiteNavigation.isCategoryPage(currentPage)) {
+            } else if (siteNavigation.isCategoryPage(currentPage)) {
                 removeSlingScriptHelperFromBindings = addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
                 ProductList productList = commerceModelFinder.findProductListComponentModel(slingRequest, currentPage.getContentResource());
                 if (productList != null) {

@@ -44,8 +44,8 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragment;
+import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
@@ -91,15 +91,18 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
     @OSGiService
     private LiveRelationshipManager relationshipManager;
 
+    @OSGiService
+    private SiteNavigation siteNavigation;
+
     private Resource xfResource;
     private String name;
 
     @PostConstruct
     private void initModel() {
         String query = null;
-        if (SiteNavigation.isProductPage(currentPage)) {
+        if (siteNavigation.isProductPage(currentPage)) {
             query = getQueryForProduct();
-        } else if (SiteNavigation.isCategoryPage(currentPage)) {
+        } else if (siteNavigation.isCategoryPage(currentPage)) {
             query = getQueryForCategory();
         }
 

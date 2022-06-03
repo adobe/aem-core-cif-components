@@ -20,6 +20,7 @@ import java.util.List;
 import org.osgi.annotation.versioning.ProviderType;
 
 import com.day.cq.wcm.api.Page;
+import com.drew.lang.annotations.Nullable;
 
 @ProviderType
 public interface SiteNavigation {
@@ -80,5 +81,11 @@ public interface SiteNavigation {
      * @return
      */
     boolean isCategoryPage(Page page);
+
+    @Nullable
+    Page getSiteNavigationRootPage(Page currentPage);
+
+    @Nullable
+    Page getSearchResultsPage(Page page);
 
 }

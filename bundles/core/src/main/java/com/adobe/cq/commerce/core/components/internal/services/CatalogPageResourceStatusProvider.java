@@ -29,7 +29,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.adobe.granite.license.ProductInfoProvider;
 import com.adobe.granite.resourcestatus.ResourceStatus;
 import com.adobe.granite.resourcestatus.ResourceStatusProvider;
@@ -50,6 +50,9 @@ public class CatalogPageResourceStatusProvider implements ResourceStatusProvider
         policy = ReferencePolicy.STATIC,
         policyOption = ReferencePolicyOption.GREEDY)
     private ProductInfoProvider cifProductInfo;
+
+    @Reference
+    private SiteNavigation siteNavigation;
 
     private boolean actionsSupported;
 
@@ -80,8 +83,8 @@ public class CatalogPageResourceStatusProvider implements ResourceStatusProvider
             return Collections.emptyList();
         }
 
-        boolean isProductPage = SiteNavigation.isProductPage(page);
-        boolean isCategoryPage = SiteNavigation.isCategoryPage(page);
+        boolean isProductPage = siteNavigation.isProductPage(page);
+        boolean isCategoryPage = siteNavigation.isCategoryPage(page);
         EditorResourceStatus.Builder builder;
 
         if (isProductPage) {

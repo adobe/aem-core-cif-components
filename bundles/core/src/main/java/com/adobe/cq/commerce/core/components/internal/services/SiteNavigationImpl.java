@@ -46,6 +46,8 @@ public class SiteNavigationImpl implements SiteNavigation {
     static final String PN_CIF_CATEGORY_PAGE = "cq:cifCategoryPage";
     static final String PN_CIF_PRODUCT_PAGE = "cq:cifProductPage";
 
+    static final String PN_CIF_SEARCH_RESULTS_PAGE = "cq:cifSearchResultsPage";
+
     @Override
     public boolean isCatalogPage(Page page) {
         return Optional.ofNullable(page)
@@ -84,6 +86,27 @@ public class SiteNavigationImpl implements SiteNavigation {
         String givenPagePath = givenPage.getPath().substring(givenPage.getPath().lastIndexOf("/content/"));
         String ancestorPagePath = ancestorPage.getPath().substring(ancestorPage.getPath().lastIndexOf("/content/"));
         return Text.isDescendantOrEqual(ancestorPagePath, givenPagePath);
+    }
+
+    @Override
+    public Page getSiteNavigationRootPage(Page currentPage) {
+        Page rootPage = findNavigationRoot(currentPage);
+        if (rootPage == null && LaunchUtils.isLaunchBasedPath(currentPage.getPath())) {
+            // if in a Launch without a navigation root page, search again on the production page
+            Launch launch = getLaunch(currentPage);
+            if (launch != null) {
+                currentPage = getProductionPage(currentPage, launch);
+                rootPage = findNavigationRoot(currentPage);
+            }
+        }
+        return rootPage;
+    }
+
+    @Override
+    public Page getSearchResultsPage(Page page) {
+        return Optional.ofNullable(page)
+            .flatMap(p -> listSearchRoots(p, PN_CIF_SEARCH_RESULTS_PAGE).stream().findFirst())
+            .orElse(null);
     }
 
     /**

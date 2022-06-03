@@ -579,7 +579,7 @@ public class ProductListImplTest {
             assertEquals("MTI==", parameters.getUid());
             Page page = inv.getArgumentAt(1, Page.class);
             assertNotNull(page);
-            assertEquals("/content/category-page", page.getPath());
+            assertEquals("/content/pageA", page.getPath());
             // invoke the callback directly
             return urlProvider.toCategoryUrl(inv.getArgumentAt(0, SlingHttpServletRequest.class), page, parameters);
         });

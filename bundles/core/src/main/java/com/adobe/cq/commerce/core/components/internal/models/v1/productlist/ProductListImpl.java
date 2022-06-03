@@ -50,7 +50,6 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
@@ -60,7 +59,6 @@ import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
-import com.day.cq.wcm.api.Page;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -192,7 +190,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         if (usePlaceholderData) {
             CategoryInterface category = getCategory();
             CategoryProducts categoryProducts = category.getProducts();
-            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request, urlProvider, getId(),
+            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(currentPage, request, urlProvider, getId(),
                 category);
             return categoryProducts.getItems().stream()
                 .map(converter)
@@ -222,7 +220,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         if (categorySearchResultsSet == null) {
             Consumer<ProductInterfaceQuery> productQueryHook = categoryRetriever != null ? categoryRetriever.getProductQueryHook() : null;
             categorySearchResultsSet = searchResultsService
-                .performSearch(searchOptions, resource, productPage, request, productQueryHook, categoryRetriever);
+                .performSearch(searchOptions, resource, currentPage, request, productQueryHook, categoryRetriever);
         }
         return categorySearchResultsSet;
     }
@@ -261,13 +259,12 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             return null;
         }
         if (canonicalUrl == null) {
-            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
             CategoryInterface category = getCategory();
             SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
 
-            if (category != null && categoryPage != null && sitemapLinkExternalizerProvider != null) {
+            if (category != null && sitemapLinkExternalizerProvider != null) {
                 canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
-                    .toExternalCategoryUrl(request, categoryPage, new CategoryUrlFormat.Params(category));
+                    .toExternalCategoryUrl(request, currentPage, new CategoryUrlFormat.Params(category));
             } else {
                 // fallback to legacy logic
                 if (isAuthor) {

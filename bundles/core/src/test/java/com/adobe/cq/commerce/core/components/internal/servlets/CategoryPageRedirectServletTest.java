@@ -71,6 +71,9 @@ public class CategoryPageRedirectServletTest {
 
         context.registerInjectActivateService(servlet);
         context.registerAdapter(SlingHttpServletRequest.class, MagentoGraphqlClient.class, mockClient);
+
+        GraphqlResponse<Query, Error> resp = mockGqlResponse("test_uid", "test_url_key", "test_url_path");
+        when(mockClient.execute(any())).thenReturn(resp);
     }
 
     @Test
@@ -117,20 +120,6 @@ public class CategoryPageRedirectServletTest {
         mockRequestPathInfo.setSelectorString(CategoryPageRedirectServlet.SELECTOR);
         mockRequestPathInfo.setSuffix("/test_uid");
 
-        Query mockQuery = mock(Query.class);
-        CategoryTree categoryTree = mock(CategoryTree.class);
-        ID uid = new ID("test_uid");
-
-        when(categoryTree.getUid()).thenReturn(uid);
-        when(categoryTree.getUrlKey()).thenReturn("test_url_key");
-        when(categoryTree.getUrlPath()).thenReturn("test_url_path");
-        when(mockQuery.getCategoryList()).thenReturn(Collections.singletonList(categoryTree));
-
-        GraphqlResponse<Query, Error> graphQlResponse = new GraphqlResponse<>();
-        graphQlResponse.setData(mockQuery);
-
-        when(mockClient.execute(any())).thenReturn(graphQlResponse);
-
         servlet.doGet(request, response);
         verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
         verify(response).setHeader("Location", "/content/venia/us/en/products/category-page.html/test_url_path.html");
@@ -145,23 +134,24 @@ public class CategoryPageRedirectServletTest {
         MockOsgi.deactivate(urlProvider, context.bundleContext());
         MockOsgi.activate(urlProvider, context.bundleContext(), "categoryPageUrlFormat", CategoryPageWithUrlKey.PATTERN);
 
-        Query mockQuery = mock(Query.class);
-        CategoryTree categoryTree = mock(CategoryTree.class);
-        ID uid = new ID("test_uid");
-
-        when(categoryTree.getUid()).thenReturn(uid);
-        when(categoryTree.getUrlKey()).thenReturn("test_url_key");
-        when(categoryTree.getUrlPath()).thenReturn("test_url_path");
-        when(mockQuery.getCategoryList()).thenReturn(Collections.singletonList(categoryTree));
-
-        GraphqlResponse<Query, Error> graphQlResponse = new GraphqlResponse<>();
-        graphQlResponse.setData(mockQuery);
-
-        when(mockClient.execute(any())).thenReturn(graphQlResponse);
-
         servlet.doGet(request, response);
         verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
         verify(response).setHeader("Location", "/content/venia/us/en/products/category-page.html/test_url_key.html");
     }
 
+    private GraphqlResponse<Query, Error> mockGqlResponse(String uid, String urlKey, String urlPath) {
+        Query mockQuery = mock(Query.class);
+        CategoryTree categoryTree = mock(CategoryTree.class);
+        ID id = new ID(uid);
+
+        when(categoryTree.getUid()).thenReturn(id);
+        when(categoryTree.getUrlKey()).thenReturn(urlKey);
+        when(categoryTree.getUrlPath()).thenReturn(urlPath);
+        when(mockQuery.getCategoryList()).thenReturn(Collections.singletonList(categoryTree));
+
+        GraphqlResponse<Query, Error> graphQlResponse = new GraphqlResponse<>();
+        graphQlResponse.setData(mockQuery);
+
+        return graphQlResponse;
+    }
 }

@@ -43,8 +43,8 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.contentfragment.CommerceContentFragment;
+import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.dam.cfm.content.FragmentRenderService;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.wcm.core.components.models.contentfragment.ContentFragment;
@@ -116,6 +116,9 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
     @ValueMapValue(name = CommerceContentFragment.PN_LINK_ELEMENT, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String linkElement;
 
+    @OSGiService
+    private SiteNavigation siteNavigation;
+
     private ContentFragment contentFragment = EMPTY_CONTENT_FRAGMENT;
     private String modelTitle = "";
 
@@ -162,9 +165,9 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
         }
 
         String linkValue = null;
-        if (SiteNavigation.isProductPage(currentPage)) {
+        if (siteNavigation.isProductPage(currentPage)) {
             linkValue = findProductSku();
-        } else if (SiteNavigation.isCategoryPage(currentPage)) {
+        } else if (siteNavigation.isCategoryPage(currentPage)) {
             linkValue = findCategoryIdentifier();
         }
 

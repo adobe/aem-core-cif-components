@@ -17,11 +17,12 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.searchbar;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.models.searchbar.Searchbar;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.day.cq.wcm.api.Page;
 
 /**
@@ -39,12 +40,15 @@ public class SearchbarImpl extends DataLayerComponent implements Searchbar {
     @ScriptVariable
     private Page currentPage;
 
+    @OSGiService
+    private SiteNavigation siteNavigation;
+
     private Page searchResultsPage;
 
     @Override
     public String getSearchResultsPageUrl() {
         if (searchResultsPage == null) {
-            searchResultsPage = SiteNavigation.getSearchResultsPage(currentPage);
+            searchResultsPage = siteNavigation.getSearchResultsPage(currentPage);
         }
 
         return searchResultsPage.getPath() + ".html";

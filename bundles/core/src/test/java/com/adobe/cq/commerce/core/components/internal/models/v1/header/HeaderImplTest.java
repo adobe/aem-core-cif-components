@@ -17,28 +17,20 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.header;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
+
+import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 
 public class HeaderImplTest {
 
     @Rule
-    public final AemContext context = createContext("/context/jcr-content.json");
+    public final AemContext context = newAemContext("/context/jcr-content.json");
     private HeaderImpl header;
-
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                context.load().json(contentPath, "/content");
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
 
     private void setupPage(String pagePath, String headerPath) {
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());

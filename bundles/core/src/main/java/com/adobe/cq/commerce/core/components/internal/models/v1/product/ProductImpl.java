@@ -63,7 +63,6 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.BundleProduct;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
@@ -490,14 +489,13 @@ public class ProductImpl extends DataLayerComponent implements Product {
             return null;
         }
         if (canonicalUrl == null) {
-            Page productPage = SiteNavigation.getProductPage(currentPage);
             ProductInterface product = productRetriever != null ? productRetriever.fetchProduct() : null;
             SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling
                 .getService(SitemapLinkExternalizerProvider.class);
 
-            if (productPage != null && product != null && sitemapLinkExternalizerProvider != null) {
+            if (product != null && sitemapLinkExternalizerProvider != null) {
                 canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
-                    .toExternalProductUrl(request, productPage, new ProductUrlFormat.Params(product));
+                    .toExternalProductUrl(request, currentPage, new ProductUrlFormat.Params(product));
             } else {
                 // fallback to the previous/legacy logic
                 if (isAuthor) {
