@@ -332,11 +332,13 @@ public class UrlProviderImpl implements UrlProvider {
 
         if (givenPage != null) {
             List<Page> searchRoots = siteNavigation.getProductPages(givenPage);
-            Pair<Page, ProductUrlFormat> specificPageAndFormat = getSpecificPageAndFormat(searchRoots, copy, givenPage,
-                productUrlFormat, this::getProductUrlFormatFromContext, specificPageStrategy::isSpecificPageFor,
-                specificPageStrategy::getSpecificPage);
-            productUrlFormat = specificPageAndFormat.getRight();
-            copy.setPage(specificPageAndFormat.getLeft().getPath());
+            if (!searchRoots.isEmpty()) {
+                Pair<Page, ProductUrlFormat> specificPageAndFormat = getSpecificPageAndFormat(searchRoots, copy, givenPage,
+                    productUrlFormat, this::getProductUrlFormatFromContext, specificPageStrategy::isSpecificPageFor,
+                    specificPageStrategy::getSpecificPage);
+                productUrlFormat = specificPageAndFormat.getRight();
+                copy.setPage(specificPageAndFormat.getLeft().getPath());
+            }
         }
 
         return productUrlFormat.format(copy);
@@ -373,15 +375,17 @@ public class UrlProviderImpl implements UrlProvider {
         CategoryUrlFormat categoryUrlFormat = getCategoryUrlFormatFromContext(request, currentPage);
         if (currentPage != null) {
             List<Page> searchRoots = siteNavigation.getCategoryPages(currentPage);
-            Pair<Page, CategoryUrlFormat> specificPageAndFormat = getSpecificPageAndFormat(searchRoots, params, currentPage,
-                categoryUrlFormat, this::getCategoryUrlFormatFromContext, specificPageStrategy::isSpecificPageFor,
-                specificPageStrategy::getSpecificPage);
-            Page specificPage = specificPageAndFormat.getLeft();
-            categoryUrlFormat = specificPageAndFormat.getRight();
+            if (!searchRoots.isEmpty()) {
+                Pair<Page, CategoryUrlFormat> specificPageAndFormat = getSpecificPageAndFormat(searchRoots, params, currentPage,
+                    categoryUrlFormat, this::getCategoryUrlFormatFromContext, specificPageStrategy::isSpecificPageFor,
+                    specificPageStrategy::getSpecificPage);
+                Page specificPage = specificPageAndFormat.getLeft();
+                categoryUrlFormat = specificPageAndFormat.getRight();
 
-            if (!specificPage.getPath().equals(params.getPage())) {
-                params = new CategoryUrlFormat.Params(params);
-                params.setPage(specificPage.getPath());
+                if (!specificPage.getPath().equals(params.getPage())) {
+                    params = new CategoryUrlFormat.Params(params);
+                    params.setPage(specificPage.getPath());
+                }
             }
         }
 

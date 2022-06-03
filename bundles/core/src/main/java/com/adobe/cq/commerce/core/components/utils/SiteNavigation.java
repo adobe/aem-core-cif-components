@@ -32,6 +32,7 @@ import com.day.cq.commons.inherit.InheritanceValueMap;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 
+@Deprecated
 public class SiteNavigation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SiteNavigation.class);

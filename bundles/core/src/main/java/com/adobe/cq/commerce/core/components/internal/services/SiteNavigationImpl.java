@@ -57,28 +57,27 @@ public class SiteNavigationImpl implements SiteNavigation {
     @Override
     public List<Page> getProductPages(Page page) {
         return page != null
-            ? listSearchRoots(page, PN_CIF_PRODUCT_PAGE).collect(Collectors.toList())
+            ? Collections.unmodifiableList(listSearchRoots(page, PN_CIF_PRODUCT_PAGE))
             : Collections.emptyList();
-
     }
 
     @Override
     public boolean isProductPage(Page page) {
         return page != null && listSearchRoots(page, PN_CIF_PRODUCT_PAGE)
-            .anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot));
+            .stream().anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot));
     }
 
     @Override
     public List<Page> getCategoryPages(Page page) {
         return page != null
-            ? listSearchRoots(page, PN_CIF_CATEGORY_PAGE).collect(Collectors.toList())
+            ? Collections.unmodifiableList(listSearchRoots(page, PN_CIF_CATEGORY_PAGE))
             : Collections.emptyList();
     }
 
     @Override
     public boolean isCategoryPage(Page page) {
         return page != null && listSearchRoots(page, PN_CIF_CATEGORY_PAGE)
-            .anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot));
+            .stream().anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot));
     }
 
     private boolean isEqualOrDescendant(Page givenPage, Page ancestorPage) {
@@ -95,7 +94,7 @@ public class SiteNavigationImpl implements SiteNavigation {
      * @param referenceProperty
      * @return
      */
-    private Stream<Page> listSearchRoots(Page givenPage, String referenceProperty) {
+    private List<Page> listSearchRoots(Page givenPage, String referenceProperty) {
         Map<String, Page> catalogPages = new LinkedHashMap<>();
         Launch launch = getLaunch(givenPage);
         Page productionPage = givenPage;
@@ -140,12 +139,13 @@ public class SiteNavigationImpl implements SiteNavigation {
 
         if (navigationRoot == null) {
             LOG.debug("No navigation root found for: {}", givenPage.getPath());
-            return Stream.empty();
+            return Collections.emptyList();
         }
 
         return Stream.concat(catalogPages.values().stream(), Stream.of(navigationRoot))
             .map(catalogPage -> resolveReference(catalogPage, launch, referenceProperty))
-            .filter(Objects::nonNull);
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     /**

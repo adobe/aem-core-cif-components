@@ -620,7 +620,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCustomProductPageFormat() {
-        Page page = context.create().page("/page");
+        Page page = context.currentPage("/content/product-page");
         context.currentPage(page);
         context.request().setQueryString("sku=MJ02");
         context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.PRODUCT_PAGE_URL_FORMAT);
@@ -633,16 +633,16 @@ public class UrlProviderImplTest {
 
         // verify format
         String url = urlProvider.toProductUrl(request, page, "MJ02");
-        assertEquals("/page.html?sku=MJ02", url);
+        assertEquals("/content/product-page.html?sku=MJ02", url);
 
         // verify the product page url format is not used for categories
         url = urlProvider.toCategoryUrl(request, page, "uid-5");
-        assertEquals("/page.html/equipment.html", url);
+        assertEquals("/content/category-page.html/equipment.html", url);
     }
 
     @Test
     public void testCustomCategoryPageFormat() {
-        Page page = context.create().page("/page");
+        Page page = context.currentPage("/content/category-page");
         context.currentPage(page);
         context.request().setQueryString("uid=uid-5");
         context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.CATEGORY_PAGE_URL_FORMAT);
@@ -655,11 +655,11 @@ public class UrlProviderImplTest {
 
         // verify format
         String url = urlProvider.toCategoryUrl(request, page, "uid-5");
-        assertEquals("/page.html?uid=uid-5", url);
+        assertEquals("/content/category-page.html?uid=uid-5", url);
 
         // verify the category page url format is not used for products
         url = urlProvider.toProductUrl(request, page, "MJ01");
-        assertEquals("/page.html/beaumont-summit-kit.html", url);
+        assertEquals("/content/product-page.html/beaumont-summit-kit.html", url);
     }
 
     @Test
@@ -730,24 +730,28 @@ public class UrlProviderImplTest {
         // verify format
         // always create new page to not cache the Resource -> ComponentsConfiguration adaption
         // no configuration, defaults to highest-ranked/first new custom format)
-        Page page = context.currentPage(context.create().page("/page1"));
+        Page page = context.currentPage(context.create().page("/page1", "", ImmutableMap.of(
+            SiteNavigation.PN_NAV_ROOT, true, SiteNavigationImpl.PN_CIF_PRODUCT_PAGE, "/page1")));
         String url = urlProvider.toProductUrl(request, page, "MJ02");
         assertEquals("/page1.html?sku=MJ02#A", url);
 
         // configure another new custom url format
-        page = context.currentPage(context.create().page("/page2"));
+        page = context.currentPage(context.create().page("/page2", "", ImmutableMap.of(
+            SiteNavigation.PN_NAV_ROOT, true, SiteNavigationImpl.PN_CIF_PRODUCT_PAGE, "/page2")));
         caConfig.put(UrlFormat.PRODUCT_PAGE_URL_FORMAT, AnotherCustomProductPageUrlFormat.class.getName());
         url = urlProvider.toProductUrl(request, page, "MJ02");
         assertEquals("/page2.html?sku=MJ02#B", url);
 
         // configure legacy custom url format
-        page = context.currentPage(context.create().page("/page3"));
+        page = context.currentPage(context.create().page("/page3", "", ImmutableMap.of(
+            SiteNavigation.PN_NAV_ROOT, true, SiteNavigationImpl.PN_CIF_PRODUCT_PAGE, "/page3")));
         caConfig.put(UrlFormat.PRODUCT_PAGE_URL_FORMAT, CustomLegacyUrlFormat.class.getName());
         url = urlProvider.toProductUrl(request, page, "MJ02");
         assertEquals("/page3.html?sku=MJ02", url);
 
         // use default format
-        page = context.currentPage(context.create().page("/page4"));
+        page = context.currentPage(context.create().page("/page4", "", ImmutableMap.of(
+            SiteNavigation.PN_NAV_ROOT, true, SiteNavigationImpl.PN_CIF_PRODUCT_PAGE, "/page4")));
         caConfig.put(UrlFormat.PRODUCT_PAGE_URL_FORMAT, ProductPageWithSku.PATTERN);
         url = urlProvider.toProductUrl(request, page, "MJ02");
         assertEquals("/page4.html/MJ02.html", url);
@@ -769,24 +773,28 @@ public class UrlProviderImplTest {
         // verify format
         // always create new page to not cache the Resource -> ComponentsConfiguration adaption
         // no configuration, defaults to highest-ranked/first new custom format)
-        Page page = context.currentPage(context.create().page("/page1"));
+        Page page = context.currentPage(context.create().page("/page1", "", ImmutableMap.of(
+            SiteNavigation.PN_NAV_ROOT, true, SiteNavigationImpl.PN_CIF_CATEGORY_PAGE, "/page1")));
         String url = urlProvider.toCategoryUrl(request, page, params);
         assertEquals("/page1.html?uid=uid-1#A", url);
 
         // configure another new custom url format
-        page = context.currentPage(context.create().page("/page2"));
+        page = context.currentPage(context.create().page("/page2", "", ImmutableMap.of(
+            SiteNavigation.PN_NAV_ROOT, true, SiteNavigationImpl.PN_CIF_CATEGORY_PAGE, "/page2")));
         caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, AnotherCustomCategoryPageUrlFormat.class.getName());
         url = urlProvider.toCategoryUrl(request, page, params);
         assertEquals("/page2.html?uid=uid-1#B", url);
 
         // configure legacy custom url format
-        page = context.currentPage(context.create().page("/page3"));
+        page = context.currentPage(context.create().page("/page3", "", ImmutableMap.of(
+            SiteNavigation.PN_NAV_ROOT, true, SiteNavigationImpl.PN_CIF_CATEGORY_PAGE, "/page3")));
         caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CustomLegacyUrlFormat.class.getName());
         url = urlProvider.toCategoryUrl(request, page, params);
         assertEquals("/page3.html?uid=uid-1", url);
 
         // use default format
-        page = context.currentPage(context.create().page("/page4"));
+        page = context.currentPage(context.create().page("/page4", "", ImmutableMap.of(
+            SiteNavigation.PN_NAV_ROOT, true, SiteNavigationImpl.PN_CIF_CATEGORY_PAGE, "/page4")));
         caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CategoryPageWithUrlKey.PATTERN);
         url = urlProvider.toCategoryUrl(request, page, params);
         assertEquals("/page4.html/bar.html", url);
