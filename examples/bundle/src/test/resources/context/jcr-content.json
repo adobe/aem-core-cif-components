@@ -1,9 +1,14 @@
 {
+  "jcr:primaryType": "cq:Page",
+  "jcr:content": {
+    "jcr:primaryType": "cq:PageContent",
+    "navRoot": true,
+    "cq:cifProductPage": "/content/page/catalogpage/product-page",
+    "cq:cifCategoryPage": "/content/page/catalogpage/category-page"
+  },
   "page": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "cq:cifProductPage": "/content/page/catalogpage/product-page",
-      "cq:cifCategoryPage": "/content/page/catalogpage/category-page",
       "jcr:language": "en_US",
       "jcr:primaryType": "cq:PageContent",
       "root": {
