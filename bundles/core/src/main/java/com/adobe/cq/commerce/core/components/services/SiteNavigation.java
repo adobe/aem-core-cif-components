@@ -83,7 +83,7 @@ public interface SiteNavigation {
     boolean isCategoryPage(Page page);
 
     @Nullable
-    Page getSiteNavigationRootPage(Page currentPage);
+    Page getNavigationRootPage(Page currentPage);
 
     @Nullable
     Page getSearchResultsPage(Page page);

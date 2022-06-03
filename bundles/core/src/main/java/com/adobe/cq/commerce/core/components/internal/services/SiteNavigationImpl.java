@@ -89,7 +89,7 @@ public class SiteNavigationImpl implements SiteNavigation {
     }
 
     @Override
-    public Page getSiteNavigationRootPage(Page currentPage) {
+    public Page getNavigationRootPage(Page currentPage) {
         Page rootPage = findNavigationRoot(currentPage);
         if (rootPage == null && LaunchUtils.isLaunchBasedPath(currentPage.getPath())) {
             // if in a Launch without a navigation root page, search again on the production page

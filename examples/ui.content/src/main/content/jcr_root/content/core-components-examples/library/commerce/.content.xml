@@ -3,6 +3,7 @@
     jcr:primaryType="cq:Page">
     <jcr:content
         cq:allowedTemplates="[/conf/core-components-examples/settings/wcm/templates/.*]"
+        navRoot="{Boolean}true"
         cq:cifCategoryPage="/content/core-components-examples/library/commerce/productlist/sample-productlist"
         cq:cifProductPage="/content/core-components-examples/library/commerce/product/sample-product"
         cq:cifSearchResultsPage="/content/core-components-examples/library/commerce/search"
