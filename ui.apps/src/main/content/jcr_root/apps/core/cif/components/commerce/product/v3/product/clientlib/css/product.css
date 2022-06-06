@@ -1,0 +1,156 @@
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2021 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+.thumbnail__root {
+    height: auto;
+    width: auto;
+}
+
+.thumbnail__image {
+    width: 100%;
+}
+
+.thumbnailList__root {
+    display: grid;
+    align-content: start;
+    grid-gap: 1rem;
+}
+
+.carousel__root {
+    display: grid;
+    grid-gap: 1rem;
+    grid-template-areas: 'thumbs main';
+    grid-template-columns: 17fr 80fr;
+}
+
+.carousel__imageContainer {
+    display: grid;
+    grid-area: main;
+}
+
+.carousel__currentImage {
+    width: 100%;
+    grid-area: 1 / 1 / 2 / 4;
+}
+
+.carousel__chevron-left,
+.carousel__chevron-right {
+    display: none;
+}
+
+.select__input {
+    grid-area: input-start / input-start / input-end / icon-end;
+    padding-right: 2.25rem;
+}
+
+.productFullDetail__root {
+    display: grid;
+    grid-template-areas:
+        'images title'
+        'images actions'
+        'images options'
+        'images quantity'
+        'images cart'
+        'images .';
+    grid-template-columns: 1.5625fr 1fr;
+    grid-template-rows: repeat(5, min-content) 1fr [fold];
+}
+
+.productFullDetail__customizeBundle {
+    align-items: center;
+    display: flex;
+    grid-area: cart;
+    justify-content: center;
+}
+
+.productFullDetail__title {
+    display: grid;
+    grid-template-columns: 1fr max-content;
+}
+
+.productFullDetail__price .price {
+    text-align: right;
+}
+
+.productFullDetail__root .price {
+    display: block;
+}
+
+.productFullDetail__root .price .regularPrice {
+    text-decoration: line-through;
+}
+
+.productFullDetail__root .price .discountedPrice {
+    font-weight: bold;
+}
+
+.productFullDetail__root .price .you-save:before {
+    display: block;
+    content: ' ';
+}
+
+.productFullDetail__imageCarousel {
+    grid-area: images;
+    max-width: 800px;
+    padding: 1rem;
+}
+
+.productFullDetail__options {
+    grid-area: options;
+}
+
+.productFullDetail__quantity {
+    grid-area: quantity;
+}
+
+.productFullDetail__groupedProducts table {
+    width: 100%;
+}
+
+.productFullDetail__bundleProduct .priceInfo {
+    float: right;
+}
+
+.productFullDetail__actions {
+    grid-area: cart;
+}
+
+.productFullDetail__description {
+    grid-column: 1 / span 1;
+    grid-row: fold / span 1;
+    padding: 1rem;
+}
+
+.productFullDetail__details {
+    grid-column: 2 / span 1;
+    grid-row: fold / span 1;
+    padding: 1rem;
+}
+
+.productFullDetail__related {
+    border-bottom-width: 0;
+    grid-column: 1 / span 2;
+}
+
+.productFullDetail__staged {
+    grid-column: span 2;
+}
+
+.tile__root {
+    margin-left: 1rem;
+    margin-top: 1rem;
+    min-width: 3rem;
+    padding: 0 0.75rem;
+}

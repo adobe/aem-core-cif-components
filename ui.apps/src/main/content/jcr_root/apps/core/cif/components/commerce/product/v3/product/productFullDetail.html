@@ -28,6 +28,7 @@
     <form class="productFullDetail__root ${additionalCssClasses}"
           data-sly-set.visibleSections="${product.visibleSections}"
           data-product-sku="${product.sku}"
+          data-uid-cart
           id="${product.id}"
           data-configurable="${product.configurable}"
           data-grouped="${product.groupedProduct}"
@@ -53,7 +54,7 @@
             <section data-sly-test="${'IMAGE' in visibleSections}" class="productFullDetail__imageCarousel">
                 <sly data-sly-call="${galleryTpl.gallery @ product=product}" data-sly-unwrap></sly>
             </section>
-            <section data-sly-test="${'OPTIONS' in visibleSections}" class="productFullDetail__options" data-sly-test="${product.configurable}" data-variants="${product.variantsJson}">
+            <section data-sly-test="${'OPTIONS' in visibleSections && product.configurable}" class="productFullDetail__options" data-variants="${product.variantsJson}">
                 <sly data-sly-call="${variantsTpl.variants @ product=product}" data-sly-unwrap></sly>
             </section>
             <section data-sly-test="${isGroupedProduct && 'QUANTITY' in visibleSections}" class="productFullDetail__groupedProducts productFullDetail__quantity productFullDetail__section">

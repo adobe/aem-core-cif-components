@@ -19,9 +19,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -115,6 +117,24 @@ public class ProductImpl extends DataLayerComponent implements Product {
      * store if the endpoint has wish lists enabled.
      */
     private static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
+    /**
+     * Name of a boolean configuration properties used by the CIF Configuration to
+     * store if the endpoint has wish lists enabled.
+     */
+    protected static final Map<Section, String> SECTIONS_MAP = new EnumMap<Section, String>(Section.class) {
+        {
+            put(Section.TITLE, "showTitle");
+            put(Section.PRICE, "showPrice");
+            put(Section.SKU, "showSku");
+            put(Section.IMAGE, "showImage");
+            put(Section.OPTIONS, "showOptions");
+            put(Section.QUANTITY, "showQuantity");
+            put(Section.ACTIONS, "showActions");
+            put(Section.DESCRIPTION, "showDescription");
+            put(Section.DETAILS, "showDetails");
+
+        }
+    };
 
     @Self
     private SlingHttpServletRequest request;
@@ -590,5 +610,12 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public boolean getAddToWishListEnabled() {
         return enableAddToWishList;
+    }
+
+    @Override
+    public Set<String> getVisibleSections() {
+        return SECTIONS_MAP.keySet().stream().filter(k -> currentStyle.get(SECTIONS_MAP.get(k), true))
+            .map(Enum::toString).collect(
+                Collectors.toSet());
     }
 }

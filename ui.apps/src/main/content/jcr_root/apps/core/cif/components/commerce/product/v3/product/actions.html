@@ -14,12 +14,19 @@
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.actions="${@ product}">
-  <button class="button__root_highPriority button__root clickable__root button__filled" type="button" data-cmp-is="add-to-cart">
+  <button
+          class="button__root_highPriority button__root clickable__root button__filled"
+          type="button"
+          data-cmp-is="add-to-cart">
     <span class="button__content">
       <span>${'Add to Cart' @ i18n}</span>
     </span>
   </button>
-  <button data-sly-test="${product.addToWishListEnabled}" class="button__root_normalPriority button__root clickable__root" type="button" data-cmp-is="add-to-wish-list">
+  <button
+          data-sly-test="${product.addToWishListEnabled}"
+          class="button__root_normalPriority button__root clickable__root"
+          type="button"
+          data-cmp-is="add-to-wish-list">
     <span class="button__content">
       <span>${'Add to Wish List' @ i18n}</span>
     </span>
