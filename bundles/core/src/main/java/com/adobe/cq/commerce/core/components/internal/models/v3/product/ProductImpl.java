@@ -15,7 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v3.product;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -39,6 +42,21 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     implements Product {
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v3/product";
+
+    protected static final Map<Section, String> SECTIONS_MAP = new EnumMap<Section, String>(Section.class) {
+        {
+            put(Section.TITLE, "showTitle");
+            put(Section.PRICE, "showPrice");
+            put(Section.SKU, "showSku");
+            put(Section.IMAGE, "showImage");
+            put(Section.OPTIONS, "showOptions");
+            put(Section.QUANTITY, "showQuantity");
+            put(Section.ACTIONS, "showActions");
+            put(Section.DESCRIPTION, "showDescription");
+            put(Section.DETAILS, "showDetails");
+
+        }
+    };
 
     @PostConstruct
     protected void initModel() {
@@ -108,5 +126,12 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         }
 
         return mappedVariant;
+    }
+
+    @Override
+    public Set<String> getVisibleSections() {
+        return SECTIONS_MAP.keySet().stream().filter(k -> currentStyle.get(SECTIONS_MAP.get(k), true))
+            .map(Enum::toString).collect(
+                Collectors.toSet());
     }
 }

@@ -16,7 +16,9 @@
 package com.adobe.cq.commerce.core.components.internal.models.v3.product;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +36,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
 
 public class ProductImplTest extends com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImplTest {
 
@@ -114,4 +119,18 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         }
     }
 
+    @Test
+    public void testVisibleSectionsWithStyle() {
+        ProductImpl.SECTIONS_MAP.values().forEach(v -> {
+            if (v.equals("showSku")) {
+                when(style.get(eq(v), anyBoolean())).thenReturn(Boolean.TRUE);
+            } else {
+                when(style.get(eq(v), anyBoolean())).thenReturn(Boolean.FALSE);
+            }
+        });
+        adaptToProduct();
+        Set<String> expected = new HashSet<>();
+        expected.add("SKU");
+        assertEquals(expected, productModel.getVisibleSections());
+    }
 }

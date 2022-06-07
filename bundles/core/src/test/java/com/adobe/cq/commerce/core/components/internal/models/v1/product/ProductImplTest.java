@@ -16,10 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -640,22 +637,7 @@ public class ProductImplTest {
     @Test
     public void testVisibleSectionsWithoutStyle() {
         adaptToProduct();
-        assertEquals(ProductImpl.SECTIONS_MAP.keySet().stream().map(s -> s.toString()).collect(Collectors.toSet()), productModel
+        assertEquals(Arrays.stream(Product.Section.values()).map(Enum::toString).collect(Collectors.toSet()), productModel
             .getVisibleSections());
-    }
-
-    @Test
-    public void testVisibleSectionsWithStyle() {
-        ProductImpl.SECTIONS_MAP.values().forEach(v -> {
-            if (v.equals("showSku")) {
-                when(style.get(eq(v), anyBoolean())).thenReturn(Boolean.TRUE);
-            } else {
-                when(style.get(eq(v), anyBoolean())).thenReturn(Boolean.FALSE);
-            }
-        });
-        adaptToProduct();
-        Set<String> expected = new HashSet<>();
-        expected.add("SKU");
-        assertEquals(expected, productModel.getVisibleSections());
     }
 }
