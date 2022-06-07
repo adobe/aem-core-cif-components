@@ -57,7 +57,7 @@
             <section data-sly-test="${'OPTIONS' in visibleSections && product.configurable}" class="productFullDetail__options" data-variants="${product.variantsJson}">
                 <sly data-sly-call="${variantsTpl.variants @ product=product}" data-sly-unwrap></sly>
             </section>
-            <section data-sly-test="${isGroupedProduct && 'QUANTITY' in visibleSections}" class="productFullDetail__groupedProducts productFullDetail__quantity productFullDetail__section">
+            <section data-sly-test="${isGroupedProduct && 'OPTIONS' in visibleSections}" class="productFullDetail__groupedProducts productFullDetail__quantity productFullDetail__section">
                 <sly data-sly-call="${groupedProductsTpl.groupedProducts @ groupedProductItems=product.groupedProductItems}"></sly>
             </section>
             <div data-sly-test="${isBundleProduct}" id="bundle-product-options" data-sku="${product.sku}" data-show-add-to-wish-list="${product.addToWishListEnabled}" data-use-uid></div>

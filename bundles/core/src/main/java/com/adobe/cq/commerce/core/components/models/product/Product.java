@@ -34,17 +34,17 @@ import com.adobe.cq.wcm.core.components.models.Component;
 @ConsumerType
 public interface Product extends Component, PageMetadata {
 
-    enum Section {
-        TITLE,
-        PRICE,
-        SKU,
-        IMAGE,
-        OPTIONS,
-        QUANTITY,
-        ACTIONS,
-        DESCRIPTION,
-        DETAILS
-    }
+    String[] sections = new String[] {
+        "TITLE",
+        "PRICE",
+        "SKU",
+        "IMAGE",
+        "OPTIONS",
+        "QUANTITY",
+        "ACTIONS",
+        "DESCRIPTION",
+        "DETAILS"
+    };
 
     /**
      * Name of the boolean resource property indicating if the product component should load prices on the client-side.
@@ -125,6 +125,6 @@ public interface Product extends Component, PageMetadata {
      * @return
      */
     default Set<String> getVisibleSections() {
-        return Arrays.stream(Section.values()).map(Enum::toString).collect(Collectors.toSet());
+        return Arrays.stream(sections).collect(Collectors.toSet());
     }
 }

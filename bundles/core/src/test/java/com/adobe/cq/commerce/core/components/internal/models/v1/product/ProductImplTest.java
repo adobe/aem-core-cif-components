@@ -637,7 +637,7 @@ public class ProductImplTest {
     @Test
     public void testVisibleSectionsWithoutStyle() {
         adaptToProduct();
-        assertEquals(Arrays.stream(Product.Section.values()).map(Enum::toString).collect(Collectors.toSet()), productModel
+        assertEquals(Arrays.stream(Product.sections).collect(Collectors.toSet()), productModel
             .getVisibleSections());
     }
 }
