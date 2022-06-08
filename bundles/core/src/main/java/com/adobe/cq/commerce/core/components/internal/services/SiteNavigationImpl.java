@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -25,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.osgi.service.component.annotations.Component;
@@ -49,6 +51,30 @@ public class SiteNavigationImpl implements SiteNavigation {
     static final String PN_CIF_SEARCH_RESULTS_PAGE = "cq:cifSearchResultsPage";
 
     @Override
+    public Entry getEntry(Page givenPage) {
+        if (givenPage == null) {
+            return null;
+        }
+
+        Page navigationRoot = null;
+
+        for (Entry entry : listSearchRoots(givenPage, PN_CIF_CATEGORY_PAGE, PN_CIF_PRODUCT_PAGE)) {
+            if (isEqualOrDescendant(givenPage, entry.getPage())) {
+                return new EntryImpl(givenPage, entry.getCatalogPage(), entry.getNavigationRootPage());
+            }
+
+            // remember the navigationRootPage of the last entry
+            navigationRoot = entry.getNavigationRootPage();
+        }
+
+        if (navigationRoot == null) {
+            // if no entries were found before we may at least find a navigation root
+            navigationRoot = findNavigationRoot(givenPage);
+        }
+        return navigationRoot != null ? new EntryImpl(givenPage, null, navigationRoot) : null;
+    }
+
+    @Override
     public boolean isCatalogPage(Page page) {
         return Optional.ofNullable(page)
             .map(Page::getContentResource)
@@ -57,7 +83,7 @@ public class SiteNavigationImpl implements SiteNavigation {
     }
 
     @Override
-    public List<Page> getProductPages(Page page) {
+    public List<Entry> getProductPages(Page page) {
         return page != null
             ? Collections.unmodifiableList(listSearchRoots(page, PN_CIF_PRODUCT_PAGE))
             : Collections.emptyList();
@@ -66,11 +92,11 @@ public class SiteNavigationImpl implements SiteNavigation {
     @Override
     public boolean isProductPage(Page page) {
         return page != null && listSearchRoots(page, PN_CIF_PRODUCT_PAGE)
-            .stream().anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot));
+            .stream().anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot.getPage()));
     }
 
     @Override
-    public List<Page> getCategoryPages(Page page) {
+    public List<Entry> getCategoryPages(Page page) {
         return page != null
             ? Collections.unmodifiableList(listSearchRoots(page, PN_CIF_CATEGORY_PAGE))
             : Collections.emptyList();
@@ -79,7 +105,7 @@ public class SiteNavigationImpl implements SiteNavigation {
     @Override
     public boolean isCategoryPage(Page page) {
         return page != null && listSearchRoots(page, PN_CIF_CATEGORY_PAGE)
-            .stream().anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot));
+            .stream().anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot.getPage()));
     }
 
     private boolean isEqualOrDescendant(Page givenPage, Page ancestorPage) {
@@ -89,7 +115,7 @@ public class SiteNavigationImpl implements SiteNavigation {
     }
 
     @Override
-    public Page getNavigationRootPage(Page currentPage) {
+    public Entry getNavigationRootPage(Page currentPage) {
         Page rootPage = findNavigationRoot(currentPage);
         if (rootPage == null && LaunchUtils.isLaunchBasedPath(currentPage.getPath())) {
             // if in a Launch without a navigation root page, search again on the production page
@@ -99,14 +125,15 @@ public class SiteNavigationImpl implements SiteNavigation {
                 rootPage = findNavigationRoot(currentPage);
             }
         }
-        return rootPage;
+        return rootPage != null ? new EntryImpl(rootPage, null, rootPage) : null;
     }
 
     @Override
-    public Page getSearchResultsPage(Page page) {
-        return Optional.ofNullable(page)
-            .flatMap(p -> listSearchRoots(p, PN_CIF_SEARCH_RESULTS_PAGE).stream().findFirst())
-            .orElse(null);
+    public Entry getSearchResultsPage(Page page) {
+        Iterator<Entry> searchResultsPages = page != null
+            ? listSearchRoots(page, PN_CIF_SEARCH_RESULTS_PAGE).iterator()
+            : Collections.emptyIterator();
+        return searchResultsPages.hasNext() ? searchResultsPages.next() : null;
     }
 
     /**
@@ -114,11 +141,11 @@ public class SiteNavigationImpl implements SiteNavigation {
      * children of the navigation root.
      *
      * @param givenPage
-     * @param referenceProperty
+     * @param referenceProperties
      * @return
      */
-    private List<Page> listSearchRoots(Page givenPage, String referenceProperty) {
-        Map<String, Page> catalogPages = new LinkedHashMap<>();
+    private List<Entry> listSearchRoots(Page givenPage, String... referenceProperties) {
+        Map<String, Pair<Page, Page>> catalogPages = new LinkedHashMap<>();
         Launch launch = getLaunch(givenPage);
         Page productionPage = givenPage;
         Page navigationRoot = null;
@@ -139,7 +166,7 @@ public class SiteNavigationImpl implements SiteNavigation {
                     Page catalogPage = children.next();
                     // only consider catalog pages that are also contained in the Launch
                     if (launch.containsResource(catalogPage.adaptTo(Resource.class))) {
-                        catalogPages.put(catalogPage.getName(), catalogPage);
+                        catalogPages.put(catalogPage.getName(), Pair.of(catalogPage, launchNavigationRoot));
                     }
                 }
             }
@@ -155,7 +182,7 @@ public class SiteNavigationImpl implements SiteNavigation {
 
                 for (Iterator<Page> children = productionNavigationRoot.listChildren(this::isCatalogPage); children.hasNext();) {
                     Page catalogPage = children.next();
-                    catalogPages.putIfAbsent(catalogPage.getName(), catalogPage);
+                    catalogPages.putIfAbsent(catalogPage.getName(), Pair.of(catalogPage, productionNavigationRoot));
                 }
             }
         }
@@ -165,10 +192,19 @@ public class SiteNavigationImpl implements SiteNavigation {
             return Collections.emptyList();
         }
 
-        return Stream.concat(catalogPages.values().stream(), Stream.of(navigationRoot))
-            .map(catalogPage -> resolveReference(catalogPage, launch, referenceProperty))
+        return Stream.concat(
+            catalogPages.values().stream(),
+            Stream.of(Pair.of((Page) null, navigationRoot)))
+            .flatMap(pair -> resolveReferences(pair.getLeft(), pair.getRight(), launch, referenceProperties))
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
+    }
+
+    private Stream<Entry> resolveReferences(Page catalogPage, Page navigationRootPage, Launch launch, String[] referenceProperties) {
+        return Arrays.stream(referenceProperties).map(referenceProperty -> {
+            Page resolvedPage = resolveReference(catalogPage != null ? catalogPage : navigationRootPage, launch, referenceProperty);
+            return resolvedPage != null ? new EntryImpl(resolvedPage, catalogPage, navigationRootPage) : null;
+        });
     }
 
     /**
@@ -263,5 +299,32 @@ public class SiteNavigationImpl implements SiteNavigation {
         }
 
         return productionResource != null ? productionResource.adaptTo(Page.class) : null;
+    }
+
+    static class EntryImpl implements Entry {
+        private final Page page;
+        private final Page catalogPage;
+        private final Page navigationRootPage;
+
+        EntryImpl(Page page, Page catalogPage, Page navigationRootPage) {
+            this.page = page;
+            this.catalogPage = catalogPage;
+            this.navigationRootPage = navigationRootPage;
+        }
+
+        @Override
+        public Page getCatalogPage() {
+            return catalogPage;
+        }
+
+        @Override
+        public Page getNavigationRootPage() {
+            return navigationRootPage;
+        }
+
+        @Override
+        public Page getPage() {
+            return page;
+        }
     }
 }

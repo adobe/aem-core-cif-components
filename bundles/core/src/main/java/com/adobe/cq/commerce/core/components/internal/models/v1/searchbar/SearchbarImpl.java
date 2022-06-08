@@ -48,7 +48,8 @@ public class SearchbarImpl extends DataLayerComponent implements Searchbar {
     @Override
     public String getSearchResultsPageUrl() {
         if (searchResultsPage == null) {
-            searchResultsPage = siteNavigation.getSearchResultsPage(currentPage);
+            SiteNavigation.Entry entry = siteNavigation.getSearchResultsPage(currentPage);
+            searchResultsPage = entry != null ? entry.getPage() : currentPage;
         }
 
         return searchResultsPage.getPath() + ".html";

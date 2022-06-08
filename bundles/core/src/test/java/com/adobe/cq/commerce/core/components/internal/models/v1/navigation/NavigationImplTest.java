@@ -113,7 +113,9 @@ public class NavigationImplTest {
         // URL provider
         siteNavigation = mock(SiteNavigation.class);
         Whitebox.setInternalState(navigation, "siteNavigation", siteNavigation);
-        when(siteNavigation.getCategoryPages(any())).thenReturn(Collections.singletonList(categoryPage));
+        SiteNavigation.Entry mockEntry = mock(SiteNavigation.Entry.class);
+        when(mockEntry.getPage()).thenReturn(categoryPage);
+        when(siteNavigation.getCategoryPages(any())).thenReturn(Collections.singletonList(mockEntry));
 
         SpecificPageStrategy specificPageStrategy = new SpecificPageStrategy();
         SpecificPageStrategy.Configuration specificPageStrategyConfig = mock(SpecificPageStrategy.Configuration.class);

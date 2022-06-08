@@ -30,6 +30,9 @@
     },
     "no-nav-root": {
         "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+            "jcr:primaryType": "cq:PageContent"
+        },
         "content-page": {
             "jcr:primaryType": "cq:Page"
         }

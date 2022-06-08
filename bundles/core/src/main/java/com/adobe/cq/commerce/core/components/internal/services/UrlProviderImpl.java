@@ -331,7 +331,7 @@ public class UrlProviderImpl implements UrlProvider {
         }
 
         if (givenPage != null) {
-            List<Page> searchRoots = siteNavigation.getProductPages(givenPage);
+            List<SiteNavigation.Entry> searchRoots = siteNavigation.getProductPages(givenPage);
             if (!searchRoots.isEmpty()) {
                 Pair<Page, ProductUrlFormat> specificPageAndFormat = getSpecificPageAndFormat(searchRoots, copy, givenPage,
                     productUrlFormat, this::getProductUrlFormatFromContext, specificPageStrategy::isSpecificPageFor,
@@ -374,7 +374,7 @@ public class UrlProviderImpl implements UrlProvider {
     public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page currentPage, CategoryUrlFormat.Params params) {
         CategoryUrlFormat categoryUrlFormat = getCategoryUrlFormatFromContext(request, currentPage);
         if (currentPage != null) {
-            List<Page> searchRoots = siteNavigation.getCategoryPages(currentPage);
+            List<SiteNavigation.Entry> searchRoots = siteNavigation.getCategoryPages(currentPage);
             if (!searchRoots.isEmpty()) {
                 Pair<Page, CategoryUrlFormat> specificPageAndFormat = getSpecificPageAndFormat(searchRoots, params, currentPage,
                     categoryUrlFormat, this::getCategoryUrlFormatFromContext, specificPageStrategy::isSpecificPageFor,
@@ -392,18 +392,18 @@ public class UrlProviderImpl implements UrlProvider {
         return categoryUrlFormat.format(params);
     }
 
-    private <T, F extends GenericUrlFormat<T>> Pair<Page, F> getSpecificPageAndFormat(List<Page> searchRoots, T params,
-        Page defaultPage, F defaultFormat, Function<Page, F> formatSelector, BiPredicate<Page, T> specificPagePredicate,
-        BiFunction<Page, T, Page> specificPageSelector) {
+    private <T, F extends GenericUrlFormat<T>> Pair<Page, F> getSpecificPageAndFormat(List<SiteNavigation.Entry> searchRoots, T params,
+        Page defaultPage, F defaultFormat, Function<Page, F> formatSelector, BiPredicate<SiteNavigation.Entry, T> specificPagePredicate,
+        BiFunction<SiteNavigation.Entry, T, Page> specificPageSelector) {
         boolean deepLinkSpecificPages = specificPageStrategy.isGenerateSpecificPageUrlsEnabled();
 
-        for (Page searchRoot : searchRoots) {
+        for (SiteNavigation.Entry searchRoot : searchRoots) {
             // A search root may have a different cloud configuration set to configure features like the url provider format. We should
             // take the format that is relevant for the search root.
-            F searchRootFormat = formatSelector.apply(searchRoot);
+            F searchRootFormat = formatSelector.apply(searchRoot.getPage());
             // To prevent that all search roots are traversed for every page, we consider the search root only if
             // a) it is not a specific page itself (no filters set nor inherited from a catalog page), or
-            // b) it is a specific page for the given parameters itself
+            // b) it is a specific page for the given parameters
             boolean isGenericSearchRoot = !specificPageStrategy.isSpecificPage(searchRoot);
             if (isGenericSearchRoot || specificPagePredicate.test(searchRoot, params)) {
                 Page specificPage = specificPageSelector.apply(searchRoot, searchRootFormat.retainParsableParameters(params));
@@ -413,7 +413,7 @@ public class UrlProviderImpl implements UrlProvider {
                 }
                 if (specificPage != null || isGenericSearchRoot) {
                     // if not return the path of the search root the specific page belongs to
-                    return Pair.of(searchRoot, searchRootFormat);
+                    return Pair.of(searchRoot.getPage(), searchRootFormat);
                 }
             }
         }

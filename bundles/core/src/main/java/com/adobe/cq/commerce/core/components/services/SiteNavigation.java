@@ -26,12 +26,42 @@ import com.drew.lang.annotations.Nullable;
 public interface SiteNavigation {
 
     /**
+     * This interface describes the Objects returned by the SiteNavigation when accessing specific pages like product pages, category pages
+     * or search results pages. The {@link Entry} provides the returned page together with the catalog page that defines the relationship.
+     */
+    interface Entry {
+
+        /**
+         * Returns the catalog page of the {@link Entry}. This may be null when the relationship is defined on the navigation root page.
+         *
+         * @return
+         */
+        @Nullable
+        Page getCatalogPage();
+
+        Page getNavigationRootPage();
+
+        Page getPage();
+    }
+
+    /**
      * Sling resource type for catalog landing page.
      */
     String RT_CATALOG_PAGE = "core/cif/components/structure/catalogpage/v1/catalogpage";
     String RT_CATALOG_PAGE_V3 = "core/cif/components/structure/catalogpage/v3/catalogpage";
 
     String PN_NAV_ROOT = "navRoot";
+
+    /**
+     * Returns the site navigation entry of the given page. If this is a product page or a category page within a catalog page the
+     * returned {@link Entry} will contain the reference to that catalog page, if not it will at least contain the page itself and the
+     * navigation root page.
+     *
+     * @param page
+     * @return the {@link Entry} of the given page, {@code null} if the page is not within a navigation root
+     */
+    @Nullable
+    Entry getEntry(Page page);
 
     /**
      * Returns {@code true} when the given {@link Page} is a catalog page. Catalog pages can be identified by the specific resource types
@@ -51,7 +81,7 @@ public interface SiteNavigation {
      * @param page
      * @return
      */
-    List<Page> getProductPages(Page page);
+    List<Entry> getProductPages(Page page);
 
     /**
      * Returns {@code true} when the given {@link Page} is a product page. This is the case when the given {@link Page} is equal to
@@ -71,7 +101,7 @@ public interface SiteNavigation {
      * @param page
      * @return
      */
-    List<Page> getCategoryPages(Page page);
+    List<Entry> getCategoryPages(Page page);
 
     /**
      * Returns {@code true} when the given {@link Page} is a category page. This is the case when the given {@link Page} is equal to
@@ -83,9 +113,9 @@ public interface SiteNavigation {
     boolean isCategoryPage(Page page);
 
     @Nullable
-    Page getNavigationRootPage(Page currentPage);
+    Entry getNavigationRootPage(Page currentPage);
 
     @Nullable
-    Page getSearchResultsPage(Page page);
+    Entry getSearchResultsPage(Page page);
 
 }

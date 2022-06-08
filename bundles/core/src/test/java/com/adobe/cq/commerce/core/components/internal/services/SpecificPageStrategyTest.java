@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.day.cq.wcm.api.Page;
@@ -36,6 +37,7 @@ public class SpecificPageStrategyTest {
     public final AemContext context = newAemContext("/context/jcr-page-filter.json");
     public final SpecificPageStrategy subject = new SpecificPageStrategy();
 
+    private Page navRoot;
     private Page productPage;
     private Page categoryPage;
     private Page anyPage;
@@ -43,9 +45,14 @@ public class SpecificPageStrategyTest {
     @Before
     public void setup() {
         context.registerInjectActivateService(subject);
+        navRoot = context.pageManager().getPage("/content");
         productPage = context.pageManager().getPage("/content/product-page");
         categoryPage = context.pageManager().getPage("/content/category-page");
         anyPage = context.pageManager().getPage("/content/catalog-page");
+    }
+
+    private SiteNavigation.Entry newEntry(Page page) {
+        return new SiteNavigationImpl.EntryImpl(page, null, navRoot);
     }
 
     @Test
@@ -60,7 +67,7 @@ public class SpecificPageStrategyTest {
         params.setSku("unknown");
 
         // when
-        Page specificPage = subject.getSpecificPage(productPage, params);
+        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
 
         // then
         assertNull(specificPage);
@@ -73,7 +80,7 @@ public class SpecificPageStrategyTest {
         params.setUrlKey("productId1");
 
         // when
-        Page specificPage = subject.getSpecificPage(productPage, params);
+        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
 
         // then
         assertNotNull(specificPage);
@@ -87,7 +94,7 @@ public class SpecificPageStrategyTest {
         params.setSku("productId2");
 
         // when
-        Page specificPage = subject.getSpecificPage(productPage, params);
+        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
 
         // then
         assertNotNull(specificPage);
@@ -103,7 +110,7 @@ public class SpecificPageStrategyTest {
         params.getCategoryUrlParams().setUrlKey("women");
 
         // when
-        Page specificPage = subject.getSpecificPage(productPage, params);
+        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
 
         // then
         assertNotNull(specificPage);
@@ -119,7 +126,7 @@ public class SpecificPageStrategyTest {
         params.getCategoryUrlParams().setUrlKey("women-bottoms");
 
         // when
-        Page specificPage = subject.getSpecificPage(productPage, params);
+        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
 
         // then
         assertNotNull(specificPage);
@@ -134,7 +141,7 @@ public class SpecificPageStrategyTest {
         params.getCategoryUrlParams().setUrlKey("men-tops");
 
         // when
-        Page specificPage = subject.getSpecificPage(productPage, params);
+        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
 
         // then
         assertNotNull(specificPage);
@@ -148,7 +155,7 @@ public class SpecificPageStrategyTest {
         params.setSku("productId1.1");
 
         // when
-        Page specificPage = subject.getSpecificPage(productPage, params);
+        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
 
         // then
         assertNotNull(specificPage);
@@ -162,7 +169,7 @@ public class SpecificPageStrategyTest {
         params.setUid("unknown");
 
         // when
-        Page specificPage = subject.getSpecificPage(productPage, params);
+        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
 
         // then
         assertNull(specificPage);
@@ -175,7 +182,7 @@ public class SpecificPageStrategyTest {
         params.setUid("category-uid-3");
 
         // when
-        Page specificPage = subject.getSpecificPage(categoryPage, params);
+        Page specificPage = subject.getSpecificPage(newEntry(categoryPage), params);
 
         // then
         assertNotNull(specificPage);
@@ -189,7 +196,7 @@ public class SpecificPageStrategyTest {
         params.setUid("categoryId-uid-2.1");
 
         // when
-        Page specificPage = subject.getSpecificPage(categoryPage, params);
+        Page specificPage = subject.getSpecificPage(newEntry(categoryPage), params);
 
         // then
         assertNotNull(specificPage);
@@ -203,7 +210,7 @@ public class SpecificPageStrategyTest {
         params.setUrlKey("women-bottoms");
 
         // when
-        Page specificPage = subject.getSpecificPage(categoryPage, params);
+        Page specificPage = subject.getSpecificPage(newEntry(categoryPage), params);
 
         // then
         assertNotNull(specificPage);
@@ -217,7 +224,7 @@ public class SpecificPageStrategyTest {
         params.setUrlPath("men/tops");
 
         // when
-        Page specificPage = subject.getSpecificPage(categoryPage, params);
+        Page specificPage = subject.getSpecificPage(newEntry(categoryPage), params);
 
         // then
         assertNotNull(specificPage);
@@ -231,7 +238,7 @@ public class SpecificPageStrategyTest {
         params.setUrlPath("women/tops/sweaters");
 
         // when
-        Page specificPage = subject.getSpecificPage(categoryPage, params);
+        Page specificPage = subject.getSpecificPage(newEntry(categoryPage), params);
 
         // then
         assertNotNull(specificPage);

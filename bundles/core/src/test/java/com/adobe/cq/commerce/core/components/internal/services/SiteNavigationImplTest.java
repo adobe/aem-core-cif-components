@@ -17,7 +17,9 @@ package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.util.List;
 
+import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +34,8 @@ import static com.adobe.cq.commerce.core.testing.MockLaunch.MOCK_LAUNCH_ADAPTER;
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class SiteNavigationImplTest {
@@ -40,15 +44,19 @@ public class SiteNavigationImplTest {
     public final AemContext aemContext = newAemContext("/context/SiteNavigationImplTest/jcr-content.json");
 
     final SiteNavigationImpl subject = new SiteNavigationImpl();
+    Page navRootPage;
 
     @Before
     public void setup() {
         aemContext.registerInjectActivateService(subject);
         aemContext.registerAdapter(Resource.class, Launch.class, MOCK_LAUNCH_ADAPTER);
+
+        navRootPage = aemContext.pageManager().getPage("/content/nav-root");
     }
 
     @Test
     public void testNullInputs() {
+        assertNull(subject.getEntry(null));
         assertEquals(0, subject.getProductPages(null).size());
         assertEquals(0, subject.getCategoryPages(null).size());
         assertFalse(subject.isCatalogPage(null));
@@ -91,13 +99,46 @@ public class SiteNavigationImplTest {
     }
 
     @Test
+    public void testGetEntry() {
+        aemContext.load().json("/context/SiteNavigationImplTest/jcr-content-launch-full.json", "/content/launches/1111/11/11/test");
+
+        Page productPage = aemContext.pageManager().getPage("/content/nav-root/shop/product");
+        Page contentPage = aemContext.pageManager().getPage("/content/nav-root/content-page");
+
+        assertSiteNavigationEntry(subject.getEntry(contentPage), contentPage, null);
+        assertSiteNavigationEntry(subject.getEntry(productPage), productPage, null);
+
+        Page specificProductPage = aemContext.create().page("/content/nav-root/adventures", "catalogpage", ImmutableMap.of(
+            "sling:resourceType", SiteNavigation.RT_CATALOG_PAGE_V3,
+            SiteNavigationImpl.PN_CIF_PRODUCT_PAGE, "/content/nav-root/adventures"));
+
+        assertSiteNavigationEntry(subject.getEntry(specificProductPage), specificProductPage, specificProductPage);
+    }
+
+    @Test
+    public void testGetEntryNoProductOrCategoryPages() {
+        Page navRoot = aemContext.pageManager().getPage("/content/no-nav-root");
+        ValueMap properties = navRoot.getContentResource().adaptTo(ModifiableValueMap.class);
+        properties.put(SiteNavigation.PN_NAV_ROOT, Boolean.TRUE);
+
+        Page anypage = aemContext.pageManager().getPage("/content/no-nav-root/content-page");
+        assertSiteNavigationEntry(subject.getEntry(anypage), anypage, null, navRoot);
+    }
+
+    @Test
+    public void testGetEntryNoNavRoot() {
+        Page anypage = aemContext.pageManager().getPage("/content/no-nav-root/content-page");
+        assertNull(subject.getEntry(anypage));
+    }
+
+    @Test
     public void testGetProductPageFromLandingPage() {
         Page productPage = aemContext.pageManager().getPage("/content/nav-root/shop/product");
         Page contentPage = aemContext.pageManager().getPage("/content/nav-root/content-page");
 
-        List<Page> productPages = subject.getProductPages(contentPage);
+        List<SiteNavigation.Entry> productPages = subject.getProductPages(contentPage);
         assertEquals(1, productPages.size());
-        assertEquals(productPage, productPages.get(0));
+        assertSiteNavigationEntry(productPages.get(0), productPage, null);
     }
 
     @Test
@@ -105,9 +146,9 @@ public class SiteNavigationImplTest {
         Page categoryPage = aemContext.pageManager().getPage("/content/nav-root/shop/category");
         Page contentPage = aemContext.pageManager().getPage("/content/nav-root/content-page");
 
-        List<Page> categoryPages = subject.getCategoryPages(contentPage);
+        List<SiteNavigation.Entry> categoryPages = subject.getCategoryPages(contentPage);
         assertEquals(1, categoryPages.size());
-        assertEquals(categoryPage, categoryPages.get(0));
+        assertSiteNavigationEntry(categoryPages.get(0), categoryPage, null);
     }
 
     @Test
@@ -118,16 +159,16 @@ public class SiteNavigationImplTest {
             "sling:resourceType", SiteNavigation.RT_CATALOG_PAGE_V3,
             SiteNavigationImpl.PN_CIF_PRODUCT_PAGE, "/content/nav-root/adventures"));
 
-        List<Page> productPages = subject.getProductPages(anypage);
+        List<SiteNavigation.Entry> productPages = subject.getProductPages(anypage);
         assertEquals(2, productPages.size());
-        assertEquals(specificProductPage, productPages.get(0));
-        assertEquals(defaultProductPage, productPages.get(1));
+        assertSiteNavigationEntry(productPages.get(0), specificProductPage, specificProductPage);
+        assertSiteNavigationEntry(productPages.get(1), defaultProductPage, null);
     }
 
     @Test
     public void testGetProductPagesNoNavRoot() {
         Page anypage = aemContext.pageManager().getPage("/content/no-nav-root/content-page");
-        List<Page> productPages = subject.getProductPages(anypage);
+        List<SiteNavigation.Entry> productPages = subject.getProductPages(anypage);
         assertEquals(0, productPages.size());
     }
 
@@ -135,12 +176,13 @@ public class SiteNavigationImplTest {
     public void testGetProductPagesInLaunch() {
         aemContext.load().json("/context/SiteNavigationImplTest/jcr-content-launch-full.json", "/content/launches/1111/11/11/test");
 
+        Page navRootPage = aemContext.pageManager().getPage("/content/launches/1111/11/11/test/content/nav-root");
         Page contentPage = aemContext.pageManager().getPage("/content/launches/1111/11/11/test/content/nav-root/content-page");
         Page productPage = aemContext.pageManager().getPage("/content/launches/1111/11/11/test/content/nav-root/shop/product");
 
-        List<Page> productPages = subject.getProductPages(contentPage);
+        List<SiteNavigation.Entry> productPages = subject.getProductPages(contentPage);
         assertEquals(1, productPages.size());
-        assertEquals(productPage, productPages.get(0));
+        assertSiteNavigationEntry(productPages.get(0), productPage, null, navRootPage);
     }
 
     @Test
@@ -150,9 +192,9 @@ public class SiteNavigationImplTest {
         Page contentPage = aemContext.pageManager().getPage("/content/launches/1111/11/11/test/content/nav-root/content-page");
         Page productPage = aemContext.pageManager().getPage("/content/launches/1111/11/11/test/content/nav-root/shop/product");
 
-        List<Page> productPages = subject.getProductPages(contentPage);
+        List<SiteNavigation.Entry> productPages = subject.getProductPages(contentPage);
         assertEquals(1, productPages.size());
-        assertEquals(productPage, productPages.get(0));
+        assertSiteNavigationEntry(productPages.get(0), productPage, null, navRootPage);
     }
 
     @Test
@@ -162,9 +204,9 @@ public class SiteNavigationImplTest {
         Page contentPage = aemContext.create().page("/content/launches/1111/11/11/test/content/nav-root/new-content-page");
         Page productPage = aemContext.pageManager().getPage("/content/launches/1111/11/11/test/content/nav-root/shop/product");
 
-        List<Page> productPages = subject.getProductPages(contentPage);
+        List<SiteNavigation.Entry> productPages = subject.getProductPages(contentPage);
         assertEquals(1, productPages.size());
-        assertEquals(productPage, productPages.get(0));
+        assertSiteNavigationEntry(productPages.get(0), productPage, null, navRootPage);
     }
 
     @Test
@@ -179,10 +221,21 @@ public class SiteNavigationImplTest {
             "sling:resourceType", SiteNavigation.RT_CATALOG_PAGE_V3,
             SiteNavigationImpl.PN_CIF_PRODUCT_PAGE, "/content/nav-root/adventures"));
 
-        List<Page> productPages = subject.getProductPages(contentPage);
+        List<SiteNavigation.Entry> productPages = subject.getProductPages(contentPage);
         assertEquals(2, productPages.size());
-        assertEquals(prodSpecificProductPage, productPages.get(0));
-        assertEquals(productPage, productPages.get(1));
+        assertSiteNavigationEntry(productPages.get(0), prodSpecificProductPage, prodSpecificProductPage, navRootPage);
+        assertSiteNavigationEntry(productPages.get(1), productPage, null, navRootPage);
+    }
+
+    private void assertSiteNavigationEntry(SiteNavigation.Entry entry, Page page, Page catalogPage) {
+        assertSiteNavigationEntry(entry, page, catalogPage, navRootPage);
+    }
+
+    private void assertSiteNavigationEntry(SiteNavigation.Entry entry, Page page, Page catalogPage, Page navRootPage) {
+        assertNotNull(entry);
+        assertEquals(page, entry.getPage());
+        assertEquals(catalogPage, entry.getCatalogPage());
+        assertEquals(navRootPage, entry.getNavigationRootPage());
     }
 
 }

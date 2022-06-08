@@ -72,8 +72,8 @@ public class TestContext {
                 context.registerService(XSSAPI.class, xssApi);
 
                 // register commonly used cif services
-                context.registerInjectActivateService(new SpecificPageStrategy());
                 context.registerInjectActivateService(new SiteNavigationImpl());
+                context.registerInjectActivateService(new SpecificPageStrategy());
                 context.registerInjectActivateService(new UrlProviderImpl());
             });
     }

@@ -26,10 +26,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.ValueMap;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
+import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.day.cq.wcm.api.Page;
@@ -64,6 +66,9 @@ public class SpecificPageStrategy {
 
     private boolean generateSpecificPageUrls;
 
+    @Reference
+    private SiteNavigation siteNavigation;
+
     @Activate
     public void activate(Configuration configuration) {
         generateSpecificPageUrls = configuration.generateSpecificPageUrls();
@@ -85,25 +90,39 @@ public class SpecificPageStrategy {
             .flatMap(child -> Stream.concat(traverse(child), Stream.of(child)));
     }
 
-    private Stream<Page> findSpecificPages(Page startPage) {
-        return Stream.concat(traverse(startPage), Stream.of(startPage)).filter(this::isSpecificPage);
+    private Stream<Page> findSpecificPages(SiteNavigation.Entry startEntry) {
+        return Stream.concat(traverse(startEntry.getPage()), Stream.of(startEntry.getPage()))
+            .filter(page -> isSpecificPage(page, startEntry.getCatalogPage()));
     }
 
-    public Page getSpecificPage(Page startPage, ProductUrlFormat.Params params) {
-        return findSpecificPages(startPage)
-            .filter(candidate -> isSpecificPageFor(candidate, params))
+    public Page getSpecificPage(Page candidate, ProductUrlFormat.Params params) {
+        SiteNavigation.Entry entry = siteNavigation.getEntry(candidate);
+        return entry != null ? getSpecificPage(entry, params) : null;
+    }
+
+    public Page getSpecificPage(SiteNavigation.Entry startEntry, ProductUrlFormat.Params params) {
+        return findSpecificPages(startEntry)
+            .filter(candidate -> isSpecificPageFor(candidate, startEntry.getCatalogPage(), params))
             .findFirst()
             .orElse(null);
     }
 
-    public boolean isSpecificPage(Page candidate) {
+    boolean isSpecificPage(SiteNavigation.Entry entry) {
+        return isSpecificPage(entry.getPage(), entry.getCatalogPage());
+    }
+
+    private boolean isSpecificPage(Page candidate, Page catalogPage) {
         // include only pages that have a filter set
         ValueMap properties = candidate.getProperties();
         return properties.get(SELECTOR_FILTER_PROPERTY, String[].class) != null
             || properties.get(PN_USE_FOR_CATEGORIES, String[].class) != null;
     }
 
-    public boolean isSpecificPageFor(Page candidate, ProductUrlFormat.Params params) {
+    public boolean isSpecificPageFor(SiteNavigation.Entry entry, ProductUrlFormat.Params params) {
+        return isSpecificPageFor(entry.getPage(), entry.getCatalogPage(), params);
+    }
+
+    private boolean isSpecificPageFor(Page candidate, Page catalogPage, ProductUrlFormat.Params params) {
         boolean checkCategoryUrlPath = StringUtils.isNotEmpty(params.getCategoryUrlParams().getUrlPath());
         boolean checkCategoryUrlKey = StringUtils.isNotEmpty(params.getCategoryUrlParams().getUrlKey());
         ValueMap properties = candidate.getProperties();
@@ -145,14 +164,23 @@ public class SpecificPageStrategy {
         return false;
     }
 
-    public Page getSpecificPage(Page startPage, CategoryUrlFormat.Params params) {
-        return findSpecificPages(startPage)
-            .filter(candidate -> isSpecificPageFor(candidate, params))
+    public Page getSpecificPage(Page candidate, CategoryUrlFormat.Params params) {
+        SiteNavigation.Entry entry = siteNavigation.getEntry(candidate);
+        return entry != null ? getSpecificPage(entry, params) : null;
+    }
+
+    public Page getSpecificPage(SiteNavigation.Entry startEntry, CategoryUrlFormat.Params params) {
+        return findSpecificPages(startEntry)
+            .filter(candidate -> isSpecificPageFor(candidate, startEntry.getCatalogPage(), params))
             .findFirst()
             .orElse(null);
     }
 
-    public boolean isSpecificPageFor(Page candidate, CategoryUrlFormat.Params params) {
+    public boolean isSpecificPageFor(SiteNavigation.Entry entry, CategoryUrlFormat.Params params) {
+        return isSpecificPageFor(entry.getPage(), entry.getCatalogPage(), params);
+    }
+
+    private boolean isSpecificPageFor(Page candidate, Page catalogPage, CategoryUrlFormat.Params params) {
         // check for uids only as fallback when there is no url_path and url_key
         boolean checkUids = StringUtils.isNotEmpty(params.getUid());
         boolean checkUrlPath = StringUtils.isNotEmpty(params.getUrlPath());
