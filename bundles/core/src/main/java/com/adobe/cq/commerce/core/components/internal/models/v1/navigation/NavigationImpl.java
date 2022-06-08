@@ -62,6 +62,7 @@ import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DE
 public class NavigationImpl implements Navigation {
 
     static final String PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER = "magentoRootCategoryId";
+    static final String PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE = "magentoRootCategoryIdType";
     static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
     static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
     static final int DEFAULT_STRUCTURE_DEPTH = 2;
@@ -180,9 +181,12 @@ public class NavigationImpl implements Navigation {
 
     private void expandCatalogRoot(Page catalogPage, List<NavigationItem> pages) {
         String rootCategoryIdentifier = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER);
+        String rootCategoryIdentifierType =  readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE);
+
         if (rootCategoryIdentifier == null || StringUtils.isBlank(rootCategoryIdentifier)) {
             ComponentsConfiguration properties = catalogPage.getContentResource().adaptTo(ComponentsConfiguration.class);
             rootCategoryIdentifier = properties.get(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
+            rootCategoryIdentifierType = "uid";
         }
 
         if (rootCategoryIdentifier == null) {
@@ -190,7 +194,10 @@ public class NavigationImpl implements Navigation {
             return;
         }
 
-        List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryIdentifier, structureDepth);
+        List<CategoryTree> children = "urlPath".equals(rootCategoryIdentifierType)
+            ? graphQLCategoryProvider.getChildCategoriesByUrlPath(rootCategoryIdentifier, structureDepth)
+            : graphQLCategoryProvider.getChildCategoriesByUid(rootCategoryIdentifier, structureDepth);
+
         if (children == null || children.isEmpty()) {
             LOGGER.warn("Magento top categories not found");
             return;

@@ -108,7 +108,7 @@ public class NavigationImplTest {
         categoryProvider = mock(GraphQLCategoryProvider.class);
         Whitebox.setInternalState(navigation, "graphQLCategoryProvider", categoryProvider);
         categoryList = new ArrayList<>();
-        when(categoryProvider.getChildCategories(any(), any())).thenReturn(categoryList);
+        when(categoryProvider.getChildCategoriesByUid(any(), any())).thenReturn(categoryList);
 
         // URL provider
         siteNavigation = mock(SiteNavigation.class);
