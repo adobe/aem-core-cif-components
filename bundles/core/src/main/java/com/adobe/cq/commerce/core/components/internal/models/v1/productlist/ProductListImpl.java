@@ -18,9 +18,11 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -52,12 +54,16 @@ import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
+import com.adobe.cq.commerce.core.search.internal.models.SearchAggregationOptionImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
+import com.adobe.cq.commerce.core.search.models.SearchAggregation;
+import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
@@ -76,6 +82,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     private static final boolean SHOW_TITLE_DEFAULT = true;
     private static final boolean SHOW_IMAGE_DEFAULT = true;
     private static final String CATEGORY_PROPERTY = "category";
+    private static final String CATEGORY_AGGREGATION_ID = "category_id";
 
     private boolean showTitle;
     private boolean showImage;
@@ -160,8 +167,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Nullable
     @Override
     public String getTitle() {
-        return getCategory() != null ? getCategory().getName()
-            : StringUtils.EMPTY;
+        return getCategory() != null ? getCategory().getName() : StringUtils.EMPTY;
     }
 
     @Override
@@ -209,13 +215,62 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         if (searchResultsSet == null) {
             searchResultsSet = getCategorySearchResultsSet().getRight();
 
-            ((SearchResultsSetImpl) searchResultsSet).setSearchAggregations(
-                searchResultsSet.getSearchAggregations()
-                    .stream()
-                    .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_UID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
-                    .collect(Collectors.toList()));
+            List<SearchAggregation> searchAggregations = searchResultsSet.getSearchAggregations()
+                .stream()
+                .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_UID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
+                .collect(Collectors.toList());
+
+            CategoryTree categoryTree = (CategoryTree) getCategorySearchResultsSet().getLeft();
+            processCategoryAggregation(searchAggregations, categoryTree);
+
+            ((SearchResultsSetImpl) searchResultsSet).setSearchAggregations(searchAggregations);
         }
         return searchResultsSet;
+    }
+
+    private void processCategoryAggregation(List<SearchAggregation> searchAggregations, CategoryTree categoryTree) {
+        if (categoryTree != null && categoryTree.getChildren() != null) {
+            List<CategoryTree> childCategories = categoryTree.getChildren();
+            searchAggregations.stream().filter(aggregation -> CATEGORY_AGGREGATION_ID.equals(aggregation.getIdentifier())).findAny()
+                .ifPresent(categoryAggregation -> {
+                    List<SearchAggregationOption> options = categoryAggregation.getOptions();
+
+                    // find and process category aggregation options related to child categories of current category
+                    List<SearchAggregationOption> filteredOptions = options.stream().filter(option -> {
+                        Optional<CategoryTree> categoryRef = childCategories.stream().filter(c -> String.valueOf(c.getId()).equals(option
+                            .getFilterValue())).findAny();
+
+                        if (categoryRef.isPresent()) {
+                            CategoryTree category = categoryRef.get();
+                            CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+                            params.setUid(category.getUid().toString());
+                            params.setUrlKey(category.getUrlKey());
+                            params.setUrlPath(category.getUrlPath());
+                            SearchAggregationOptionImpl optionImpl = (SearchAggregationOptionImpl) option;
+                            optionImpl.setPageUrl(urlProvider.toCategoryUrl(request, currentPage, params));
+                            optionImpl.getAddFilterMap().remove(CATEGORY_AGGREGATION_ID);
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }).collect(Collectors.toList());
+
+                    // keep filtered options only or remove category aggregation if no option was found
+                    if (filteredOptions.isEmpty()) {
+                        searchAggregations.removeIf(a -> CATEGORY_AGGREGATION_ID.equals(a.getIdentifier()));
+                    } else {
+                        options.retainAll(filteredOptions);
+                        // move category aggregation to front
+                        searchAggregations.stream().filter(a -> CATEGORY_AGGREGATION_ID.equals(a.getIdentifier())).findAny().ifPresent(
+                            aggregation -> {
+                                searchAggregations.remove(aggregation);
+                                searchAggregations.add(0, aggregation);
+                            });
+                    }
+                });
+        } else {
+            searchAggregations.removeIf(a -> CATEGORY_AGGREGATION_ID.equals(a.getIdentifier()));
+        }
     }
 
     private Pair<CategoryInterface, SearchResultsSet> getCategorySearchResultsSet() {

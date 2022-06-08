@@ -42,7 +42,7 @@
             <ul class="productcollection__filter-items" data-sly-list.aggregateOption="${aggregate.options}">
                 <li>
                     <a class="productcollection__filter-item" 
-                       href="${request.requestURI @ query=aggregateOption.addFilterMap}"
+                       href="${aggregateOption.pageUrl ? aggregateOption.pageUrl : request.requestURI @ query=aggregateOption.addFilterMap}"
                        title="${'Filter by {0} {1}' @ i18n, format=[aggregate.displayLabel, aggregateOption.displayLabel]}">
                         ${aggregateOption.displayLabel @ context='html'}
                         <em> (${aggregateOption.count})</em>

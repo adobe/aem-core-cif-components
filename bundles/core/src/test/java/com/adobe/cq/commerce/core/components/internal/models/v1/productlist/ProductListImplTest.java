@@ -58,6 +58,7 @@ import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefron
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
+import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
@@ -305,12 +306,24 @@ public class ProductListImplTest {
 
         SearchResultsSet searchResultsSet = productListModel.getSearchResultsSet();
         List<SearchAggregation> searchAggregations = searchResultsSet.getSearchAggregations();
-        Assert.assertEquals(7, searchAggregations.size());
+        Assert.assertEquals(8, searchAggregations.size());
 
-        // We want to make sure the category_id aggregation is not present
+        // check category aggregation
         Optional<SearchAggregation> categoryIdAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("category_id"))
             .findAny();
-        Assert.assertFalse(categoryIdAggregation.isPresent());
+        Assert.assertTrue(categoryIdAggregation.isPresent());
+        List<SearchAggregationOption> options = categoryIdAggregation.get().getOptions();
+        Assert.assertEquals(2, options.size());
+
+        SearchAggregationOption opt = options.get(0);
+        Assert.assertEquals("3", opt.getFilterValue());
+        Assert.assertEquals("Gear", opt.getDisplayLabel());
+        Assert.assertEquals("/content/pageA.html/running/gear.html", opt.getPageUrl());
+
+        opt = options.get(1);
+        Assert.assertEquals("4", opt.getFilterValue());
+        Assert.assertEquals("Bags", opt.getDisplayLabel());
+        Assert.assertEquals("/content/pageA.html/running/bags.html", opt.getPageUrl());
 
         // We want to make sure all price ranges are properly processed
         SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();
