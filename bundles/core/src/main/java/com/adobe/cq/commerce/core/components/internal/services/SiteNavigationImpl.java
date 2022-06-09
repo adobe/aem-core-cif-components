@@ -17,14 +17,15 @@ package com.adobe.cq.commerce.core.components.internal.services;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.resource.Resource;
@@ -45,6 +46,9 @@ public class SiteNavigationImpl implements SiteNavigation {
 
     private static final Logger LOG = LoggerFactory.getLogger(SiteNavigationImpl.class);
 
+    public static final String PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER = "magentoRootCategoryId";
+    public static final String PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE = "magentoRootCategoryIdType";
+
     static final String PN_CIF_CATEGORY_PAGE = "cq:cifCategoryPage";
     static final String PN_CIF_PRODUCT_PAGE = "cq:cifProductPage";
 
@@ -58,7 +62,7 @@ public class SiteNavigationImpl implements SiteNavigation {
 
         Page navigationRoot = null;
 
-        for (Entry entry : listSearchRoots(givenPage, PN_CIF_CATEGORY_PAGE, PN_CIF_PRODUCT_PAGE)) {
+        for (Entry entry : (Iterable<Entry>) listSearchRoots(givenPage, PN_CIF_CATEGORY_PAGE, PN_CIF_PRODUCT_PAGE)::iterator) {
             if (isEqualOrDescendant(givenPage, entry.getPage())) {
                 return new EntryImpl(givenPage, entry.getCatalogPage(), entry.getNavigationRootPage());
             }
@@ -85,27 +89,27 @@ public class SiteNavigationImpl implements SiteNavigation {
     @Override
     public List<Entry> getProductPages(Page page) {
         return page != null
-            ? Collections.unmodifiableList(listSearchRoots(page, PN_CIF_PRODUCT_PAGE))
+            ? listSearchRoots(page, PN_CIF_PRODUCT_PAGE).collect(Collectors.toList())
             : Collections.emptyList();
     }
 
     @Override
     public boolean isProductPage(Page page) {
         return page != null && listSearchRoots(page, PN_CIF_PRODUCT_PAGE)
-            .stream().anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot.getPage()));
+            .anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot.getPage()));
     }
 
     @Override
     public List<Entry> getCategoryPages(Page page) {
         return page != null
-            ? Collections.unmodifiableList(listSearchRoots(page, PN_CIF_CATEGORY_PAGE))
+            ? listSearchRoots(page, PN_CIF_CATEGORY_PAGE).collect(Collectors.toList())
             : Collections.emptyList();
     }
 
     @Override
     public boolean isCategoryPage(Page page) {
         return page != null && listSearchRoots(page, PN_CIF_CATEGORY_PAGE)
-            .stream().anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot.getPage()));
+            .anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot.getPage()));
     }
 
     private boolean isEqualOrDescendant(Page givenPage, Page ancestorPage) {
@@ -144,11 +148,12 @@ public class SiteNavigationImpl implements SiteNavigation {
      * @param referenceProperties
      * @return
      */
-    private List<Entry> listSearchRoots(Page givenPage, String... referenceProperties) {
-        Map<String, Pair<Page, Page>> catalogPages = new LinkedHashMap<>();
+    private Stream<Entry> listSearchRoots(Page givenPage, String... referenceProperties) {
+        Set<String> catalogPageNames = new HashSet<>();
         Launch launch = getLaunch(givenPage);
         Page productionPage = givenPage;
         Page navigationRoot = null;
+        Stream<Pair<Page, Page>> catalogPagesStream = null;
 
         if (launch != null) {
             productionPage = getProductionPage(givenPage, launch);
@@ -162,13 +167,9 @@ public class SiteNavigationImpl implements SiteNavigation {
             // a) and b)
             if (launchNavigationRoot != null) {
                 navigationRoot = launchNavigationRoot;
-                for (Iterator<Page> children = launchNavigationRoot.listChildren(this::isCatalogPage); children.hasNext();) {
-                    Page catalogPage = children.next();
-                    // only consider catalog pages that are also contained in the Launch
-                    if (launch.containsResource(catalogPage.adaptTo(Resource.class))) {
-                        catalogPages.put(catalogPage.getName(), Pair.of(catalogPage, launchNavigationRoot));
-                    }
-                }
+                Iterable<Page> catalogPages = () -> launchNavigationRoot.listChildren(this::isCatalogPage);
+                catalogPagesStream = StreamSupport.stream(catalogPages.spliterator(), false)
+                    .map(catalogPage -> Pair.of(catalogPage, launchNavigationRoot));
             }
         }
 
@@ -180,24 +181,27 @@ public class SiteNavigationImpl implements SiteNavigation {
                     navigationRoot = productionNavigationRoot;
                 }
 
-                for (Iterator<Page> children = productionNavigationRoot.listChildren(this::isCatalogPage); children.hasNext();) {
-                    Page catalogPage = children.next();
-                    catalogPages.putIfAbsent(catalogPage.getName(), Pair.of(catalogPage, productionNavigationRoot));
-                }
+                Iterable<Page> catalogPages = () -> productionNavigationRoot.listChildren(this::isCatalogPage);
+                Stream<Pair<Page, Page>> stream = StreamSupport.stream(catalogPages.spliterator(), false)
+                    .map(catalogPage -> Pair.of(catalogPage, productionNavigationRoot));
+
+                catalogPagesStream = catalogPagesStream != null ? Stream.concat(catalogPagesStream, stream) : stream;
             }
         }
 
         if (navigationRoot == null) {
             LOG.debug("No navigation root found for: {}", givenPage.getPath());
-            return Collections.emptyList();
+            return Stream.empty();
         }
 
-        return Stream.concat(
-            catalogPages.values().stream(),
-            Stream.of(Pair.of((Page) null, navigationRoot)))
+        return Stream.concat(catalogPagesStream, Stream.of(Pair.of((Page) null, navigationRoot)))
+            .filter(pair -> {
+                // distinct by catalog page name
+                Page catalogPage = pair.getLeft();
+                return catalogPage == null || catalogPageNames.add(catalogPage.getName());
+            })
             .flatMap(pair -> resolveReferences(pair.getLeft(), pair.getRight(), launch, referenceProperties))
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            .filter(Objects::nonNull);
     }
 
     private Stream<Entry> resolveReferences(Page catalogPage, Page navigationRootPage, Launch launch, String[] referenceProperties) {

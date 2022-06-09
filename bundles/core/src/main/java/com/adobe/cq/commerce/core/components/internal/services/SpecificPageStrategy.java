@@ -113,9 +113,11 @@ public class SpecificPageStrategy {
 
     private boolean isSpecificPage(Page candidate, Page catalogPage) {
         // include only pages that have a filter set
-        ValueMap properties = candidate.getProperties();
-        return properties.get(SELECTOR_FILTER_PROPERTY, String[].class) != null
-            || properties.get(PN_USE_FOR_CATEGORIES, String[].class) != null;
+        ValueMap candidateProperties = candidate.getProperties();
+        ValueMap catalogPageProperties = catalogPage != null ? catalogPage.getProperties() : ValueMap.EMPTY;
+        return candidateProperties.get(SELECTOR_FILTER_PROPERTY, String[].class) != null
+            || candidateProperties.get(PN_USE_FOR_CATEGORIES, String[].class) != null
+            || catalogPageProperties.get(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class) != null;
     }
 
     public boolean isSpecificPageFor(SiteNavigation.Entry entry, ProductUrlFormat.Params params) {
@@ -123,8 +125,9 @@ public class SpecificPageStrategy {
     }
 
     private boolean isSpecificPageFor(Page candidate, Page catalogPage, ProductUrlFormat.Params params) {
-        boolean checkCategoryUrlPath = StringUtils.isNotEmpty(params.getCategoryUrlParams().getUrlPath());
-        boolean checkCategoryUrlKey = StringUtils.isNotEmpty(params.getCategoryUrlParams().getUrlKey());
+        CategoryUrlFormat.Params categoryParams = params.getCategoryUrlParams();
+        boolean checkCategoryUrlPath = StringUtils.isNotEmpty(categoryParams.getUrlPath());
+        boolean checkCategoryUrlKey = StringUtils.isNotEmpty(categoryParams.getUrlKey());
         ValueMap properties = candidate.getProperties();
         String[] productUrlKeys = properties.get(SELECTOR_FILTER_PROPERTY, new String[0]);
 
@@ -141,12 +144,10 @@ public class SpecificPageStrategy {
 
         String[] categoryUrlPaths = properties.get(PN_USE_FOR_CATEGORIES, new String[0]);
         boolean includesSubCategories = properties.get(INCLUDES_SUBCATEGORIES_PROPERTY, false);
-        CategoryUrlFormat.Params categoryParams = params.getCategoryUrlParams();
 
         if (checkCategoryUrlPath) {
             for (String categoryUrlPath : categoryUrlPaths) {
-                if (categoryUrlPath.equals(categoryParams.getUrlPath())
-                    || (includesSubCategories && StringUtils.startsWith(categoryParams.getUrlPath(), categoryUrlPath + "/"))) {
+                if (matchesUrlPath(categoryParams.getUrlPath(), categoryUrlPath, includesSubCategories)) {
                     return true;
                 }
             }
@@ -154,14 +155,13 @@ public class SpecificPageStrategy {
 
         if (checkCategoryUrlKey) {
             for (String categoryUrlPath : categoryUrlPaths) {
-                String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath, "/");
-                if (categoryUrlPath.equals(categoryParams.getUrlKey()) || categoryUrlKey.equals(categoryParams.getUrlKey())) {
+                if (matchesUrlKey(categoryParams.getUrlKey(), categoryUrlPath)) {
                     return true;
                 }
             }
         }
 
-        return false;
+        return isSpecificPageByCatalogPage(catalogPage, categoryParams);
     }
 
     public Page getSpecificPage(Page candidate, CategoryUrlFormat.Params params) {
@@ -232,8 +232,7 @@ public class SpecificPageStrategy {
         // check for url path
         if (checkUrlPath) {
             for (String categoryUrlPath : categoryUrlPaths) {
-                if (categoryUrlPath.equals(params.getUrlPath())
-                    || (includesSubCategories && StringUtils.startsWith(params.getUrlPath(), categoryUrlPath + "/"))) {
+                if (matchesUrlPath(params.getUrlPath(), categoryUrlPath, includesSubCategories)) {
                     return true;
                 }
             }
@@ -242,8 +241,7 @@ public class SpecificPageStrategy {
         // check for url key
         if (checkUrlKey) {
             for (String categoryUrlPath : categoryUrlPaths) {
-                String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath, "/");
-                if (categoryUrlPath.equals(params.getUrlKey()) || categoryUrlKey.equals(params.getUrlKey())) {
+                if (matchesUrlKey(params.getUrlKey(), categoryUrlPath)) {
                     return true;
                 }
             }
@@ -258,6 +256,33 @@ public class SpecificPageStrategy {
             }
         }
 
-        return false;
+        return isSpecificPageByCatalogPage(catalogPage, params);
+    }
+
+    private boolean isSpecificPageByCatalogPage(Page catalogPage, CategoryUrlFormat.Params params) {
+        if (catalogPage == null) {
+            return false;
+        }
+
+        String identifier = catalogPage.getProperties().get(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
+        String identifierType = catalogPage.getProperties().get(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE, String.class);
+
+        if (StringUtils.isEmpty(identifier) || !"urlPath".equals(identifierType)) {
+            // cannot match when the identifier is persisted as uid
+            return false;
+        }
+
+        return matchesUrlPath(params.getUrlPath(), identifier, true)
+            || matchesUrlKey(params.getUrlKey(), identifier);
+    }
+
+    private static boolean matchesUrlKey(String givenUrlKey, String categoryUrlPath) {
+        String categoryUrlKey = StringUtils.substringAfterLast(categoryUrlPath, "/");
+        return categoryUrlPath.equals(givenUrlKey) || categoryUrlKey.equals(givenUrlKey);
+    }
+
+    private static boolean matchesUrlPath(String givenUrlPath, String categoryUrlPath, boolean includeSubCategories) {
+        return categoryUrlPath.equals(givenUrlPath)
+            || (includeSubCategories && StringUtils.startsWith(givenUrlPath, categoryUrlPath + "/"));
     }
 }

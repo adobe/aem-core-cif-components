@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -84,7 +85,10 @@ public class GraphQLCategoryProviderTest {
     public void setup() throws IOException {
         graphqlClient = new GraphqlClientImpl();
         context.registerInjectActivateService(graphqlClient);
-        Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-navigation-result.json");
+        Utils.addHttpResponseFrom(
+            graphqlClient,
+            "graphql/magento-graphql-navigation-result.json",
+            "{categoryList(filters:{category_uid:{eq:\"Mg==\"}}){", "{categoryList(filters:{url_path:{eq:\"test\"}}){");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> graphqlClient);
     }
 
@@ -149,27 +153,30 @@ public class GraphQLCategoryProviderTest {
         // Test null categoryId
         Assert.assertTrue(categoryProvider.getChildCategoriesByUid(null, 5).isEmpty());
 
-        // Test category children found
-        List<CategoryTree> categories = categoryProvider.getChildCategoriesByUid("Mg==", 5);
-        Assert.assertEquals(6, categories.size());
-        Assert.assertEquals(categories.stream().sorted(Comparator.comparing(CategoryTree::getPosition)).collect(Collectors.toList()),
-            categories);
+        // Test category children found when searched by uid or url_path
+        List<CategoryTree> categoriesByUid = categoryProvider.getChildCategoriesByUid("Mg==", 5);
+        List<CategoryTree> categoriesByUrlPath = categoryProvider.getChildCategoriesByUrlPath("test", 5);
 
-        CategoryTree women = categories.get(1);
-        Assert.assertNotNull(women);
-        Assert.assertEquals("Women", women.getName());
-        List<CategoryTree> womenChildren = women.getChildren();
-        Assert.assertNotNull(womenChildren);
-        Assert.assertEquals(2, womenChildren.size());
-        CategoryTree tops = womenChildren.get(0);
-        Assert.assertNotNull(tops);
-        Assert.assertEquals("Tops", tops.getName());
-        List<CategoryTree> topsChildren = tops.getChildren();
-        Assert.assertNotNull(topsChildren);
-        Assert.assertEquals(3, topsChildren.size());
-        Assert.assertEquals(topsChildren.stream().sorted(Comparator.comparing(CategoryTree::getPosition)).collect(Collectors.toList()),
-            topsChildren);
+        for (List<CategoryTree> categories : Arrays.asList(categoriesByUid, categoriesByUrlPath)) {
+            Assert.assertEquals(6, categories.size());
+            Assert.assertEquals(categories.stream().sorted(Comparator.comparing(CategoryTree::getPosition)).collect(Collectors.toList()),
+                categories);
 
+            CategoryTree women = categories.get(1);
+            Assert.assertNotNull(women);
+            Assert.assertEquals("Women", women.getName());
+            List<CategoryTree> womenChildren = women.getChildren();
+            Assert.assertNotNull(womenChildren);
+            Assert.assertEquals(2, womenChildren.size());
+            CategoryTree tops = womenChildren.get(0);
+            Assert.assertNotNull(tops);
+            Assert.assertEquals("Tops", tops.getName());
+            List<CategoryTree> topsChildren = tops.getChildren();
+            Assert.assertNotNull(topsChildren);
+            Assert.assertEquals(3, topsChildren.size());
+            Assert.assertEquals(topsChildren.stream().sorted(Comparator.comparing(CategoryTree::getPosition)).collect(Collectors.toList()),
+                topsChildren);
+        }
     }
 
     @Test

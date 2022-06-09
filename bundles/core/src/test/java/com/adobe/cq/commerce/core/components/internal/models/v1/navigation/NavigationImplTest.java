@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import com.adobe.cq.commerce.core.components.internal.services.SiteNavigationImpl;
 import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
@@ -51,7 +52,6 @@ import com.shopify.graphql.support.ID;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.DEFAULT_STRUCTURE_DEPTH;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.MAX_STRUCTURE_DEPTH;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.MIN_STRUCTURE_DEPTH;
-import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER;
 import static com.adobe.cq.commerce.core.components.models.navigation.Navigation.PN_SHOW_MAIN_CATEGORIES;
 import static com.adobe.cq.commerce.core.components.models.navigation.Navigation.RT_CATALOG_PAGE;
 import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DEPTH;
@@ -591,10 +591,10 @@ public class NavigationImplTest {
         catalogPageProperties.put("cq:cifCategoryPage", categoryPagePath);
 
         if (!useCaConfig) {
-            catalogPageProperties.put(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4);
+            catalogPageProperties.put(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4);
         }
         when(catalogPageContent.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(new ValueMapDecorator(
-            ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4))));
+            ImmutableMap.of(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4))));
         when(catalogPageContent.getValueMap()).thenReturn(new ValueMapDecorator(catalogPageProperties));
         when(catalogPage.getContentResource()).thenReturn(catalogPageContent);
         when(catalogPage.getPath()).thenReturn("/content/catalog");
@@ -604,7 +604,7 @@ public class NavigationImplTest {
         when(catalogPageContent.getResourceResolver()).thenReturn(mockResourceResolver);
         when(pageManager.getPage(catalogPagePath)).thenReturn(catalogPage);
 
-        ValueMap configProperties = new ValueMapDecorator(ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4));
+        ValueMap configProperties = new ValueMapDecorator(ImmutableMap.of(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4));
 
         when(catalogPage.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(configProperties));
         when(siteNavigation.isCatalogPage(catalogPage)).thenReturn(Boolean.TRUE);

@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.services.SiteNavigationImpl;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -61,8 +62,6 @@ import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DE
     resourceType = NavigationImpl.RESOURCE_TYPE)
 public class NavigationImpl implements Navigation {
 
-    static final String PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER = "magentoRootCategoryId";
-    static final String PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE = "magentoRootCategoryIdType";
     static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
     static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
     static final int DEFAULT_STRUCTURE_DEPTH = 2;
@@ -180,17 +179,17 @@ public class NavigationImpl implements Navigation {
     }
 
     private void expandCatalogRoot(Page catalogPage, List<NavigationItem> pages) {
-        String rootCategoryIdentifier = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER);
-        String rootCategoryIdentifierType =  readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE);
+        String rootCategoryIdentifier = readPageConfiguration(catalogPage, SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER);
+        String rootCategoryIdentifierType = readPageConfiguration(catalogPage, SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE);
 
         if (rootCategoryIdentifier == null || StringUtils.isBlank(rootCategoryIdentifier)) {
             ComponentsConfiguration properties = catalogPage.getContentResource().adaptTo(ComponentsConfiguration.class);
-            rootCategoryIdentifier = properties.get(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
+            rootCategoryIdentifier = properties.get(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
             rootCategoryIdentifierType = "uid";
         }
 
         if (rootCategoryIdentifier == null) {
-            LOGGER.warn("Magento root category UID property (" + PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER + ") not found");
+            LOGGER.warn("Magento root category UID property (" + SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER + ") not found");
             return;
         }
 
