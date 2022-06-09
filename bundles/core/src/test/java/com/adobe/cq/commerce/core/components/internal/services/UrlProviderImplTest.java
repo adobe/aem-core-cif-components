@@ -48,6 +48,7 @@ import com.adobe.cq.commerce.core.components.internal.services.urlformats.Produc
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.SiteNavigation;
@@ -383,9 +384,7 @@ public class UrlProviderImplTest {
         // enabled specific page strategy and set another product url format than used by the specific search root
         configureSpecificPageStrategy(true);
         MockOsgi.deactivate(urlProvider, context.bundleContext());
-        MockOsgi.activate(urlProvider, context.bundleContext(),
-            "productPageUrlFormat", ProductPageWithSkuAndUrlPath.PATTERN,
-            "enableContextAwareProductUrls", true);
+        MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithSkuAndUrlPath.PATTERN);
 
         ProductUrlFormat.Params params = new ProductUrlFormat.Params();
         params.setUrlKey("bar");
@@ -402,6 +401,43 @@ public class UrlProviderImplTest {
 
         url = urlProvider.toProductUrl(request, currentPage, params);
         assertEquals("/content/product-page.html/5678/bar/foo.html", url);
+    }
+
+    /**
+     * This test checks that a search root is applicable for a given set of parameters independently of the ones the configured url format
+     * would be able to parse from the url.
+     * <p>
+     * The selection of a specific page is done only with those parameters of the url format that can also be parsed from the url.
+     * This is important when deep linking is not enabled (default on publish) to resolve the specific page from the requested page using
+     * the parameters available in the url. For the selection of the search root from multiple catalog pages this strict behavior is not
+     * necessary as even with deep linking disabled the link to the product/category points to the selected search root.
+     */
+    @Test
+    public void testProductPageWithMultipleCatalogPagesSelectionUsesAllUrlParameters() {
+        Page currentPage = context.currentPage("/content");
+
+        // create a catalog page as specific search root
+        context.create().page("/content/new-catalog", "catalogpage", ImmutableMap.of(
+            "sling:resourceType", SiteNavigation.RT_CATALOG_PAGE_V3,
+            SiteNavigationImpl.PN_CIF_PRODUCT_PAGE, "/content/new-catalog/product",
+            SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, "foo",
+            SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE, "urlPath"));
+        context.create().page("/content/new-catalog/product");
+
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            "productPageUrlFormat", ProductPageWithUrlKey.PATTERN,
+            "enableContextAwareProductUrls", true);
+
+        // the category url params cannot be parsed from url by the ProductPageWithUrlKey, but the selection based on the catalog page
+        // should still work
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setUrlKey("bar");
+        params.getCategoryUrlParams().setUrlKey("foo");
+        params.getCategoryUrlParams().setUrlPath("foo");
+
+        String url = urlProvider.toProductUrl(request, currentPage, params);
+        assertEquals("/content/new-catalog/product.html/bar.html", url);
     }
 
     @Test

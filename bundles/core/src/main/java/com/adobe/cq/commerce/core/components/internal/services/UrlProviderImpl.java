@@ -324,7 +324,8 @@ public class UrlProviderImpl implements UrlProvider {
             }
         } else {
             if (params.getCategoryUrlParams().getUrlKey() != null && params.getCategoryUrlParams().getUrlPath() != null) {
-                // remove the category context again in order to enforce canonical urls to be returned
+                // unset the category context to enforce canonical urls to be returned by the formats
+                // see UrlFormatBase.selectUrlPath()
                 copy.getCategoryUrlParams().setUrlKey(null);
                 copy.getCategoryUrlParams().setUrlPath(null);
             }
@@ -401,7 +402,7 @@ public class UrlProviderImpl implements UrlProvider {
             // A search root may have a different cloud configuration set to configure features like the url provider format. We should
             // take the format that is relevant for the search root.
             F searchRootFormat = formatSelector.apply(searchRoot.getPage());
-            // To prevent that all search roots are traversed for every page, we consider the search root only if
+            // To prevent traversing all search roots for every page, we consider the search root only if
             // a) it is not a specific page itself (no filters set nor inherited from a catalog page), or
             // b) it is a specific page for the given parameters
             boolean isGenericSearchRoot = !specificPageStrategy.isSpecificPage(searchRoot);
@@ -410,8 +411,7 @@ public class UrlProviderImpl implements UrlProvider {
                 if (specificPage != null && deepLinkSpecificPages) {
                     // if deep linking is enabled return the path of the specific page
                     return Pair.of(specificPage, searchRootFormat);
-                }
-                if (specificPage != null || isGenericSearchRoot) {
+                } else {
                     // if not return the path of the search root the specific page belongs to
                     return Pair.of(searchRoot.getPage(), searchRootFormat);
                 }
