@@ -119,14 +119,14 @@ public class SiteNavigationImpl implements SiteNavigation {
     }
 
     @Override
-    public Entry getNavigationRootPage(Page currentPage) {
-        Page rootPage = findNavigationRoot(currentPage);
-        if (rootPage == null && LaunchUtils.isLaunchBasedPath(currentPage.getPath())) {
+    public Entry getNavigationRootPage(Page page) {
+        Page rootPage = findNavigationRoot(page);
+        if (rootPage == null && LaunchUtils.isLaunchBasedPath(page.getPath())) {
             // if in a Launch without a navigation root page, search again on the production page
-            Launch launch = getLaunch(currentPage);
+            Launch launch = getLaunch(page);
             if (launch != null) {
-                currentPage = getProductionPage(currentPage, launch);
-                rootPage = findNavigationRoot(currentPage);
+                page = getProductionPage(page, launch);
+                rootPage = findNavigationRoot(page);
             }
         }
         return rootPage != null ? new EntryImpl(rootPage, null, rootPage) : null;
@@ -134,10 +134,17 @@ public class SiteNavigationImpl implements SiteNavigation {
 
     @Override
     public Entry getSearchResultsPage(Page page) {
-        Iterator<Entry> searchResultsPages = page != null
-            ? listSearchRoots(page, PN_CIF_SEARCH_RESULTS_PAGE).iterator()
-            : Collections.emptyIterator();
-        return searchResultsPages.hasNext() ? searchResultsPages.next() : null;
+        Entry navigationRootEntry = getNavigationRootPage(page);
+        if (navigationRootEntry != null) {
+            Launch launch = LaunchUtils.isLaunchBasedPath(page.getPath())
+                ? getLaunch(page)
+                : null;
+            Page searchResultsPage = resolveReference(navigationRootEntry.getPage(), launch, PN_CIF_SEARCH_RESULTS_PAGE);
+            if (searchResultsPage != null) {
+                return new EntryImpl(searchResultsPage,null,navigationRootEntry.getNavigationRootPage());
+            }
+        }
+        return null;
     }
 
     /**
