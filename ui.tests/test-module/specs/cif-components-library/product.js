@@ -41,11 +41,11 @@ describe('Product component in CIF components library', () => {
         browser.url(product_page);
 
         // Check that the grey variant color selection is displayed
-        const greyColorButton = $(`${product_selector} button.tile__root[data-id="52"]`);
+        const greyColorButton = $(`${product_selector} button.tile__root[data-id="NTI="]`);
         expect(greyColorButton).toBeDisplayed();
 
         // Check that the L variant size selection is displayed
-        const largeSizeButton = $(`${product_selector} button.tile__root[data-id="172"]`);
+        const largeSizeButton = $(`${product_selector} button.tile__root[data-id="MTcy"]`);
         expect(largeSizeButton).toBeDisplayed();
 
         // Select grey and size L
