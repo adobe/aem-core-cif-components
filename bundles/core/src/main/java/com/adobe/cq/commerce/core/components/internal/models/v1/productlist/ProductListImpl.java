@@ -82,7 +82,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     private static final boolean SHOW_TITLE_DEFAULT = true;
     private static final boolean SHOW_IMAGE_DEFAULT = true;
     private static final String CATEGORY_PROPERTY = "category";
-    private static final String CATEGORY_AGGREGATION_ID = "category_id";
+    static final String CATEGORY_AGGREGATION_ID = "category_id";
 
     private boolean showTitle;
     private boolean showImage;
@@ -236,30 +236,32 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                     List<SearchAggregationOption> options = categoryAggregation.getOptions();
 
                     // find and process category aggregation options related to child categories of current category
-                    List<SearchAggregationOption> filteredOptions = options.stream().filter(option -> {
-                        Optional<CategoryTree> categoryRef = childCategories.stream().filter(c -> String.valueOf(c.getId()).equals(option
-                            .getFilterValue())).findAny();
+                    List<SearchAggregationOption> filteredOptions = options.stream().map(
+                        option -> option instanceof SearchAggregationOptionImpl ? (SearchAggregationOptionImpl) option
+                            : new SearchAggregationOptionImpl(option)).filter(option -> {
+                                Optional<CategoryTree> categoryRef = childCategories.stream().filter(c -> String.valueOf(c.getId()).equals(
+                                    option.getFilterValue())).findAny();
 
-                        if (categoryRef.isPresent()) {
-                            CategoryTree category = categoryRef.get();
-                            CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
-                            params.setUid(category.getUid().toString());
-                            params.setUrlKey(category.getUrlKey());
-                            params.setUrlPath(category.getUrlPath());
-                            SearchAggregationOptionImpl optionImpl = (SearchAggregationOptionImpl) option;
-                            optionImpl.setPageUrl(urlProvider.toCategoryUrl(request, currentPage, params));
-                            optionImpl.getAddFilterMap().remove(CATEGORY_AGGREGATION_ID);
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    }).collect(Collectors.toList());
+                                if (categoryRef.isPresent()) {
+                                    CategoryTree category = categoryRef.get();
+                                    CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+                                    params.setUid(category.getUid().toString());
+                                    params.setUrlKey(category.getUrlKey());
+                                    params.setUrlPath(category.getUrlPath());
+                                    option.setPageUrl(urlProvider.toCategoryUrl(request, currentPage, params));
+                                    option.getAddFilterMap().remove(CATEGORY_AGGREGATION_ID);
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            }).collect(Collectors.toList());
 
                     // keep filtered options only or remove category aggregation if no option was found
                     if (filteredOptions.isEmpty()) {
                         searchAggregations.removeIf(a -> CATEGORY_AGGREGATION_ID.equals(a.getIdentifier()));
                     } else {
-                        options.retainAll(filteredOptions);
+                        options.clear();
+                        options.addAll(filteredOptions);
                         // move category aggregation to front
                         searchAggregations.stream().filter(a -> CATEGORY_AGGREGATION_ID.equals(a.getIdentifier())).findAny().ifPresent(
                             aggregation -> {

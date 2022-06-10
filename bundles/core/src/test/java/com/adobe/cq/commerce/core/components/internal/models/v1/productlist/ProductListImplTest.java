@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.io.IOException;
+import java.lang.reflect.Proxy;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Currency;
@@ -23,8 +24,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
@@ -57,21 +60,13 @@ import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
-import com.adobe.cq.commerce.core.search.models.SearchAggregation;
-import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
-import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
-import com.adobe.cq.commerce.core.search.models.Sorter;
-import com.adobe.cq.commerce.core.search.models.SorterKey;
+import com.adobe.cq.commerce.core.search.models.*;
+import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
-import com.adobe.cq.commerce.magento.graphql.CategoryTree;
-import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
-import com.adobe.cq.commerce.magento.graphql.ProductImage;
-import com.adobe.cq.commerce.magento.graphql.ProductInterface;
-import com.adobe.cq.commerce.magento.graphql.Products;
-import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.*;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
@@ -309,7 +304,8 @@ public class ProductListImplTest {
         Assert.assertEquals(8, searchAggregations.size());
 
         // check category aggregation
-        Optional<SearchAggregation> categoryIdAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("category_id"))
+        Optional<SearchAggregation> categoryIdAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals(
+            ProductListImpl.CATEGORY_AGGREGATION_ID))
             .findAny();
         Assert.assertTrue(categoryIdAggregation.isPresent());
         List<SearchAggregationOption> options = categoryIdAggregation.get().getOptions();
@@ -332,6 +328,87 @@ public class ProductListImplTest {
         Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("30-40")));
         Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("40-*")));
         Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("14")));
+    }
+
+    // custom marker interface for search aggregation options
+    private interface MySearchAggregationOption {};
+
+    @Test
+    public void getProductsWithCustomAggregationOptions() {
+        adaptToProductList();
+
+        // inject custom search results service which returns custom search aggregation objects
+        SearchResultsService searchResultsService = (SearchResultsService) Whitebox.getInternalState(productListModel,
+            "searchResultsService");
+        ClassLoader classLoader = getClass().getClassLoader();
+        Whitebox.setInternalState(productListModel, "searchResultsService", Proxy.newProxyInstance(classLoader,
+            new Class[] { SearchResultsService.class }, (proxy, method, args) -> {
+                if (method.getName().equals("performSearch") && method.getParameterCount() == 6) {
+                    Pair<CategoryInterface, SearchResultsSet> pair = searchResultsService.performSearch(
+                        (SearchOptions) args[0],
+                        (Resource) args[1],
+                        (Page) args[2],
+                        (SlingHttpServletRequest) args[3],
+                        (Consumer<ProductInterfaceQuery>) args[4],
+                        (AbstractCategoryRetriever) args[5]);
+
+                    Class[] optionInterfaces = { SearchAggregationOption.class, MySearchAggregationOption.class };
+                    for (SearchAggregation aggregation : pair.getRight().getSearchAggregations()) {
+                        List<SearchAggregationOption> options = aggregation.getOptions();
+                        List<SearchAggregationOption> myOptions = options.stream().map(
+                            o -> (SearchAggregationOption) Proxy.newProxyInstance(classLoader, optionInterfaces,
+                                (oProxy, oMethod, oArgs) -> oMethod.invoke(o, oArgs))).collect(Collectors.toList());
+                        options.clear();
+                        options.addAll(myOptions);
+                    }
+
+                    return pair;
+                } else {
+                    return method.invoke(searchResultsService, args);
+                }
+            }));
+
+        Collection<ProductListItem> products = productListModel.getProducts();
+        Assert.assertNotNull(products);
+
+        // We introduce one "faulty" product data in the response, it should be skipped
+        Assert.assertEquals(4, products.size());
+
+        SearchResultsSet searchResultsSet = productListModel.getSearchResultsSet();
+        List<SearchAggregation> searchAggregations = searchResultsSet.getSearchAggregations();
+        Assert.assertEquals(8, searchAggregations.size());
+
+        // check category aggregation
+        Optional<SearchAggregation> categoryIdAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals(
+            ProductListImpl.CATEGORY_AGGREGATION_ID))
+            .findAny();
+        Assert.assertTrue(categoryIdAggregation.isPresent());
+        List<SearchAggregationOption> options = categoryIdAggregation.get().getOptions();
+        Assert.assertEquals(2, options.size());
+
+        SearchAggregationOption opt = options.get(0);
+        // for category aggregation custom options are replaced
+        Assert.assertFalse(opt instanceof MySearchAggregationOption);
+        Assert.assertEquals("3", opt.getFilterValue());
+        Assert.assertEquals("Gear", opt.getDisplayLabel());
+        Assert.assertEquals("/content/pageA.html/running/gear.html", opt.getPageUrl());
+
+        opt = options.get(1);
+        Assert.assertFalse(opt instanceof MySearchAggregationOption);
+        Assert.assertEquals("4", opt.getFilterValue());
+        Assert.assertEquals("Bags", opt.getDisplayLabel());
+        Assert.assertEquals("/content/pageA.html/running/bags.html", opt.getPageUrl());
+
+        // We want to make sure all price ranges are properly processed
+        SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();
+        Assert.assertEquals(3, priceAggregation.getOptions().size());
+        Assert.assertEquals(3, priceAggregation.getOptionCount());
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("30-40")));
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("40-*")));
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("14")));
+
+        // for others aggregations custom options are preserved
+        Assert.assertTrue(priceAggregation.getOptions().get(0) instanceof MySearchAggregationOption);
     }
 
     @Test

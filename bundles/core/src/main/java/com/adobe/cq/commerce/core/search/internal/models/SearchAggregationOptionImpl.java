@@ -32,6 +32,16 @@ public class SearchAggregationOptionImpl implements SearchAggregationOption {
     private Map<String, String> addFilterMap;
     private String pageUrl;
 
+    public SearchAggregationOptionImpl() {}
+
+    public SearchAggregationOptionImpl(SearchAggregationOption that) {
+        this.filterValue = that.getFilterValue();
+        this.displayLabel = that.getDisplayLabel();
+        this.count = that.getCount();
+        this.addFilterMap = that.getAddFilterMap();
+        this.pageUrl = that.getPageUrl();
+    }
+
     @Nonnull
     @Override
     public String getFilterValue() {
