@@ -40,6 +40,7 @@ import org.apache.sling.models.annotations.via.ForcedResourceType;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.UrlFormatBase;
 import com.adobe.cq.commerce.core.components.models.breadcrumb.Breadcrumb;
 import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
@@ -153,23 +154,25 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         }
 
         // For product and category pages, we fetch the breadcrumbs
-        boolean isProductPage = siteStructure.isProductPage(page);
-        boolean isCategoryPage = siteStructure.isCategoryPage(page);
+        boolean isProductPage = false;
+        boolean isCategoryPage = false;
         List<? extends CategoryInterface> categoriesBreadcrumbs = null;
         String productSku = null;
-        if (isProductPage) {
+        if (siteStructure.isProductPage(page)) {
             productSku = urlProvider.getProductIdentifier(request);
             if (StringUtils.isEmpty(productSku)) {
                 return false;
             }
             ProductUrlFormat.Params urlParams = urlProvider.parseProductUrlFormatParameters(request);
             categoriesBreadcrumbs = fetchProductBreadcrumbs(productSku, urlParams, magentoGraphqlClient);
-        } else if (isCategoryPage) {
+            isProductPage = true;
+        } else if (siteStructure.isCategoryPage(page)) {
             String categoryUid = urlProvider.getCategoryIdentifier(request);
             if (StringUtils.isEmpty(categoryUid)) {
                 return false;
             }
             categoriesBreadcrumbs = fetchCategoryBreadcrumbs(categoryUid, magentoGraphqlClient);
+            isCategoryPage = true;
         } else {
             items.add(item);
             return true; // we reached a content page
@@ -179,24 +182,34 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             return false;
         }
 
+        SiteStructure.Entry siteStructureEntry = siteStructure.getEntry(page);
+
         // A product can be in multiple categories so we select the "primary" category
         CategoryInterface categoryBreadcrumb = categoriesBreadcrumbs.get(0);
         if (isProductPage) {
-            categoriesBreadcrumbs.sort(getCategoryInterfaceComparator());
+            categoriesBreadcrumbs.sort(Comparator.comparing(CategoryInterface::getUrlPath).reversed());
             categoryBreadcrumb = categoriesBreadcrumbs.get(0);
         }
 
+        int added = 0;
         // For products and categories, we display the category path in the breadcrumb
         List<com.adobe.cq.commerce.magento.graphql.Breadcrumb> breadcrumbs = categoryBreadcrumb.getBreadcrumbs();
         if (breadcrumbs != null) {
-            int max = Integer.min(structureDepth, breadcrumbs.size());
-            for (int i = 0; i < max; i++) {
-                addBreadcrumbItem(breadcrumbs.get(i), false);
+            for (com.adobe.cq.commerce.magento.graphql.Breadcrumb breadcrumb : breadcrumbs) {
+                if (shouldIncludeInBreadcrumb(breadcrumb.getCategoryUrlPath(), siteStructureEntry.getCatalogPage())) {
+                    addBreadcrumbItem(breadcrumb, false);
+                    if (++added == structureDepth) {
+                        break;
+                    }
+                }
             }
         }
 
         // The category itself is not included by Magento in the breadcrumb, so we also add it
-        addCategoryItem(categoryBreadcrumb, isCategoryPage);
+        if (added < structureDepth
+            && shouldIncludeInBreadcrumb(categoryBreadcrumb.getUrlPath(), siteStructureEntry.getCatalogPage())) {
+            addCategoryItem(categoryBreadcrumb, isCategoryPage);
+        }
 
         // We finally add the product if it's a product page
         if (isProductPage && StringUtils.isNotBlank(productSku)) {
@@ -206,6 +219,28 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         }
 
         return false;
+    }
+
+    private boolean shouldIncludeInBreadcrumb(String breadcrumbUrlPath, Page catalogPage) {
+        ValueMap properties = catalogPage != null ? catalogPage.getProperties() : ValueMap.EMPTY;
+        boolean showMainCategories = properties.get(Navigation.PN_SHOW_MAIN_CATEGORIES, Boolean.TRUE);
+
+        if (showMainCategories) {
+            // catalog page is not in the breadcrumb so include all categories
+            return true;
+        }
+
+        String categoryIdentifier = properties.get(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
+        String categoryIdentifierType = properties.get(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE, String.class);
+
+        if ("urlPath".equals(categoryIdentifierType) && StringUtils.isNotEmpty(categoryIdentifier)) {
+            // if category url path is set on catalog page, hide all categories that are equal or ancestor of the url path
+            return !categoryIdentifier.equals(breadcrumbUrlPath)
+                && !StringUtils.startsWith(categoryIdentifier, breadcrumbUrlPath + "/");
+        }
+
+        // for backwards compatibility, don't hide anything
+        return true;
     }
 
     private void addBreadcrumbItem(com.adobe.cq.commerce.magento.graphql.Breadcrumb b, boolean isActive) {
@@ -265,7 +300,10 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         String contextUrlPath = UrlFormatBase.selectUrlPath(null, alternatives, null, urlParams.getCategoryUrlParams().getUrlKey(),
             urlParams.getCategoryUrlParams().getUrlPath());
 
-        // include only categories that are ancestors or descendants of the contextUrlPath
+        // include only categories that are ancestors or descendants of the contextUrlPath.
+        // the contextUrlPath is either contextual to product/category page, or it is the canonical urlPath of the product
+        // however after that filter the list contains only a linear tree of categories: men, men/tops, men/tops/tanks
+        // but not men, men/tops, woman, woman/tops, men/tops/tanks
         return categories.stream()
             .filter(category -> contextUrlPath.startsWith(category.getUrlPath() + "/") || contextUrlPath.equals(category.getUrlPath()))
             .collect(Collectors.toList());

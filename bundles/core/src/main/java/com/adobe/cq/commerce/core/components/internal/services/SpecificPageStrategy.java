@@ -31,6 +31,7 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.UrlFormatBase;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.day.cq.wcm.api.Page;
@@ -242,10 +243,16 @@ public class SpecificPageStrategy {
     }
 
     public boolean isSpecificCatalogPageFor(Page catalogPage, ProductUrlFormat.Params params) {
-        return isSpecificCatalogPageFor(catalogPage, params.getCategoryUrlParams());
+        String contextUrlPath = UrlFormatBase.selectUrlPath(params);
+        String contextUrlKey = UrlFormatBase.getUrlKey(params);
+        return isSpecificCatalogPageFor(catalogPage, contextUrlKey, contextUrlPath);
     }
 
     public boolean isSpecificCatalogPageFor(Page catalogPage, CategoryUrlFormat.Params params) {
+        return isSpecificCatalogPageFor(catalogPage, params.getUrlKey(), params.getUrlPath());
+    }
+
+    private boolean isSpecificCatalogPageFor(Page catalogPage, String urlKey, String urlPath) {
         if (catalogPage == null) {
             return false;
         }
@@ -258,8 +265,8 @@ public class SpecificPageStrategy {
             return false;
         }
 
-        return matchesUrlPath(params.getUrlPath(), identifier, true)
-            || matchesUrlKey(params.getUrlKey(), identifier);
+        return matchesUrlPath(urlPath, identifier, true)
+            || matchesUrlKey(urlKey, identifier);
     }
 
     private static boolean matchesUrlKey(String givenUrlKey, String categoryUrlPath) {

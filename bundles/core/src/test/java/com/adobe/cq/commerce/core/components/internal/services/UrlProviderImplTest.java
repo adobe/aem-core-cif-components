@@ -453,8 +453,9 @@ public class UrlProviderImplTest {
         // should still work
         ProductUrlFormat.Params params = new ProductUrlFormat.Params();
         params.setUrlKey("bar");
-        params.getCategoryUrlParams().setUrlKey("foo");
-        params.getCategoryUrlParams().setUrlPath("foo");
+        params.setUrlRewrites(Arrays.asList(
+            new UrlRewrite().setUrl("bar"),
+            new UrlRewrite().setUrl("foo/bar")));
 
         String url = urlProvider.toProductUrl(request, currentPage, params);
         assertEquals("/content/new-catalog/product.html/bar.html", url);

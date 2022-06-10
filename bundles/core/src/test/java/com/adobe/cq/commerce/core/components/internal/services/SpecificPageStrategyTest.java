@@ -250,22 +250,17 @@ public class SpecificPageStrategyTest {
         // given
         Page catalogPage = context.pageManager().getPage("/content/additional-catalog-page");
         ProductUrlFormat.Params params = new ProductUrlFormat.Params();
-
+        params.setUrlKey("product");
         // when category url key does not match the catalog page's category, then
-        params.getCategoryUrlParams().setUrlKey("men");
+        params.setUrlPath("men/product");
         assertFalse(subject.isSpecificCatalogPageFor(catalogPage, params));
 
-        // when the category url key matches the catalog's category by url key, then
-        params.getCategoryUrlParams().setUrlKey("men-tops");
-        assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
-
         // when the category url key matches the catalog's category by url path, then
-        params.getCategoryUrlParams().setUrlPath("men/men-tops");
+        params.setUrlPath("men/men-tops/product");
         assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
 
         // when the category url key matches the catalog's category by url path descendant, then
-        params.getCategoryUrlParams().setUrlKey("men-sweaters");
-        params.getCategoryUrlParams().setUrlPath("men/men-tops/men-sweaters");
+        params.setUrlPath("men/men-tops/men-sweaters/product");
         assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
     }
 
