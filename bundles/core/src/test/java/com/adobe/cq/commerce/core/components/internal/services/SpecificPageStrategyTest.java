@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.day.cq.wcm.api.Page;
@@ -27,9 +28,9 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class SpecificPageStrategyTest {
 
@@ -248,20 +249,24 @@ public class SpecificPageStrategyTest {
             "/content/additional-catalog-page");
 
         // given
-        Page catalogPage = context.pageManager().getPage("/content/additional-catalog-page");
+        Page productPage = context.pageManager().getPage("/content/additional-catalog-page/product-page");
+        SiteStructure siteStructure = productPage.adaptTo(SiteStructure.class);
         ProductUrlFormat.Params params = new ProductUrlFormat.Params();
         params.setUrlKey("product");
         // when category url key does not match the catalog page's category, then
         params.setUrlPath("men/product");
-        assertFalse(subject.isSpecificCatalogPageFor(catalogPage, params));
+        Page genericPage = subject.getGenericPage(siteStructure, params);
+        assertNotEquals(productPage, genericPage);
 
         // when the category url key matches the catalog's category by url path, then
         params.setUrlPath("men/men-tops/product");
-        assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
+        genericPage = subject.getGenericPage(siteStructure, params);
+        assertEquals(productPage, genericPage);
 
         // when the category url key matches the catalog's category by url path descendant, then
         params.setUrlPath("men/men-tops/men-sweaters/product");
-        assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
+        genericPage = subject.getGenericPage(siteStructure, params);
+        assertEquals(productPage, genericPage);
     }
 
     @Test
@@ -271,24 +276,25 @@ public class SpecificPageStrategyTest {
             "/content/additional-catalog-page");
 
         // given
-        Page catalogPage = context.pageManager().getPage("/content/additional-catalog-page");
+        Page categoryPage = context.pageManager().getPage("/content/additional-catalog-page/category-page");
+        SiteStructure siteStructure = categoryPage.adaptTo(SiteStructure.class);
         CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
 
         // when category url key does not match the catalog page's category, then
         params.setUrlKey("men");
-        assertFalse(subject.isSpecificCatalogPageFor(catalogPage, params));
+        assertNotEquals(categoryPage, subject.getGenericPage(siteStructure, params));
 
         // when the category url key matches the catalog's category by url key, then
         params.setUrlKey("men-tops");
-        assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
+        assertEquals(categoryPage, subject.getGenericPage(siteStructure, params));
 
         // when the category url key matches the catalog's category by url path, then
         params.setUrlPath("men/men-tops");
-        assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
+        assertEquals(categoryPage, subject.getGenericPage(siteStructure, params));
 
         // when the category url key matches the catalog's category by url path descendant, then
         params.setUrlKey("men-sweaters");
         params.setUrlPath("men/men-tops/men-sweaters");
-        assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
+        assertEquals(categoryPage, subject.getGenericPage(siteStructure, params));
     }
 }

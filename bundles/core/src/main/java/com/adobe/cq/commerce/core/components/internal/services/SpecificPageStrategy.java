@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -32,6 +33,7 @@ import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.UrlFormatBase;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.day.cq.wcm.api.Page;
@@ -80,6 +82,27 @@ public class SpecificPageStrategy {
         return generateSpecificPageUrls;
     }
 
+    public Page getGenericPage(SiteStructure siteStructure, ProductUrlFormat.Params params) {
+        return getGenericPage(siteStructure.getProductPages(), cp -> this.isSpecificCatalogPageFor(cp, params));
+    }
+
+    public Page getGenericPage(SiteStructure siteStructure, CategoryUrlFormat.Params params) {
+        return getGenericPage(siteStructure.getCategoryPages(), cp -> this.isSpecificCatalogPageFor(cp, params));
+    }
+
+    private Page getGenericPage(List<SiteStructure.Entry> searchRoots, Predicate<Page> catalogPageCheck) {
+        for (SiteStructure.Entry searchRoot : searchRoots) {
+            // To prevent traversing all search roots for every page, we consider the search root only if
+            // a) it is not a specific page itself (no filters set nor inherited from a catalog page), or
+            // b) it is a specific page for the given parameters
+            boolean isGenericSearchRoot = !isSpecificCatalogPage(searchRoot.getCatalogPage());
+            if (isGenericSearchRoot || catalogPageCheck.test(searchRoot.getCatalogPage())) {
+                return searchRoot.getPage();
+            }
+        }
+        return null;
+    }
+
     private Stream<Page> traverse(Page page) {
         Iterable<Page> children = page != null ? page::listChildren : Collections.emptyList();
         return StreamSupport.stream(children.spliterator(), false)
@@ -98,7 +121,7 @@ public class SpecificPageStrategy {
             .orElse(null);
     }
 
-    public boolean isSpecificPage(Page candidate) {
+    private boolean isSpecificPage(Page candidate) {
         // include only pages that have a filter set
         ValueMap candidateProperties = candidate.getProperties();
         return candidateProperties.get(SELECTOR_FILTER_PROPERTY, String[].class) != null
@@ -231,7 +254,7 @@ public class SpecificPageStrategy {
         return false;
     }
 
-    public boolean isSpecificCatalogPage(Page catalogPage) {
+    private boolean isSpecificCatalogPage(Page catalogPage) {
         if (catalogPage == null) {
             return false;
         }
@@ -242,13 +265,13 @@ public class SpecificPageStrategy {
         return StringUtils.isNotEmpty(identifier) && "urlPath".equals(identifierType);
     }
 
-    public boolean isSpecificCatalogPageFor(Page catalogPage, ProductUrlFormat.Params params) {
+    private boolean isSpecificCatalogPageFor(Page catalogPage, ProductUrlFormat.Params params) {
         String contextUrlPath = UrlFormatBase.selectUrlPath(params);
         String contextUrlKey = UrlFormatBase.getUrlKey(params);
         return isSpecificCatalogPageFor(catalogPage, contextUrlKey, contextUrlPath);
     }
 
-    public boolean isSpecificCatalogPageFor(Page catalogPage, CategoryUrlFormat.Params params) {
+    private boolean isSpecificCatalogPageFor(Page catalogPage, CategoryUrlFormat.Params params) {
         return isSpecificCatalogPageFor(catalogPage, params.getUrlKey(), params.getUrlPath());
     }
 

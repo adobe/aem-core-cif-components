@@ -185,11 +185,8 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         SiteStructure.Entry siteStructureEntry = siteStructure.getEntry(page);
 
         // A product can be in multiple categories so we select the "primary" category
+        categoriesBreadcrumbs.sort(Comparator.comparing(CategoryInterface::getUrlPath).reversed());
         CategoryInterface categoryBreadcrumb = categoriesBreadcrumbs.get(0);
-        if (isProductPage) {
-            categoriesBreadcrumbs.sort(Comparator.comparing(CategoryInterface::getUrlPath).reversed());
-            categoryBreadcrumb = categoriesBreadcrumbs.get(0);
-        }
 
         int added = 0;
         // For products and categories, we display the category path in the breadcrumb
