@@ -21,14 +21,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.header.Header;
-import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.day.cq.wcm.api.Page;
 
 /**
@@ -54,15 +54,15 @@ public class HeaderImpl implements Header {
     @SlingObject
     private Resource resource;
 
-    @OSGiService
-    private SiteNavigation siteNavigation;
+    @Self
+    private SiteStructure siteStructure;
 
     private Page navigationRootPage;
 
     @PostConstruct
     private void initModel() {
-        SiteNavigation.Entry entry = siteNavigation.getNavigationRootPage(currentPage);
-        navigationRootPage = entry != null ? entry.getNavigationRootPage() : null;
+        SiteStructure.Entry entry = siteStructure.getLandingPage();
+        navigationRootPage = entry != null ? entry.getLandingPage() : null;
 
         if (navigationRootPage == null) {
             LOGGER.warn("Navigation root page not found for page " + currentPage.getPath());

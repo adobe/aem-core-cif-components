@@ -44,8 +44,10 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
+import com.adobe.cq.commerce.core.components.internal.services.site.UnknownSiteStructure;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.adobe.cq.commerce.core.components.services.sitemap.SitemapCategoryFilter;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
@@ -90,7 +92,7 @@ public class CategoriesSitemapGenerator extends SitemapGeneratorBase implements 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
     private SitemapCategoryFilter categoryFilter;
     @Reference
-    private SiteNavigation siteNavigation;
+    private SiteStructureFactory siteStructureFactory;
 
     private boolean addLastModified;
 
@@ -102,7 +104,8 @@ public class CategoriesSitemapGenerator extends SitemapGeneratorBase implements 
     @Override
     public Set<String> getNames(Resource sitemapRoot) {
         Page page = sitemapRoot.adaptTo(Page.class);
-        return siteNavigation.isCategoryPage(page) ? Collections.singleton(SitemapService.DEFAULT_SITEMAP_NAME) : Collections.emptySet();
+        SiteStructure siteStructure = page != null ? siteStructureFactory.getSiteStructure(page) : UnknownSiteStructure.INSTANCE;
+        return siteStructure.isCategoryPage(page) ? Collections.singleton(SitemapService.DEFAULT_SITEMAP_NAME) : Collections.emptySet();
     }
 
     @Override

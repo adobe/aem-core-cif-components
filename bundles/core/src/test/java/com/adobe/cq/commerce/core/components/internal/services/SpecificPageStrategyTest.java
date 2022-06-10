@@ -19,7 +19,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.day.cq.wcm.api.Page;
@@ -30,6 +29,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class SpecificPageStrategyTest {
 
@@ -51,14 +51,6 @@ public class SpecificPageStrategyTest {
         anyPage = context.pageManager().getPage("/content/catalog-page");
     }
 
-    private SiteNavigation.Entry newEntry(Page page) {
-        return newEntry(page, null);
-    }
-
-    private SiteNavigation.Entry newEntry(Page page, Page catalogPage) {
-        return new SiteNavigationImpl.EntryImpl(page, catalogPage, navRoot);
-    }
-
     @Test
     public void testDefaultGenerateSpecificPageUrls() {
         assertFalse(subject.isGenerateSpecificPageUrlsEnabled());
@@ -71,7 +63,7 @@ public class SpecificPageStrategyTest {
         params.setSku("unknown");
 
         // when
-        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
+        Page specificPage = subject.getSpecificPage(productPage, params);
 
         // then
         assertNull(specificPage);
@@ -84,7 +76,7 @@ public class SpecificPageStrategyTest {
         params.setUrlKey("productId1");
 
         // when
-        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
+        Page specificPage = subject.getSpecificPage(productPage, params);
 
         // then
         assertNotNull(specificPage);
@@ -98,7 +90,7 @@ public class SpecificPageStrategyTest {
         params.setSku("productId2");
 
         // when
-        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
+        Page specificPage = subject.getSpecificPage(productPage, params);
 
         // then
         assertNotNull(specificPage);
@@ -114,7 +106,7 @@ public class SpecificPageStrategyTest {
         params.getCategoryUrlParams().setUrlKey("women");
 
         // when
-        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
+        Page specificPage = subject.getSpecificPage(productPage, params);
 
         // then
         assertNotNull(specificPage);
@@ -130,7 +122,7 @@ public class SpecificPageStrategyTest {
         params.getCategoryUrlParams().setUrlKey("women-bottoms");
 
         // when
-        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
+        Page specificPage = subject.getSpecificPage(productPage, params);
 
         // then
         assertNotNull(specificPage);
@@ -145,7 +137,7 @@ public class SpecificPageStrategyTest {
         params.getCategoryUrlParams().setUrlKey("men-tops");
 
         // when
-        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
+        Page specificPage = subject.getSpecificPage(productPage, params);
 
         // then
         assertNotNull(specificPage);
@@ -159,7 +151,7 @@ public class SpecificPageStrategyTest {
         params.setSku("productId1.1");
 
         // when
-        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
+        Page specificPage = subject.getSpecificPage(productPage, params);
 
         // then
         assertNotNull(specificPage);
@@ -173,7 +165,7 @@ public class SpecificPageStrategyTest {
         params.setUid("unknown");
 
         // when
-        Page specificPage = subject.getSpecificPage(newEntry(productPage), params);
+        Page specificPage = subject.getSpecificPage(productPage, params);
 
         // then
         assertNull(specificPage);
@@ -186,7 +178,7 @@ public class SpecificPageStrategyTest {
         params.setUid("category-uid-3");
 
         // when
-        Page specificPage = subject.getSpecificPage(newEntry(categoryPage), params);
+        Page specificPage = subject.getSpecificPage(categoryPage, params);
 
         // then
         assertNotNull(specificPage);
@@ -200,7 +192,7 @@ public class SpecificPageStrategyTest {
         params.setUid("categoryId-uid-2.1");
 
         // when
-        Page specificPage = subject.getSpecificPage(newEntry(categoryPage), params);
+        Page specificPage = subject.getSpecificPage(categoryPage, params);
 
         // then
         assertNotNull(specificPage);
@@ -214,7 +206,7 @@ public class SpecificPageStrategyTest {
         params.setUrlKey("women-bottoms");
 
         // when
-        Page specificPage = subject.getSpecificPage(newEntry(categoryPage), params);
+        Page specificPage = subject.getSpecificPage(categoryPage, params);
 
         // then
         assertNotNull(specificPage);
@@ -228,7 +220,7 @@ public class SpecificPageStrategyTest {
         params.setUrlPath("men/tops");
 
         // when
-        Page specificPage = subject.getSpecificPage(newEntry(categoryPage), params);
+        Page specificPage = subject.getSpecificPage(categoryPage, params);
 
         // then
         assertNotNull(specificPage);
@@ -242,7 +234,7 @@ public class SpecificPageStrategyTest {
         params.setUrlPath("women/tops/sweaters");
 
         // when
-        Page specificPage = subject.getSpecificPage(newEntry(categoryPage), params);
+        Page specificPage = subject.getSpecificPage(categoryPage, params);
 
         // then
         assertNotNull(specificPage);
@@ -257,32 +249,24 @@ public class SpecificPageStrategyTest {
 
         // given
         Page catalogPage = context.pageManager().getPage("/content/additional-catalog-page");
-        Page productPage = context.pageManager().getPage("/content/additional-catalog-page/product-page");
         ProductUrlFormat.Params params = new ProductUrlFormat.Params();
 
         // when category url key does not match the catalog page's category, then
         params.getCategoryUrlParams().setUrlKey("men");
-        Page specificPage = subject.getSpecificPage(newEntry(productPage, catalogPage), params);
-        assertNull(specificPage);
+        assertFalse(subject.isSpecificCatalogPageFor(catalogPage, params));
 
         // when the category url key matches the catalog's category by url key, then
         params.getCategoryUrlParams().setUrlKey("men-tops");
-        specificPage = subject.getSpecificPage(newEntry(productPage, catalogPage), params);
-        assertNotNull(specificPage);
-        assertEquals(catalogPage.getPath() + "/product-page", specificPage.getPath());
+        assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
 
         // when the category url key matches the catalog's category by url path, then
         params.getCategoryUrlParams().setUrlPath("men/men-tops");
-        specificPage = subject.getSpecificPage(newEntry(productPage, catalogPage), params);
-        assertNotNull(specificPage);
-        assertEquals(catalogPage.getPath() + "/product-page", specificPage.getPath());
+        assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
 
         // when the category url key matches the catalog's category by url path descendant, then
         params.getCategoryUrlParams().setUrlKey("men-sweaters");
         params.getCategoryUrlParams().setUrlPath("men/men-tops/men-sweaters");
-        specificPage = subject.getSpecificPage(newEntry(productPage, catalogPage), params);
-        assertNotNull(specificPage);
-        assertEquals(catalogPage.getPath() + "/product-page", specificPage.getPath());
+        assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
     }
 
     @Test
@@ -293,31 +277,23 @@ public class SpecificPageStrategyTest {
 
         // given
         Page catalogPage = context.pageManager().getPage("/content/additional-catalog-page");
-        Page categoryPage = context.pageManager().getPage("/content/additional-catalog-page/category-page");
         CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
 
         // when category url key does not match the catalog page's category, then
         params.setUrlKey("men");
-        Page specificPage = subject.getSpecificPage(newEntry(categoryPage, catalogPage), params);
-        assertNull(specificPage);
+        assertFalse(subject.isSpecificCatalogPageFor(catalogPage, params));
 
         // when the category url key matches the catalog's category by url key, then
         params.setUrlKey("men-tops");
-        specificPage = subject.getSpecificPage(newEntry(categoryPage, catalogPage), params);
-        assertNotNull(specificPage);
-        assertEquals(catalogPage.getPath() + "/category-page", specificPage.getPath());
+        assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
 
         // when the category url key matches the catalog's category by url path, then
         params.setUrlPath("men/men-tops");
-        specificPage = subject.getSpecificPage(newEntry(categoryPage, catalogPage), params);
-        assertNotNull(specificPage);
-        assertEquals(catalogPage.getPath() + "/category-page", specificPage.getPath());
+        assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
 
         // when the category url key matches the catalog's category by url path descendant, then
         params.setUrlKey("men-sweaters");
         params.setUrlPath("men/men-tops/men-sweaters");
-        specificPage = subject.getSpecificPage(newEntry(categoryPage, catalogPage), params);
-        assertNotNull(specificPage);
-        assertEquals(catalogPage.getPath() + "/category-page", specificPage.getPath());
+        assertTrue(subject.isSpecificCatalogPageFor(catalogPage, params));
     }
 }

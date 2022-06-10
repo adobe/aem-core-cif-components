@@ -32,7 +32,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.services.SiteNavigation;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.granite.ui.components.rendercondition.RenderCondition;
 import com.adobe.granite.ui.components.rendercondition.SimpleRenderCondition;
 import com.day.cq.wcm.api.Page;
@@ -64,12 +65,12 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
     private static final Set<String> CATALOG_PAGE_RESOURCE_TYPES = new HashSet<>();
 
     static {
-        CATALOG_PAGE_RESOURCE_TYPES.add(SiteNavigation.RT_CATALOG_PAGE);
-        CATALOG_PAGE_RESOURCE_TYPES.add(SiteNavigation.RT_CATALOG_PAGE_V3);
+        CATALOG_PAGE_RESOURCE_TYPES.add(SiteStructure.RT_CATALOG_PAGE);
+        CATALOG_PAGE_RESOURCE_TYPES.add(SiteStructure.RT_CATALOG_PAGE_V3);
     }
 
     @Reference
-    private SiteNavigation siteNavigation;
+    private SiteStructureFactory siteStructureFactory;
 
     static {
         CATALOG_PAGE_RESOURCE_TYPES.add("core/cif/components/structure/catalogpage/v1/catalogpage");
@@ -109,18 +110,20 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
 
         if (LANDING_PAGE_TYPE.equals(pageType)) {
             ValueMap properties = page.getContentResource().getValueMap();
-            return properties.get(SiteNavigation.PN_NAV_ROOT, false);
+            return properties.get(SiteStructure.PN_NAV_ROOT, false);
         }
 
+        SiteStructure siteStructure = siteStructureFactory.getSiteStructure(page);
+
         if (CATALOG_PAGE_TYPE.equals(pageType)) {
-            return siteNavigation.isCatalogPage(page);
+            return siteStructure.isCatalogPage(page);
         }
 
         // perform the appropriate checks according to the pageType property
         if (PRODUCT_PAGE_TYPE.equals(pageType)) {
-            return siteNavigation.isProductPage(page);
+            return siteStructure.isProductPage(page);
         } else if (CATEGORY_PAGE_TYPE.equals(pageType)) {
-            return siteNavigation.isCategoryPage(page);
+            return siteStructure.isCategoryPage(page);
         }
 
         return false;

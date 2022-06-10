@@ -37,7 +37,8 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
-import com.adobe.cq.commerce.core.components.services.SiteNavigation;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.day.cq.wcm.api.NameConstants;
@@ -73,7 +74,7 @@ public class SpecificPageFilterFactory implements Filter {
     @Reference
     private PageManagerFactory pageManagerFactory;
     @Reference
-    private SiteNavigation siteNavigation;
+    private SiteStructureFactory siteStructureFactory;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {}
@@ -95,10 +96,12 @@ public class SpecificPageFilterFactory implements Filter {
         Page specificPage = null;
 
         if (currentPage != null) {
-            if (siteNavigation.isProductPage(currentPage)) {
+            SiteStructure siteStructure = siteStructureFactory.getSiteStructure(slingRequest, currentPage);
+
+            if (siteStructure.isProductPage(currentPage)) {
                 ProductUrlFormat.Params params = urlProvider.parseProductUrlFormatParameters(slingRequest);
                 specificPage = specificPageStrategy.getSpecificPage(currentPage, params);
-            } else if (siteNavigation.isCategoryPage(currentPage)) {
+            } else if (siteStructure.isCategoryPage(currentPage)) {
                 CategoryUrlFormat.Params params = urlProvider.parseCategoryUrlFormatParameters(slingRequest);
                 specificPage = specificPageStrategy.getSpecificPage(currentPage, params);
             }

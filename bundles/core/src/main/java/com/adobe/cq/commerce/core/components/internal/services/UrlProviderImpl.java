@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageUrlFormatAdapter;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
@@ -53,8 +54,8 @@ import com.adobe.cq.commerce.core.components.internal.services.urlformats.Produc
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuCategoryAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.GenericUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
@@ -146,7 +147,7 @@ public class UrlProviderImpl implements UrlProvider {
     @Reference
     private PageManagerFactory pageManagerFactory;
     @Reference
-    private SiteNavigation siteNavigation;
+    private SiteStructureFactory siteStructureFactory;
 
     private boolean enableContextAwareProductUrls;
 
@@ -287,9 +288,11 @@ public class UrlProviderImpl implements UrlProvider {
     public String toProductUrl(@Nullable SlingHttpServletRequest request, Page givenPage, ProductUrlFormat.Params params) {
         ProductUrlFormat.Params copy = new ProductUrlFormat.Params(params);
         ProductUrlFormat productUrlFormat = getProductUrlFormatFromContext(request, givenPage);
+        SiteStructure siteStructure = null;
 
         if (enableContextAwareProductUrls) {
             if (params.getCategoryUrlParams().getUrlKey() == null && params.getCategoryUrlParams().getUrlPath() == null) {
+                siteStructure = siteStructureFactory.getSiteStructure(request, givenPage);
                 // if there is no category context given for the product parameters, try to retain them from the current page. That may be a
                 // product page or a category page. Both may encode the category context in the url. A use case for that would be for
                 // example
@@ -306,11 +309,11 @@ public class UrlProviderImpl implements UrlProvider {
                 if (slingBindings != null) {
                     Page currentPage = (Page) slingBindings.get(WCMBindingsConstants.NAME_CURRENT_PAGE);
                     if (currentPage != null) {
-                        if (siteNavigation.isProductPage(currentPage)) {
+                        if (siteStructure.isProductPage(currentPage)) {
                             ProductUrlFormat.Params parseParams = parseProductUrlFormatParameters(request);
                             categoryUrlKey = parseParams.getCategoryUrlParams().getUrlKey();
                             categoryUrlPath = parseParams.getCategoryUrlParams().getUrlPath();
-                        } else if (siteNavigation.isCategoryPage(currentPage)) {
+                        } else if (siteStructure.isCategoryPage(currentPage)) {
                             CategoryUrlFormat.Params parsedParams = parseCategoryUrlFormatParameters(request);
                             categoryUrlKey = parsedParams.getUrlKey();
                             categoryUrlPath = parsedParams.getUrlPath();
@@ -332,10 +335,14 @@ public class UrlProviderImpl implements UrlProvider {
         }
 
         if (givenPage != null) {
-            List<SiteNavigation.Entry> searchRoots = siteNavigation.getProductPages(givenPage);
+            if (siteStructure == null) {
+                siteStructure = siteStructureFactory.getSiteStructure(request, givenPage);
+            }
+
+            List<SiteStructure.Entry> searchRoots = siteStructure.getProductPages();
             if (!searchRoots.isEmpty()) {
-                Pair<Page, ProductUrlFormat> specificPageAndFormat = getSpecificPageAndFormat(searchRoots, copy, givenPage,
-                    productUrlFormat, this::getProductUrlFormatFromContext, specificPageStrategy::isSpecificPageFor,
+                Pair<Page, ProductUrlFormat> specificPageAndFormat = getPageAndFormat(searchRoots, copy, givenPage,
+                    productUrlFormat, this::getProductUrlFormatFromContext, specificPageStrategy::isSpecificCatalogPageFor,
                     specificPageStrategy::getSpecificPage);
                 productUrlFormat = specificPageAndFormat.getRight();
                 copy.setPage(specificPageAndFormat.getLeft().getPath());
@@ -372,13 +379,14 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     @Override
-    public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page currentPage, CategoryUrlFormat.Params params) {
-        CategoryUrlFormat categoryUrlFormat = getCategoryUrlFormatFromContext(request, currentPage);
-        if (currentPage != null) {
-            List<SiteNavigation.Entry> searchRoots = siteNavigation.getCategoryPages(currentPage);
+    public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page givenPage, CategoryUrlFormat.Params params) {
+        CategoryUrlFormat categoryUrlFormat = getCategoryUrlFormatFromContext(request, givenPage);
+        if (givenPage != null) {
+            SiteStructure siteStructure = siteStructureFactory.getSiteStructure(request, givenPage);
+            List<SiteStructure.Entry> searchRoots = siteStructure.getCategoryPages();
             if (!searchRoots.isEmpty()) {
-                Pair<Page, CategoryUrlFormat> specificPageAndFormat = getSpecificPageAndFormat(searchRoots, params, currentPage,
-                    categoryUrlFormat, this::getCategoryUrlFormatFromContext, specificPageStrategy::isSpecificPageFor,
+                Pair<Page, CategoryUrlFormat> specificPageAndFormat = getPageAndFormat(searchRoots, params, givenPage,
+                    categoryUrlFormat, this::getCategoryUrlFormatFromContext, specificPageStrategy::isSpecificCatalogPageFor,
                     specificPageStrategy::getSpecificPage);
                 Page specificPage = specificPageAndFormat.getLeft();
                 categoryUrlFormat = specificPageAndFormat.getRight();
@@ -393,21 +401,43 @@ public class UrlProviderImpl implements UrlProvider {
         return categoryUrlFormat.format(params);
     }
 
-    private <T, F extends GenericUrlFormat<T>> Pair<Page, F> getSpecificPageAndFormat(List<SiteNavigation.Entry> searchRoots, T params,
-        Page defaultPage, F defaultFormat, Function<Page, F> formatSelector, BiPredicate<SiteNavigation.Entry, T> specificPagePredicate,
-        BiFunction<SiteNavigation.Entry, T, Page> specificPageSelector) {
+    /**
+     * Resolves the right page and its url format from the given list of search roots. As search root is only considered if it is either
+     * generic or matches the given parameters. See {@link SpecificPageStrategy#isSpecificCatalogPage(Page)} and
+     * {@link SpecificPageStrategy#isSpecificCatalogPageFor(Page, ProductUrlFormat.Params)} or
+     * {@link SpecificPageStrategy#isSpecificCatalogPageFor(Page, CategoryUrlFormat.Params)} for more details.
+     * <p>
+     * If deep linking is enabled and a specific page was found for the given parameters, the specific page is returned together with the
+     * format of the search root it is located in. If not the first matching search root and its format is returned.
+     * <p>
+     * If no search root matches the conditions the defaultPage and defaultFormat are returned as Pair.
+     *
+     * @param searchRoots the list of search roots retrieved from the {@link SiteStructure}
+     * @param params the parameters to search a search root / specific page for
+     * @param defaultPage the default page
+     * @param defaultFormat the default format
+     * @param formatSelector a {@link Function} that maps a page to a format
+     * @param specificCatalogPagePredicate a {@link BiPredicate} that tests if a catalog page matches the given parameters
+     * @param specificPageSelector a {@link BiFunction} that returns a specific page for a given search root and parameters
+     * @param <T> the type of parameters passed
+     * @param <F> the type of {@link GenericUrlFormat} to return
+     * @return
+     */
+    private <T, F extends GenericUrlFormat<T>> Pair<Page, F> getPageAndFormat(List<SiteStructure.Entry> searchRoots, T params,
+        Page defaultPage, F defaultFormat, Function<Page, F> formatSelector, BiPredicate<Page, T> specificCatalogPagePredicate,
+        BiFunction<Page, T, Page> specificPageSelector) {
         boolean deepLinkSpecificPages = specificPageStrategy.isGenerateSpecificPageUrlsEnabled();
 
-        for (SiteNavigation.Entry searchRoot : searchRoots) {
+        for (SiteStructure.Entry searchRoot : searchRoots) {
             // A search root may have a different cloud configuration set to configure features like the url provider format. We should
             // take the format that is relevant for the search root.
             F searchRootFormat = formatSelector.apply(searchRoot.getPage());
             // To prevent traversing all search roots for every page, we consider the search root only if
             // a) it is not a specific page itself (no filters set nor inherited from a catalog page), or
             // b) it is a specific page for the given parameters
-            boolean isGenericSearchRoot = !specificPageStrategy.isSpecificPage(searchRoot);
-            if (isGenericSearchRoot || specificPagePredicate.test(searchRoot, params)) {
-                Page specificPage = specificPageSelector.apply(searchRoot, searchRootFormat.retainParsableParameters(params));
+            boolean isGenericSearchRoot = !specificPageStrategy.isSpecificCatalogPage(searchRoot.getCatalogPage());
+            if (isGenericSearchRoot || specificCatalogPagePredicate.test(searchRoot.getCatalogPage(), params)) {
+                Page specificPage = specificPageSelector.apply(searchRoot.getPage(), searchRootFormat.retainParsableParameters(params));
                 if (specificPage != null && deepLinkSpecificPages) {
                     // if deep linking is enabled return the path of the specific page
                     return Pair.of(specificPage, searchRootFormat);

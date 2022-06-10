@@ -40,10 +40,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
@@ -76,7 +77,7 @@ public class CatalogPageNotFoundFilter implements Filter {
     @Reference
     private CommerceComponentModelFinder commerceModelFinder;
     @Reference
-    private SiteNavigation siteNavigation;
+    private SiteStructureFactory siteStructureFactory;
 
     private BundleContext bundleContext;
 
@@ -104,15 +105,17 @@ public class CatalogPageNotFoundFilter implements Filter {
         LOGGER.debug("Check if content on catalog page exists: {}", slingRequest.getRequestURI());
 
         if (currentPage != null) {
+            SiteStructure siteStructure = siteStructureFactory.getSiteStructure(slingRequest, currentPage);
             boolean removeSlingScriptHelperFromBindings = false;
-            if (siteNavigation.isProductPage(currentPage)) {
+
+            if (siteStructure.isProductPage(currentPage)) {
                 removeSlingScriptHelperFromBindings = addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
                 Product product = commerceModelFinder.findProductComponentModel(slingRequest, currentPage.getContentResource());
                 if (product != null && !product.getFound()) {
                     slingResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
                     return;
                 }
-            } else if (siteNavigation.isCategoryPage(currentPage)) {
+            } else if (siteStructure.isCategoryPage(currentPage)) {
                 removeSlingScriptHelperFromBindings = addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
                 ProductList productList = commerceModelFinder.findProductListComponentModel(slingRequest, currentPage.getContentResource());
                 if (productList != null) {

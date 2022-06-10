@@ -42,8 +42,8 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.UrlFormatBase;
 import com.adobe.cq.commerce.core.components.models.breadcrumb.Breadcrumb;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
-import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
@@ -81,8 +81,8 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
     @OSGiService
     private UrlProvider urlProvider;
 
-    @OSGiService
-    private SiteNavigation siteNavigation;
+    @Self
+    private SiteStructure siteStructure;
 
     @ScriptVariable
     private Page currentPage;
@@ -146,15 +146,15 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         contentResource = page != null ? page.getContentResource() : null;
 
         // If we encounter the catalog page and it's configured to show the main categories, we skip that page
-        if (siteNavigation.isCatalogPage(page)) {
+        if (siteStructure.isCatalogPage(page)) {
             if (contentResource.getValueMap().get(Navigation.PN_SHOW_MAIN_CATEGORIES, Boolean.TRUE)) {
                 return true;
             }
         }
 
         // For product and category pages, we fetch the breadcrumbs
-        boolean isProductPage = siteNavigation.isProductPage(page);
-        boolean isCategoryPage = siteNavigation.isCategoryPage(page);
+        boolean isProductPage = siteStructure.isProductPage(page);
+        boolean isCategoryPage = siteStructure.isCategoryPage(page);
         List<? extends CategoryInterface> categoriesBreadcrumbs = null;
         String productSku = null;
         if (isProductPage) {

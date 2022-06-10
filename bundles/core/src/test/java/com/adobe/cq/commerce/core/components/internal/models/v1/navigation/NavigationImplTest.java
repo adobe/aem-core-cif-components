@@ -33,14 +33,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import com.adobe.cq.commerce.core.components.internal.services.SiteNavigationImpl;
 import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationModel;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.day.cq.wcm.api.Page;
@@ -70,8 +71,7 @@ public class NavigationImplTest {
     List<CategoryTree> categoryList;
     NavigationModel navigationModel;
     SlingHttpServletRequest request;
-
-    SiteNavigation siteNavigation;
+    SiteStructure siteStructure;
 
     // TODO: Use aem mocks
     @Before
@@ -111,11 +111,13 @@ public class NavigationImplTest {
         when(categoryProvider.getChildCategoriesByUid(any(), any())).thenReturn(categoryList);
 
         // URL provider
-        siteNavigation = mock(SiteNavigation.class);
-        Whitebox.setInternalState(navigation, "siteNavigation", siteNavigation);
-        SiteNavigation.Entry mockEntry = mock(SiteNavigation.Entry.class);
+        siteStructure = mock(SiteStructure.class);
+        Whitebox.setInternalState(navigation, "siteStructure", siteStructure);
+        SiteStructure.Entry mockEntry = mock(SiteStructure.Entry.class);
         when(mockEntry.getPage()).thenReturn(categoryPage);
-        when(siteNavigation.getCategoryPages(any())).thenReturn(Collections.singletonList(mockEntry));
+        when(siteStructure.getCategoryPages()).thenReturn(Collections.singletonList(mockEntry));
+        SiteStructureFactory siteStructureFactory = mock(SiteStructureFactory.class);
+        when(siteStructureFactory.getSiteStructure(any(), any())).thenReturn(siteStructure);
 
         SpecificPageStrategy specificPageStrategy = new SpecificPageStrategy();
         SpecificPageStrategy.Configuration specificPageStrategyConfig = mock(SpecificPageStrategy.Configuration.class);
@@ -124,7 +126,7 @@ public class NavigationImplTest {
         UrlProviderImpl urlProvider = new UrlProviderImpl();
         urlProvider.activate(mock(UrlProviderConfiguration.class));
         Whitebox.setInternalState(urlProvider, "specificPageStrategy", specificPageStrategy);
-        Whitebox.setInternalState(urlProvider, "siteNavigation", siteNavigation);
+        Whitebox.setInternalState(urlProvider, "siteStructureFactory", siteStructureFactory);
         Whitebox.setInternalState(navigation, "urlProvider", urlProvider);
 
         // current request
@@ -591,10 +593,10 @@ public class NavigationImplTest {
         catalogPageProperties.put("cq:cifCategoryPage", categoryPagePath);
 
         if (!useCaConfig) {
-            catalogPageProperties.put(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4);
+            catalogPageProperties.put(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4);
         }
         when(catalogPageContent.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(new ValueMapDecorator(
-            ImmutableMap.of(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4))));
+            ImmutableMap.of(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4))));
         when(catalogPageContent.getValueMap()).thenReturn(new ValueMapDecorator(catalogPageProperties));
         when(catalogPage.getContentResource()).thenReturn(catalogPageContent);
         when(catalogPage.getPath()).thenReturn("/content/catalog");
@@ -604,9 +606,9 @@ public class NavigationImplTest {
         when(catalogPageContent.getResourceResolver()).thenReturn(mockResourceResolver);
         when(pageManager.getPage(catalogPagePath)).thenReturn(catalogPage);
 
-        ValueMap configProperties = new ValueMapDecorator(ImmutableMap.of(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4));
+        ValueMap configProperties = new ValueMapDecorator(ImmutableMap.of(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4));
 
         when(catalogPage.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(configProperties));
-        when(siteNavigation.isCatalogPage(catalogPage)).thenReturn(Boolean.TRUE);
+        when(siteStructure.isCatalogPage(catalogPage)).thenReturn(Boolean.TRUE);
     }
 }

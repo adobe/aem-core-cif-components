@@ -25,7 +25,6 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
-import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
@@ -33,9 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.day.cq.wcm.api.Page;
@@ -63,8 +62,8 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     private Page currentPage;
     @SlingObject
     private Resource resource;
-    @OSGiService
-    private SiteNavigation siteNavigation;
+    @Self
+    private SiteStructure siteStructure;
 
     private String storeView;
     private String graphqlEndpoint = DEFAULT_GRAPHQL_ENDPOINT;
@@ -108,7 +107,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     @Override
     public String getStoreRootUrl() {
         if (storeRootPage == null) {
-            SiteNavigation.Entry entry = siteNavigation.getNavigationRootPage(currentPage);
+            SiteStructure.Entry entry = siteStructure.getLandingPage();
             storeRootPage = entry != null ? entry.getPage() : null;
         }
 

@@ -13,16 +13,18 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-package com.adobe.cq.commerce.core.components.internal.services;
+package com.adobe.cq.commerce.core.components.internal.services.site;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -30,29 +32,36 @@ import java.util.stream.StreamSupport;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
-import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.services.SiteNavigation;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.launches.api.Launch;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.text.Text;
 
-@Component(service = SiteNavigation.class)
-public class SiteNavigationImpl implements SiteNavigation {
+public class SiteStructureImpl implements SiteStructure {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SiteNavigationImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SiteStructureImpl.class);
 
     public static final String PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER = "magentoRootCategoryId";
     public static final String PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE = "magentoRootCategoryIdType";
+    public static final String PN_CIF_CATEGORY_PAGE = "cq:cifCategoryPage";
+    public static final String PN_CIF_PRODUCT_PAGE = "cq:cifProductPage";
+    public static final String PN_CIF_SEARCH_RESULTS_PAGE = "cq:cifSearchResultsPage";
 
-    static final String PN_CIF_CATEGORY_PAGE = "cq:cifCategoryPage";
-    static final String PN_CIF_PRODUCT_PAGE = "cq:cifProductPage";
+    private final Page currentPage;
+    private final Launch launch;
+    private Entry searchResultsPage;
+    private List<Entry> catalogPages;
+    private final Map<String, List<Entry>> genericPages = new HashMap<>(2);
 
-    static final String PN_CIF_SEARCH_RESULTS_PAGE = "cq:cifSearchResultsPage";
+    SiteStructureImpl(Page currentPage) {
+        this.currentPage = currentPage;
+        this.launch = getLaunch(currentPage);
+    }
 
     @Override
     public Entry getEntry(Page givenPage) {
@@ -60,26 +69,51 @@ public class SiteNavigationImpl implements SiteNavigation {
             return null;
         }
 
-        Page navigationRoot = null;
+        Supplier<List<Entry>> productPages = this::getProductPages;
+        Supplier<List<Entry>> categoryPages = this::getCategoryPages;
 
-        for (Entry entry : (Iterable<Entry>) listSearchRoots(givenPage, PN_CIF_CATEGORY_PAGE, PN_CIF_PRODUCT_PAGE)::iterator) {
-            if (isEqualOrDescendant(givenPage, entry.getPage())) {
-                return new EntryImpl(givenPage, entry.getCatalogPage(), entry.getNavigationRootPage());
+        for (Supplier<List<Entry>> supplier : Arrays.asList(productPages, categoryPages)) {
+            for (Entry entry : supplier.get()) {
+                if (isEqualOrDescendant(givenPage, entry.getPage())) {
+                    return new EntryImpl(givenPage, entry.getCatalogPage(), entry.getLandingPage());
+                }
             }
-
-            // remember the navigationRootPage of the last entry
-            navigationRoot = entry.getNavigationRootPage();
         }
 
-        if (navigationRoot == null) {
-            // if no entries were found before we may at least find a navigation root
-            navigationRoot = findNavigationRoot(givenPage);
+        Entry navRoot = getLandingPage();
+        if (navRoot != null && isEqualOrDescendant(givenPage, navRoot.getPage())) {
+            return new EntryImpl(givenPage, null, navRoot.getPage());
         }
-        return navigationRoot != null ? new EntryImpl(givenPage, null, navigationRoot) : null;
+
+        return null;
+    }
+
+    @Override
+    public Entry getLandingPage() {
+        // getCatalogPages returns all catalog pages and the navigationRoot page, the navigation root page is the only entry that returns
+        // null for getCatalogPage()
+        return getCatalogPages()
+            .stream()
+            .filter(catalogPage -> catalogPage.getCatalogPage() == null)
+            .findFirst()
+            .orElse(null);
+    }
+
+    @Override
+    public List<Entry> getProductPages() {
+        return Collections.unmodifiableList(getGenericPages(PN_CIF_PRODUCT_PAGE));
+    }
+
+    @Override
+    public List<Entry> getCategoryPages() {
+        return Collections.unmodifiableList(getGenericPages(PN_CIF_CATEGORY_PAGE));
     }
 
     @Override
     public boolean isCatalogPage(Page page) {
+        // this only checks the page for the resource type, not if it is a descendant of the current site structure's navigation root
+        // ideally we would if page is one of the catalog pages returned by getCatalogPages() but that would mean it has to be a child
+        // of the site structures navigation page, which we did not enforce in the past. So that would be a breaking change.
         return Optional.ofNullable(page)
             .map(Page::getContentResource)
             .map(contentResource -> contentResource.isResourceType(RT_CATALOG_PAGE) || contentResource.isResourceType(RT_CATALOG_PAGE_V3))
@@ -87,61 +121,49 @@ public class SiteNavigationImpl implements SiteNavigation {
     }
 
     @Override
-    public List<Entry> getProductPages(Page page) {
-        return page != null
-            ? listSearchRoots(page, PN_CIF_PRODUCT_PAGE).collect(Collectors.toList())
-            : Collections.emptyList();
-    }
-
-    @Override
     public boolean isProductPage(Page page) {
-        return page != null && listSearchRoots(page, PN_CIF_PRODUCT_PAGE)
+        return page != null && getProductPages()
+            .stream()
             .anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot.getPage()));
-    }
-
-    @Override
-    public List<Entry> getCategoryPages(Page page) {
-        return page != null
-            ? listSearchRoots(page, PN_CIF_CATEGORY_PAGE).collect(Collectors.toList())
-            : Collections.emptyList();
     }
 
     @Override
     public boolean isCategoryPage(Page page) {
-        return page != null && listSearchRoots(page, PN_CIF_CATEGORY_PAGE)
+        return page != null && getCategoryPages()
+            .stream()
             .anyMatch(searchRoot -> this.isEqualOrDescendant(page, searchRoot.getPage()));
     }
 
-    private boolean isEqualOrDescendant(Page givenPage, Page ancestorPage) {
-        String givenPagePath = givenPage.getPath().substring(givenPage.getPath().lastIndexOf("/content/"));
-        String ancestorPagePath = ancestorPage.getPath().substring(ancestorPage.getPath().lastIndexOf("/content/"));
-        return Text.isDescendantOrEqual(ancestorPagePath, givenPagePath);
-    }
+    private Pair<String, String> getNormalizedPaths(Page givenPage, Page ancestorPage) {
+        String givenPagePath = givenPage.getPath();
+        String ancestorPagePath = ancestorPage.getPath();
+        int givenPagePathLastIndexOfContent = givenPage.getPath().lastIndexOf("/content/");
+        int ancestorPagePathLastIndexOfContent = ancestorPage.getPath().lastIndexOf("/content/");
 
-    @Override
-    public Entry getNavigationRootPage(Page page) {
-        Page rootPage = findNavigationRoot(page);
-        if (rootPage == null && LaunchUtils.isLaunchBasedPath(page.getPath())) {
-            // if in a Launch without a navigation root page, search again on the production page
-            Launch launch = getLaunch(page);
-            if (launch != null) {
-                page = getProductionPage(page, launch);
-                rootPage = findNavigationRoot(page);
-            }
+        if (givenPagePathLastIndexOfContent > 0 || ancestorPagePathLastIndexOfContent > 0) {
+            givenPagePath = givenPagePath.substring(givenPagePathLastIndexOfContent);
+            ancestorPagePath = ancestorPagePath.substring(ancestorPagePathLastIndexOfContent);
         }
-        return rootPage != null ? new EntryImpl(rootPage, null, rootPage) : null;
+
+        return Pair.of(givenPagePath, ancestorPagePath);
+    }
+
+    private boolean isEqualOrDescendant(Page givenPage, Page ancestorPage) {
+        Pair<String, String> paths = getNormalizedPaths(givenPage, ancestorPage);
+        return Text.isDescendantOrEqual(paths.getRight(), paths.getLeft());
     }
 
     @Override
-    public Entry getSearchResultsPage(Page page) {
-        Entry navigationRootEntry = getNavigationRootPage(page);
+    public Entry getSearchResultsPage() {
+        if (searchResultsPage != null) {
+            return searchResultsPage;
+        }
+
+        Entry navigationRootEntry = getLandingPage();
         if (navigationRootEntry != null) {
-            Launch launch = LaunchUtils.isLaunchBasedPath(page.getPath())
-                ? getLaunch(page)
-                : null;
-            Page searchResultsPage = resolveReference(navigationRootEntry.getPage(), launch, PN_CIF_SEARCH_RESULTS_PAGE);
-            if (searchResultsPage != null) {
-                return new EntryImpl(searchResultsPage,null,navigationRootEntry.getNavigationRootPage());
+            Page page = resolveReference(navigationRootEntry.getPage(), launch, PN_CIF_SEARCH_RESULTS_PAGE);
+            if (page != null) {
+                return searchResultsPage = new EntryImpl(page, null, navigationRootEntry.getLandingPage());
             }
         }
         return null;
@@ -151,32 +173,47 @@ public class SiteNavigationImpl implements SiteNavigation {
      * Return a list of candidates resolved from the references configured on, the navigation root or catalog pages that are direct
      * children of the navigation root.
      *
-     * @param givenPage
-     * @param referenceProperties
+     * @param referenceProperty
      * @return
      */
-    private Stream<Entry> listSearchRoots(Page givenPage, String... referenceProperties) {
+    private List<Entry> getGenericPages(String referenceProperty) {
+        return genericPages.computeIfAbsent(referenceProperty, k -> getCatalogPages().stream()
+            .map(entry -> {
+                Page catalogPage = entry.getCatalogPage();
+                Page navigationRootPage = entry.getLandingPage();
+                Page resolvedPage = resolveReference(catalogPage != null ? catalogPage : navigationRootPage, launch, referenceProperty);
+                return resolvedPage != null ? new EntryImpl(resolvedPage, catalogPage, navigationRootPage) : null;
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList()));
+    }
+
+    private List<Entry> getCatalogPages() {
+        if (catalogPages != null) {
+            return catalogPages;
+        }
+
         Set<String> catalogPageNames = new HashSet<>();
-        Launch launch = getLaunch(givenPage);
-        Page productionPage = givenPage;
+        Page productionPage = currentPage;
         Page navigationRoot = null;
-        Stream<Pair<Page, Page>> catalogPagesStream = null;
+        Stream<Entry> catalogPagesStream = null;
 
         if (launch != null) {
-            productionPage = getProductionPage(givenPage, launch);
+            // currentPage is in a Launch and may have a production page
+            productionPage = getProductionPage(currentPage, launch);
 
             // the given page can be in a launch, which may
             // a) contain the navigation root page with all descendants (references rewritten to the launch)
             // b) contain the navigation root page without descendants (references not rewritten)
             // c) not contain the navigation root page
-            Page launchNavigationRoot = findNavigationRoot(givenPage);
+            Page launchNavigationRoot = findNavigationRoot(currentPage);
 
             // a) and b)
             if (launchNavigationRoot != null) {
                 navigationRoot = launchNavigationRoot;
                 Iterable<Page> catalogPages = () -> launchNavigationRoot.listChildren(this::isCatalogPage);
                 catalogPagesStream = StreamSupport.stream(catalogPages.spliterator(), false)
-                    .map(catalogPage -> Pair.of(catalogPage, launchNavigationRoot));
+                    .map(catalogPage -> new EntryImpl(catalogPage, catalogPage, launchNavigationRoot));
             }
         }
 
@@ -189,33 +226,27 @@ public class SiteNavigationImpl implements SiteNavigation {
                 }
 
                 Iterable<Page> catalogPages = () -> productionNavigationRoot.listChildren(this::isCatalogPage);
-                Stream<Pair<Page, Page>> stream = StreamSupport.stream(catalogPages.spliterator(), false)
-                    .map(catalogPage -> Pair.of(catalogPage, productionNavigationRoot));
+                Stream<Entry> stream = StreamSupport.stream(catalogPages.spliterator(), false)
+                    .map(catalogPage -> new EntryImpl(catalogPage, catalogPage, productionNavigationRoot));
 
                 catalogPagesStream = catalogPagesStream != null ? Stream.concat(catalogPagesStream, stream) : stream;
             }
         }
 
-        if (navigationRoot == null) {
-            LOG.debug("No navigation root found for: {}", givenPage.getPath());
-            return Stream.empty();
+        if (navigationRoot != null) {
+            catalogPages = Stream.concat(catalogPagesStream, Stream.of(new EntryImpl(navigationRoot, null, navigationRoot)))
+                .filter(pair -> {
+                    // distinct by catalog page name
+                    Page catalogPage = pair.getCatalogPage();
+                    return catalogPage == null || catalogPageNames.add(catalogPage.getName());
+                })
+                .collect(Collectors.toList());
+        } else {
+            LOG.debug("No navigation root found for: {}", currentPage.getPath());
+            catalogPages = Collections.emptyList();
         }
 
-        return Stream.concat(catalogPagesStream, Stream.of(Pair.of((Page) null, navigationRoot)))
-            .filter(pair -> {
-                // distinct by catalog page name
-                Page catalogPage = pair.getLeft();
-                return catalogPage == null || catalogPageNames.add(catalogPage.getName());
-            })
-            .flatMap(pair -> resolveReferences(pair.getLeft(), pair.getRight(), launch, referenceProperties))
-            .filter(Objects::nonNull);
-    }
-
-    private Stream<Entry> resolveReferences(Page catalogPage, Page navigationRootPage, Launch launch, String[] referenceProperties) {
-        return Arrays.stream(referenceProperties).map(referenceProperty -> {
-            Page resolvedPage = resolveReference(catalogPage != null ? catalogPage : navigationRootPage, launch, referenceProperty);
-            return resolvedPage != null ? new EntryImpl(resolvedPage, catalogPage, navigationRootPage) : null;
-        });
+        return catalogPages;
     }
 
     /**
@@ -258,42 +289,41 @@ public class SiteNavigationImpl implements SiteNavigation {
         return pageManager.getPage(reference);
     }
 
-    private Page findNavigationRoot(Page page) {
+    private static Page findNavigationRoot(Page givenPage) {
         // walk up the tree using resources in order to support non-Page intermediates
-        for (Resource pageResource = page.adaptTo(Resource.class); pageResource != null; pageResource = pageResource.getParent()) {
+        for (Resource pageResource = givenPage.adaptTo(Resource.class); pageResource != null; pageResource = pageResource.getParent()) {
             Page currentPage = pageResource.adaptTo(Page.class);
             ValueMap properties = currentPage != null ? currentPage.getProperties() : null;
             if (properties != null && properties.get(PN_NAV_ROOT, false)) {
                 return currentPage;
             }
         }
-
         return null;
     }
 
     /**
-     * Returns the {@link Launch} the given page is in, if any. Otherwise returns null.
+     * Returns the {@link Launch} the given page is in, if any, otherwise {@code null}.
      *
-     * @param page
+     * @param givenPage
      * @return
      */
-    private Launch getLaunch(Page page) {
-        if (!LaunchUtils.isLaunchBasedPath(page.getPath())) {
-            LOG.trace("Not a launch path: {}", page.getPath());
+    private static Launch getLaunch(Page givenPage) {
+        if (!LaunchUtils.isLaunchBasedPath(givenPage.getPath())) {
+            LOG.trace("Not a launch path: {}", givenPage.getPath());
             return null;
         }
 
-        Resource launchResource = LaunchUtils.getLaunchResource(page.getContentResource());
+        Resource launchResource = LaunchUtils.getLaunchResource(givenPage.getContentResource());
 
         if (launchResource == null) {
-            LOG.debug("Launch resource not found for path in launch: {}", page.getPath());
+            LOG.debug("Launch resource not found for path in launch: {}", givenPage.getPath());
             return null;
         }
 
         return launchResource.adaptTo(Launch.class);
     }
 
-    private Page getProductionPage(Page launchPage, Launch launch) {
+    private static Page getProductionPage(Page launchPage, Launch launch) {
         Resource launchResource = launchPage.adaptTo(Resource.class);
         Resource productionResource = null;
 
@@ -310,32 +340,5 @@ public class SiteNavigationImpl implements SiteNavigation {
         }
 
         return productionResource != null ? productionResource.adaptTo(Page.class) : null;
-    }
-
-    static class EntryImpl implements Entry {
-        private final Page page;
-        private final Page catalogPage;
-        private final Page navigationRootPage;
-
-        EntryImpl(Page page, Page catalogPage, Page navigationRootPage) {
-            this.page = page;
-            this.catalogPage = catalogPage;
-            this.navigationRootPage = navigationRootPage;
-        }
-
-        @Override
-        public Page getCatalogPage() {
-            return catalogPage;
-        }
-
-        @Override
-        public Page getNavigationRootPage() {
-            return navigationRootPage;
-        }
-
-        @Override
-        public Page getPage() {
-            return page;
-        }
     }
 }

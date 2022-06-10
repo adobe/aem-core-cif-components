@@ -26,12 +26,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.ValueMap;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.metatype.annotations.AttributeDefinition;
 import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
-import com.adobe.cq.commerce.core.components.services.SiteNavigation;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.day.cq.wcm.api.Page;
@@ -66,9 +65,6 @@ public class SpecificPageStrategy {
 
     private boolean generateSpecificPageUrls;
 
-    @Reference
-    private SiteNavigation siteNavigation;
-
     @Activate
     public void activate(Configuration configuration) {
         generateSpecificPageUrls = configuration.generateSpecificPageUrls();
@@ -90,41 +86,25 @@ public class SpecificPageStrategy {
             .flatMap(child -> Stream.concat(traverse(child), Stream.of(child)));
     }
 
-    private Stream<Page> findSpecificPages(SiteNavigation.Entry startEntry) {
-        return Stream.concat(traverse(startEntry.getPage()), Stream.of(startEntry.getPage()))
-            .filter(page -> isSpecificPage(page, startEntry.getCatalogPage()));
+    private Stream<Page> findSpecificPages(Page page) {
+        return traverse(page).filter(this::isSpecificPage);
     }
 
-    public Page getSpecificPage(Page candidate, ProductUrlFormat.Params params) {
-        SiteNavigation.Entry entry = siteNavigation.getEntry(candidate);
-        return entry != null ? getSpecificPage(entry, params) : null;
-    }
-
-    public Page getSpecificPage(SiteNavigation.Entry startEntry, ProductUrlFormat.Params params) {
-        return findSpecificPages(startEntry)
-            .filter(candidate -> isSpecificPageFor(candidate, startEntry.getCatalogPage(), params))
+    public Page getSpecificPage(Page page, ProductUrlFormat.Params params) {
+        return findSpecificPages(page)
+            .filter(candidate -> isSpecificPageFor(candidate, params))
             .findFirst()
             .orElse(null);
     }
 
-    boolean isSpecificPage(SiteNavigation.Entry entry) {
-        return isSpecificPage(entry.getPage(), entry.getCatalogPage());
-    }
-
-    private boolean isSpecificPage(Page candidate, Page catalogPage) {
+    public boolean isSpecificPage(Page candidate) {
         // include only pages that have a filter set
         ValueMap candidateProperties = candidate.getProperties();
-        ValueMap catalogPageProperties = catalogPage != null ? catalogPage.getProperties() : ValueMap.EMPTY;
         return candidateProperties.get(SELECTOR_FILTER_PROPERTY, String[].class) != null
-            || candidateProperties.get(PN_USE_FOR_CATEGORIES, String[].class) != null
-            || catalogPageProperties.get(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class) != null;
+            || candidateProperties.get(PN_USE_FOR_CATEGORIES, String[].class) != null;
     }
 
-    public boolean isSpecificPageFor(SiteNavigation.Entry entry, ProductUrlFormat.Params params) {
-        return isSpecificPageFor(entry.getPage(), entry.getCatalogPage(), params);
-    }
-
-    private boolean isSpecificPageFor(Page candidate, Page catalogPage, ProductUrlFormat.Params params) {
+    private boolean isSpecificPageFor(Page candidate, ProductUrlFormat.Params params) {
         CategoryUrlFormat.Params categoryParams = params.getCategoryUrlParams();
         boolean checkCategoryUrlPath = StringUtils.isNotEmpty(categoryParams.getUrlPath());
         boolean checkCategoryUrlKey = StringUtils.isNotEmpty(categoryParams.getUrlKey());
@@ -161,26 +141,17 @@ public class SpecificPageStrategy {
             }
         }
 
-        return isSpecificPageByCatalogPage(catalogPage, categoryParams);
+        return false;
     }
 
-    public Page getSpecificPage(Page candidate, CategoryUrlFormat.Params params) {
-        SiteNavigation.Entry entry = siteNavigation.getEntry(candidate);
-        return entry != null ? getSpecificPage(entry, params) : null;
-    }
-
-    public Page getSpecificPage(SiteNavigation.Entry startEntry, CategoryUrlFormat.Params params) {
-        return findSpecificPages(startEntry)
-            .filter(candidate -> isSpecificPageFor(candidate, startEntry.getCatalogPage(), params))
+    public Page getSpecificPage(Page page, CategoryUrlFormat.Params params) {
+        return findSpecificPages(page)
+            .filter(candidate -> isSpecificPageFor(candidate, params))
             .findFirst()
             .orElse(null);
     }
 
-    public boolean isSpecificPageFor(SiteNavigation.Entry entry, CategoryUrlFormat.Params params) {
-        return isSpecificPageFor(entry.getPage(), entry.getCatalogPage(), params);
-    }
-
-    private boolean isSpecificPageFor(Page candidate, Page catalogPage, CategoryUrlFormat.Params params) {
+    private boolean isSpecificPageFor(Page candidate, CategoryUrlFormat.Params params) {
         // check for uids only as fallback when there is no url_path and url_key
         boolean checkUids = StringUtils.isNotEmpty(params.getUid());
         boolean checkUrlPath = StringUtils.isNotEmpty(params.getUrlPath());
@@ -256,16 +227,31 @@ public class SpecificPageStrategy {
             }
         }
 
-        return isSpecificPageByCatalogPage(catalogPage, params);
+        return false;
     }
 
-    private boolean isSpecificPageByCatalogPage(Page catalogPage, CategoryUrlFormat.Params params) {
+    public boolean isSpecificCatalogPage(Page catalogPage) {
         if (catalogPage == null) {
             return false;
         }
 
-        String identifier = catalogPage.getProperties().get(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
-        String identifierType = catalogPage.getProperties().get(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE, String.class);
+        String identifier = catalogPage.getProperties().get(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
+        String identifierType = catalogPage.getProperties().get(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE, String.class);
+
+        return StringUtils.isNotEmpty(identifier) && "urlPath".equals(identifierType);
+    }
+
+    public boolean isSpecificCatalogPageFor(Page catalogPage, ProductUrlFormat.Params params) {
+        return isSpecificCatalogPageFor(catalogPage, params.getCategoryUrlParams());
+    }
+
+    public boolean isSpecificCatalogPageFor(Page catalogPage, CategoryUrlFormat.Params params) {
+        if (catalogPage == null) {
+            return false;
+        }
+
+        String identifier = catalogPage.getProperties().get(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
+        String identifierType = catalogPage.getProperties().get(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE, String.class);
 
         if (StringUtils.isEmpty(identifier) || !"urlPath".equals(identifierType)) {
             // cannot match when the identifier is persisted as uid

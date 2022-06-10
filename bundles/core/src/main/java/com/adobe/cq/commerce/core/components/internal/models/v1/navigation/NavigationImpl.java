@@ -39,11 +39,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.services.SiteNavigationImpl;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.SiteNavigation;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -88,8 +88,8 @@ public class NavigationImpl implements Navigation {
     @OSGiService
     private UrlProvider urlProvider;
 
-    @OSGiService
-    private SiteNavigation siteNavigation;
+    @Self
+    private SiteStructure siteStructure;
 
     @ScriptVariable
     private ValueMap properties;
@@ -161,7 +161,7 @@ public class NavigationImpl implements Navigation {
     }
 
     private boolean shouldExpandCatalogRoot(Page page) {
-        if (!siteNavigation.isCatalogPage(page)) {
+        if (!siteStructure.isCatalogPage(page)) {
             return false;
         }
 
@@ -170,7 +170,7 @@ public class NavigationImpl implements Navigation {
     }
 
     private boolean isCatalogRoot(Page page) {
-        if (!siteNavigation.isCatalogPage(page)) {
+        if (!siteStructure.isCatalogPage(page)) {
             return false;
         }
 
@@ -179,17 +179,17 @@ public class NavigationImpl implements Navigation {
     }
 
     private void expandCatalogRoot(Page catalogPage, List<NavigationItem> pages) {
-        String rootCategoryIdentifier = readPageConfiguration(catalogPage, SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER);
-        String rootCategoryIdentifierType = readPageConfiguration(catalogPage, SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE);
+        String rootCategoryIdentifier = readPageConfiguration(catalogPage, SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER);
+        String rootCategoryIdentifierType = readPageConfiguration(catalogPage, SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE);
 
         if (rootCategoryIdentifier == null || StringUtils.isBlank(rootCategoryIdentifier)) {
             ComponentsConfiguration properties = catalogPage.getContentResource().adaptTo(ComponentsConfiguration.class);
-            rootCategoryIdentifier = properties.get(SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
+            rootCategoryIdentifier = properties.get(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
             rootCategoryIdentifierType = "uid";
         }
 
         if (rootCategoryIdentifier == null) {
-            LOGGER.warn("Magento root category UID property (" + SiteNavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER + ") not found");
+            LOGGER.warn("Magento root category UID property (" + SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER + ") not found");
             return;
         }
 
