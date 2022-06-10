@@ -200,7 +200,7 @@ Gallery.events = {
         const galleryRoot = document.querySelector(Gallery.selectors.galleryRoot);
 
         const galleryItems = galleryRoot ? JSON.parse(galleryRoot.dataset.galleryItems) : { assets: [] };
-        const gallery = new Gallery({ galleryItems });
+        if (galleryRoot) new Gallery({ galleryItems });
     }
 
     if (document.readyState !== 'loading') {

@@ -14,6 +14,9 @@
           "product-v2": {
             "sling:resourceType": "core/cif/components/commerce/product/v2/product"
           },
+          "product-v3": {
+            "sling:resourceType": "core/cif/components/commerce/product/v3/product"
+          },
           "productlist-v1": {
             "loadClientPrice": false,
             "showImage": true,
@@ -24,7 +27,12 @@
             "sling:resourceType": "core/cif/components/commerce/productlist/v2/productlist"
           },
           "productcarousel": {
-            "product": ["24-MB02", "WJ04#WJ04-XS-Orange", "MH01", "MH01#MH01-XS-Orange"],
+            "product": [
+              "24-MB02",
+              "WJ04#WJ04-XS-Orange",
+              "MH01",
+              "MH01#MH01-XS-Orange"
+            ],
             "sling:resourceType": "core/cif/components/commerce/productcarousel/v1/productcarousel"
           },
           "productteaser": {
