@@ -15,10 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.product;
 
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
@@ -34,17 +33,15 @@ import com.adobe.cq.wcm.core.components.models.Component;
 @ConsumerType
 public interface Product extends Component, PageMetadata {
 
-    String[] sections = new String[] {
-        "TITLE",
-        "PRICE",
-        "SKU",
-        "IMAGE",
-        "OPTIONS",
-        "QUANTITY",
-        "ACTIONS",
-        "DESCRIPTION",
-        "DETAILS"
-    };
+    String TITLE_SECTION = "TITLE";
+    String PRICE_SECTION = "PRICE";
+    String SKU_SECTION = "SKU";
+    String IMAGE_SECTION = "IMAGE";
+    String OPTIONS_SECTION = "OPTIONS";
+    String QUANTITY_SECTION = "QUANTITY";
+    String ACTIONS_SECTION = "ACTIONS";
+    String DESCRIPTION_SECTION = "DESCRIPTION";
+    String DETAILS_SECTION = "DETAILS";
 
     /**
      * Name of the boolean resource property indicating if the product component should load prices on the client-side.
@@ -125,6 +122,16 @@ public interface Product extends Component, PageMetadata {
      * @return
      */
     default Set<String> getVisibleSections() {
-        return Arrays.stream(sections).collect(Collectors.toSet());
+        Set<String> defaultSections = new HashSet<>();
+        defaultSections.add(TITLE_SECTION);
+        defaultSections.add(PRICE_SECTION);
+        defaultSections.add(SKU_SECTION);
+        defaultSections.add(IMAGE_SECTION);
+        defaultSections.add(OPTIONS_SECTION);
+        defaultSections.add(QUANTITY_SECTION);
+        defaultSections.add(ACTIONS_SECTION);
+        defaultSections.add(DESCRIPTION_SECTION);
+        defaultSections.add(DETAILS_SECTION);
+        return defaultSections;
     }
 }

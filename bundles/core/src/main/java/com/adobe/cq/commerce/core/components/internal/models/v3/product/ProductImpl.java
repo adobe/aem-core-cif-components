@@ -15,7 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v3.product;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -42,9 +45,15 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     protected static final Map<String, String> SECTIONS_MAP = new HashMap<String, String>() {
         {
-            Arrays.stream(Product.sections).forEach(s -> {
-                put(s, "show" + s.charAt(0) + s.substring(1).toLowerCase());
-            });
+            put(TITLE_SECTION, "showTitle");
+            put(PRICE_SECTION, "showPrice");
+            put(SKU_SECTION, "showSku");
+            put(IMAGE_SECTION, "showImage");
+            put(OPTIONS_SECTION, "showOptions");
+            put(QUANTITY_SECTION, "showQuantity");
+            put(ACTIONS_SECTION, "showActions");
+            put(DESCRIPTION_SECTION, "showDescription");
+            put(DETAILS_SECTION, "showDetails");
         }
     };
 
