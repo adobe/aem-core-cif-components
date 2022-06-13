@@ -326,12 +326,12 @@ public class ProductListImplTest {
         SearchAggregationOption opt = options.get(0);
         Assert.assertEquals("3", opt.getFilterValue());
         Assert.assertEquals("Gear", opt.getDisplayLabel());
-        Assert.assertEquals("/content/pageA.html/running/gear.html", opt.getPageUrl());
+        Assert.assertEquals("/content/category-page.html/running/gear.html", opt.getPageUrl());
 
         opt = options.get(1);
         Assert.assertEquals("4", opt.getFilterValue());
         Assert.assertEquals("Bags", opt.getDisplayLabel());
-        Assert.assertEquals("/content/pageA.html/running/bags.html", opt.getPageUrl());
+        Assert.assertEquals("/content/category-page.html/running/bags.html", opt.getPageUrl());
 
         // We want to make sure all price ranges are properly processed
         SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();
@@ -403,13 +403,13 @@ public class ProductListImplTest {
         Assert.assertFalse(opt instanceof MySearchAggregationOption);
         Assert.assertEquals("3", opt.getFilterValue());
         Assert.assertEquals("Gear", opt.getDisplayLabel());
-        Assert.assertEquals("/content/pageA.html/running/gear.html", opt.getPageUrl());
+        Assert.assertEquals("/content/category-page.html/running/gear.html", opt.getPageUrl());
 
         opt = options.get(1);
         Assert.assertFalse(opt instanceof MySearchAggregationOption);
         Assert.assertEquals("4", opt.getFilterValue());
         Assert.assertEquals("Bags", opt.getDisplayLabel());
-        Assert.assertEquals("/content/pageA.html/running/bags.html", opt.getPageUrl());
+        Assert.assertEquals("/content/category-page.html/running/bags.html", opt.getPageUrl());
 
         // We want to make sure all price ranges are properly processed
         SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();
