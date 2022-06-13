@@ -253,6 +253,7 @@ public class SpecificPageStrategyTest {
         SiteStructure siteStructure = productPage.adaptTo(SiteStructure.class);
         ProductUrlFormat.Params params = new ProductUrlFormat.Params();
         params.setUrlKey("product");
+
         // when category url key does not match the catalog page's category, then
         params.setUrlPath("men/product");
         Page genericPage = subject.getGenericPage(siteStructure, params);

@@ -40,6 +40,7 @@ import org.apache.sling.models.annotations.via.ForcedResourceType;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
+import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.UrlFormatBase;
 import com.adobe.cq.commerce.core.components.models.breadcrumb.Breadcrumb;
@@ -50,6 +51,7 @@ import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.wcm.api.Page;
@@ -157,14 +159,16 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         boolean isProductPage = false;
         boolean isCategoryPage = false;
         List<? extends CategoryInterface> categoriesBreadcrumbs = null;
-        String productSku = null;
+        ProductInterface product = null;
+
         if (siteStructure.isProductPage(page)) {
-            productSku = urlProvider.getProductIdentifier(request);
+            String productSku = urlProvider.getProductIdentifier(request);
             if (StringUtils.isEmpty(productSku)) {
                 return false;
             }
             ProductUrlFormat.Params urlParams = urlProvider.parseProductUrlFormatParameters(request);
             categoriesBreadcrumbs = fetchProductBreadcrumbs(productSku, urlParams, magentoGraphqlClient);
+            product = retriever.fetchProduct();
             isProductPage = true;
         } else if (siteStructure.isCategoryPage(page)) {
             String categoryUid = urlProvider.getCategoryIdentifier(request);
@@ -174,8 +178,9 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             categoriesBreadcrumbs = fetchCategoryBreadcrumbs(categoryUid, magentoGraphqlClient);
             isCategoryPage = true;
         } else {
+            // we reached a content page
             items.add(item);
-            return true; // we reached a content page
+            return true;
         }
 
         if (CollectionUtils.isEmpty(categoriesBreadcrumbs)) {
@@ -209,9 +214,10 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         }
 
         // We finally add the product if it's a product page
-        if (isProductPage && StringUtils.isNotBlank(productSku)) {
-            String url = urlProvider.toProductUrl(request, currentPage, productSku);
-            NavigationItemImpl productItem = newNavigationItem(retriever.fetchProductName(), url, true);
+        if (isProductPage) {
+            ProductUrlFormat.Params params = new ProductUrlFormat.Params(product);
+            String url = urlProvider.toProductUrl(request, currentPage, params);
+            NavigationItemImpl productItem = newNavigationItem(product.getName(), url, true);
             items.add(productItem);
         }
 
