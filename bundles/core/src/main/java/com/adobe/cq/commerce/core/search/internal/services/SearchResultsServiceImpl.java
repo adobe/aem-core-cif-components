@@ -207,7 +207,6 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             mutableSearchOptions.getAllFilters(), availableFilters);
 
         // special handling of category identifier(s)
-        removeCategoryIdAggregationIfNecessary(searchAggregations, mutableSearchOptions);
         removeCategoryUidFilterEntriesIfPossible(searchAggregations, request);
 
         searchResultsSet.setTotalResults(products.getTotalCount());
@@ -506,20 +505,6 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         return aggregations.stream()
             .map(converter)
             .collect(Collectors.toList());
-    }
-
-    /**
-     * Removes the category_id filter from the search aggregations when category_uid filter is present because either cannot be combined
-     * with the other.
-     *
-     * @param aggs
-     * @param searchOptions
-     */
-    private void removeCategoryIdAggregationIfNecessary(List<SearchAggregation> aggs, SearchOptionsImpl searchOptions) {
-        // Special treatment for category_id filter as this is always present and collides with category_uid filter (CIF-2206)
-        if (searchOptions.getCategoryUid().isPresent()) {
-            aggs.removeIf(agg -> CATEGORY_ID_FILTER.equals(agg.getIdentifier()));
-        }
     }
 
     /**
