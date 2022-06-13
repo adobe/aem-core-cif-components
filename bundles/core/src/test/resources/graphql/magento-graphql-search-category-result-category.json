@@ -11,7 +11,21 @@
 	    "meta_title": "Some category meta title",
 	    "url_path": "running",
   		"url_key": "running-key",
-      "staged": true
+      	"staged": true,
+		  "children": [
+			  {
+				  "id": "3",
+				  "uid": "uid-3",
+				  "url_key": "gear",
+				  "url_path": "running/gear"
+			  },
+			  {
+				  "id": "4",
+				  "uid": "uid-4",
+				  "url_key": "bags",
+				  "url_path": "running/bags"
+			  }
+		  ]
 	  }
     ]
   }

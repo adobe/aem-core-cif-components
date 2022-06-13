@@ -30,6 +30,17 @@ public class SearchAggregationOptionImpl implements SearchAggregationOption {
     private String displayLabel;
     private int count;
     private Map<String, String> addFilterMap;
+    private String pageUrl;
+
+    public SearchAggregationOptionImpl() {}
+
+    public SearchAggregationOptionImpl(SearchAggregationOption that) {
+        this.filterValue = that.getFilterValue();
+        this.displayLabel = that.getDisplayLabel();
+        this.count = that.getCount();
+        this.addFilterMap = that.getAddFilterMap();
+        this.pageUrl = that.getPageUrl();
+    }
 
     @Nonnull
     @Override
@@ -55,6 +66,15 @@ public class SearchAggregationOptionImpl implements SearchAggregationOption {
         return addFilterMap;
     }
 
+    @Override
+    public String getPageUrl() {
+        return pageUrl;
+    }
+
+    public void setPageUrl(String pageUrl) {
+        this.pageUrl = pageUrl;
+    }
+
     public void setFilterValue(final String filterValue) {
         this.filterValue = filterValue;
     }
@@ -70,4 +90,5 @@ public class SearchAggregationOptionImpl implements SearchAggregationOption {
     public void setAddFilterMap(final Map<String, String> addFilterMap) {
         this.addFilterMap = addFilterMap;
     }
+
 }

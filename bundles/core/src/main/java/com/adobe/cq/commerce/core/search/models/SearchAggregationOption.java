@@ -59,4 +59,13 @@ public interface SearchAggregationOption {
     @Nonnull
     Map<String, String> getAddFilterMap();
 
+    /**
+     * Get the page URL for this aggregation option.
+     *
+     * @return page url
+     */
+    default String getPageUrl() {
+        return null;
+    }
+
 }

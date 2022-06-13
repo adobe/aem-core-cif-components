@@ -200,7 +200,7 @@ jobs:
           name: Provision (Extension)
           command: |
             npm install
-            npm link @adobe/aem-core-cif-react-components
+            npm link @adobe/aem-core-cif-react-components --legacy-peer-deps
           working_directory: ./extensions/product-recs/react-components
       - run:
           name: Run Unit Tests (Jest)
