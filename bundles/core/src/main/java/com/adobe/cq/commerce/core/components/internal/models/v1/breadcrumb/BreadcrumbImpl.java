@@ -40,7 +40,6 @@ import org.apache.sling.models.annotations.via.ForcedResourceType;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
-import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.UrlFormatBase;
 import com.adobe.cq.commerce.core.components.models.breadcrumb.Breadcrumb;
