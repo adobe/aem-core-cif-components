@@ -32,6 +32,9 @@ import com.day.cq.commons.inherit.InheritanceValueMap;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 
+/**
+ * @deprecated use {@link com.adobe.cq.commerce.core.components.models.common.SiteStructure} instead
+ */
 @Deprecated
 public class SiteNavigation {
 
