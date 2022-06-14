@@ -38,7 +38,8 @@ class CategoryRetriever extends AbstractCategoryRetriever {
                 .metaKeywords()
                 .metaTitle()
                 .urlKey()
-                .urlPath();
+                .urlPath()
+                .children(cq -> cq.id().uid().urlKey().urlPath());
 
             if (categoryQueryHook != null) {
                 categoryQueryHook.accept(q);

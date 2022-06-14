@@ -311,28 +311,6 @@ public class SearchResultsServiceImplTest {
     }
 
     @Test
-    public void testCategoryIdSearchAggregationRemoved() {
-        when(products.getAggregations()).thenReturn(Collections.singletonList(new Aggregation()
-            .setAttributeCode("category_id")
-            .setOptions(Collections.emptyList())));
-        when(searchFilterService.retrieveCurrentlyAvailableCommerceFilters(any())).thenReturn(Collections.singletonList(
-            createMatchFilterAttributeMetadata("category_id")));
-
-        // test without category_id
-        SearchResultsSet resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
-        List<SearchAggregation> aggregations = resultsSet.getSearchAggregations();
-        assertThat(aggregations).isNotNull();
-        assertThat(aggregations.isEmpty()).isEqualTo(false);
-
-        // test with category uid present
-        searchOptions.setCategoryUid("foobar");
-        resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
-        aggregations = resultsSet.getSearchAggregations();
-        assertThat(aggregations).isNotNull();
-        assertThat(aggregations.isEmpty()).isEqualTo(true);
-    }
-
-    @Test
     public void testCategoryUidFilterEntriesRemoved() {
         final Predicate<Map<String, String>> filterMapFilter = map -> map.containsKey("category_uid");
 

@@ -34,6 +34,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -129,9 +130,12 @@ public class AbstractPageDelegatorTest {
         when(mock.getId()).thenReturn("id");
         assertEquals("id", subject.getId());
 
+        assertNull(subject.getData());
         ComponentData data = mock(ComponentData.class);
+        when(data.getId()).thenReturn("myId");
         when(mock.getData()).thenReturn(data);
-        assertEquals(data, subject.getData());
+        assertEquals(data.getId(), subject.getData().getId());
+        assertEquals("type", subject.getData().getType());
 
         when(mock.getAppliedCssClasses()).thenReturn("my-page__root");
         assertEquals("my-page__root", subject.getAppliedCssClasses());
