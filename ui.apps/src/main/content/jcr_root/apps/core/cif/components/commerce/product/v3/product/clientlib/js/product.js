@@ -116,8 +116,8 @@ class Product {
 
         // Update internal state and 'data-product-sku' attribute of price element
         this._state.sku = variant.sku;
-        [this._element.querySelector(Product.selectors.price), this._element].forEach(element =>
-            element && element.setAttribute('data-product-sku', variant.sku)
+        [this._element.querySelector(Product.selectors.price), this._element].forEach(
+            element => element && element.setAttribute('data-product-sku', variant.sku)
         );
         // Update values and enable add to cart button
         const skuEl = this._element.querySelector(Product.selectors.sku);
@@ -154,9 +154,9 @@ class Product {
                     currency: price.currency
                 })}</span>
                     <span class="discountedPrice">${this._formatter.formatPrice({
-                    value: price.finalPrice,
-                    currency: price.currency
-                })}</span>
+                        value: price.finalPrice,
+                        currency: price.currency
+                    })}</span>
                     <span class="you-save">${youSave} ${this._formatter.formatPrice({
                     value: price.discountAmount,
                     currency: price.currency
@@ -202,7 +202,7 @@ class Product {
 
         let sku = optionalSku || this._state.sku;
         const targetEl = this._element.querySelector(Product.selectors.price + `[data-product-sku="${sku}"]`);
-        if(targetEl) targetEl.innerHTML = innerHTML;
+        if (targetEl) targetEl.innerHTML = innerHTML;
     }
 }
 
