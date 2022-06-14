@@ -73,11 +73,10 @@ describe('Product', () => {
         });
 
         beforeEach(() => {
-            productRoot = document.createElement('div');
-            productRoot.dataset.locale = 'en-US'; // enforce the locale for prices
-            productRoot.insertAdjacentHTML(
+            const testDoc = document.createElement('div');
+            testDoc.insertAdjacentHTML(
                 'afterbegin',
-                `<div data-cmp-is="product" data-uid-cart data-product-sku="sample-sku">
+                `<div data-locale="en-US" data-cmp-is="product" data-uid-cart data-product-sku="sample-sku">
                     <section class="productFullDetail__sku productFullDetail__section">
                         <h2 class="productFullDetail__skuTitle productFullDetail__sectionTitle">SKU</h2>
                         <strong role="sku">sample-sku</strong>
@@ -95,6 +94,8 @@ describe('Product', () => {
                     </section>
                 </div>`
             );
+
+            productRoot = testDoc.querySelector(Product.selectors.self);
         });
 
         it('initializes a configurable product component', () => {
@@ -112,7 +113,7 @@ describe('Product', () => {
         });
 
         it('initializes a product component with no SKU', () => {
-            productRoot.querySelector(Product.selectors.sku).remove();
+            delete productRoot.dataset.productSku;
             let product = new Product({ element: productRoot });
             assert.isFalse(product._state.configurable);
             assert.isNull(product._state.sku);

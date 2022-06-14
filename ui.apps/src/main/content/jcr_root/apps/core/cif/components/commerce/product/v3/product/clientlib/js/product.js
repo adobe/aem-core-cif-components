@@ -22,7 +22,7 @@ class Product {
         // Local state
         this._state = {
             // Current sku, either from the base product or from a variant
-            sku: this._element.dataset.productSku,
+            sku: config.element.dataset.productSku ? config.element.dataset.productSku : null,
 
             // True if this product is configurable and has variants
             configurable: this._element.dataset.configurable !== undefined,
@@ -201,8 +201,8 @@ class Product {
         }
 
         let sku = optionalSku || this._state.sku;
-        const targetEl = this._element.querySelector(Product.selectors.price + `[data-product-sku="${sku}"]`);
-        if (targetEl) targetEl.innerHTML = innerHTML;
+        const priceEl = this._element.querySelector(Product.selectors.price + `[data-product-sku="${sku}"]`);
+        if (priceEl) priceEl.innerHTML = innerHTML;
     }
 }
 

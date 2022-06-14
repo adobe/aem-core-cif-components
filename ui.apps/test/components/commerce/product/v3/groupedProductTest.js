@@ -135,11 +135,10 @@ describe('GroupedProduct', () => {
         });
 
         beforeEach(() => {
-            productRoot = document.createElement('div');
-            productRoot.dataset.locale = 'en-US'; // enforce the locale for prices
-            productRoot.insertAdjacentHTML(
+            const testDoc = document.createElement('div');
+            testDoc.insertAdjacentHTML(
                 'afterbegin',
-                `<div data-cmp-is="product" data-uid-cart data-product-sku="grouped-product-sku">
+                `<div data-locale="en-US" data-cmp-is="product" data-uid-cart data-product-sku="grouped-product-sku">
                     <section class="productFullDetail__sku productFullDetail__section">
                         <h2 class="productFullDetail__skuTitle productFullDetail__sectionTitle">SKU</h2>
                         <strong role="sku">grouped-product-sku</strong>
@@ -150,6 +149,7 @@ describe('GroupedProduct', () => {
                     </section>
                 </div>`
             );
+            productRoot = testDoc.querySelector(Product.selectors.self);
         });
 
         it('retrieves prices via GraphQL', () => {
