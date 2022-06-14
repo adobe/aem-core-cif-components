@@ -19,11 +19,10 @@ class Product {
     constructor(config) {
         this._element = config.element;
 
-        const skuElement = this._element.querySelector(Product.selectors.sku);
         // Local state
         this._state = {
             // Current sku, either from the base product or from a variant
-            sku: skuElement && skuElement.innerHTML,
+            sku: this._element.dataset.productSku,
 
             // True if this product is configurable and has variants
             configurable: this._element.dataset.configurable !== undefined,
@@ -118,12 +117,15 @@ class Product {
         // Update internal state and 'data-product-sku' attribute of price element
         this._state.sku = variant.sku;
         [this._element.querySelector(Product.selectors.price), this._element].forEach(element =>
-            element.setAttribute('data-product-sku', variant.sku)
+            element && element.setAttribute('data-product-sku', variant.sku)
         );
         // Update values and enable add to cart button
-        this._element.querySelector(Product.selectors.sku).innerText = variant.sku;
-        this._element.querySelector(Product.selectors.name).innerText = variant.name;
-        this._element.querySelector(Product.selectors.description).innerHTML = variant.description;
+        const skuEl = this._element.querySelector(Product.selectors.sku);
+        if (skuEl) skuEl.innerText = variant.sku;
+        const nameEl = this._element.querySelector(Product.selectors.name);
+        if (nameEl) nameEl.innerText = variant.name;
+        const descriptionEl = this._element.querySelector(Product.selectors.description);
+        if (descriptionEl) descriptionEl.innerHTML = variant.description;
 
         // Use client-side fetched price
         if (this._state.sku in this._state.prices) {
@@ -152,9 +154,9 @@ class Product {
                     currency: price.currency
                 })}</span>
                     <span class="discountedPrice">${this._formatter.formatPrice({
-                        value: price.finalPrice,
-                        currency: price.currency
-                    })}</span>
+                    value: price.finalPrice,
+                    currency: price.currency
+                })}</span>
                     <span class="you-save">${youSave} ${this._formatter.formatPrice({
                     value: price.discountAmount,
                     currency: price.currency
@@ -199,7 +201,8 @@ class Product {
         }
 
         let sku = optionalSku || this._state.sku;
-        this._element.querySelector(Product.selectors.price + `[data-product-sku="${sku}"]`).innerHTML = innerHTML;
+        const targetEl = this._element.querySelector(Product.selectors.price + `[data-product-sku="${sku}"]`);
+        if(targetEl) targetEl.innerHTML = innerHTML;
     }
 }
 
