@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-import AddToCart from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product/clientlib/js/addToCart.js';
+import AddToCart from '../../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v3/product/clientlib/js/addToCart.js';
 
 describe('Product', () => {
     describe('AddToCart', () => {
@@ -39,18 +39,19 @@ describe('Product', () => {
             }
             pageRoot.insertAdjacentHTML(
                 'afterbegin',
-                `<div data-cmp-is="product">
-                    <div class="productFullDetail__details">
-                        <span role="sku">my-sample-sku</span>
-                    </div>
-                    <div class="productFullDetail__cartActions">
-                        <button class="button__root_highPriority">
-                    </div>
-                    <div class="productFullDetail__quantity">
-                        <select data-product-sku="my-sample-sku">
+                `<div data-cmp-is="product" data-uid-cart data-product-sku="my-sample-sku">
+                    <section class="productFullDetail__sku productFullDetail__section">
+                        <h2 class="productFullDetail__skuTitle productFullDetail__sectionTitle">SKU</h2>
+                        <strong role="sku">my-sample-sku</strong>
+                    </section>
+                    <section class="productFullDetail__actions productFullDetail__section">
+                        <button class="button__root_highPriority" data-cmp-is="add-to-cart">Add to cart</button>
+                    </section>
+                    <section class="productFullDetail__groupedProducts productFullDetail__quantity">
+                        <select name="quantity" data-uid-cart data-product-sku="my-sample-sku">
                             <option value="5" selected></option>
                         </select>
-                    </div>
+                    </section>
                 </div>`
             );
 
@@ -133,18 +134,19 @@ describe('Product', () => {
             }
             pageRoot.insertAdjacentHTML(
                 'afterbegin',
-                `<div data-cmp-is="product" data-virtual>
-                    <div class="productFullDetail__details">
-                        <span role="sku">my-sample-sku</span>
-                    </div>
-                    <div class="productFullDetail__cartActions">
-                        <button class="button__root_highPriority">
-                    </div>
-                    <div class="productFullDetail__quantity">
-                        <select data-product-sku="my-sample-sku">
+                `<div data-cmp-is="product" data-virtual data-uid-cart data-product-sku="my-sample-sku">
+                    <section class="productFullDetail__sku productFullDetail__section">
+                        <h2 class="productFullDetail__skuTitle productFullDetail__sectionTitle">SKU</h2>
+                        <strong role="sku">my-sample-sku</strong>
+                    </section>
+                    <section class="productFullDetail__actions productFullDetail__section">
+                        <button class="button__root_highPriority" data-cmp-is="add-to-cart">Add to cart</button>
+                    </section>
+                    <section class="productFullDetail__groupedProducts productFullDetail__quantity">
+                        <select name="quantity" data-uid-cart data-product-sku="my-sample-sku">
                             <option value="4" selected></option>
                         </select>
-                    </div>
+                    </section>
                 </div>`
             );
 

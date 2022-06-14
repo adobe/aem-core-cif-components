@@ -16,8 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
@@ -632,5 +631,22 @@ public class ProductImplTest {
         when(style.get(eq("enableAddToWishList"), anyBoolean())).thenReturn(Boolean.TRUE);
         adaptToProduct();
         assertTrue(productModel.getAddToWishListEnabled());
+    }
+
+    @Test
+    public void testVisibleSectionsWithoutStyle() {
+        adaptToProduct();
+        Set<String> expectedSections = new HashSet<>();
+        expectedSections.add(Product.TITLE_SECTION);
+        expectedSections.add(Product.PRICE_SECTION);
+        expectedSections.add(Product.SKU_SECTION);
+        expectedSections.add(Product.IMAGE_SECTION);
+        expectedSections.add(Product.OPTIONS_SECTION);
+        expectedSections.add(Product.QUANTITY_SECTION);
+        expectedSections.add(Product.ACTIONS_SECTION);
+        expectedSections.add(Product.DESCRIPTION_SECTION);
+        expectedSections.add(Product.DETAILS_SECTION);
+
+        assertEquals(expectedSections, productModel.getVisibleSections());
     }
 }

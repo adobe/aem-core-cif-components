@@ -92,17 +92,32 @@
                 {
                   "value_index": 49,
                   "uid": "NDk=",
-                  "label": "Black"
+                  "label": "Black",
+                  "default_label": "Black",
+                  "swatch_data": {
+                    "__typename": "ColorSwatchData",
+                    "value": "Black"
+                  }
                 },
                 {
                   "value_index": 52,
                   "uid": "NTI=",
-                  "label": "Gray"
+                  "label": "Gray",
+                  "default_label": "Gray",
+                  "swatch_data": {
+                    "__typename": "ColorSwatchData",
+                    "value": "Gray"
+                  }
                 },
                 {
                   "value_index": 56,
                   "uid": "NTY=",
-                  "label": "Orange"
+                  "label": "Orange",
+                  "default_label": "Orange",
+                  "swatch_data": {
+                    "__typename": "ColorSwatchData",
+                    "value": "Orange"
+                  }
                 }
               ]
             },
@@ -113,27 +128,52 @@
                 {
                   "value_index": 169,
                   "uid": "MTY5",
-                  "label": "XS"
+                  "label": "XS",
+                  "default_label": "XS",
+                  "swatch_data": {
+                    "__typename": "TextSwatchData",
+                    "value": "XS"
+                  }
                 },
                 {
                   "value_index": 170,
                   "uid": "MTcw",
-                  "label": "S"
+                  "label": "S",
+                  "default_label": "S",
+                  "swatch_data": {
+                    "__typename": "TextSwatchData",
+                    "value": "S"
+                  }
                 },
                 {
                   "value_index": 171,
                   "uid": "MTcx",
-                  "label": "M"
+                  "label": "M",
+                  "default_label": "M",
+                  "swatch_data": {
+                    "__typename": "TextSwatchData",
+                    "value": "M"
+                  }
                 },
                 {
                   "value_index": 172,
                   "uid": "MTcy",
-                  "label": "L"
+                  "label": "L",
+                  "default_label": "L",
+                  "swatch_data": {
+                    "__typename": "TextSwatchData",
+                    "value": "L"
+                  }
                 },
                 {
                   "value_index": 173,
                   "uid": "MTcz",
-                  "label": "XL"
+                  "label": "XL",
+                  "default_label": "XL",
+                  "swatch_data": {
+                    "__typename": "TextSwatchData",
+                    "value": "XL"
+                  }
                 }
               ]
             }

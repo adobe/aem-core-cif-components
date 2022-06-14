@@ -1,57 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
-    jcr:primaryType="cq:Page">
-    <jcr:content
-        cq:lastModified="{Date}2020-10-08T15:16:08.704+02:00"
-        cq:lastModifiedBy="admin"
-        cq:tags="[]"
-        cq:template="/conf/core-components-examples/settings/wcm/templates/content-page"
-        jcr:description="Display commerce product data"
-        jcr:primaryType="cq:PageContent"
-        jcr:title="Product"
-        sling:resourceType="cif-components-examples/components/page">
-        <root
-            jcr:primaryType="nt:unstructured"
-            sling:resourceType="wcm/foundation/components/responsivegrid">
-            <responsivegrid
-                jcr:primaryType="nt:unstructured"
-                sling:resourceType="wcm/foundation/components/responsivegrid">
-                <text_1740702241
-                    cq:styleIds="[1644862132301]"
-                    jcr:created="{Date}2019-02-15T19:05:53.032+01:00"
-                    jcr:createdBy="admin"
-                    jcr:lastModified="{Date}2019-02-15T19:09:39.787+01:00"
-                    jcr:lastModifiedBy="admin"
-                    jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core-components-examples/components/text"
-                    text="&lt;h1>Product&lt;sub>v2&lt;/sub>&lt;/h1>"
-                    textIsRich="true"/>
-                <text
-                    cq:styleIds="[1544762734201]"
-                    jcr:created="{Date}2018-12-06T19:11:23.947+01:00"
-                    jcr:createdBy="admin"
-                    jcr:lastModified="{Date}2020-10-08T15:16:08.696+02:00"
-                    jcr:lastModifiedBy="admin"
-                    jcr:primaryType="nt:unstructured"
-                    sling:resourceType="core-components-examples/components/text"
-                    text="&lt;p>The product component is a server side component written in HTL, allowing to display product details. The product details are retrieved from Adobe Commerce via GraphQL using the product identifier provided in the URL suffix. The format of the URL suffix is configurable.&lt;/p>&#xd;&#xa;&lt;p>On an author instance, when the page URL does not contain any suffix, like for example when the page is edited in the AEM Sites editor, the component displays some placeholder data. On a publish instance, not setting any suffix redirects to the 404 page.&lt;br>&#xd;&#xa;&lt;/p>&#xd;&#xa;&lt;p>Note that when a suffix is set, this example page always displays the same product data based on some sample data. Try different options:&lt;/p>&#xd;&#xa;&lt;ul>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/sample-product.html/chaz-kangeroo-hoodie.html&quot;>Showing sample data (suffix is set in URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/sample-product.html/chaz-crocodile-hoodie.html&quot;>Showing sample data for a staged product (suffix is set in URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/sample-product.html/set-of-sprite-yoga-straps.html&quot;>Showing sample data for a grouped product (only for this particular suffix in the URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/sample-product.html/sprite-yoga-companion-kit.html&quot;>Showing sample data for a bundle product (only for this particular suffix in the URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/manual-product.html&quot; style=&quot;font-size: 1rem;&quot;>Showing sample data (manual product selection)&lt;/a>&lt;br>&#xd;&#xa;&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/sample-product.html&quot;>Showing 404 page on publish instance (no suffix in URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;/ul>&#xd;&#xa;&lt;p>For the three examples with sample data, the clientlib part of the component will also issue a client-side GraphQL query to refetch the product prices on page load. This demonstrates how prices can be refreshed upon page load even if the rest of the page data may be cached in the AEM dispatcher.&lt;/p>&#xd;&#xa;&lt;p>In addition, the example showing a bundle product includes a small React application that is activated when clicking on the &amp;quot;Customize&amp;quot; button. It is used to fetch the bundle options with a client-side GraphQL request and to calculcate and prepare the product data for the cart when selecting the options of the bundle product.&lt;br>&#xd;&#xa;&lt;/p>&#xd;&#xa;"
-                    textIsRich="true"/>
-                <teaser
-                    cq:styleIds="[1550165685463]"
-                    jcr:created="{Date}2019-02-14T16:41:54.952+01:00"
-                    jcr:createdBy="admin"
-                    jcr:description="&lt;p>GitHub&lt;/p>&#xd;&#xa;"
-                    jcr:lastModified="{Date}2019-02-14T16:49:57.290+01:00"
-                    jcr:lastModifiedBy="admin"
-                    jcr:primaryType="nt:unstructured"
-                    jcr:title="Technical Documentation"
-                    sling:resourceType="core-components-examples/components/teaser"
-                    actionsEnabled="false"
-                    descriptionFromPage="false"
-                    fileReference="/content/dam/core-components-examples/library/github-logo.svg"
-                    linkURL="https://github.com/adobe/aem-core-cif-components/tree/master/ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v2/product"
-                    textIsRich="true"
-                    titleFromPage="false"/>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0" jcr:primaryType="cq:Page">
+    <jcr:content cq:lastModified="{Date}2020-10-08T15:16:08.704+02:00" cq:lastModifiedBy="admin" cq:tags="[]" cq:template="/conf/core-components-examples/settings/wcm/templates/content-page" jcr:description="Display commerce product data" jcr:primaryType="cq:PageContent" jcr:title="Product" sling:resourceType="cif-components-examples/components/page">
+        <root jcr:primaryType="nt:unstructured" sling:resourceType="wcm/foundation/components/responsivegrid">
+            <responsivegrid jcr:primaryType="nt:unstructured" sling:resourceType="wcm/foundation/components/responsivegrid">
+                <text_1740702241 cq:styleIds="[1644862132301]" jcr:created="{Date}2019-02-15T19:05:53.032+01:00" jcr:createdBy="admin" jcr:lastModified="{Date}2019-02-15T19:09:39.787+01:00" jcr:lastModifiedBy="admin" jcr:primaryType="nt:unstructured" sling:resourceType="core-components-examples/components/text" text="&lt;h1>Product&lt;sub>v3&lt;/sub>&lt;/h1>" textIsRich="true" />
+                <text cq:styleIds="[1544762734201]" jcr:created="{Date}2018-12-06T19:11:23.947+01:00" jcr:createdBy="admin" jcr:lastModified="{Date}2020-10-08T15:16:08.696+02:00" jcr:lastModifiedBy="admin" jcr:primaryType="nt:unstructured" sling:resourceType="core-components-examples/components/text" text="&lt;p>The product component is a server side component written in HTL, allowing to display product details. The product details are retrieved from Adobe Commerce via GraphQL using the product identifier provided in the URL suffix. The format of the URL suffix is configurable.&lt;/p>&#xd;&#xa;&lt;p>On an author instance, when the page URL does not contain any suffix, like for example when the page is edited in the AEM Sites editor, the component displays some placeholder data. On a publish instance, not setting any suffix redirects to the 404 page.&lt;br>&#xd;&#xa;&lt;/p>&#xd;&#xa;&lt;p>Note that when a suffix is set, this example page always displays the same product data based on some sample data. Try different options:&lt;/p>&#xd;&#xa;&lt;ul>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/sample-product.html/chaz-kangeroo-hoodie.html&quot;>Showing sample data (suffix is set in URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/sample-product.html/chaz-crocodile-hoodie.html&quot;>Showing sample data for a staged product (suffix is set in URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/sample-product.html/set-of-sprite-yoga-straps.html&quot;>Showing sample data for a grouped product (only for this particular suffix in the URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/sample-product.html/sprite-yoga-companion-kit.html&quot;>Showing sample data for a bundle product (only for this particular suffix in the URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/manual-product.html&quot; style=&quot;font-size: 1rem;&quot;>Showing sample data (manual product selection)&lt;/a>&lt;br>&#xd;&#xa;&lt;/li>&#xd;&#xa;&lt;li>&lt;a href=&quot;/content/core-components-examples/library/commerce/product/sample-product.html&quot;>Showing 404 page on publish instance (no suffix in URL)&lt;/a>&lt;/li>&#xd;&#xa;&lt;/ul>&#xd;&#xa;&lt;p>For the three examples with sample data, the clientlib part of the component will also issue a client-side GraphQL query to refetch the product prices on page load. This demonstrates how prices can be refreshed upon page load even if the rest of the page data may be cached in the AEM dispatcher.&lt;/p>&#xd;&#xa;&lt;p>In addition, the example showing a bundle product includes a small React application that is activated when clicking on the &amp;quot;Customize&amp;quot; button. It is used to fetch the bundle options with a client-side GraphQL request and to calculcate and prepare the product data for the cart when selecting the options of the bundle product.&lt;br>&#xd;&#xa;&lt;/p>&#xd;&#xa;" textIsRich="true" />
+                <teaser cq:styleIds="[1550165685463]" jcr:created="{Date}2019-02-14T16:41:54.952+01:00" jcr:createdBy="admin" jcr:description="&lt;p>GitHub&lt;/p>&#xd;&#xa;" jcr:lastModified="{Date}2019-02-14T16:49:57.290+01:00" jcr:lastModifiedBy="admin" jcr:primaryType="nt:unstructured" jcr:title="Technical Documentation" sling:resourceType="core-components-examples/components/teaser" actionsEnabled="false" descriptionFromPage="false" fileReference="/content/dam/core-components-examples/library/github-logo.svg" linkURL="https://github.com/adobe/aem-core-cif-components/tree/master/ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v3/product" textIsRich="true" titleFromPage="false" />
             </responsivegrid>
         </root>
     </jcr:content>
