@@ -15,6 +15,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.productCollection="${@ productCollection, rootClass}"
           data-sly-use.itemTemplate="item.html"
+          data-sly-use.xfItemTemplate="xfitem.html"
           data-sly-use.resultsCountTemplate="resultscount.html"
           data-sly-use.sortTemplate="sort.html"
           data-sly-use.paginationTemplate="pagination.html"
@@ -33,7 +34,10 @@
      <sly data-sly-test="${productCollection.searchResultsSet.hasSorting}"
           data-sly-call="${sortTemplate.sort @ searchResultsSet = productCollection.searchResultsSet}"/>
      <div class="productcollection__items" data-sly-list.product="${productCollection.products}">
-          <sly data-sly-call="${itemTemplate.item @ item = product, productCollection=productCollection}"/>
+          <sly data-sly-test="${!product.renderResource}" 
+               data-sly-call="${itemTemplate.item @ item = product, productCollection=productCollection}"/>
+          <sly data-sly-test="${product.renderResource}"
+               data-sly-call="${xfItemTemplate.item @ item = product}" />
      </div>
      <sly data-sly-test.loadmorebutton="${productCollection.paginationType == 'loadmorebutton'}"
           data-sly-call="${loadMoreButtonTemplate.loadmorebutton @ pager = productCollection.searchResultsSet.pager, addLazy = true}"/>

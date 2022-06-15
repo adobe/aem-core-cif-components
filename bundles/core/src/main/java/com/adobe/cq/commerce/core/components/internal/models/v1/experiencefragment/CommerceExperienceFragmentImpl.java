@@ -60,7 +60,7 @@ import com.day.cq.wcm.msm.api.LiveRelationshipManager;
     resourceType = CommerceExperienceFragmentImpl.RESOURCE_TYPE)
 public class CommerceExperienceFragmentImpl implements CommerceExperienceFragment {
 
-    protected static final String RESOURCE_TYPE = "core/cif/components/commerce/experiencefragment/v1/experiencefragment";
+    public static final String RESOURCE_TYPE = "core/cif/components/commerce/experiencefragment/v1/experiencefragment";
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceExperienceFragmentImpl.class);
     private static final String XF_ROOT = "/content/experience-fragments/";
 

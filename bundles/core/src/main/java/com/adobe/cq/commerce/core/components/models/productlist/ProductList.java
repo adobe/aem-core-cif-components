@@ -39,6 +39,16 @@ public interface ProductList extends Component, ProductCollection, PageMetadata 
     String PN_SHOW_IMAGE = "showImage";
 
     /**
+     * Name of the String resource property for the fragment enabled setting.
+     */
+    String PN_FRAGMENT_ENABLED = "fragmentEnabled";
+
+    /**
+     * Name of the child node where the fragment elements are stored
+     */
+    String NN_FRAGMENTS = "fragments";
+
+    /**
      * Returns {@code true} if the category / product list title should be rendered.
      *
      * @return {@code true} if category / product list title should be shown, {@code false} otherwise

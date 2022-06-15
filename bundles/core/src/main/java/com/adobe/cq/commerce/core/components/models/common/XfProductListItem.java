@@ -1,5 +1,5 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ Copyright 2020 Adobe
+ ~ Copyright 2022 Adobe
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -13,7 +13,14 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-@Version("2.3.0")
-package com.adobe.cq.commerce.core.components.models.productcollection;
+package com.adobe.cq.commerce.core.components.models.common;
 
-import org.osgi.annotation.versioning.Version;
+import javax.annotation.Nullable;
+
+import org.apache.sling.api.resource.Resource;
+
+public interface XfProductListItem extends ProductListItem {
+
+    @Nullable
+    Resource getRenderResource();
+}

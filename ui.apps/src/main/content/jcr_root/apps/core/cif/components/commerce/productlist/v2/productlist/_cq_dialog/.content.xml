@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
     xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0"
+    xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
     jcr:primaryType="nt:unstructured"
     jcr:title="Product List"
     sling:resourceType="cq/gui/components/authoring/dialog"
+    extraClientlibs="[core.cif.components.productlist.v2.editor]"
     trackingFeature="cif-core-components:productlist:v2">
     <content
         jcr:primaryType="nt:unstructured"
         sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+        granite:class="cmp-productcollection__editor"
         margin="{Boolean}false">
+        <granite:data jcr:primaryType="nt:unstructured"
+            cmp-is="productcollection-editor" />
         <items jcr:primaryType="nt:unstructured">
             <column
                 jcr:primaryType="nt:unstructured"
@@ -53,6 +58,46 @@
                         uncheckedValue="false"
                         value="true"
                         checked="{String}true"/>
+                    <fragmentEnabled
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                        fieldDescription="When checked, enables definition of Experience Fragment in product list."
+                        name="./fragmentEnabled"
+                        text="Enable Experience Fragment settings"
+                        uncheckedValue="{Boolean}false"
+                        value="{Boolean}true">
+                    </fragmentEnabled>
+                    <xfItems
+                        granite:class="foundation-toggleable cmp-productcollection__editor-xf_settings"
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                        composite="{Boolean}true"
+                        fieldDescription="Allows insertion of Experience Fragments at specified positions"
+                        fieldLabel="Experince Fragment placeholders">
+                        <field
+                            granite:class="cmp-productcollection__editor-xf_setting"
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="granite/ui/components/coral/foundation/container"
+                            name="./fragments">
+                            <items jcr:primaryType="nt:unstructured">
+                                <xfLocation
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                    fieldDescription="The name of this Experience Fragment location."
+                                    fieldLabel="Experience Fragment location name."
+                                    required="{Boolean}true"
+                                    name="fragmentLocation"/>
+                                <xfPosition
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                                    fieldDescription="The position in the product list where to insert the Experience Fragment"
+                                    min="1"
+                                    fieldLabel="Content position"
+                                    required="{Boolean}true"
+                                    name="fragmentPosition"/>
+                            </items>
+                        </field>
+                    </xfItems>
                 </items>
             </column>
         </items>

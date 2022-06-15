@@ -108,4 +108,15 @@ public interface ProductCollection {
     default boolean isAddToWishListEnabled() {
         return false;
     }
+
+    /**
+     * Indicates whether the 'Experience Fragment' button should be displayed in the
+     * product collection item.
+     *
+     * @return {@code true} if the button should be displayed, {@code false}
+     *         otherwise
+     */
+    default boolean isFragmentEnabled() {
+        return false;
+    }
 }
