@@ -77,7 +77,9 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -537,6 +539,39 @@ public class SearchResultsServiceImplTest {
         // category is the deepest url_key in the context of the given CategoryTree (descendant of another-url-path/with)
         String url = item.getURL();
         assertEquals("/content/product-page.html/category/product.html", url);
+    }
+
+    @Test
+    public void testCategoryUidParameterRemovedFromFilters() {
+        List<Aggregation> aggs = Arrays.asList(
+            new Aggregation()
+                .setAttributeCode("color")
+                .setOptions(Arrays.asList(
+                    new AggregationOption()
+                        .setValue("blue")
+                        .setLabel("blue")
+                )));
+        when(products.getAggregations()).thenReturn(aggs);
+
+        searchOptions.setCategoryUid("foobar");
+
+        Pair<CategoryInterface, SearchResultsSet> result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,
+            null, null);
+
+        SearchResultsSet resultsSet = result.getRight();
+        SearchAggregation colorAgg = resultsSet.getSearchAggregations().get(0);
+        assertFalse(colorAgg.getOptions().get(0).getAddFilterMap().containsKey("category_uid"));
+        assertFalse(colorAgg.getRemoveFilterMap().containsKey("category_uid"));
+
+        // when not set and with no category uid retriever
+        searchOptions.setCategoryUid(null);
+
+        result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,null, null);
+
+        resultsSet = result.getRight();
+        colorAgg = resultsSet.getSearchAggregations().get(0);
+        assertTrue(colorAgg.getOptions().get(0).getAddFilterMap().containsKey("category_uid"));
+        assertTrue(colorAgg.getRemoveFilterMap().containsKey("category_uid"));
     }
 
     @Test
