@@ -207,7 +207,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             mutableSearchOptions.getAllFilters(), availableFilters);
 
         // special handling of category identifier(s)
-        removeCategoryUidFilterEntriesIfPossible(searchAggregations, mutableSearchOptions.getCategoryUid().orElse(null));
+        removeCategoryUidFilterEntriesIfPossible(searchAggregations, request);
 
         searchResultsSet.setTotalResults(products.getTotalCount());
         searchResultsSet.setProductListItems(productListItems);
@@ -512,7 +512,8 @@ public class SearchResultsServiceImpl implements SearchResultsService {
      * @param aggs
      * @param request
      */
-    private void removeCategoryUidFilterEntriesIfPossible(List<SearchAggregation> aggs, String categoryUid) {
+    private void removeCategoryUidFilterEntriesIfPossible(List<SearchAggregation> aggs, SlingHttpServletRequest request) {
+        String categoryUid = urlProvider.getCategoryIdentifier(request);
         if (StringUtils.isNotBlank(categoryUid)) {
             for (SearchAggregation agg : aggs) {
                 // remove category_uid from all addFilterMaps

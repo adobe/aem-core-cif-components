@@ -542,39 +542,6 @@ public class SearchResultsServiceImplTest {
     }
 
     @Test
-    public void testCategoryUidParameterRemovedFromFilters() {
-        List<Aggregation> aggs = Arrays.asList(
-            new Aggregation()
-                .setAttributeCode("color")
-                .setOptions(Arrays.asList(
-                    new AggregationOption()
-                        .setValue("blue")
-                        .setLabel("blue")
-                )));
-        when(products.getAggregations()).thenReturn(aggs);
-
-        searchOptions.setCategoryUid("foobar");
-
-        Pair<CategoryInterface, SearchResultsSet> result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,
-            null, null);
-
-        SearchResultsSet resultsSet = result.getRight();
-        SearchAggregation colorAgg = resultsSet.getSearchAggregations().get(0);
-        assertFalse(colorAgg.getOptions().get(0).getAddFilterMap().containsKey("category_uid"));
-        assertFalse(colorAgg.getRemoveFilterMap().containsKey("category_uid"));
-
-        // when not set and with no category uid retriever
-        searchOptions.setCategoryUid(null);
-
-        result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,null, null);
-
-        resultsSet = result.getRight();
-        colorAgg = resultsSet.getSearchAggregations().get(0);
-        assertTrue(colorAgg.getOptions().get(0).getAddFilterMap().containsKey("category_uid"));
-        assertTrue(colorAgg.getRemoveFilterMap().containsKey("category_uid"));
-    }
-
-    @Test
     public void testProductItemsReturnedWithCanonicalUrl() {
         Pair<CategoryInterface, SearchResultsSet> result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,
             null, null);
