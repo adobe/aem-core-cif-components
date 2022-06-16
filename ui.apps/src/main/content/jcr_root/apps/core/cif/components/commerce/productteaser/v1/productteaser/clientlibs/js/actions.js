@@ -29,6 +29,7 @@ const LocationAdapter = {
 class ProductTeaser {
     constructor(element) {
         this.virtual = element.dataset.virtual !== undefined;
+        this.loadPrices = element.dataset.loadPrice;
 
         const actionButtons = element.querySelectorAll(`.productteaser__cta button`);
         actionButtons.forEach(actionButton => {
@@ -53,6 +54,8 @@ class ProductTeaser {
                 actionHandler(element.dataset);
             });
         });
+
+        this.loadPricess && this._fetchPrices();
     }
 
     _noOpHandler() {
@@ -84,6 +87,8 @@ class ProductTeaser {
             LocationAdapter.setHref(url);
         }
     }
+
+    async _fetchPrices() {}
 }
 
 ProductTeaser.selectors = {

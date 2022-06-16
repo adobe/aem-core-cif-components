@@ -16,7 +16,7 @@
 'use strict';
 
 import Product from '../../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v3/product/clientlib/js/product.js';
-import PriceFormatter from '../../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';
+import CommerceGraphqlApi from '../../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js';
 
 describe('Product', () => {
     describe('Core', () => {
@@ -46,6 +46,7 @@ describe('Product', () => {
         const convertedPrices = {
             'sample-sku': {
                 productType: 'SimpleProduct',
+                isStartPrice: false,
                 currency: 'USD',
                 regularPrice: 98,
                 finalPrice: 98,
@@ -59,12 +60,10 @@ describe('Product', () => {
         before(() => {
             // Create empty context
             windowCIF = window.CIF;
-            window.CIF = {};
-            window.CIF.PriceFormatter = PriceFormatter;
+            window.CIF = { ...window.CIF };
 
-            window.CIF.CommerceGraphqlApi = {
-                getProductPrices: sinon.stub().resolves(clientPrices)
-            };
+            window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: 'https://foo.bar/graphql' });
+            window.CIF.CommerceGraphqlApi.getProductPrices = sinon.stub().resolves(clientPrices);
         });
 
         after(() => {

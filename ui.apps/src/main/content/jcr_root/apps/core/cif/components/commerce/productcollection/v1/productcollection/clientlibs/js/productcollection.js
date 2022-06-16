@@ -52,49 +52,11 @@ class ProductCollection {
         this._state.loadPrices && this._fetchPrices();
     }
 
-    /**
-     * Convert given GraphQL PriceRange object into data structure as defined by the sling model.
-     */
-    _convertPriceToRange(range) {
-        let price = {};
-        price.currency = range.minimum_price.final_price.currency;
-        price.regularPrice = range.minimum_price.regular_price.value;
-        price.finalPrice = range.minimum_price.final_price.value;
-        if (range.minimum_price.discount) {
-            price.discountAmount = range.minimum_price.discount.amount_off;
-            price.discountPercent = range.minimum_price.discount.percent_off;
-        }
-
-        if (range.maximum_price) {
-            price.regularPriceMax = range.maximum_price.regular_price.value;
-            price.finalPriceMax = range.maximum_price.final_price.value;
-            if (range.maximum_price.discount) {
-                price.discountAmountMax = range.maximum_price.discount.amount_off;
-                price.discountPercentMax = range.maximum_price.discount.percent_off;
-            }
-        }
-
-        price.discounted = !!(price.discountAmount && price.discountAmount > 0);
-        price.range = !!(
-            price.finalPrice &&
-            price.finalPriceMax &&
-            Math.round(price.finalPrice * 100) != Math.round(price.finalPriceMax * 100)
-        );
-
-        price.isStartPrice = range.__typename == 'GroupedProduct';
-
-        return price;
-    }
-
     _fetchPrices() {
         // Retrieve current prices
         if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
-        return window.CIF.CommerceGraphqlApi.getProductPrices(this._state.skus, false)
-            .then(prices => {
-                let convertedPrices = {};
-                for (let key in prices) {
-                    convertedPrices[key] = this._convertPriceToRange(prices[key]);
-                }
+        return window.CIF.CommerceGraphqlApi.getProductPriceModels(this._state.skus, false)
+            .then(convertedPrices => {
                 this._state.prices = convertedPrices;
 
                 // Update prices

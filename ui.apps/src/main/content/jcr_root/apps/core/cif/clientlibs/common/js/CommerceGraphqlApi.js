@@ -79,12 +79,30 @@ class CommerceGraphqlApi {
     }
 
     /**
+     * Retrieves the prices of the products with the given SKUs and their variants using getProductPrices() and coverts them using the
+     * PriceToPriceRangeConverter.
+     *
+     * @param {array} skus  Array of product SKUs.
+     * @returns {Promise<any[]>} Returns a map of skus mapped to their prices. The price is an object containing the currency and value.
+     */
+    async getProductPriceModels(skus, includeVariants) {
+        const prices = await this.getProductPrices(skus, includeVariants);
+        const priceRanges = {};
+
+        for (let key in prices) {
+            priceRanges[key] = window.CIF.PriceToPriceModelConverter(prices[key]);
+        }
+
+        return priceRanges;
+    }
+
+    /**
      * Retrieves the prices of the products with the given SKUs and their variants.
      *
      * @param {array} skus  Array of product SKUs.
      * @returns {Promise<any[]>} Returns a map of skus mapped to their prices. The price is an object containing the currency and value.
      */
-    async getProductPrices(skus, includeVariants) {
+    async getProductPrices(skus, includeVariants, raw = true) {
         let skuQuery = '"' + skus.join('", "') + '"';
 
         const priceQuery = `regular_price {
@@ -164,6 +182,7 @@ class CommerceGraphqlApi {
                 }
             }
         }
+
         return dict;
     }
 }

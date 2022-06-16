@@ -16,6 +16,7 @@
 
 import PriceFormatter from './PriceFormatter';
 import CommerceGraphqlApi from './CommerceGraphqlApi';
+import PriceToPriceModelConverter from './PriceToPriceModelConverter';
 
 (function() {
     function onDocumentReady() {
@@ -24,6 +25,9 @@ import CommerceGraphqlApi from './CommerceGraphqlApi';
 
             // define PriceFormatter
             window.CIF.PriceFormatter = PriceFormatter;
+
+            // define PriceToPriceRangeConverter
+            window.CIF.PriceToPriceModelConverter = PriceToPriceModelConverter;
 
             // initialize CommerceGraphqlApi
             const storeConfigEl = document.querySelector('meta[name="store-config"]');

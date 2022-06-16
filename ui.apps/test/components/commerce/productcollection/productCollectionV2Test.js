@@ -17,7 +17,7 @@
 
 import ProductCollection from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v2/productcollection/clientlibs/js/productcollection.js';
 import ProductCollectionActions from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v2/productcollection/clientlibs/js/actions.js';
-import PriceFormatter from '../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';
+import CommerceGraphqlApi from '../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js';
 
 describe('Productcollection', () => {
     let listRoot;
@@ -110,6 +110,7 @@ describe('Productcollection', () => {
 
     const convertedPrices = {
         'sku-a': {
+            productType: 'SimpleProduct',
             isStartPrice: false,
             currency: 'USD',
             regularPrice: 156.89,
@@ -120,6 +121,7 @@ describe('Productcollection', () => {
             range: false
         },
         'sku-b': {
+            productType: 'ConfigurableProduct',
             isStartPrice: false,
             currency: 'USD',
             regularPrice: 123.45,
@@ -134,6 +136,7 @@ describe('Productcollection', () => {
             range: true
         },
         'sku-c': {
+            productType: 'SimpleProduct',
             isStartPrice: false,
             currency: 'USD',
             regularPrice: 20,
@@ -144,6 +147,7 @@ describe('Productcollection', () => {
             range: false
         },
         'sku-d': {
+            productType: 'GroupedProduct',
             isStartPrice: true,
             currency: 'USD',
             regularPrice: 20,
@@ -158,8 +162,7 @@ describe('Productcollection', () => {
     before(() => {
         // Create empty context
         windowCIF = window.CIF;
-        window.CIF = {};
-        window.CIF.PriceFormatter = PriceFormatter;
+        window.CIF = { ...window.CIF };
     });
 
     after(() => {
@@ -265,9 +268,8 @@ describe('Productcollection', () => {
             </div>`
         );
 
-        window.CIF.CommerceGraphqlApi = {
-            getProductPrices: sinon.stub().resolves(clientPrices)
-        };
+        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: 'https://foo.bar/graphql' });
+        window.CIF.CommerceGraphqlApi.getProductPrices = sinon.stub().resolves(clientPrices);
     });
 
     it('initializes a product list component', () => {
