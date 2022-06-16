@@ -42,17 +42,24 @@ ci.dir(repo, () => {
     ci.sh(`git add ${targetFile}`);
     ci.sh('git status');
 
-    // Abort early if there aren't any changes staged
+    // Determine if any changes need to be committed.
+    let doCommit = true;
     const status = ci.sh('git status', true, false);
     if (status.indexOf('Changes to be committed') === -1) {
         console.log('No changes to commit.');
-        return;
+        doCommit = false;
     }
 
-    // Commit and push changes
+    const tagName = `components-queries-${version}`;
     ci.gitImpersonate('CircleCI', 'no-reply@adobe.com', () => {
-        ci.sh(`git commit -m "releng - Update Queries for CIF Core Components v${version}"`);
-        ci.sh(`git push --set-upstream origin master`);
+        if (doCommit) {
+            // Commit and push changes
+            ci.sh(`git commit -m "releng - Update Queries for CIF Core Components v${version}"`);
+            ci.sh(`git push --set-upstream origin master`);
+        }
+        // Tag latest commit with component release
+        ci.sh(`git tag ${tagName} HEAD`);
+        ci.sh(`git push origin ${tagName}`);
     });
 });
 
