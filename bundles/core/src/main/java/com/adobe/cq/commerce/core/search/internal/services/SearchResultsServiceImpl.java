@@ -16,7 +16,6 @@
 package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -509,6 +508,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
     /**
      * Removes the category_uid filter from all filter options' filter maps when possible.
+     * 
      * @param aggs
      * @param request
      */
