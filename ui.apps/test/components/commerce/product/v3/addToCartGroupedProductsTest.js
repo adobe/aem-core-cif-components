@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-import AddToCart from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product/clientlib/js/addToCart.js';
+import AddToCart from '../../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v3/product/clientlib/js/addToCart.js';
 
 describe('GroupedProduct', () => {
     describe('AddToCart', () => {
@@ -39,14 +39,20 @@ describe('GroupedProduct', () => {
             }
             pageRoot.insertAdjacentHTML(
                 'afterbegin',
-                `<div data-cmp-is="product" data-grouped>
-                    <div class="productFullDetail__details">
-                        <span role="sku">my-grouped-product</span>
-                    </div>
-                    <div class="productFullDetail__cartActions">
-                        <button class="button__root_highPriority">
-                    </div>
-                    <section class="productFullDetail__groupedProducts productFullDetail__quantity">         
+                `<div data-cmp-is="product"  data-uid-cart data-grouped data-product-sku="my-grouped-product">
+                    <section class="productFullDetail__title">
+                        <h1 class="productFullDetail__productName">
+                            <span role="name">My Grouped Product</span>
+                        </h1>
+                    </section>
+                    <section class="productFullDetail__sku productFullDetail__section">
+                        <h2 class="productFullDetail__skuTitle productFullDetail__sectionTitle">SKU</h2>
+                        <strong role="sku">my-grouped-product</strong>
+                    </section>
+                    <section class="productFullDetail__actions productFullDetail__section">
+                        <button class="button__root_highPriority" data-cmp-is="add-to-cart">Add to cart</button>
+                    </section>
+                    <section class="productFullDetail__groupedProducts productFullDetail__quantity">
                         <select data-product-sku="sku1">
                             <option value="0" selected></option>
                             <option value="1"></option>
@@ -81,14 +87,14 @@ describe('GroupedProduct', () => {
             let selections = Array.from(pageRoot.querySelectorAll(AddToCart.selectors.quantity));
 
             // Select quantity "1" for first product
-            selections[0].selectedIndex = 1;
+            selections[0].value = '1';
             selections[0].dispatchEvent(new Event('change'));
-            assert.isFalse(addToCartRoot.disabled);
+            assert.isFalse(addToCartRoot.disabled, 'addToCartRoot is disabled');
 
             // Select quantity "0" for first product
             selections[0].selectedIndex = 0;
             selections[0].dispatchEvent(new Event('change'));
-            assert.isTrue(addToCartRoot.disabled);
+            assert.isTrue(addToCartRoot.disabled, 'addToCartRoot is not disabled');
         });
 
         it('dispatches add-to-cart event on click', () => {

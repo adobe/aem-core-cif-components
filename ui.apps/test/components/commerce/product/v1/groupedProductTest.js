@@ -15,8 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-import Product from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product/clientlib/js/product.js';
-import PriceFormatter from '../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';
+import Product from '../../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product/clientlib/js/product.js';
+import PriceFormatter from '../../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';
 
 describe('GroupedProduct', () => {
     describe('Core', () => {
@@ -142,7 +142,7 @@ describe('GroupedProduct', () => {
                 `<div class="productFullDetail__details">
                     <span role="sku">grouped-product-sku</span>
                 </div>
-                <section class="productFullDetail__groupedProducts">         
+                <section class="productFullDetail__groupedProducts">
                     <div class="price" data-product-sku="sku1"></div>
                     <div class="price" data-product-sku="sku2"></div>
                 </section>`
