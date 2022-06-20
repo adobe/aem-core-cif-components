@@ -64,11 +64,23 @@
             "values": [
               {
                 "value_index": 56,
-                "label": "Orange"
+                "uid": "NTY=",
+                "label": "Orange",
+                "default_label": "Orange",
+                "swatch_data": {
+                  "__typename": "ColorSwatchData",
+                  "value": "Orange"
+                }
               },
               {
                 "value_index": 58,
-                "label": "Red"
+                "uid": "NTg=",
+                "label": "Red",
+                "default_label": "Red",
+                "swatch_data": {
+                  "__typename": "ColorSwatchData",
+                  "value": "Red"
+                }
               }
             ]
           },
@@ -78,11 +90,23 @@
             "values": [
               {
                 "value_index": 167,
-                "label": "XS"
+                "uid": "MTY3",
+                "label": "XS",
+                "default_label": "XS",
+                "swatch_data": {
+                  "__typename": "TextSwatchData",
+                  "value": "XS"
+                }
               },
               {
                 "value_index": 168,
-                "label": "S"
+                "uid": "MTY4",
+                "label": "S",
+                "default_label": "S",
+                "swatch_data": {
+                  "__typename": "TextSwatchData",
+                  "value": "S"
+                }
               }
             ]
           }
