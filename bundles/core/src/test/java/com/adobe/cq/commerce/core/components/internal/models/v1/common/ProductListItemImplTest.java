@@ -90,6 +90,7 @@ public class ProductListItemImplTest {
             .build();
 
         Assert.assertEquals(product.getSku(), productListItem.getSKU());
+        Assert.assertEquals(product.getSku(), productListItem.getCombinedSku().getBaseSku());
         Assert.assertEquals(product.getName(), productListItem.getTitle());
         Assert.assertEquals(product.getUrlKey(), productListItem.getSlug());
         Assert.assertEquals(imageUrl, productListItem.getImageURL());
@@ -112,6 +113,8 @@ public class ProductListItemImplTest {
             .build();
 
         Assert.assertEquals("my-sku", productListItem.getSKU());
+        Assert.assertEquals("my-sku", productListItem.getCombinedSku().getBaseSku());
+        Assert.assertEquals("my-variant-sku", productListItem.getCombinedSku().getVariantSku());
         Assert.assertEquals("my-name", productListItem.getTitle());
         Assert.assertEquals("my-url-key", productListItem.getSlug());
         Assert.assertEquals("http://foo.bar/another-image.jpg", productListItem.getImageURL());
