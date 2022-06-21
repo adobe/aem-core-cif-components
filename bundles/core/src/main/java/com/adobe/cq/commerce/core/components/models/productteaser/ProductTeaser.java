@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.models.productteaser;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
+import com.adobe.cq.commerce.core.components.models.common.CombinedSku;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
@@ -70,21 +71,28 @@ public interface ProductTeaser extends Component {
      */
     default String getLinkTarget() {
         return null;
-    };
+    }
 
     /**
      * Returns the SKU of the product displayed by this {@code ProductTeaser}
-     * 
+     *
      * @return a String value representing the SKU
      */
     String getSku();
+
+    /**
+     * Returns the SKU of the product displayed by this {@code ProductTeaser} as {@link CombinedSku}
+     *
+     * @return a {@link CombinedSku} representing the SKU
+     */
+    CombinedSku getCombinedSku();
 
     /**
      * Returns the "call to action" configured for this teaser.
      * If the configured product cannot be added directly to the cart and for CTA
      * "add-to-cart" is configured then "details" is returned.
      * If no CTA is configured then {@code null} is returned.
-     * 
+     *
      * @return the value of the "call to action" option. This can be "add-to-cart" or "details".
      */
     String getCallToAction();
@@ -125,6 +133,15 @@ public interface ProductTeaser extends Component {
      * @return
      */
     default boolean getAddToWishListEnabled() {
+        return false;
+    }
+
+    /**
+     * Returns true when the component should load the product price client side.
+     *
+     * @return
+     */
+    default boolean loadClientPrice() {
         return false;
     }
 

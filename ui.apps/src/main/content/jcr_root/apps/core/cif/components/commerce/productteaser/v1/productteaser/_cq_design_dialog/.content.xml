@@ -19,6 +19,14 @@
                         sling:resourceType="granite/ui/components/coral/foundation/container"
                         margin="{Boolean}true">
                         <items jcr:primaryType="nt:unstructured">
+                            <loadClientPrice
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
+                                fieldDescription="Load current prices on the client-side"
+                                name="./loadClientPrice"
+                                text="Load Prices"
+                                uncheckedValue="false"
+                                value="true"/>
                             <enableAddToWishList
                                 jcr:primaryType="nt:unstructured"
                                 sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"

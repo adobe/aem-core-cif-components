@@ -21,7 +21,6 @@ import java.util.Locale;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Exporter;
@@ -39,6 +38,7 @@ import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.PriceImpl;
+import com.adobe.cq.commerce.core.components.models.common.CombinedSku;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
@@ -75,6 +75,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     protected static final String PN_STYLE_ADD_TO_WISHLIST_ENABLED = "enableAddToWishList";
+    protected static final String PN_STYLE_LOAD_PRICES_CLIENTSIDE = "loadClientPrice";
     private static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
 
     private static final String SELECTION_PROPERTY = "selection";
@@ -106,13 +107,14 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     private Style currentStyle;
 
     private Page productPage;
-    private Pair<String, String> combinedSku;
+    private CombinedSku combinedSku;
     private AbstractProductRetriever productRetriever;
 
     private Locale locale;
     private Boolean isVirtualProduct;
     private boolean ctaOverride;
     private boolean enableAddToWishList;
+    private boolean loadPriceClientSide;
 
     @PostConstruct
     protected void initModel() {
@@ -130,18 +132,19 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
             if (selection.startsWith("/")) {
                 selection = StringUtils.substringAfterLast(selection, "/");
             }
-            combinedSku = SiteNavigation.toProductSkus(selection);
+            combinedSku = CombinedSku.parse(selection);
 
             // Fetch product data
             if (magentoGraphqlClient != null) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);
-                productRetriever.setIdentifier(combinedSku.getLeft());
+                productRetriever.setIdentifier(combinedSku.getBaseSku());
                 ctaOverride = CALL_TO_ACTION_TYPE_ADD_TO_CART.equals(cta) && !Utils.isShoppableProduct(getProduct());
             }
         }
 
         enableAddToWishList = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS, Boolean.TRUE) : Boolean.TRUE)
             && currentStyle.get(PN_STYLE_ADD_TO_WISHLIST_ENABLED, ProductTeaser.super.getAddToWishListEnabled());
+        loadPriceClientSide = currentStyle.get(PN_STYLE_LOAD_PRICES_CLIENTSIDE, Boolean.FALSE);
     }
 
     @JsonIgnore
@@ -151,9 +154,9 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
         }
 
         ProductInterface baseProduct = productRetriever.fetchProduct();
-        if (combinedSku.getRight() != null && baseProduct instanceof ConfigurableProduct) {
+        if (combinedSku.getVariantSku() != null && baseProduct instanceof ConfigurableProduct) {
             ConfigurableProduct configurableProduct = (ConfigurableProduct) baseProduct;
-            SimpleProduct variant = findVariant(configurableProduct, combinedSku.getRight());
+            SimpleProduct variant = findVariant(configurableProduct, combinedSku.getVariantSku());
             if (variant != null) {
                 return variant;
             }
@@ -180,9 +183,13 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @Override
     @JsonIgnore
     public String getSku() {
-        ProductInterface product = getProduct();
-        String sku = product != null ? product.getSku() : null;
-        return sku != null ? sku : combinedSku != null ? combinedSku.getLeft() : null;
+        return combinedSku != null ? StringUtils.defaultIfEmpty(combinedSku.getVariantSku(), combinedSku.getBaseSku()) : null;
+    }
+
+    @Override
+    @JsonIgnore
+    public CombinedSku getCombinedSku() {
+        return combinedSku;
     }
 
     @Override
@@ -217,8 +224,8 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     public String getUrl() {
         if (getProduct() != null) {
             ProductUrlFormat.Params params = new ProductUrlFormat.Params();
-            params.setSku(combinedSku.getLeft());
-            params.setVariantSku(combinedSku.getRight());
+            params.setSku(combinedSku.getBaseSku());
+            params.setVariantSku(combinedSku.getVariantSku());
             // Get slug from base product
             params.setUrlKey(productRetriever.fetchProduct().getUrlKey());
             params.setUrlPath(productRetriever.fetchProduct().getUrlPath());
@@ -313,5 +320,11 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @Override
     public String getDataLayerCurrency() {
         return getPriceRange() != null ? getPriceRange().getCurrency() : null;
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean loadClientPrice() {
+        return loadPriceClientSide;
     }
 }

@@ -45,7 +45,6 @@ const PriceToPriceRangeConverter = range => {
         price.finalPriceMax &&
         Math.round(price.finalPrice * 100) != Math.round(price.finalPriceMax * 100)
     );
-    price.isStartPrice = price.productType === 'GroupedProduct';
 
     return price;
 };

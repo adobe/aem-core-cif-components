@@ -80,7 +80,6 @@ describe('GroupedProduct', () => {
         const convertedPrices = {
             'grouped-product-sku': {
                 productType: 'GroupedProduct',
-                isStartPrice: true,
                 currency: 'USD',
                 regularPrice: 14,
                 finalPrice: 14,
@@ -91,7 +90,6 @@ describe('GroupedProduct', () => {
             },
             sku1: {
                 productType: 'GroupedProduct',
-                isStartPrice: true,
                 currency: 'USD',
                 regularPrice: 14,
                 finalPrice: 14,
@@ -102,7 +100,6 @@ describe('GroupedProduct', () => {
             },
             sku2: {
                 productType: 'GroupedProduct',
-                isStartPrice: true,
                 currency: 'USD',
                 regularPrice: 17,
                 finalPrice: 17,

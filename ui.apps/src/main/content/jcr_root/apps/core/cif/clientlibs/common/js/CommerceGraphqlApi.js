@@ -102,7 +102,13 @@ class CommerceGraphqlApi {
      * @param {array} skus  Array of product SKUs.
      * @returns {Promise<any[]>} Returns a map of skus mapped to their prices. The price is an object containing the currency and value.
      */
-    async getProductPrices(skus, includeVariants, raw = true) {
+    async getProductPrices(skus, includeVariants) {
+        const dict = {};
+        if (!skus || skus.length === 0) {
+            // don't query if no skus are given
+            return dict;
+        }
+
         let skuQuery = '"' + skus.join('", "') + '"';
 
         const priceQuery = `regular_price {
@@ -165,7 +171,6 @@ class CommerceGraphqlApi {
 
         // Transform response in a SKU to price map
         let items = response.data.products.items;
-        let dict = {};
         for (let item of items) {
             dict[item.sku] = { __typename: item.__typename, ...item.price_range };
 

@@ -27,9 +27,16 @@ const LocationAdapter = {
 };
 
 class ProductTeaser {
-    constructor(element) {
+    static prices$;
+
+    constructor(element, allBaseSkus) {
+        this.element = element;
+        this.sku = element.dataset.productSku;
+        this.allBaseSkus = allBaseSkus || [this.sku];
         this.virtual = element.dataset.virtual !== undefined;
-        this.loadPrices = element.dataset.loadPrice;
+        this.loadPrices = element.dataset.loadPrice !== undefined;
+        this._formatter =
+            window.CIF && window.CIF.PriceFormatter && new window.CIF.PriceFormatter(element.dataset.locale);
 
         const actionButtons = element.querySelectorAll(`.productteaser__cta button`);
         actionButtons.forEach(actionButton => {
@@ -37,33 +44,29 @@ class ProductTeaser {
             let actionHandler;
             switch (action) {
                 case 'addToCart':
-                    actionHandler = this._addToCartHandler.bind(this);
+                    actionHandler = this._addToCartHandler;
                     break;
                 case 'details':
                     actionHandler = this._seeDetailsHandler;
                     break;
                 case 'wishlist':
-                    actionHandler = this._addToWishlistHandler.bind(this);
+                    actionHandler = this._addToWishlistHandler;
                     break;
                 default:
-                    actionHandler = this._noOpHandler;
+                    // noop
+                    return;
             }
 
-            actionButton.addEventListener('click', ev => {
-                const element = ev.currentTarget;
-                actionHandler(element.dataset);
+            actionButton.addEventListener('click', e => {
+                actionHandler.call(this, e.target.dataset);
             });
         });
 
-        this.loadPricess && this._fetchPrices();
-    }
-
-    _noOpHandler() {
-        /* As the name says... NOOP */
+        this.loadPrices && this._fetchPrices();
     }
 
     _addToCartHandler(dataset) {
-        const sku = dataset['itemSku'];
+        const sku = dataset.itemSku;
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
             detail: [{ sku, quantity: 1, virtual: this.virtual }]
         });
@@ -71,7 +74,7 @@ class ProductTeaser {
     }
 
     _addToWishlistHandler(dataset) {
-        const sku = dataset['itemSku'];
+        const sku = dataset.itemSku;
         const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
             detail: [{ sku, quantity: 1 }]
         });
@@ -79,8 +82,8 @@ class ProductTeaser {
     }
 
     _seeDetailsHandler(dataset) {
-        const url = dataset['url'];
-        const target = dataset['target'];
+        const url = dataset.url;
+        const target = dataset.target;
         if (target) {
             LocationAdapter.openHref(url, target);
         } else {
@@ -88,22 +91,51 @@ class ProductTeaser {
         }
     }
 
-    async _fetchPrices() {}
+    async _fetchPrices() {
+        if (!ProductTeaser.prices$) {
+            if (window.CIF && window.CIF.CommerceGraphqlApi) {
+                ProductTeaser.prices$ = window.CIF.CommerceGraphqlApi.getProductPriceModels(this.allBaseSkus, true);
+            } else {
+                ProductTeaser.prices$ = Promise.reject(new Error('CommerceGraphqlApi unavailable'));
+            }
+        }
+
+        // await all prices to be loaded and update
+        this._updatePrices(await ProductTeaser.prices$);
+    }
+
+    _updatePrices(prices) {
+        if (!(this.sku in prices)) return;
+        const price = prices[this.sku];
+
+        // Only update if prices are available and not null
+        if (!price || !price.regularPrice || !price.finalPrice) {
+            return;
+        }
+
+        const innerHTML = this._formatter.formatPriceAsHtml(price);
+        this.element.querySelector(ProductTeaser.selectors.priceElement).innerHTML = innerHTML;
+    }
 }
 
 ProductTeaser.selectors = {
-    rootElement: '[data-cmp-is=productteaser]'
+    rootElement: '[data-cmp-is=productteaser]',
+    priceElement: '.price'
 };
 
-export { LocationAdapter };
+function onDocumentReady(document) {
+    const rootElements = [...document.querySelectorAll(ProductTeaser.selectors.rootElement)];
+    const baseSkus = rootElements
+        .map(teaser => teaser.dataset.productBaseSku || teaser.dataset.productSku)
+        .filter(sku => !!sku)
+        .filter((value, index, array) => array.indexOf(value) === index);
+    rootElements.forEach(element => new ProductTeaser(element, baseSkus));
+}
+
+export { LocationAdapter, onDocumentReady };
 export default ProductTeaser;
 
-(function(doc) {
-    function onDocumentReady() {
-        const rootElements = doc.querySelectorAll(ProductTeaser.selectors.rootElement);
-        rootElements.forEach(element => new ProductTeaser(element));
-    }
-
+(function(document) {
     const documentReady =
         document.readyState !== 'loading'
             ? Promise.resolve()
@@ -112,5 +144,5 @@ export default ProductTeaser;
         ? Promise.resolve()
         : new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
 
-    Promise.all([documentReady, cifReady]).then(onDocumentReady);
+    Promise.all([documentReady, cifReady]).then(() => onDocumentReady(document));
 })(window.document);

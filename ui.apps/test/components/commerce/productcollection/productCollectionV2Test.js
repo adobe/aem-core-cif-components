@@ -111,7 +111,6 @@ describe('Productcollection', () => {
     const convertedPrices = {
         'sku-a': {
             productType: 'SimpleProduct',
-            isStartPrice: false,
             currency: 'USD',
             regularPrice: 156.89,
             finalPrice: 156.89,
@@ -122,7 +121,6 @@ describe('Productcollection', () => {
         },
         'sku-b': {
             productType: 'ConfigurableProduct',
-            isStartPrice: false,
             currency: 'USD',
             regularPrice: 123.45,
             finalPrice: 123.45,
@@ -137,7 +135,6 @@ describe('Productcollection', () => {
         },
         'sku-c': {
             productType: 'SimpleProduct',
-            isStartPrice: false,
             currency: 'USD',
             regularPrice: 20,
             finalPrice: 10,
@@ -148,7 +145,6 @@ describe('Productcollection', () => {
         },
         'sku-d': {
             productType: 'GroupedProduct',
-            isStartPrice: true,
             currency: 'USD',
             regularPrice: 20,
             finalPrice: 20,

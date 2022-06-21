@@ -46,7 +46,6 @@ describe('Product', () => {
         const convertedPrices = {
             'sample-sku': {
                 productType: 'SimpleProduct',
-                isStartPrice: false,
                 currency: 'USD',
                 regularPrice: 98,
                 finalPrice: 98,

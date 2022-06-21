@@ -78,53 +78,10 @@ class ProductCollection {
                 return;
             }
 
-            let innerHTML = '';
-            if (!price.range) {
-                if (price.discounted) {
-                    innerHTML += `<span class="regularPrice">${this._formatter.formatPrice({
-                        value: price.regularPrice,
-                        currency: price.currency
-                    })}</span>
-                        <span class="discountedPrice">${this._formatter.formatPrice({
-                            value: price.finalPrice,
-                            currency: price.currency
-                        })}</span>`;
-                } else {
-                    let prefix = price.isStartPrice ? this._formatter.get('Starting at') + ' ' : '';
-                    innerHTML += `<span>${prefix}${this._formatter.formatPrice({
-                        value: price.regularPrice,
-                        currency: price.currency
-                    })}</span>`;
-                }
-            } else {
-                let from = this._formatter.get('From');
-                let to = this._formatter.get('To');
-                if (price.discounted) {
-                    innerHTML += `<span class="regularPrice">${from} ${this._formatter.formatPrice({
-                        value: price.regularPrice,
-                        currency: price.currency
-                    })} ${to} ${this._formatter.formatPrice({
-                        value: price.regularPriceMax,
-                        currency: price.currency
-                    })}</span>
-                        <span class="discountedPrice">${from} ${this._formatter.formatPrice({
-                        value: price.finalPrice,
-                        currency: price.currency
-                    })} ${to} ${this._formatter.formatPrice({
-                        value: price.finalPriceMax,
-                        currency: price.currency
-                    })}</span>`;
-                } else {
-                    innerHTML += `<span>${from} ${this._formatter.formatPrice({
-                        value: price.regularPrice,
-                        currency: price.currency
-                    })} ${to} ${this._formatter.formatPrice({
-                        value: price.regularPriceMax,
-                        currency: price.currency
-                    })}</span>`;
-                }
-            }
-
+            const innerHTML = this._formatter.formatPriceAsHtml(price, {
+                showDiscountPercentage: false,
+                showStartingAt: true
+            });
             item.querySelector(ProductCollection.selectors.price).innerHTML = innerHTML;
         });
     }
