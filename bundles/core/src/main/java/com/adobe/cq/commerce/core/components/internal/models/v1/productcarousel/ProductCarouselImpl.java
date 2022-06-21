@@ -27,7 +27,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Exporter;
 import org.apache.sling.models.annotations.Model;
@@ -41,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.TitleTypeProvider;
+import com.adobe.cq.commerce.core.components.models.common.CombinedSku;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
@@ -66,7 +66,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Exporter(
     name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
     extensions = ExporterConstants.SLING_MODEL_EXTENSION)
-public class ProductCarouselImpl extends ProductCarouselBase implements ProductCarousel {
+public class ProductCarouselImpl extends ProductCarouselBase {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
@@ -189,8 +189,7 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
     @Nonnull
     public List<ProductListItem> getProductIdentifiers() {
         return baseProductSkus.stream()
-            .map(ListItemIdentifier::new)
-            .map(id -> new ProductListItemImpl(id, getId(), productPage))
+            .map(sku -> new ProductListItemImpl(sku, new ListItemIdentifier(sku), getId(), productPage))
             .collect(Collectors.toList());
     }
 
@@ -219,8 +218,8 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
                 combinedSku = StringUtils.substringAfterLast(combinedSku, "/");
             }
 
-            Pair<String, String> skus = SiteNavigation.toProductSkus(combinedSku);
-            ProductInterface product = products.stream().filter(p -> p.getSku().equals(skus.getLeft()))
+            CombinedSku skus = CombinedSku.parse(combinedSku);
+            ProductInterface product = products.stream().filter(p -> p.getSku().equals(skus.getBaseSku()))
                 .findFirst().orElse(null);
             if (product == null) {
                 continue; // Can happen that a product is not found
@@ -230,8 +229,8 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
             String urlKey = product.getUrlKey();
             String urlPath = product.getUrlPath();
             List<UrlRewrite> urlRewrites = product.getUrlRewrites();
-            if (skus.getRight() != null && product instanceof ConfigurableProduct) {
-                SimpleProduct variant = findVariant((ConfigurableProduct) product, skus.getRight());
+            if (skus.getVariantSku() != null && product instanceof ConfigurableProduct) {
+                SimpleProduct variant = findVariant((ConfigurableProduct) product, skus.getVariantSku());
                 if (variant != null) {
                     product = variant;
                 }
@@ -242,11 +241,11 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
                     request, urlProvider)
                         .product(product)
                         .image(product.getThumbnail())
-                        .sku(skus.getLeft())
+                        .sku(skus.getBaseSku())
                         .urlKey(urlKey)
                         .urlPath(urlPath)
                         .urlRewrites(urlRewrites)
-                        .variantSku(skus.getRight());
+                        .variantSku(skus.getVariantSku());
                 carouselProductList.add(builder.build());
             } catch (Exception e) {
                 LOGGER.warn("Failed to instantiate product " + combinedSku, e);

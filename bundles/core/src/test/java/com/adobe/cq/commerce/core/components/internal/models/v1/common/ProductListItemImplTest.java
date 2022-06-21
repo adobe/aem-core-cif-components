@@ -124,12 +124,12 @@ public class ProductListItemImplTest {
     public void testCreateProductListItem() {
         CommerceIdentifier identifier = new CommerceIdentifierImpl(urlKey, CommerceIdentifier.IdentifierType.URL_KEY,
             CommerceIdentifier.EntityType.PRODUCT);
-        ProductListItem productListItem = new ProductListItemImpl(identifier, "", productPage);
+        ProductListItem productListItem = new ProductListItemImpl(sku, identifier, "", productPage);
 
         Assert.assertEquals(urlKey, productListItem.getSlug());
 
         identifier = new CommerceIdentifierImpl(sku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT);
-        productListItem = new ProductListItemImpl(identifier, "", productPage);
+        productListItem = new ProductListItemImpl(sku, identifier, "", productPage);
         Assert.assertEquals(sku, productListItem.getSKU());
     }
 
@@ -137,7 +137,7 @@ public class ProductListItemImplTest {
     public void testGetComponentData() {
         CommerceIdentifier identifier = new CommerceIdentifierImpl("none", CommerceIdentifier.IdentifierType.URL_KEY,
             CommerceIdentifier.EntityType.PRODUCT);
-        TestInheritedItemImpl productListItem = new TestInheritedItemImpl(identifier, "", productPage);
+        TestInheritedItemImpl productListItem = new TestInheritedItemImpl(sku, identifier, "", productPage);
 
         Assert.assertNotNull("Component data retrieved successfully", productListItem.getSomeData());
     }
@@ -150,10 +150,9 @@ public class ProductListItemImplTest {
 
         for (String sku : skus) {
             // test all constructors
-            CommerceIdentifier commerceIdentifier = mock(CommerceIdentifier.class);
-            when(commerceIdentifier.getType()).thenReturn(CommerceIdentifier.IdentifierType.SKU);
-            when(commerceIdentifier.getValue()).thenReturn(sku);
-            ProductListItem item = new ProductListItemImpl(commerceIdentifier, "foobar", productPage);
+            CommerceIdentifier commerceIdentifier = new CommerceIdentifierImpl(sku, CommerceIdentifier.IdentifierType.SKU,
+                CommerceIdentifier.EntityType.PRODUCT);
+            ProductListItem item = new ProductListItemImpl(sku, commerceIdentifier, "foobar", productPage);
             assertEquals(expected, item.getId());
 
             item = new ProductListItemImpl.Builder("foobar", productPage, null, null)
@@ -186,8 +185,8 @@ public class ProductListItemImplTest {
 
     private class TestInheritedItemImpl extends ProductListItemImpl {
 
-        public TestInheritedItemImpl(CommerceIdentifier identifier, String parentId, Page productPage) {
-            super(identifier, parentId, productPage);
+        public TestInheritedItemImpl(String sku, CommerceIdentifier identifier, String parentId, Page productPage) {
+            super(sku, identifier, parentId, productPage);
         }
 
         public ComponentData getSomeData() {

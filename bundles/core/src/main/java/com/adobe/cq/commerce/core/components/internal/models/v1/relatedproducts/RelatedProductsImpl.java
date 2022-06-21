@@ -61,7 +61,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Exporter(
     name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
     extensions = ExporterConstants.SLING_MODEL_EXTENSION)
-public class RelatedProductsImpl extends ProductCarouselBase implements ProductCarousel {
+public class RelatedProductsImpl extends ProductCarouselBase {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/relatedproducts/v1/relatedproducts";
     private static final Logger LOGGER = LoggerFactory.getLogger(RelatedProductsImpl.class);
@@ -172,8 +172,7 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
     public List<ProductListItem> getProductIdentifiers() {
         return getProducts().stream()
             .map(ProductListItem::getSKU)
-            .map(ListItemIdentifier::new)
-            .map(id -> new ProductListItemImpl(id, getId(), productPage))
+            .map(sku -> new ProductListItemImpl(sku, new ListItemIdentifier(sku), getId(), productPage))
             .collect(Collectors.toList());
     }
 

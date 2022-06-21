@@ -34,6 +34,15 @@ public interface ProductListItem extends ListItem {
     String getSKU();
 
     /**
+     * Returns the SKU of this {@code ProductListItem} as {@link CombinedSku}
+     *
+     * @return a {@link CombinedSku} representing the SKU
+     */
+    default CombinedSku getCombinedSku() {
+        return new CombinedSku(getSKU(), null);
+    }
+
+    /**
      * Returns the product slug of this {@code ProductListItem}.
      *
      * @return the product slug of this list item or {@code null}

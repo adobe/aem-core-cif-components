@@ -13,9 +13,15 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.carousel="${@ carousel, items, componentType}" data-sly-use.cardTpl="card.html">
+<template data-sly-template.carousel="${@ carousel, items, componentType, page}" data-sly-use.cardTpl="card.html">
 <sly data-sly-test.type="${componentType ? componentType : 'carousel'}" />
-<div id="${carousel.id}" data-comp-is="${type}" class="${type}__container" data-cmp-data-layer="${carousel.data.json}">
+<div
+    id="${carousel.id}"
+    data-comp-is="${type}"
+    class="${type}__container"
+    data-cmp-data-layer="${carousel.data.json}"
+    data-locale="${page.language}"
+    data-load-prices="${carousel.loadClientPrices}">
     <h2 data-sly-element="${carousel.titleType}" data-sly-test="${properties.jcr:title}" class="${type}__title">${properties.jcr:title}</h2>
     <button data-carousel-action='prev' class="${type}__btn ${type}__btn--prev" type="button" title="${'Show previous' @ i18n}" aria-label="${'Show previous' @ i18n}" style="display: none;"></button>
     <button data-carousel-action='next' class="${type}__btn ${type}__btn--next" type="button" title="${'Show next' @ i18n}" aria-label="${'Show next' @ i18n}" style="display: none;"></button>
