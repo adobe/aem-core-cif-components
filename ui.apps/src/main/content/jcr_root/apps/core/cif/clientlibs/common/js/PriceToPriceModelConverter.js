@@ -21,13 +21,16 @@
 const PriceToPriceRangeConverter = range => {
     let price = {};
     price.productType = range.__typename;
-    price.currency = range.minimum_price.final_price.currency;
-    price.regularPrice = range.minimum_price.regular_price.value;
-    price.finalPrice = range.minimum_price.final_price.value;
 
-    if (range.minimum_price.discount) {
-        price.discountAmount = range.minimum_price.discount.amount_off;
-        price.discountPercent = range.minimum_price.discount.percent_off;
+    if (range.minimum_price) {
+        price.currency = range.minimum_price.final_price.currency;
+        price.regularPrice = range.minimum_price.regular_price.value;
+        price.finalPrice = range.minimum_price.final_price.value;
+
+        if (range.minimum_price.discount) {
+            price.discountAmount = range.minimum_price.discount.amount_off;
+            price.discountPercent = range.minimum_price.discount.percent_off;
+        }
     }
 
     if (range.maximum_price) {

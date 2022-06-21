@@ -27,7 +27,7 @@ const LocationAdapter = {
 };
 
 class ProductTeaser {
-    static prices$;
+    static prices$ = null;
 
     constructor(element, allBaseSkus) {
         this.element = element;

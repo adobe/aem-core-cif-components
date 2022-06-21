@@ -18,7 +18,7 @@
 import Carousel from '../../../../../carousel/v1/carousel/clientlibs/js/carousel';
 
 class ProductCarousel extends Carousel {
-    static prices$;
+    static prices$ = null;
 
     static selectors = {
         self: "[data-comp-is='productcarousel']",
@@ -82,7 +82,8 @@ function onDocumentReady(document) {
     rootElements.forEach(element => new ProductCarousel(element, baseSkus));
 }
 
-export { onDocumentReady };
+export { ProductCarousel, onDocumentReady };
+export default ProductCarousel;
 
 (function(document) {
     const documentReady =
