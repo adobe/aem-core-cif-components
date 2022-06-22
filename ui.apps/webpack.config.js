@@ -23,6 +23,7 @@ const LIB = {
     COMMON: 'apps/core/cif/clientlibs/common',
     STOREFRONT_EVENTS: 'apps/core/cif/clientlibs/storefront-events',
     PRODUCT: 'apps/core/cif/components/commerce/product/v1/product/clientlib',
+    PRODUCT_v3: 'apps/core/cif/components/commerce/product/v3/product/clientlib',
     PRODUCTCAROUSEL: 'apps/core/cif/components/commerce/productcarousel/v1/productcarousel/clientlibs',
     PRODUCTCOLLECTION: 'apps/core/cif/components/commerce/productcollection/v1/productcollection/clientlibs',
     PRODUCTCOLLECTION_V2: 'apps/core/cif/components/commerce/productcollection/v2/productcollection/clientlibs',
@@ -41,7 +42,7 @@ function generateBaseConfig(bablePlugins = []) {
     return {
         module: {
             rules: [
-                // Transpile .js files with babel. Babel will by default pick up the browserslist definition in the 
+                // Transpile .js files with babel. Babel will by default pick up the browserslist definition in the
                 // package.json file.
                 {
                     test: /\.js$/,
@@ -67,11 +68,11 @@ function applyKarmaOptions() {
     // Disable minification
     karma.mode = 'development';
 
-    
+
     return karma;
 }
 
-module.exports = function (env, argv) {
+module.exports = function(env, argv) {
     // Return karma specific configuration
     if (env.karma) {
         return {
@@ -92,6 +93,7 @@ module.exports = function (env, argv) {
                 [LIB.COMMON]: ['@babel/polyfill', ...glob.sync(JCR_ROOT + LIB.COMMON + '/js/**/*.js')],
                 [LIB.STOREFRONT_EVENTS]: ['@adobe/magento-storefront-events-sdk', ...glob.sync(JCR_ROOT + LIB.STOREFRONT_EVENTS + '/js/**/*.js')],
                 [LIB.PRODUCT]: glob.sync(JCR_ROOT + LIB.PRODUCT + '/js/**/*.js'),
+                [LIB.PRODUCT_v3]: glob.sync(JCR_ROOT + LIB.PRODUCT_v3 + '/js/**/*.js'),
                 [LIB.CAROUSEL]: glob.sync(JCR_ROOT + LIB.CAROUSEL + '/js/**/*.js'),
                 [LIB.PRODUCTCAROUSEL]: glob.sync(JCR_ROOT + LIB.PRODUCTCAROUSEL + '/js/**/*.js'),
                 [LIB.PRODUCTCOLLECTION]: glob.sync(JCR_ROOT + LIB.PRODUCTCOLLECTION + '/js/**/*.js'),

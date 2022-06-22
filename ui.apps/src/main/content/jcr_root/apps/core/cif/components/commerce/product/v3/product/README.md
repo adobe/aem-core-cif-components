@@ -17,6 +17,21 @@ Product (v3) / Technical Preview
 ====
 The version 3 of the product component extends the v2 product component by extending the v2 GraphQL query with the `uid` field for product variants and variant attributes in Magento 2.4.4 . This hence requires that the Magento backend is at least version 2.4.4 because the query with the `uid` fields will be rejected by Magento versions not having this field in the GraphQL schema and adding bundled products to cart using these `uid` attributes was broken in previous versions of Magento
 
+### Component Policy Configuration Properties
+The following configuration properties are used:
+
+1. `./loadClientPrice` - enables client-side price fetching
+2. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`)  
+3. `./showTitle` - displays the 'title' section on the products (default `true`)  
+4. `./showPrice` - displays the 'price' section on the products (default `true`)  
+5. `./showSku` - displays the 'sku' section on the products (default `true`)  
+6. `./showImage` - displays the 'image carousel' section on the products (default `true`)  
+7. `./showOptions` - displays the 'options' section on the products (default `true`)  
+8. `./showQuantity` - displays the 'qunatity' section on the products (default `true`)  
+9. `./showActions` - displays the 'actions' section on the products (default `true`)  
+10. `./showDescription` - displays the 'description' section on the products (default `true`)  
+11. `./showDetails` - displays the 'details' section on the products (default `true`)  
+
 ## Information
 * **Vendor**: Adobe
 * **Version**: v3

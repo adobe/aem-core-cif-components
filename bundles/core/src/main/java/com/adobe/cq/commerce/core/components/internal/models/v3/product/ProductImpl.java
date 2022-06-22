@@ -15,7 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v3.product;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -39,6 +42,20 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     implements Product {
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v3/product";
+
+    protected static final Map<String, String> SECTIONS_MAP = new HashMap<String, String>() {
+        {
+            put(TITLE_SECTION, "showTitle");
+            put(PRICE_SECTION, "showPrice");
+            put(SKU_SECTION, "showSku");
+            put(IMAGE_SECTION, "showImage");
+            put(OPTIONS_SECTION, "showOptions");
+            put(QUANTITY_SECTION, "showQuantity");
+            put(ACTIONS_SECTION, "showActions");
+            put(DESCRIPTION_SECTION, "showDescription");
+            put(DETAILS_SECTION, "showDetails");
+        }
+    };
 
     @PostConstruct
     protected void initModel() {
@@ -108,5 +125,11 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         }
 
         return mappedVariant;
+    }
+
+    @Override
+    public Set<String> getVisibleSections() {
+        return SECTIONS_MAP.keySet().stream().filter(k -> currentStyle.get(SECTIONS_MAP.get(k), true))
+            .collect(Collectors.toSet());
     }
 }

@@ -16,7 +16,6 @@
 package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -161,8 +160,8 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         }
 
         if (categoryRetriever == null && StringUtils.isNotEmpty(mutableSearchOptions.getAllFilters().get(CATEGORY_ID_FILTER))) {
-            // if no categoryRetriever is given but an id filter, fetch the category only but dont set the uid filter as id and uid filter
-            // cannot be used toether in the same query
+            // if no categoryRetriever is given but an id filter, fetch the category only but don't set the uid filter as id and uid filter
+            // cannot be used together in the same query
             categoryRetriever = new CategoryUrlParameterRetriever(magentoGraphqlClient) {
                 @Override
                 public Pair<QueryQuery.CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> generateCategoryQueryArgs(
@@ -508,19 +507,22 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     }
 
     /**
-     * Removes the category_uid filter from all filter options' filter maps when the category uid can be retrieved from the request already.
-     *
+     * Removes the category_uid filter from all filter options' filter maps when possible.
+     * 
      * @param aggs
      * @param request
      */
     private void removeCategoryUidFilterEntriesIfPossible(List<SearchAggregation> aggs, SlingHttpServletRequest request) {
         String categoryUid = urlProvider.getCategoryIdentifier(request);
         if (StringUtils.isNotBlank(categoryUid)) {
-            aggs.stream()
-                .map(SearchAggregation::getOptions)
-                .flatMap(Collection::stream)
-                .map(SearchAggregationOption::getAddFilterMap)
-                .forEach(filterMap -> filterMap.remove(CATEGORY_UID_FILTER, categoryUid));
+            for (SearchAggregation agg : aggs) {
+                // remove category_uid from all addFilterMaps
+                for (SearchAggregationOption option : agg.getOptions()) {
+                    option.getAddFilterMap().remove(CATEGORY_UID_FILTER, categoryUid);
+                }
+                // and from the removeFilterMap
+                agg.getRemoveFilterMap().remove(CATEGORY_UID_FILTER, categoryUid);
+            }
         }
     }
 }
