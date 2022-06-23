@@ -39,6 +39,7 @@ describe('CommerceGraphqlApi', () => {
             graphqlMethod: 'GET',
             headers: JSON.parse(httpHeaders)
         });
+        window.localStorage.clear();
     });
 
     afterEach(() => {
@@ -89,6 +90,26 @@ describe('CommerceGraphqlApi', () => {
             let options = fetchSpy.firstCall.args[1];
 
             assert.include(options.headers, { Store: 'my-special-store' });
+        });
+    });
+
+    it('passes the authorization header', () => {
+        const mockResult = { result: 'my-result' };
+        fetchSpy.resolves(mockResult);
+
+        window.localStorage.setItem(
+            'M2_VENIA_BROWSER_PERSISTENCE__signin_token',
+            `{"value":"\\\"my-test-login-token\\\"","timeStored":1655983654091,"ttl":3600}`
+        );
+
+        let query = 'my-sample-query';
+
+        return graphqlApi._fetchGraphql(query, true).then(res => {
+            assert.isTrue(fetchSpy.calledOnce);
+            let options = fetchSpy.firstCall.args[1];
+            console.log(options.headers);
+
+            assert.include(options.headers, { Authorization: 'Bearer my-test-login-token' });
         });
     });
 

@@ -58,6 +58,11 @@ class CommerceGraphqlApi {
             params.headers['Store'] = this.storeView;
         }
 
+        const loginToken = this._getLoginToken();
+        if (loginToken) {
+            params.headers['Authorization'] = `Bearer ${loginToken}`;
+        }
+
         let url = this.endpoint;
         if (params.method === 'POST') {
             // For un-cached POST request, add query to body
@@ -76,6 +81,27 @@ class CommerceGraphqlApi {
         }
 
         return response;
+    }
+
+    /**
+     * Retrieves the login token from local storage as it is stored by Peregrine.
+     *
+     * @returns {string} login token or null if not logged in.
+     */
+    _getLoginToken() {
+        const key = 'M2_VENIA_BROWSER_PERSISTENCE__signin_token';
+        let token = null;
+
+        try {
+            token = JSON.parse(localStorage.getItem(key));
+        } catch (e) {
+            console.error(`Login token at ${key} is not valid JSON.`);
+        }
+
+        if (token && token.value) {
+            return token.value.replace(/"/g, '');
+        }
+        return null;
     }
 
     /**
