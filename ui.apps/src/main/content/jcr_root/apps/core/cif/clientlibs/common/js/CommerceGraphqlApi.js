@@ -90,18 +90,42 @@ class CommerceGraphqlApi {
      */
     _getLoginToken() {
         const key = 'M2_VENIA_BROWSER_PERSISTENCE__signin_token';
-        let token = null;
+        let token = this._checkCookie('cif.userToken') ? this._cookieValue('cif.userToken') : '';
 
         try {
-            token = JSON.parse(localStorage.getItem(key));
+            let lsToken = JSON.parse(localStorage.getItem(key));
+            if (lsToken && lsToken.value) {
+                const timestamp = new Date().getTime();
+                if (timestamp - lsToken.timeStored < lsToken.ttl * 1000) {
+                    token = lsToken.value.replace(/"/g, '');
+                }
+            }
         } catch (e) {
             console.error(`Login token at ${key} is not valid JSON.`);
         }
 
-        if (token && token.value) {
-            return token.value.replace(/"/g, '');
-        }
-        return null;
+        return token;
+    }
+
+    /**
+     * Checks if a cookie with the given name exists.
+     *
+     * @param {string} cookieName
+     * @returns {boolean} true if the cookie exists, false otherwise.
+     */
+    _checkCookie(cookieName) {
+        return document.cookie.split(';').filter(item => item.trim().startsWith(`${cookieName}=`)).length > 0;
+    }
+
+    /**
+     * Returns the value of the cookie with the given name.
+     *
+     * @param {string} cookieName
+     * @returns {string} value of the cookie or empty string if the cookie does not exist.
+     */
+    _cookieValue(cookieName) {
+        let b = document.cookie.match(`(^|[^;]+)\\s*${cookieName}\\s*=\\s*([^;]+)`);
+        return b ? b.pop() : '';
     }
 
     /**
