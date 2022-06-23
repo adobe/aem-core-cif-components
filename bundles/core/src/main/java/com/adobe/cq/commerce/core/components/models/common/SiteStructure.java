@@ -26,19 +26,19 @@ import com.drew.lang.annotations.Nullable;
  * The {@link SiteStructure} interface provides access to the CIF specific pages of a site, including category pages, product pages the
  * search results page and the landing page.
  * <p>
- * An instance of the {@link SiteStructure} can be obtained by adapting the current {@link org.apache.sling.api.SlingHttpServletRequest} to
- * or a {@link Page} to the interface. When adapted from the {@link org.apache.sling.api.SlingHttpServletRequest} the {@code currentPage}
- * variable from the script bindings is used instantiate the {@link SiteStructure}. If the currentPage is not yet available, the
- * {@link org.apache.sling.api.resource.Resource} of the page is used instead. It is recommended to get the {@link SiteStructure} from the
- * {@link org.apache.sling.api.SlingHttpServletRequest} as the instance is cached for reuse automatically.
+ * An instance of the {@link SiteStructure} can be obtained by adapting the current {@link org.apache.sling.api.SlingHttpServletRequest}
+ * or a {@link Page} to this interface. When adapted from the {@link org.apache.sling.api.SlingHttpServletRequest} the {@code currentPage}
+ * variable from the script bindings is used to instantiate the {@link SiteStructure}. If the currentPage is not yet available, the
+ * {@link org.apache.sling.api.resource.Resource} of the request is used instead. It is recommended to get the {@link SiteStructure} from
+ * the {@link org.apache.sling.api.SlingHttpServletRequest} as the instance is cached for reuse automatically.
  */
 @ProviderType
 public interface SiteStructure {
 
     /**
-     * This interface describes the entries returned by the site structure when accessing specific pages like product pages, category pages
-     * or the search results page. It adds additional information to provide access to the catalog page of a product or category page or the
-     * landing page.
+     * This interface describes the entries returned by the {@link SiteStructure} when accessing specific pages like product pages,
+     * category pages or the search results page. It adds additional information to provide access to the catalog page of a product or
+     * category page.
      */
     interface Entry {
 
@@ -52,13 +52,10 @@ public interface SiteStructure {
         Page getCatalogPage();
 
         /**
-         * Returns the landing page, which is the first ancestor of the page which has {@link SiteStructure#PN_NAV_ROOT} property set to
-         * {@code true}. The landing page is the same for each {@link Entry} returned by a {@link SiteStructure}.
+         * The {@link Page} itself, represented by the {@link Entry}.
          *
          * @return
          */
-        Page getLandingPage();
-
         Page getPage();
     }
 
@@ -77,7 +74,7 @@ public interface SiteStructure {
      * @return
      */
     @Nullable
-    Entry getLandingPage();
+    Page getLandingPage();
 
     @Nullable
     Entry getSearchResultsPage();

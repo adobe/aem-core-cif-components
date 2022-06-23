@@ -21,22 +21,15 @@ import com.day.cq.wcm.api.Page;
 public class EntryImpl implements SiteStructure.Entry {
     private final Page page;
     private final Page catalogPage;
-    private final Page landingPage;
 
-    public EntryImpl(Page page, Page catalogPage, Page navigationRootPage) {
+    public EntryImpl(Page page, Page catalogPage) {
         this.page = page;
         this.catalogPage = catalogPage;
-        this.landingPage = navigationRootPage;
     }
 
     @Override
     public Page getCatalogPage() {
         return catalogPage;
-    }
-
-    @Override
-    public Page getLandingPage() {
-        return landingPage;
     }
 
     @Override

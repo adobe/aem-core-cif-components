@@ -107,8 +107,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     @Override
     public String getStoreRootUrl() {
         if (storeRootPage == null) {
-            SiteStructure.Entry entry = siteStructure.getLandingPage();
-            storeRootPage = entry != null ? entry.getPage() : null;
+            storeRootPage = siteStructure.getLandingPage();
         }
 
         if (storeRootPage == null) {

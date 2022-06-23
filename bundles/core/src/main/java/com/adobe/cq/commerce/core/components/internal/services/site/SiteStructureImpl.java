@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -55,7 +56,7 @@ public class SiteStructureImpl implements SiteStructure {
     private final Page currentPage;
     private final Launch launch;
     private Entry searchResultsPage;
-    private List<Entry> catalogPages;
+    private LinkedList<Entry> catalogPages;
     private final Map<String, List<Entry>> genericPages = new HashMap<>(2);
 
     SiteStructureImpl(Page currentPage) {
@@ -75,28 +76,25 @@ public class SiteStructureImpl implements SiteStructure {
         for (Supplier<List<Entry>> supplier : Arrays.asList(productPages, categoryPages)) {
             for (Entry entry : supplier.get()) {
                 if (isEqualOrDescendant(givenPage, entry.getPage())) {
-                    return new EntryImpl(givenPage, entry.getCatalogPage(), entry.getLandingPage());
+                    return new EntryImpl(givenPage, entry.getCatalogPage());
                 }
             }
         }
 
-        Entry navRoot = getLandingPage();
-        if (navRoot != null && isEqualOrDescendant(givenPage, navRoot.getPage())) {
-            return new EntryImpl(givenPage, null, navRoot.getPage());
+        Page navRoot = getLandingPage();
+        if (navRoot != null && isEqualOrDescendant(givenPage, navRoot)) {
+            return new EntryImpl(givenPage, null);
         }
 
         return null;
     }
 
     @Override
-    public Entry getLandingPage() {
-        // getCatalogPages returns all catalog pages and the navigationRoot page, the navigation root page is the only entry that returns
-        // null for getCatalogPage()
-        return getCatalogPages()
-            .stream()
-            .filter(catalogPage -> catalogPage.getCatalogPage() == null)
-            .findFirst()
-            .orElse(null);
+    public Page getLandingPage() {
+        // getCatalogPages returns all catalog pages and the navigationRoot page
+        // the navigation root page is always last in the list
+        LinkedList<Entry> pages = getCatalogPages();
+        return pages.isEmpty() ? null : pages.getLast().getPage();
     }
 
     @Override
@@ -159,11 +157,11 @@ public class SiteStructureImpl implements SiteStructure {
             return searchResultsPage;
         }
 
-        Entry navigationRootEntry = getLandingPage();
-        if (navigationRootEntry != null) {
-            Page page = resolveReference(navigationRootEntry.getPage(), launch, PN_CIF_SEARCH_RESULTS_PAGE);
+        Page landingPage = getLandingPage();
+        if (landingPage != null) {
+            Page page = resolveReference(landingPage, launch, PN_CIF_SEARCH_RESULTS_PAGE);
             if (page != null) {
-                return searchResultsPage = new EntryImpl(page, null, navigationRootEntry.getLandingPage());
+                return searchResultsPage = new EntryImpl(page, null);
             }
         }
         return null;
@@ -180,20 +178,20 @@ public class SiteStructureImpl implements SiteStructure {
         return genericPages.computeIfAbsent(referenceProperty, k -> getCatalogPages().stream()
             .map(entry -> {
                 Page catalogPage = entry.getCatalogPage();
-                Page navigationRootPage = entry.getLandingPage();
-                Page resolvedPage = resolveReference(catalogPage != null ? catalogPage : navigationRootPage, launch, referenceProperty);
-                return resolvedPage != null ? new EntryImpl(resolvedPage, catalogPage, navigationRootPage) : null;
+                // for the landing page the catalog page is null and the page itself is the landing page
+                Page self = entry.getPage();
+                Page resolvedPage = resolveReference(catalogPage != null ? catalogPage : self, launch, referenceProperty);
+                return resolvedPage != null ? new EntryImpl(resolvedPage, catalogPage) : null;
             })
             .filter(Objects::nonNull)
             .collect(Collectors.toList()));
     }
 
-    private List<Entry> getCatalogPages() {
+    private LinkedList<Entry> getCatalogPages() {
         if (catalogPages != null) {
             return catalogPages;
         }
 
-        Set<String> catalogPageNames = new HashSet<>();
         Page productionPage = currentPage;
         Page navigationRoot = null;
         Stream<Entry> catalogPagesStream = null;
@@ -213,7 +211,7 @@ public class SiteStructureImpl implements SiteStructure {
                 navigationRoot = launchNavigationRoot;
                 Iterable<Page> catalogPages = () -> launchNavigationRoot.listChildren(this::isCatalogPage);
                 catalogPagesStream = StreamSupport.stream(catalogPages.spliterator(), false)
-                    .map(catalogPage -> new EntryImpl(catalogPage, catalogPage, launchNavigationRoot));
+                    .map(catalogPage -> new EntryImpl(catalogPage, catalogPage));
             }
         }
 
@@ -227,23 +225,26 @@ public class SiteStructureImpl implements SiteStructure {
 
                 Iterable<Page> catalogPages = () -> productionNavigationRoot.listChildren(this::isCatalogPage);
                 Stream<Entry> stream = StreamSupport.stream(catalogPages.spliterator(), false)
-                    .map(catalogPage -> new EntryImpl(catalogPage, catalogPage, productionNavigationRoot));
+                    .map(catalogPage -> new EntryImpl(catalogPage, catalogPage));
 
                 catalogPagesStream = catalogPagesStream != null ? Stream.concat(catalogPagesStream, stream) : stream;
             }
         }
 
         if (navigationRoot != null) {
-            catalogPages = Stream.concat(catalogPagesStream, Stream.of(new EntryImpl(navigationRoot, null, navigationRoot)))
+            Set<String> catalogPageNames = new HashSet<>();
+            Stream<Entry> distinctCatalogPagesStream = catalogPagesStream
                 .filter(pair -> {
                     // distinct by catalog page name
                     Page catalogPage = pair.getCatalogPage();
                     return catalogPage == null || catalogPageNames.add(catalogPage.getName());
-                })
-                .collect(Collectors.toList());
+                });
+
+            return Stream.concat(distinctCatalogPagesStream, Stream.of(new EntryImpl(navigationRoot, null)))
+                .collect(Collectors.toCollection(LinkedList::new));
         } else {
             LOG.debug("No navigation root found for: {}", currentPage.getPath());
-            catalogPages = Collections.emptyList();
+            catalogPages = new LinkedList<>();
         }
 
         return catalogPages;

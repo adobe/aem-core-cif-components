@@ -30,7 +30,7 @@ public class UnknownSiteStructure implements SiteStructure {
     }
 
     @Override
-    public Entry getLandingPage() {
+    public Page getLandingPage() {
         return null;
     }
 

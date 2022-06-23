@@ -122,7 +122,7 @@ public class SiteStructureImplTest {
         subject = new SiteStructureImpl(navRoot);
 
         Page anypage = aemContext.pageManager().getPage("/content/no-nav-root/content-page");
-        assertSiteNavigationEntry(subject.getEntry(anypage), anypage, null, navRoot);
+        assertSiteNavigationEntry(subject.getEntry(anypage), anypage, null);
     }
 
     @Test
@@ -190,7 +190,7 @@ public class SiteStructureImplTest {
 
         List<SiteStructure.Entry> productPages = subject.getProductPages();
         assertEquals(1, productPages.size());
-        assertSiteNavigationEntry(productPages.get(0), productPage, null, navRootPage);
+        assertSiteNavigationEntry(productPages.get(0), productPage, null);
     }
 
     @Test
@@ -204,7 +204,7 @@ public class SiteStructureImplTest {
 
         List<SiteStructure.Entry> productPages = subject.getProductPages();
         assertEquals(1, productPages.size());
-        assertSiteNavigationEntry(productPages.get(0), productPage, null, navRootPage);
+        assertSiteNavigationEntry(productPages.get(0), productPage, null);
     }
 
     @Test
@@ -218,7 +218,7 @@ public class SiteStructureImplTest {
 
         List<SiteStructure.Entry> productPages = subject.getProductPages();
         assertEquals(1, productPages.size());
-        assertSiteNavigationEntry(productPages.get(0), productPage, null, navRootPage);
+        assertSiteNavigationEntry(productPages.get(0), productPage, null);
     }
 
     @Test
@@ -237,19 +237,14 @@ public class SiteStructureImplTest {
 
         List<SiteStructure.Entry> productPages = subject.getProductPages();
         assertEquals(2, productPages.size());
-        assertSiteNavigationEntry(productPages.get(0), prodSpecificProductPage, prodSpecificProductPage, navRootPage);
-        assertSiteNavigationEntry(productPages.get(1), productPage, null, navRootPage);
+        assertSiteNavigationEntry(productPages.get(0), prodSpecificProductPage, prodSpecificProductPage);
+        assertSiteNavigationEntry(productPages.get(1), productPage, null);
     }
 
     private void assertSiteNavigationEntry(SiteStructure.Entry entry, Page page, Page catalogPage) {
-        assertSiteNavigationEntry(entry, page, catalogPage, navRootPage);
-    }
-
-    private void assertSiteNavigationEntry(SiteStructure.Entry entry, Page page, Page catalogPage, Page navRootPage) {
         assertNotNull(entry);
         assertEquals(page, entry.getPage());
         assertEquals(catalogPage, entry.getCatalogPage());
-        assertEquals(navRootPage, entry.getLandingPage());
     }
 
 }

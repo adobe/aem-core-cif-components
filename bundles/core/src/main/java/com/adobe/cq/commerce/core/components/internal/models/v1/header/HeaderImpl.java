@@ -61,8 +61,7 @@ public class HeaderImpl implements Header {
 
     @PostConstruct
     private void initModel() {
-        SiteStructure.Entry entry = siteStructure.getLandingPage();
-        navigationRootPage = entry != null ? entry.getLandingPage() : null;
+        navigationRootPage = siteStructure.getLandingPage();
 
         if (navigationRootPage == null) {
             LOGGER.warn("Navigation root page not found for page " + currentPage.getPath());
