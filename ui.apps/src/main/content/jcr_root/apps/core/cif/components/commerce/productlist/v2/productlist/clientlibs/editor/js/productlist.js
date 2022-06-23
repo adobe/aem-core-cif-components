@@ -32,10 +32,7 @@ class ProductListConfig {
         // Checking if the dialog has the right selector for the teaser
         const dialogContent = dialog.querySelector(ProductListConfig.selectors.dialogContentSelector);
         if (dialogContent) {
-
-            const xfEnabledCheckbox = dialogContent.querySelector(
-                ProductListConfig.selectors.xfEnabledCheckbox
-            );
+            const xfEnabledCheckbox = dialogContent.querySelector(ProductListConfig.selectors.xfEnabledCheckbox);
             this.actionsToggleHandler(xfEnabledCheckbox);
             const actionsEnabled = xfEnabledCheckbox.checked === true;
             this.setFieldsDisabled(!actionsEnabled);
