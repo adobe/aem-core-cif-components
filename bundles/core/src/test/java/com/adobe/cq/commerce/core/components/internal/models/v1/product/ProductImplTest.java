@@ -70,6 +70,7 @@ import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -110,9 +111,9 @@ public class ProductImplTest {
         })
         .build();
 
-    private Resource productResource;
-    private Resource pageResource;
-    private GraphqlClient graphqlClient;
+    protected Resource productResource;
+    protected Resource pageResource;
+    protected GraphqlClient graphqlClient;
 
     protected ProductInterface product;
     protected Product productModel;
@@ -634,19 +635,10 @@ public class ProductImplTest {
     }
 
     @Test
-    public void testVisibleSectionsWithoutStyle() {
+    public void testVisibleSectionsDefault() {
         adaptToProduct();
-        Set<String> expectedSections = new HashSet<>();
-        expectedSections.add(Product.TITLE_SECTION);
-        expectedSections.add(Product.PRICE_SECTION);
-        expectedSections.add(Product.SKU_SECTION);
-        expectedSections.add(Product.IMAGE_SECTION);
-        expectedSections.add(Product.OPTIONS_SECTION);
-        expectedSections.add(Product.QUANTITY_SECTION);
-        expectedSections.add(Product.ACTIONS_SECTION);
-        expectedSections.add(Product.DESCRIPTION_SECTION);
-        expectedSections.add(Product.DETAILS_SECTION);
-
-        assertEquals(expectedSections, productModel.getVisibleSections());
+        assertThat(productModel.getVisibleSections()).containsOnly(Product.ACTIONS_SECTION, Product.DESCRIPTION_SECTION,
+            Product.DETAILS_SECTION, Product.IMAGE_SECTION, Product.PRICE_SECTION, Product.QUANTITY_SECTION, Product.OPTIONS_SECTION,
+            Product.SKU_SECTION, Product.TITLE_SECTION);
     }
 }

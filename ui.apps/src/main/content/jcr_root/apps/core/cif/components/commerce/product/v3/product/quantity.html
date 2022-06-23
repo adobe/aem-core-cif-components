@@ -14,6 +14,9 @@
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.quantity="${ @ product, allowZeroQuantity, defaultQuantity}">
+    <h2 class="productFullDetail__areaTitle productFullDetail__quantityTitle option__title">
+        <span>${'Quantity' @ i18n}<span>
+    </h2>
     <div class="quantity__root">
         <span class="fieldIcons__root" style="--iconsBefore:0; --iconsAfter:1;">
             <span class="fieldIcons__input">

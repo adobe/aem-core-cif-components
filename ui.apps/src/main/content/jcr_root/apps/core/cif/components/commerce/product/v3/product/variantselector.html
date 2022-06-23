@@ -14,6 +14,9 @@
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.variants="${ @ product}">
+    <h2 class="productFullDetail__areaTitle">
+        <span>${'Variants' @ i18n}</span>
+    </h2>
     <sly data-sly-list.variantAttribute="${product.variantAttributes}">
         <sly data-sly-test.isColorOption="${variantAttribute.values[0].swatchType && variantAttribute.values[0].swatchType == 'COLOR'}"></sly>
         <div class="option__root">

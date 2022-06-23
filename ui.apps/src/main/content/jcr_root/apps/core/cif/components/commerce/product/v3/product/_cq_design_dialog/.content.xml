@@ -35,92 +35,51 @@
                                 text="Add to Wish List"
                                 uncheckedValue="false"
                                 value="true"/>
-                            <sections jcr:primaryType="nt:unstructured" 
-                                jcr:title="Visible sections" 
-                                sling:resourceType="granite/ui/components/coral/foundation/form/fieldset">
+                            <sections
+                                jcr:primaryType="nt:unstructured"
+                                fieldLabel="Visible sections"
+                                fieldDescription="Select which sections of the product detail component should be rendered."
+                                name="./visibleSections"
+                                multiple="{Boolean}true"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/select">
                                 <items jcr:primaryType="nt:unstructured">
-                                    <showTitle
-                                        jcr:primaryType="nt:unstructured"
-                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
-                                        fieldDescription="Show product title"
-                                        name="./showTitle"
-                                        text="Show product title"
-                                        uncheckedValue="false"
-                                        checked="true"
-                                        value="true"/>
-                                    <showPrice 
-                                        jcr:primaryType="nt:unstructured"
-                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
-                                        fieldDescription="Show product price"
-                                        name="./showPrice"
-                                        text="Show product price"
-                                        uncheckedValue="false"
-                                        checked="true"
-                                        value="true"/>
-                                    <showSku
-                                        jcr:primaryType="nt:unstructured"
-                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
-                                        fieldDescription="Show product sku"
-                                        name="./showSku"
-                                        text="Show product sku"
-                                        uncheckedValue="false"
-                                        checked="true"
-                                        value="true"/>
-                                    <showImage
-                                        jcr:primaryType="nt:unstructured"
-                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
-                                        fieldDescription="Show product image carousel"
-                                        name="./showImage"
-                                        text="Show product image carousel"
-                                        uncheckedValue="false"
-                                        checked="true"
-                                        value="true"/>
-                                    <showOptions
-                                        jcr:primaryType="nt:unstructured"
-                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
-                                        fieldDescription="Show product options"
-                                        name="./showOptions"
-                                        text="Show product options"
-                                        uncheckedValue="false"
-                                        checked="true"
-                                        value="true"/>
-                                    <showQuantity
-                                        jcr:primaryType="nt:unstructured"
-                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
-                                        fieldDescription="Show product quantity"
-                                        name="./showQuantity"
-                                        text="Show product quantity"
-                                        uncheckedValue="false"
-                                        checked="true"
-                                        value="true"/>
-                                    <showActions
-                                        jcr:primaryType="nt:unstructured"
-                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
-                                        fieldDescription="Show product action buttons"
-                                        name="./showActions"
-                                        text="Show product action buttons"
-                                        uncheckedValue="false"
-                                        checked="true"
-                                        value="true"/>
-                                    <showDescription
-                                        jcr:primaryType="nt:unstructured"
-                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
-                                        fieldDescription="Show product description"
-                                        name="./showDescription"
-                                        text="Show product description"
-                                        uncheckedValue="false"
-                                        checked="true"
-                                        value="true"/>
-                                    <showDetails
-                                        jcr:primaryType="nt:unstructured"
-                                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
-                                        fieldDescription="Show product details"
-                                        name="./showDetails"
-                                        text="Show product details"
-                                        uncheckedValue="false"
-                                        checked="true"
-                                        value="true"/>
-                                </items>
+                                    <actions
+                                        text="Actions"
+                                        value="actions"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <description
+                                        text="Description"
+                                        value="description"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <details
+                                        text="Details"
+                                        value="details"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <images
+                                        text="Images"
+                                        value="images"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <options
+                                        text="Options"
+                                        value="options"
+                                        jcr:primaryType="nt:unstructured"/>                                    
+                                    <price
+                                        text="Price"
+                                        value="price"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <quantity
+                                        text="Quantity"
+                                        value="quantity"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <sku
+                                        text="SKU"
+                                        value="sku"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <title
+                                        text="Title"
+                                        value="title"
+                                        jcr:primaryType="nt:unstructured"/>
+                                 </items>
                             </sections>
                         </items>
                     </general>
