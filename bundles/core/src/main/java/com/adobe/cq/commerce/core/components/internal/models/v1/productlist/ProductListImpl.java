@@ -20,11 +20,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -113,7 +115,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     protected boolean fragmentEnabled;
     protected Map<Integer, Resource> fragmentsMap = new HashMap<>();
-    protected int defaultNavPageSize;
+    protected int pageGridSize;
 
     @PostConstruct
     protected void initModel() {
@@ -157,7 +159,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                 return;
             }
         }
-        defaultNavPageSize = navPageSize;
+        pageGridSize = navPageSize;
 
         if (usePlaceholderData) {
             searchResultsSet = new SearchResultsSetImpl();
@@ -173,13 +175,18 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                         ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(
                             fragment,
                             CommerceExperienceFragmentImpl.RESOURCE_TYPE);
+                        resourceWrapper.getValueMap().put(PN_FRAGMENT_LOCATION, fragment.getValueMap().get(PN_FRAGMENT_LOCATION,
+                            String.class));
                         fragmentsMap.put(position, resourceWrapper);
                     }
                 }
+
+                // Altering the page size for graphql requests to accommodate the fragments in the grid
                 if (fragmentsMap.size() >= navPageSize) {
+                    // Show at least one product in the grid
                     navPageSize = 1;
                 } else {
-                    navPageSize = defaultNavPageSize - fragmentsMap.size();
+                    navPageSize = pageGridSize - fragmentsMap.size();
                 }
             }
 
@@ -244,12 +251,24 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             Collection<ProductListItem> products = getSearchResultsSet().getProductListItems();
             Collection<ProductListItem> result = new ArrayList<>();
 
-            products.forEach(p -> {
-                if (fragmentsMap.containsKey(result.size())) {
-                    result.add(new XfProductListItemImpl(fragmentsMap.get(result.size()), getId(), productPage));
+            Iterator<ProductListItem> productsIterator = products.iterator();
+            // Getting the maximum fragments to fill the grid
+            List<Integer> fragmentPositions = fragmentsMap.keySet().stream().sorted().limit(pageGridSize - products.size()).collect(
+                Collectors.toList());
+
+            // Filling all the grid positions with products or fragments
+            for (int i = 0; i < pageGridSize; i++) {
+                // The fragment positions are index 1 based
+                if (fragmentPositions.contains(i + 1)) {
+                    result.add(new XfProductListItemImpl(fragmentsMap.get(i + 1), getId(), productPage));
+                } else if (productsIterator.hasNext()) {
+                    result.add(productsIterator.next());
                 }
-                result.add(p);
-            });
+            }
+
+            // Adding any remaining fragments that have a position > grid size.
+            fragmentPositions.stream().sorted().skip(result.size() - products.size()).forEach(f -> result
+                .add(new XfProductListItemImpl(fragmentsMap.get(f), getId(), productPage)));
 
             return result;
         }
