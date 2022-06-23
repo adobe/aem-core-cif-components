@@ -74,7 +74,8 @@ public interface ProductTeaser extends Component {
     }
 
     /**
-     * Returns the SKU of the product displayed by this {@code ProductTeaser}
+     * Returns the effective SKU of the product displayed by this {@code ProductTeaser}. For a variant of a configurable product thi is
+     * always the SKU of the configured variant.
      *
      * @return a String value representing the SKU
      */
