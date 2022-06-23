@@ -35,7 +35,8 @@ The following configuration properties are used:
 1. `./productCount` - defines the maximum number of products displayed for a category when category selection is used
 2. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
 3. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`)  
-4. `./type` - defines the default HTML heading element type (`h1` - `h6`) this component will use for its rendering
+4. `./loadClientPrices` - load current prices client side (default `false`)
+5. `./type` - defines the default HTML heading element type (`h1` - `h6`) this component will use for its rendering
 
 
 ### Edit Dialog Properties

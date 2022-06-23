@@ -17,11 +17,8 @@ package com.adobe.cq.commerce.core.components.models.common;
 
 import org.apache.commons.lang3.StringUtils;
 import org.osgi.annotation.versioning.ProviderType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.drew.lang.annotations.Nullable;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * This class represents a combined sku. For a configurable product variant the combined sku consists of a base sku and a variant sku. For
