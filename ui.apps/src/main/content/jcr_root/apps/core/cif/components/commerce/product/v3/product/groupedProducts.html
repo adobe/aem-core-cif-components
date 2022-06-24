@@ -32,7 +32,7 @@
                     <sly data-sly-use.template="core/cif/components/commons/v1/price.html"
                          data-sly-call="${template.price @ priceRange=item.priceRange, displayYouSave=true, sku=item.sku}"></sly>
                 </td>
-                <td data-th="{'Quantity' @ i18n}">
+                <td data-th="${'Quantity' @ i18n}">
                     <sly data-sly-use.template="quantity.html"
                          data-sly-call="${template.quantity @ product=item, allowZeroQuantity=true, defaultQuantity=item.defaultQuantity}"></sly>
                 </td>
