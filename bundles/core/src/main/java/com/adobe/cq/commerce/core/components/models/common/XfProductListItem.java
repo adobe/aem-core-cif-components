@@ -19,8 +19,17 @@ import javax.annotation.Nullable;
 
 import org.apache.sling.api.resource.Resource;
 
+/**
+ * Interface for an Experience Fragment to be used in a {@code ProductList}
+ * alongside {@code ProductListItem}
+ */
 public interface XfProductListItem extends ProductListItem {
 
+    /**
+     * Returns the ExperienceFragment resource to be rendered.
+     *
+     * @return the ExperienceFragment resource to be rendered or {@code null}
+     */
     @Nullable
     Resource getRenderResource();
 }

@@ -10,425 +10,543 @@
       "magentoStore": "my-store",
       "root": {
         "responsivegrid": {
-            "productteaser-simple": {
-                "selection": "MJ01",
-                "sling:resourceType": "venia/components/commerce/productteaser"
-            },
-            "productteaser-virtual": {
-                "selection": "VVP01",
-                "sling:resourceType": "venia/components/commerce/productteaser"
-            },
-            "productteaser-variant": {
-                "selection": "MJ01#MJ01-XS-Orange",
-                "sling:resourceType": "venia/components/commerce/productteaser",
-                "cta": "add-to-cart"
-            },
-            "productteaser-path": {
-                "selection": "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/MJ01",
-                "sling:resourceType": "venia/components/commerce/productteaser"
-            },
-            "productteaser-noclient": {
-                "selection": "MJ01",
-                "sling:resourceType": "venia/components/commerce/productteaser"
-            },
-            "productteaser-full": {
-                "selection": "MJ01",
-                "sling:resourceType": "venia/components/commerce/productteaser",
-                "cta": "details",
-                "ctaText": "See more details"
-            },
-            "productteaser-no-sku": {
-                "sling:resourceType": "venia/components/commerce/productteaser"
-            },
-            "productteaser-cta-test": {
-              "sling:resourceType": "venia/components/commerce/productteaser",
-              "cta": "add-to-cart",
-              "selection": "sku"
-            },
-            "productteaser-cta-text-test": {
-              "sling:resourceType": "venia/components/commerce/productteaser",
-              "cta": "add-to-cart",
-              "selection": "sku",
-              "ctaText": "custom"
-            },
-            "productteaser-link-target-unchecked": {
-              "sling:resourceType": "venia/components/commerce/productteaser",
-              "cta": "details",
-              "selection": "sku",
-              "linkTarget": "_self"
-            },
-            "productteaser-link-target-checked": {
-              "sling:resourceType": "venia/components/commerce/productteaser",
-              "cta": "details",
-              "selection": "sku",
-              "linkTarget": "_blank"
-            },
-            "productcarousel": {
-                "product": [
-                    "NOT-FOUND",
-                    "24-MG01",
-                    "MJ01#MJ01-L-Red",
-                    "faultyproduct",
-                    "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/WJ01",
-                    "MJ01"
-                ],
-                "sling:resourceType": "venia/components/commerce/productcarousel",
-                "titleType": "h2"
-            },
-            "productcarousel_with_category": {
-              "category": "MTI=",
-              "productCount": "2",
-              "selectionType": "category",
-              "sling:resourceType": "venia/components/commerce/productcarousel",
-              "titleType": "h2"
-            },
-            "productcarousel_with_category_no_product_count": {
-              "category": "MTI=",
-              "selectionType": "category",
-              "sling:resourceType": "venia/components/commerce/productcarousel",
-              "titleType": "h2"
-            },
-            "productcarousel_with_category_small_product_count": {
-              "category": "MTI=",
-              "productCount": "0",
-              "selectionType": "category",
-              "sling:resourceType": "venia/components/commerce/productcarousel",
-              "titleType": "h2"
-            },
-            "productcarousel_with_add_to_buttons": {
-              "category": "MTI=",
-              "productCount": "0",
-              "selectionType": "category",
-              "sling:resourceType": "venia/components/commerce/productcarousel",
-              "titleType": "h2",
-              "enableAddToCart": true,
-              "enableAddToWishList": true
-            },
-            "productcarousel_with_link_target_unchecked": {
-              "sling:resourceType": "venia/components/commerce/productcarousel",
-              "product": ["24-MG01", "MJ01#MJ01-L-Red"],
-              "linkTarget": "_self"
-            },
-            "productcarousel_with_link_target_checked": {
-              "sling:resourceType": "venia/components/commerce/productcarousel",
-              "product": ["24-MG01", "MJ01#MJ01-L-Red"],
-              "linkTarget": "_blank"
-            },
-            "product": {
-                "sling:resourceType": "venia/components/commerce/product"
-            },
-            "productwithid": {
-              "sling:resourceType": "venia/components/commerce/product",
-              "id": "custom-id"
-            },
-            "productlist": {
-                "loadClientPrice": true,
-                "showImage": true,
-                "showTitle": true,
-                "defaultSortField": "price",
-                "defaultSortOrder": "ASC",
-                "sling:resourceType": "venia/components/commerce/productlist"
-            },
-            "productlist_no_sorting": {
-              "loadClientPrice": true,
-              "showImage": true,
-              "showTitle": true,
-              "sling:resourceType": "venia/components/commerce/productlist"
-            },
-            "searchresults": {
-                "sling:resourceType": "core/cif/components/commerce/searchresults/v2/searchresults",
-                "defaultSortField": "relevance",
-                "defaultSortOrder": "DESC"
-            },
-            "relatedproducts": {
-                "product": "24-MG01",
-                "relationType": "RELATED_PRODUCTS",
-                "sling:resourceType": "venia/components/commerce/relatedproducts",
-                "titleType": "h2"
-            },
-            "upsellproducts": {
-                "relationType": "UPSELL_PRODUCTS",
-                "sling:resourceType": "venia/components/commerce/relatedproducts"
-            },
-            "crosssellproducts": {
-                "relationType": "CROSS_SELL_PRODUCTS",
-                "sling:resourceType": "venia/components/commerce/relatedproducts"
-            },
-            "relatedproducts-without-relation-type": {
-                "product": "24-MG01",
-                "sling:resourceType": "venia/components/commerce/relatedproducts"
-            },
-            "commerceteaser": {
-                "actionsEnabled": true,
-                "sling:resourceType": "venia/components/content/teaser",
-                "pretitle": "Pretitle",
-                "titleFromPage": "flase",
-                "jcr:title": "Title",
-                "descriptionFromPage": false,
-                "jcr:description": "Description",
-                "id": "id",
-                "fileReference": "/content/dam/image.jpg",
-                "actions": {
-                    "item0": {
-                        "productSlug": "beaumont-summit-kit",
-                        "text": "A product"
-                    },
-                    "item1": {
-                        "categoryId": "uid-5",
-                        "text": "A category"
-                    },
-                    "item2": {
-                        "categoryId": "uid-6",
-                        "productSlug": "beaumont-summit-kit",
-                        "text": "A category"
-                    },
-                    "item3": {
-                        "text": "Some text"
-                    },
-                    "item4": {
-                        "link": "/content/page",
-                        "text": "A page"
-                    }
-                }
-            },
-            "commerceteaser2": {
-                "actionsEnabled": true,
-                "sling:resourceType": "venia/components/content/teaser",
-                "pretitle": "Pretitle",
-                "titleFromPage": "flase",
-                "jcr:title": "Title",
-                "descriptionFromPage": false,
-                "jcr:description": "Description",
-                "id": "id",
-                "fileReference": "/content/dam/image.jpg",
-                "actions": {
-                    "item0": {
-                        "productSku": "MJ01",
-                        "text": "A product"
-                    },
-                    "item1": {
-                        "categoryId": "uid-5",
-                        "text": "A category"
-                    },
-                    "item2": {
-                        "categoryId": "uid-5",
-                        "productSku": "MJ01",
-                        "text": "A category"
-                    },
-                    "item3": {
-                        "text": "Some text"
-                    },
-                    "item4": {
-                        "link": "/content/page",
-                        "text": "A page"
-                    }
-                }
-            },
-            "commerceteaser3": {
-              "actionsEnabled": true,
-              "sling:resourceType": "venia/components/content/teaser",
-              "pretitle": "Pretitle",
-              "titleFromPage": "flase",
-              "jcr:title": "Title",
-              "descriptionFromPage": false,
-              "jcr:description": "Description",
-              "id": "id",
-              "fileReference": "/content/dam/image.jpg",
-              "actions": {
-                "item0": {
-                  "productSku": "MJ01",
-                  "text": "A product",
-                  "linkTarget": "_blank"
-                },
-                "item1": {
-                  "categoryId": "uid-5",
-                  "text": "A category",
-                  "linkTarget": "_self"
-                },
-                "item2": {
-                  "categoryId": "uid-5",
-                  "productSku": "MJ01",
-                  "text": "A category"
-                },
-                "item3": {
-                  "text": "Some text"
-                },
-                "item4": {
-                  "link": "/content/page",
-                  "text": "A page"
-                }
+          "productteaser-simple": {
+            "selection": "MJ01",
+            "sling:resourceType": "venia/components/commerce/productteaser"
+          },
+          "productteaser-virtual": {
+            "selection": "VVP01",
+            "sling:resourceType": "venia/components/commerce/productteaser"
+          },
+          "productteaser-variant": {
+            "selection": "MJ01#MJ01-XS-Orange",
+            "sling:resourceType": "venia/components/commerce/productteaser",
+            "cta": "add-to-cart"
+          },
+          "productteaser-path": {
+            "selection": "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/MJ01",
+            "sling:resourceType": "venia/components/commerce/productteaser"
+          },
+          "productteaser-noclient": {
+            "selection": "MJ01",
+            "sling:resourceType": "venia/components/commerce/productteaser"
+          },
+          "productteaser-full": {
+            "selection": "MJ01",
+            "sling:resourceType": "venia/components/commerce/productteaser",
+            "cta": "details",
+            "ctaText": "See more details"
+          },
+          "productteaser-no-sku": {
+            "sling:resourceType": "venia/components/commerce/productteaser"
+          },
+          "productteaser-cta-test": {
+            "sling:resourceType": "venia/components/commerce/productteaser",
+            "cta": "add-to-cart",
+            "selection": "sku"
+          },
+          "productteaser-cta-text-test": {
+            "sling:resourceType": "venia/components/commerce/productteaser",
+            "cta": "add-to-cart",
+            "selection": "sku",
+            "ctaText": "custom"
+          },
+          "productteaser-link-target-unchecked": {
+            "sling:resourceType": "venia/components/commerce/productteaser",
+            "cta": "details",
+            "selection": "sku",
+            "linkTarget": "_self"
+          },
+          "productteaser-link-target-checked": {
+            "sling:resourceType": "venia/components/commerce/productteaser",
+            "cta": "details",
+            "selection": "sku",
+            "linkTarget": "_blank"
+          },
+          "productcarousel": {
+            "product": [
+              "NOT-FOUND",
+              "24-MG01",
+              "MJ01#MJ01-L-Red",
+              "faultyproduct",
+              "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/WJ01",
+              "MJ01"
+            ],
+            "sling:resourceType": "venia/components/commerce/productcarousel",
+            "titleType": "h2"
+          },
+          "productcarousel_with_category": {
+            "category": "MTI=",
+            "productCount": "2",
+            "selectionType": "category",
+            "sling:resourceType": "venia/components/commerce/productcarousel",
+            "titleType": "h2"
+          },
+          "productcarousel_with_category_no_product_count": {
+            "category": "MTI=",
+            "selectionType": "category",
+            "sling:resourceType": "venia/components/commerce/productcarousel",
+            "titleType": "h2"
+          },
+          "productcarousel_with_category_small_product_count": {
+            "category": "MTI=",
+            "productCount": "0",
+            "selectionType": "category",
+            "sling:resourceType": "venia/components/commerce/productcarousel",
+            "titleType": "h2"
+          },
+          "productcarousel_with_add_to_buttons": {
+            "category": "MTI=",
+            "productCount": "0",
+            "selectionType": "category",
+            "sling:resourceType": "venia/components/commerce/productcarousel",
+            "titleType": "h2",
+            "enableAddToCart": true,
+            "enableAddToWishList": true
+          },
+          "productcarousel_with_link_target_unchecked": {
+            "sling:resourceType": "venia/components/commerce/productcarousel",
+            "product": [
+              "24-MG01",
+              "MJ01#MJ01-L-Red"
+            ],
+            "linkTarget": "_self"
+          },
+          "productcarousel_with_link_target_checked": {
+            "sling:resourceType": "venia/components/commerce/productcarousel",
+            "product": [
+              "24-MG01",
+              "MJ01#MJ01-L-Red"
+            ],
+            "linkTarget": "_blank"
+          },
+          "product": {
+            "sling:resourceType": "venia/components/commerce/product"
+          },
+          "productwithid": {
+            "sling:resourceType": "venia/components/commerce/product",
+            "id": "custom-id"
+          },
+          "productlist": {
+            "loadClientPrice": true,
+            "showImage": true,
+            "showTitle": true,
+            "defaultSortField": "price",
+            "defaultSortOrder": "ASC",
+            "sling:resourceType": "venia/components/commerce/productlist"
+          },
+          "productlist_no_sorting": {
+            "loadClientPrice": true,
+            "showImage": true,
+            "showTitle": true,
+            "sling:resourceType": "venia/components/commerce/productlist"
+          },
+          "productlist_with_xf": {
+            "loadClientPrice": true,
+            "showImage": true,
+            "showTitle": true,
+            "defaultSortField": "price",
+            "defaultSortOrder": "ASC",
+            "sling:resourceType": "venia/components/commerce/productlist",
+            "fragmentEnabled": true,
+            "fragments": {
+              "item0": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 1
+              }
+            }
+          },
+          "productlist_with_multiple_xf": {
+            "loadClientPrice": true,
+            "showImage": true,
+            "showTitle": true,
+            "defaultSortField": "price",
+            "defaultSortOrder": "ASC",
+            "sling:resourceType": "venia/components/commerce/productlist",
+            "fragmentEnabled": true,
+            "fragments": {
+              "item0": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 1
+              },
+              "item1": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 3
+              },
+              "item2": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 4
+              },
+              "item3": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 10
+              },
+              "item4": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 11
+              },
+              "item5": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 12
+              },
+              "item6": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 13
+              },
+              "item7": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 14
+              }
+            }
+          },
+          "productlist_with_multiple_positions_occupied_xf": {
+            "loadClientPrice": true,
+            "showImage": true,
+            "showTitle": true,
+            "defaultSortField": "price",
+            "defaultSortOrder": "ASC",
+            "sling:resourceType": "venia/components/commerce/productlist",
+            "fragmentEnabled": true,
+            "fragments": {
+              "item0": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 1
+              },
+              "item1": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 2
+              },
+              "item2": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 3
+              },
+              "item3": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 4
+              },
+              "item4": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 5
+              },
+              "item5": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 6
+              },
+              "item6": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 7
+              },
+              "item7": {
+                "fragmentLocation": "grid",
+                "fragmentPosition": 8
+              }
+            }
+          },
+          "searchresults": {
+            "sling:resourceType": "core/cif/components/commerce/searchresults/v2/searchresults",
+            "defaultSortField": "relevance",
+            "defaultSortOrder": "DESC"
+          },
+          "relatedproducts": {
+            "product": "24-MG01",
+            "relationType": "RELATED_PRODUCTS",
+            "sling:resourceType": "venia/components/commerce/relatedproducts",
+            "titleType": "h2"
+          },
+          "upsellproducts": {
+            "relationType": "UPSELL_PRODUCTS",
+            "sling:resourceType": "venia/components/commerce/relatedproducts"
+          },
+          "crosssellproducts": {
+            "relationType": "CROSS_SELL_PRODUCTS",
+            "sling:resourceType": "venia/components/commerce/relatedproducts"
+          },
+          "relatedproducts-without-relation-type": {
+            "product": "24-MG01",
+            "sling:resourceType": "venia/components/commerce/relatedproducts"
+          },
+          "commerceteaser": {
+            "actionsEnabled": true,
+            "sling:resourceType": "venia/components/content/teaser",
+            "pretitle": "Pretitle",
+            "titleFromPage": "flase",
+            "jcr:title": "Title",
+            "descriptionFromPage": false,
+            "jcr:description": "Description",
+            "id": "id",
+            "fileReference": "/content/dam/image.jpg",
+            "actions": {
+              "item0": {
+                "productSlug": "beaumont-summit-kit",
+                "text": "A product"
+              },
+              "item1": {
+                "categoryId": "uid-5",
+                "text": "A category"
+              },
+              "item2": {
+                "categoryId": "uid-6",
+                "productSlug": "beaumont-summit-kit",
+                "text": "A category"
+              },
+              "item3": {
+                "text": "Some text"
+              },
+              "item4": {
+                "link": "/content/page",
+                "text": "A page"
+              }
+            }
+          },
+          "commerceteaser2": {
+            "actionsEnabled": true,
+            "sling:resourceType": "venia/components/content/teaser",
+            "pretitle": "Pretitle",
+            "titleFromPage": "flase",
+            "jcr:title": "Title",
+            "descriptionFromPage": false,
+            "jcr:description": "Description",
+            "id": "id",
+            "fileReference": "/content/dam/image.jpg",
+            "actions": {
+              "item0": {
+                "productSku": "MJ01",
+                "text": "A product"
+              },
+              "item1": {
+                "categoryId": "uid-5",
+                "text": "A category"
+              },
+              "item2": {
+                "categoryId": "uid-5",
+                "productSku": "MJ01",
+                "text": "A category"
+              },
+              "item3": {
+                "text": "Some text"
+              },
+              "item4": {
+                "link": "/content/page",
+                "text": "A page"
+              }
+            }
+          },
+          "commerceteaser3": {
+            "actionsEnabled": true,
+            "sling:resourceType": "venia/components/content/teaser",
+            "pretitle": "Pretitle",
+            "titleFromPage": "flase",
+            "jcr:title": "Title",
+            "descriptionFromPage": false,
+            "jcr:description": "Description",
+            "id": "id",
+            "fileReference": "/content/dam/image.jpg",
+            "actions": {
+              "item0": {
+                "productSku": "MJ01",
+                "text": "A product",
+                "linkTarget": "_blank"
+              },
+              "item1": {
+                "categoryId": "uid-5",
+                "text": "A category",
+                "linkTarget": "_self"
+              },
+              "item2": {
+                "categoryId": "uid-5",
+                "productSku": "MJ01",
+                "text": "A category"
+              },
+              "item3": {
+                "text": "Some text"
+              },
+              "item4": {
+                "link": "/content/page",
+                "text": "A page"
+              }
+            }
+          },
+          "featuredcategorylist": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "titleType": "h2",
+            "items": {
+              "item0": {
+                "categoryId": "uid-5",
+                "categoryIdType": "uid"
+              },
+              "item1": {
+                "categoryId": "uid-6",
+                "categoryIdType": "uid",
+                "asset": "/content/dam/venia/landing_page_image4.jpg"
+              },
+              "item2": {
+                "categoryId": "uid-7",
+                "categoryIdType": "uid",
+                "asset": "invalid-asset"
+              },
+              "item3": {},
+              "item4": {
+                "categoryId": "9999"
+              }
+            }
+          },
+          "featuredcategorylist2": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist"
+          },
+          "featuredcategorylist3": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "items": {
+              "item0": {
+                "categoryId": "uid-5"
+              }
+            }
+          },
+          "featuredcategorylist4": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "items": {
+              "item0": {
+                "categoryId": "uid-5"
+              },
+              "item1": {
+                "categoryId": "uid-6"
+              },
+              "item2": {
+                "categoryId": "uid-7"
+              }
+            }
+          },
+          "featuredcategorylist_with_link_target_unchecked": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "product": [
+              "24-MG01",
+              "MJ01#MJ01-L-Red"
+            ],
+            "items": {
+              "item0": {
+                "categoryId": "uid-5"
               }
             },
-            "featuredcategorylist": {
-                "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-                "titleType": "h2",
-                "items": {
-                    "item0": {
-                        "categoryId": "uid-5",
-                        "categoryIdType": "uid"
-                    },
-                    "item1": {
-                        "categoryId": "uid-6",
-                        "categoryIdType": "uid",
-                        "asset": "/content/dam/venia/landing_page_image4.jpg"
-                    },
-                    "item2": {
-                        "categoryId": "uid-7",
-                        "categoryIdType": "uid",
-                        "asset": "invalid-asset"
-                    },
-                    "item3": {},
-                    "item4": {
-                        "categoryId": "9999"
-                    }
-                }
+            "linkTarget": "_self"
+          },
+          "featuredcategorylist_with_link_target_checked": {
+            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+            "items": {
+              "item0": {
+                "categoryId": "uid-5"
+              }
             },
-            "featuredcategorylist2": {
-                "sling:resourceType": "venia/components/commerce/featuredcategorylist"
-            },
-            "featuredcategorylist3": {
-                "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-                "items": {
-                    "item0": {
-                        "categoryId": "uid-5"
-                    }
-                }
-            },
-            "featuredcategorylist4": {
-                "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-                "items": {
-                    "item0": {
-                        "categoryId": "uid-5"
-                    },
-                    "item1": {
-                        "categoryId": "uid-6"
-                    },
-                    "item2": {
-                        "categoryId": "uid-7"
-                    }
-                }
-            },
-            "featuredcategorylist_with_link_target_unchecked": {
-              "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-              "product": ["24-MG01", "MJ01#MJ01-L-Red"],
-              "items": { "item0": { "categoryId": "uid-5"}},
-              "linkTarget": "_self"
-            },
-            "featuredcategorylist_with_link_target_checked": {
-              "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-              "items": { "item0": { "categoryId": "uid-5"}},
-              "linkTarget": "_blank"
-            },
-            "productcollection": {
-                "sling:resourceType": "venia/components/commerce/productcollection"
-            },
-            "productcollection2": {
-                "loadClientPrice": false,
-                "pageSize": 8,
-                "paginationType": "loadmorebutton",
-                "sling:resourceType": "venia/components/commerce/productcollection"
-            },
-            "buttonTypeProduct": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v1/button",
-                "linkType": "product",
-                "productSlug": "blast-mini-pump"
-            },
-            "buttonTypeProductEmpty": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v1/button",
-                "linkType": "product"
-            },
-            "buttonTypeCategory": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v1/button",
-                "linkType": "category",
-                "categoryId": "MTI=="
-            },
-            "buttonTypeCategoryEmpty": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v1/button",
-                "linkType": "category"
-            },
-            "buttonTypeToPage": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v1/button",
-                "linkType": "linkTo",
-                "linkTo": "/content/venia/language-masters/en"
-            },
-            "buttonTypeToPageEmpty": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v1/button",
-                "linkType": "linkTo"
-            },
-            "buttonTypeExternalLink": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v1/button",
-                "linkType": "externalLink",
-                "externalLink": "http://sample-link.com"
-            },
-            "buttonTypeExternalLinkEmpty": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v1/button",
-                "linkType": "externalLink"
-            },
-            "buttonDefaultUrl": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v1/button"
-            },
-            "button2TypeProduct": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v2/button",
-                "linkType": "product",
-                "productSku": "MJ01"
-            },
-            "button2TypeProductEmpty": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v2/button",
-                "linkType": "product"
-            },
-            "button2TypeCategory": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v2/button",
-                "linkType": "category",
-                "categoryId": "MTI=="
-            },
-            "button2TypeCategoryEmpty": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v2/button",
-                "linkType": "category"
-            },
-            "button2TypeToPage": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v2/button",
-                "linkType": "linkTo",
-                "linkTo": "/content/venia/language-masters/en"
-            },
-            "button2TypeToPageEmpty": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v2/button",
-                "linkType": "linkTo"
-            },
-            "button2TypeExternalLink": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v2/button",
-                "linkType": "externalLink",
-                "externalLink": "http://sample-link.com"
-            },
-            "button2TypeExternalLinkEmpty": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v2/button",
-                "linkType": "externalLink"
-            },
-            "button2DefaultUrl": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v2/button"
-            },
-            "button2InvalidLinkType": {
-                "jcr:primaryType": "nt:unstructured",
-                "sling:resourceType": "core/cif/components/content/button/v2/button",
-                "linkType": "invalid"
-            }
+            "linkTarget": "_blank"
+          },
+          "productcollection": {
+            "sling:resourceType": "venia/components/commerce/productcollection"
+          },
+          "productcollection2": {
+            "loadClientPrice": false,
+            "pageSize": 8,
+            "paginationType": "loadmorebutton",
+            "sling:resourceType": "venia/components/commerce/productcollection"
+          },
+          "buttonTypeProduct": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button",
+            "linkType": "product",
+            "productSlug": "blast-mini-pump"
+          },
+          "buttonTypeProductEmpty": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button",
+            "linkType": "product"
+          },
+          "buttonTypeCategory": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button",
+            "linkType": "category",
+            "categoryId": "MTI=="
+          },
+          "buttonTypeCategoryEmpty": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button",
+            "linkType": "category"
+          },
+          "buttonTypeToPage": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button",
+            "linkType": "linkTo",
+            "linkTo": "/content/venia/language-masters/en"
+          },
+          "buttonTypeToPageEmpty": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button",
+            "linkType": "linkTo"
+          },
+          "buttonTypeExternalLink": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button",
+            "linkType": "externalLink",
+            "externalLink": "http://sample-link.com"
+          },
+          "buttonTypeExternalLinkEmpty": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button",
+            "linkType": "externalLink"
+          },
+          "buttonDefaultUrl": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v1/button"
+          },
+          "button2TypeProduct": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v2/button",
+            "linkType": "product",
+            "productSku": "MJ01"
+          },
+          "button2TypeProductEmpty": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v2/button",
+            "linkType": "product"
+          },
+          "button2TypeCategory": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v2/button",
+            "linkType": "category",
+            "categoryId": "MTI=="
+          },
+          "button2TypeCategoryEmpty": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v2/button",
+            "linkType": "category"
+          },
+          "button2TypeToPage": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v2/button",
+            "linkType": "linkTo",
+            "linkTo": "/content/venia/language-masters/en"
+          },
+          "button2TypeToPageEmpty": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v2/button",
+            "linkType": "linkTo"
+          },
+          "button2TypeExternalLink": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v2/button",
+            "linkType": "externalLink",
+            "externalLink": "http://sample-link.com"
+          },
+          "button2TypeExternalLinkEmpty": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v2/button",
+            "linkType": "externalLink"
+          },
+          "button2DefaultUrl": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v2/button"
+          },
+          "button2InvalidLinkType": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/content/button/v2/button",
+            "linkType": "invalid"
+          }
         }
       }
     }
@@ -572,7 +690,7 @@
                       }
                     }
                   }
-                } 
+                }
               },
               "pageH": {
                 "jcr:primaryType": "cq:Page",
@@ -613,6 +731,31 @@
           "productlist": {
             "category": "MTI==",
             "sling:resourceType": "venia/components/commerce/productlist"
+          }
+        }
+      }
+    }
+  },
+  "experience-fragments": {
+    "jcr:primaryType": "sling:Folder",
+    "pageA": {
+      "xf": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "jcr:title": "Test XF",
+          "sling:resourceType": "cq/experience-fragments/components/experiencefragment"
+        },
+        "master": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "jcr:title": "Text XF Master",
+            "cq:xfVariantType": "web",
+            "cq:xfMasterVariation": "true",
+            "cq:products": "sku-xf2",
+            "cq:categories": "MTI==",
+            "fragmentLocation": "grid"
           }
         }
       }

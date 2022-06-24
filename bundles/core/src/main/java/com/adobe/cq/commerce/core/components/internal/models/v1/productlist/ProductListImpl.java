@@ -266,8 +266,9 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             }
 
             // Adding any remaining fragments that have a position > grid size.
-            fragmentPositions.stream().sorted().skip(result.size() - products.size()).forEach(f -> result
-                .add(new XfProductListItemImpl(fragmentsMap.get(f), getId(), productPage)));
+            fragmentPositions.stream().sorted().skip(result.size() - products.size()).limit(pageGridSize - result.size()).forEach(
+                f -> result
+                    .add(new XfProductListItemImpl(fragmentsMap.get(f), getId(), productPage)));
 
             return result;
         }

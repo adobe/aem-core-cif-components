@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Currency;
 import java.util.List;
@@ -50,9 +51,11 @@ import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.common.XfProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
@@ -122,6 +125,9 @@ public class ProductListImplTest {
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCTLIST = "/content/pageA/jcr:content/root/responsivegrid/productlist";
     private static final String PRODUCT_LIST_NO_SORTING = "/content/pageA/jcr:content/root/responsivegrid/productlist_no_sorting";
+    private static final String PRODUCT_LIST_WITH_XF = "/content/pageA/jcr:content/root/responsivegrid/productlist_with_xf";
+    private static final String PRODUCT_LIST_WITH_MULTIPLE_XF = "/content/pageA/jcr:content/root/responsivegrid/productlist_with_multiple_xf";
+    private static final String PRODUCT_LIST_WITH_MULTIPLE_XF_POSITIONS_OCCUPIED = "/content/pageA/jcr:content/root/responsivegrid/productlist_with_multiple_positions_occupied_xf";
 
     private Resource productListResource;
     private Resource pageResource;
@@ -153,7 +159,10 @@ public class ProductListImplTest {
             "{categoryList(filters:{url_path");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid");
-        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "pageSize:6");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "pageSize:5");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products-pagesize-1.json", httpClient, HttpStatus.SC_OK,
+            "pageSize:1");
 
         // magento-graphql-category-uid
 
@@ -340,6 +349,66 @@ public class ProductListImplTest {
         Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("30-40")));
         Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("40-*")));
         Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("14")));
+    }
+
+    @Test
+    public void getProductsWithOneFragment() {
+        context.currentResource(PRODUCT_LIST_WITH_XF);
+        adaptToProductList();
+
+        Collection<ProductListItem> products = productListModel.getProducts();
+        Assert.assertNotNull(products);
+
+        // 4 products and one XF
+        Assert.assertEquals(5, products.size());
+
+        List<ProductListItem> results = new ArrayList<>(products);
+        ProductListItem xfItem = results.get(0);
+
+        Assert.assertTrue(xfItem instanceof XfProductListItem);
+    }
+
+    @Test
+    public void getProductsWithMultipleFragments() {
+        context.currentResource(PRODUCT_LIST_WITH_MULTIPLE_XF);
+        adaptToProductList();
+
+        Collection<ProductListItem> products = productListModel.getProducts();
+        Assert.assertNotNull(products);
+
+        // 1 product and 5 XFs
+        Assert.assertEquals(6, products.size());
+
+        List<ProductListItem> results = new ArrayList<>(products);
+
+        Assert.assertTrue(results.get(0) instanceof XfProductListItem);
+        Assert.assertTrue(results.get(1) instanceof ProductListItemImpl);
+        Assert.assertTrue(results.get(2) instanceof XfProductListItem);
+        Assert.assertTrue(results.get(3) instanceof XfProductListItem);
+        Assert.assertTrue(results.get(4) instanceof XfProductListItem);
+        Assert.assertTrue(results.get(5) instanceof XfProductListItem);
+    }
+
+    @Test
+    public void getProductsWithMultipleFragmentsWithAllPositionsOccupied() {
+        context.currentResource(PRODUCT_LIST_WITH_MULTIPLE_XF_POSITIONS_OCCUPIED);
+        adaptToProductList();
+
+        Collection<ProductListItem> products = productListModel.getProducts();
+        Assert.assertNotNull(products);
+
+        // 1 product and 5 XFs
+        Assert.assertEquals(6, products.size());
+
+        List<ProductListItem> results = new ArrayList<>(products);
+
+        // at least one product is in the results
+        Assert.assertTrue(results.get(0) instanceof XfProductListItem);
+        Assert.assertTrue(results.get(1) instanceof XfProductListItem);
+        Assert.assertTrue(results.get(2) instanceof XfProductListItem);
+        Assert.assertTrue(results.get(3) instanceof XfProductListItem);
+        Assert.assertTrue(results.get(4) instanceof XfProductListItem);
+        Assert.assertTrue(results.get(5) instanceof ProductListItemImpl);
     }
 
     // custom marker interface for search aggregation options
