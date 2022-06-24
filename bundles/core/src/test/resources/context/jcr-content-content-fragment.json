@@ -1,8 +1,14 @@
 {
+  "jcr:primaryType": "cq:Page",
+  "jcr:content": {
+    "jcr:primaryType": "cq:PageContent",
+    "navRoot": true,
+    "cq:cifProductPage": "/content/pageA",
+    "cq:cifCategoryPage": "/content/pageB"
+  },
   "pageA": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "cq:cifProductPage": "/content/pageA",
       "jcr:primaryType": "cq:PageContent",
       "root": {
         "contentfragment0": {
@@ -29,7 +35,6 @@
   "pageB": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "cq:cifCategoryPage": "/content/pageB",
       "jcr:primaryType": "cq:PageContent",
       "root": {
         "contentfragment4": {

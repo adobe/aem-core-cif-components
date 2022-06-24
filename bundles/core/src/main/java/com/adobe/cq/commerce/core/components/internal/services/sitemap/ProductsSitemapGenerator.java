@@ -39,10 +39,12 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
+import com.adobe.cq.commerce.core.components.internal.services.site.UnknownSiteStructure;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.services.sitemap.SitemapProductFilter;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -85,6 +87,8 @@ public class ProductsSitemapGenerator extends SitemapGeneratorBase implements Si
     private SitemapLinkExternalizerProvider externalizerProvider;
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
     private SitemapProductFilter productFilter;
+    @Reference
+    private SiteStructureFactory siteStructureFactory;
 
     private int pageSize;
     private boolean addLastModified;
@@ -98,10 +102,8 @@ public class ProductsSitemapGenerator extends SitemapGeneratorBase implements Si
     @Override
     public Set<String> getNames(Resource sitemapRoot) {
         Page page = sitemapRoot.adaptTo(Page.class);
-        Page specificPage = page != null ? SiteNavigation.getProductPage(page) : null;
-        return specificPage != null && specificPage.getPath().equals(page.getPath())
-            ? Collections.singleton(SitemapService.DEFAULT_SITEMAP_NAME)
-            : Collections.emptySet();
+        SiteStructure siteStructure = page != null ? siteStructureFactory.getSiteStructure(page) : UnknownSiteStructure.INSTANCE;
+        return siteStructure.isProductPage(page) ? Collections.singleton(SitemapService.DEFAULT_SITEMAP_NAME) : Collections.emptySet();
     }
 
     @Override
