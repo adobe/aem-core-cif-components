@@ -81,6 +81,7 @@ import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -155,7 +156,9 @@ public class ProductImplTest {
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
 
         style = mock(Style.class);
-        when(style.get(anyString(), anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
+        doAnswer(i -> i.getArguments()[1]).when(style).get(eq("loadClientPrice"), anyBoolean());
+        doAnswer(i -> i.getArguments()[1]).when(style).get(eq("enableAddToWishList"), anyBoolean());
+        doAnswer(i -> i.getArguments()[1]).when(style).get(eq("visibleSections"), any(String[].class));
         slingBindings.put("currentStyle", style);
 
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
