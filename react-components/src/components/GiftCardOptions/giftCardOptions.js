@@ -235,7 +235,7 @@ const GiftCartOptions = props => {
                     <p className="message-root"></p>
                 </div>
             </section>
-            <section className="productFullDetail__cartActions productFullDetail__section">
+            <section className="productFullDetail__cartActions productFullDetail__actions productFullDetail__section">
                 <button
                     className="button__root_highPriority button__root clickable__root button__filled"
                     type="button"

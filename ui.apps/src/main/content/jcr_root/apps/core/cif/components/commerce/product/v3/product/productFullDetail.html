@@ -24,7 +24,6 @@
           data-sly-use.detailsTpl="details.html"
           data-sly-use.priceTpl="price.html"
           data-sly-use.groupedProductsTpl="groupedProducts.html">
-
     <form class="productFullDetail__root ${additionalCssClasses}"
           data-sly-set.visibleSections="${product.visibleSections}"
           data-product-sku="${product.sku}"
@@ -54,7 +53,7 @@
             <section data-sly-test="${'IMAGE' in visibleSections}" class="productFullDetail__imageCarousel">
                 <sly data-sly-call="${galleryTpl.gallery @ product=product}" data-sly-unwrap></sly>
             </section>
-            <section data-sly-test="${'OPTIONS' in visibleSections && product.configurable}" class="productFullDetail__options" data-variants="${product.variantsJson}">
+            <section data-sly-test="${product.configurable && 'OPTIONS' in visibleSections}" class="productFullDetail__options" data-variants="${product.variantsJson}">
                 <sly data-sly-call="${variantsTpl.variants @ product=product}" data-sly-unwrap></sly>
             </section>
             <section data-sly-test="${isGroupedProduct && 'OPTIONS' in visibleSections}" class="productFullDetail__groupedProducts productFullDetail__quantity productFullDetail__section">
@@ -63,12 +62,14 @@
             <section
                 data-sly-test="${isBundleProduct && 'OPTIONS' in visibleSections}"
                 id="bundle-product-options"
+                class="productFullDetail__options"
                 data-sku="${product.sku}"
                 data-show-add-to-wish-list="${product.addToWishListEnabled}"
                 data-use-uid></section>
             <div
                 data-sly-test="${isGiftCardProduct && 'OPTIONS' in visibleSections}"
                 id="gift-card-product-options"
+                class="productFullDetail__options"
                 data-sku="${product.sku}"
                 data-show-add-to-wish-list="${product.addToWishListEnabled}"
                 data-use-uid></div>
