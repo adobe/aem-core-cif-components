@@ -17,7 +17,6 @@ package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -331,20 +330,29 @@ public class SearchResultsServiceImplTest {
         // test without category_uid
         SearchResultsSet resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
         List<SearchAggregation> aggregations = resultsSet.getSearchAggregations();
-        assertThat(getFilterMapsOfAllOptions(aggregations, filterMapFilter)).isEmpty();
+        assertThat(aggregations.size()).isEqualTo(1);
+        SearchAggregation aggregation = aggregations.get(0);
+        assertThat(getFilterMapsOfAllOptions(aggregation, filterMapFilter)).isEmpty();
+        assertThat(aggregation.getRemoveFilterMap()).doesNotContainKey("category_uid");
 
         // test with category_uid filter
         searchOptions.setCategoryUid("foobar");
         resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
         aggregations = resultsSet.getSearchAggregations();
-        assertThat(getFilterMapsOfAllOptions(aggregations, filterMapFilter).count()).isEqualTo(2);
+        assertThat(aggregations.size()).isEqualTo(1);
+        aggregation = aggregations.get(0);
+        assertThat(getFilterMapsOfAllOptions(aggregation, filterMapFilter).count()).isEqualTo(2);
+        assertThat(aggregation.getRemoveFilterMap()).containsEntry("category_uid", "foobar");
 
         // test with category_uid filter from request
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/foobar");
         resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
         aggregations = resultsSet.getSearchAggregations();
-        assertThat(getFilterMapsOfAllOptions(aggregations, filterMapFilter)).isEmpty();
+        assertThat(aggregations.size()).isEqualTo(1);
+        aggregation = aggregations.get(0);
+        assertThat(getFilterMapsOfAllOptions(aggregation, filterMapFilter)).isEmpty();
+        assertThat(aggregation.getRemoveFilterMap()).doesNotContainKey("category_uid");
     }
 
     private static FilterAttributeMetadata createStringEqualFilterAttributeMetadata(String attributeCode) {
@@ -356,11 +364,9 @@ public class SearchResultsServiceImplTest {
         return newFilterAttributeMetadata;
     }
 
-    private static Stream<Map<String, String>> getFilterMapsOfAllOptions(List<SearchAggregation> aggregations,
+    private static Stream<Map<String, String>> getFilterMapsOfAllOptions(SearchAggregation aggregation,
         Predicate<Map<String, String>> filter) {
-        return aggregations.stream()
-            .map(SearchAggregation::getOptions).flatMap(Collection::stream).map(SearchAggregationOption::getAddFilterMap)
-            .filter(filter);
+        return aggregation.getOptions().stream().map(SearchAggregationOption::getAddFilterMap).filter(filter);
     }
 
     @Test
