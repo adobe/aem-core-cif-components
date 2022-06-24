@@ -48,7 +48,7 @@ const messages = defineMessages({
     }
 });
 
-const GiftCartOptions = props => {
+const GiftCardOptions = props => {
     const { sku, showAddToWishList, useUid } = props;
     const [
         giftCardState,
@@ -265,10 +265,10 @@ const GiftCartOptions = props => {
     );
 };
 
-GiftCartOptions.propTypes = {
+GiftCardOptions.propTypes = {
     sku: PropTypes.string.required,
     showAddToWishList: PropTypes.bool,
     useUid: PropTypes.bool
 };
 
-export default GiftCartOptions;
+export default GiftCardOptions;
