@@ -44,8 +44,7 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = Product.class,
-    resourceType = ProductImpl.RESOURCE_TYPE
-)
+    resourceType = ProductImpl.RESOURCE_TYPE)
 public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImpl
     implements Product {
 
