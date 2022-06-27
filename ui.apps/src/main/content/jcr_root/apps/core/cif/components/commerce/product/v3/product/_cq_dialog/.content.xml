@@ -14,8 +14,8 @@
                 <items jcr:primaryType="nt:unstructured">
                     <sections
                         jcr:primaryType="nt:unstructured"
-                        fieldLabel="Visible sections"
-                        fieldDescription="Select which sections of the product detail component should be rendered. If left empty, all sections will be visible."
+                        fieldLabel="Visible Sections"
+                        fieldDescription="Select which sections of the product detail component should be shown. If left empty, the sections defined in the policy will be shown."
                         name="./visibleSections"
                         multiple="{Boolean}true"
                         sling:orderBefore="id"
