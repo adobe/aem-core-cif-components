@@ -14,7 +14,7 @@
                 <items jcr:primaryType="nt:unstructured">
                     <sections
                         jcr:primaryType="nt:unstructured"
-                        fieldLabel="Visible sections"
+                        fieldLabel="Visible Sections"
                         fieldDescription="Select which sections of the product detail component should be shown. If left empty, the sections defined in the policy will be shown."
                         name="./visibleSections"
                         multiple="{Boolean}true"

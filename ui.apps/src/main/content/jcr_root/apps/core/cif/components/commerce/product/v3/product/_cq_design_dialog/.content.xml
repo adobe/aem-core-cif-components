@@ -37,7 +37,7 @@
                                 value="true"/>
                             <sections
                                 jcr:primaryType="nt:unstructured"
-                                fieldLabel="Visible sections"
+                                fieldLabel="Default Visible Sections"
                                 fieldDescription="Select which sections of the product detail component should be rendered."
                                 name="./visibleSections"
                                 multiple="{Boolean}true"
