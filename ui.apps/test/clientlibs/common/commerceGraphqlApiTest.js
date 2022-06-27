@@ -39,6 +39,8 @@ describe('CommerceGraphqlApi', () => {
             graphqlMethod: 'GET',
             headers: JSON.parse(httpHeaders)
         });
+        window.localStorage.clear();
+        document.cookie = '';
     });
 
     afterEach(() => {
@@ -89,6 +91,41 @@ describe('CommerceGraphqlApi', () => {
             let options = fetchSpy.firstCall.args[1];
 
             assert.include(options.headers, { Store: 'my-special-store' });
+        });
+    });
+
+    it('passes the authorization header (from localStorage)', () => {
+        const mockResult = { result: 'my-result' };
+        fetchSpy.resolves(mockResult);
+
+        window.localStorage.setItem(
+            'M2_VENIA_BROWSER_PERSISTENCE__signin_token',
+            `{"value":"\\\"my-ls-login-token\\\"","timeStored":${new Date().getTime()},"ttl":3600}`
+        );
+
+        let query = 'my-sample-query';
+
+        return graphqlApi._fetchGraphql(query, true).then(_ => {
+            assert.isTrue(fetchSpy.calledOnce);
+            let options = fetchSpy.firstCall.args[1];
+
+            assert.include(options.headers, { Authorization: 'Bearer my-ls-login-token' });
+        });
+    });
+
+    it('passes the authorization header (from cookie)', () => {
+        const mockResult = { result: 'my-result' };
+        fetchSpy.resolves(mockResult);
+
+        document.cookie = 'cif.userToken=my-cookie-login-token';
+
+        let query = 'my-sample-query';
+
+        return graphqlApi._fetchGraphql(query, true).then(_ => {
+            assert.isTrue(fetchSpy.calledOnce);
+            let options = fetchSpy.firstCall.args[1];
+
+            assert.include(options.headers, { Authorization: 'Bearer my-cookie-login-token' });
         });
     });
 
