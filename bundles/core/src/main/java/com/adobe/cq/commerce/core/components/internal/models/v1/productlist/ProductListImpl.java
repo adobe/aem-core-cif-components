@@ -54,6 +54,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.productcollectio
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.CategoryStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragment;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
@@ -112,7 +113,6 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
 
-    protected boolean fragmentEnabled;
     protected Map<Integer, Resource> fragmentsMap = new HashMap<>();
     protected int pageGridSize;
 
@@ -163,30 +163,29 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         if (usePlaceholderData) {
             searchResultsSet = new SearchResultsSetImpl();
         } else {
-            fragmentEnabled = properties.get(PN_FRAGMENT_ENABLED, FRAGMENT_ENABLED_DEFAULT);
-
-            if (fragmentEnabled) {
-                Resource fragmentsNode = resource.getChild(ProductList.NN_FRAGMENTS);
-                if (fragmentsNode != null) {
-                    Iterable<Resource> configuredFragments = fragmentsNode.getChildren();
-                    for (Resource fragment : configuredFragments) {
-                        Integer position = fragment.getValueMap().get(PN_FRAGMENT_POSITION, Integer.class);
-                        ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(
-                            fragment,
-                            CommerceExperienceFragmentImpl.RESOURCE_TYPE);
-                        resourceWrapper.getValueMap().put(PN_FRAGMENT_LOCATION, fragment.getValueMap().get(PN_FRAGMENT_LOCATION,
+            Resource fragmentsNode = resource.getChild(ProductList.NN_FRAGMENTS);
+            if (fragmentsNode != null && fragmentsNode.hasChildren()) {
+                Iterable<Resource> configuredFragments = fragmentsNode.getChildren();
+                for (Resource fragment : configuredFragments) {
+                    Integer position = fragment.getValueMap().get(PN_FRAGMENT_POSITION, Integer.class);
+                    ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(
+                        fragment,
+                        CommerceExperienceFragmentImpl.RESOURCE_TYPE);
+                    resourceWrapper.getValueMap().put(PN_FRAGMENT_LOCATION,
+                        fragment.getValueMap().get(PN_FRAGMENT_LOCATION,
                             String.class));
-                        fragmentsMap.put(position, resourceWrapper);
-                    }
+                    fragmentsMap.put(position, resourceWrapper);
                 }
 
-                // Altering the page size for graphql requests to accommodate the fragments in the grid
+                // Altering the page size for graphql requests to accommodate the fragments in
+                // the grid
                 if (fragmentsMap.size() >= navPageSize) {
                     // Show at least one product in the grid
                     navPageSize = 1;
                 } else {
                     navPageSize = pageGridSize - fragmentsMap.size();
                 }
+
             }
 
             searchOptions = new SearchOptionsImpl();
@@ -252,8 +251,9 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
             Iterator<ProductListItem> productsIterator = products.iterator();
             // Getting the maximum fragments to fill the grid
-            List<Integer> fragmentPositions = fragmentsMap.keySet().stream().sorted().limit(pageGridSize - products.size()).collect(
-                Collectors.toList());
+            List<Integer> fragmentPositions = fragmentsMap.keySet().stream().sorted()
+                .limit(pageGridSize - products.size()).collect(
+                    Collectors.toList());
 
             // Filling all the grid positions with products or fragments
             for (int i = 0; i < pageGridSize; i++) {
@@ -266,9 +266,10 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             }
 
             // Adding any remaining fragments that have a position > grid size.
-            fragmentPositions.stream().sorted().skip(result.size() - products.size()).limit(pageGridSize - result.size()).forEach(
-                f -> result
-                    .add(new XfProductListItemImpl(fragmentsMap.get(f), getId(), productPage)));
+            fragmentPositions.stream().sorted().skip(result.size() - products.size())
+                .limit(pageGridSize - result.size()).forEach(
+                    f -> result
+                        .add(new XfProductListItemImpl(fragmentsMap.get(f), getId(), productPage)));
 
             return result;
         }
@@ -385,11 +386,6 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Override
     public String getMetaTitle() {
         return StringUtils.defaultString(getCategory() != null ? getCategory().getMetaTitle() : null, getTitle());
-    }
-
-    @Override
-    public boolean isFragmentEnabled() {
-        return fragmentEnabled;
     }
 
     @Override

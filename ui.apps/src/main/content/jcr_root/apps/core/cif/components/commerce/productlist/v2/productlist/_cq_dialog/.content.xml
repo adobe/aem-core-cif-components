@@ -58,15 +58,6 @@
                         uncheckedValue="false"
                         value="true"
                         checked="{String}true"/>
-                    <fragmentEnabled
-                        jcr:primaryType="nt:unstructured"
-                        sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
-                        fieldDescription="When checked, enables definition of Experience Fragment in product list."
-                        name="./fragmentEnabled"
-                        text="Enable Experience Fragment settings"
-                        uncheckedValue="{Boolean}false"
-                        value="{Boolean}true">
-                    </fragmentEnabled>
                     <xfItems
                         granite:class="foundation-toggleable cmp-productcollection__editor-xf_settings"
                         jcr:primaryType="nt:unstructured"
