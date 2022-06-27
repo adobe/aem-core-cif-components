@@ -334,6 +334,7 @@ public class SearchResultsServiceImplTest {
         SearchAggregation aggregation = aggregations.get(0);
         assertThat(getFilterMapsOfAllOptions(aggregation, filterMapFilter)).isEmpty();
         assertThat(aggregation.getRemoveFilterMap()).doesNotContainKey("category_uid");
+        assertThat(resultsSet.getAppliedQueryParameters()).doesNotContainKey("category_uid");
 
         // test with category_uid filter
         searchOptions.setCategoryUid("foobar");
@@ -343,6 +344,7 @@ public class SearchResultsServiceImplTest {
         aggregation = aggregations.get(0);
         assertThat(getFilterMapsOfAllOptions(aggregation, filterMapFilter).count()).isEqualTo(2);
         assertThat(aggregation.getRemoveFilterMap()).containsEntry("category_uid", "foobar");
+        assertThat(resultsSet.getAppliedQueryParameters()).containsEntry("category_uid", "foobar");
 
         // test with category_uid filter from request
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -353,6 +355,7 @@ public class SearchResultsServiceImplTest {
         aggregation = aggregations.get(0);
         assertThat(getFilterMapsOfAllOptions(aggregation, filterMapFilter)).isEmpty();
         assertThat(aggregation.getRemoveFilterMap()).doesNotContainKey("category_uid");
+        assertThat(resultsSet.getAppliedQueryParameters()).doesNotContainKey("category_uid");
     }
 
     private static FilterAttributeMetadata createStringEqualFilterAttributeMetadata(String attributeCode) {
