@@ -49,7 +49,6 @@ import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
@@ -99,16 +98,10 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     protected String linkTarget;
 
     private Map<String, Asset> assetOverride;
-    private Page categoryPage;
     private AbstractCategoriesRetriever categoriesRetriever;
 
     @PostConstruct
     private void initModel() {
-        categoryPage = SiteNavigation.getCategoryPage(currentPage);
-        if (categoryPage == null) {
-            categoryPage = currentPage;
-        }
-
         // Each identifier list will be held under a specific key
         // After the identifier type has been determined, the specific list will be used further
         List<String> categoryIdentifiers = new ArrayList<>();
@@ -162,7 +155,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
         List<CategoryTree> categories = categoriesRetriever.fetchCategories();
         for (CategoryTree category : categories) {
             CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(category);
-            category.setPath(urlProvider.toCategoryUrl(request, categoryPage, params));
+            category.setPath(urlProvider.toCategoryUrl(request, currentPage, params));
 
             // Replace image if there is an asset override
             String uid = category.getUid().toString();

@@ -1,9 +1,10 @@
 {
     "mysite": {
-        "jcr:primaryType": "sling:Folder", 
+        "jcr:primaryType": "cq:Page",
         "jcr:content": {
             "jcr:primaryType": "cq:PageContent", 
-            "jcr:title": "My Site", 
+            "jcr:title": "My Site",
+            "navRoot": true,
             "cq:cifProductPage": "/content/mysite/page/product-page",
             "cq:cifCategoryPage": "/content/mysite/page/category-page"
         },

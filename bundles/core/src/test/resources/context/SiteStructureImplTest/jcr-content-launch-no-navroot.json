@@ -1,0 +1,29 @@
+{
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "wcm/launches/components/launch",
+        "sourceRootResource": [
+            "/content/nav-root/shop/product",
+            "/content/nav-root/content-page"
+        ]
+    },
+    "content": {
+        "jcr:primaryType": "cq:Page",
+        "nav-root": {
+            "jcr:primaryType": "cq:Page",
+            "content-page": {
+                "jcr:primaryType": "cq:Page",
+                "jcr:content": {
+                    "jcr:primaryType": "cq:PageContent"
+                }
+            },
+            "shop": {
+                "jcr:primaryType": "cq:Page",
+                "product": {
+                    "jcr:primaryType": "cq:Page"
+                }
+            }
+        }
+    }
+}

@@ -30,8 +30,11 @@ public interface Breadcrumb extends com.adobe.cq.wcm.core.components.models.Brea
      * categories with a depth smaller or equal than the property value are chosen first
      * <li>the categories with deepest depth are then chosen first
      * </ul>
-     * 
+     *
      * @return The comparator.
+     * @deprecated this {@link Comparator} is not used by the implementation anymore. Instead, the retrieved categories are filtered by
+     *             the context url path. After that filtering, the categories are sorted by url path in reversed natural order.
      */
+    @Deprecated
     Comparator<CategoryInterface> getCategoryInterfaceComparator();
 }
