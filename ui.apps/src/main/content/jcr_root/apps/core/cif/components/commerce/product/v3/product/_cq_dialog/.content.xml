@@ -4,7 +4,7 @@
     jcr:title="Product Detail"
     sling:resourceType="cq/gui/components/authoring/dialog"
     extraClientlibs="[cif.shell.picker]"
-    trackingFeature="cif-core-components:product:v1">
+    trackingFeature="cif-core-components:product:v3">
     <content
         jcr:primaryType="nt:unstructured"
         sling:resourceType="granite/ui/components/coral/foundation/container">
