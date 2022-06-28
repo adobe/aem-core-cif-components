@@ -58,7 +58,6 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
 import com.adobe.cq.commerce.core.search.internal.models.SearchAggregationOptionImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
@@ -73,7 +72,6 @@ import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.granite.ui.components.ValueMapResourceWrapper;
-import com.day.cq.wcm.api.Page;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductList.class, resourceType = ProductListImpl.RESOURCE_TYPE)
 public class ProductListImpl extends ProductCollectionImpl implements ProductList {
@@ -237,7 +235,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         if (usePlaceholderData) {
             CategoryInterface category = getCategory();
             CategoryProducts categoryProducts = category.getProducts();
-            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(productPage, request,
+            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(currentPage, request,
                 urlProvider, getId(),
                 category);
             return categoryProducts.getItems().stream()
@@ -258,7 +256,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             for (int i = 0; i < pageGridSize; i++) {
                 // The fragment positions are index 1 based
                 if (fragmentPositions.contains(i + 1)) {
-                    result.add(new XfProductListItemImpl(fragmentsMap.get(i + 1), getId(), productPage));
+                    result.add(new XfProductListItemImpl(fragmentsMap.get(i + 1), getId(), currentPage));
                 } else if (productsIterator.hasNext()) {
                     result.add(productsIterator.next());
                 }
@@ -268,7 +266,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             fragmentPositions.stream().sorted().skip(result.size() - products.size())
                 .limit(pageGridSize - result.size()).forEach(
                     f -> result
-                        .add(new XfProductListItemImpl(fragmentsMap.get(f), getId(), productPage)));
+                        .add(new XfProductListItemImpl(fragmentsMap.get(f), getId(), currentPage)));
 
             return result;
         }
@@ -355,7 +353,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                 ? categoryRetriever.getProductQueryHook()
                 : null;
             categorySearchResultsSet = searchResultsService
-                .performSearch(searchOptions, resource, productPage, request, productQueryHook, categoryRetriever);
+                .performSearch(searchOptions, resource, currentPage, request, productQueryHook, categoryRetriever);
         }
         return categorySearchResultsSet;
     }
@@ -394,14 +392,13 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             return null;
         }
         if (canonicalUrl == null) {
-            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
             CategoryInterface category = getCategory();
             SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling
                 .getService(SitemapLinkExternalizerProvider.class);
 
-            if (category != null && categoryPage != null && sitemapLinkExternalizerProvider != null) {
+            if (category != null && sitemapLinkExternalizerProvider != null) {
                 canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
-                    .toExternalCategoryUrl(request, categoryPage, new CategoryUrlFormat.Params(category));
+                    .toExternalCategoryUrl(request, currentPage, new CategoryUrlFormat.Params(category));
             } else {
                 // fallback to legacy logic
                 if (isAuthor) {

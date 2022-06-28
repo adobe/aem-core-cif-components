@@ -1,0 +1,40 @@
+{
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "wcm/launches/components/launch",
+        "sourceRootResource": "/content/nav-root"
+    },
+    "content": {
+        "jcr:primaryType": "cq:Page",
+        "nav-root": {
+            "jcr:primaryType": "cq:Page",
+            "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "navRoot": true,
+                "cq:cifProductPage": "/content/launches/1111/11/11/test/content/nav-root/shop/product",
+                "cq:cifCategoryPage": "/content/launches/1111/11/11/test/content/nav-root/shop/category"
+            },
+            "content-page": {
+                "jcr:primaryType": "cq:Page",
+                "jcr:content": {
+                    "jcr:primaryType": "cq:PageContent",
+                    "sling:resourceType": "test/components/page"
+                }
+            },
+            "shop": {
+                "jcr:primaryType": "cq:Page",
+                "jcr:content": {
+                    "jcr:primaryType": "cq:PageContent",
+                    "sling:resourceType": "core/cif/components/structure/catalogpage/v1/catalogpage"
+                },
+                "product": {
+                    "jcr:primaryType": "cq:Page"
+                },
+                "category": {
+                    "jcr:primaryType": "cq:Page"
+                }
+            }
+        }
+    }
+}

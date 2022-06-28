@@ -1,10 +1,15 @@
 {
+  "jcr:primaryType": "cq:Page",
+  "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "cq:cifProductPage": "/content/product-page",
+      "cq:cifCategoryPage": "/content/category-page",
+      "navRoot": true
+  },
   "pageA": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "sling:resourceType": "core/cif/components/structure/page/v1/page",
-      "cq:cifProductPage": "/content/product-page",
-      "cq:cifCategoryPage": "/content/category-page",
       "jcr:language": "en_US",
       "jcr:primaryType": "cq:PageContent",
       "magentoStore": "my-store",
@@ -651,16 +656,6 @@
       "jcr:primaryType": "cq:PageContent",
       "navRoot": true,
       "jcr:title": "Page J",
-      "header": {
-        "jcr:primaryType": "nt:unstructured",
-        "sling:resourceType": "core/cif/components/structure/header/v1/header"
-      }
-    }
-  },
-  "pageK": {
-    "jcr:primaryType": "cq:Page",
-    "jcr:content": {
-      "jcr:primaryType": "cq:PageContent",
       "header": {
         "jcr:primaryType": "nt:unstructured",
         "sling:resourceType": "core/cif/components/structure/header/v1/header"

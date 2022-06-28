@@ -46,6 +46,7 @@ import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
@@ -108,6 +109,8 @@ public class GraphqlServletTest {
                 // Load page structure
                 context.load().json(contentPath, "/content");
                 context.registerService(PageManagerFactory.class, r -> context.pageManager());
+                SiteStructureFactory siteStructureFactory = new SiteStructureFactory();
+                context.registerInjectActivateService(siteStructureFactory);
                 SpecificPageStrategy specificPageStrategy = new SpecificPageStrategy();
                 context.registerInjectActivateService(specificPageStrategy);
                 UrlProviderImpl urlProvider = new UrlProviderImpl();

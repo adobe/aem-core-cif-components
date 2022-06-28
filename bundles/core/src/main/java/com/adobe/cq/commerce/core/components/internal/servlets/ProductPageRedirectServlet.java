@@ -29,7 +29,6 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.PageManagerFactory;
@@ -61,10 +60,9 @@ public class ProductPageRedirectServlet extends AbstractCommerceRedirectServlet 
         if (verifyRequest(request, response)) {
             PageManager pageManager = pageManagerFactory.getPageManager(request.getResourceResolver());
             Page currentPage = pageManager.getContainingPage(request.getResource());
-            Page productPage = SiteNavigation.getProductPage(currentPage);
             String identifier = request.getRequestPathInfo().getSuffix().substring(1);
-            String location = productPage != null ? urlProvider.toProductUrl(request, productPage, identifier) : null;
-            if (location != null && !location.contains(UrlFormat.OPENING_BRACKETS) && !location.contains(UrlFormat.CLOSING_BRACKETS)) {
+            String location = urlProvider.toProductUrl(request, currentPage, identifier);
+            if (!location.contains(UrlFormat.OPENING_BRACKETS) && !location.contains(UrlFormat.CLOSING_BRACKETS)) {
                 response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
                 response.setHeader("Location", location);
             } else {

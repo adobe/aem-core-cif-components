@@ -1,9 +1,14 @@
 {
+  "jcr:primaryType": "cq:Page",
+  "jcr:content": {
+    "jcr:primaryType": "cq:PageContent",
+    "navRoot": true,
+    "cq:cifSearchResultsPage": "/content/pageB"
+  },
   "pageA": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent",
-      "cq:cifSearchResultsPage": "/content/pageB",
       "root": {
         "responsivegrid": {
           "searchbar": {
