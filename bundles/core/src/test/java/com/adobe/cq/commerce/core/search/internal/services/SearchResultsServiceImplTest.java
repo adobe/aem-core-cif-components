@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.junit.Before;
@@ -70,6 +71,7 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.shopify.graphql.support.ID;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
@@ -128,6 +130,9 @@ public class SearchResultsServiceImplTest {
         productPage = context.currentPage("/content/product-page");
         resource = context.resourceResolver().getResource("/content/pageA");
         request = context.request();
+
+        SlingBindings slingBindings = (SlingBindings) request.getAttribute(SlingBindings.class.getName());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, productPage);
 
         when(product.getSku()).thenReturn("sku");
         when(product.getName()).thenReturn("name");

@@ -20,7 +20,6 @@ import java.util.HashMap;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.wrappers.ModifiableValueMapDecorator;
 import org.apache.sling.servlethelpers.MockSlingHttpServletRequest;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,19 +29,13 @@ import org.mockito.Mockito;
 import com.adobe.granite.ui.components.rendercondition.RenderCondition;
 import com.adobe.granite.ui.components.rendercondition.SimpleRenderCondition;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
+
+import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 
 public class PageTypeRenderConditionServletTest {
-    @Rule
-    public final AemContext context = createContext("/context/jcr-page-filter.json");
 
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                context.load().json(contentPath, "/content");
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
+    @Rule
+    public final AemContext context = newAemContext("/context/jcr-page-filter.json");
 
     private MockSlingHttpServletRequest request;
     private PageTypeRenderConditionServlet servlet;
@@ -55,7 +48,7 @@ public class PageTypeRenderConditionServletTest {
         Mockito.when(resource.getResourceResolver()).thenReturn(context.resourceResolver());
         Mockito.when(resource.getValueMap()).thenReturn(new ModifiableValueMapDecorator(new HashMap<>()));
         request.setResource(resource);
-        servlet = new PageTypeRenderConditionServlet();
+        servlet = context.registerInjectActivateService(new PageTypeRenderConditionServlet());
     }
 
     @Test

@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.day.cq.wcm.api.Page;
@@ -27,6 +28,7 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -36,6 +38,7 @@ public class SpecificPageStrategyTest {
     public final AemContext context = newAemContext("/context/jcr-page-filter.json");
     public final SpecificPageStrategy subject = new SpecificPageStrategy();
 
+    private Page navRoot;
     private Page productPage;
     private Page categoryPage;
     private Page anyPage;
@@ -43,6 +46,7 @@ public class SpecificPageStrategyTest {
     @Before
     public void setup() {
         context.registerInjectActivateService(subject);
+        navRoot = context.pageManager().getPage("/content");
         productPage = context.pageManager().getPage("/content/product-page");
         categoryPage = context.pageManager().getPage("/content/category-page");
         anyPage = context.pageManager().getPage("/content/catalog-page");
@@ -236,5 +240,62 @@ public class SpecificPageStrategyTest {
         // then
         assertNotNull(specificPage);
         assertEquals(categoryPage.getPath() + "/sub-page-with-urlpath-v2", specificPage.getPath());
+    }
+
+    @Test
+    public void testSpecificProductPageInCatalogPage() {
+        context.load().json(
+            "/context/SpecificPageStrategyTest/jcr-content-additional-catalogpage.json",
+            "/content/additional-catalog-page");
+
+        // given
+        Page productPage = context.pageManager().getPage("/content/additional-catalog-page/product-page");
+        SiteStructure siteStructure = productPage.adaptTo(SiteStructure.class);
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setUrlKey("product");
+
+        // when category url key does not match the catalog page's category, then
+        params.setUrlPath("men/product");
+        Page genericPage = subject.getGenericPage(siteStructure, params);
+        assertNotEquals(productPage, genericPage);
+
+        // when the category url key matches the catalog's category by url path, then
+        params.setUrlPath("men/men-tops/product");
+        genericPage = subject.getGenericPage(siteStructure, params);
+        assertEquals(productPage, genericPage);
+
+        // when the category url key matches the catalog's category by url path descendant, then
+        params.setUrlPath("men/men-tops/men-sweaters/product");
+        genericPage = subject.getGenericPage(siteStructure, params);
+        assertEquals(productPage, genericPage);
+    }
+
+    @Test
+    public void testSpecificCategoryPageInCatalogPage() {
+        context.load().json(
+            "/context/SpecificPageStrategyTest/jcr-content-additional-catalogpage.json",
+            "/content/additional-catalog-page");
+
+        // given
+        Page categoryPage = context.pageManager().getPage("/content/additional-catalog-page/category-page");
+        SiteStructure siteStructure = categoryPage.adaptTo(SiteStructure.class);
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+
+        // when category url key does not match the catalog page's category, then
+        params.setUrlKey("men");
+        assertNotEquals(categoryPage, subject.getGenericPage(siteStructure, params));
+
+        // when the category url key matches the catalog's category by url key, then
+        params.setUrlKey("men-tops");
+        assertEquals(categoryPage, subject.getGenericPage(siteStructure, params));
+
+        // when the category url key matches the catalog's category by url path, then
+        params.setUrlPath("men/men-tops");
+        assertEquals(categoryPage, subject.getGenericPage(siteStructure, params));
+
+        // when the category url key matches the catalog's category by url path descendant, then
+        params.setUrlKey("men-sweaters");
+        params.setUrlPath("men/men-tops/men-sweaters");
+        assertEquals(categoryPage, subject.getGenericPage(siteStructure, params));
     }
 }

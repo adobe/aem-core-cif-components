@@ -36,7 +36,6 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceI
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
 import com.adobe.cq.wcm.core.components.commons.link.Link;
@@ -85,9 +84,6 @@ public class CommerceTeaserImpl implements CommerceTeaser {
         Resource actionsNode = resource.getChild(CommerceTeaser.NN_ACTIONS);
         if (actionsNode != null) {
             Iterable<Resource> configuredActions = actionsNode.getChildren();
-
-            Page productPage = SiteNavigation.getProductPage(currentPage);
-            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
             List<ListItem> wcmActions = wcmTeaser.getActions();
 
             // build teaser action items for all configured actions
@@ -102,11 +98,11 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 CommerceIdentifier identifier = null;
 
                 if (StringUtils.isNotBlank(categoryUid)) {
-                    actionUrl = urlProvider.toCategoryUrl(request, categoryPage, categoryUid);
+                    actionUrl = urlProvider.toCategoryUrl(request, currentPage, categoryUid);
                     identifier = new CommerceIdentifierImpl(categoryUid, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY);
                 } else if (StringUtils.isNotBlank(productSku)) {
-                    actionUrl = urlProvider.toProductUrl(request, productPage, productSku);
+                    actionUrl = urlProvider.toProductUrl(request, currentPage, productSku);
                     identifier = new CommerceIdentifierImpl(productSku, CommerceIdentifier.IdentifierType.SKU,
                         CommerceIdentifier.EntityType.PRODUCT);
                 } else if (StringUtils.isNotBlank(link)) {

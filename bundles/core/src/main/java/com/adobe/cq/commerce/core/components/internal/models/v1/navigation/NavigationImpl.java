@@ -39,13 +39,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationItem;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
 import com.day.cq.commons.inherit.InheritanceValueMap;
 import com.day.cq.wcm.api.Page;
@@ -60,7 +62,6 @@ import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DE
     resourceType = NavigationImpl.RESOURCE_TYPE)
 public class NavigationImpl implements Navigation {
 
-    static final String PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER = "magentoRootCategoryId";
     static final String RESOURCE_TYPE = "core/cif/components/structure/navigation/v1/navigation";
     static final String ROOT_NAVIGATION_ID = "ROOT_NAVIGATION";
     static final int DEFAULT_STRUCTURE_DEPTH = 2;
@@ -86,6 +87,9 @@ public class NavigationImpl implements Navigation {
 
     @OSGiService
     private UrlProvider urlProvider;
+
+    @Self
+    private SiteStructure siteStructure;
 
     @ScriptVariable
     private ValueMap properties;
@@ -130,7 +134,15 @@ public class NavigationImpl implements Navigation {
         Page page = pageManager.getPage(currentWcmItem.getPath());
 
         // Go to production version to get the configuration of the navigation panel
-        page = SiteNavigation.toLaunchProductionPage(page);
+        if (currentWcmItem.getPath() != null && LaunchUtils.isLaunchBasedPath(currentWcmItem.getPath())) {
+            String productionPagePath = currentWcmItem.getPath().substring(currentWcmItem.getPath().lastIndexOf("/content/"));
+            Page productionPage = pageManager.getPage(productionPagePath);
+            if (productionPage != null) {
+                page = productionPage;
+            } else {
+                LOGGER.warn("Didn't find production page of given launch page: {}", page.getPath());
+            }
+        }
 
         if (shouldExpandCatalogRoot(page)) {
             expandCatalogRoot(page, itemList);
@@ -148,21 +160,8 @@ public class NavigationImpl implements Navigation {
         }
     }
 
-    private boolean isCatalogPage(Page page) {
-        if (page == null) {
-            return false;
-        }
-
-        Resource contentResource = page.getContentResource();
-        if (contentResource == null) {
-            return false;
-        }
-
-        return contentResource.isResourceType(RT_CATALOG_PAGE) || contentResource.isResourceType(RT_CATALOG_PAGE_V3);
-    }
-
     private boolean shouldExpandCatalogRoot(Page page) {
-        if (!isCatalogPage(page)) {
+        if (!siteStructure.isCatalogPage(page)) {
             return false;
         }
 
@@ -171,7 +170,7 @@ public class NavigationImpl implements Navigation {
     }
 
     private boolean isCatalogRoot(Page page) {
-        if (!isCatalogPage(page)) {
+        if (!siteStructure.isCatalogPage(page)) {
             return false;
         }
 
@@ -180,23 +179,24 @@ public class NavigationImpl implements Navigation {
     }
 
     private void expandCatalogRoot(Page catalogPage, List<NavigationItem> pages) {
-        Page categoryPage = SiteNavigation.getCategoryPage(catalogPage);
-        if (categoryPage == null) {
-            return;
-        }
+        String rootCategoryIdentifier = readPageConfiguration(catalogPage, SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER);
+        String rootCategoryIdentifierType = readPageConfiguration(catalogPage, SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE);
 
-        String rootCategoryIdentifier = readPageConfiguration(catalogPage, PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER);
         if (rootCategoryIdentifier == null || StringUtils.isBlank(rootCategoryIdentifier)) {
             ComponentsConfiguration properties = catalogPage.getContentResource().adaptTo(ComponentsConfiguration.class);
-            rootCategoryIdentifier = properties.get(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
+            rootCategoryIdentifier = properties.get(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, String.class);
+            rootCategoryIdentifierType = "uid";
         }
 
         if (rootCategoryIdentifier == null) {
-            LOGGER.warn("Magento root category UID property (" + PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER + ") not found");
+            LOGGER.warn("Magento root category UID property (" + SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER + ") not found");
             return;
         }
 
-        List<CategoryTree> children = graphQLCategoryProvider.getChildCategories(rootCategoryIdentifier, structureDepth);
+        List<CategoryTree> children = "urlPath".equals(rootCategoryIdentifierType)
+            ? graphQLCategoryProvider.getChildCategoriesByUrlPath(rootCategoryIdentifier, structureDepth)
+            : graphQLCategoryProvider.getChildCategoriesByUid(rootCategoryIdentifier, structureDepth);
+
         if (children == null || children.isEmpty()) {
             LOGGER.warn("Magento top categories not found");
             return;
@@ -204,10 +204,9 @@ public class NavigationImpl implements Navigation {
 
         for (CategoryTree child : children) {
             CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(child);
-            String url = urlProvider.toCategoryUrl(request, categoryPage, params);
+            String url = urlProvider.toCategoryUrl(request, currentPage, params);
             boolean active = request.getRequestURI().equals(url);
-            CategoryNavigationItem navigationItem = new CategoryNavigationItem(null, child.getName(), url, active, child, request,
-                categoryPage);
+            CategoryNavigationItem navigationItem = new CategoryNavigationItem(null, child.getName(), url, active, child, request);
             pages.add(navigationItem);
         }
     }
@@ -272,14 +271,12 @@ public class NavigationImpl implements Navigation {
     class CategoryNavigationItem extends AbstractNavigationItem implements NavigationItem {
         private CategoryTree category;
         private SlingHttpServletRequest request;
-        private Page categoryPage;
 
         CategoryNavigationItem(AbstractNavigationItem parent, String title, String url, boolean active, CategoryTree category,
-                               SlingHttpServletRequest request, Page categoryPage) {
+                               SlingHttpServletRequest request) {
             super(parent, title, url, active);
             this.category = category;
             this.request = request;
-            this.categoryPage = categoryPage;
         }
 
         @Override
@@ -301,9 +298,9 @@ public class NavigationImpl implements Navigation {
 
             for (CategoryTree child : children) {
                 CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(child);
-                String url = urlProvider.toCategoryUrl(request, categoryPage, params);
+                String url = urlProvider.toCategoryUrl(request, currentPage, params);
                 boolean active = request.getRequestURI().equals(url);
-                pages.add(new CategoryNavigationItem(this, child.getName(), url, active, child, request, categoryPage));
+                pages.add(new CategoryNavigationItem(this, child.getName(), url, active, child, request));
             }
 
             return pages;

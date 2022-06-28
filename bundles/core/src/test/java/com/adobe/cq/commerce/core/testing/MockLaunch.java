@@ -19,13 +19,18 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 
 import com.adobe.cq.launches.api.Launch;
 import com.adobe.cq.launches.api.LaunchPromotionScope;
 import com.adobe.cq.launches.api.LaunchSource;
 import com.day.cq.commons.jcr.JcrConstants;
+import com.day.cq.wcm.api.NameConstants;
+import com.google.common.base.Function;
 
 public class MockLaunch implements Launch {
+
+    public static final Function<Resource, Launch> MOCK_LAUNCH_ADAPTER = MockLaunch::new;
 
     private Resource resource;
     private Resource jcrConstant;
@@ -112,8 +117,10 @@ public class MockLaunch implements Launch {
     }
 
     @Override
-    public boolean containsResource(Resource productionResource) {
-        throw new UnsupportedOperationException();
+    public boolean containsResource(Resource launchResource) {
+        launchResource = launchResource.getChild("jcr:content");
+        ValueMap properties = launchResource != null ? launchResource.getValueMap() : ValueMap.EMPTY;
+        return !properties.get(NameConstants.PN_TEMPLATE, "").equals("/libs/launches/templates/outofscope");
     }
 
     @Override

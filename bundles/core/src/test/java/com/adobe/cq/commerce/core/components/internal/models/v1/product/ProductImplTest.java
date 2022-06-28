@@ -618,7 +618,7 @@ public class ProductImplTest {
             assertEquals("MJ01", parameters.getSku());
             Page page = inv.getArgumentAt(1, Page.class);
             assertNotNull(page);
-            assertEquals("/content/product-page", page.getPath());
+            assertEquals("/content/pageA", page.getPath());
             // invoke the callback directly
             return urlProvider.toProductUrl(inv.getArgumentAt(0, SlingHttpServletRequest.class), page, parameters);
         });

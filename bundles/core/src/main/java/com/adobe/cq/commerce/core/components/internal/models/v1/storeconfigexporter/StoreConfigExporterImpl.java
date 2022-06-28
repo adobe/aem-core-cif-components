@@ -32,9 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.day.cq.wcm.api.Page;
@@ -62,6 +62,8 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     private Page currentPage;
     @SlingObject
     private Resource resource;
+    @Self
+    private SiteStructure siteStructure;
 
     private String storeView;
     private String graphqlEndpoint = DEFAULT_GRAPHQL_ENDPOINT;
@@ -105,7 +107,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     @Override
     public String getStoreRootUrl() {
         if (storeRootPage == null) {
-            storeRootPage = SiteNavigation.getNavigationRootPage(currentPage);
+            storeRootPage = siteStructure.getLandingPage();
         }
 
         if (storeRootPage == null) {

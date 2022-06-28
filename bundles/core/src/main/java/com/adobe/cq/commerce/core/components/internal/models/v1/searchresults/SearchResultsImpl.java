@@ -101,7 +101,7 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
     @Override
     public SearchResultsSet getSearchResultsSet() {
         if (searchResultsSet == null) {
-            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);
+            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, currentPage, request);
         }
         return searchResultsSet;
     }

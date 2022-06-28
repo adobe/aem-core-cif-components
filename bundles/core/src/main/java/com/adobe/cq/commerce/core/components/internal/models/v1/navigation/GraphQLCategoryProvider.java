@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -50,7 +51,16 @@ class GraphQLCategoryProvider {
         this.magentoGraphqlClient = magentoGraphqlClient;
     }
 
-    List<CategoryTree> getChildCategories(String categoryIdentifier, Integer depth) {
+    List<CategoryTree> getChildCategoriesByUrlPath(String categoryIdentifier, Integer depth) {
+        return getChildCategories(categoryIdentifier, depth, CategoryFilterInput::setUrlPath);
+    }
+
+    List<CategoryTree> getChildCategoriesByUid(String categoryIdentifier, Integer depth) {
+        return getChildCategories(categoryIdentifier, depth, CategoryFilterInput::setCategoryUid);
+    }
+
+    private List<CategoryTree> getChildCategories(String categoryIdentifier, Integer depth,
+        BiFunction<CategoryFilterInput, FilterEqualTypeInput, CategoryFilterInput> filter) {
         if (magentoGraphqlClient == null) {
             LOGGER.debug("No Graphql client present, cannot retrieve top categories");
             return Collections.emptyList();
@@ -61,9 +71,8 @@ class GraphQLCategoryProvider {
             return Collections.emptyList();
         }
 
-        QueryQuery.CategoryListArgumentsDefinition searchArgs = d -> d.filters(new CategoryFilterInput().setCategoryUid(
-            new FilterEqualTypeInput().setEq(
-                categoryIdentifier)));
+        QueryQuery.CategoryListArgumentsDefinition searchArgs = d -> d.filters(
+            filter.apply(new CategoryFilterInput(), new FilterEqualTypeInput().setEq(categoryIdentifier)));
 
         String queryString = Operations.query(query -> query.categoryList(searchArgs, defineCategoriesQuery(depth))).toString();
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(queryString);
