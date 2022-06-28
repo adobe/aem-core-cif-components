@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.breadcrumb;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -39,7 +40,7 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 class BreadcrumbRetriever extends AbstractRetriever {
 
     private List<? extends CategoryInterface> categories;
-    private String productName;
+    private Optional<ProductInterface> product;
 
     private String productIdentifier;
 
@@ -69,11 +70,11 @@ class BreadcrumbRetriever extends AbstractRetriever {
      *
      * @return The product name.
      */
-    protected String fetchProductName() {
-        if (productName == null) {
+    protected ProductInterface fetchProduct() {
+        if (product == null) {
             populate();
         }
-        return productName;
+        return product.orElse(null);
     }
 
     /**
@@ -98,6 +99,8 @@ class BreadcrumbRetriever extends AbstractRetriever {
     @Override
     protected void populate() {
         if (productIdentifier == null && categoryIdentifier == null) {
+            categories = Collections.emptyList();
+            product = Optional.empty();
             return;
         }
 
@@ -105,7 +108,7 @@ class BreadcrumbRetriever extends AbstractRetriever {
 
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
             categories = Collections.emptyList();
-            productName = null;
+            product = Optional.empty();
             return;
         }
 
@@ -117,9 +120,8 @@ class BreadcrumbRetriever extends AbstractRetriever {
                 .getItems();
 
             if (products.size() > 0) {
-                ProductInterface product = products.get(0);
-                productName = product.getName();
-                categories = product.getCategories();
+                product = Optional.of(products.get(0));
+                categories = product.get().getCategories();
             }
         } else {
             categories = rootQuery.getCategoryList();
@@ -152,6 +154,8 @@ class BreadcrumbRetriever extends AbstractRetriever {
         ProductsQueryDefinition queryArgs = q -> q.items(i -> i
             .sku()
             .urlKey()
+            .urlPath()
+            .urlRewrites(uq -> uq.url())
             .name()
             .categories(c -> c
                 .uid()

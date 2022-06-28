@@ -31,10 +31,8 @@ public class ProductPageWithCategoryAndUrlKey extends UrlFormatBase implements P
 
     @Override
     public String format(Params parameters) {
-        String contextUrlKey = parameters.getCategoryUrlParams().getUrlKey();
-        String contextUrlPath = parameters.getCategoryUrlParams().getUrlPath();
-        String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
-        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey, contextUrlKey, contextUrlPath);
+        String urlKey = getUrlKey(parameters);
+        String urlPath = selectUrlPath(parameters);
         String[] categoryUrlParams = extractCategoryUrlFormatParams(urlPath);
         String category = getUrlKey(categoryUrlParams[1], categoryUrlParams[0]);
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
@@ -70,10 +68,8 @@ public class ProductPageWithCategoryAndUrlKey extends UrlFormatBase implements P
 
     @Override
     public Params retainParsableParameters(Params parameters) {
-        String contextUrlKey = parameters.getCategoryUrlParams().getUrlKey();
-        String contextUrlPath = parameters.getCategoryUrlParams().getUrlPath();
-        String urlKey = getUrlKey(parameters.getUrlPath(), parameters.getUrlKey());
-        String urlPath = selectUrlPath(parameters.getUrlPath(), parameters.getUrlRewrites(), urlKey, contextUrlKey, contextUrlPath);
+        String urlKey = getUrlKey(parameters);
+        String urlPath = selectUrlPath(parameters);
         String[] categoryUrlParams = extractCategoryUrlFormatParams(urlPath);
 
         Params copy = new Params();

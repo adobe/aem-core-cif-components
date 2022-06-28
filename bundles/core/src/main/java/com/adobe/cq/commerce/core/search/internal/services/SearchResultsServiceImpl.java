@@ -16,7 +16,6 @@
 package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -52,7 +51,6 @@ import com.adobe.cq.commerce.core.search.internal.models.SorterImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SorterKeyImpl;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
-import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
@@ -161,8 +159,8 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         }
 
         if (categoryRetriever == null && StringUtils.isNotEmpty(mutableSearchOptions.getAllFilters().get(CATEGORY_ID_FILTER))) {
-            // if no categoryRetriever is given but an id filter, fetch the category only but dont set the uid filter as id and uid filter
-            // cannot be used toether in the same query
+            // if no categoryRetriever is given but an id filter, fetch the category only but don't set the uid filter as id and uid filter
+            // cannot be used together in the same query
             categoryRetriever = new CategoryUrlParameterRetriever(magentoGraphqlClient) {
                 @Override
                 public Pair<QueryQuery.CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> generateCategoryQueryArgs(
@@ -188,6 +186,9 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         LOGGER.debug("Generated products query string {}", productsQueryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(productsQueryString);
 
+        // remove the category_uid filter from the search options after the query to not included it in all places
+        removeCategoryUidFilterEntriesIfPossible(mutableSearchOptions, request);
+
         // If we have any errors returned we'll log them and return an empty search result
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
             response.getErrors()
@@ -205,9 +206,6 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(products.getAggregations(),
             mutableSearchOptions.getAllFilters(), availableFilters);
-
-        // special handling of category identifier(s)
-        removeCategoryUidFilterEntriesIfPossible(searchAggregations, request);
 
         searchResultsSet.setTotalResults(products.getTotalCount());
         searchResultsSet.setProductListItems(productListItems);
@@ -508,19 +506,16 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     }
 
     /**
-     * Removes the category_uid filter from all filter options' filter maps when the category uid can be retrieved from the request already.
+     * Removes the category_uid filter from the search options if it can be obtained from the request.
      *
-     * @param aggs
+     * @param mutableSearchOptions
      * @param request
      */
-    private void removeCategoryUidFilterEntriesIfPossible(List<SearchAggregation> aggs, SlingHttpServletRequest request) {
+    private void removeCategoryUidFilterEntriesIfPossible(SearchOptionsImpl mutableSearchOptions, SlingHttpServletRequest request) {
         String categoryUid = urlProvider.getCategoryIdentifier(request);
-        if (StringUtils.isNotBlank(categoryUid)) {
-            aggs.stream()
-                .map(SearchAggregation::getOptions)
-                .flatMap(Collection::stream)
-                .map(SearchAggregationOption::getAddFilterMap)
-                .forEach(filterMap -> filterMap.remove(CATEGORY_UID_FILTER, categoryUid));
+        if (StringUtils.isNotBlank(categoryUid) &&
+            mutableSearchOptions.getCategoryUid().filter(categoryUid::equals).isPresent()) {
+            mutableSearchOptions.setCategoryUid(null);
         }
     }
 }

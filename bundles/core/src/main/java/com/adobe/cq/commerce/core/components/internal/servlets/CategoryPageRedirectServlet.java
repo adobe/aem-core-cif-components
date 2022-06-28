@@ -30,7 +30,6 @@ import org.osgi.service.component.annotations.Reference;
 import com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.PageManagerFactory;
@@ -62,10 +61,9 @@ public class CategoryPageRedirectServlet extends AbstractCommerceRedirectServlet
         if (verifyRequest(request, response)) {
             PageManager pageManager = pageManagerFactory.getPageManager(request.getResourceResolver());
             Page currentPage = pageManager.getContainingPage(request.getResource());
-            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
             String identifier = request.getRequestPathInfo().getSuffix().substring(1);
-            String location = categoryPage != null ? urlProvider.toCategoryUrl(request, categoryPage, identifier) : null;
-            if (location != null && !location.contains(UrlFormat.OPENING_BRACKETS) && !location.contains(UrlFormat.CLOSING_BRACKETS)) {
+            String location = urlProvider.toCategoryUrl(request, currentPage, identifier);
+            if (!location.contains(UrlFormat.OPENING_BRACKETS) && !location.contains(UrlFormat.CLOSING_BRACKETS)) {
                 response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
                 response.setHeader("Location", location);
             } else {

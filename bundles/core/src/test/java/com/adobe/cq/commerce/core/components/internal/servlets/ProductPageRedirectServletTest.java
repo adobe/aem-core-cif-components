@@ -70,6 +70,10 @@ public class ProductPageRedirectServletTest {
 
         context.registerInjectActivateService(servlet);
         context.registerAdapter(SlingHttpServletRequest.class, MagentoGraphqlClient.class, mockClient);
+
+        GraphqlResponse<Query, Error> resp = mockGqlResponse("test_url_key");
+        when(mockClient.execute(any())).thenReturn(resp);
+
     }
 
     @Test
@@ -135,22 +139,23 @@ public class ProductPageRedirectServletTest {
         mockRequestPathInfo.setSelectorString(ProductPageRedirectServlet.SELECTOR);
         mockRequestPathInfo.setSuffix("/test_sku");
 
+        servlet.doGet(request, response);
+        verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+        verify(response).setHeader("Location", "/content/venia/us/en/products/product-page.html/test_url_key.html");
+    }
+
+    private GraphqlResponse<Query, Error> mockGqlResponse(String urlKey) {
         Query mockQuery = mock(Query.class);
         Products products = mock(Products.class);
         ProductInterface productInterface = mock(ProductInterface.class);
 
-        when(productInterface.getUrlKey()).thenReturn("test_url_key");
+        when(productInterface.getUrlKey()).thenReturn(urlKey);
         when(products.getTotalCount()).thenReturn(1);
         when(products.getItems()).thenReturn(Collections.singletonList(productInterface));
         when(mockQuery.getProducts()).thenReturn(products);
 
         GraphqlResponse<Query, Error> graphQlResponse = new GraphqlResponse<Query, Error>();
         graphQlResponse.setData(mockQuery);
-
-        when(mockClient.execute(any())).thenReturn(graphQlResponse);
-
-        servlet.doGet(request, response);
-        verify(response).setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-        verify(response).setHeader("Location", "/content/venia/us/en/products/product-page.html/test_url_key.html");
+        return graphQlResponse;
     }
 }

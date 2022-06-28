@@ -38,7 +38,6 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.wcm.core.components.models.Button;
 import com.day.cq.wcm.api.Page;
@@ -106,8 +105,6 @@ public class ButtonImpl implements Button {
     @SlingObject
     protected Resource resource;
 
-    private Page productPage;
-    private Page categoryPage;
     private String url;
 
     @PostConstruct
@@ -121,14 +118,9 @@ public class ButtonImpl implements Button {
         switch (linkType) {
             case PRODUCT: {
                 if (!productSlug.equals(DEFAULT_LINK)) {
-                    productPage = SiteNavigation.getProductPage(currentPage);
-                    if (productPage == null) {
-                        productPage = currentPage;
-                    }
-
                     ProductUrlFormat.Params params = new ProductUrlFormat.Params();
                     params.setUrlKey(productSlug);
-                    url = urlProvider.toProductUrl(request, productPage, params);
+                    url = urlProvider.toProductUrl(request, currentPage, params);
                 } else {
                     LOGGER.debug("Can not get Product Slug!");
                 }
@@ -137,11 +129,6 @@ public class ButtonImpl implements Button {
 
             case CATEGORY: {
                 if (!categoryId.equals(DEFAULT_LINK)) {
-                    categoryPage = SiteNavigation.getCategoryPage(currentPage);
-                    if (categoryPage == null) {
-                        categoryPage = currentPage;
-                    }
-
                     CategoryUrlFormat.Params params = null;
                     if (magentoGraphqlClient != null) {
                         CategoryRetriever categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
@@ -151,7 +138,7 @@ public class ButtonImpl implements Button {
                             params = new CategoryUrlFormat.Params(category);
                         }
                     }
-                    url = urlProvider.toCategoryUrl(request, categoryPage, params != null ? params : new CategoryUrlFormat.Params());
+                    url = urlProvider.toCategoryUrl(request, currentPage, params != null ? params : new CategoryUrlFormat.Params());
                 } else {
                     LOGGER.debug("Can not get Category identifier!");
                 }

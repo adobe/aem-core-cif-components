@@ -24,12 +24,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.resource.ResourceUtil;
 
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.drew.lang.annotations.NotNull;
 
 public class UrlFormatBase {
 
     protected static String HTML_EXTENSION = ".html";
     protected static String HTML_EXTENSION_AND_SUFFIX = HTML_EXTENSION + "/";
+
+    /**
+     * @see UrlFormatBase#getUrlKey(String, String)
+     */
+    public static String getUrlKey(ProductUrlFormat.Params params) {
+        return getUrlKey(params.getUrlPath(), params.getUrlKey());
+    }
 
     /**
      * Returns the url_key from the given parameters.
@@ -42,7 +50,7 @@ public class UrlFormatBase {
      * @param urlKey
      * @return
      */
-    protected static String getUrlKey(String urlPath, String urlKey) {
+    public static String getUrlKey(String urlPath, String urlKey) {
         if (StringUtils.isEmpty(urlKey)) {
             if (StringUtils.isNotEmpty(urlPath)) {
                 urlKey = StringUtils.substringAfterLast(urlPath, "/");
@@ -71,8 +79,20 @@ public class UrlFormatBase {
     /**
      * @see UrlFormatBase#selectUrlPath(String, List, String, String, String)
      */
-    protected static String selectUrlPath(String urlPath, List<String> alternatives, String urlKey) {
+    public static String selectUrlPath(String urlPath, List<String> alternatives, String urlKey) {
         return selectUrlPath(urlPath, alternatives, urlKey, null, null);
+    }
+
+    /**
+     * @see UrlFormatBase#selectUrlPath(String, List, String, String, String)
+     */
+    public static String selectUrlPath(ProductUrlFormat.Params params) {
+        return selectUrlPath(
+            params.getUrlPath(),
+            params.getUrlRewrites(),
+            getUrlKey(params.getUrlPath(), params.getUrlKey()),
+            params.getCategoryUrlParams().getUrlKey(),
+            params.getCategoryUrlParams().getUrlPath());
     }
 
     /**
