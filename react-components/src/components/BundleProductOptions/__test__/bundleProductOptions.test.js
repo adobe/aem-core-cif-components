@@ -33,26 +33,7 @@ const config = {
 describe('BundleProductOptions', () => {
     it('renders the component with no sku', () => {
         const { asFragment } = render(<BundleProductOptions />, { config: config });
-        expect(asFragment()).toMatchInlineSnapshot(`
-            <DocumentFragment>
-              <section
-                class="productFullDetail__section productFullDetail__customizeBundle"
-              >
-                <button
-                  class="root_highPriority"
-                  type="button"
-                >
-                  <span
-                    class="content"
-                  >
-                    <span>
-                      Customize
-                    </span>
-                  </span>
-                </button>
-              </section>
-            </DocumentFragment>
-        `);
+        expect(asFragment()).toMatchInlineSnapshot(`<DocumentFragment />`);
     });
 
     it('renders the component with sku', () => {
@@ -64,6 +45,34 @@ describe('BundleProductOptions', () => {
             container: document.body.appendChild(bundleProductOptionsContainer)
         });
 
+        expect(asFragment()).toMatchSnapshot();
+    });
+
+    it('renders the component with auto load options', async () => {
+        // mock useState to return the state for a full rendering
+        jest.spyOn(hooks, 'useAwaitQuery').mockImplementation(() => {
+            return jest.fn().mockImplementation(async () => {
+                return {
+                    data: mockResponse,
+                    error: null
+                };
+            });
+        });
+
+        const bundleProductOptionsContainer = document.createElement('div');
+        bundleProductOptionsContainer.dataset.sku = 'VA24';
+        bundleProductOptionsContainer.id = 'bundle-product-options';
+        const { asFragment, container } = render(<BundleProductOptions autoLoadOptions={true} />, {
+            config: config,
+            container: document.body.appendChild(bundleProductOptionsContainer)
+        });
+
+        // no content
+        expect(asFragment()).toMatchSnapshot();
+
+        await waitForDomChange({ container });
+
+        // with content
         expect(asFragment()).toMatchSnapshot();
     });
 
@@ -84,6 +93,7 @@ describe('BundleProductOptions', () => {
 
         const bundleProductOptionsContainer = document.createElement('div');
         bundleProductOptionsContainer.dataset.sku = 'VA24';
+        bundleProductOptionsContainer.dataset.showQuantity = true;
         bundleProductOptionsContainer.id = 'bundle-product-options';
 
         const { asFragment, container, getByRole } = render(<BundleProductOptions />, {

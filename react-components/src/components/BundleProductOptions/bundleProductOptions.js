@@ -29,7 +29,7 @@ import Button from '../Button';
 import BUNDLE_PRODUCT_QUERY from '../../queries/query_bundle_product.graphql';
 import Price from '../Price';
 
-const BundleProductOptions = ({ autoLoadOptions = false }) => {
+const BundleProductOptions = props => {
     const bundleProductQuery = useAwaitQuery(BUNDLE_PRODUCT_QUERY);
     const {
         mountingPoints: { bundleProductOptionsContainer }
@@ -37,8 +37,10 @@ const BundleProductOptions = ({ autoLoadOptions = false }) => {
     const productId = document.querySelector('[data-cmp-is=product]')?.id;
     const [bundleState, setBundleState] = useState(null);
     const intl = useIntl();
-    let { sku, showAddToWishList, showQuantity, useUid } =
-        document.querySelector(bundleProductOptionsContainer)?.dataset || {};
+    let { sku, showAddToWishList, showQuantity, useUid, autoLoadOptions } = {
+        ...props,
+        ...(document.querySelector(bundleProductOptionsContainer)?.dataset || {})
+    };
 
     // show-add-to-wish-list is set without a value to the dom,
     // the returned value from the data set is an empty string: ''
@@ -233,7 +235,7 @@ const BundleProductOptions = ({ autoLoadOptions = false }) => {
         }
     }, []);
 
-    if (bundleState === null && !autoLoadOptions) {
+    if (bundleState === null && sku && !autoLoadOptions) {
         return (
             <section className="productFullDetail__section productFullDetail__customizeBundle">
                 <Button priority="high" onClick={() => fetchBundleDetails(sku)}>
@@ -357,7 +359,11 @@ const BundleProductOptions = ({ autoLoadOptions = false }) => {
 };
 
 BundleProductOptions.propTypes = {
-    autoLoadOptions: PropTypes.bool
+    autoLoadOptions: PropTypes.bool,
+    sku: PropTypes.string,
+    showAddToWishList: PropTypes.bool,
+    showQuantity: PropTypes.bool,
+    useUid: PropTypes.bool
 };
 
 export default BundleProductOptions;

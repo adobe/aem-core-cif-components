@@ -270,7 +270,7 @@ const GiftCardOptions = props => {
 GiftCardOptions.propTypes = {
     sku: PropTypes.string.required,
     showAddToWishList: PropTypes.bool,
-    hideQuantity: PropTypes.bool,
+    showQuantity: PropTypes.bool,
     useUid: PropTypes.bool
 };
 
