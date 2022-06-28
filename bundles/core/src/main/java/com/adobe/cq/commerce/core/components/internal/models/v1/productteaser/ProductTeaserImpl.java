@@ -46,7 +46,6 @@ import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRet
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -106,7 +105,6 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @ScriptVariable(name = WCMBindingsConstants.NAME_CURRENT_STYLE)
     private Style currentStyle;
 
-    private Page productPage;
     private CombinedSku combinedSku;
     private AbstractProductRetriever productRetriever;
 
@@ -121,11 +119,6 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
         locale = currentPage.getLanguage(false);
 
         ComponentsConfiguration configProperties = currentPage.getContentResource().adaptTo(ComponentsConfiguration.class);
-
-        productPage = SiteNavigation.getProductPage(currentPage);
-        if (productPage == null) {
-            productPage = currentPage;
-        }
 
         String selection = properties.get(SELECTION_PROPERTY, String.class);
         if (selection != null && !selection.isEmpty()) {
@@ -232,7 +225,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
             params.setUrlRewrites(productRetriever.fetchProduct().getUrlRewrites());
             params.setVariantUrlKey(getProduct().getUrlKey());
 
-            return urlProvider.toProductUrl(request, productPage, params);
+            return urlProvider.toProductUrl(request, currentPage, params);
         }
         return null;
     }

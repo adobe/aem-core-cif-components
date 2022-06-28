@@ -45,11 +45,9 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
-import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -78,7 +76,6 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     @ScriptVariable
     private ValueMap properties;
 
-    private Page productPage;
     private AbstractProductsRetriever productsRetriever;
     private RelationType relationType;
     private String productSku;
@@ -87,11 +84,6 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     private void initModel() {
         if (!isConfigured()) {
             return;
-        }
-
-        productPage = SiteNavigation.getProductPage(currentPage);
-        if (productPage == null) {
-            productPage = currentPage;
         }
 
         if (magentoGraphqlClient == null) {
@@ -137,7 +129,7 @@ public class RelatedProductsImpl extends ProductCarouselBase {
         List<ProductListItem> carouselProductList = new ArrayList<>();
         for (ProductInterface product : products) {
             try {
-                ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), productPage, request, urlProvider)
+                ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), currentPage, request, urlProvider)
                     .product(product)
                     .image(product.getThumbnail());
                 carouselProductList.add(builder.build());
@@ -172,7 +164,7 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     public List<ProductListItem> getProductIdentifiers() {
         return getProducts().stream()
             .map(ProductListItem::getSKU)
-            .map(sku -> new ProductListItemImpl(sku, new ListItemIdentifier(sku), getId(), productPage))
+            .map(sku -> new ProductListItemImpl(sku, new ListItemIdentifier(sku), getId(), currentPage))
             .collect(Collectors.toList());
     }
 

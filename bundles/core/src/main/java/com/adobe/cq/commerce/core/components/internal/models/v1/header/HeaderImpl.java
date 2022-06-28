@@ -22,12 +22,13 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
+import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.header.Header;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.Page;
 
 /**
@@ -53,11 +54,14 @@ public class HeaderImpl implements Header {
     @SlingObject
     private Resource resource;
 
+    @Self
+    private SiteStructure siteStructure;
+
     private Page navigationRootPage;
 
     @PostConstruct
     private void initModel() {
-        navigationRootPage = SiteNavigation.getNavigationRootPage(currentPage);
+        navigationRootPage = siteStructure.getLandingPage();
 
         if (navigationRootPage == null) {
             LOGGER.warn("Navigation root page not found for page " + currentPage.getPath());

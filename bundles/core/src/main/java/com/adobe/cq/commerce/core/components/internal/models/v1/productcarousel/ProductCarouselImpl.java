@@ -46,7 +46,6 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
@@ -55,7 +54,6 @@ import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
-import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -101,7 +99,6 @@ public class ProductCarouselImpl extends ProductCarouselBase {
     private UrlProvider urlProvider;
 
     private Integer productCount;
-    private Page productPage;
     private List<String> baseProductSkus = Collections.emptyList();
 
     private ProductsRetriever productsRetriever;
@@ -124,11 +121,6 @@ public class ProductCarouselImpl extends ProductCarouselBase {
             return;
         }
 
-        productPage = SiteNavigation.getProductPage(currentPage);
-        if (productPage == null) {
-            productPage = currentPage;
-        }
-
         productsRetriever = new ProductsRetriever(magentoGraphqlClient);
         if (PRODUCT_SELECTION.equals(selectionType)) {
             // Make sure we use the base product sku for each selected product (can be a variant)
@@ -136,7 +128,7 @@ public class ProductCarouselImpl extends ProductCarouselBase {
             baseProductSkus = productSkus
                 .stream()
                 .map(s -> s.startsWith("/") ? StringUtils.substringAfterLast(s, "/") : s)
-                .map(s -> SiteNavigation.toProductSkus(s).getLeft())
+                .map(s -> CombinedSku.parse(s).getBaseSku())
                 .distinct()
                 .collect(Collectors.toList());
             productsRetriever.setIdentifiers(baseProductSkus);
@@ -189,7 +181,7 @@ public class ProductCarouselImpl extends ProductCarouselBase {
     @Nonnull
     public List<ProductListItem> getProductIdentifiers() {
         return baseProductSkus.stream()
-            .map(sku -> new ProductListItemImpl(sku, new ListItemIdentifier(sku), getId(), productPage))
+            .map(sku -> new ProductListItemImpl(sku, new ListItemIdentifier(sku), getId(), currentPage))
             .collect(Collectors.toList());
     }
 
@@ -237,7 +229,7 @@ public class ProductCarouselImpl extends ProductCarouselBase {
             }
 
             try {
-                ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), productPage,
+                ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), currentPage,
                     request, urlProvider)
                         .product(product)
                         .image(product.getThumbnail())
@@ -257,7 +249,7 @@ public class ProductCarouselImpl extends ProductCarouselBase {
     private List<ProductListItem> processCategoryProducts(List<ProductInterface> productInterfaces, CategoryInterface category) {
         return productInterfaces.stream().map(product -> {
             try {
-                return new ProductListItemImpl.Builder(getId(), productPage, request, urlProvider)
+                return new ProductListItemImpl.Builder(getId(), currentPage, request, urlProvider)
                     .product(product)
                     .image(product.getThumbnail())
                     .sku(product.getSku())

@@ -2,6 +2,7 @@
   "brand": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
+      "navRoot": true,
       "cq:cifProductPage": "/content/brand/product-page",
       "cq:cifCategoryPage": "/content/brand/category-page"
     },
