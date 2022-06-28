@@ -51,7 +51,6 @@ import com.adobe.cq.commerce.core.search.internal.models.SorterImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SorterKeyImpl;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
-import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
@@ -187,6 +186,9 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         LOGGER.debug("Generated products query string {}", productsQueryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(productsQueryString);
 
+        // remove the category_uid filter from the search options after the query to not included it in all places
+        removeCategoryUidFilterEntriesIfPossible(mutableSearchOptions, request);
+
         // If we have any errors returned we'll log them and return an empty search result
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
             response.getErrors()
@@ -204,9 +206,6 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(products.getAggregations(),
             mutableSearchOptions.getAllFilters(), availableFilters);
-
-        // special handling of category identifier(s)
-        removeCategoryUidFilterEntriesIfPossible(searchAggregations, request);
 
         searchResultsSet.setTotalResults(products.getTotalCount());
         searchResultsSet.setProductListItems(productListItems);
@@ -507,22 +506,16 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     }
 
     /**
-     * Removes the category_uid filter from all filter options' filter maps when possible.
-     * 
-     * @param aggs
+     * Removes the category_uid filter from the search options if it can be obtained from the request.
+     *
+     * @param mutableSearchOptions
      * @param request
      */
-    private void removeCategoryUidFilterEntriesIfPossible(List<SearchAggregation> aggs, SlingHttpServletRequest request) {
+    private void removeCategoryUidFilterEntriesIfPossible(SearchOptionsImpl mutableSearchOptions, SlingHttpServletRequest request) {
         String categoryUid = urlProvider.getCategoryIdentifier(request);
-        if (StringUtils.isNotBlank(categoryUid)) {
-            for (SearchAggregation agg : aggs) {
-                // remove category_uid from all addFilterMaps
-                for (SearchAggregationOption option : agg.getOptions()) {
-                    option.getAddFilterMap().remove(CATEGORY_UID_FILTER, categoryUid);
-                }
-                // and from the removeFilterMap
-                agg.getRemoveFilterMap().remove(CATEGORY_UID_FILTER, categoryUid);
-            }
+        if (StringUtils.isNotBlank(categoryUid) &&
+            mutableSearchOptions.getCategoryUid().filter(categoryUid::equals).isPresent()) {
+            mutableSearchOptions.setCategoryUid(null);
         }
     }
 }
