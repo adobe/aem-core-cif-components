@@ -314,7 +314,7 @@ exports[`GiftCardProductOptions renders add to wish list button 1`] = `
     </div>
   </section>
   <section
-    class="productFullDetail__cartActions productFullDetail__section"
+    class="productFullDetail__cartActions productFullDetail__actions productFullDetail__section"
   >
     <button
       class="button__root_highPriority button__root clickable__root button__filled"
@@ -659,7 +659,7 @@ exports[`GiftCardProductOptions renders the component with full options 1`] = `
     </div>
   </section>
   <section
-    class="productFullDetail__cartActions productFullDetail__section"
+    class="productFullDetail__cartActions productFullDetail__actions productFullDetail__section"
   >
     <button
       class="button__root_highPriority button__root clickable__root button__filled"
@@ -1007,7 +1007,7 @@ exports[`GiftCardProductOptions renders the component with sku 1`] = `
     </div>
   </section>
   <section
-    class="productFullDetail__cartActions productFullDetail__section"
+    class="productFullDetail__cartActions productFullDetail__actions productFullDetail__section"
   >
     <button
       class="button__root_highPriority button__root clickable__root button__filled"
@@ -1340,7 +1340,7 @@ exports[`GiftCardProductOptions renders the component with wishlist 1`] = `
     </div>
   </section>
   <section
-    class="productFullDetail__cartActions productFullDetail__section"
+    class="productFullDetail__cartActions productFullDetail__actions productFullDetail__section"
   >
     <button
       class="button__root_highPriority button__root clickable__root button__filled"

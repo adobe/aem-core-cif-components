@@ -108,7 +108,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
      * Name of the boolean policy property indicating if the product component
      * should show an add to wish list button or not.
      */
-    private static final String PN_STYLE_ENABLE_ADD_TO_WISHLIST = "enableAddToWishList";
+    static final String PN_STYLE_ENABLE_ADD_TO_WISHLIST = "enableAddToWishList";
     /**
      * Name of a boolean configuration properties used by the CIF Configuration to
      * store if the endpoint has wish lists enabled.
