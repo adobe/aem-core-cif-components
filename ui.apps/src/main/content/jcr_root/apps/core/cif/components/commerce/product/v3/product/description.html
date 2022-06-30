@@ -1,5 +1,5 @@
 <!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ~ Copyright 2022 Adobe
+  ~ Copyright 2020 Adobe
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,8 +14,10 @@
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.product="${@ product}">
-    <h2 class="productFullDetail__areaTitle productFullDetail__skuTitle productFullDetail__sectionTitle">
-        <span>SKU</span>
+    <h2 class="productFullDetail__areaTitle productFullDetail__descriptionTitle productFullDetail__sectionTitle">
+        <span>${'Product Description' @ i18n}</span>
     </h2>
-    <strong role="sku">${product.sku}</strong>
+    <div class="richText__root" role="description">
+        ${product.description @ context='html'}
+    </div>
 </template>

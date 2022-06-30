@@ -192,7 +192,7 @@ class VariantSelector {
 }
 
 VariantSelector.selectors = {
-    self: '.productFullDetail__options',
+    self: '.productFullDetail__options[data-variants]',
     variantButtons: '.productFullDetail__options button',
     product: '[data-cmp-is=product]'
 };

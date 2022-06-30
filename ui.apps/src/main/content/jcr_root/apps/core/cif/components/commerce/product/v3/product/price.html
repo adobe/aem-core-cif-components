@@ -1,5 +1,5 @@
 <!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ~ Copyright 2019 Adobe
+  ~ Copyright 2022 Adobe
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -13,25 +13,11 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.actions="${@ product}">
+<template
+    data-sly-template.price="${@ product}"
+    data-sly-use.priceTpl="core/cif/components/commons/v1/price.html">
     <h2 class="productFullDetail__areaTitle">
-        <span>${'Actions' @ i18n}</span>
+        <span>${'Price' @ i18n}</span>
     </h2>
-    <button
-        class="button__root_highPriority button__root clickable__root button__filled"
-        type="button"
-        data-cmp-is="add-to-cart">
-        <span class="button__content">
-            <span>${'Add to Cart' @ i18n}</span>
-        </span>
-    </button>
-    <button
-        data-sly-test="${product.addToWishListEnabled}"
-        class="button__root_normalPriority button__root clickable__root"
-        type="button"
-        data-cmp-is="add-to-wish-list">
-        <span class="button__content">
-            <span>${'Add to Wish List' @ i18n}</span>
-        </span>
-    </button>
+    <sly data-sly-call="${priceTpl.price @ priceRange=product.priceRange, displayYouSave=true, sku=product.sku}"></sly>
 </template>

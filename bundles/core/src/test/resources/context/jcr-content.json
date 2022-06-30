@@ -126,6 +126,14 @@
               "sling:resourceType": "venia/components/commerce/product",
               "id": "custom-id"
             },
+            "productwithvisiblesections": {
+                "sling:resourceType": "venia/components/commerce/product",
+                "visibleSections": [
+                    "title",
+                    "price",
+                    "sku"
+                ]
+            },
             "productlist": {
                 "loadClientPrice": true,
                 "showImage": true,
