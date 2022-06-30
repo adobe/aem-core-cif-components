@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageUrlFormatAdapter;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithID;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageUrlFormatAdapter;
@@ -108,6 +109,7 @@ public class UrlProviderImpl implements UrlProvider {
         {
             put(CategoryPageWithUrlPath.PATTERN, CategoryPageWithUrlPath.INSTANCE);
             put(CategoryPageWithUrlKey.PATTERN, CategoryPageWithUrlKey.INSTANCE);
+            put(CategoryPageWithID.PATTERN, CategoryPageWithID.INSTANCE);
         }
     };
 
