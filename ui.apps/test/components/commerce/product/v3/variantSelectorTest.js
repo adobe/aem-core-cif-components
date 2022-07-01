@@ -51,7 +51,7 @@ describe('Product', () => {
                 'afterbegin',
                 `
                 <div data-cmp-is="product" data-product-sku="sample-sku">
-                    <div class="productFullDetail__options">
+                    <div class="productFullDetail__options" data-variants>
                         <div class="tileList__root" data-id="color">
                             <button class="swatch__root" data-id="red" />
                             <button data-id="blue" />
@@ -77,7 +77,7 @@ describe('Product', () => {
                 'afterbegin',
                 `
                 <div data-cmp-is="product" data-uid-cart data-product-sku="sample-sku">
-                    <div class="productFullDetail__options">
+                    <div class="productFullDetail__options" data-variants>
                         <div class="tileList__root" data-id="color">
                             <button class="swatch__root" data-id="cmVk" />
                             <button data-id="Ymx1ZQ==" />

@@ -356,7 +356,7 @@ exports[`BundleProductOptions renders add to wish list button 1`] = `
     </div>
   </section>
   <section
-    class="productFullDetail__cartActions productFullDetail__section"
+    class="productFullDetail__cartActions productFullDetail__actions productFullDetail__section"
   >
     <button
       class="button__root_highPriority button__root clickable__root button__filled"
@@ -742,7 +742,7 @@ exports[`BundleProductOptions renders the component with full options 1`] = `
     </div>
   </section>
   <section
-    class="productFullDetail__cartActions productFullDetail__section"
+    class="productFullDetail__cartActions productFullDetail__actions productFullDetail__section"
   >
     <button
       class="button__root_highPriority button__root clickable__root button__filled"

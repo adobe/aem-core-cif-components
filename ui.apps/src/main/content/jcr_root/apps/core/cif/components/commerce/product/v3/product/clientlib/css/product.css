@@ -75,6 +75,10 @@
     justify-content: center;
 }
 
+.productFullDetail__areaTitle {
+    display: none;
+}
+
 .productFullDetail__title {
     display: grid;
     grid-template-columns: 1fr max-content;

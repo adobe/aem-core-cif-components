@@ -15,355 +15,319 @@
       "magentoStore": "my-store",
       "root": {
         "responsivegrid": {
-          "productteaser-simple": {
-            "selection": "MJ01",
-            "sling:resourceType": "venia/components/commerce/productteaser"
-          },
-          "productteaser-virtual": {
-            "selection": "VVP01",
-            "sling:resourceType": "venia/components/commerce/productteaser"
-          },
-          "productteaser-variant": {
-            "selection": "MJ01#MJ01-XS-Orange",
-            "sling:resourceType": "venia/components/commerce/productteaser",
-            "cta": "add-to-cart"
-          },
-          "productteaser-path": {
-            "selection": "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/MJ01",
-            "sling:resourceType": "venia/components/commerce/productteaser"
-          },
-          "productteaser-noclient": {
-            "selection": "MJ01",
-            "sling:resourceType": "venia/components/commerce/productteaser"
-          },
-          "productteaser-full": {
-            "selection": "MJ01",
-            "sling:resourceType": "venia/components/commerce/productteaser",
-            "cta": "details",
-            "ctaText": "See more details"
-          },
-          "productteaser-no-sku": {
-            "sling:resourceType": "venia/components/commerce/productteaser"
-          },
-          "productteaser-cta-test": {
-            "sling:resourceType": "venia/components/commerce/productteaser",
-            "cta": "add-to-cart",
-            "selection": "sku"
-          },
-          "productteaser-cta-text-test": {
-            "sling:resourceType": "venia/components/commerce/productteaser",
-            "cta": "add-to-cart",
-            "selection": "sku",
-            "ctaText": "custom"
-          },
-          "productteaser-link-target-unchecked": {
-            "sling:resourceType": "venia/components/commerce/productteaser",
-            "cta": "details",
-            "selection": "sku",
-            "linkTarget": "_self"
-          },
-          "productteaser-link-target-checked": {
-            "sling:resourceType": "venia/components/commerce/productteaser",
-            "cta": "details",
-            "selection": "sku",
-            "linkTarget": "_blank"
-          },
-          "productcarousel": {
-            "product": [
-              "NOT-FOUND",
-              "24-MG01",
-              "MJ01#MJ01-L-Red",
-              "faultyproduct",
-              "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/WJ01",
-              "MJ01"
-            ],
-            "sling:resourceType": "venia/components/commerce/productcarousel",
-            "titleType": "h2"
-          },
-          "productcarousel_with_category": {
-            "category": "MTI=",
-            "productCount": "2",
-            "selectionType": "category",
-            "sling:resourceType": "venia/components/commerce/productcarousel",
-            "titleType": "h2"
-          },
-          "productcarousel_with_category_no_product_count": {
-            "category": "MTI=",
-            "selectionType": "category",
-            "sling:resourceType": "venia/components/commerce/productcarousel",
-            "titleType": "h2"
-          },
-          "productcarousel_with_category_small_product_count": {
-            "category": "MTI=",
-            "productCount": "0",
-            "selectionType": "category",
-            "sling:resourceType": "venia/components/commerce/productcarousel",
-            "titleType": "h2"
-          },
-          "productcarousel_with_add_to_buttons": {
-            "category": "MTI=",
-            "productCount": "0",
-            "selectionType": "category",
-            "sling:resourceType": "venia/components/commerce/productcarousel",
-            "titleType": "h2",
-            "enableAddToCart": true,
-            "enableAddToWishList": true
-          },
-          "productcarousel_with_link_target_unchecked": {
-            "sling:resourceType": "venia/components/commerce/productcarousel",
-            "product": [
-              "24-MG01",
-              "MJ01#MJ01-L-Red"
-            ],
-            "linkTarget": "_self"
-          },
-          "productcarousel_with_link_target_checked": {
-            "sling:resourceType": "venia/components/commerce/productcarousel",
-            "product": [
-              "24-MG01",
-              "MJ01#MJ01-L-Red"
-            ],
-            "linkTarget": "_blank"
-          },
-          "product": {
-            "sling:resourceType": "venia/components/commerce/product"
-          },
-          "productwithid": {
-            "sling:resourceType": "venia/components/commerce/product",
-            "id": "custom-id"
-          },
-          "productlist": {
-            "loadClientPrice": true,
-            "showImage": true,
-            "showTitle": true,
-            "defaultSortField": "price",
-            "defaultSortOrder": "ASC",
-            "sling:resourceType": "venia/components/commerce/productlist"
-          },
-          "productlist_no_sorting": {
-            "loadClientPrice": true,
-            "showImage": true,
-            "showTitle": true,
-            "sling:resourceType": "venia/components/commerce/productlist"
-          },
-          "productlist_with_xf": {
-            "loadClientPrice": true,
-            "showImage": true,
-            "showTitle": true,
-            "defaultSortField": "price",
-            "defaultSortOrder": "ASC",
-            "sling:resourceType": "venia/components/commerce/productlist",
-            "fragmentEnabled": true,
-            "fragments": {
-              "item0": {
-                "fragmentLocation": "grid",
-                "fragmentCssClass": "test-class"
+            "productteaser-simple": {
+                "selection": "MJ01",
+                "sling:resourceType": "venia/components/commerce/productteaser"
+            },
+            "productteaser-virtual": {
+                "selection": "VVP01",
+                "sling:resourceType": "venia/components/commerce/productteaser"
+            },
+            "productteaser-variant": {
+                "selection": "MJ01#MJ01-XS-Orange",
+                "sling:resourceType": "venia/components/commerce/productteaser",
+                "cta": "add-to-cart"
+            },
+            "productteaser-path": {
+                "selection": "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/MJ01",
+                "sling:resourceType": "venia/components/commerce/productteaser"
+            },
+            "productteaser-noclient": {
+                "selection": "MJ01",
+                "sling:resourceType": "venia/components/commerce/productteaser"
+            },
+            "productteaser-full": {
+                "selection": "MJ01",
+                "sling:resourceType": "venia/components/commerce/productteaser",
+                "cta": "details",
+                "ctaText": "See more details"
+            },
+            "productteaser-no-sku": {
+                "sling:resourceType": "venia/components/commerce/productteaser"
+            },
+            "productteaser-cta-test": {
+              "sling:resourceType": "venia/components/commerce/productteaser",
+              "cta": "add-to-cart",
+              "selection": "sku"
+            },
+            "productteaser-cta-text-test": {
+              "sling:resourceType": "venia/components/commerce/productteaser",
+              "cta": "add-to-cart",
+              "selection": "sku",
+              "ctaText": "custom"
+            },
+            "productteaser-link-target-unchecked": {
+              "sling:resourceType": "venia/components/commerce/productteaser",
+              "cta": "details",
+              "selection": "sku",
+              "linkTarget": "_self"
+            },
+            "productteaser-link-target-checked": {
+              "sling:resourceType": "venia/components/commerce/productteaser",
+              "cta": "details",
+              "selection": "sku",
+              "linkTarget": "_blank"
+            },
+            "productcarousel": {
+                "product": [
+                    "NOT-FOUND",
+                    "24-MG01",
+                    "MJ01#MJ01-L-Red",
+                    "faultyproduct",
+                    "/var/commerce/products/catalog/luma/men/tops-men/jackets-men/WJ01",
+                    "MJ01"
+                ],
+                "sling:resourceType": "venia/components/commerce/productcarousel",
+                "titleType": "h2"
+            },
+            "productcarousel_with_category": {
+              "category": "MTI=",
+              "productCount": "2",
+              "selectionType": "category",
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "titleType": "h2"
+            },
+            "productcarousel_with_category_no_product_count": {
+              "category": "MTI=",
+              "selectionType": "category",
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "titleType": "h2"
+            },
+            "productcarousel_with_category_small_product_count": {
+              "category": "MTI=",
+              "productCount": "0",
+              "selectionType": "category",
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "titleType": "h2"
+            },
+            "productcarousel_with_add_to_buttons": {
+              "category": "MTI=",
+              "productCount": "0",
+              "selectionType": "category",
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "titleType": "h2",
+              "enableAddToCart": true,
+              "enableAddToWishList": true
+            },
+            "productcarousel_with_link_target_unchecked": {
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "product": ["24-MG01", "MJ01#MJ01-L-Red"],
+              "linkTarget": "_self"
+            },
+            "productcarousel_with_link_target_checked": {
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "product": ["24-MG01", "MJ01#MJ01-L-Red"],
+              "linkTarget": "_blank"
+            },
+            "product": {
+                "sling:resourceType": "venia/components/commerce/product"
+            },
+            "productwithid": {
+              "sling:resourceType": "venia/components/commerce/product",
+              "id": "custom-id"
+            },
+            "productwithvisiblesections": {
+                "sling:resourceType": "venia/components/commerce/product",
+                "visibleSections": [
+                    "title",
+                    "price",
+                    "sku"
+                ]
+            },
+            "productlist": {
+                "loadClientPrice": true,
+                "showImage": true,
+                "showTitle": true,
+                "defaultSortField": "price",
+                "defaultSortOrder": "ASC",
+                "sling:resourceType": "venia/components/commerce/productlist"
+            },
+            "productlist_no_sorting": {
+              "loadClientPrice": true,
+              "showImage": true,
+              "showTitle": true,
+              "sling:resourceType": "venia/components/commerce/productlist"
+            },
+            "productlist_with_xf": {
+              "loadClientPrice": true,
+              "showImage": true,
+              "showTitle": true,
+              "defaultSortField": "price",
+              "defaultSortOrder": "ASC",
+              "sling:resourceType": "venia/components/commerce/productlist",
+              "fragmentEnabled": true,
+              "fragments": {
+                "item0": {
+                  "fragmentLocation": "grid",
+                  "fragmentPosition": 1
+                }
               }
-            }
-          },
-          "productlist_with_multiple_xf": {
-            "loadClientPrice": true,
-            "showImage": true,
-            "showTitle": true,
-            "defaultSortField": "price",
-            "defaultSortOrder": "ASC",
-            "sling:resourceType": "venia/components/commerce/productlist",
-            "fragmentEnabled": true,
-            "fragments": {
-              "item0": {
-                "fragmentLocation": "grid"
-              },
-              "item1": {
-                "fragmentLocation": "grid",
-                "fragmentCssClass": "test-class"
-              },
-              "item2": {
-                "fragmentLocation": "inexistent"
+            },
+            "productlist_with_multiple_xf": {
+              "loadClientPrice": true,
+              "showImage": true,
+              "showTitle": true,
+              "defaultSortField": "price",
+              "defaultSortOrder": "ASC",
+              "sling:resourceType": "venia/components/commerce/productlist",
+              "fragmentEnabled": true,
+              "fragments": {
+                "item0": {
+                  "fragmentLocation": "grid",
+                  "fragmentPosition": 1
+                },
+                "item1": {
+                  "fragmentLocation": "grid",
+                  "fragmentPosition": 3
+                },
+                "item2": {
+                  "fragmentLocation": "grid",
+                  "fragmentPosition": 4
+                },
+                "item3": {
+                  "fragmentLocation": "grid",
+                  "fragmentPosition": 10
+                },
+                "item4": {
+                  "fragmentLocation": "grid",
+                  "fragmentPosition": 11
+                },
+                "item5": {
+                  "fragmentLocation": "grid",
+                  "fragmentPosition": 12
+                },
+                "item6": {
+                  "fragmentLocation": "grid",
+                  "fragmentPosition": 13
+                },
+                "item7": {
+                  "fragmentLocation": "grid",
+                  "fragmentPosition": 14
+                }
               }
-            }
-          },
-          "searchresults": {
-            "sling:resourceType": "core/cif/components/commerce/searchresults/v2/searchresults",
-            "defaultSortField": "relevance",
-            "defaultSortOrder": "DESC"
-          },
-          "relatedproducts": {
-            "product": "24-MG01",
-            "relationType": "RELATED_PRODUCTS",
-            "sling:resourceType": "venia/components/commerce/relatedproducts",
-            "titleType": "h2"
-          },
-          "upsellproducts": {
-            "relationType": "UPSELL_PRODUCTS",
-            "sling:resourceType": "venia/components/commerce/relatedproducts"
-          },
-          "crosssellproducts": {
-            "relationType": "CROSS_SELL_PRODUCTS",
-            "sling:resourceType": "venia/components/commerce/relatedproducts"
-          },
-          "relatedproducts-without-relation-type": {
-            "product": "24-MG01",
-            "sling:resourceType": "venia/components/commerce/relatedproducts"
-          },
-          "commerceteaser": {
-            "actionsEnabled": true,
-            "sling:resourceType": "venia/components/content/teaser",
-            "pretitle": "Pretitle",
-            "titleFromPage": "flase",
-            "jcr:title": "Title",
-            "descriptionFromPage": false,
-            "jcr:description": "Description",
-            "id": "id",
-            "fileReference": "/content/dam/image.jpg",
-            "actions": {
-              "item0": {
-                "productSlug": "beaumont-summit-kit",
-                "text": "A product"
-              },
-              "item1": {
-                "categoryId": "uid-5",
-                "text": "A category"
-              },
-              "item2": {
-                "categoryId": "uid-6",
-                "productSlug": "beaumont-summit-kit",
-                "text": "A category"
-              },
-              "item3": {
-                "text": "Some text"
-              },
-              "item4": {
-                "link": "/content/page",
-                "text": "A page"
-              }
-            }
-          },
-          "commerceteaser2": {
-            "actionsEnabled": true,
-            "sling:resourceType": "venia/components/content/teaser",
-            "pretitle": "Pretitle",
-            "titleFromPage": "flase",
-            "jcr:title": "Title",
-            "descriptionFromPage": false,
-            "jcr:description": "Description",
-            "id": "id",
-            "fileReference": "/content/dam/image.jpg",
-            "actions": {
-              "item0": {
-                "productSku": "MJ01",
-                "text": "A product"
-              },
-              "item1": {
-                "categoryId": "uid-5",
-                "text": "A category"
-              },
-              "item2": {
-                "categoryId": "uid-5",
-                "productSku": "MJ01",
-                "text": "A category"
-              },
-              "item3": {
-                "text": "Some text"
-              },
-              "item4": {
-                "link": "/content/page",
-                "text": "A page"
-              }
-            }
-          },
-          "commerceteaser3": {
-            "actionsEnabled": true,
-            "sling:resourceType": "venia/components/content/teaser",
-            "pretitle": "Pretitle",
-            "titleFromPage": "flase",
-            "jcr:title": "Title",
-            "descriptionFromPage": false,
-            "jcr:description": "Description",
-            "id": "id",
-            "fileReference": "/content/dam/image.jpg",
-            "actions": {
-              "item0": {
-                "productSku": "MJ01",
-                "text": "A product",
-                "linkTarget": "_blank"
-              },
-              "item1": {
-                "categoryId": "uid-5",
-                "text": "A category",
-                "linkTarget": "_self"
-              },
-              "item2": {
-                "categoryId": "uid-5",
-                "productSku": "MJ01",
-                "text": "A category"
-              },
-              "item3": {
-                "text": "Some text"
-              },
-              "item4": {
-                "link": "/content/page",
-                "text": "A page"
-              }
-            }
-          },
-          "featuredcategorylist": {
-            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-            "titleType": "h2",
-            "items": {
-              "item0": {
-                "categoryId": "uid-5",
-                "categoryIdType": "uid"
-              },
-              "item1": {
-                "categoryId": "uid-6",
-                "categoryIdType": "uid",
-                "asset": "/content/dam/venia/landing_page_image4.jpg"
-              },
-              "item2": {
-                "categoryId": "uid-7",
-                "categoryIdType": "uid",
-                "asset": "invalid-asset"
-              },
-              "item3": {},
-              "item4": {
-                "categoryId": "9999"
-              }
-            }
-          },
-          "featuredcategorylist2": {
-            "sling:resourceType": "venia/components/commerce/featuredcategorylist"
-          },
-          "featuredcategorylist3": {
-            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-            "items": {
-              "item0": {
-                "categoryId": "uid-5"
-              }
-            }
-          },
-          "featuredcategorylist4": {
-            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-            "items": {
-              "item0": {
-                "categoryId": "uid-5"
-              },
-              "item1": {
-                "categoryId": "uid-6"
-              },
-              "item2": {
-                "categoryId": "uid-7"
-              }
-            }
-          },
-          "featuredcategorylist_with_link_target_unchecked": {
-            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-            "product": [
-              "24-MG01",
-              "MJ01#MJ01-L-Red"
-            ],
-            "items": {
-              "item0": {
-                "categoryId": "uid-5"
+            },
+            "searchresults": {
+                "sling:resourceType": "core/cif/components/commerce/searchresults/v2/searchresults",
+                "defaultSortField": "relevance",
+                "defaultSortOrder": "DESC"
+            },
+            "relatedproducts": {
+                "product": "24-MG01",
+                "relationType": "RELATED_PRODUCTS",
+                "sling:resourceType": "venia/components/commerce/relatedproducts",
+                "titleType": "h2"
+            },
+            "upsellproducts": {
+                "relationType": "UPSELL_PRODUCTS",
+                "sling:resourceType": "venia/components/commerce/relatedproducts"
+            },
+            "crosssellproducts": {
+                "relationType": "CROSS_SELL_PRODUCTS",
+                "sling:resourceType": "venia/components/commerce/relatedproducts"
+            },
+            "relatedproducts-without-relation-type": {
+                "product": "24-MG01",
+                "sling:resourceType": "venia/components/commerce/relatedproducts"
+            },
+            "commerceteaser": {
+                "actionsEnabled": true,
+                "sling:resourceType": "venia/components/content/teaser",
+                "pretitle": "Pretitle",
+                "titleFromPage": "flase",
+                "jcr:title": "Title",
+                "descriptionFromPage": false,
+                "jcr:description": "Description",
+                "id": "id",
+                "fileReference": "/content/dam/image.jpg",
+                "actions": {
+                    "item0": {
+                        "productSlug": "beaumont-summit-kit",
+                        "text": "A product"
+                    },
+                    "item1": {
+                        "categoryId": "uid-5",
+                        "text": "A category"
+                    },
+                    "item2": {
+                        "categoryId": "uid-6",
+                        "productSlug": "beaumont-summit-kit",
+                        "text": "A category"
+                    },
+                    "item3": {
+                        "text": "Some text"
+                    },
+                    "item4": {
+                        "link": "/content/page",
+                        "text": "A page"
+                    }
+                }
+            },
+            "commerceteaser2": {
+                "actionsEnabled": true,
+                "sling:resourceType": "venia/components/content/teaser",
+                "pretitle": "Pretitle",
+                "titleFromPage": "flase",
+                "jcr:title": "Title",
+                "descriptionFromPage": false,
+                "jcr:description": "Description",
+                "id": "id",
+                "fileReference": "/content/dam/image.jpg",
+                "actions": {
+                    "item0": {
+                        "productSku": "MJ01",
+                        "text": "A product"
+                    },
+                    "item1": {
+                        "categoryId": "uid-5",
+                        "text": "A category"
+                    },
+                    "item2": {
+                        "categoryId": "uid-5",
+                        "productSku": "MJ01",
+                        "text": "A category"
+                    },
+                    "item3": {
+                        "text": "Some text"
+                    },
+                    "item4": {
+                        "link": "/content/page",
+                        "text": "A page"
+                    }
+                }
+            },
+            "commerceteaser3": {
+              "actionsEnabled": true,
+              "sling:resourceType": "venia/components/content/teaser",
+              "pretitle": "Pretitle",
+              "titleFromPage": "flase",
+              "jcr:title": "Title",
+              "descriptionFromPage": false,
+              "jcr:description": "Description",
+              "id": "id",
+              "fileReference": "/content/dam/image.jpg",
+              "actions": {
+                "item0": {
+                  "productSku": "MJ01",
+                  "text": "A product",
+                  "linkTarget": "_blank"
+                },
+                "item1": {
+                  "categoryId": "uid-5",
+                  "text": "A category",
+                  "linkTarget": "_self"
+                },
+                "item2": {
+                  "categoryId": "uid-5",
+                  "productSku": "MJ01",
+                  "text": "A category"
+                },
+                "item3": {
+                  "text": "Some text"
+                },
+                "item4": {
+                  "link": "/content/page",
+                  "text": "A page"
+                }
               }
             },
             "linkTarget": "_self"

@@ -16,13 +16,13 @@
 package com.adobe.cq.commerce.core.components.internal.models.v3.product;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import org.apache.sling.api.scripting.SlingBindings;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
 import com.adobe.cq.commerce.core.components.models.product.VariantValue;
@@ -31,8 +31,10 @@ import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
 import com.adobe.cq.commerce.magento.graphql.Query;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -40,6 +42,8 @@ import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 
 public class ProductImplTest extends com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImplTest {
+
+    private static final String PRODUCT_WITH_VISIBLE_SECTIONS = "/content/pageA/jcr:content/root/responsivegrid/productwithvisiblesections";
 
     @Override
     protected void adaptToProduct() {
@@ -120,11 +124,21 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
 
     @Test
     public void testVisibleSectionsWithStyle() {
-        when(style.get(anyString(), anyBoolean())).thenReturn(Boolean.FALSE);
-        when(style.get(eq("showSku"), anyBoolean())).thenReturn(Boolean.TRUE);
+        when(style.get(eq("visibleSections"), any(String[].class))).thenReturn(new String[] { "price", "title" });
         adaptToProduct();
-        Set<String> expected = new HashSet<>();
-        expected.add("SKU");
-        assertEquals(expected, productModel.getVisibleSections());
+        assertThat(productModel.getVisibleSections()).containsOnly(Product.PRICE_SECTION, Product.TITLE_SECTION);
+    }
+
+    @Test
+    public void testVisibleSections() {
+        context.currentResource(PRODUCT_WITH_VISIBLE_SECTIONS);
+        context.request().setServletPath(PRODUCT_WITH_VISIBLE_SECTIONS + ".beaumont-summit-kit.html");
+        productResource = context.resourceResolver().getResource(PRODUCT_WITH_VISIBLE_SECTIONS);
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(productResource);
+        slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
+
+        adaptToProduct();
+        assertThat(productModel.getVisibleSections()).containsOnly(Product.PRICE_SECTION, Product.TITLE_SECTION, Product.SKU_SECTION);
     }
 }
