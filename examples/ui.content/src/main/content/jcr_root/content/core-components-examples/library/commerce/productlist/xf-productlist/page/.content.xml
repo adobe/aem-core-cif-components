@@ -106,7 +106,7 @@
                                 <item0
                                     jcr:primaryType="nt:unstructured"
                                     fragmentLocation="grid"
-                                    fragmentPosition="3"/>
+                                    fragmentCssClass="test-class"/>
                             </fragments>
                         </productlist>
                     </component>

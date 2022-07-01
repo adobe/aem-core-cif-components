@@ -58,6 +58,7 @@ import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser;
 import com.adobe.cq.commerce.core.components.models.searchresults.SearchResults;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.components.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -122,6 +123,8 @@ public class GraphqlServletTest {
                     (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
 
                 context.registerService(Externalizer.class, Mockito.mock(Externalizer.class));
+                context.registerService(CommerceExperienceFragmentsRetriever.class,
+                    mock(CommerceExperienceFragmentsRetriever.class));
 
                 XSSAPI xssApi = mock(XSSAPI.class);
                 when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
