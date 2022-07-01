@@ -28,7 +28,7 @@ import org.apache.sling.testing.mock.jcr.MockQuery;
 import org.apache.sling.testing.mock.jcr.MockQueryResult;
 import org.apache.sling.testing.mock.jcr.MockQueryResultHandler;
 
-import com.adobe.cq.commerce.core.components.services.experiencefragments.CommerceExperienceFragmentsRetriever;
+import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragment;
 
 /**
  * Mock query result handler to simulate the search of experience fragments.
@@ -56,7 +56,7 @@ public class XFMockQueryResultHandler implements MockQueryResultHandler {
      * @param fragmentLocation The value of the <code>fragmentLocation</code>
      *            property, can be null.
      */
-    public XFMockQueryResultHandler(Resource root, String productSku, String categoryId, String fragmentLocation) {
+    XFMockQueryResultHandler(Resource root, String productSku, String categoryId, String fragmentLocation) {
         this.root = root;
         this.productSku = productSku;
         this.categoryId = categoryId;
@@ -75,9 +75,9 @@ public class XFMockQueryResultHandler implements MockQueryResultHandler {
         Resource jcrContent = res.getChild("jcr:content");
         if (jcrContent != null) {
             ValueMap vm = jcrContent.getValueMap();
-            String sku = vm.get(CommerceExperienceFragmentsRetriever.PN_CQ_PRODUCTS, String.class);
-            String categoryId = vm.get(CommerceExperienceFragmentsRetriever.PN_CQ_CATEGORIES, String.class);
-            String fragmentLocation = vm.get(CommerceExperienceFragmentsRetriever.PN_FRAGMENT_LOCATION, String.class);
+            String sku = vm.get(CommerceExperienceFragment.PN_CQ_PRODUCTS, String.class);
+            String categoryId = vm.get(CommerceExperienceFragment.PN_CQ_CATEGORIES, String.class);
+            String fragmentLocation = vm.get(CommerceExperienceFragment.PN_FRAGMENT_LOCATION, String.class);
             if (StringUtils.equals(this.fragmentLocation, fragmentLocation)
                 && ((this.productSku == null && this.categoryId == null)
                     || (this.productSku != null && StringUtils.equals(this.productSku, sku))

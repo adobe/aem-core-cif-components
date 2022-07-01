@@ -36,6 +36,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragment;
 import com.adobe.cq.commerce.core.components.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
@@ -81,8 +82,9 @@ public class CommerceExperienceFragmentsRetrieverImpl implements CommerceExperie
     private String buildQueryForProduct(String sku, String fragmentLocation, Page currentPage) {
         // This query is backed up by an index
         final String PRODUCT_QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s') "
-            + "AND (node.[" + PN_CQ_PRODUCTS + "] = '%s' OR node.[" + PN_CQ_PRODUCTS + "] LIKE '%s#%%') "
-            + "AND node.[" + PN_FRAGMENT_LOCATION + "] ";
+            + "AND (node.[" + CommerceExperienceFragment.PN_CQ_PRODUCTS + "] = '%s' OR node.[" + CommerceExperienceFragment.PN_CQ_PRODUCTS
+            + "] LIKE '%s#%%') "
+            + "AND node.[" + CommerceExperienceFragment.PN_FRAGMENT_LOCATION + "] ";
 
         String query = String.format(PRODUCT_QUERY_TEMPLATE, getExperienceFragmentsRoot(currentPage), sku, sku);
         if (fragmentLocation != null) {
@@ -96,8 +98,8 @@ public class CommerceExperienceFragmentsRetrieverImpl implements CommerceExperie
 
     private String buildQueryForCategory(String categoryId, String fragmentLocation, Page currentPage) {
         final String CATEGORY_QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s') "
-            + "AND node.[" + PN_CQ_CATEGORIES + "] = '%s' "
-            + "AND node.[" + PN_FRAGMENT_LOCATION + "] ";
+            + "AND node.[" + CommerceExperienceFragment.PN_CQ_CATEGORIES + "] = '%s' "
+            + "AND node.[" + CommerceExperienceFragment.PN_FRAGMENT_LOCATION + "] ";
 
         String query = String.format(CATEGORY_QUERY_TEMPLATE, getExperienceFragmentsRoot(currentPage), categoryId);
         if (fragmentLocation != null) {

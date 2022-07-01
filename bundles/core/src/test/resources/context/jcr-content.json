@@ -149,62 +149,40 @@
               "sling:resourceType": "venia/components/commerce/productlist"
             },
             "productlist_with_xf": {
-              "loadClientPrice": true,
-              "showImage": true,
-              "showTitle": true,
-              "defaultSortField": "price",
-              "defaultSortOrder": "ASC",
-              "sling:resourceType": "venia/components/commerce/productlist",
-              "fragmentEnabled": true,
-              "fragments": {
-                "item0": {
-                  "fragmentLocation": "grid",
-                  "fragmentPosition": 1
+                "loadClientPrice": true,
+                "showImage": true,
+                "showTitle": true,
+                "defaultSortField": "price",
+                "defaultSortOrder": "ASC",
+                "sling:resourceType": "venia/components/commerce/productlist",
+                "fragmentEnabled": true,
+                "fragments": {
+                    "item0": {
+                        "fragmentLocation": "grid",
+                        "fragmentCssClass": "test-class"
+                    }
                 }
-              }
             },
             "productlist_with_multiple_xf": {
-              "loadClientPrice": true,
-              "showImage": true,
-              "showTitle": true,
-              "defaultSortField": "price",
-              "defaultSortOrder": "ASC",
-              "sling:resourceType": "venia/components/commerce/productlist",
-              "fragmentEnabled": true,
-              "fragments": {
-                "item0": {
-                  "fragmentLocation": "grid",
-                  "fragmentPosition": 1
-                },
-                "item1": {
-                  "fragmentLocation": "grid",
-                  "fragmentPosition": 3
-                },
-                "item2": {
-                  "fragmentLocation": "grid",
-                  "fragmentPosition": 4
-                },
-                "item3": {
-                  "fragmentLocation": "grid",
-                  "fragmentPosition": 10
-                },
-                "item4": {
-                  "fragmentLocation": "grid",
-                  "fragmentPosition": 11
-                },
-                "item5": {
-                  "fragmentLocation": "grid",
-                  "fragmentPosition": 12
-                },
-                "item6": {
-                  "fragmentLocation": "grid",
-                  "fragmentPosition": 13
-                },
-                "item7": {
-                  "fragmentLocation": "grid",
-                  "fragmentPosition": 14
+                "loadClientPrice": true,
+                "showImage": true,
+                "showTitle": true,
+                "defaultSortField": "price",
+                "defaultSortOrder": "ASC",
+                "sling:resourceType": "venia/components/commerce/productlist",
+                "fragmentEnabled": true,
+                "fragments": {
+                    "item0": {
+                        "fragmentLocation": "grid"
+                    },
+                    "item1": {
+                        "fragmentLocation": "grid",
+                        "fragmentCssClass": "test-class"
+                    },
+                    "item2": {
+                        "fragmentLocation": "inexistent"
+                    }
                 }
-              }
             },
             "searchresults": {
                 "sling:resourceType": "core/cif/components/commerce/searchresults/v2/searchresults",
@@ -330,127 +308,176 @@
                 }
               }
             },
-            "linkTarget": "_self"
-          },
-          "featuredcategorylist_with_link_target_checked": {
-            "sling:resourceType": "venia/components/commerce/featuredcategorylist",
-            "items": {
-              "item0": {
-                "categoryId": "uid-5"
-              }
+            "featuredcategorylist": {
+                "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+                "titleType": "h2",
+                "items": {
+                    "item0": {
+                        "categoryId": "uid-5",
+                        "categoryIdType": "uid"
+                    },
+                    "item1": {
+                        "categoryId": "uid-6",
+                        "categoryIdType": "uid",
+                        "asset": "/content/dam/venia/landing_page_image4.jpg"
+                    },
+                    "item2": {
+                        "categoryId": "uid-7",
+                        "categoryIdType": "uid",
+                        "asset": "invalid-asset"
+                    },
+                    "item3": {},
+                    "item4": {
+                        "categoryId": "9999"
+                    }
+                }
             },
-            "linkTarget": "_blank"
-          },
-          "productcollection": {
-            "sling:resourceType": "venia/components/commerce/productcollection"
-          },
-          "productcollection2": {
-            "loadClientPrice": false,
-            "pageSize": 8,
-            "paginationType": "loadmorebutton",
-            "sling:resourceType": "venia/components/commerce/productcollection"
-          },
-          "buttonTypeProduct": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v1/button",
-            "linkType": "product",
-            "productSlug": "blast-mini-pump"
-          },
-          "buttonTypeProductEmpty": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v1/button",
-            "linkType": "product"
-          },
-          "buttonTypeCategory": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v1/button",
-            "linkType": "category",
-            "categoryId": "MTI=="
-          },
-          "buttonTypeCategoryEmpty": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v1/button",
-            "linkType": "category"
-          },
-          "buttonTypeToPage": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v1/button",
-            "linkType": "linkTo",
-            "linkTo": "/content/venia/language-masters/en"
-          },
-          "buttonTypeToPageEmpty": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v1/button",
-            "linkType": "linkTo"
-          },
-          "buttonTypeExternalLink": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v1/button",
-            "linkType": "externalLink",
-            "externalLink": "http://sample-link.com"
-          },
-          "buttonTypeExternalLinkEmpty": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v1/button",
-            "linkType": "externalLink"
-          },
-          "buttonDefaultUrl": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v1/button"
-          },
-          "button2TypeProduct": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v2/button",
-            "linkType": "product",
-            "productSku": "MJ01"
-          },
-          "button2TypeProductEmpty": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v2/button",
-            "linkType": "product"
-          },
-          "button2TypeCategory": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v2/button",
-            "linkType": "category",
-            "categoryId": "MTI=="
-          },
-          "button2TypeCategoryEmpty": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v2/button",
-            "linkType": "category"
-          },
-          "button2TypeToPage": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v2/button",
-            "linkType": "linkTo",
-            "linkTo": "/content/venia/language-masters/en"
-          },
-          "button2TypeToPageEmpty": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v2/button",
-            "linkType": "linkTo"
-          },
-          "button2TypeExternalLink": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v2/button",
-            "linkType": "externalLink",
-            "externalLink": "http://sample-link.com"
-          },
-          "button2TypeExternalLinkEmpty": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v2/button",
-            "linkType": "externalLink"
-          },
-          "button2DefaultUrl": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v2/button"
-          },
-          "button2InvalidLinkType": {
-            "jcr:primaryType": "nt:unstructured",
-            "sling:resourceType": "core/cif/components/content/button/v2/button",
-            "linkType": "invalid"
-          }
+            "featuredcategorylist2": {
+                "sling:resourceType": "venia/components/commerce/featuredcategorylist"
+            },
+            "featuredcategorylist3": {
+                "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+                "items": {
+                    "item0": {
+                        "categoryId": "uid-5"
+                    }
+                }
+            },
+            "featuredcategorylist4": {
+                "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+                "items": {
+                    "item0": {
+                        "categoryId": "uid-5"
+                    },
+                    "item1": {
+                        "categoryId": "uid-6"
+                    },
+                    "item2": {
+                        "categoryId": "uid-7"
+                    }
+                }
+            },
+            "featuredcategorylist_with_link_target_unchecked": {
+              "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+              "product": ["24-MG01", "MJ01#MJ01-L-Red"],
+              "items": { "item0": { "categoryId": "uid-5"}},
+              "linkTarget": "_self"
+            },
+            "featuredcategorylist_with_link_target_checked": {
+              "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+              "items": { "item0": { "categoryId": "uid-5"}},
+              "linkTarget": "_blank"
+            },
+            "productcollection": {
+                "sling:resourceType": "venia/components/commerce/productcollection"
+            },
+            "productcollection2": {
+                "loadClientPrice": false,
+                "pageSize": 8,
+                "paginationType": "loadmorebutton",
+                "sling:resourceType": "venia/components/commerce/productcollection"
+            },
+            "buttonTypeProduct": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v1/button",
+                "linkType": "product",
+                "productSlug": "blast-mini-pump"
+            },
+            "buttonTypeProductEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v1/button",
+                "linkType": "product"
+            },
+            "buttonTypeCategory": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v1/button",
+                "linkType": "category",
+                "categoryId": "MTI=="
+            },
+            "buttonTypeCategoryEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v1/button",
+                "linkType": "category"
+            },
+            "buttonTypeToPage": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v1/button",
+                "linkType": "linkTo",
+                "linkTo": "/content/venia/language-masters/en"
+            },
+            "buttonTypeToPageEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v1/button",
+                "linkType": "linkTo"
+            },
+            "buttonTypeExternalLink": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v1/button",
+                "linkType": "externalLink",
+                "externalLink": "http://sample-link.com"
+            },
+            "buttonTypeExternalLinkEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v1/button",
+                "linkType": "externalLink"
+            },
+            "buttonDefaultUrl": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v1/button"
+            },
+            "button2TypeProduct": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "linkType": "product",
+                "productSku": "MJ01"
+            },
+            "button2TypeProductEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "linkType": "product"
+            },
+            "button2TypeCategory": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "linkType": "category",
+                "categoryId": "MTI=="
+            },
+            "button2TypeCategoryEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "linkType": "category"
+            },
+            "button2TypeToPage": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "linkType": "linkTo",
+                "linkTo": "/content/venia/language-masters/en"
+            },
+            "button2TypeToPageEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "linkType": "linkTo"
+            },
+            "button2TypeExternalLink": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "linkType": "externalLink",
+                "externalLink": "http://sample-link.com"
+            },
+            "button2TypeExternalLinkEmpty": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "linkType": "externalLink"
+            },
+            "button2DefaultUrl": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button"
+            },
+            "button2InvalidLinkType": {
+                "jcr:primaryType": "nt:unstructured",
+                "sling:resourceType": "core/cif/components/content/button/v2/button",
+                "linkType": "invalid"
+            }
         }
       }
     }
@@ -584,7 +611,7 @@
                       }
                     }
                   }
-                }
+                } 
               },
               "pageH": {
                 "jcr:primaryType": "cq:Page",

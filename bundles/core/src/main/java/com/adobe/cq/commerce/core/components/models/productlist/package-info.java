@@ -13,7 +13,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-@Version("4.6.0")
+@Version("4.5.0")
 package com.adobe.cq.commerce.core.components.models.productlist;
 
 import org.osgi.annotation.versioning.Version;
