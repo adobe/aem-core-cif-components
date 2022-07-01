@@ -41,6 +41,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
+import com.adobe.cq.commerce.core.components.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.core.testing.TestContext;
@@ -87,6 +88,9 @@ public class CatalogPageNotFoundFilterTest {
         Whitebox.setInternalState(commerceModelFinder, "modelFactory", aemContext.getService(ModelFactory.class));
         this.contentModelFinder = spy(commerceModelFinder);
         aemContext.registerService(CommerceComponentModelFinder.class, this.contentModelFinder);
+
+        aemContext.registerService(CommerceExperienceFragmentsRetriever.class,
+            mock(CommerceExperienceFragmentsRetriever.class));
 
         aemContext.registerInjectActivateService(new SearchFilterServiceImpl());
         aemContext.registerInjectActivateService(new SearchResultsServiceImpl());

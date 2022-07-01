@@ -44,6 +44,7 @@ import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.components.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.core.testing.MockLaunch;
@@ -94,6 +95,8 @@ public class PageMetadataImplTest {
             // TODO: CIF-2469
             Whitebox.setInternalState(componentModelFinder, "modelFactory", context.getService(ModelFactory.class));
             context.registerService(CommerceComponentModelFinder.class, componentModelFinder);
+
+            context.registerService(CommerceExperienceFragmentsRetriever.class, mock(CommerceExperienceFragmentsRetriever.class));
         })
         .build();
 

@@ -12,7 +12,7 @@
   ~
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.item="${@ item}">
-    <span class="productcollection__item" id="${item.id}">
+    <span class="${'productcollection__item-xf {0}' @ format=[item.cssClassName], context='text'}">
         <sly data-sly-resource="${item.renderResource}" />
     </span>
 </template>

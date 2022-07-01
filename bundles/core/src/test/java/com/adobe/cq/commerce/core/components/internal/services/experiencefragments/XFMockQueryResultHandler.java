@@ -13,7 +13,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-package com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment;
+package com.adobe.cq.commerce.core.components.internal.services.experiencefragments;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,7 +28,7 @@ import org.apache.sling.testing.mock.jcr.MockQuery;
 import org.apache.sling.testing.mock.jcr.MockQueryResult;
 import org.apache.sling.testing.mock.jcr.MockQueryResultHandler;
 
-import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragment;
+import com.adobe.cq.commerce.core.components.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 
 /**
  * Mock query result handler to simulate the search of experience fragments.
@@ -43,15 +43,20 @@ public class XFMockQueryResultHandler implements MockQueryResultHandler {
     private MockQuery query;
 
     /**
-     * Instantiates a result handler that will start looking at the <code>root</code> resource,
-     * and will look for resources matching the given <code>sku</code> and <code>fragmentLocation</code> parameters.
-     * 
+     * Instantiates a result handler that will start looking at the
+     * <code>root</code> resource,
+     * and will look for resources matching the given <code>sku</code> and
+     * <code>fragmentLocation</code> parameters.
+     *
      * @param root The resource where the search should start.
-     * @param productSku The value of the <code>cq:products</code> property, can be null.
-     * @param categoryId The value of the <code>cq:categories</code> property, can be null.
-     * @param fragmentLocation The value of the <code>fragmentLocation</code> property, can be null.
+     * @param productSku The value of the <code>cq:products</code> property,
+     *            can be null.
+     * @param categoryId The value of the <code>cq:categories</code> property,
+     *            can be null.
+     * @param fragmentLocation The value of the <code>fragmentLocation</code>
+     *            property, can be null.
      */
-    XFMockQueryResultHandler(Resource root, String productSku, String categoryId, String fragmentLocation) {
+    public XFMockQueryResultHandler(Resource root, String productSku, String categoryId, String fragmentLocation) {
         this.root = root;
         this.productSku = productSku;
         this.categoryId = categoryId;
@@ -70,9 +75,9 @@ public class XFMockQueryResultHandler implements MockQueryResultHandler {
         Resource jcrContent = res.getChild("jcr:content");
         if (jcrContent != null) {
             ValueMap vm = jcrContent.getValueMap();
-            String sku = vm.get(CommerceExperienceFragment.PN_CQ_PRODUCTS, String.class);
-            String categoryId = vm.get(CommerceExperienceFragment.PN_CQ_CATEGORIES, String.class);
-            String fragmentLocation = vm.get(CommerceExperienceFragment.PN_FRAGMENT_LOCATION, String.class);
+            String sku = vm.get(CommerceExperienceFragmentsRetriever.PN_CQ_PRODUCTS, String.class);
+            String categoryId = vm.get(CommerceExperienceFragmentsRetriever.PN_CQ_CATEGORIES, String.class);
+            String fragmentLocation = vm.get(CommerceExperienceFragmentsRetriever.PN_FRAGMENT_LOCATION, String.class);
             if (StringUtils.equals(this.fragmentLocation, fragmentLocation)
                 && ((this.productSku == null && this.categoryId == null)
                     || (this.productSku != null && StringUtils.equals(this.productSku, sku))

@@ -157,7 +157,7 @@
             "fragments": {
               "item0": {
                 "fragmentLocation": "grid",
-                "fragmentPosition": 1
+                "fragmentCssClass": "test-class"
               }
             }
           },
@@ -171,79 +171,14 @@
             "fragmentEnabled": true,
             "fragments": {
               "item0": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 1
+                "fragmentLocation": "grid"
               },
               "item1": {
                 "fragmentLocation": "grid",
-                "fragmentPosition": 3
+                "fragmentCssClass": "test-class"
               },
               "item2": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 4
-              },
-              "item3": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 10
-              },
-              "item4": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 11
-              },
-              "item5": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 12
-              },
-              "item6": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 13
-              },
-              "item7": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 14
-              }
-            }
-          },
-          "productlist_with_multiple_positions_occupied_xf": {
-            "loadClientPrice": true,
-            "showImage": true,
-            "showTitle": true,
-            "defaultSortField": "price",
-            "defaultSortOrder": "ASC",
-            "sling:resourceType": "venia/components/commerce/productlist",
-            "fragmentEnabled": true,
-            "fragments": {
-              "item0": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 1
-              },
-              "item1": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 2
-              },
-              "item2": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 3
-              },
-              "item3": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 4
-              },
-              "item4": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 5
-              },
-              "item5": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 6
-              },
-              "item6": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 7
-              },
-              "item7": {
-                "fragmentLocation": "grid",
-                "fragmentPosition": 8
+                "fragmentLocation": "inexistent"
               }
             }
           },

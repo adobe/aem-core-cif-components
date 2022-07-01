@@ -19,8 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -40,6 +38,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingScriptHelper;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
@@ -48,14 +47,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.XfProductListItemImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceExperienceFragmentContainerImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment.CommerceExperienceFragmentImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcollection.ProductCollectionImpl;
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.CategoryStorefrontContextImpl;
+import com.adobe.cq.commerce.core.components.models.common.CommerceExperienceFragmentContainer;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.components.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
@@ -78,9 +79,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v1/productlist";
     protected static final String PLACEHOLDER_DATA = "productlist-component-placeholder-data.json";
-    protected static final boolean FRAGMENT_ENABLED_DEFAULT = false;
     protected static final String PN_FRAGMENT_LOCATION = "fragmentLocation";
-    protected static final String PN_FRAGMENT_POSITION = "fragmentPosition";
+    protected static final String PN_FRAGMENT_CSS_CLASS = "fragmentCssClass";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
 
@@ -103,6 +103,9 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @ValueMapValue(name = CATEGORY_PROPERTY, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String categoryUid;
 
+    @OSGiService
+    private CommerceExperienceFragmentsRetriever fragmentsRetriever;
+
     protected AbstractCategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
     private boolean isAuthor;
@@ -110,7 +113,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
 
-    protected Map<Integer, Resource> fragmentsMap = new HashMap<>();
+    protected List<CommerceExperienceFragmentContainer> fragments = new ArrayList<>();
     protected int pageGridSize;
 
     @PostConstruct
@@ -160,29 +163,26 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         if (usePlaceholderData) {
             searchResultsSet = new SearchResultsSetImpl();
         } else {
-            Resource fragmentsNode = resource.getChild(ProductList.NN_FRAGMENTS);
-            if (fragmentsNode != null && fragmentsNode.hasChildren()) {
-                Iterable<Resource> configuredFragments = fragmentsNode.getChildren();
-                for (Resource fragment : configuredFragments) {
-                    Integer position = fragment.getValueMap().get(PN_FRAGMENT_POSITION, Integer.class);
-                    ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(
-                        fragment,
-                        CommerceExperienceFragmentImpl.RESOURCE_TYPE);
-                    resourceWrapper.getValueMap().put(PN_FRAGMENT_LOCATION,
-                        fragment.getValueMap().get(PN_FRAGMENT_LOCATION,
-                            String.class));
-                    fragmentsMap.put(position, resourceWrapper);
+            if (currentPageIndex == 1) {
+                Resource fragmentsNode = resource.getChild(ProductList.NN_FRAGMENTS);
+                if (fragmentsNode != null && fragmentsNode.hasChildren()) {
+                    Iterable<Resource> configuredFragments = fragmentsNode.getChildren();
+                    for (Resource fragment : configuredFragments) {
+                        String fragmentCssClass = fragment.getValueMap().get(PN_FRAGMENT_CSS_CLASS, String.class);
+                        ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(
+                            fragment,
+                            CommerceExperienceFragmentImpl.RESOURCE_TYPE);
+                        String fragmentLocation = fragment.getValueMap().get(PN_FRAGMENT_LOCATION,
+                            String.class);
+                        resourceWrapper.getValueMap().put(PN_FRAGMENT_LOCATION, fragmentLocation);
+                        if (!fragmentsRetriever
+                            .getExperienceFragmentsForCategory(categoryUid, fragmentLocation, currentPage)
+                            .isEmpty()) {
+                            fragments.add(new CommerceExperienceFragmentContainerImpl(resourceWrapper,
+                                fragmentCssClass));
+                        }
+                    }
                 }
-
-                // Altering the page size for graphql requests to accommodate the fragments in
-                // the grid
-                if (fragmentsMap.size() >= navPageSize) {
-                    // Show at least one product in the grid
-                    navPageSize = 1;
-                } else {
-                    navPageSize = pageGridSize - fragmentsMap.size();
-                }
-
             }
 
             searchOptions = new SearchOptionsImpl();
@@ -243,33 +243,13 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                 .filter(Objects::nonNull) // the converter returns null if the conversion fails
                 .collect(Collectors.toList());
         } else {
-            Collection<ProductListItem> products = getSearchResultsSet().getProductListItems();
-            Collection<ProductListItem> result = new ArrayList<>();
-
-            Iterator<ProductListItem> productsIterator = products.iterator();
-            // Getting the maximum fragments to fill the grid
-            List<Integer> fragmentPositions = fragmentsMap.keySet().stream().sorted()
-                .limit(pageGridSize - products.size()).collect(
-                    Collectors.toList());
-
-            // Filling all the grid positions with products or fragments
-            for (int i = 0; i < pageGridSize; i++) {
-                // The fragment positions are index 1 based
-                if (fragmentPositions.contains(i + 1)) {
-                    result.add(new XfProductListItemImpl(fragmentsMap.get(i + 1), getId(), currentPage));
-                } else if (productsIterator.hasNext()) {
-                    result.add(productsIterator.next());
-                }
-            }
-
-            // Adding any remaining fragments that have a position > grid size.
-            fragmentPositions.stream().sorted().skip(result.size() - products.size())
-                .limit(pageGridSize - result.size()).forEach(
-                    f -> result
-                        .add(new XfProductListItemImpl(fragmentsMap.get(f), getId(), currentPage)));
-
-            return result;
+            return getSearchResultsSet().getProductListItems();
         }
+    }
+
+    @Override
+    public List<CommerceExperienceFragmentContainer> getExperienceFragments() {
+        return fragments;
     }
 
     @Nonnull

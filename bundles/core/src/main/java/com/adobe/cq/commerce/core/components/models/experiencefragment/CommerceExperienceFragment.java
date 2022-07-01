@@ -20,17 +20,6 @@ import org.apache.sling.api.resource.Resource;
 import com.adobe.cq.wcm.core.components.models.Component;
 
 public interface CommerceExperienceFragment extends Component {
-
-    /**
-     * Name of the configuration property that specifies the products selected in an experience fragment.
-     */
-    String PN_CQ_PRODUCTS = "cq:products";
-
-    /**
-     * Name of the configuration property that specifies the categories selected in an experience fragment.
-     */
-    String PN_CQ_CATEGORIES = "cq:categories";
-
     /**
      * Name of the configuration property that specifies the experience fragment location name.
      */

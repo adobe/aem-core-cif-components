@@ -15,10 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.productlist;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
+import com.adobe.cq.commerce.core.components.models.common.CommerceExperienceFragmentContainer;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
@@ -37,11 +41,6 @@ public interface ProductList extends Component, ProductCollection, PageMetadata 
      * Name of the boolean resource property indicating if the product list should render the category image.
      */
     String PN_SHOW_IMAGE = "showImage";
-
-    /**
-     * Name of the String resource property for the fragment enabled setting.
-     */
-    String PN_FRAGMENT_ENABLED = "fragmentEnabled";
 
     /**
      * Name of the child node where the fragment elements are stored
@@ -92,4 +91,13 @@ public interface ProductList extends Component, ProductCollection, PageMetadata 
      * @return context of the categories in the product list
      */
     CategoryStorefrontContext getStorefrontContext();
+
+    /**
+     * Return the experience fragment resources that match the configured locations for the current category
+     *
+     * @return a list of experience fragment resources
+     */
+    default List<CommerceExperienceFragmentContainer> getExperienceFragments() {
+        return Collections.emptyList();
+    }
 }
