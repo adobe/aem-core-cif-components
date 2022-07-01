@@ -23,6 +23,12 @@
           }
         },
         {
+          "name": "category_uid",
+          "type": {
+            "name": "FilterEqualTypeInput"
+          }
+        },
+        {
           "name": "climate",
           "type": {
             "name": "FilterEqualTypeInput"

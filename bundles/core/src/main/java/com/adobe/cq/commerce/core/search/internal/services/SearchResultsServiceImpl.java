@@ -15,13 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.search.internal.services;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -152,10 +146,10 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 categoryRetriever = new CategoryUrlParameterRetriever(magentoGraphqlClient);
                 categoryRetriever.setIdentifier(mutableSearchOptions.getCategoryUid().get());
             }
-            category = categoryRetriever.fetchCategory();
-            if (category != null && category.getUid() != null) {
-                mutableSearchOptions.setCategoryUid(category.getUid().toString());
-            }
+            // category = categoryRetriever.fetchCategory();
+            // if (category != null && category.getUid() != null) {
+            // mutableSearchOptions.setCategoryUid(category.getUid().toString());
+            // }
         }
 
         if (categoryRetriever == null && StringUtils.isNotEmpty(mutableSearchOptions.getAllFilters().get(CATEGORY_ID_FILTER))) {
@@ -173,7 +167,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 }
             };
             categoryRetriever.setIdentifier(mutableSearchOptions.getAllFilters().get(CATEGORY_ID_FILTER));
-            category = categoryRetriever.fetchCategory();
+            // category = categoryRetriever.fetchCategory();
         }
 
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
@@ -182,7 +176,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         SorterKey currentSorterKey = prepareSorting(mutableSearchOptions, searchResultsSet);
 
         String productsQueryString = generateProductsQueryString(mutableSearchOptions, availableFilters, productQueryHook,
-            currentSorterKey);
+            currentSorterKey, categoryRetriever);
         LOGGER.debug("Generated products query string {}", productsQueryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(productsQueryString);
 
@@ -195,7 +189,14 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         }
 
         // Finally we transform the results to something useful and expected by other the Sling Models and wider display layer
-        Products products = response.getData().getProducts();
+        Query rootQuery = response.getData();
+        Products products = rootQuery.getProducts();
+        if (rootQuery.getCategoryList() != null && !rootQuery.getCategoryList().isEmpty()) {
+            category = rootQuery.getCategoryList().get(0);
+        } else {
+            category = null;
+        }
+
         final List<ProductListItem> productListItems = extractProductsFromResponse(products.getItems(), productPage, request, resource,
             category);
 
@@ -280,7 +281,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final SearchOptions searchOptions,
         final List<FilterAttributeMetadata> availableFilters,
         final Consumer<ProductInterfaceQuery> productQueryHook,
-        final SorterKey sorterKey) {
+        final SorterKey sorterKey, AbstractCategoryRetriever categoryRetriever) {
         GenericProductAttributeFilterInput filterInputs = new GenericProductAttributeFilterInput();
 
         searchOptions.getAllFilters().entrySet()
@@ -368,6 +369,14 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 .attributeCode()
                 .count()
                 .label());
+
+        if (categoryRetriever != null) {
+            Pair<QueryQuery.CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> categoryArgs = categoryRetriever
+                .generateCategoryQueryArgs();
+            return Operations.query(query -> query
+                .products(searchArgs, queryArgs)
+                .categoryList(categoryArgs.getLeft(), categoryArgs.getRight())).toString();
+        }
 
         return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
     }

@@ -75,6 +75,8 @@ public class CatalogPageNotFoundFilterTest {
     private MockSlingHttpServletResponse response;
     @Mock
     private ContentPolicy contentPolicy;
+    @Mock
+    private CloseableHttpClient httpClient;
 
     @Before
     public void setup() throws IOException {
@@ -92,7 +94,6 @@ public class CatalogPageNotFoundFilterTest {
         aemContext.registerInjectActivateService(new SearchResultsServiceImpl());
         aemContext.registerInjectActivateService(subject);
 
-        CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         aemContext.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         GraphqlClient graphqlClient = spy(new GraphqlClientImpl());
@@ -155,6 +156,9 @@ public class CatalogPageNotFoundFilterTest {
 
     @Test
     public void testReturns200ForCategory() throws ServletException, IOException {
+        Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK,
+            "{products(currentPage:1,pageSize:6,filter:{category_uid:{eq:\"MTI==\"");
         aemContext.currentPage("/content/venia/us/en/products/category-page");
         ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/men/tops-men/jackets-men.html");
 

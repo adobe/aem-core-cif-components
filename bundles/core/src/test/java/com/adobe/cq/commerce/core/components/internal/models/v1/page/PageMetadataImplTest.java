@@ -214,9 +214,9 @@ public class PageMetadataImplTest {
         assertEquals("Running", productListModel.getTitle()); // This ensures the data is fetched
         assertFalse("The category doesn't have staged data", productListModel.isStaged());
 
-        // Verify that GraphQL client is only called 5 times, so Sling model caching works as expected
+        // Verify that GraphQL client is only called 4 times, so Sling model caching works as expected
         // --> see testPageMetadataModelOnCategoryPage(String) to see why we expect 5 queries
-        verify(graphqlClient, times(5)).execute(any(), any(), any(), any());
+        verify(graphqlClient, times(4)).execute(any(), any(), any(), any());
         verify(graphqlClient, never()).execute(any(), any(), any());
 
         // Asserts that the right productlist resource is used when PageMetadataImpl adapts the request to the ProductList component

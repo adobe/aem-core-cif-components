@@ -109,7 +109,7 @@ public class SearchFilterServiceImplTest {
         final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
             .retrieveCurrentlyAvailableCommerceFilters(page);
 
-        assertThat(filterAttributeMetadata).hasSize(29);
+        assertThat(filterAttributeMetadata).hasSize(30);
 
         // Range type
         FilterAttributeMetadata price = filterAttributeMetadata.stream().filter(f -> f.getAttributeCode().equals("price")).findFirst()

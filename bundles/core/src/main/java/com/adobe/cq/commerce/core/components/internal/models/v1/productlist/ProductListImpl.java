@@ -16,11 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -54,6 +50,7 @@ import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
+import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -121,7 +118,14 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
         if (magentoGraphqlClient != null) {
             if (StringUtils.isNotBlank(categoryUid)) {
-                categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
+                categoryRetriever = new CategoryRetriever(magentoGraphqlClient) {
+                    @Override
+                    public CategoryInterface fetchCategory() {
+                        searchOptions.setCategoryUid(categoryUid);
+                        getCategorySearchResultsSet();
+                        return categorySearchResultsSet.getLeft();
+                    }
+                };
                 categoryRetriever.setIdentifier(categoryUid);
             } else if (isAuthor) {
                 usePlaceholderData = true;
@@ -205,11 +209,14 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         if (searchResultsSet == null) {
             searchResultsSet = getCategorySearchResultsSet().getRight();
 
-            ((SearchResultsSetImpl) searchResultsSet).setSearchAggregations(
-                searchResultsSet.getSearchAggregations()
-                    .stream()
-                    .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_UID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
-                    .collect(Collectors.toList()));
+            List<SearchAggregation> aggregations = searchResultsSet.getSearchAggregations()
+                .stream()
+                .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_UID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
+                .collect(Collectors.toList());
+
+            aggregations.removeIf(agg -> "category_id".equals(agg.getIdentifier()));
+
+            ((SearchResultsSetImpl) searchResultsSet).setSearchAggregations(aggregations);
         }
         return searchResultsSet;
     }
