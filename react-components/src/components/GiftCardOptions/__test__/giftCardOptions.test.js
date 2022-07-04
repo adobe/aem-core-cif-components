@@ -74,11 +74,14 @@ describe('GiftCardProductOptions', () => {
     it('renders the component with full options', async () => {
         const gitfCardProductOptionsContainer = document.createElement('div');
 
-        const { asFragment, getByRole, getByLabelText } = render(<GiftCardProductOptions sku="gift-card" />, {
-            config: config,
-            container: document.body.appendChild(gitfCardProductOptionsContainer),
-            mocks: [mockResponse, mockAddToCartMutation]
-        });
+        const { asFragment, getByRole, getByLabelText } = render(
+            <GiftCardProductOptions sku="gift-card" showQuantity={true} />,
+            {
+                config: config,
+                container: document.body.appendChild(gitfCardProductOptionsContainer),
+                mocks: [mockResponse, mockAddToCartMutation]
+            }
+        );
 
         expect(await screen.findByText(/cart/i)).toBeInTheDocument();
 
