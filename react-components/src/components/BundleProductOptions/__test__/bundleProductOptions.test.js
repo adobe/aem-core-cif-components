@@ -48,6 +48,34 @@ describe('BundleProductOptions', () => {
         expect(asFragment()).toMatchSnapshot();
     });
 
+    it('renders the component with auto load options', async () => {
+        // mock useState to return the state for a full rendering
+        jest.spyOn(hooks, 'useAwaitQuery').mockImplementation(() => {
+            return jest.fn().mockImplementation(async () => {
+                return {
+                    data: mockResponse,
+                    error: null
+                };
+            });
+        });
+
+        const bundleProductOptionsContainer = document.createElement('div');
+        bundleProductOptionsContainer.dataset.sku = 'VA24';
+        bundleProductOptionsContainer.id = 'bundle-product-options';
+        const { asFragment, container } = render(<BundleProductOptions autoLoadOptions={true} />, {
+            config: config,
+            container: document.body.appendChild(bundleProductOptionsContainer)
+        });
+
+        // no content
+        expect(asFragment()).toMatchSnapshot();
+
+        await waitForDomChange({ container });
+
+        // with content
+        expect(asFragment()).toMatchSnapshot();
+    });
+
     it('renders the component with full options', async () => {
         // mock useState to return the state for a full rendering
         jest.spyOn(hooks, 'useAwaitQuery').mockImplementation(() => {
@@ -65,6 +93,7 @@ describe('BundleProductOptions', () => {
 
         const bundleProductOptionsContainer = document.createElement('div');
         bundleProductOptionsContainer.dataset.sku = 'VA24';
+        bundleProductOptionsContainer.dataset.showQuantity = true;
         bundleProductOptionsContainer.id = 'bundle-product-options';
 
         const { asFragment, container, getByRole } = render(<BundleProductOptions />, {
