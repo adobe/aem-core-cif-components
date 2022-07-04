@@ -49,7 +49,7 @@ const messages = defineMessages({
 });
 
 const GiftCardOptions = props => {
-    const { sku, showAddToWishList, useUid } = props;
+    const { sku, showAddToWishList, showQuantity, useUid } = props;
     const [
         giftCardState,
         {
@@ -192,49 +192,51 @@ const GiftCardOptions = props => {
                         </div>
                     </section>
                 ))}
-            <section className="productFullDetail__quantity productFullDetail__section">
-                <h2 className="productFullDetail__quantityTitle option__title">
-                    <span>{intl.formatMessage({ id: 'cart:quantity', defaultMessage: 'Quantity' })}</span>
-                </h2>
-                <div className="quantity__root">
-                    <span className="fieldIcons__root" style={{ '--iconsBefore': 0, '--iconsAfter': 1 }}>
-                        <span className="fieldIcons__input">
-                            <select
-                                aria-label={intl.formatMessage({
-                                    id: 'product:quantity-label',
-                                    defaultMessage: 'Product quantity'
-                                })}
-                                className="select__input field__input"
-                                name="quantity"
-                                value={quantity}
-                                onChange={changeQuantity}>
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                            </select>
-                        </span>
-                        <span className="fieldIcons__before"></span>
-                        <span className="fieldIcons__after">
-                            <span className="icon__root">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round">
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                </svg>
+            {showQuantity && (
+                <section className="productFullDetail__quantity productFullDetail__section">
+                    <h2 className="productFullDetail__quantityTitle option__title">
+                        <span>{intl.formatMessage({ id: 'cart:quantity', defaultMessage: 'Quantity' })}</span>
+                    </h2>
+                    <div className="quantity__root">
+                        <span className="fieldIcons__root" style={{ '--iconsBefore': 0, '--iconsAfter': 1 }}>
+                            <span className="fieldIcons__input">
+                                <select
+                                    aria-label={intl.formatMessage({
+                                        id: 'product:quantity-label',
+                                        defaultMessage: 'Product quantity'
+                                    })}
+                                    className="select__input field__input"
+                                    name="quantity"
+                                    value={quantity}
+                                    onChange={changeQuantity}>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </span>
+                            <span className="fieldIcons__before"></span>
+                            <span className="fieldIcons__after">
+                                <span className="icon__root">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="18"
+                                        height="18"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </span>
                             </span>
                         </span>
-                    </span>
-                    <p className="message-root"></p>
-                </div>
-            </section>
+                        <p className="message-root"></p>
+                    </div>
+                </section>
+            )}
             <section className="productFullDetail__cartActions productFullDetail__actions productFullDetail__section">
                 <button
                     className="button__root_highPriority button__root clickable__root button__filled"
@@ -268,6 +270,7 @@ const GiftCardOptions = props => {
 GiftCardOptions.propTypes = {
     sku: PropTypes.string.required,
     showAddToWishList: PropTypes.bool,
+    showQuantity: PropTypes.bool,
     useUid: PropTypes.bool
 };
 

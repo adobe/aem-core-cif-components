@@ -63,6 +63,7 @@
                 class="productFullDetail__options"
                 data-sku="${product.sku}"
                 data-show-add-to-wish-list="${product.addToWishListEnabled}"
+                data-show-quantity="${'QUANTITY' in visibleSections}"
                 data-use-uid></section>
             <div
                 data-sly-test="${isGiftCardProduct && 'OPTIONS' in visibleSections}"
@@ -70,6 +71,7 @@
                 class="productFullDetail__options"
                 data-sku="${product.sku}"
                 data-show-add-to-wish-list="${product.addToWishListEnabled}"
+                data-show-quantity="${'QUANTITY' in visibleSections}"
                 data-use-uid></div>
             <section data-sly-test="${!isGroupedProduct && !isBundleProduct && !isGiftCardProduct && 'QUANTITY' in visibleSections}" class="productFullDetail__quantity productFullDetail__section">
                 <h2 data-sly-test=${!noTitle} class="productFullDetail__areaTitle productFullDetail__quantityTitle option__title">
