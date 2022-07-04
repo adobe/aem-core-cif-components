@@ -62,12 +62,14 @@ import static org.mockito.Mockito.when;
 public class PageImplTest extends AbstractPageDelegatorTest {
 
     static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of(
-            "magentoGraphqlEndpoint", "/my/api/graphql",
-            "magentoStore", "my-magento-store",
-            "enableUIDSupport", "true",
-            "cq:graphqlClient", "my-graphql-client",
-            "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2", "customHeader-2=value3" }));
+        new ImmutableMap.Builder<String, Object>()
+            .put("magentoGraphqlEndpoint", "/my/api/graphql")
+            .put("magentoStore", "my-magento-store")
+            .put("enableUIDSupport", "true")
+            .put("cq:graphqlClient", "my-graphql-client")
+            .put("jcr:language", "en_US")
+            .put("httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2", "customHeader-2=value3" })
+            .build());
     static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
 
     @Rule
@@ -331,7 +333,7 @@ public class PageImplTest extends AbstractPageDelegatorTest {
             + "\"customHeader-2\": [\"value2\",\"value3\"],"
             + "\"Store\": \"my-magento-store\""
             + "},"
-            + "\"locale\": \"en-CH\","
+            + "\"locale\": \"en-us\","
             + "\"enableClientSidePriceLoading\": false"
             + "}");
         JsonNode actual = mapper.readTree(new StringReader(content));

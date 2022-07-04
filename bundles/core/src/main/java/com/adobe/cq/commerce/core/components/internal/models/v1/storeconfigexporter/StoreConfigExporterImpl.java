@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -92,7 +93,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
             String locale = properties.get(STORE_LANGUAGE_PROPERTY, String.class);
             if (locale != null) {
                 // simple conversion to language tag
-                language = locale.replace('_', '-');
+                language = locale.replace('_', '-').toLowerCase(Locale.ROOT);
             }
         }
 
