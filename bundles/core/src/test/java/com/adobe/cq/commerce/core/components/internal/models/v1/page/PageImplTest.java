@@ -330,7 +330,9 @@ public class PageImplTest extends AbstractPageDelegatorTest {
             + "\"customHeader-1\": \"value1\","
             + "\"customHeader-2\": [\"value2\",\"value3\"],"
             + "\"Store\": \"my-magento-store\""
-            + "}"
+            + "},"
+            + "\"locale\": \"en-CH\","
+            + "\"enableClientSidePriceLoading\": false"
             + "}");
         JsonNode actual = mapper.readTree(new StringReader(content));
         assertEquals(expected, actual);

@@ -74,7 +74,6 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     protected static final String PN_STYLE_ADD_TO_WISHLIST_ENABLED = "enableAddToWishList";
-    protected static final String PN_STYLE_LOAD_PRICES_CLIENTSIDE = "loadClientPrice";
     private static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
 
     private static final String SELECTION_PROPERTY = "selection";
@@ -112,7 +111,6 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     private Boolean isVirtualProduct;
     private boolean ctaOverride;
     private boolean enableAddToWishList;
-    private boolean loadPriceClientSide;
 
     @PostConstruct
     protected void initModel() {
@@ -137,7 +135,6 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
 
         enableAddToWishList = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS, Boolean.TRUE) : Boolean.TRUE)
             && currentStyle.get(PN_STYLE_ADD_TO_WISHLIST_ENABLED, ProductTeaser.super.getAddToWishListEnabled());
-        loadPriceClientSide = currentStyle.get(PN_STYLE_LOAD_PRICES_CLIENTSIDE, Boolean.FALSE);
     }
 
     @JsonIgnore
@@ -315,9 +312,4 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
         return getPriceRange() != null ? getPriceRange().getCurrency() : null;
     }
 
-    @Override
-    @JsonIgnore
-    public boolean loadClientPrice() {
-        return loadPriceClientSide;
-    }
 }

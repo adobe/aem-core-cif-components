@@ -38,7 +38,7 @@ class ProductCollection {
             prices: {},
 
             // Load prices on the client-side
-            loadPrices: this._element.dataset.loadClientPrice !== undefined
+            loadPrices: window.CIF.enableClientSidePriceLoading || this._element.dataset.loadClientPrice !== undefined
         };
 
         // Intl.NumberFormat instance for formatting prices
@@ -157,15 +157,11 @@ ProductCollection.selectors = {
         }
     }
 
-    const documentReady =
-        document.readyState !== 'loading'
-            ? Promise.resolve()
-            : new Promise(r => document.addEventListener('DOMContentLoaded', r));
-    const cifReady = window.CIF
-        ? Promise.resolve()
-        : new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
-
-    Promise.all([documentReady, cifReady]).then(onDocumentReady);
+    if (window.CIF) {
+        onDocumentReady();
+    } else {
+        document.addEventListener('aem.cif.clientlib-initialized', onDocumentReady);
+    }
 })(window.document);
 
 export default ProductCollection;

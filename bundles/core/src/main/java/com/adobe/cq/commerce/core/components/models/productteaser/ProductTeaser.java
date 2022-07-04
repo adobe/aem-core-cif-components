@@ -137,13 +137,4 @@ public interface ProductTeaser extends Component {
         return false;
     }
 
-    /**
-     * Returns true when the component should load the product price client side.
-     *
-     * @return
-     */
-    default boolean loadClientPrice() {
-        return false;
-    }
-
 }

@@ -53,11 +53,13 @@ describe('ProductCarousel', () => {
                                 ({
                                     title,
                                     sku,
-                                    baseSku = sku,
+                                    baseSku = undefined,
                                     addToCartAction = 'add-to-cart',
                                     addToWishList = false
                                 }) => `
-                                <div class="card product__card" data-product-sku="${sku}" data-product-base-sku="${baseSku}">
+                                <div class="card product__card" data-product-sku="${sku}"${
+                                    baseSku ? 'data-product-base-sku="' + baseSku + '"' : ''
+                                }>
                                     <a class="product-card-content">
                                         <div class="product__card-title">${title}</div>
                                         <div class="product__card-actions">
@@ -191,8 +193,13 @@ describe('ProductCarousel', () => {
         // Create empty context
         windowCIF = window.CIF;
         window.CIF = { ...window.CIF };
+        window.CIF.locale = 'en-us';
         window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: 'https://foo.bar/graphql' });
         window.CIF.CommerceGraphqlApi.getProductPrices = sinon.stub().resolves(clientPrices);
+    });
+
+    beforeEach(() => {
+        delete window.CIF.enableClientSidePriceLoading;
     });
 
     after(() => {
@@ -266,9 +273,7 @@ describe('ProductCarousel', () => {
             })
         );
 
-        carouselRoot.querySelectorAll(ProductCarousel.selectors.self).forEach(carousel => {
-            carousel.dataset.loadPrices = true;
-        });
+        window.CIF.enableClientSidePriceLoading = true;
 
         // dispatch the DOMContentLoaded event again
         onDocumentReady(window.document);

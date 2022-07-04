@@ -37,6 +37,7 @@ import com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreCon
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
+import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.Page;
 import com.drew.lang.annotations.Nullable;
 
@@ -52,7 +53,9 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreConfigExporterImpl.class);
     private static final String STORE_CODE_PROPERTY = "magentoStore";
     private static final String GRAPHQL_ENDPOINT_PROPERTY = "magentoGraphqlEndpoint";
+    private static final String ENABLE_CLIENTSIDE_PRICE_LOADING_PROPERTY = "enableClientSidePriceLoading";
     private static final String DEFAULT_GRAPHQL_ENDPOINT = "/api/graphql";
+    private static final String STORE_LANGUAGE_PROPERTY = JcrConstants.JCR_LANGUAGE;
 
     @Self
     private SlingHttpServletRequest request;
@@ -71,14 +74,26 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     private Page storeRootPage;
     private Map<String, String[]> httpHeaders = Collections.emptyMap();
 
+    private boolean enableClientSidePriceLoading = StoreConfigExporter.super.isClientSidePriceLoadingEnabled();
+    private String language;
+
     @PostConstruct
     protected void initModel() {
+        language = this.currentPage.getLanguage(false).toLanguageTag();
+
         // Get configuration from CIF Sling CA config
         Resource configResource = currentPage.getContentResource();
         ComponentsConfiguration properties = configResource.adaptTo(ComponentsConfiguration.class);
+
         if (properties != null) {
             storeView = properties.get(STORE_CODE_PROPERTY, String.class);
             graphqlEndpoint = properties.get(GRAPHQL_ENDPOINT_PROPERTY, DEFAULT_GRAPHQL_ENDPOINT);
+            enableClientSidePriceLoading = properties.get(ENABLE_CLIENTSIDE_PRICE_LOADING_PROPERTY, enableClientSidePriceLoading);
+            String locale = properties.get(STORE_LANGUAGE_PROPERTY, String.class);
+            if (locale != null) {
+                // simple conversion to language tag
+                language = locale.replace('_', '-');
+            }
         }
 
         if (magentoGraphqlClient != null) {
@@ -129,5 +144,15 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     @Override
     public Map<String, String[]> getHttpHeaders() {
         return Collections.unmodifiableMap(httpHeaders);
+    }
+
+    @Override
+    public boolean isClientSidePriceLoadingEnabled() {
+        return enableClientSidePriceLoading;
+    }
+
+    @Override
+    public String getLanguage() {
+        return language;
     }
 }

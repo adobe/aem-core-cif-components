@@ -82,7 +82,9 @@ public interface Product extends Component, PageMetadata {
      */
     default Boolean isStaged() {
         return false;
-    };
+    }
+
+    ;
 
     String getVariantsJson();
 
@@ -96,6 +98,12 @@ public interface Product extends Component, PageMetadata {
 
     List<VariantAttribute> getVariantAttributes();
 
+    /**
+     * @return
+     * @deprecated Per component client-side price loading is deprecated. This information is exposed in the
+     *             {@link com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter} and enabled site wide.
+     */
+    @Deprecated
     Boolean loadClientPrice();
 
     AbstractProductRetriever getProductRetriever();

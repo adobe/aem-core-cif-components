@@ -48,8 +48,11 @@ describe('ProductTeaser', () => {
     let generateTeaserHtml = (
         buttonFn,
         sku = 1234,
+        baseSku = undefined,
         props = {}
-    ) => `<div class="item__root" data-cmp-is="productteaser" data-product-sku="${sku}">
+    ) => `<div class="item__root" data-cmp-is="productteaser"${
+        baseSku ? ' data-product-base-sku="' + baseSku + '"' : ''
+    } data-product-sku="${sku}">
         <a class="item__images" href="#"></a>
         <a class="item__name" href="#"><span>Sample product</span></a>
         <div class="price">
@@ -114,6 +117,23 @@ describe('ProductTeaser', () => {
                 }
             }
         },
+        'sku-b-xl': {
+            __typename: 'SimpleProduct',
+            minimum_price: {
+                regular_price: {
+                    value: 150.45,
+                    currency: 'USD'
+                },
+                final_price: {
+                    value: 150.45,
+                    currency: 'USD'
+                },
+                discount: {
+                    amount_off: 0,
+                    percent_off: 0
+                }
+            }
+        },
         'sku-c': {
             __typename: 'SimpleProduct',
             minimum_price: {
@@ -160,11 +180,16 @@ describe('ProductTeaser', () => {
         // Create empty context
         windowCIF = window.CIF;
         window.CIF = { ...window.CIF };
+        window.CIF.locale = 'en-us';
         window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: 'https://foo.bar/graphql' });
         window.CIF.CommerceGraphqlApi.getProductPrices = sinon.stub().resolves(clientPrices);
     });
 
     beforeEach(() => {
+        delete ProductTeaser.prices$;
+        delete window.CIF.enableClientSidePriceLoading;
+        window.CIF.CommerceGraphqlApi.getProductPrices.resetHistory();
+
         while (pageRoot.firstChild) {
             pageRoot.removeChild(pageRoot.firstChild);
         }
@@ -236,7 +261,10 @@ describe('ProductTeaser', () => {
             .atLeast(1)
             .withArgs('/some/random/url', '_blank');
 
-        pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(seeMoreDetailsAction, 1234, { target: '_blank' }));
+        pageRoot.insertAdjacentHTML(
+            'afterbegin',
+            generateTeaserHtml(seeMoreDetailsAction, 1234, 1234, { target: '_blank' })
+        );
         teaserRoot = pageRoot.querySelector(ProductTeaser.selectors.rootElement);
 
         const productTeaser = new ProductTeaser(teaserRoot);
@@ -261,15 +289,12 @@ describe('ProductTeaser', () => {
         assert(eventListener.notCalled);
     });
 
-    it('retrieves prices via GraphQL', () => {
+    it('retrieves prices via GraphQL at once without variants', () => {
         pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(addToCartAction, 'sku-a'));
         pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(addToCartAction, 'sku-c'));
         pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(addToCartAction, 'sku-b'));
         pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(addToCartAction, 'sku-d'));
-        pageRoot.querySelectorAll(ProductTeaser.selectors.rootElement).forEach(teaserRoot => {
-            teaserRoot.dataset.locale = 'en';
-            teaserRoot.dataset.loadPrice = true;
-        });
+        window.CIF.enableClientSidePriceLoading = true;
 
         // dispatch the DOMContentLoaded event again
         onDocumentReady(window.document);
@@ -278,6 +303,11 @@ describe('ProductTeaser', () => {
         return ProductTeaser.prices$.then(() => {
             // all skus are queried at once
             assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.calledOnce);
+            sinon.assert.calledWith(
+                window.CIF.CommerceGraphqlApi.getProductPrices,
+                ['sku-d', 'sku-b', 'sku-c', 'sku-a'],
+                false
+            );
 
             // verify price updates
             assert.equal(pageRoot.querySelector('[data-product-sku="sku-a"] .price').innerText, '$156.89');
@@ -288,6 +318,26 @@ describe('ProductTeaser', () => {
             assert.include(pageRoot.querySelector('[data-product-sku="sku-c"] .price').innerText, '$20.00');
             assert.include(pageRoot.querySelector('[data-product-sku="sku-c"] .price').innerText, '$10.00');
             assert.equal(pageRoot.querySelector('[data-product-sku="sku-d"] .price').innerText, '$20.00');
+        });
+    });
+
+    it('retrieves prices via GraphQL at once with variants', () => {
+        pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(addToCartAction, 'sku-a'));
+        pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(addToCartAction, 'sku-b-xl', 'sku-b'));
+        window.CIF.enableClientSidePriceLoading = true;
+
+        // dispatch the DOMContentLoaded event again
+        onDocumentReady(window.document);
+        assert.isNotNull(ProductTeaser.prices$);
+
+        return ProductTeaser.prices$.then(() => {
+            // all skus are queried at once
+            assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.calledOnce);
+            sinon.assert.calledWith(window.CIF.CommerceGraphqlApi.getProductPrices, ['sku-b', 'sku-a'], true);
+
+            // verify price updates
+            assert.equal(pageRoot.querySelector('[data-product-sku="sku-a"] .price').innerText, '$156.89');
+            assert.equal(pageRoot.querySelector('[data-product-sku="sku-b-xl"] .price').innerText, '$150.45');
         });
     });
 });

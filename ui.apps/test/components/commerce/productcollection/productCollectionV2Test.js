@@ -266,6 +266,7 @@ describe('Productcollection', () => {
 
         window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: 'https://foo.bar/graphql' });
         window.CIF.CommerceGraphqlApi.getProductPrices = sinon.stub().resolves(clientPrices);
+        delete window.CIF.enableClientSidePriceLoading;
     });
 
     it('initializes a product list component', () => {
@@ -274,8 +275,26 @@ describe('Productcollection', () => {
         assert.deepEqual(list._state.skus, ['sku-a', 'sku-b', 'sku-c', 'sku-d']);
     });
 
-    it('retrieves prices via GraphQL', () => {
+    it('retrieves prices via GraphQL (enabled in component dataset)', () => {
         listRoot.dataset.loadClientPrice = true;
+        let list = new ProductCollection({ element: listRoot });
+        assert.isTrue(list._state.loadPrices);
+
+        return list._fetchPrices().then(() => {
+            assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.called);
+            assert.deepEqual(list._state.prices, convertedPrices);
+
+            // Verify price updates
+            assert.equal(listRoot.querySelector('[data-sku=sku-a] .price').innerText, '$156.89');
+            assert.equal(listRoot.querySelector('[data-sku=sku-b] .price').innerText, 'From $123.45 To $150.45');
+            assert.include(listRoot.querySelector('[data-sku=sku-c] .price').innerText, '$20.00');
+            assert.include(listRoot.querySelector('[data-sku=sku-c] .price').innerText, '$10.00');
+            assert.equal(listRoot.querySelector('[data-sku=sku-d] .price').innerText, 'Starting at $20.00');
+        });
+    });
+
+    it('retrieves prices via GraphQL (enabled globally)', () => {
+        window.CIF.enableClientSidePriceLoading = true;
         let list = new ProductCollection({ element: listRoot });
         assert.isTrue(list._state.loadPrices);
 

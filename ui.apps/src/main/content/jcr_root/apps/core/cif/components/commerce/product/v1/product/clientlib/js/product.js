@@ -20,10 +20,11 @@ class Product {
         this._element = config.element;
 
         const skuElement = this._element.querySelector(Product.selectors.sku);
+        const sku = skuElement && skuElement.innerHTML;
         // Local state
         this._state = {
             // Current sku, either from the base product or from a variant
-            sku: skuElement && skuElement.innerHTML,
+            sku,
 
             // True if this product is configurable and has variants
             configurable: this._element.dataset.configurable !== undefined,
@@ -32,12 +33,15 @@ class Product {
             prices: {},
 
             // Load prices on the client-side
-            loadPrices: this._element.dataset.loadClientPrice !== undefined
+            loadPrices:
+                sku && (window.CIF.enableClientSidePriceLoading || this._element.dataset.loadClientPrice !== undefined)
         };
 
         // Intl.NumberFormat instance for formatting prices
         this._formatter =
-            window.CIF && window.CIF.PriceFormatter && new window.CIF.PriceFormatter(this._element.dataset.locale);
+            window.CIF &&
+            window.CIF.PriceFormatter &&
+            new window.CIF.PriceFormatter(window.CIF.locale || this._element.dataset.locale);
 
         // Update product data
         this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
@@ -136,15 +140,11 @@ Product.events = {
         }
     }
 
-    const documentReady =
-        document.readyState !== 'loading'
-            ? Promise.resolve()
-            : new Promise(r => document.addEventListener('DOMContentLoaded', r));
-    const cifReady = window.CIF
-        ? Promise.resolve()
-        : new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
-
-    Promise.all([documentReady, cifReady]).then(onDocumentReady);
+    if (window.CIF) {
+        onDocumentReady();
+    } else {
+        document.addEventListener('aem.cif.clientlib-initialized', onDocumentReady);
+    }
 })(window.document);
 
 export default Product;

@@ -20,9 +20,10 @@ class Product {
         this._element = config.element;
 
         // Local state
+        const sku = config.element.dataset.productSku ? config.element.dataset.productSku : null;
         this._state = {
             // Current sku, either from the base product or from a variant
-            sku: config.element.dataset.productSku ? config.element.dataset.productSku : null,
+            sku,
 
             // True if this product is configurable and has variants
             configurable: this._element.dataset.configurable !== undefined,
@@ -31,12 +32,11 @@ class Product {
             prices: {},
 
             // Load prices on the client-side
-            loadPrices: this._element.dataset.loadClientPrice !== undefined
+            loadPrices: !!(sku && window.CIF.enableClientSidePriceLoading)
         };
 
         // Intl.NumberFormat instance for formatting prices
-        this._formatter =
-            window.CIF && window.CIF.PriceFormatter && new window.CIF.PriceFormatter(this._element.dataset.locale);
+        this._formatter = new window.CIF.PriceFormatter(window.CIF.locale);
 
         // Update product data
         this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
@@ -46,7 +46,7 @@ class Product {
 
     _initPrices() {
         // Retrieve current prices
-        if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
+        if (!window.CIF.CommerceGraphqlApi) return;
         return window.CIF.CommerceGraphqlApi.getProductPriceModels([this._state.sku], true)
             .then(convertedPrices => {
                 this._state.prices = convertedPrices;

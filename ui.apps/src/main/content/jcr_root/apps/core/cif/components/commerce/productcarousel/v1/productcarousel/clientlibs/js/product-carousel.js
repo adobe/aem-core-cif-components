@@ -31,21 +31,22 @@ class ProductCarousel extends Carousel {
         price: '.price'
     };
 
-    constructor(element, allBaseSkus) {
+    constructor(element, allBaseSkus, queryVariants) {
         super(element, ProductCarousel.selectors);
         this.element = element;
-        this.allBaseSkus = allBaseSkus || [];
-        this.loadPrices = element.dataset.loadPrices !== undefined;
-        this._formatter =
-            window.CIF && window.CIF.PriceFormatter && new window.CIF.PriceFormatter(element.dataset.locale);
+        this.loadPrices = window.CIF.enableClientSidePriceLoading;
+        this._formatter = new window.CIF.PriceFormatter();
 
-        this.loadPrices && this._fetchPrices();
+        this.loadPrices && this._fetchPrices(allBaseSkus || [], queryVariants);
     }
 
-    async _fetchPrices() {
+    async _fetchPrices(allBaseSkus, queryVariants) {
         if (!ProductCarousel.prices$) {
-            if (window.CIF && window.CIF.CommerceGraphqlApi) {
-                ProductCarousel.prices$ = window.CIF.CommerceGraphqlApi.getProductPriceModels(this.allBaseSkus, true);
+            if (window.CIF.CommerceGraphqlApi) {
+                ProductCarousel.prices$ = window.CIF.CommerceGraphqlApi.getProductPriceModels(
+                    allBaseSkus,
+                    queryVariants
+                );
             } else {
                 ProductCarousel.prices$ = Promise.reject(new Error('CommerceGraphqlApi unavailable'));
             }
@@ -74,25 +75,30 @@ class ProductCarousel extends Carousel {
 
 function onDocumentReady(document) {
     const rootElements = [...document.querySelectorAll(ProductCarousel.selectors.self)];
-    const baseSkus = rootElements
-        .flatMap(carousel => [...carousel.querySelectorAll(ProductCarousel.selectors.card)])
-        .map(card => card.dataset.productBaseSku || card.dataset.productSku)
-        .filter(sku => !!sku)
-        .filter((value, index, array) => array.indexOf(value) === index);
-    rootElements.forEach(element => new ProductCarousel(element, baseSkus));
+    const baseSkus = [];
+    let queryVariants = false;
+    for (let element of rootElements) {
+        const cards = element.querySelectorAll(ProductCarousel.selectors.card);
+        for (let card of cards) {
+            let { productBaseSku, productSku } = card.dataset;
+            if (!productBaseSku) {
+                productBaseSku = productSku;
+            }
+            queryVariants = queryVariants || productBaseSku !== productSku;
+            baseSkus.push(productBaseSku);
+        }
+    }
+
+    rootElements.forEach(element => new ProductCarousel(element, baseSkus, queryVariants));
 }
 
 export { ProductCarousel, onDocumentReady };
 export default ProductCarousel;
 
 (function(document) {
-    const documentReady =
-        document.readyState !== 'loading'
-            ? Promise.resolve()
-            : new Promise(r => document.addEventListener('DOMContentLoaded', r));
-    const cifReady = window.CIF
-        ? Promise.resolve()
-        : new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
-
-    Promise.all([documentReady, cifReady]).then(() => onDocumentReady(document));
+    if (window.CIF) {
+        onDocumentReady(document);
+    } else {
+        document.addEventListener('aem.cif.clientlib-initialized', () => onDocumentReady(document));
+    }
 })(window.document);

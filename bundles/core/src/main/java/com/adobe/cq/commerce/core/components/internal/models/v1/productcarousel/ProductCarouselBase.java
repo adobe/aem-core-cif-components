@@ -47,7 +47,6 @@ public abstract class ProductCarouselBase extends DataLayerComponent implements 
     static final String PN_ENABLE_ADD_TO_CART = "enableAddToCart";
     static final String PN_ENABLE_ADD_TO_WISH_LIST = "enableAddToWishList";
     static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
-    static final String PN_STYLE_LOAD_PRICES_CLIENTSIDE = "loadClientPrices";
 
     @Self
     protected SlingHttpServletRequest request;
@@ -57,7 +56,7 @@ public abstract class ProductCarouselBase extends DataLayerComponent implements 
     protected Style currentStyle;
     protected boolean addToCartEnabled;
     protected boolean addToWishListEnabled;
-    protected boolean loadClientPrices;
+
     @ValueMapValue(
         name = Link.PN_LINK_TARGET,
         injectionStrategy = InjectionStrategy.OPTIONAL)
@@ -72,7 +71,6 @@ public abstract class ProductCarouselBase extends DataLayerComponent implements 
             ENABLE_ADD_TO_WISH_LIST_DEFAULT) : ENABLE_ADD_TO_WISH_LIST_DEFAULT);
         addToWishListEnabled = addToWishListEnabled && properties.get(PN_ENABLE_ADD_TO_WISH_LIST, currentStyle.get(
             PN_ENABLE_ADD_TO_WISH_LIST, ENABLE_ADD_TO_WISH_LIST_DEFAULT));
-        loadClientPrices = currentStyle.get(PN_STYLE_LOAD_PRICES_CLIENTSIDE, Boolean.FALSE);
     }
 
     @Override
@@ -89,12 +87,6 @@ public abstract class ProductCarouselBase extends DataLayerComponent implements 
     @JsonIgnore
     public String getLinkTarget() {
         return Utils.normalizeLinkTarget(linkTarget);
-    }
-
-    @Override
-    @JsonIgnore
-    public boolean loadClientPrices() {
-        return loadClientPrices;
     }
 
     /**

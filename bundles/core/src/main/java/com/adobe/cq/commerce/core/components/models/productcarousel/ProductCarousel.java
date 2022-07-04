@@ -84,13 +84,4 @@ public interface ProductCarousel extends Component {
     default String getLinkTarget() {
         return null;
     }
-
-    /**
-     * Returns true when the component should load the product price client side.
-     *
-     * @return
-     */
-    default boolean loadClientPrices() {
-        return false;
-    }
 }

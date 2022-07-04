@@ -29,14 +29,12 @@ const LocationAdapter = {
 class ProductTeaser {
     static prices$ = null;
 
-    constructor(element, allBaseSkus) {
+    constructor(element, allBaseSkus, queryVariants) {
         this.element = element;
         this.sku = element.dataset.productSku;
-        this.allBaseSkus = allBaseSkus || [this.sku];
         this.virtual = element.dataset.virtual !== undefined;
-        this.loadPrices = element.dataset.loadPrice !== undefined;
-        this._formatter =
-            window.CIF && window.CIF.PriceFormatter && new window.CIF.PriceFormatter(element.dataset.locale);
+        this.loadPrices = window.CIF.enableClientSidePriceLoading;
+        this._formatter = new window.CIF.PriceFormatter();
 
         const actionButtons = element.querySelectorAll(`.productteaser__cta button`);
         actionButtons.forEach(actionButton => {
@@ -62,7 +60,7 @@ class ProductTeaser {
             });
         });
 
-        this.loadPrices && this._fetchPrices();
+        this.loadPrices && this._fetchPrices(allBaseSkus || [this.sku], queryVariants);
     }
 
     _addToCartHandler(dataset) {
@@ -91,10 +89,10 @@ class ProductTeaser {
         }
     }
 
-    async _fetchPrices() {
+    async _fetchPrices(allBaseSkus, queryVariants) {
         if (!ProductTeaser.prices$) {
-            if (window.CIF && window.CIF.CommerceGraphqlApi) {
-                ProductTeaser.prices$ = window.CIF.CommerceGraphqlApi.getProductPriceModels(this.allBaseSkus, true);
+            if (window.CIF.CommerceGraphqlApi) {
+                ProductTeaser.prices$ = window.CIF.CommerceGraphqlApi.getProductPriceModels(allBaseSkus, queryVariants);
             } else {
                 ProductTeaser.prices$ = Promise.reject(new Error('CommerceGraphqlApi unavailable'));
             }
@@ -125,24 +123,27 @@ ProductTeaser.selectors = {
 
 function onDocumentReady(document) {
     const rootElements = [...document.querySelectorAll(ProductTeaser.selectors.rootElement)];
-    const baseSkus = rootElements
-        .map(teaser => teaser.dataset.productBaseSku || teaser.dataset.productSku)
-        .filter(sku => !!sku)
-        .filter((value, index, array) => array.indexOf(value) === index);
-    rootElements.forEach(element => new ProductTeaser(element, baseSkus));
+    const baseSkus = [];
+    let queryVariants = false;
+    for (let element of rootElements) {
+        let { productBaseSku, productSku } = element.dataset;
+        if (!productBaseSku) {
+            productBaseSku = productSku;
+        }
+        // if any of the teasers base skus is different than the product sku, a variant is configured
+        queryVariants = queryVariants || productBaseSku !== productSku;
+        baseSkus.push(productBaseSku);
+    }
+    rootElements.forEach(element => new ProductTeaser(element, baseSkus, queryVariants));
 }
 
 export { LocationAdapter, onDocumentReady };
 export default ProductTeaser;
 
 (function(document) {
-    const documentReady =
-        document.readyState !== 'loading'
-            ? Promise.resolve()
-            : new Promise(r => document.addEventListener('DOMContentLoaded', r));
-    const cifReady = window.CIF
-        ? Promise.resolve()
-        : new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
-
-    Promise.all([documentReady, cifReady]).then(() => onDocumentReady(document));
+    if (window.CIF) {
+        onDocumentReady(document);
+    } else {
+        document.addEventListener('aem.cif.clientlib-initialized', () => onDocumentReady(document));
+    }
 })(window.document);

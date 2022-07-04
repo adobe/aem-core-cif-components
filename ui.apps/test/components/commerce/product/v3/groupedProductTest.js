@@ -122,6 +122,7 @@ describe('GroupedProduct', () => {
                 get: key => key
             };
 
+            window.CIF.locale = 'en-us';
             window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: 'https://foo.bar/graphql' });
             window.CIF.CommerceGraphqlApi.getProductPrices = sinon.stub().resolves(clientPrices);
         });
@@ -132,6 +133,8 @@ describe('GroupedProduct', () => {
         });
 
         beforeEach(() => {
+            delete window.CIF.enableClientSidePriceLoading;
+
             const testDoc = document.createElement('div');
             testDoc.insertAdjacentHTML(
                 'afterbegin',
@@ -150,7 +153,7 @@ describe('GroupedProduct', () => {
         });
 
         it('retrieves prices via GraphQL', () => {
-            productRoot.dataset.loadClientPrice = true;
+            window.CIF.enableClientSidePriceLoading = true;
             let product = new Product({ element: productRoot });
             assert.isTrue(product._state.loadPrices);
 

@@ -110,7 +110,6 @@ public class ProductTeaserImplTest {
     public void setup() {
         style = mock(Style.class);
         when(style.get(any(), anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
-        when(style.get(eq(ProductTeaserImpl.PN_STYLE_LOAD_PRICES_CLIENTSIDE), anyBoolean())).thenReturn(true);
     }
 
     public void setUp(String resourcePath, boolean deepLink) throws Exception {
@@ -177,7 +176,6 @@ public class ProductTeaserImplTest {
         assertEquals(product.getName(), productTeaser.getName());
         assertEquals("MJ01", productTeaser.getCombinedSku().getBaseSku());
         assertNull(productTeaser.getCombinedSku().getVariantSku());
-        assertTrue(productTeaser.loadClientPrice());
 
         // There is a dedicated specific subpage for that product
         assertTrue(productTeaser.getUrl().startsWith(PRODUCT_SPECIFIC_PAGE));
