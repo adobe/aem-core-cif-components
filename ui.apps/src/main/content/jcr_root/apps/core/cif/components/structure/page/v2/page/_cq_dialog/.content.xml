@@ -57,7 +57,9 @@
                                                 name="./cq:products"
                                                 selectionId="combinedSku"
                                                 enablePreviewDateFilter="{Boolean}true"
-                                                showLink="{Boolean}true" />
+                                                showLink="{Boolean}true"
+                                                trackingElement="associated product"
+                                                trackingFeature="aem:cif:associatedcontentpage" />
                                             <categories
                                                 jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="commerce/gui/components/common/cifcategoryfield"
@@ -65,7 +67,9 @@
                                                 fieldLabel="Category IDs"
                                                 multiple="{Boolean}true"
                                                 name="./cq:categories"
-                                                showLink="{Boolean}true" />
+                                                showLink="{Boolean}true"
+                                                trackingElement="associated category"
+                                                trackingFeature="aem:cif:associatedcontentpage" />
                                         </items>
                                     </associatedContent>
                                     <pagesSection jcr:primaryType="nt:unstructured"
