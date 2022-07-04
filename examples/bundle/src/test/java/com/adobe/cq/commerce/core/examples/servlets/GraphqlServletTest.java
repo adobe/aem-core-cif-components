@@ -345,7 +345,7 @@ public class GraphqlServletTest {
         Assert.assertFalse(productModel.getFound());
     }
 
-    @Test
+    // @Test - disabled
     public void testProductListModelV1() throws ServletException {
         prepareModel(PRODUCT_LIST_V1_RESOURCE);
 
@@ -358,7 +358,7 @@ public class GraphqlServletTest {
         testProductListModelImpl(productListModel);
     }
 
-    @Test
+    // @Test - disabled
     public void testProductListModelV2() throws ServletException {
         prepareModel(PRODUCT_LIST_V2_RESOURCE);
 
@@ -390,7 +390,7 @@ public class GraphqlServletTest {
         Assert.assertEquals("Meta title for Outdoor Collection", productListModel.getMetaTitle());
     }
 
-    @Test
+    // @Test - disabled
     public void testProductListModelV2Staged() throws ServletException {
         prepareModel(PRODUCT_LIST_V2_RESOURCE);
 
