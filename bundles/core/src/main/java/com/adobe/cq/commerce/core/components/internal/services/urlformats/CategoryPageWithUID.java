@@ -15,29 +15,26 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.request.RequestParameterMap;
 import org.apache.sling.api.request.RequestPathInfo;
 
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 
-public class CategoryPageWithID extends UrlFormatBase implements CategoryUrlFormat {
+public class CategoryPageWithUID extends UrlFormatBase implements CategoryUrlFormat {
 
-    public static final CategoryUrlFormat INSTANCE = new CategoryPageWithID();
-    public static final String PATTERN = "{{page}}.html/{{id}}.html";
+    public static final CategoryUrlFormat INSTANCE = new CategoryPageWithUID();
+    public static final String PATTERN = "{{page}}.html/{{uid}}.html";
 
-    private CategoryPageWithID() {
+    private CategoryPageWithUID() {
         super();
     }
-
-    Base64 base64 = new Base64(false);
 
     @Override
     public String format(Params parameters) {
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
             + HTML_EXTENSION_AND_SUFFIX
-            + StringUtils.defaultIfEmpty(new String(base64.decode(parameters.getUid())), "{{uid}}")
+            + StringUtils.defaultIfEmpty(parameters.getUid(), "{{uid}}")
             + HTML_EXTENSION;
     }
 
@@ -52,7 +49,7 @@ public class CategoryPageWithID extends UrlFormatBase implements CategoryUrlForm
         params.setPage(removeJcrContent(requestPathInfo.getResourcePath()));
         String suffix = StringUtils.removeStart(StringUtils.removeEnd(requestPathInfo.getSuffix(), HTML_EXTENSION), "/");
         if (StringUtils.isNotBlank(suffix)) {
-            params.setUid(base64.encodeAsString(suffix.getBytes()).trim());
+            params.setUid(suffix.trim());
         }
         return params;
     }
