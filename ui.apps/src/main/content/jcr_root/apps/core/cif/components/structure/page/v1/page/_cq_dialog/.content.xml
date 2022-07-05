@@ -30,7 +30,8 @@
                                 <items jcr:primaryType="nt:unstructured">
                                     <associatedContent jcr:primaryType="nt:unstructured"
                                         jcr:title="Associated Content"
-                                        sling:resourceType="granite/ui/components/coral/foundation/form/fieldset">
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/fieldset"
+                                        cq:showOnCreate="{Boolean}false">
                                         <granite:rendercondition
                                             jcr:primaryType="nt:unstructured"
                                             sling:resourceType="granite/ui/components/coral/foundation/renderconditions/not">
