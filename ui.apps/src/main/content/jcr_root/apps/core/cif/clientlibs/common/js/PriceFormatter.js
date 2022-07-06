@@ -17,7 +17,7 @@
 
 class PriceFormatter {
     constructor(locale) {
-        this._locale = locale || window.CIF.locale || navigator.language;
+        this._locale = locale || window.CIF.locale || document.documentElement.lang || navigator.language;
         this._formatter = null;
         this._i18n = null;
     }

@@ -35,8 +35,7 @@ The Product Teaser component uses the `com.adobe.cq.commerce.core.components.mod
 The following configuration properties are used:
 
 1. `./cq:DropTargetConfig` - controls the drag & drop behavior of group "product" items onto this component
-2. `./loadClientPrice` - load current prices client side (default `false`)
-3. `./enableAddToWishList` - enables/disables the add to wish list button, defaults to disabled
+2. `./enableAddToWishList` - enables/disables the add to wish list button, defaults to disabled
 
 ### Edit Dialog Properties
 

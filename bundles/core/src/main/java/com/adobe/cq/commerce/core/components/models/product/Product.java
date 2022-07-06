@@ -84,8 +84,6 @@ public interface Product extends Component, PageMetadata {
         return false;
     }
 
-    ;
-
     String getVariantsJson();
 
     List<Variant> getVariants();

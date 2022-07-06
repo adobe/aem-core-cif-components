@@ -75,7 +75,6 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     protected static final String PN_STYLE_ADD_TO_WISHLIST_ENABLED = "enableAddToWishList";
     private static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
-
     private static final String SELECTION_PROPERTY = "selection";
 
     @Self
