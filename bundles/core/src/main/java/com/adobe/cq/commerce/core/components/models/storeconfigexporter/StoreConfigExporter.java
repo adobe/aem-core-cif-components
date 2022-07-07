@@ -62,4 +62,14 @@ public interface StoreConfigExporter {
      */
     @JsonProperty("headers")
     Map<String, String[]> getHttpHeaders();
+
+    @JsonProperty("enableClientSidePriceLoading")
+    default boolean isClientSidePriceLoadingEnabled() {
+        return false;
+    }
+
+    @JsonProperty("locale")
+    default String getLanguage() {
+        return null;
+    }
 }

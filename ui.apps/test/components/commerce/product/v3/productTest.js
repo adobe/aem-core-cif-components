@@ -16,9 +16,9 @@
 'use strict';
 
 import Product from '../../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v3/product/clientlib/js/product.js';
-import PriceFormatter from '../../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';
+import CommerceGraphqlApi from '../../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js';
 
-describe('Product', () => {
+describe('Product v3', () => {
     describe('Core', () => {
         let productRoot;
         let windowCIF;
@@ -59,12 +59,10 @@ describe('Product', () => {
         before(() => {
             // Create empty context
             windowCIF = window.CIF;
-            window.CIF = {};
-            window.CIF.PriceFormatter = PriceFormatter;
-
-            window.CIF.CommerceGraphqlApi = {
-                getProductPrices: sinon.stub().resolves(clientPrices)
-            };
+            window.CIF = { ...window.CIF };
+            window.CIF.locale = 'en-us';
+            window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: 'https://foo.bar/graphql' });
+            window.CIF.CommerceGraphqlApi.getProductPrices = sinon.stub().resolves(clientPrices);
         });
 
         after(() => {
@@ -73,6 +71,8 @@ describe('Product', () => {
         });
 
         beforeEach(() => {
+            delete window.CIF.enableClientSidePriceLoading;
+
             const testDoc = document.createElement('div');
             testDoc.insertAdjacentHTML(
                 'afterbegin',
@@ -120,7 +120,7 @@ describe('Product', () => {
         });
 
         it('retrieves prices via GraphQL', () => {
-            productRoot.dataset.loadClientPrice = true;
+            window.CIF.enableClientSidePriceLoading = true;
             let product = new Product({ element: productRoot });
             assert.isTrue(product._state.loadPrices);
 

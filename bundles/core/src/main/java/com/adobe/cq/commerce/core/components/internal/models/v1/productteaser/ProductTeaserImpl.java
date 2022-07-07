@@ -75,7 +75,6 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     protected static final String PN_STYLE_ADD_TO_WISHLIST_ENABLED = "enableAddToWishList";
     private static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
-
     private static final String SELECTION_PROPERTY = "selection";
 
     @Self
@@ -173,9 +172,13 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     @Override
     @JsonIgnore
     public String getSku() {
-        ProductInterface product = getProduct();
-        String sku = product != null ? product.getSku() : null;
-        return sku != null ? sku : combinedSku != null ? combinedSku.getBaseSku() : null;
+        return combinedSku != null ? StringUtils.defaultIfEmpty(combinedSku.getVariantSku(), combinedSku.getBaseSku()) : null;
+    }
+
+    @Override
+    @JsonIgnore
+    public CombinedSku getCombinedSku() {
+        return combinedSku;
     }
 
     @Override
@@ -307,4 +310,5 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
     public String getDataLayerCurrency() {
         return getPriceRange() != null ? getPriceRange().getCurrency() : null;
     }
+
 }
