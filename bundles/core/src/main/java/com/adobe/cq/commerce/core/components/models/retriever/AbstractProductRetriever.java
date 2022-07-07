@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -35,6 +36,7 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.shopify.graphql.support.Input;
 
 /**
  * Abstract implementation of product retriever that loads product data using GraphQL.
@@ -50,6 +52,11 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * Lambda that extends the product variant query.
      */
     protected Consumer<SimpleProductQuery> variantQueryHook;
+
+    /**
+     * Lambda that replaces the product attribute filters.
+     */
+    protected BiConsumer<String, ProductAttributeFilterInput> productAttributeFilterHook;
 
     /**
      * Product instance. Is only available after populate() was called.
@@ -139,14 +146,46 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     }
 
     /**
+     * Replaces the product attribute filter with a custom instance defined by a lambda hook.
+     *
+     * Example:
+     *
+     * <pre>
+     * {@code
+     * productRetriever.replaceProductFilterWith((identifier, f) -> f
+     *     .setSku(new FilterEqualTypeInput()
+     *         .setEq(identifier))
+     *     .setCustomFilter("eco-friendly", new FilterEqualTypeInput()
+     *         .setEq("yes")));
+     * }
+     * </pre>
+     *
+     * @param productAttributeFilterHook Lambda that defined the product attribute filter.
+     */
+    public void replaceProductFilterWith(BiConsumer<String, ProductAttributeFilterInput> productAttributeFilterHook) {
+        if (this.productAttributeFilterHook == null) {
+            this.productAttributeFilterHook = productAttributeFilterHook;
+        } else {
+            this.productAttributeFilterHook = this.productAttributeFilterHook.andThen(productAttributeFilterHook);
+        }
+    }
+
+    /**
      * Generate a complete product GraphQL query with a filter for the given product identifier.
      *
      * @param identifier Product identifier, usually SKU or slug
      * @return GraphQL query as string
      */
     protected String generateQuery(String identifier) {
-        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
-        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(identifierFilter);
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
+
+        // Apply product attribute filter hook
+        if (this.productAttributeFilterHook != null) {
+            this.productAttributeFilterHook.accept(identifier, filter);
+        } else {
+            FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
+            filter.setSkuInput(Input.optional(identifierFilter));
+        }
 
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
