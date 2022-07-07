@@ -84,6 +84,25 @@ class CommerceGraphqlApi {
     }
 
     /**
+     * Retrieves the prices of the products with the given SKUs and their variants using getProductPrices() and coverts
+     * them using the PriceToPriceRangeConverter.
+     *
+     * @param {array} skus  Array of product SKUs.
+     * @returns {Promise<any[]>} Returns a map of skus mapped to their prices. The price is an object containing the
+     *                           currency and value.
+     */
+    async getProductPriceModels(skus, includeVariants) {
+        const prices = await this.getProductPrices(skus, includeVariants);
+        const priceRanges = {};
+
+        for (let key in prices) {
+            priceRanges[key] = window.CIF.PriceToPriceModelConverter(prices[key]);
+        }
+
+        return priceRanges;
+    }
+
+    /**
      * Retrieves the login token from local storage as it is stored by Peregrine.
      *
      * @returns {string} login token or null if not logged in.
@@ -129,26 +148,113 @@ class CommerceGraphqlApi {
     }
 
     /**
+     * When called requests to getProductPrices() will defer the query execution until resumeGetProductPrices() is
+     * called. The promises returned will only resolve after that.
+     */
+    /* private */ _suspendGetProductPrices() {
+        // by defining the queue, all invocations to getProductPrices will add an entry there instead of executing the
+        // query the queue is deleted in _resumeGetProductPrices to restore the original behaviour.
+        this.getProductPricesQueue = [];
+    }
+
+    /* private */ _resumeGetProductPrices() {
+        if (!this.getProductPricesQueue) {
+            return;
+        }
+
+        const filterPrices = (response, skus, includeVariants) => {
+            const returns = skus.reduce((result, sku) => {
+                let prices = response[sku];
+                if (!includeVariants) {
+                    // only return the requested sku
+                    result[sku] = prices[sku];
+                } else {
+                    // include all prices
+                    for (let key of Object.keys(prices)) {
+                        result[key] = prices[key];
+                    }
+                }
+                return result;
+            }, {});
+            return returns;
+        };
+
+        let queue = this.getProductPricesQueue;
+        // remove the queue to restore the behaviour of getProductPrices()
+        this.getProductPricesQueue = null;
+
+        let callsWithVariants = queue.filter(entry => entry.skus && entry.includeVariants);
+        let allSkusWithVariants = callsWithVariants
+            .reduce((skus, entry) => entry.skus.forEach(sku => skus.push(sku)) || skus, [])
+            .filter((value, index, array) => array.indexOf(value) === index);
+        let fetchWithVariants$ = this._doFetchProductPrices(allSkusWithVariants, true);
+        fetchWithVariants$
+            .then(resp =>
+                callsWithVariants.forEach(entry => entry.resolve(filterPrices(resp, entry.skus, entry.includeVariants)))
+            )
+            .catch(err => callsWithVariants.forEach(entry => entry.reject(err)));
+
+        let callsWithoutVariants = queue.filter(entry => entry.skus && !entry.includeVariants);
+        let allSkusWithoutVariants = callsWithoutVariants
+            .reduce((skus, entry) => entry.skus.forEach(sku => skus.push(sku)) || skus, [])
+            .filter((value, index, array) => array.indexOf(value) === index)
+            // filter out skus that were already requested in the with variants query
+            .filter(sku => allSkusWithVariants.indexOf(sku) < 0);
+
+        Promise.all([fetchWithVariants$, this._doFetchProductPrices(allSkusWithoutVariants, false)])
+            .then(([pricesWithVariants, pricesWithoutVariants]) => ({
+                ...pricesWithVariants,
+                ...pricesWithoutVariants
+            }))
+            .then(resp =>
+                callsWithoutVariants.forEach(entry =>
+                    entry.resolve(filterPrices(resp, entry.skus, entry.includeVariants))
+                )
+            )
+            .catch(err => callsWithoutVariants.forEach(entry => entry.reject(err)));
+    }
+
+    /**
      * Retrieves the prices of the products with the given SKUs and their variants.
      *
      * @param {array} skus  Array of product SKUs.
-     * @returns {Promise<any[]>} Returns a map of skus mapped to their prices. The price is an object containing the currency and value.
+     * @returns {Promise<any[]>} Returns a map of skus mapped to their prices. The price is an object containing the
+     *                           currency and value.
      */
     async getProductPrices(skus, includeVariants) {
+        if (this.getProductPricesQueue) {
+            return new Promise((resolve, reject) => {
+                this.getProductPricesQueue.push({ skus, includeVariants, resolve, reject });
+            });
+        } else {
+            let prices = await this._doFetchProductPrices(skus, includeVariants);
+            return Object.values(prices).reduce((result, map) => ({ ...result, ...map }), {});
+        }
+    }
+
+    /* private */ async _doFetchProductPrices(skus, includeVariants) {
+        if (!skus || skus.length === 0) {
+            // don't query if no skus are given
+            return {};
+        }
+
+        // distinct skus
+        skus = skus.filter((v, i, a) => a.indexOf(v) === i);
+
         let skuQuery = '"' + skus.join('", "') + '"';
 
         const priceQuery = `regular_price {
-            value
-            currency
-        }
-        final_price {
-            value
-            currency
-        }
-        discount {
-            amount_off
-            percent_off
-        }`;
+                value
+                currency
+            }
+            final_price {
+                value
+                currency
+            }
+            discount {
+                amount_off
+                percent_off
+            }`;
 
         // prettier-ignore
         const variantQuery = `variants {
@@ -193,12 +299,16 @@ class CommerceGraphqlApi {
                 }
             }
         }`;
+
         let response = await this._fetchGraphql(query);
 
-        // Transform response in a SKU to price map
+        // Transform response in a SKU to price map and put it in the cache
         let items = response.data.products.items;
-        let dict = {};
+        let result = {};
+
         for (let item of items) {
+            let dict = {};
+            result[item.sku] = dict;
             dict[item.sku] = { __typename: item.__typename, ...item.price_range };
 
             // Go through variants
@@ -214,7 +324,8 @@ class CommerceGraphqlApi {
                 }
             }
         }
-        return dict;
+
+        return result;
     }
 }
 

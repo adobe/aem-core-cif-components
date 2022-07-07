@@ -32,6 +32,7 @@ public interface ProductCollection {
     /**
      * Name of the boolean resource property indicating if the product collection should load prices on the client-side.
      */
+    @Deprecated
     String PN_LOAD_CLIENT_PRICE = "loadClientPrice";
 
     /**
@@ -80,8 +81,11 @@ public interface ProductCollection {
     /**
      * Should prices be re-loaded client-side.
      *
+     * @deprecated Per component client-side price loading is deprecated. This information is exposed in the
+     *             {@link com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter} and enabled site wide.
      * @return true if prices should be loaded client side
      */
+    @Deprecated
     boolean loadClientPrice();
 
     /**

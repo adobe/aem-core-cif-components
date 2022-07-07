@@ -32,6 +32,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.ProductListItemImpl;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
+import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.wcm.core.components.commons.link.Link;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
@@ -39,13 +40,14 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class ProductCarouselBase extends DataLayerComponent {
+public abstract class ProductCarouselBase extends DataLayerComponent implements ProductCarousel {
 
     protected static final boolean ENABLE_ADD_TO_CART_DEFAULT = false;
     protected static final boolean ENABLE_ADD_TO_WISH_LIST_DEFAULT = false;
     static final String PN_ENABLE_ADD_TO_CART = "enableAddToCart";
     static final String PN_ENABLE_ADD_TO_WISH_LIST = "enableAddToWishList";
     static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
+
     @Self
     protected SlingHttpServletRequest request;
     @ScriptVariable
@@ -54,6 +56,7 @@ public class ProductCarouselBase extends DataLayerComponent {
     protected Style currentStyle;
     protected boolean addToCartEnabled;
     protected boolean addToWishListEnabled;
+
     @ValueMapValue(
         name = Link.PN_LINK_TARGET,
         injectionStrategy = InjectionStrategy.OPTIONAL)
@@ -70,14 +73,17 @@ public class ProductCarouselBase extends DataLayerComponent {
             PN_ENABLE_ADD_TO_WISH_LIST, ENABLE_ADD_TO_WISH_LIST_DEFAULT));
     }
 
+    @Override
     public boolean isAddToCartEnabled() {
         return addToCartEnabled;
     }
 
+    @Override
     public boolean isAddToWishListEnabled() {
         return addToWishListEnabled;
     }
 
+    @Override
     @JsonIgnore
     public String getLinkTarget() {
         return Utils.normalizeLinkTarget(linkTarget);
