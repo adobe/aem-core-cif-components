@@ -13,7 +13,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { defineMessages, useIntl } from 'react-intl';
 import LoadingIndicator from '../LoadingIndicator';
@@ -64,6 +64,8 @@ const GiftCardOptions = props => {
     ] = useGiftCardOptions({ sku, useUid });
 
     const intl = useIntl();
+    const addToCartRef = useRef();
+    const addToWishListRef = useRef();
 
     if (giftCardState === null) {
         return <LoadingIndicator />;
@@ -242,7 +244,8 @@ const GiftCardOptions = props => {
                     className="button__root_highPriority button__root clickable__root button__filled"
                     type="button"
                     disabled={!canAddToCart()}
-                    onClick={addToCart}>
+                    onClick={() => addToCart(addToCartRef.current)}
+                    ref={addToCartRef}>
                     <span className="button__content">
                         <span>{intl.formatMessage({ id: 'product:add-item', defaultMessage: 'Add to Cart' })}</span>
                     </span>
@@ -251,7 +254,8 @@ const GiftCardOptions = props => {
                     <button
                         className="button__root_normalPriority button__root clickable__root"
                         type="button"
-                        onClick={addToWishlist}>
+                        onClick={() => addToWishlist(addToWishListRef.current)}
+                        ref={addToWishListRef}>
                         <span className="button__content">
                             <span>
                                 {intl.formatMessage({

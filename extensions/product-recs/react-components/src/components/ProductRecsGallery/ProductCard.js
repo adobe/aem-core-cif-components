@@ -13,7 +13,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 
 import { useIntl } from 'react-intl';
@@ -25,6 +25,8 @@ const ProductCard = props => {
     const { showAddToWishList } = props;
     const mse = useStorefrontEvents();
     const intl = useIntl();
+    const addToCartRef = useRef();
+    const addToWishlistRef = useRef();
 
     const {
         unit: { unitId },
@@ -36,9 +38,10 @@ const ProductCard = props => {
         const { unitId } = unit;
 
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
+            bubbles: true,
             detail: [{ sku, quantity: 1, virtual: type === 'virtual' }]
         });
-        document.dispatchEvent(customEvent);
+        addToCartRef.current.dispatchEvent(customEvent);
 
         mse && mse.publish.recsItemAddToCartClick(unitId, productId);
     };
@@ -47,9 +50,10 @@ const ProductCard = props => {
         const { sku } = product;
 
         const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+            bubbles: true,
             detail: [{ sku, quantity: 1 }]
         });
-        document.dispatchEvent(customEvent);
+        addToWishlistRef.current.dispatchEvent(customEvent);
     };
 
     const openDetails = (unit, product) => {
@@ -109,14 +113,14 @@ const ProductCard = props => {
                             openDetails(props.unit, props.product);
                         }
                     }}>
-                    <span className={classes.addToCart}>
+                    <span className={classes.addToCart} ref={addToCartRef}>
                         {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to Cart' })}
                     </span>
                 </Trigger>
             }
             {showAddToWishList && (
                 <Trigger className={classes.buttonMargin} action={() => addToWishlist(props.product)}>
-                    <span className={classes.addToWishlist}>
+                    <span className={classes.addToWishlist} ref={addToWishlistRef}>
                         {intl.formatMessage({ id: 'productrecs:add-to-wishlist', defaultMessage: 'Add to Wish List' })}
                     </span>
                 </Trigger>

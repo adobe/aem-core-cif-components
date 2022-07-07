@@ -99,8 +99,7 @@ describe('GroupedProduct', () => {
 
         it('dispatches add-to-cart event on click', () => {
             let spy = sinon.spy();
-            let _originalDispatch = document.dispatchEvent;
-            document.dispatchEvent = spy;
+            document.addEventListener('aem.cif.add-to-cart', spy);
 
             let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
             let selections = Array.from(pageRoot.querySelectorAll(AddToCart.selectors.quantity));
@@ -120,14 +119,11 @@ describe('GroupedProduct', () => {
             assert.equal(event.detail[0].quantity, 1);
             assert.equal(event.detail[1].sku, 'sku3');
             assert.equal(event.detail[1].quantity, 1);
-
-            document.dispatchEvent = _originalDispatch;
         });
 
         it('dispatches add-to-cart event with virtual product on click', () => {
             let spy = sinon.spy();
-            let _originalDispatch = document.dispatchEvent;
-            document.dispatchEvent = spy;
+            document.addEventListener('aem.cif.add-to-cart', spy);
 
             let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
             let selections = Array.from(pageRoot.querySelectorAll(AddToCart.selectors.quantity));
@@ -149,8 +145,6 @@ describe('GroupedProduct', () => {
             assert.equal(event.detail[1].sku, 'sku4');
             assert.equal(event.detail[1].quantity, 1);
             assert.isTrue(event.detail[1].virtual);
-
-            document.dispatchEvent = _originalDispatch;
         });
     });
 });

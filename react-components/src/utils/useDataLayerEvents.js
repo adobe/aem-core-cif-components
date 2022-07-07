@@ -17,8 +17,29 @@ import { useEventListener } from './hooks';
 import * as dataLayerUtils from './dataLayerUtils';
 
 const useDataLayerEvents = () => {
+    const getClickId = element => {
+        if (element === document) {
+            return undefined;
+        }
+
+        if (element.dataset?.cmpDataLayer) {
+            return Object.keys(JSON.parse(element.dataset.cmpDataLayer))[0];
+        }
+
+        // if the target itself does not have a component data layer data
+        // find the closes parent
+        const componentElement = element.closest('[data-cmp-data-layer]');
+        if (componentElement) {
+            return getClickId(componentElement);
+        }
+
+        return undefined;
+    };
+
     useEventListener(document, 'aem.cif.add-to-cart', async event => {
         const items = typeof event.detail === 'string' ? JSON.parse(event.detail) : event.detail;
+        const componentId = getClickId(event.target);
+
         items.forEach(item => {
             let eventInfo = {
                 '@id': item.productId,
@@ -27,7 +48,11 @@ const useDataLayerEvents = () => {
             };
 
             if (item.bundle) {
-                eventInfo['bundle'] = true;
+                eventInfo.bundle = true;
+            }
+
+            if (componentId) {
+                eventInfo.path = 'component.' + componentId;
             }
 
             dataLayerUtils.pushEvent('cif:addToCart', eventInfo);
@@ -36,12 +61,22 @@ const useDataLayerEvents = () => {
 
     useEventListener(document, 'aem.cif.add-to-wishlist', async event => {
         const items = typeof event.detail === 'string' ? JSON.parse(event.detail) : event.detail;
+        const componentId = getClickId(event.target);
+
         items.forEach(item => {
             let eventInfo = {
                 '@id': item.productId,
                 'xdm:SKU': item.sku,
                 'xdm:quantity': item.quantity
             };
+
+            if (item.bundle) {
+                eventInfo.bundle = true;
+            }
+
+            if (componentId) {
+                eventInfo.path = 'component.' + componentId;
+            }
 
             dataLayerUtils.pushEvent('cif:addToWishList', eventInfo);
         });

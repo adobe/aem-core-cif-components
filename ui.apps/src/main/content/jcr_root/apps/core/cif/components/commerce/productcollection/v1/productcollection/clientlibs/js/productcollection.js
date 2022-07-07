@@ -15,6 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
+const awaitCommonClientLib = async () =>
+    new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
+
 class ProductCollection {
     constructor(config) {
         this._element = config.element;
@@ -40,10 +43,6 @@ class ProductCollection {
             // Load prices on the client-side
             loadPrices: this._element.dataset.loadClientPrice !== undefined
         };
-
-        // Intl.NumberFormat instance for formatting prices
-        this._formatter =
-            window.CIF && window.CIF.PriceFormatter && new window.CIF.PriceFormatter(this._element.dataset.locale);
 
         this._element.querySelectorAll(ProductCollection.selectors.item).forEach(item => {
             this._state.skus.push(item.dataset.sku);
@@ -86,28 +85,41 @@ class ProductCollection {
         return price;
     }
 
-    _fetchPrices() {
+    async _fetchPrices() {
         // Retrieve current prices
-        if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
-        return window.CIF.CommerceGraphqlApi.getProductPrices(this._state.skus, false)
-            .then(prices => {
-                let convertedPrices = {};
-                for (let key in prices) {
-                    convertedPrices[key] = this._convertPriceToRange(prices[key]);
-                }
-                this._state.prices = convertedPrices;
+        if (!window.CIF || !window.CIF.CommerceGraphqlApi) {
+            await awaitCommonClientLib();
+        }
 
-                // Update prices
-                this._updatePrices();
-            })
-            .catch(err => {
-                console.error('Could not fetch prices', err);
-            });
+        try {
+            const prices = await window.CIF.CommerceGraphqlApi.getProductPrices(this._state.skus, false);
+
+            let convertedPrices = {};
+            for (let key in prices) {
+                convertedPrices[key] = this._convertPriceToRange(prices[key]);
+            }
+            this._state.prices = convertedPrices;
+
+            // Update prices
+            await this._updatePrices();
+        } catch (err) {
+            console.error('Could not fetch prices', err);
+        }
     }
 
-    _updatePrices() {
-        this._element.querySelectorAll(ProductCollection.selectors.item).forEach(item => {
-            if (!(item.dataset.sku in this._state.prices)) return;
+    async _updatePrices() {
+        if (!this._formatter) {
+            if (!window.CIF || !window.CIF.PriceFormatter) {
+                await awaitCommonClientLib();
+            }
+
+            this._formatter = new window.CIF.PriceFormatter(this._element.dataset.locale);
+        }
+
+        let _formatter = this._formatter;
+
+        for (let item of this._element.querySelectorAll(ProductCollection.selectors.item)) {
+            if (!(item.dataset.sku in this._state.prices)) continue;
 
             const price = this._state.prices[item.dataset.sku];
 
@@ -119,44 +131,44 @@ class ProductCollection {
             let innerHTML = '';
             if (!price.range) {
                 if (price.discounted) {
-                    innerHTML += `<span class="regularPrice">${this._formatter.formatPrice({
+                    innerHTML += `<span class="regularPrice">${_formatter.formatPrice({
                         value: price.regularPrice,
                         currency: price.currency
                     })}</span>
-                        <span class="discountedPrice">${this._formatter.formatPrice({
+                        <span class="discountedPrice">${_formatter.formatPrice({
                             value: price.finalPrice,
                             currency: price.currency
                         })}</span>`;
                 } else {
-                    let prefix = price.isStartPrice ? this._formatter.get('Starting at') + ' ' : '';
-                    innerHTML += `<span>${prefix}${this._formatter.formatPrice({
+                    let prefix = price.isStartPrice ? _formatter.get('Starting at') + ' ' : '';
+                    innerHTML += `<span>${prefix}${_formatter.formatPrice({
                         value: price.regularPrice,
                         currency: price.currency
                     })}</span>`;
                 }
             } else {
-                let from = this._formatter.get('From');
-                let to = this._formatter.get('To');
+                let from = _formatter.get('From');
+                let to = _formatter.get('To');
                 if (price.discounted) {
-                    innerHTML += `<span class="regularPrice">${from} ${this._formatter.formatPrice({
+                    innerHTML += `<span class="regularPrice">${from} ${_formatter.formatPrice({
                         value: price.regularPrice,
                         currency: price.currency
-                    })} ${to} ${this._formatter.formatPrice({
+                    })} ${to} ${_formatter.formatPrice({
                         value: price.regularPriceMax,
                         currency: price.currency
                     })}</span>
-                        <span class="discountedPrice">${from} ${this._formatter.formatPrice({
+                        <span class="discountedPrice">${from} ${_formatter.formatPrice({
                         value: price.finalPrice,
                         currency: price.currency
-                    })} ${to} ${this._formatter.formatPrice({
+                    })} ${to} ${_formatter.formatPrice({
                         value: price.finalPriceMax,
                         currency: price.currency
                     })}</span>`;
                 } else {
-                    innerHTML += `<span>${from} ${this._formatter.formatPrice({
+                    innerHTML += `<span>${from} ${_formatter.formatPrice({
                         value: price.regularPrice,
                         currency: price.currency
-                    })} ${to} ${this._formatter.formatPrice({
+                    })} ${to} ${_formatter.formatPrice({
                         value: price.regularPriceMax,
                         currency: price.currency
                     })}</span>`;
@@ -164,7 +176,7 @@ class ProductCollection {
             }
 
             item.querySelector(ProductCollection.selectors.price).innerHTML = innerHTML;
-        });
+        }
     }
 
     _applySortKey(sortKeySelect) {
@@ -214,7 +226,7 @@ class ProductCollection {
         // Fetch prices
         if (this._state.loadPrices) {
             this._state.skus = Array.from(moreItems, item => item.dataset.sku);
-            this._fetchPrices();
+            await this._fetchPrices();
         }
     }
 }

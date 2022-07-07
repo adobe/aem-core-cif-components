@@ -264,10 +264,15 @@ describe('Productcollection', () => {
                 </div>
             </div>`
         );
+        document.body.appendChild(listRoot);
 
         window.CIF.CommerceGraphqlApi = {
             getProductPrices: sinon.stub().resolves(clientPrices)
         };
+    });
+
+    afterEach(() => {
+        document.body.childNodes.forEach(node => node.remove());
     });
 
     it('initializes a product list component', () => {

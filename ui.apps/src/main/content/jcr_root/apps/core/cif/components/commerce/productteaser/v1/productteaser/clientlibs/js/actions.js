@@ -48,10 +48,7 @@ class ProductTeaser {
                     actionHandler = this._noOpHandler;
             }
 
-            actionButton.addEventListener('click', ev => {
-                const element = ev.currentTarget;
-                actionHandler(element.dataset);
-            });
+            actionButton.addEventListener('click', ev => actionHandler(ev));
         });
     }
 
@@ -59,23 +56,30 @@ class ProductTeaser {
         /* As the name says... NOOP */
     }
 
-    _addToCartHandler(dataset) {
-        const sku = dataset['itemSku'];
+    _addToCartHandler(event) {
+        const target = event.currentTarget;
+        const dataset = target.dataset;
+        const sku = dataset.itemSku;
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
+            bubbles: true,
             detail: [{ sku, quantity: 1, virtual: this.virtual }]
         });
-        document.dispatchEvent(customEvent);
+        target.dispatchEvent(customEvent);
     }
 
-    _addToWishlistHandler(dataset) {
-        const sku = dataset['itemSku'];
+    _addToWishlistHandler(event) {
+        const target = event.currentTarget;
+        const dataset = target.dataset;
+        const sku = dataset.itemSku;
         const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+            bubbles: true,
             detail: [{ sku, quantity: 1 }]
         });
-        document.dispatchEvent(customEvent);
+        target.dispatchEvent(customEvent);
     }
 
-    _seeDetailsHandler(dataset) {
+    _seeDetailsHandler(event) {
+        const dataset = event.currentTarget.dataset;
         const url = dataset['url'];
         const target = dataset['target'];
         if (target) {
