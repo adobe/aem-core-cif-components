@@ -52,9 +52,14 @@ import static org.mockito.Mockito.when;
 public class StoreConfigExporterImplTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
-        ImmutableMap.of("magentoGraphqlEndpoint", "/my/api/graphql", "magentoStore", "my-magento-store", "enableUIDSupport", "true",
-            "cq:graphqlClient",
-            "my-graphql-client", "httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2" }));
+        new ImmutableMap.Builder<String, Object>()
+            .put("magentoGraphqlEndpoint", "/my/api/graphql")
+            .put("magentoStore", "my-magento-store")
+            .put("enableUIDSupport", "true")
+            .put("cq:graphqlClient", "my-graphql-client")
+            .put("httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2" })
+            .put("jcr:language", "de_de")
+            .put("enableClientSidePriceLoading", true).build());
 
     @Rule
     public final AemContext context = TestContext.newAemContext();
@@ -187,6 +192,24 @@ public class StoreConfigExporterImplTest {
         assertArrayEquals(new String[] { "my-magento-store" }, headers.get("Store"));
         assertArrayEquals(new String[] { "value1" }, headers.get("customHeader-1"));
         assertArrayEquals(new String[] { "value2" }, headers.get("customHeader-2"));
+    }
+
+    @Test
+    public void testLanguage() {
+        mockConfiguration = new ComponentsConfiguration(MOCK_CONFIGURATION);
+        setupWithPage("/content/pageH", HttpMethod.POST);
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        assertNotNull(storeConfigExporter);
+        assertEquals("de-de", storeConfigExporter.getLanguage());
+    }
+
+    @Test
+    public void testEnableClientSidePriceLoading() {
+        mockConfiguration = new ComponentsConfiguration(MOCK_CONFIGURATION);
+        setupWithPage("/content/pageH", HttpMethod.POST);
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        assertNotNull(storeConfigExporter);
+        assertTrue(storeConfigExporter.isClientSidePriceLoadingEnabled());
     }
 
     private void setupWithPage(String pagePath, HttpMethod method) {

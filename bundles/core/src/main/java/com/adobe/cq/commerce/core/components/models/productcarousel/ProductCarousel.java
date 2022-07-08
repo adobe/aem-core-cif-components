@@ -83,5 +83,5 @@ public interface ProductCarousel extends Component {
      */
     default String getLinkTarget() {
         return null;
-    };
+    }
 }

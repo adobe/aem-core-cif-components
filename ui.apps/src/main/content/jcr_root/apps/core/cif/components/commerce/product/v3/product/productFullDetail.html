@@ -13,7 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
-<template data-sly-template.productFullDetail="${ @ page, product, additionalCssClasses }"
+<template data-sly-template.productFullDetail="${ @ product, additionalCssClasses }"
           data-sly-use.variantsTpl="variantselector.html"
           data-sly-use.galleryTpl="gallery.html"
           data-sly-use.actionsTpl="actions.html"
@@ -33,10 +33,8 @@
           data-grouped="${product.groupedProduct}"
           data-virtual="${product.virtualProduct}"
           data-cmp-is="product"
-          data-locale="${page.language}"
           data-cmp-data-layer="${product.data.json}"
-          data-cif-product-context="${product.storefrontContext.json}"
-          data-load-client-price="${product.loadClientPrice}">
+          data-cif-product-context="${product.storefrontContext.json}">
         <sly data-sly-test.found="${product.found}">
             <sly data-sly-test.isGroupedProduct="${product.isGroupedProduct}" />
             <sly data-sly-test.isBundleProduct="${product.isBundleProduct}" />

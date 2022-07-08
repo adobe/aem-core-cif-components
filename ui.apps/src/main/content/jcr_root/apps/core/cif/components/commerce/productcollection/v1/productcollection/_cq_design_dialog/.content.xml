@@ -22,7 +22,7 @@
                             <loadClientPrice
                                 jcr:primaryType="nt:unstructured"
                                 sling:resourceType="granite/ui/components/coral/foundation/form/checkbox"
-                                fieldDescription="Load current prices on the client-side"
+                                fieldDescription="Load current prices on the client-side. Deprecated: Client Side price loading can be enabled site-wide using the CIF Cloud Configuration."
                                 name="./loadClientPrice"
                                 text="Load Prices"
                                 uncheckedValue="false"

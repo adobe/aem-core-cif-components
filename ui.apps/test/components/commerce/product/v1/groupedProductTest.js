@@ -16,7 +16,7 @@
 'use strict';
 
 import Product from '../../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product/clientlib/js/product.js';
-import PriceFormatter from '../../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';
+import CommerceGraphqlApi from '../../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js';
 
 describe('GroupedProduct', () => {
     describe('Core', () => {
@@ -113,7 +113,7 @@ describe('GroupedProduct', () => {
         before(() => {
             // Create empty context
             windowCIF = window.CIF;
-            window.CIF = {};
+            window.CIF = { ...window.CIF };
 
             // We mock the Granite i18n support to also test that part of the PriceFormatter
             window.Granite = {};
@@ -122,11 +122,8 @@ describe('GroupedProduct', () => {
                 get: key => key
             };
 
-            window.CIF.PriceFormatter = PriceFormatter;
-
-            window.CIF.CommerceGraphqlApi = {
-                getProductPrices: sinon.stub().resolves(clientPrices)
-            };
+            window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: 'https://foo.bar/graphql' });
+            window.CIF.CommerceGraphqlApi.getProductPrices = sinon.stub().resolves(clientPrices);
         });
 
         after(() => {
