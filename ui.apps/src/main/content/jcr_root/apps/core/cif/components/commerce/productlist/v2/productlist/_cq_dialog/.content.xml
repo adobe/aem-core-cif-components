@@ -78,12 +78,15 @@
                                     fieldLabel="Experience Fragment location name."
                                     required="{Boolean}true"
                                     name="fragmentLocation"/>
-                                <xfPosition
+                                <titleType granite:class="core-title-sizes"
                                     jcr:primaryType="nt:unstructured"
-                                    sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
-                                    fieldDescription="The CSS class to be applied to the Experience Fragment container"
-                                    fieldLabel="Content CSS class"
-                                    name="fragmentCssClass"/>
+                                    sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                    fieldLabel="The Style to be applied."
+                                    name="fragmentCssClass">
+                                    <datasource
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="core/wcm/components/commons/datasources/productlistxfstyles/v1"/>
+                                </titleType>
                             </items>
                         </field>
                     </xfItems>
