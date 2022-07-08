@@ -37,7 +37,6 @@ describe('useDataLayerEvents', () => {
 
         expect(pushEvent).toHaveBeenCalledTimes(1);
         expect(pushEvent).toHaveBeenCalledWith('cif:addToCart', {
-            '@id': 'test-id',
             'xdm:SKU': 'test-sku',
             'xdm:quantity': 1
         });
@@ -55,7 +54,6 @@ describe('useDataLayerEvents', () => {
 
         expect(pushEvent).toHaveBeenCalledTimes(1);
         expect(pushEvent).toHaveBeenCalledWith('cif:addToWishList', {
-            '@id': 'test-id',
             'xdm:SKU': 'test-sku',
             'xdm:quantity': 1
         });
@@ -78,13 +76,11 @@ describe('useDataLayerEvents', () => {
         });
 
         expect(pushEvent).toHaveBeenCalledWith('cif:addToCart', {
-            '@id': 'test-id',
             'xdm:SKU': 'test-sku',
             'xdm:quantity': 1,
             path: 'component.component-id-1234'
         });
         expect(pushEvent).toHaveBeenCalledWith('cif:addToWishList', {
-            '@id': 'test-id',
             'xdm:SKU': 'test-sku',
             'xdm:quantity': 1,
             path: 'component.component-id-1234'
@@ -110,13 +106,11 @@ describe('useDataLayerEvents', () => {
         });
 
         expect(pushEvent).toHaveBeenCalledWith('cif:addToCart', {
-            '@id': 'test-id',
             'xdm:SKU': 'test-sku',
             'xdm:quantity': 1,
             path: 'component.parent-component-id-1234'
         });
         expect(pushEvent).toHaveBeenCalledWith('cif:addToWishList', {
-            '@id': 'test-id',
             'xdm:SKU': 'test-sku',
             'xdm:quantity': 1,
             path: 'component.parent-component-id-1234'

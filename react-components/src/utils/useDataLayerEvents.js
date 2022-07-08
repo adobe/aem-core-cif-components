@@ -42,7 +42,6 @@ const useDataLayerEvents = () => {
 
         items.forEach(item => {
             let eventInfo = {
-                '@id': item.productId,
                 'xdm:SKU': item.sku,
                 'xdm:quantity': item.quantity
             };
@@ -65,7 +64,6 @@ const useDataLayerEvents = () => {
 
         items.forEach(item => {
             let eventInfo = {
-                '@id': item.productId,
                 'xdm:SKU': item.sku,
                 'xdm:quantity': item.quantity
             };

@@ -19,6 +19,7 @@
     "webpack:dev": "npm run i18n:extract-compile && webpack --mode=development",
     "webpack:prod": "npm run i18n:extract-compile && webpack --mode=production && node css-template.js",
     "test": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --coverage",
+    "jest": "jest --coverage",
     "ci": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --ci --runInBand --coverage",
     "test:watch": "npm run i18n:extract-compile && npm run lint && jest --watch",
     "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
@@ -27,7 +28,7 @@
     "i18n:extract-compile": "formatjs extract --out-file i18n/__temp.json 'src/**/*.js' && formatjs compile --ast --out-file i18n/en.json i18n/__temp.json && rm i18n/__temp.json"
   },
   "devDependencies": {
-    "@adobe/aem-core-cif-react-components": "^2.4.2",
+    "@adobe/aem-core-cif-react-components": "^2.10.0",
     "@apollo/client": "~3.1.2",
     "@babel/core": "^7.8.7",
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
@@ -68,7 +69,7 @@
     "webpack-cli": "^3.3.11"
   },
   "peerDependencies": {
-    "@adobe/aem-core-cif-react-components": "^2.4.2",
+    "@adobe/aem-core-cif-react-components": "^2.10.0",
     "@apollo/client": "^3.1.2",
     "@magento/recommendations-js-sdk": "^2.0.5",
     "graphql": "~15.3.0",

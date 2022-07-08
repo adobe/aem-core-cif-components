@@ -17,7 +17,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { useIntl } from 'react-intl';
-import { useStorefrontEvents, Price, Trigger, createProductPageUrl, dataLayerUtils } from '@adobe/aem-core-cif-react-components';
+import {
+    useStorefrontEvents,
+    Price,
+    Trigger,
+    createProductPageUrl,
+    dataLayerUtils
+} from '@adobe/aem-core-cif-react-components';
 
 import classes from './ProductCard.css';
 
@@ -95,7 +101,7 @@ const ProductCard = props => {
 
     const cartProps = {
         className: classes.card,
-        key: sku,
+        key: sku
     };
 
     if (dataLayer) {
@@ -110,8 +116,8 @@ const ProductCard = props => {
                     parentId,
                     '@type': 'core/cif/components/commerce/productlistitem',
                     'dc:title': name,
-                    'xdm:SKU': sku,
-                }
+                    'xdm:SKU': sku
+                };
 
                 if (prices?.minimum?.final) {
                     dataLayerBody['xdm:currencyCode'] = currency;
@@ -127,7 +133,7 @@ const ProductCard = props => {
                 });
             }
         })();
-    },[]);
+    }, []);
 
     return (
         <div {...cartProps}>
@@ -188,7 +194,8 @@ ProductCard.propTypes = {
             url: PropTypes.string
         })
     }),
-    showAddToWishList: PropTypes.bool
+    showAddToWishList: PropTypes.bool,
+    parentId: PropTypes.string
 };
 
 export default ProductCard;

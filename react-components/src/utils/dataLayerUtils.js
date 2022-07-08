@@ -161,4 +161,4 @@ export default {
     pushEvent,
     pushData,
     generateId: generateDataLayerId
-}
+};
