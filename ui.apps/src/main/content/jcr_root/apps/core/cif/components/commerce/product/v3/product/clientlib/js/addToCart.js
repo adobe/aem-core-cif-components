@@ -100,6 +100,8 @@ class AddToCart {
                 detail: items
             });
             target.dispatchEvent(customEvent);
+            event.preventDefault();
+            event.stopPropagation();
         }
     }
 

@@ -43,6 +43,7 @@ class ProductCarouselActions {
             });
             target.dispatchEvent(customEvent);
             event.preventDefault();
+            event.stopPropagation();
         }
         // else click hits parent link
     }
@@ -57,6 +58,7 @@ class ProductCarouselActions {
         });
         target.dispatchEvent(customEvent);
         event.preventDefault();
+        event.stopPropagation();
     }
 }
 

@@ -65,6 +65,8 @@ class ProductTeaser {
             detail: [{ sku, quantity: 1, virtual: this.virtual }]
         });
         target.dispatchEvent(customEvent);
+        event.preventDefault();
+        event.stopPropagation();
     }
 
     _addToWishlistHandler(event) {
@@ -76,6 +78,8 @@ class ProductTeaser {
             detail: [{ sku, quantity: 1 }]
         });
         target.dispatchEvent(customEvent);
+        event.preventDefault();
+        event.stopPropagation();
     }
 
     _seeDetailsHandler(event) {

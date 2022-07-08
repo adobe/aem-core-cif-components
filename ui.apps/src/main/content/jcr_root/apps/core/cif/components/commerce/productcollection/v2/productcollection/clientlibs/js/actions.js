@@ -32,7 +32,6 @@ class ProductCollectionActions {
     }
 
     _addToCartHandler(event) {
-        event.stopPropagation();
         const target = event.currentTarget;
         const dataset = target.dataset;
         const sku = dataset.itemSku;
@@ -44,12 +43,12 @@ class ProductCollectionActions {
             });
             target.dispatchEvent(customEvent);
             event.preventDefault();
+            event.stopPropagation();
         }
         // else click hits parent link
     }
 
     _addToWishlistHandler(event) {
-        event.stopPropagation();
         const target = event.currentTarget;
         const dataset = target.dataset;
         const sku = dataset.itemSku;
@@ -59,6 +58,7 @@ class ProductCollectionActions {
         });
         target.dispatchEvent(customEvent);
         event.preventDefault();
+        event.stopPropagation();
     }
 }
 

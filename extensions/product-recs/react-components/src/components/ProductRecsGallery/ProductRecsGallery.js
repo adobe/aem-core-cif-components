@@ -51,11 +51,19 @@ const ProductRecsGallery = props => {
     }
 
     if (units && units.length > 0 && units[0].products.length > 0) {
+        let parentId;
         const unit = units[0];
 
         const isVisible = () => {
             mse && mse.publish.recsUnitView(unit.unitId);
         };
+
+        if (hostElement) {
+            const dataLayerStr = hostElement.dataset?.cmpDataLayer;
+            const dataLayer = dataLayerStr ? JSON.parse(dataLayerStr) : {};
+            const dataLayerKeys = Object.keys(dataLayer);
+            parentId = dataLayerKeys.length > 0 ? dataLayerKeys[0] : undefined;
+        }
 
         content = (
             <>
@@ -63,6 +71,7 @@ const ProductRecsGallery = props => {
                 <div className={classes.container} ref={e => observeElement(e, isVisible)}>
                     {unit.products.map(product => (
                         <ProductCard
+                            parentId={parentId}
                             unit={unit}
                             product={product}
                             key={product.sku}

@@ -13,20 +13,21 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { useIntl } from 'react-intl';
-import { useStorefrontEvents, Price, Trigger, createProductPageUrl } from '@adobe/aem-core-cif-react-components';
+import { useStorefrontEvents, Price, Trigger, createProductPageUrl, dataLayerUtils } from '@adobe/aem-core-cif-react-components';
 
 import classes from './ProductCard.css';
 
 const ProductCard = props => {
-    const { showAddToWishList } = props;
+    const { showAddToWishList, parentId } = props;
     const mse = useStorefrontEvents();
     const intl = useIntl();
     const addToCartRef = useRef();
     const addToWishlistRef = useRef();
+    const [dataLayer, setDataLayer] = useState(undefined);
 
     const {
         unit: { unitId },
@@ -92,8 +93,44 @@ const ProductCard = props => {
         return <img className={classes.productImage} src={smallImage.url} alt={name} />;
     };
 
+    const cartProps = {
+        className: classes.card,
+        key: sku,
+    };
+
+    if (dataLayer) {
+        cartProps['data-cmp-data-layer'] = JSON.stringify(dataLayer);
+    }
+
+    useEffect(() => {
+        (async () => {
+            if (parentId) {
+                const dataLayerKey = await dataLayerUtils.generateId(parentId, sku, '-item-');
+                const dataLayerBody = {
+                    parentId,
+                    '@type': 'core/cif/components/commerce/productlistitem',
+                    'dc:title': name,
+                    'xdm:SKU': sku,
+                }
+
+                if (prices?.minimum?.final) {
+                    dataLayerBody['xdm:currencyCode'] = currency;
+                    dataLayerBody['xdm:listPrice'] = prices.minimum.final;
+                }
+
+                const componentObject = { [dataLayerKey]: dataLayerBody };
+                // set the componentObject to the state
+                setDataLayer(componentObject);
+                // and add it to the datalayer
+                dataLayerUtils.pushData({
+                    component: componentObject
+                });
+            }
+        })();
+    },[]);
+
     return (
-        <div className={classes.card} key={sku}>
+        <div {...cartProps}>
             <a
                 href={createProductPageUrl(sku)}
                 title={name}
