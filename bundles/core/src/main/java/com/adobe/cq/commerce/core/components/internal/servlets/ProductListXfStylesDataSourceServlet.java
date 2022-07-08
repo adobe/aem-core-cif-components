@@ -76,7 +76,6 @@ public class ProductListXfStylesDataSourceServlet extends SlingSafeMethodsServle
             if (policy != null) {
                 String policyPath = policy.getPath();
                 Resource policyResource = resolver.getResource(policyPath);
-                Iterable<Resource> children = policyResource.getChildren();
                 Resource fragmentStylesResource = policyResource.getChild(PN_FRAGMENT_STYLES);
                 if (fragmentStylesResource != null) {
                     fragmentStylesResource.getChildren().forEach(fs -> {

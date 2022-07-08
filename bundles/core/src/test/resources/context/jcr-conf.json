@@ -3,17 +3,37 @@
         "jcr:primaryType": "sling:Folder",
         "cloudconfigs": {
             "jcr:primaryType": "sling:Folder",
-        "commerce": {
+            "commerce": {
+                "jcr:primaryType": "cq:Page",
+                "jcr:mixinTypes": [
+                    "rep:AccessControllable"
+                ],
+                "cq:graphqlClient": "default",
+                "magentoStore": "my-store",
+                "aTotallyUnrelatedProperty": "true",
+                "jcr:createdBy": "admin",
+                "jcr:created": "Thu Jan 16 2020 12:20:34 GMT+0200"
+            }
+        },
+        "wcm": {
             "jcr:primaryType": "cq:Page",
-            "jcr:mixinTypes": [
-                "rep:AccessControllable"
-            ],
-            "cq:graphqlClient": "default",
-            "magentoStore": "my-store",
-            "aTotallyUnrelatedProperty": "true",
-            "jcr:createdBy": "admin",
-            "jcr:created": "Thu Jan 16 2020 12:20:34 GMT+0200"
-        }
+            "policies": {
+                "jcr:primaryType": "cq:Page",
+                "testing": {
+                    "jcr:primaryType": "nt:unstructured",
+                    "fragmentStyles": {
+                        "jcr:primaryType": "nt:unstructured",
+                        "item0": {
+                            "jcr:primaryType": "nt:unstructured",
+                            "fragmentStyleCssClass": "marketing-content__row-2",
+                            "fragmentStyleName": "Second Row"
+                        }
+                    }
+                },
+                "empty": {
+                    "jcr:primaryType": "nt:unstructured"
+                }
+            }
         }
     }
 }
