@@ -19,7 +19,7 @@
                 sling:resourceType="granite/ui/components/coral/foundation/tabs"
                 size="L">
                 <items jcr:primaryType="nt:unstructured">
-                    <commerce cq:showOnCreate="{Boolean}true"
+                    <commerce cq:showOnCreate="{Boolean}false"
                         jcr:primaryType="nt:unstructured"
                         jcr:title="Commerce"
                         sling:orderBefore="cloudservices"
