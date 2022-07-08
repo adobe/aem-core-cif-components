@@ -50,13 +50,13 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceExperienceFragmentContainerImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment.CommerceExperienceFragmentImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcollection.ProductCollectionImpl;
+import com.adobe.cq.commerce.core.components.internal.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.CategoryStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.CommerceExperienceFragmentContainer;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
@@ -78,9 +78,9 @@ import com.adobe.granite.ui.components.ValueMapResourceWrapper;
 public class ProductListImpl extends ProductCollectionImpl implements ProductList {
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v1/productlist";
+    public static final String PN_FRAGMENT_LOCATION = "fragmentLocation";
+    public static final String PN_FRAGMENT_CSS_CLASS = "fragmentCssClass";
     protected static final String PLACEHOLDER_DATA = "productlist-component-placeholder-data.json";
-    protected static final String PN_FRAGMENT_LOCATION = "fragmentLocation";
-    protected static final String PN_FRAGMENT_CSS_CLASS = "fragmentCssClass";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
 

@@ -42,7 +42,7 @@ The following properties are written to JCR for this component and are expected 
 5. `./showTitle` - if true the component displays the category title
 6. `./showImage` - if true the component displays the category image
 7. `./id` - defines the component HTML ID attribute
-8. `./fragments` - this is a multifield allowing configuration of content fragments to be inserted in the product list
+8. `./fragments` - this is a multifield allowing configuration of experience fragments to be inserted in the product list
 
 ## BEM Description
 
@@ -51,7 +51,7 @@ version 2 of productlist introduces these extra elements to display the details 
 and a "staged" flag on the category itself or its products. 
 Note that this is only relevant for AEM author instances.
 
-This version also introduces the possibility to introduce content fragment placeholders.
+This version also introduces the possibility to introduce experience fragment placeholders.
 Using the edit dialog, placeholders containing the position of the placeholder in the grid
 and the fragment "location" property can be configured. 
 This will search for fragments configured for the current category and the configured location
