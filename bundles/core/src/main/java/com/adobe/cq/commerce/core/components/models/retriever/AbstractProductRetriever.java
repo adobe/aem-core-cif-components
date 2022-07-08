@@ -17,8 +17,8 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -54,9 +54,9 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     protected Consumer<SimpleProductQuery> variantQueryHook;
 
     /**
-     * Lambda that replaces the product attribute filters.
+     * Lambda that allows to replace or extend the product attribute filters.
      */
-    protected BiConsumer<String, ProductAttributeFilterInput> productAttributeFilterHook;
+    protected Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook;
 
     /**
      * Product instance. Is only available after populate() was called.
@@ -146,23 +146,33 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     }
 
     /**
-     * Replaces the product attribute filter with a custom instance defined by a lambda hook.
+     * Extends or replaces the product attribute filter with a custom instance defined by a lambda hook.
      *
-     * Example:
+     * Example 1 (Extend):
      *
      * <pre>
      * {@code
-     * productRetriever.replaceProductFilterWith((identifier, f) -> f
-     *     .setSku(new FilterEqualTypeInput()
-     *         .setEq(identifier))
-     *     .setCustomFilter("eco-friendly", new FilterEqualTypeInput()
-     *         .setEq("yes")));
+     * productRetriever.extendProductFilterWith(f -> f
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
      * }
      * </pre>
      *
-     * @param productAttributeFilterHook Lambda that defined the product attribute filter.
+     * Example 2 (Replace):
+     *
+     * <pre>
+     * {@code
+     * productRetriever.extendProductFilterWith(f -> new ProductAttributeFilterInput()
+     *     .setSku(new FilterEqualTypeInput()
+     *         .setEq("custom-sku"))
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * @param productAttributeFilterHook Lambda that extends or replaces the product attribute filter.
      */
-    public void replaceProductFilterWith(BiConsumer<String, ProductAttributeFilterInput> productAttributeFilterHook) {
+    public void extendProductFilterWith(Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook) {
         if (this.productAttributeFilterHook == null) {
             this.productAttributeFilterHook = productAttributeFilterHook;
         } else {
@@ -178,16 +188,16 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      */
     protected String generateQuery(String identifier) {
         ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
+        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
+        filter.setSkuInput(Input.optional(identifierFilter));
 
         // Apply product attribute filter hook
         if (this.productAttributeFilterHook != null) {
-            this.productAttributeFilterHook.accept(identifier, filter);
-        } else {
-            FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
-            filter.setSkuInput(Input.optional(identifierFilter));
+            filter = this.productAttributeFilterHook.apply(filter);
         }
 
-        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+        ProductAttributeFilterInput finalFilter = filter;
+        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(finalFilter);
 
         ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
         return Operations.query(query -> query
