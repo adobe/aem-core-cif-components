@@ -14,7 +14,9 @@
 <template data-sly-template.productcard="${@ product, productCarousel}"
     data-sly-use.priceTemplate="core/cif/components/commons/v1/price.html"
     data-sly-use.actionsTemplate="actions.html">
-    <div data-product-sku="${product.commerceIdentifier.value}"
+    <div
+        data-product-sku="${product.commerceIdentifier.value}"
+        data-product-base-sku="${product.combinedSku.baseSku}"
         id="${product.id}"
         data-cmp-data-layer="${product.data.json}"
         class="card product__card">

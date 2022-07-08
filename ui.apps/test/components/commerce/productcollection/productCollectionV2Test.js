@@ -17,7 +17,7 @@
 
 import ProductCollection from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v2/productcollection/clientlibs/js/productcollection.js';
 import ProductCollectionActions from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v2/productcollection/clientlibs/js/actions.js';
-import PriceFormatter from '../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';
+import CommerceGraphqlApi from '../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js';
 
 describe('Productcollection', () => {
     let listRoot;
@@ -110,7 +110,7 @@ describe('Productcollection', () => {
 
     const convertedPrices = {
         'sku-a': {
-            isStartPrice: false,
+            productType: 'SimpleProduct',
             currency: 'USD',
             regularPrice: 156.89,
             finalPrice: 156.89,
@@ -120,7 +120,7 @@ describe('Productcollection', () => {
             range: false
         },
         'sku-b': {
-            isStartPrice: false,
+            productType: 'ConfigurableProduct',
             currency: 'USD',
             regularPrice: 123.45,
             finalPrice: 123.45,
@@ -134,7 +134,7 @@ describe('Productcollection', () => {
             range: true
         },
         'sku-c': {
-            isStartPrice: false,
+            productType: 'SimpleProduct',
             currency: 'USD',
             regularPrice: 20,
             finalPrice: 10,
@@ -144,7 +144,7 @@ describe('Productcollection', () => {
             range: false
         },
         'sku-d': {
-            isStartPrice: true,
+            productType: 'GroupedProduct',
             currency: 'USD',
             regularPrice: 20,
             finalPrice: 20,
@@ -158,8 +158,7 @@ describe('Productcollection', () => {
     before(() => {
         // Create empty context
         windowCIF = window.CIF;
-        window.CIF = {};
-        window.CIF.PriceFormatter = PriceFormatter;
+        window.CIF = { ...window.CIF };
     });
 
     after(() => {
@@ -265,9 +264,9 @@ describe('Productcollection', () => {
             </div>`
         );
 
-        window.CIF.CommerceGraphqlApi = {
-            getProductPrices: sinon.stub().resolves(clientPrices)
-        };
+        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: 'https://foo.bar/graphql' });
+        window.CIF.CommerceGraphqlApi.getProductPrices = sinon.stub().resolves(clientPrices);
+        delete window.CIF.enableClientSidePriceLoading;
     });
 
     it('initializes a product list component', () => {
@@ -276,8 +275,26 @@ describe('Productcollection', () => {
         assert.deepEqual(list._state.skus, ['sku-a', 'sku-b', 'sku-c', 'sku-d']);
     });
 
-    it('retrieves prices via GraphQL', () => {
+    it('retrieves prices via GraphQL (enabled in component dataset)', () => {
         listRoot.dataset.loadClientPrice = true;
+        let list = new ProductCollection({ element: listRoot });
+        assert.isTrue(list._state.loadPrices);
+
+        return list._fetchPrices().then(() => {
+            assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.called);
+            assert.deepEqual(list._state.prices, convertedPrices);
+
+            // Verify price updates
+            assert.equal(listRoot.querySelector('[data-sku=sku-a] .price').innerText, '$156.89');
+            assert.equal(listRoot.querySelector('[data-sku=sku-b] .price').innerText, 'From $123.45 To $150.45');
+            assert.include(listRoot.querySelector('[data-sku=sku-c] .price').innerText, '$20.00');
+            assert.include(listRoot.querySelector('[data-sku=sku-c] .price').innerText, '$10.00');
+            assert.equal(listRoot.querySelector('[data-sku=sku-d] .price').innerText, 'Starting at $20.00');
+        });
+    });
+
+    it('retrieves prices via GraphQL (enabled globally)', () => {
+        window.CIF.enableClientSidePriceLoading = true;
         let list = new ProductCollection({ element: listRoot });
         assert.isTrue(list._state.loadPrices);
 

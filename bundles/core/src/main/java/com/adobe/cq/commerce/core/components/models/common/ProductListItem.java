@@ -26,12 +26,22 @@ import com.adobe.cq.wcm.core.components.models.ListItem;
 public interface ProductListItem extends ListItem {
 
     /**
-     * Returns the product SKU of this {@code ProductListItem}.
+     * Returns the product SKU of this {@code ProductListItem}. This is always the SKU of the base product even for a variant of a
+     * configurable product. Use {@link ProductListItem#getCombinedSku()} to get access to the variant's sku if needed.
      *
      * @return the product SKU of this list item or {@code null}
      */
     @Nullable
     String getSKU();
+
+    /**
+     * Returns the SKU of this {@code ProductListItem} as {@link CombinedSku}
+     *
+     * @return a {@link CombinedSku} representing the SKU
+     */
+    default CombinedSku getCombinedSku() {
+        return new CombinedSku(getSKU(), null);
+    }
 
     /**
      * Returns the product slug of this {@code ProductListItem}.
@@ -58,7 +68,9 @@ public interface ProductListItem extends ListItem {
     String getImageAlt();
 
     /**
-     * Returns the identifier of this product.
+     * Returns the identifier of this product. If the returned {@link CommerceIdentifier} is of type
+     * {@link CommerceIdentifier.IdentifierType#SKU} and the product is a configurable product the value of the identifier is the
+     * variant's sku. Otherwise, it is the base product's sku.
      * 
      * @return a {@link CommerceIdentifier} object representing the identifier of this product.
      */
