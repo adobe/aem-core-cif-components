@@ -58,6 +58,9 @@ class ProductRetriever extends AbstractProductRetriever {
                     .variants(v -> v
                         .product(generateSimpleProductQuery()))
                     .priceRange(r -> r
+                        .maximumPrice(generatePriceQuery())))
+                .onBundleProduct(bp -> bp
+                    .priceRange(r -> r
                         .maximumPrice(generatePriceQuery())));
 
             // Apply product query hook

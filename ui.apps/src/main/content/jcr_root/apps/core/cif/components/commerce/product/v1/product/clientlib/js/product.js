@@ -15,18 +15,16 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-const awaitCommonClientLib = async () =>
-    new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
-
 class Product {
     constructor(config) {
         this._element = config.element;
 
         const skuElement = this._element.querySelector(Product.selectors.sku);
+        const sku = skuElement && skuElement.innerHTML;
         // Local state
         this._state = {
             // Current sku, either from the base product or from a variant
-            sku: skuElement && skuElement.innerHTML,
+            sku,
 
             // True if this product is configurable and has variants
             configurable: this._element.dataset.configurable !== undefined,
@@ -35,8 +33,15 @@ class Product {
             prices: {},
 
             // Load prices on the client-side
-            loadPrices: this._element.dataset.loadClientPrice !== undefined
+            loadPrices:
+                sku && (window.CIF.enableClientSidePriceLoading || this._element.dataset.loadClientPrice !== undefined)
         };
+
+        // Intl.NumberFormat instance for formatting prices
+        this._formatter =
+            window.CIF &&
+            window.CIF.PriceFormatter &&
+            new window.CIF.PriceFormatter(window.CIF.locale || this._element.dataset.locale);
 
         // Update product data
         this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
@@ -44,79 +49,36 @@ class Product {
         this._state.loadPrices && this._initPrices();
     }
 
-    /**
-     * Convert given GraphQL PriceRange object into data structure as defined by the sling model.
-     */
-    _convertPriceToRange(range) {
-        let price = {};
-        price.productType = range.__typename;
-        price.currency = range.minimum_price.final_price.currency;
-        price.regularPrice = range.minimum_price.regular_price.value;
-        price.finalPrice = range.minimum_price.final_price.value;
-        if (range.minimum_price.discount) {
-            price.discountAmount = range.minimum_price.discount.amount_off;
-            price.discountPercent = range.minimum_price.discount.percent_off;
-        }
-
-        if (range.maximum_price) {
-            price.regularPriceMax = range.maximum_price.regular_price.value;
-            price.finalPriceMax = range.maximum_price.final_price.value;
-            if (range.maximum_price.discount) {
-                price.discountAmountMax = range.maximum_price.discount.amount_off;
-                price.discountPercentMax = range.maximum_price.discount.percent_off;
-            }
-        }
-
-        price.discounted = !!(price.discountAmount && price.discountAmount > 0);
-        price.range = !!(
-            price.finalPrice &&
-            price.finalPriceMax &&
-            Math.round(price.finalPrice * 100) != Math.round(price.finalPriceMax * 100)
-        );
-
-        return price;
-    }
-
-    async _initPrices() {
+    _initPrices() {
         // Retrieve current prices
-        try {
-            if (!window.CIF || !window.CIF.CommerceGraphqlApi) {
-                await awaitCommonClientLib();
-            }
+        if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
+        return window.CIF.CommerceGraphqlApi.getProductPriceModels([this._state.sku], true)
+            .then(convertedPrices => {
+                this._state.prices = convertedPrices;
 
-            const prices = await window.CIF.CommerceGraphqlApi.getProductPrices([this._state.sku], true);
-
-            let convertedPrices = {};
-            for (let key in prices) {
-                convertedPrices[key] = this._convertPriceToRange(prices[key]);
-            }
-            this._state.prices = convertedPrices;
-
-            // Update price
-            if (!(this._state.sku in this._state.prices)) return;
-            if (this._state.prices[this._state.sku].productType == 'GroupedProduct') {
-                await Promise.all(
-                    Object.keys(this._state.prices).map(key => {
+                // Update price
+                if (!(this._state.sku in this._state.prices)) return;
+                if (this._state.prices[this._state.sku].productType == 'GroupedProduct') {
+                    for (let key in this._state.prices) {
                         if (key == this._state.sku) {
-                            // Only update the prices of the items inside the group
-                            return Promise.resolve();
+                            continue; // Only update the prices of the items inside the group
                         }
-                        return this._updatePrice(this._state.prices[key], key);
-                    })
-                );
-            } else {
-                await this._updatePrice(this._state.prices[this._state.sku]);
-            }
-        } catch (err) {
-            console.error('Could not fetch prices', err);
-        }
+                        this._updatePrice(this._state.prices[key], key);
+                    }
+                } else {
+                    this._updatePrice(this._state.prices[this._state.sku]);
+                }
+            })
+            .catch(err => {
+                console.error('Could not fetch prices', err);
+            });
     }
 
     /**
      * Variant changed event handler that updates the displayed product attributes
      * based on the given event.
      */
-    async _onUpdateVariant(event) {
+    _onUpdateVariant(event) {
         const variant = event.detail.variant;
         if (!variant) return;
 
@@ -132,87 +94,26 @@ class Product {
 
         // Use client-side fetched price
         if (this._state.sku in this._state.prices) {
-            await this._updatePrice(this._state.prices[this._state.sku]);
+            this._updatePrice(this._state.prices[this._state.sku]);
         } else {
             // or server-side price as a backup
-            await this._updatePrice(variant.priceRange);
+            this._updatePrice(variant.priceRange);
         }
     }
 
     /**
      * Update price in the DOM.
      */
-    async _updatePrice(price, optionalSku) {
+    _updatePrice(price, optionalSku) {
         // Only update if prices are not null
-        if (!price.regularPrice || !price.finalPrice) {
+        if (!price || !price.regularPrice || !price.finalPrice) {
             return;
         }
 
-        if (!this._formatter) {
-            if (!window.CIF || !window.CIF.PriceFormatter) {
-                await awaitCommonClientLib();
-            }
-
-            this._formatter = new window.CIF.PriceFormatter(this._element.dataset.locale);
-        }
-
-        let _formatter = this._formatter;
-        let youSave = _formatter.get('You save');
-        let innerHTML = '';
-        if (!price.range) {
-            if (price.discounted) {
-                innerHTML += `<span class="regularPrice">${_formatter.formatPrice({
-                    value: price.regularPrice,
-                    currency: price.currency
-                })}</span>
-                    <span class="discountedPrice">${_formatter.formatPrice({
-                        value: price.finalPrice,
-                        currency: price.currency
-                    })}</span>
-                    <span class="you-save">${youSave} ${_formatter.formatPrice({
-                    value: price.discountAmount,
-                    currency: price.currency
-                })} (${price.discountPercent}%)</span>`;
-            } else {
-                innerHTML += `<span>${_formatter.formatPrice({
-                    value: price.regularPrice,
-                    currency: price.currency
-                })}</span>`;
-            }
-        } else {
-            let from = _formatter.get('From');
-            let to = _formatter.get('To');
-            if (price.discounted) {
-                innerHTML += `<span class="regularPrice">${from} ${_formatter.formatPrice({
-                    value: price.regularPrice,
-                    currency: price.currency
-                })} ${to} ${_formatter.formatPrice({
-                    value: price.regularPriceMax,
-                    currency: price.currency
-                })}</span>
-                    <span class="discountedPrice">${from} ${_formatter.formatPrice({
-                    value: price.finalPrice,
-                    currency: price.currency
-                })} ${to} ${_formatter.formatPrice({
-                    value: price.finalPriceMax,
-                    currency: price.currency
-                })}</span>
-                    <span class="you-save">${youSave} ${_formatter.formatPrice({
-                    value: price.discountAmount,
-                    currency: price.currency
-                })} (${price.discountPercent}%)</span>`;
-            } else {
-                innerHTML += `<span>${from} ${_formatter.formatPrice({
-                    value: price.regularPrice,
-                    currency: price.currency
-                })} ${to} ${_formatter.formatPrice({
-                    value: price.regularPriceMax,
-                    currency: price.currency
-                })}</span>`;
-            }
-        }
-
-        let sku = optionalSku || this._state.sku;
+        const sku = optionalSku || this._state.sku;
+        const innerHTML = this._formatter.formatPriceAsHtml(price, {
+            showDiscountPercentage: true
+        });
         this._element.querySelector(Product.selectors.price + `[data-product-sku="${sku}"]`).innerHTML = innerHTML;
     }
 }
@@ -239,15 +140,11 @@ Product.events = {
         }
     }
 
-    const documentReady =
-        document.readyState !== 'loading'
-            ? Promise.resolve()
-            : new Promise(r => document.addEventListener('DOMContentLoaded', r));
-    const cifReady = window.CIF
-        ? Promise.resolve()
-        : new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
-
-    Promise.all([documentReady, cifReady]).then(onDocumentReady);
+    if (window.CIF) {
+        onDocumentReady();
+    } else {
+        document.addEventListener('aem.cif.clientlib-initialized', onDocumentReady);
+    }
 })(window.document);
 
 export default Product;

@@ -174,6 +174,8 @@ public class ProductTeaserImplTest {
         setUp(resourcePath, true);
 
         assertEquals(product.getName(), productTeaser.getName());
+        assertEquals("MJ01", productTeaser.getCombinedSku().getBaseSku());
+        assertNull(productTeaser.getCombinedSku().getVariantSku());
 
         // There is a dedicated specific subpage for that product
         assertTrue(productTeaser.getUrl().startsWith(PRODUCT_SPECIFIC_PAGE));
@@ -206,6 +208,8 @@ public class ProductTeaserImplTest {
 
         assertEquals(variant.getName(), productTeaser.getName());
         assertEquals(toProductUrl(product, variantSku), productTeaser.getUrl());
+        assertEquals("MJ01", productTeaser.getCombinedSku().getBaseSku());
+        assertEquals(variantSku, productTeaser.getCombinedSku().getVariantSku());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = variant.getPriceRange().getMinimumPrice().getFinalPrice();

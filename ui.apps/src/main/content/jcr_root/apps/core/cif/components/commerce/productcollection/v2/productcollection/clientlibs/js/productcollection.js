@@ -15,9 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-const awaitCommonClientLib = async () =>
-    new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
-
 class ProductCollection {
     constructor(config) {
         this._element = config.element;
@@ -56,8 +53,12 @@ class ProductCollection {
             prices: {},
 
             // Load prices on the client-side
-            loadPrices: this._element.dataset.loadClientPrice !== undefined
+            loadPrices: window.CIF.enableClientSidePriceLoading || this._element.dataset.loadClientPrice !== undefined
         };
+
+        // Intl.NumberFormat instance for formatting prices
+        this._formatter =
+            window.CIF && window.CIF.PriceFormatter && new window.CIF.PriceFormatter(this._element.dataset.locale);
 
         this._element.querySelectorAll(ProductCollection.selectors.item).forEach(item => {
             this._state.skus.push(item.dataset.sku);
@@ -66,123 +67,37 @@ class ProductCollection {
         this._state.loadPrices && this._fetchPrices();
     }
 
-    /**
-     * Convert given GraphQL PriceRange object into data structure as defined by the sling model.
-     */
-    _convertPriceToRange(range) {
-        let price = {};
-        price.currency = range.minimum_price.final_price.currency;
-        price.regularPrice = range.minimum_price.regular_price.value;
-        price.finalPrice = range.minimum_price.final_price.value;
-        price.discountAmount = range.minimum_price.discount.amount_off;
-        price.discountPercent = range.minimum_price.discount.percent_off;
-
-        if (range.maximum_price) {
-            price.regularPriceMax = range.maximum_price.regular_price.value;
-            price.finalPriceMax = range.maximum_price.final_price.value;
-            price.discountAmountMax = range.maximum_price.discount.amount_off;
-            price.discountPercentMax = range.maximum_price.discount.percent_off;
-        }
-
-        price.discounted = !!(price.discountAmount && price.discountAmount > 0);
-        price.range = !!(
-            price.finalPrice &&
-            price.finalPriceMax &&
-            Math.round(price.finalPrice * 100) != Math.round(price.finalPriceMax * 100)
-        );
-
-        price.isStartPrice = range.__typename == 'GroupedProduct';
-
-        return price;
-    }
-
-    async _fetchPrices() {
+    _fetchPrices() {
         // Retrieve current prices
-        if (!window.CIF || !window.CIF.CommerceGraphqlApi) {
-            await awaitCommonClientLib();
-        }
+        if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
+        return window.CIF.CommerceGraphqlApi.getProductPriceModels(this._state.skus, false)
+            .then(convertedPrices => {
+                this._state.prices = convertedPrices;
 
-        try {
-            const prices = await window.CIF.CommerceGraphqlApi.getProductPrices(this._state.skus, false);
-
-            let convertedPrices = {};
-            for (let key in prices) {
-                convertedPrices[key] = this._convertPriceToRange(prices[key]);
-            }
-            this._state.prices = convertedPrices;
-
-            // Update prices
-            await this._updatePrices();
-        } catch (err) {
-            console.error('Could not fetch prices', err);
-        }
+                // Update prices
+                this._updatePrices();
+            })
+            .catch(err => {
+                console.error('Could not fetch prices', err);
+            });
     }
 
-    async _updatePrices() {
-        if (!this._formatter) {
-            if (!window.CIF || !window.CIF.PriceFormatter) {
-                await awaitCommonClientLib();
-            }
-
-            this._formatter = new window.CIF.PriceFormatter(this._element.dataset.locale);
-        }
-
-        let _formatter = this._formatter;
-
-        for (let item of this._element.querySelectorAll(ProductCollection.selectors.item)) {
-            if (!(item.dataset.sku in this._state.prices)) continue;
-
+    _updatePrices() {
+        this._element.querySelectorAll(ProductCollection.selectors.item).forEach(item => {
+            if (!(item.dataset.sku in this._state.prices)) return;
             const price = this._state.prices[item.dataset.sku];
 
-            let innerHTML = '';
-            if (!price.range) {
-                if (price.discounted) {
-                    innerHTML += `<span class="regularPrice">${_formatter.formatPrice({
-                        value: price.regularPrice,
-                        currency: price.currency
-                    })}</span>
-                        <span class="discountedPrice">${_formatter.formatPrice({
-                            value: price.finalPrice,
-                            currency: price.currency
-                        })}</span>`;
-                } else {
-                    let prefix = price.isStartPrice ? _formatter.get('Starting at') + ' ' : '';
-                    innerHTML += `<span>${prefix}${_formatter.formatPrice({
-                        value: price.regularPrice,
-                        currency: price.currency
-                    })}</span>`;
-                }
-            } else {
-                let from = _formatter.get('From');
-                let to = _formatter.get('To');
-                if (price.discounted) {
-                    innerHTML += `<span class="regularPrice">${from} ${_formatter.formatPrice({
-                        value: price.regularPrice,
-                        currency: price.currency
-                    })} ${to} ${_formatter.formatPrice({
-                        value: price.regularPriceMax,
-                        currency: price.currency
-                    })}</span>
-                        <span class="discountedPrice">${from} ${_formatter.formatPrice({
-                        value: price.finalPrice,
-                        currency: price.currency
-                    })} ${to} ${_formatter.formatPrice({
-                        value: price.finalPriceMax,
-                        currency: price.currency
-                    })}</span>`;
-                } else {
-                    innerHTML += `<span>${from} ${_formatter.formatPrice({
-                        value: price.regularPrice,
-                        currency: price.currency
-                    })} ${to} ${_formatter.formatPrice({
-                        value: price.regularPriceMax,
-                        currency: price.currency
-                    })}</span>`;
-                }
+            // Only update if prices are available and not null
+            if (!price || !price.regularPrice || !price.finalPrice) {
+                return;
             }
 
+            const innerHTML = this._formatter.formatPriceAsHtml(price, {
+                showDiscountPercentage: false,
+                showStartingAt: true
+            });
             item.querySelector(ProductCollection.selectors.price).innerHTML = innerHTML;
-        }
+        });
     }
 
     _applySortKey(sortKeySelect) {
@@ -232,7 +147,7 @@ class ProductCollection {
         // Fetch prices
         if (this._state.loadPrices) {
             this._state.skus = Array.from(moreItems, item => item.dataset.sku);
-            await this._fetchPrices();
+            this._fetchPrices();
         }
     }
 }
@@ -257,15 +172,11 @@ ProductCollection.selectors = {
         }
     }
 
-    const documentReady =
-        document.readyState !== 'loading'
-            ? Promise.resolve()
-            : new Promise(r => document.addEventListener('DOMContentLoaded', r));
-    const cifReady = window.CIF
-        ? Promise.resolve()
-        : new Promise(r => document.addEventListener('aem.cif.clientlib-initialized', r));
-
-    Promise.all([documentReady, cifReady]).then(onDocumentReady);
+    if (window.CIF) {
+        onDocumentReady();
+    } else {
+        document.addEventListener('aem.cif.clientlib-initialized', onDocumentReady);
+    }
 })(window.document);
 
 export default ProductCollection;

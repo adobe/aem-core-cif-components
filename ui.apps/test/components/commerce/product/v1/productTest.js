@@ -16,9 +16,9 @@
 'use strict';
 
 import Product from '../../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/product/v1/product/clientlib/js/product.js';
-import PriceFormatter from '../../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';
+import CommerceGraphqlApi from '../../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js';
 
-describe('Product', () => {
+describe('Product v1', () => {
     describe('Core', () => {
         let productRoot;
         let windowCIF;
@@ -59,12 +59,10 @@ describe('Product', () => {
         before(() => {
             // Create empty context
             windowCIF = window.CIF;
-            window.CIF = {};
-            window.CIF.PriceFormatter = PriceFormatter;
+            window.CIF = { ...window.CIF };
 
-            window.CIF.CommerceGraphqlApi = {
-                getProductPrices: sinon.stub().resolves(clientPrices)
-            };
+            window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: 'https://foo.bar/graphql' });
+            window.CIF.CommerceGraphqlApi.getProductPrices = sinon.stub().resolves(clientPrices);
         });
 
         after(() => {
@@ -73,6 +71,8 @@ describe('Product', () => {
         });
 
         beforeEach(() => {
+            delete window.CIF.enableClientSidePriceLoading;
+
             productRoot = document.createElement('div');
             productRoot.dataset.locale = 'en-US'; // enforce the locale for prices
             productRoot.insertAdjacentHTML(
@@ -111,8 +111,22 @@ describe('Product', () => {
             assert.isNull(product._state.sku);
         });
 
-        it('retrieves prices via GraphQL', () => {
+        it('retrieves prices via GraphQL (enabled in component dataset)', () => {
             productRoot.dataset.loadClientPrice = true;
+            let product = new Product({ element: productRoot });
+            assert.isTrue(product._state.loadPrices);
+
+            return product._initPrices().then(() => {
+                assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.called);
+                assert.deepEqual(product._state.prices, convertedPrices);
+
+                let price = productRoot.querySelector(Product.selectors.price).innerText;
+                assert.equal(price, '$98.00');
+            });
+        });
+
+        it('retrieves prices via GraphQL (enabled globally)', () => {
+            window.CIF.enableClientSidePriceLoading = true;
             let product = new Product({ element: productRoot });
             assert.isTrue(product._state.loadPrices);
 

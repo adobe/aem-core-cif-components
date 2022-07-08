@@ -64,7 +64,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Exporter(
     name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
     extensions = ExporterConstants.SLING_MODEL_EXTENSION)
-public class ProductCarouselImpl extends ProductCarouselBase implements ProductCarousel {
+public class ProductCarouselImpl extends ProductCarouselBase {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductCarouselImpl.class);
@@ -181,8 +181,7 @@ public class ProductCarouselImpl extends ProductCarouselBase implements ProductC
     @Nonnull
     public List<ProductListItem> getProductIdentifiers() {
         return baseProductSkus.stream()
-            .map(ListItemIdentifier::new)
-            .map(id -> new ProductListItemImpl(id, getId(), currentPage))
+            .map(sku -> new ProductListItemImpl(sku, new ListItemIdentifier(sku), getId(), currentPage))
             .collect(Collectors.toList());
     }
 

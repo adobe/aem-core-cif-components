@@ -39,6 +39,8 @@ describe('Common Clientlib', () => {
         const event = new Event('DOMContentLoaded');
         window.document.dispatchEvent(event);
 
+        expect(window.CIF.enableClientSidePriceLoading).to.be.false;
+        expect(window.CIF.locale).to.be.undefined;
         expect(window.CIF.CommerceGraphqlApi).not.null;
         expect(window.CIF.CommerceGraphqlApi.endpoint).to.equal('http://foo.bar/graphql');
         expect(window.CIF.CommerceGraphqlApi.method).to.equal('GET');
@@ -52,7 +54,9 @@ describe('Common Clientlib', () => {
             JSON.stringify({
                 graphqlEndpoint: 'http://bar.foo/graphql',
                 graphqlMethod: 'POST',
-                storeView: 'default'
+                storeView: 'default',
+                enableClientSidePriceLoading: true,
+                locale: 'en-us'
             })
         );
         meta.setAttribute('name', 'store-config');
@@ -62,6 +66,8 @@ describe('Common Clientlib', () => {
         const event = new Event('DOMContentLoaded');
         window.document.dispatchEvent(event);
 
+        expect(window.CIF.enableClientSidePriceLoading).to.be.true;
+        expect(window.CIF.locale).to.equal('en-us');
         expect(window.CIF.CommerceGraphqlApi).not.null;
         expect(window.CIF.CommerceGraphqlApi.endpoint).to.equal('http://bar.foo/graphql');
         expect(window.CIF.CommerceGraphqlApi.method).to.equal('POST');

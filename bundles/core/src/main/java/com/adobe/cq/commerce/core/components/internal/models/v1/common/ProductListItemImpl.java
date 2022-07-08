@@ -27,6 +27,7 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerListItem;
 import com.adobe.cq.commerce.core.components.internal.datalayer.ProductDataImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
+import com.adobe.cq.commerce.core.components.models.common.CombinedSku;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -64,6 +65,7 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     private Boolean isStaged;
     private ProductInterface product;
     private CategoryInterface categoryContext;
+    private CombinedSku combinedSku;
 
     private ProductListItemImpl(ProductInterface product, String sku, String urlKey, String urlPath, List<UrlRewrite> urlRewrites,
                                 String name, Price price, String imageURL, String imageAlt, Page productPage, String activeVariantSku,
@@ -88,19 +90,17 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
             ? new CommerceIdentifierImpl(activeVariantSku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT)
             : new CommerceIdentifierImpl(sku, CommerceIdentifier.IdentifierType.SKU, CommerceIdentifier.EntityType.PRODUCT);
         this.categoryContext = categoryContext;
+        this.combinedSku = new CombinedSku(sku, activeVariantSku);
     }
 
     @Deprecated
-    public ProductListItemImpl(CommerceIdentifier identifier, String parentId, Page productPage) {
+    public ProductListItemImpl(String sku, CommerceIdentifier identifier, String parentId, Page productPage) {
         super(parentId, productPage.getContentResource());
         this.identifier = identifier;
         this.productPage = productPage;
-        switch (identifier.getType()) {
-            case SKU:
-                this.sku = identifier.getValue();
-                break;
-            case URL_KEY:
-                this.urlKey = identifier.getValue();
+        this.sku = sku;
+        if (identifier.getType() == CommerceIdentifier.IdentifierType.URL_KEY) {
+            this.urlKey = identifier.getValue();
         }
     }
 
@@ -108,6 +108,11 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     @JsonIgnore
     public String getSKU() {
         return sku;
+    }
+
+    @Override
+    public CombinedSku getCombinedSku() {
+        return combinedSku;
     }
 
     @Override
