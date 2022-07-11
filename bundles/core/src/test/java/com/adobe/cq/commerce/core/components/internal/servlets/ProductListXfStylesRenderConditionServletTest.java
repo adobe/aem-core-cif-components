@@ -16,8 +16,6 @@
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletException;
 
@@ -30,22 +28,24 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import com.adobe.granite.ui.components.ds.DataSource;
+import com.adobe.granite.ui.components.rendercondition.RenderCondition;
+import com.adobe.granite.ui.components.rendercondition.SimpleRenderCondition;
 import com.day.cq.wcm.api.policies.ContentPolicy;
 import com.day.cq.wcm.api.policies.ContentPolicyManager;
 import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextBuilder;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class ProductListXfStylesDataSourceServletTest {
+public class ProductListXfStylesRenderConditionServletTest {
 
-    private ProductListXfStylesDataSourceServlet dataSourceServlet;
+    private ProductListXfStylesRenderConditionServlet renderConditionServlet;
 
     @Rule
     public final AemContext context = new AemContextBuilder(ResourceResolverType.JCR_MOCK).build();
@@ -56,7 +56,7 @@ public class ProductListXfStylesDataSourceServletTest {
 
     @Before
     public void setUp() {
-        dataSourceServlet = new ProductListXfStylesDataSourceServlet();
+        renderConditionServlet = new ProductListXfStylesRenderConditionServlet();
         context.load().json("/context/jcr-conf.json", "/conf/testing");
         context.load().json("/context/jcr-content.json", "/content");
 
@@ -77,37 +77,22 @@ public class ProductListXfStylesDataSourceServletTest {
         when(policy.getPath()).thenReturn("/conf/testing/settings/wcm/policies/testing");
         when(policyManager.getPolicy((Resource) any())).thenReturn(policy);
         // Call datasource servlet
-        dataSourceServlet.doGet(request, context.response());
-        DataSource dataSource = (DataSource) context.request().getAttribute(DataSource.class.getName());
-        assertNotNull(dataSource);
+        renderConditionServlet.doGet(request, context.response());
+        SimpleRenderCondition condition = (SimpleRenderCondition) context.request().getAttribute(RenderCondition.class.getName());
+        assertNotNull(condition);
 
-        List<ProductListXfStylesDataSourceServlet.XfStyleResource> styles = new ArrayList<>();
-        dataSource.iterator().forEachRemaining(resource -> {
-            styles.add((ProductListXfStylesDataSourceServlet.XfStyleResource) resource);
-        });
-
-        // Verify values
-        assertEquals(1, styles.size());
-        ProductListXfStylesDataSourceServlet.XfStyleResource first = styles.get(0);
-        assertEquals("marketing-content__row-2", first.getValue());
-        assertEquals("Second Row", first.getText());
+        assertTrue(condition.check());
     }
 
     @Test
     public void testDataSourceWithNoPolicy() throws ServletException, IOException {
         when(policyManager.getPolicy((Resource) any())).thenReturn(null);
         // Call datasource servlet
-        dataSourceServlet.doGet(request, context.response());
-        DataSource dataSource = (DataSource) context.request().getAttribute(DataSource.class.getName());
-        assertNotNull(dataSource);
+        renderConditionServlet.doGet(request, context.response());
+        SimpleRenderCondition condition = (SimpleRenderCondition) context.request().getAttribute(RenderCondition.class.getName());
+        assertNotNull(condition);
 
-        List<ProductListXfStylesDataSourceServlet.XfStyleResource> styles = new ArrayList<>();
-        dataSource.iterator().forEachRemaining(resource -> {
-            styles.add((ProductListXfStylesDataSourceServlet.XfStyleResource) resource);
-        });
-
-        // Verify values
-        assertEquals(0, styles.size());
+        assertFalse(condition.check());
     }
 
     @Test
@@ -116,16 +101,10 @@ public class ProductListXfStylesDataSourceServletTest {
         when(policyManager.getPolicy((Resource) any())).thenReturn(policy);
 
         // Call datasource servlet
-        dataSourceServlet.doGet(request, context.response());
-        DataSource dataSource = (DataSource) context.request().getAttribute(DataSource.class.getName());
-        assertNotNull(dataSource);
+        renderConditionServlet.doGet(request, context.response());
+        SimpleRenderCondition condition = (SimpleRenderCondition) context.request().getAttribute(RenderCondition.class.getName());
+        assertNotNull(condition);
 
-        List<ProductListXfStylesDataSourceServlet.XfStyleResource> styles = new ArrayList<>();
-        dataSource.iterator().forEachRemaining(resource -> {
-            styles.add((ProductListXfStylesDataSourceServlet.XfStyleResource) resource);
-        });
-
-        // Verify values
-        assertEquals(0, styles.size());
+        assertFalse(condition.check());
     }
 }

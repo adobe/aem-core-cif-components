@@ -30,15 +30,11 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.resource.ValueMap;
-import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.osgi.service.component.annotations.Component;
 
-import com.adobe.granite.ui.components.Value;
 import com.adobe.granite.ui.components.ds.DataSource;
 import com.adobe.granite.ui.components.ds.SimpleDataSource;
-import com.day.cq.wcm.api.policies.ContentPolicy;
-import com.day.cq.wcm.api.policies.ContentPolicyManager;
 
 @Component(
     service = { Servlet.class },
@@ -47,11 +43,11 @@ import com.day.cq.wcm.api.policies.ContentPolicyManager;
         "sling.servlet.methods=GET",
         "sling.servlet.extensions=html"
     })
-public class ProductListXfStylesDataSourceServlet extends SlingSafeMethodsServlet {
-    public static final String RESOURCE_TYPE_V1 = "core/wcm/components/commons/datasources/productlistxfstyles/v1";
-    public static final String PN_FRAGMENT_STYLES = "fragmentStyles";
+public class ProductListXfStylesDataSourceServlet extends AbstractProductListXfServlet {
+    public static final String RESOURCE_TYPE_V1 = "core/cif/components/commerce/datasources/productlistxfstyles/v1";
     public static final String PN_FRAGMENT_STYLE_CLASS = "fragmentStyleCssClass";
     public static final String PN_FRAGMENT_STYLE_NAME = "fragmentStyleName";
+    public static final String PN_COMPONENT_PATH = "componentPath";
 
     @Override
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response)
@@ -63,30 +59,16 @@ public class ProductListXfStylesDataSourceServlet extends SlingSafeMethodsServle
 
     private List<Resource> getXfStyles(SlingHttpServletRequest request) {
         List<Resource> xfStyles = new ArrayList<>();
-        ResourceResolver resolver = request.getResourceResolver();
-        Resource contentResource = resolver.getResource((String) request.getAttribute(Value.CONTENTPATH_ATTRIBUTE));
-
-        if (contentResource != null) {
-            contentResource = contentResource.getParent().getParent();
+        Resource fragmentStylesResource = getFragmentStylesResource(request);
+        if (fragmentStylesResource != null) {
+            fragmentStylesResource.getChildren().forEach(fs -> {
+                ValueMap vm = fs.getValueMap();
+                String cssClassName = vm.get(PN_FRAGMENT_STYLE_CLASS, String.class);
+                String styleName = vm.get(PN_FRAGMENT_STYLE_NAME, String.class);
+                xfStyles.add(new XfStyleResource(cssClassName, styleName, request.getResourceResolver()));
+            });
         }
 
-        ContentPolicyManager policyManager = resolver.adaptTo(ContentPolicyManager.class);
-        if (contentResource != null && policyManager != null) {
-            ContentPolicy policy = policyManager.getPolicy(contentResource);
-            if (policy != null) {
-                String policyPath = policy.getPath();
-                Resource policyResource = resolver.getResource(policyPath);
-                Resource fragmentStylesResource = policyResource.getChild(PN_FRAGMENT_STYLES);
-                if (fragmentStylesResource != null) {
-                    fragmentStylesResource.getChildren().forEach(fs -> {
-                        ValueMap vm = fs.getValueMap();
-                        String cssClassName = vm.get(PN_FRAGMENT_STYLE_CLASS, String.class);
-                        String styleName = vm.get(PN_FRAGMENT_STYLE_NAME, String.class);
-                        xfStyles.add(new XfStyleResource(cssClassName, styleName, resolver));
-                    });
-                }
-            }
-        }
         return xfStyles;
     }
 
