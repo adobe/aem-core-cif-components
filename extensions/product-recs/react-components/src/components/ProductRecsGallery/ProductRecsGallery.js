@@ -25,7 +25,7 @@ import classes from './ProductRecsGallery.css';
 import ProductCard from './ProductCard';
 
 const ProductRecsGallery = props => {
-    const { hostElement } = props;
+    const { hostElement, cmpDataLayer } = props;
     const mse = useStorefrontEvents();
     const rendered = useRef(false);
     const { showAddToWishList } = props;
@@ -58,11 +58,9 @@ const ProductRecsGallery = props => {
             mse && mse.publish.recsUnitView(unit.unitId);
         };
 
-        if (hostElement) {
-            const dataLayerStr = hostElement.dataset?.cmpDataLayer;
-            const dataLayer = dataLayerStr ? JSON.parse(dataLayerStr) : {};
-            const dataLayerKeys = Object.keys(dataLayer);
-            parentId = dataLayerKeys.length > 0 ? dataLayerKeys[0] : undefined;
+        if (cmpDataLayer) {
+            const dataLayer = JSON.parse(cmpDataLayer);
+            parentId = Object.keys(dataLayer)[0];
         }
 
         content = (
@@ -102,7 +100,8 @@ ProductRecsGallery.propTypes = {
     includeMinPrice: PropTypes.string,
     preconfigured: PropTypes.bool,
     showAddToWishList: PropTypes.bool,
-    hostElement: PropTypes.instanceOf(HTMLElement)
+    hostElement: PropTypes.instanceOf(HTMLElement),
+    cmpDataLayer: PropTypes.string
 };
 
 export default ProductRecsGallery;

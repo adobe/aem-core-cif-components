@@ -192,12 +192,7 @@ describe('ProductRecsGallery', () => {
 
     it('add datalayer components for product cards with parentId from hostElement', async () => {
         const dispatchEvent = jest.fn();
-        const hostElement = {
-            dispatchEvent,
-            dataset: {
-                cmpDataLayer: '{"productrecs-test": {}}'
-            }
-        };
+        const hostElement = { dispatchEvent };
 
         mockUseRecommendationsValue.mockReturnValue({
             loading: false,
@@ -211,6 +206,7 @@ describe('ProductRecsGallery', () => {
                 title="My Product Recommendations"
                 recommendationType="most-viewed"
                 hostElement={hostElement}
+                cmpDataLayer='{"productrecs-test": {}}'
             />,
             { wrapper: ContextWrapper }
         );
