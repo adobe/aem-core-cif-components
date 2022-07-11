@@ -31,6 +31,105 @@ describe('CommerceGraphqlApi', () => {
     let fetchSpy;
     let fetchGraphqlSpy;
     let httpHeaders = '{"custom-1":"one","custom-2":"two"}';
+
+    const withoutVariantsResponse = {
+        data: {
+            products: {
+                items: [
+                    {
+                        sku: 'sku-a',
+                        price_range: {
+                            minimum_price: {
+                                regular_price: {
+                                    value: 118,
+                                    currency: 'USD'
+                                },
+                                final_price: {
+                                    value: 118,
+                                    currency: 'USD'
+                                },
+                                discount: {
+                                    amount_off: 0,
+                                    percent_off: 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        sku: 'sku-b',
+                        price_range: {
+                            minimum_price: {
+                                regular_price: {
+                                    value: 78,
+                                    currency: 'USD'
+                                },
+                                final_price: {
+                                    value: 78,
+                                    currency: 'USD'
+                                },
+                                discount: {
+                                    amount_off: 0,
+                                    percent_off: 0
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    };
+
+    const withVariantsReponse = {
+        data: {
+            products: {
+                items: [
+                    {
+                        sku: 'sku-a',
+                        price_range: {
+                            minimum_price: {
+                                regular_price: {
+                                    value: 118,
+                                    currency: 'USD'
+                                },
+                                final_price: {
+                                    value: 118,
+                                    currency: 'USD'
+                                },
+                                discount: {
+                                    amount_off: 0,
+                                    percent_off: 0
+                                }
+                            }
+                        },
+                        variants: [
+                            {
+                                product: {
+                                    sku: 'sku-a-xl',
+                                    price_range: {
+                                        minimum_price: {
+                                            regular_price: {
+                                                value: 200,
+                                                currency: 'USD'
+                                            },
+                                            final_price: {
+                                                value: 200,
+                                                currency: 'USD'
+                                            },
+                                            discount: {
+                                                amount_off: 0,
+                                                percent_off: 0
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    };
+
     beforeEach(() => {
         fetchSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetch');
         graphqlApi = new CommerceGraphqlApi({
@@ -39,6 +138,8 @@ describe('CommerceGraphqlApi', () => {
             graphqlMethod: 'GET',
             headers: JSON.parse(httpHeaders)
         });
+        window.localStorage.clear();
+        document.cookie = '';
     });
 
     afterEach(() => {
@@ -89,6 +190,41 @@ describe('CommerceGraphqlApi', () => {
             let options = fetchSpy.firstCall.args[1];
 
             assert.include(options.headers, { Store: 'my-special-store' });
+        });
+    });
+
+    it('passes the authorization header (from localStorage)', () => {
+        const mockResult = { result: 'my-result' };
+        fetchSpy.resolves(mockResult);
+
+        window.localStorage.setItem(
+            'M2_VENIA_BROWSER_PERSISTENCE__signin_token',
+            `{"value":"\\\"my-ls-login-token\\\"","timeStored":${new Date().getTime()},"ttl":3600}`
+        );
+
+        let query = 'my-sample-query';
+
+        return graphqlApi._fetchGraphql(query, true).then(_ => {
+            assert.isTrue(fetchSpy.calledOnce);
+            let options = fetchSpy.firstCall.args[1];
+
+            assert.include(options.headers, { Authorization: 'Bearer my-ls-login-token' });
+        });
+    });
+
+    it('passes the authorization header (from cookie)', () => {
+        const mockResult = { result: 'my-result' };
+        fetchSpy.resolves(mockResult);
+
+        document.cookie = 'cif.userToken=my-cookie-login-token';
+
+        let query = 'my-sample-query';
+
+        return graphqlApi._fetchGraphql(query, true).then(_ => {
+            assert.isTrue(fetchSpy.calledOnce);
+            let options = fetchSpy.firstCall.args[1];
+
+            assert.include(options.headers, { Authorization: 'Bearer my-cookie-login-token' });
         });
     });
 
@@ -148,54 +284,9 @@ describe('CommerceGraphqlApi', () => {
 
     for (const [version, magentoSchema] of Object.entries(magentoSchemas)) {
         it('retrieves product prices without variants with Magento schema ' + version, () => {
-            const mockResponse = {
-                data: {
-                    products: {
-                        items: [
-                            {
-                                sku: 'sku-a',
-                                price_range: {
-                                    minimum_price: {
-                                        regular_price: {
-                                            value: 118,
-                                            currency: 'USD'
-                                        },
-                                        final_price: {
-                                            value: 118,
-                                            currency: 'USD'
-                                        },
-                                        discount: {
-                                            amount_off: 0,
-                                            percent_off: 0
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                sku: 'sku-b',
-                                price_range: {
-                                    minimum_price: {
-                                        regular_price: {
-                                            value: 78,
-                                            currency: 'USD'
-                                        },
-                                        final_price: {
-                                            value: 78,
-                                            currency: 'USD'
-                                        },
-                                        discount: {
-                                            amount_off: 0,
-                                            percent_off: 0
-                                        }
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                }
-            };
-
-            fetchGraphqlSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetchGraphql').resolves(mockResponse);
+            fetchGraphqlSpy = sinon
+                .stub(CommerceGraphqlApi.prototype, '_fetchGraphql')
+                .resolves(withoutVariantsResponse);
             graphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: '/graphql', storeView: 'default' });
 
             return graphqlApi.getProductPrices(['sku-a', 'sku-b'], false).then(res => {
@@ -220,58 +311,7 @@ describe('CommerceGraphqlApi', () => {
 
     for (const [version, magentoSchema] of Object.entries(magentoSchemas)) {
         it('retrieves product prices with variants with Magento schema ' + version, () => {
-            const mockResponse = {
-                data: {
-                    products: {
-                        items: [
-                            {
-                                sku: 'sku-a',
-                                price_range: {
-                                    minimum_price: {
-                                        regular_price: {
-                                            value: 118,
-                                            currency: 'USD'
-                                        },
-                                        final_price: {
-                                            value: 118,
-                                            currency: 'USD'
-                                        },
-                                        discount: {
-                                            amount_off: 0,
-                                            percent_off: 0
-                                        }
-                                    }
-                                },
-                                variants: [
-                                    {
-                                        product: {
-                                            sku: 'sku-a-xl',
-                                            price_range: {
-                                                minimum_price: {
-                                                    regular_price: {
-                                                        value: 200,
-                                                        currency: 'USD'
-                                                    },
-                                                    final_price: {
-                                                        value: 200,
-                                                        currency: 'USD'
-                                                    },
-                                                    discount: {
-                                                        amount_off: 0,
-                                                        percent_off: 0
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                }
-            };
-
-            fetchGraphqlSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetchGraphql').resolves(mockResponse);
+            fetchGraphqlSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetchGraphql').resolves(withVariantsReponse);
             graphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: '/graphql', storeView: 'default' });
 
             return graphqlApi.getProductPrices(['sku-a'], true).then(res => {
@@ -295,4 +335,89 @@ describe('CommerceGraphqlApi', () => {
             });
         });
     }
+
+    describe('supend and resume of getProductPrice', () => {
+        it('queries only once for multiple calls to getProductPrice', () => {
+            fetchGraphqlSpy = sinon
+                .stub(CommerceGraphqlApi.prototype, '_fetchGraphql')
+                .resolves(withoutVariantsResponse);
+            graphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: '/graphql', storeView: 'default' });
+            graphqlApi._suspendGetProductPrices();
+
+            let promiseA = graphqlApi.getProductPrices(['sku-a'], false);
+            let promiseB = graphqlApi.getProductPrices(['sku-b'], false);
+
+            assert.isTrue(fetchGraphqlSpy.notCalled);
+
+            graphqlApi._resumeGetProductPrices();
+            assert.isTrue(fetchGraphqlSpy.calledOnce);
+
+            return Promise.all([
+                promiseA.then(prices => assert.hasAllKeys(prices, ['sku-a'])),
+                promiseB.then(prices => assert.hasAllKeys(prices, ['sku-b']))
+            ]);
+        });
+
+        it('skips queries without variants if already included with variants', () => {
+            fetchGraphqlSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetchGraphql');
+            // remove only return sku-b in the withoutVariantsResponse
+            let localWithoutVariantsResponse = { ...withoutVariantsResponse };
+            localWithoutVariantsResponse.data.products.items.splice(0, 1);
+            fetchGraphqlSpy.onCall(0).resolves(withVariantsReponse);
+            fetchGraphqlSpy.onCall(1).resolves(localWithoutVariantsResponse);
+
+            graphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: '/graphql', storeView: 'default' });
+            graphqlApi._suspendGetProductPrices();
+
+            let promiseA = graphqlApi.getProductPrices(['sku-a'], false);
+            let promiseB = graphqlApi.getProductPrices(['sku-b'], false);
+            let promiseAWithVariants = graphqlApi.getProductPrices(['sku-a'], true);
+            assert.isTrue(fetchGraphqlSpy.notCalled);
+
+            graphqlApi._resumeGetProductPrices();
+            assert.isTrue(fetchGraphqlSpy.calledTwice);
+
+            let firstCall = fetchGraphqlSpy.getCall(0);
+            assert.include(firstCall.args[0], 'sku-a');
+
+            let secondCall = fetchGraphqlSpy.getCall(1);
+            assert.include(secondCall.args[0], 'sku-b');
+            assert.notInclude(secondCall.args[0], 'sku-a');
+
+            return Promise.all([
+                promiseA.then(prices => assert.hasAllKeys(prices, ['sku-a'])),
+                promiseB.then(prices => assert.hasAllKeys(prices, ['sku-b'])),
+                promiseAWithVariants.then(prices => assert.hasAllKeys(prices, ['sku-a', 'sku-a-xl']))
+            ]);
+        });
+
+        it('dispatches errors to the original caller', () => {
+            let resolveSpyA = sinon.spy();
+            let resolveSpyB = sinon.spy();
+            let rejectSpyA = sinon.spy();
+            let rejectSpyB = sinon.spy();
+
+            fetchGraphqlSpy = sinon.stub(CommerceGraphqlApi.prototype, '_fetchGraphql');
+            fetchGraphqlSpy.throws();
+
+            graphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: '/graphql', storeView: 'default' });
+            graphqlApi._suspendGetProductPrices();
+
+            let promiseA = graphqlApi.getProductPrices(['sku-a'], true);
+            let promiseB = graphqlApi.getProductPrices(['sku-b'], false);
+            assert.isTrue(fetchGraphqlSpy.notCalled);
+
+            graphqlApi._resumeGetProductPrices();
+
+            return Promise.all([
+                promiseA.then(resolveSpyA).catch(rejectSpyA),
+                promiseB.then(resolveSpyB).catch(rejectSpyB)
+            ]).then(() => {
+                assert.isTrue(resolveSpyA.notCalled);
+                assert.isTrue(resolveSpyB.notCalled);
+                assert.isTrue(rejectSpyA.calledOnce);
+                assert.isTrue(rejectSpyB.calledOnce);
+            });
+        });
+    });
 });

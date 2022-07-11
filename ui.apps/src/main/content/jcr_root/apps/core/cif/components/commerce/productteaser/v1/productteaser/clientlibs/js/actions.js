@@ -19,12 +19,22 @@
 const LocationAdapter = {
     setHref(url) {
         window.location.assign(url);
+    },
+
+    openHref(url, target) {
+        window.open(url, target) || window.location.assign(url);
     }
 };
 
 class ProductTeaser {
-    constructor(element) {
+    static prices$ = null;
+
+    constructor(element, allBaseSkus, queryVariants) {
+        this.element = element;
+        this.sku = element.dataset.productSku;
         this.virtual = element.dataset.virtual !== undefined;
+        this.loadPrices = window.CIF.enableClientSidePriceLoading;
+        this._formatter = new window.CIF.PriceFormatter();
 
         const actionButtons = element.querySelectorAll(`.productteaser__cta button`);
         actionButtons.forEach(actionButton => {
@@ -32,31 +42,29 @@ class ProductTeaser {
             let actionHandler;
             switch (action) {
                 case 'addToCart':
-                    actionHandler = this._addToCartHandler.bind(this);
+                    actionHandler = this._addToCartHandler;
                     break;
                 case 'details':
                     actionHandler = this._seeDetailsHandler;
                     break;
                 case 'wishlist':
-                    actionHandler = this._addToWishlistHandler.bind(this);
+                    actionHandler = this._addToWishlistHandler;
                     break;
                 default:
-                    actionHandler = this._noOpHandler;
+                    // noop
+                    return;
             }
 
-            actionButton.addEventListener('click', ev => {
-                const element = ev.currentTarget;
-                actionHandler(element.dataset);
+            actionButton.addEventListener('click', e => {
+                actionHandler.call(this, e.target.dataset);
             });
         });
-    }
 
-    _noOpHandler() {
-        /* As the name says... NOOP */
+        this.loadPrices && this._fetchPrices(allBaseSkus || [this.sku], queryVariants);
     }
 
     _addToCartHandler(dataset) {
-        const sku = dataset['itemSku'];
+        const sku = dataset.itemSku;
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
             detail: [{ sku, quantity: 1, virtual: this.virtual }]
         });
@@ -64,7 +72,7 @@ class ProductTeaser {
     }
 
     _addToWishlistHandler(dataset) {
-        const sku = dataset['itemSku'];
+        const sku = dataset.itemSku;
         const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
             detail: [{ sku, quantity: 1 }]
         });
@@ -72,27 +80,70 @@ class ProductTeaser {
     }
 
     _seeDetailsHandler(dataset) {
-        const url = dataset['url'];
-        LocationAdapter.setHref(url);
+        const url = dataset.url;
+        const target = dataset.target;
+        if (target) {
+            LocationAdapter.openHref(url, target);
+        } else {
+            LocationAdapter.setHref(url);
+        }
+    }
+
+    async _fetchPrices(allBaseSkus, queryVariants) {
+        if (!ProductTeaser.prices$) {
+            if (window.CIF.CommerceGraphqlApi) {
+                ProductTeaser.prices$ = window.CIF.CommerceGraphqlApi.getProductPriceModels(allBaseSkus, queryVariants);
+            } else {
+                ProductTeaser.prices$ = Promise.reject(new Error('CommerceGraphqlApi unavailable'));
+            }
+        }
+
+        // await all prices to be loaded and update
+        this._updatePrices(await ProductTeaser.prices$);
+    }
+
+    _updatePrices(prices) {
+        if (!(this.sku in prices)) return;
+        const price = prices[this.sku];
+
+        // Only update if prices are available and not null
+        if (!price || !price.regularPrice || !price.finalPrice) {
+            return;
+        }
+
+        const innerHTML = this._formatter.formatPriceAsHtml(price);
+        this.element.querySelector(ProductTeaser.selectors.priceElement).innerHTML = innerHTML;
     }
 }
 
 ProductTeaser.selectors = {
-    rootElement: '[data-cmp-is=productteaser]'
+    rootElement: '[data-cmp-is=productteaser]',
+    priceElement: '.price'
 };
 
-export { LocationAdapter };
+function onDocumentReady(document) {
+    const rootElements = [...document.querySelectorAll(ProductTeaser.selectors.rootElement)];
+    const baseSkus = [];
+    let queryVariants = false;
+    for (let element of rootElements) {
+        let { productBaseSku, productSku } = element.dataset;
+        if (!productBaseSku) {
+            productBaseSku = productSku;
+        }
+        // if any of the teasers base skus is different than the product sku, a variant is configured
+        queryVariants = queryVariants || productBaseSku !== productSku;
+        baseSkus.push(productBaseSku);
+    }
+    rootElements.forEach(element => new ProductTeaser(element, baseSkus, queryVariants));
+}
+
+export { LocationAdapter, onDocumentReady };
 export default ProductTeaser;
 
-(function(doc) {
-    function onDocumentReady() {
-        const rootElements = doc.querySelectorAll(ProductTeaser.selectors.rootElement);
-        rootElements.forEach(element => new ProductTeaser(element));
-    }
-
-    if (document.readyState !== 'loading') {
-        onDocumentReady();
+(function(document) {
+    if (window.CIF) {
+        onDocumentReady(document);
     } else {
-        document.addEventListener('DOMContentLoaded', onDocumentReady);
+        document.addEventListener('aem.cif.clientlib-initialized', () => onDocumentReady(document));
     }
 })(window.document);

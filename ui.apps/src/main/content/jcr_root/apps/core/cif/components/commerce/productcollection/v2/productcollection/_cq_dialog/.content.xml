@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
     xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0"
+    xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
     jcr:primaryType="nt:unstructured"
     jcr:title="Product Collection"
     sling:resourceType="cq/gui/components/authoring/dialog"
@@ -20,6 +21,45 @@
                         fieldDescription="Number of products to show on single page"
                         fieldLabel="Page Size"
                         name="./pageSize"/>
+                    <sortingWell jcr:primaryType="nt:unstructured"
+                          sling:resourceType="granite/ui/components/coral/foundation/well">
+                        <items jcr:primaryType="nt:unstructured">
+                            <sortingLabel jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/text"
+                                text="Default Product Sorting"/>
+                            <sortField
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                fieldLabel="Order by"
+                                emptyText="sort field"
+                                emptyOption="true"
+                                deleteHint="true"
+                                ordered="true"
+                                name="./defaultSortField">
+                                <datasource jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="core/cif/components/commerce/productcollection/sortfields"/>
+                            </sortField>
+                            <sortOrder
+                                jcr:primaryType="nt:unstructured"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                emptyText="sort order"
+                                emptyOption="true"
+                                deleteHint="true"
+                                ordered="true"
+                                name="./defaultSortOrder">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <asc
+                                        jcr:primaryType="nt:unstructured"
+                                        text="Ascending"
+                                        value="asc"/>
+                                    <desc
+                                        jcr:primaryType="nt:unstructured"
+                                        text="Descending"
+                                        value="desc"/>
+                                </items>
+                            </sortOrder>
+                        </items>
+                    </sortingWell>
                     <id jcr:primaryType="nt:unstructured"
                         sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
                         fieldDescription="HTML ID attribute to apply to the component."

@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.io.IOException;
+import java.lang.reflect.Proxy;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Currency;
@@ -23,8 +24,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
@@ -58,17 +61,22 @@ import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefron
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
+import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
+import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
+import com.adobe.cq.commerce.core.search.services.SearchResultsService;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
+import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
@@ -113,6 +121,7 @@ public class ProductListImplTest {
     private static final String PRODUCT_PAGE = "/content/product-page";
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCTLIST = "/content/pageA/jcr:content/root/responsivegrid/productlist";
+    private static final String PRODUCT_LIST_NO_SORTING = "/content/pageA/jcr:content/root/responsivegrid/productlist_no_sorting";
 
     private Resource productListResource;
     private Resource pageResource;
@@ -141,7 +150,7 @@ public class ProductListImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
         Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_key");
+            "{categoryList(filters:{url_path");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
@@ -304,12 +313,25 @@ public class ProductListImplTest {
 
         SearchResultsSet searchResultsSet = productListModel.getSearchResultsSet();
         List<SearchAggregation> searchAggregations = searchResultsSet.getSearchAggregations();
-        Assert.assertEquals(7, searchAggregations.size());
+        Assert.assertEquals(8, searchAggregations.size());
 
-        // We want to make sure the category_id aggregation is not present
-        Optional<SearchAggregation> categoryIdAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("category_id"))
+        // check category aggregation
+        Optional<SearchAggregation> categoryIdAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals(
+            ProductListImpl.CATEGORY_AGGREGATION_ID))
             .findAny();
-        Assert.assertFalse(categoryIdAggregation.isPresent());
+        Assert.assertTrue(categoryIdAggregation.isPresent());
+        List<SearchAggregationOption> options = categoryIdAggregation.get().getOptions();
+        Assert.assertEquals(2, options.size());
+
+        SearchAggregationOption opt = options.get(0);
+        Assert.assertEquals("3", opt.getFilterValue());
+        Assert.assertEquals("Gear", opt.getDisplayLabel());
+        Assert.assertEquals("/content/category-page.html/running/gear.html", opt.getPageUrl());
+
+        opt = options.get(1);
+        Assert.assertEquals("4", opt.getFilterValue());
+        Assert.assertEquals("Bags", opt.getDisplayLabel());
+        Assert.assertEquals("/content/category-page.html/running/bags.html", opt.getPageUrl());
 
         // We want to make sure all price ranges are properly processed
         SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();
@@ -318,6 +340,87 @@ public class ProductListImplTest {
         Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("30-40")));
         Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("40-*")));
         Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("14")));
+    }
+
+    // custom marker interface for search aggregation options
+    private interface MySearchAggregationOption {};
+
+    @Test
+    public void getProductsWithCustomAggregationOptions() {
+        adaptToProductList();
+
+        // inject custom search results service which returns custom search aggregation objects
+        SearchResultsService searchResultsService = (SearchResultsService) Whitebox.getInternalState(productListModel,
+            "searchResultsService");
+        ClassLoader classLoader = getClass().getClassLoader();
+        Whitebox.setInternalState(productListModel, "searchResultsService", Proxy.newProxyInstance(classLoader,
+            new Class[] { SearchResultsService.class }, (proxy, method, args) -> {
+                if (method.getName().equals("performSearch") && method.getParameterCount() == 6) {
+                    Pair<CategoryInterface, SearchResultsSet> pair = searchResultsService.performSearch(
+                        (SearchOptions) args[0],
+                        (Resource) args[1],
+                        (Page) args[2],
+                        (SlingHttpServletRequest) args[3],
+                        (Consumer<ProductInterfaceQuery>) args[4],
+                        (AbstractCategoryRetriever) args[5]);
+
+                    Class[] optionInterfaces = { SearchAggregationOption.class, MySearchAggregationOption.class };
+                    for (SearchAggregation aggregation : pair.getRight().getSearchAggregations()) {
+                        List<SearchAggregationOption> options = aggregation.getOptions();
+                        List<SearchAggregationOption> myOptions = options.stream().map(
+                            o -> (SearchAggregationOption) Proxy.newProxyInstance(classLoader, optionInterfaces,
+                                (oProxy, oMethod, oArgs) -> oMethod.invoke(o, oArgs))).collect(Collectors.toList());
+                        options.clear();
+                        options.addAll(myOptions);
+                    }
+
+                    return pair;
+                } else {
+                    return method.invoke(searchResultsService, args);
+                }
+            }));
+
+        Collection<ProductListItem> products = productListModel.getProducts();
+        Assert.assertNotNull(products);
+
+        // We introduce one "faulty" product data in the response, it should be skipped
+        Assert.assertEquals(4, products.size());
+
+        SearchResultsSet searchResultsSet = productListModel.getSearchResultsSet();
+        List<SearchAggregation> searchAggregations = searchResultsSet.getSearchAggregations();
+        Assert.assertEquals(8, searchAggregations.size());
+
+        // check category aggregation
+        Optional<SearchAggregation> categoryIdAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals(
+            ProductListImpl.CATEGORY_AGGREGATION_ID))
+            .findAny();
+        Assert.assertTrue(categoryIdAggregation.isPresent());
+        List<SearchAggregationOption> options = categoryIdAggregation.get().getOptions();
+        Assert.assertEquals(2, options.size());
+
+        SearchAggregationOption opt = options.get(0);
+        // for category aggregation custom options are replaced
+        Assert.assertFalse(opt instanceof MySearchAggregationOption);
+        Assert.assertEquals("3", opt.getFilterValue());
+        Assert.assertEquals("Gear", opt.getDisplayLabel());
+        Assert.assertEquals("/content/category-page.html/running/gear.html", opt.getPageUrl());
+
+        opt = options.get(1);
+        Assert.assertFalse(opt instanceof MySearchAggregationOption);
+        Assert.assertEquals("4", opt.getFilterValue());
+        Assert.assertEquals("Bags", opt.getDisplayLabel());
+        Assert.assertEquals("/content/category-page.html/running/bags.html", opt.getPageUrl());
+
+        // We want to make sure all price ranges are properly processed
+        SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();
+        Assert.assertEquals(3, priceAggregation.getOptions().size());
+        Assert.assertEquals(3, priceAggregation.getOptionCount());
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("30-40")));
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("40-*")));
+        Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("14")));
+
+        // for other aggregations custom options are preserved
+        Assert.assertTrue(priceAggregation.getOptions().get(0) instanceof MySearchAggregationOption);
     }
 
     @Test
@@ -330,7 +433,7 @@ public class ProductListImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
         Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_key");
+            "{categoryList(filters:{url_path");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid");
 
@@ -461,6 +564,49 @@ public class ProductListImplTest {
     }
 
     @Test
+    public void testDefaultSorting() {
+        context.currentResource(PRODUCT_LIST_NO_SORTING);
+        adaptToProductList();
+        SearchResultsSet resultSet = productListModel.getSearchResultsSet();
+        Assert.assertNotNull(resultSet);
+        Assert.assertTrue(resultSet.hasSorting());
+        Sorter sorter = resultSet.getSorter();
+        Assert.assertNotNull(sorter);
+
+        SorterKey currentKey = sorter.getCurrentKey();
+        Assert.assertNotNull(currentKey);
+        Assert.assertEquals("price", currentKey.getName());
+        Assert.assertEquals("Price", currentKey.getLabel());
+        Assert.assertEquals(Sorter.Order.ASC, currentKey.getOrder());
+        Assert.assertTrue(currentKey.isSelected());
+
+        Map<String, String> currentOrderParameters = currentKey.getCurrentOrderParameters();
+        Assert.assertNotNull(currentOrderParameters);
+        Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, currentOrderParameters.size());
+        resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, currentOrderParameters.get(key)));
+        Assert.assertEquals("price", currentOrderParameters.get(Sorter.PARAMETER_SORT_KEY));
+        Assert.assertEquals("asc", currentOrderParameters.get(Sorter.PARAMETER_SORT_ORDER));
+
+        Map<String, String> oppositeOrderParameters = currentKey.getOppositeOrderParameters();
+        Assert.assertNotNull(oppositeOrderParameters);
+        Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, oppositeOrderParameters.size());
+        resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, oppositeOrderParameters.get(key)));
+        Assert.assertEquals("price", oppositeOrderParameters.get(Sorter.PARAMETER_SORT_KEY));
+        Assert.assertEquals("desc", oppositeOrderParameters.get(Sorter.PARAMETER_SORT_ORDER));
+
+        List<SorterKey> keys = sorter.getKeys();
+        Assert.assertNotNull(keys);
+        Assert.assertEquals(2, keys.size());
+        SorterKey defaultKey = keys.get(0);
+        Assert.assertEquals(currentKey.getName(), defaultKey.getName());
+
+        SorterKey otherKey = keys.get(1);
+        Assert.assertEquals("name", otherKey.getName());
+        Assert.assertEquals("Product Name", otherKey.getLabel());
+        Assert.assertEquals(Sorter.Order.ASC, otherKey.getOrder());
+    }
+
+    @Test
     public void testPagination() {
         context.request().getParameterMap().put("page", new String[] { "3" });
 
@@ -535,7 +681,7 @@ public class ProductListImplTest {
             assertEquals("MTI==", parameters.getUid());
             Page page = inv.getArgumentAt(1, Page.class);
             assertNotNull(page);
-            assertEquals("/content/category-page", page.getPath());
+            assertEquals("/content/pageA", page.getPath());
             // invoke the callback directly
             return urlProvider.toCategoryUrl(inv.getArgumentAt(0, SlingHttpServletRequest.class), page, parameters);
         });

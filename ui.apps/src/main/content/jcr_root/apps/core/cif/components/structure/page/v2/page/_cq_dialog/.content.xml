@@ -19,32 +19,60 @@
                 sling:resourceType="granite/ui/components/coral/foundation/tabs"
                 size="L">
                 <items jcr:primaryType="nt:unstructured">
-                    <commerce cq:showOnCreate="{Boolean}true"
+                    <commerce cq:showOnCreate="{Boolean}false"
                         jcr:primaryType="nt:unstructured"
                         jcr:title="Commerce"
                         sling:orderBefore="cloudservices"
                         sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns">
-                        <granite:rendercondition
-                            jcr:primaryType="nt:unstructured"
-                            sling:resourceType="granite/ui/components/coral/foundation/renderconditions/or">
-                            <catalogPageCondition jcr:primaryType="nt:unstructured"
-                                sling:resourceType="core/cif/components/renderconditions/pagetype"
-                                pageType="catalog"/>
-                            <categoryPageCondition jcr:primaryType="nt:unstructured"
-                                sling:resourceType="core/cif/components/renderconditions/pagetype"
-                                pageType="category"/>
-                            <landingPageCondition jcr:primaryType="nt:unstructured"
-                                sling:resourceType="core/cif/components/renderconditions/pagetype"
-                                pageType="landing"/>
-                            <productPageCondition
-                                jcr:primaryType="nt:unstructured"
-                                sling:resourceType="core/cif/components/renderconditions/pagetype"
-                                pageType="product"/>
-                        </granite:rendercondition>
                         <items jcr:primaryType="nt:unstructured">
                             <column jcr:primaryType="nt:unstructured"
                                 sling:resourceType="granite/ui/components/coral/foundation/container">
                                 <items jcr:primaryType="nt:unstructured">
+                                    <associatedContent jcr:primaryType="nt:unstructured"
+                                        jcr:title="Associated Content"
+                                        sling:resourceType="granite/ui/components/coral/foundation/form/fieldset"
+                                        cq:showOnCreate="{Boolean}false">
+                                        <granite:rendercondition
+                                            jcr:primaryType="nt:unstructured"
+                                            sling:resourceType="granite/ui/components/coral/foundation/renderconditions/not">
+                                            <landingPageCondition jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="core/cif/components/renderconditions/pagetype"
+                                                pageType="landing"/>
+                                            <catalogPageCondition jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="core/cif/components/renderconditions/pagetype"
+                                                pageType="catalog"/>
+                                            <productPageCondition jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="core/cif/components/renderconditions/pagetype"
+                                                pageType="product"/>
+                                            <categoryPageCondition jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="core/cif/components/renderconditions/pagetype"
+                                                pageType="category"/>
+                                        </granite:rendercondition>
+                                        <items jcr:primaryType="nt:unstructured">
+                                            <products
+                                                jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="commerce/gui/components/common/cifproductfield"
+                                                fieldDescription="Select the products associated with this page."
+                                                fieldLabel="Product SKUs"
+                                                multiple="true"
+                                                name="./cq:products"
+                                                selectionId="combinedSku"
+                                                enablePreviewDateFilter="{Boolean}true"
+                                                showLink="{Boolean}true"
+                                                trackingElement="associated product"
+                                                trackingFeature="aem:cif:associatedcontentpage" />
+                                            <categories
+                                                jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="commerce/gui/components/common/cifcategoryfield"
+                                                fieldDescription="Select the categories associated with this page."
+                                                fieldLabel="Category IDs"
+                                                multiple="{Boolean}true"
+                                                name="./cq:categories"
+                                                showLink="{Boolean}true"
+                                                trackingElement="associated category"
+                                                trackingFeature="aem:cif:associatedcontentpage" />
+                                        </items>
+                                    </associatedContent>
                                     <pagesSection jcr:primaryType="nt:unstructured"
                                         jcr:title="Commerce Pages"
                                         sling:resourceType="granite/ui/components/coral/foundation/form/fieldset">
@@ -81,21 +109,36 @@
                                                 fieldDescription="Path to search results page."
                                                 name="./cq:cifSearchResultsPage"
                                                 sling:resourceType="cq/gui/components/coral/common/form/pagefield"
-                                                rootPath="/content" />
+                                                rootPath="/content">
+                                                <granite:rendercondition
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="core/cif/components/renderconditions/pagetype"
+                                                    pageType="landing"/>
+                                            </searchResultsPage>
                                             <addressBookPage
                                                 jcr:primaryType="nt:unstructured"
                                                 fieldLabel="Address Book Page"
                                                 fieldDescription="Path to address book page."
                                                 name="./cq:cifAddressBookPage"
                                                 sling:resourceType="cq/gui/components/coral/common/form/pagefield"
-                                                rootPath="/content" />
+                                                rootPath="/content">
+                                                <granite:rendercondition
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="core/cif/components/renderconditions/pagetype"
+                                                    pageType="landing"/>
+                                            </addressBookPage>
                                             <myAccountPage
                                                 jcr:primaryType="nt:unstructured"
                                                 fieldLabel="My Account Page"
                                                 fieldDescription="Path to my account page."
                                                 name="./cq:cifMyAccountPage"
                                                 sling:resourceType="cq/gui/components/coral/common/form/pagefield"
-                                                rootPath="/content" />
+                                                rootPath="/content">
+                                                <granite:rendercondition
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="core/cif/components/renderconditions/pagetype"
+                                                    pageType="landing"/>
+                                            </myAccountPage>
                                         </items>
                                     </pagesSection>
                                     <magentoSection jcr:primaryType="nt:unstructured"
@@ -122,7 +165,9 @@
                                                 rootPath="/var/commerce/products"
                                                 selectionId="slug"
                                                 enablePreviewDateFilter="{Boolean}true"
-                                                showLink="{Boolean}true">
+                                                showLink="{Boolean}true"
+                                                trackingElement="product filter"
+                                                trackingFeature="aem:cif:specificproducttemplate">
                                                 <granite:rendercondition
                                                     jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="core/cif/components/renderconditions/pagetype"
@@ -135,7 +180,9 @@
                                                 multiple="{Boolean}true"
                                                 name="./selectorFilter"
                                                 selectionId="urlPath"
-                                                showLink="{Boolean}true">
+                                                showLink="{Boolean}true"
+                                                trackingElement="category filter"
+                                                trackingFeature="aem:cif:specificcategorytemplate">
                                                 <granite:rendercondition jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="core/cif/components/renderconditions/pagetype"
                                                     pageType="category"/>
@@ -147,7 +194,9 @@
                                                 multiple="{Boolean}true"
                                                 name="./useForCategories"
                                                 selectionId="urlPath"
-                                                showLink="{Boolean}true">
+                                                showLink="{Boolean}true"
+                                                trackingElement="category filter"
+                                                trackingFeature="aem:cif:specificproducttemplate">
                                                 <granite:rendercondition jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="core/cif/components/renderconditions/pagetype"
                                                     pageType="product"/>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+    jcr:primaryType="nt:unstructured"
+    jcr:title="Product"
+    sling:resourceType="cq/gui/components/authoring/dialog"
+    trackingFeature="cif-core-components:product:v1">
+    <content
+        jcr:primaryType="nt:unstructured"
+        sling:resourceType="granite/ui/components/coral/foundation/container">
+        <items jcr:primaryType="nt:unstructured">
+            <tabs
+                jcr:primaryType="nt:unstructured"
+                sling:resourceType="granite/ui/components/coral/foundation/tabs"
+                maximized="{Boolean}true">
+                <items jcr:primaryType="nt:unstructured">
+                    <general
+                        jcr:primaryType="nt:unstructured"
+                        jcr:title="Product Settings"
+                        sling:resourceType="granite/ui/components/coral/foundation/container"
+                        margin="{Boolean}true">
+                        <items jcr:primaryType="nt:unstructured" sling:hideChildren="[loadClientPrice]">
+                            <sections
+                                jcr:primaryType="nt:unstructured"
+                                fieldLabel="Default Visible Sections"
+                                fieldDescription="Select which sections of the product detail component should be rendered."
+                                name="./visibleSections"
+                                multiple="{Boolean}true"
+                                sling:resourceType="granite/ui/components/coral/foundation/form/select">
+                                <items jcr:primaryType="nt:unstructured">
+                                    <actions
+                                        text="Actions"
+                                        value="actions"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <description
+                                        text="Description"
+                                        value="description"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <details
+                                        text="Details"
+                                        value="details"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <images
+                                        text="Images"
+                                        value="images"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <options
+                                        text="Options"
+                                        value="options"
+                                        jcr:primaryType="nt:unstructured"/>                                    
+                                    <price
+                                        text="Price"
+                                        value="price"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <quantity
+                                        text="Quantity"
+                                        value="quantity"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <sku
+                                        text="SKU"
+                                        value="sku"
+                                        jcr:primaryType="nt:unstructured"/>
+                                    <title
+                                        text="Title"
+                                        value="title"
+                                        jcr:primaryType="nt:unstructured"/>
+                                 </items>
+                            </sections>
+                        </items>
+                    </general>
+                    <styletab
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/include"
+                        path="/mnt/overlay/cq/gui/components/authoring/dialog/style/tab_design/styletab"/>
+                </items>
+            </tabs>
+        </items>
+    </content>
+</jcr:root>

@@ -7,7 +7,7 @@
   "scripts": {
     "test": "npm run prettier:check && npm run karma:run",
     "karma:run": "karma start --single-run --browsers ChromeHeadless,FirefoxHeadless karma.conf.js",
-    "karma:debug": "karma start --no-single-run --browsers Chrome karma.conf.js",
+    "karma:debug": "karma start --no-single-run --browsers Chrome karma.conf.js --auto-watch",
     "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
     "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc",
     "webpack:dev": "webpack --env.production --mode=development",

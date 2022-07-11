@@ -17,7 +17,8 @@
      data-sly-use.templates="core/wcm/components/commons/v1/templates.html"
      data-sly-use.carouselTpl="carousel.html" />
 
-<sly data-sly-test.hasProducts="${carousel.isConfigured && carousel.products}" data-sly-call="${carouselTpl.carousel @ carousel = carousel, items = carousel.products, componentType='productcarousel'}"></sly>
+<sly data-sly-test.hasProducts="${carousel.isConfigured && carousel.products}"
+     data-sly-call="${carouselTpl.carousel @ carousel = carousel, items = carousel.products, componentType='productcarousel'}"></sly>
 
 <sly data-sly-call="${templates.placeholder @ isEmpty = !carousel.isConfigured}" />
 <sly data-sly-call="${templates.placeholder @ isEmpty = carousel.isConfigured && !hasProducts, emptyTextAppend = 'Configured, but no products to display'}" />

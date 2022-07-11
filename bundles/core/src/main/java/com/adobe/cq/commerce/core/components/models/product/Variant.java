@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.product;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +44,10 @@ public interface Variant {
     Integer getColor();
 
     Map<String, Integer> getVariantAttributes();
+
+    default Map<String, String> getVariantAttributesUid() {
+        return new HashMap<>();
+    }
 
     List<Asset> getAssets();
 }

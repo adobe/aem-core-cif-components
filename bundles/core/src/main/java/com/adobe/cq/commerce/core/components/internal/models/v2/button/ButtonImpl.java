@@ -38,7 +38,6 @@ import org.apache.sling.models.factory.ModelFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.wcm.core.components.commons.link.Link;
 import com.adobe.cq.wcm.core.components.models.Button;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
@@ -99,11 +98,9 @@ public class ButtonImpl implements Button {
         if (EXTERNAL_LINK.equals(linkType)) {
             link = externalLink;
         } else if (PRODUCT.equals(linkType) && productIdentifier != null) {
-            Page productPage = SiteNavigation.getProductPage(currentPage);
-            link = urlProvider.toProductUrl(request, productPage, productIdentifier);
+            link = urlProvider.toProductUrl(request, currentPage, productIdentifier);
         } else if (CATEGORY.equals(linkType) && categoryIdentifier != null) {
-            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
-            link = urlProvider.toCategoryUrl(request, categoryPage, categoryIdentifier);
+            link = urlProvider.toCategoryUrl(request, currentPage, categoryIdentifier);
         } else if (StringUtils.isNotEmpty(linkTo)) {
             link = linkTo + ".html";
         }

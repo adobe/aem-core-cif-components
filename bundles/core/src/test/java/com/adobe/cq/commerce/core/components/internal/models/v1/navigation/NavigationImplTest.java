@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +36,9 @@ import org.mockito.internal.util.reflection.Whitebox;
 import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderConfiguration;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationModel;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -49,7 +53,6 @@ import com.shopify.graphql.support.ID;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.DEFAULT_STRUCTURE_DEPTH;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.MAX_STRUCTURE_DEPTH;
 import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.MIN_STRUCTURE_DEPTH;
-import static com.adobe.cq.commerce.core.components.internal.models.v1.navigation.NavigationImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER;
 import static com.adobe.cq.commerce.core.components.models.navigation.Navigation.PN_SHOW_MAIN_CATEGORIES;
 import static com.adobe.cq.commerce.core.components.models.navigation.Navigation.RT_CATALOG_PAGE;
 import static com.adobe.cq.wcm.core.components.models.Navigation.PN_STRUCTURE_DEPTH;
@@ -68,6 +71,7 @@ public class NavigationImplTest {
     List<CategoryTree> categoryList;
     NavigationModel navigationModel;
     SlingHttpServletRequest request;
+    SiteStructure siteStructure;
 
     // TODO: Use aem mocks
     @Before
@@ -81,17 +85,16 @@ public class NavigationImplTest {
         when(currentPage.getPath()).thenReturn("/content/currentPage");
         Resource currentPageContent = mock(Resource.class);
         Resource contentResource = mock(Resource.class);
-        Map<String, Object> currentPageProperties = new HashMap<>();
-        currentPageProperties.put("cq:cifCategoryPage", CATEGORY_PAGE_PATH);
         Page categoryPage = mock(Page.class);
         when(categoryPage.getPath()).thenReturn(CATEGORY_PAGE_PATH);
         when(currentPageContent.getPath()).thenReturn(CATEGORY_PAGE_PATH + "/jcr:content");
         when(pageManager.getPage(CATEGORY_PAGE_PATH)).thenReturn(categoryPage);
-        when(currentPageContent.getValueMap()).thenReturn(new ValueMapDecorator(currentPageProperties));
         when(currentPage.getContentResource()).thenReturn(currentPageContent);
         Resource categoryPageResource = new SyntheticResource(null, CATEGORY_PAGE_PATH, null);
         when(categoryPage.adaptTo(Resource.class)).thenReturn(categoryPageResource);
         when(categoryPage.getContentResource()).thenReturn(categoryPageResource);
+        when(categoryPage.getProperties()).thenReturn(categoryPageResource.getValueMap());
+        when(categoryPage.listChildren()).thenReturn(Collections.emptyIterator());
         when(contentResource.adaptTo(ComponentsConfiguration.class)).thenReturn(null);
         Whitebox.setInternalState(navigation, "currentPage", currentPage);
 
@@ -105,9 +108,17 @@ public class NavigationImplTest {
         categoryProvider = mock(GraphQLCategoryProvider.class);
         Whitebox.setInternalState(navigation, "graphQLCategoryProvider", categoryProvider);
         categoryList = new ArrayList<>();
-        when(categoryProvider.getChildCategories(any(), any())).thenReturn(categoryList);
+        when(categoryProvider.getChildCategoriesByUid(any(), any())).thenReturn(categoryList);
 
         // URL provider
+        siteStructure = mock(SiteStructure.class);
+        Whitebox.setInternalState(navigation, "siteStructure", siteStructure);
+        SiteStructure.Entry mockEntry = mock(SiteStructure.Entry.class);
+        when(mockEntry.getPage()).thenReturn(categoryPage);
+        when(siteStructure.getCategoryPages()).thenReturn(Collections.singletonList(mockEntry));
+        SiteStructureFactory siteStructureFactory = mock(SiteStructureFactory.class);
+        when(siteStructureFactory.getSiteStructure(any(), any())).thenReturn(siteStructure);
+
         SpecificPageStrategy specificPageStrategy = new SpecificPageStrategy();
         SpecificPageStrategy.Configuration specificPageStrategyConfig = mock(SpecificPageStrategy.Configuration.class);
         when(specificPageStrategyConfig.generateSpecificPageUrls()).thenReturn(false);
@@ -115,6 +126,7 @@ public class NavigationImplTest {
         UrlProviderImpl urlProvider = new UrlProviderImpl();
         urlProvider.activate(mock(UrlProviderConfiguration.class));
         Whitebox.setInternalState(urlProvider, "specificPageStrategy", specificPageStrategy);
+        Whitebox.setInternalState(urlProvider, "siteStructureFactory", siteStructureFactory);
         Whitebox.setInternalState(navigation, "urlProvider", urlProvider);
 
         // current request
@@ -567,17 +579,24 @@ public class NavigationImplTest {
     }
 
     private void initCatalogPage(boolean catalogRoot, boolean showMainCategories, boolean useCaConfig) {
+        initCatalogPage(catalogRoot, showMainCategories, useCaConfig, CATALOG_PAGE_PATH, CATEGORY_PAGE_PATH);
+    }
+
+    private void initCatalogPage(boolean catalogRoot, boolean showMainCategories, boolean useCaConfig, String catalogPagePath,
+        String categoryPagePath) {
         Page catalogPage = mock(Page.class);
         Resource catalogPageContent = mock(Resource.class);
         when(catalogPageContent.isResourceType(RT_CATALOG_PAGE)).thenReturn(catalogRoot);
+        when(catalogPage.getPageManager()).thenReturn(pageManager);
         Map<String, Object> catalogPageProperties = new HashMap<>();
         catalogPageProperties.put(PN_SHOW_MAIN_CATEGORIES, showMainCategories);
+        catalogPageProperties.put("cq:cifCategoryPage", categoryPagePath);
 
         if (!useCaConfig) {
-            catalogPageProperties.put(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4);
+            catalogPageProperties.put(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4);
         }
         when(catalogPageContent.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(new ValueMapDecorator(
-            ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4))));
+            ImmutableMap.of(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4))));
         when(catalogPageContent.getValueMap()).thenReturn(new ValueMapDecorator(catalogPageProperties));
         when(catalogPage.getContentResource()).thenReturn(catalogPageContent);
         when(catalogPage.getPath()).thenReturn("/content/catalog");
@@ -585,10 +604,11 @@ public class NavigationImplTest {
         ResourceResolver mockResourceResolver = mock(ResourceResolver.class);
         when(mockResourceResolver.getResource(any(String.class))).thenReturn(null);
         when(catalogPageContent.getResourceResolver()).thenReturn(mockResourceResolver);
-        when(pageManager.getPage(CATALOG_PAGE_PATH)).thenReturn(catalogPage);
+        when(pageManager.getPage(catalogPagePath)).thenReturn(catalogPage);
 
-        ValueMap configProperties = new ValueMapDecorator(ImmutableMap.of(PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4));
+        ValueMap configProperties = new ValueMapDecorator(ImmutableMap.of(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, 4));
 
         when(catalogPage.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(configProperties));
+        when(siteStructure.isCatalogPage(catalogPage)).thenReturn(Boolean.TRUE);
     }
 }

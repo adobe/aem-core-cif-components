@@ -21,6 +21,7 @@
                         fieldDescription="Base product used to display related products. If empty, the component will fetch the product based on the selector of the URL." 
                         fieldLabel="Base product - Leave empty to use the current product of the generic product page." 
                         name="./product" 
+                        showLink="{Boolean}true"
                         selectionId="sku" />
                     <relationType jcr:primaryType="nt:unstructured" 
                         sling:resourceType="granite/ui/components/coral/foundation/form/select"

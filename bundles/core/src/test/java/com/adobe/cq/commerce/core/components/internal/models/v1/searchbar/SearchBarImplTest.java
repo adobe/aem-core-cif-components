@@ -20,7 +20,6 @@ import java.io.IOException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.caconfig.ConfigurationBuilder;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,24 +33,13 @@ import com.day.cq.wcm.api.WCMMode;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
+
+import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 
 public class SearchBarImplTest {
 
     @Rule
-    public final AemContext context = createContext("/context/jcr-searchbar.json");
-
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                context.load().json(contentPath, "/content");
-
-                ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
-                Utils.addDataLayerConfig(mockConfigBuilder, true);
-                context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
+    public final AemContext context = newAemContext("/context/jcr-searchbar.json");
 
     private static final String PAGE = "/content/pageA";
     private static final String SEARCH_BAR = "/content/pageA/jcr:content/root/responsivegrid/searchbar";
@@ -61,6 +49,10 @@ public class SearchBarImplTest {
 
     @Before
     public void setup() {
+        ConfigurationBuilder mockConfigBuilder = Mockito.mock(ConfigurationBuilder.class);
+        Utils.addDataLayerConfig(mockConfigBuilder, true);
+        context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
+
         Page page = context.currentPage(PAGE);
         context.currentResource(SEARCH_BAR);
         searchBarResource = context.resourceResolver().getResource(SEARCH_BAR);

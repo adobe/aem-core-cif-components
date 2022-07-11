@@ -108,4 +108,16 @@ public class Utils {
             product instanceof VirtualProduct ||
             product instanceof DownloadableProduct;
     }
+
+    /**
+     * Returns the string parameter representing a link target or {@code null} if the parameter equals {@code _self}.
+     * Since {@code _self} is the default value of the {@code linkTarget} property in the edit dialogs we use this method
+     * to omit the target attribute on links when the value is {@code _self}.
+     *
+     * @param linkTarget a link target value
+     * @return {@code linkTarget} or {@code null} if {@code linkTarget} equals {@code _self}
+     */
+    public static String normalizeLinkTarget(String linkTarget) {
+        return "_self".equals(linkTarget) ? null : linkTarget;
+    }
 }

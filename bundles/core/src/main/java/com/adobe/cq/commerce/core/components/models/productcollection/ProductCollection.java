@@ -32,6 +32,7 @@ public interface ProductCollection {
     /**
      * Name of the boolean resource property indicating if the product collection should load prices on the client-side.
      */
+    @Deprecated
     String PN_LOAD_CLIENT_PRICE = "loadClientPrice";
 
     /**
@@ -52,6 +53,16 @@ public interface ProductCollection {
     String PN_PAGINATION_TYPE = "paginationType";
 
     /**
+     * Name of the String resource property for the default product sort field.
+     */
+    String PN_DEFAULT_SORT_FIELD = "defaultSortField";
+
+    /**
+     * Name of the String resource property for the default product sort order.
+     */
+    String PN_DEFAULT_SORT_ORDER = "defaultSortOrder";
+
+    /**
      * Returns the product list's items collection, as {@link ProductListItem}s elements.
      *
      * @return {@link Collection} of {@link ProductListItem}s
@@ -70,8 +81,11 @@ public interface ProductCollection {
     /**
      * Should prices be re-loaded client-side.
      *
+     * @deprecated Per component client-side price loading is deprecated. This information is exposed in the
+     *             {@link com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter} and enabled site wide.
      * @return true if prices should be loaded client side
      */
+    @Deprecated
     boolean loadClientPrice();
 
     /**

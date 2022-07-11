@@ -115,7 +115,7 @@ public class CommerceContentFragmentImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-product-sku.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-cf-category.json", httpClient, HttpStatus.SC_OK, "url_key\"}}){uid}}");
         Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_key");
+            "{categoryList(filters:{url_path");
 
         prepareContentFragment(resourceResolver);
 

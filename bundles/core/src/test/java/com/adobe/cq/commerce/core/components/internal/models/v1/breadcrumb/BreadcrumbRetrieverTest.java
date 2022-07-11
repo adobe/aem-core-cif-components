@@ -38,7 +38,7 @@ public class BreadcrumbRetrieverTest {
         BreadcrumbRetriever retriever = new BreadcrumbRetriever(client);
 
         retriever.fetchCategoriesBreadcrumbs();
-        retriever.fetchProductName();
+        retriever.fetchProduct();
         Mockito.verifyZeroInteractions(client);
     }
 
@@ -58,8 +58,8 @@ public class BreadcrumbRetrieverTest {
         retriever.setProductIdentifier(testSKU);
         retriever.fetchCategoriesBreadcrumbs();
         retriever.fetchCategoriesBreadcrumbs();
-        retriever.fetchProductName();
-        retriever.fetchProductName();
+        retriever.fetchProduct();
+        retriever.fetchProduct();
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 

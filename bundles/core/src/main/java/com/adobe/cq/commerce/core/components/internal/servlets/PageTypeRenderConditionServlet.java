@@ -16,6 +16,8 @@
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.servlet.Servlet;
@@ -26,10 +28,12 @@ import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.granite.ui.components.rendercondition.RenderCondition;
 import com.adobe.granite.ui.components.rendercondition.SimpleRenderCondition;
 import com.day.cq.wcm.api.Page;
@@ -58,8 +62,20 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
     private static final String CATEGORY_PAGE_TYPE = "category";
     private static final String CATALOG_PAGE_TYPE = "catalog";
     private static final String LANDING_PAGE_TYPE = "landing";
-    private static final String CATALOG_PAGE_RESOURCE_TYPE = "core/cif/components/structure/catalogpage/v1/catalogpage";
-    private static final String PN_NAV_ROOT = "navRoot";
+    private static final Set<String> CATALOG_PAGE_RESOURCE_TYPES = new HashSet<>();
+
+    static {
+        CATALOG_PAGE_RESOURCE_TYPES.add(SiteStructure.RT_CATALOG_PAGE);
+        CATALOG_PAGE_RESOURCE_TYPES.add(SiteStructure.RT_CATALOG_PAGE_V3);
+    }
+
+    @Reference
+    private SiteStructureFactory siteStructureFactory;
+
+    static {
+        CATALOG_PAGE_RESOURCE_TYPES.add("core/cif/components/structure/catalogpage/v1/catalogpage");
+        CATALOG_PAGE_RESOURCE_TYPES.add("core/cif/components/structure/catalogpage/v3/catalogpage");
+    }
 
     @Override
     protected void doGet(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response) {
@@ -94,20 +110,20 @@ public class PageTypeRenderConditionServlet extends SlingSafeMethodsServlet {
 
         if (LANDING_PAGE_TYPE.equals(pageType)) {
             ValueMap properties = page.getContentResource().getValueMap();
-            return properties.get(PN_NAV_ROOT, false);
+            return properties.get(SiteStructure.PN_NAV_ROOT, false);
         }
 
+        SiteStructure siteStructure = siteStructureFactory.getSiteStructure(page);
+
         if (CATALOG_PAGE_TYPE.equals(pageType)) {
-            return page.hasContent() && page.getContentResource().isResourceType(CATALOG_PAGE_RESOURCE_TYPE);
+            return siteStructure.isCatalogPage(page);
         }
 
         // perform the appropriate checks according to the pageType property
         if (PRODUCT_PAGE_TYPE.equals(pageType)) {
-            Page productPage = SiteNavigation.getProductPage(page);
-            return productPage != null && pagePath.contains(productPage.getPath());
+            return siteStructure.isProductPage(page);
         } else if (CATEGORY_PAGE_TYPE.equals(pageType)) {
-            Page categoryPage = SiteNavigation.getCategoryPage(page);
-            return categoryPage != null && pagePath.contains(categoryPage.getPath());
+            return siteStructure.isCategoryPage(page);
         }
 
         return false;

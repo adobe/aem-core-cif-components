@@ -165,9 +165,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Update permissions
-          command: sudo chown -R circleci /usr/local/lib/node_modules
-      - run:
           name: Provision
           command: |
             node -v
@@ -191,9 +188,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Update permissions
-          command: sudo chown -R circleci /usr/local/lib/node_modules
-      - run:
           name: Provision (Core)
           command: |
             node -v
@@ -206,7 +200,7 @@ jobs:
           name: Provision (Extension)
           command: |
             npm install
-            npm link @adobe/aem-core-cif-react-components
+            npm link @adobe/aem-core-cif-react-components --legacy-peer-deps
           working_directory: ./extensions/product-recs/react-components
       - run:
           name: Run Unit Tests (Jest)

@@ -26,6 +26,7 @@ import com.adobe.cq.wcm.core.components.models.HtmlPageItem;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.adobe.cq.wcm.core.components.models.Page;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
+import com.adobe.cq.wcm.core.components.models.datalayer.builder.DataLayerBuilder;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 abstract class AbstractPageDelegator implements Page {
@@ -150,7 +151,12 @@ abstract class AbstractPageDelegator implements Page {
 
     @Override
     public ComponentData getData() {
-        return getDelegate().getData();
+        ComponentData data = getDelegate().getData();
+        if (data == null) {
+            return null;
+        }
+
+        return DataLayerBuilder.extending(data).asPage().withType(this::getExportedType).build();
     }
 
     @Override

@@ -84,7 +84,9 @@ public class CategoriesSitemapGeneratorTest {
         homePage = aemContext.create().page(
             "/content/site/en",
             "homepage-template",
-            ImmutableMap.of("cq:cifCategoryPage", "/content/site/en/category-page"));
+            ImmutableMap.of(
+                "navRoot", true,
+                "cq:cifCategoryPage", "/content/site/en/category-page"));
         categoryPage = aemContext.create().page(homePage.getPath() + "/category-page");
 
         aemContext.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());

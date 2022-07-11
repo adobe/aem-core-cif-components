@@ -17,7 +17,6 @@ package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +27,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.junit.Before;
@@ -71,6 +71,7 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.shopify.graphql.support.ID;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
@@ -129,6 +130,9 @@ public class SearchResultsServiceImplTest {
         productPage = context.currentPage("/content/product-page");
         resource = context.resourceResolver().getResource("/content/pageA");
         request = context.request();
+
+        SlingBindings slingBindings = (SlingBindings) request.getAttribute(SlingBindings.class.getName());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, productPage);
 
         when(product.getSku()).thenReturn("sku");
         when(product.getName()).thenReturn("name");
@@ -260,7 +264,7 @@ public class SearchResultsServiceImplTest {
         assertThat(searchResultsSet.getTotalResults()).isEqualTo(0);
         assertThat(searchResultsSet.getAppliedQueryParameters()).containsKeys("search_query");
         assertThat(searchResultsSet.getProductListItems()).hasSize(1);
-        assertThat(searchResultsSet.getSorter().getKeys()).isNull();
+        assertThat(searchResultsSet.getSorter().getKeys()).isEmpty();
         assertThat(searchResultsSet.getSorter().getCurrentKey()).isNull();
 
         String query = captor.getValue();
@@ -311,28 +315,6 @@ public class SearchResultsServiceImplTest {
     }
 
     @Test
-    public void testCategoryIdSearchAggregationRemoved() {
-        when(products.getAggregations()).thenReturn(Collections.singletonList(new Aggregation()
-            .setAttributeCode("category_id")
-            .setOptions(Collections.emptyList())));
-        when(searchFilterService.retrieveCurrentlyAvailableCommerceFilters(any())).thenReturn(Collections.singletonList(
-            createMatchFilterAttributeMetadata("category_id")));
-
-        // test without category_id
-        SearchResultsSet resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
-        List<SearchAggregation> aggregations = resultsSet.getSearchAggregations();
-        assertThat(aggregations).isNotNull();
-        assertThat(aggregations.isEmpty()).isEqualTo(false);
-
-        // test with category uid present
-        searchOptions.setCategoryUid("foobar");
-        resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
-        aggregations = resultsSet.getSearchAggregations();
-        assertThat(aggregations).isNotNull();
-        assertThat(aggregations.isEmpty()).isEqualTo(true);
-    }
-
-    @Test
     public void testCategoryUidFilterEntriesRemoved() {
         final Predicate<Map<String, String>> filterMapFilter = map -> map.containsKey("category_uid");
 
@@ -353,20 +335,32 @@ public class SearchResultsServiceImplTest {
         // test without category_uid
         SearchResultsSet resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
         List<SearchAggregation> aggregations = resultsSet.getSearchAggregations();
-        assertThat(getFilterMapsOfAllOptions(aggregations, filterMapFilter)).isEmpty();
+        assertThat(aggregations.size()).isEqualTo(1);
+        SearchAggregation aggregation = aggregations.get(0);
+        assertThat(getFilterMapsOfAllOptions(aggregation, filterMapFilter)).isEmpty();
+        assertThat(aggregation.getRemoveFilterMap()).doesNotContainKey("category_uid");
+        assertThat(resultsSet.getAppliedQueryParameters()).doesNotContainKey("category_uid");
 
         // test with category_uid filter
         searchOptions.setCategoryUid("foobar");
         resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
         aggregations = resultsSet.getSearchAggregations();
-        assertThat(getFilterMapsOfAllOptions(aggregations, filterMapFilter).count()).isEqualTo(2);
+        assertThat(aggregations.size()).isEqualTo(1);
+        aggregation = aggregations.get(0);
+        assertThat(getFilterMapsOfAllOptions(aggregation, filterMapFilter).count()).isEqualTo(2);
+        assertThat(aggregation.getRemoveFilterMap()).containsEntry("category_uid", "foobar");
+        assertThat(resultsSet.getAppliedQueryParameters()).containsEntry("category_uid", "foobar");
 
         // test with category_uid filter from request
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/foobar");
         resultsSet = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
         aggregations = resultsSet.getSearchAggregations();
-        assertThat(getFilterMapsOfAllOptions(aggregations, filterMapFilter)).isEmpty();
+        assertThat(aggregations.size()).isEqualTo(1);
+        aggregation = aggregations.get(0);
+        assertThat(getFilterMapsOfAllOptions(aggregation, filterMapFilter)).isEmpty();
+        assertThat(aggregation.getRemoveFilterMap()).doesNotContainKey("category_uid");
+        assertThat(resultsSet.getAppliedQueryParameters()).doesNotContainKey("category_uid");
     }
 
     private static FilterAttributeMetadata createStringEqualFilterAttributeMetadata(String attributeCode) {
@@ -378,11 +372,9 @@ public class SearchResultsServiceImplTest {
         return newFilterAttributeMetadata;
     }
 
-    private static Stream<Map<String, String>> getFilterMapsOfAllOptions(List<SearchAggregation> aggregations,
+    private static Stream<Map<String, String>> getFilterMapsOfAllOptions(SearchAggregation aggregation,
         Predicate<Map<String, String>> filter) {
-        return aggregations.stream()
-            .map(SearchAggregation::getOptions).flatMap(Collection::stream).map(SearchAggregationOption::getAddFilterMap)
-            .filter(filter);
+        return aggregation.getOptions().stream().map(SearchAggregationOption::getAddFilterMap).filter(filter);
     }
 
     @Test
@@ -430,9 +422,9 @@ public class SearchResultsServiceImplTest {
     }
 
     @Test
-    public void testSearchWithInvalidSortKey() {
-        searchOptions.addSorterKey("invalid", "Invalid", null);
-        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "invalid");
+    public void testSearchWithUnknownSortFieldParam() {
+        searchOptions.addSorterKey("brand", "Brand", Sorter.Order.DESC);
+        searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_KEY, "brand");
         searchOptions.getAttributeFilters().put(Sorter.PARAMETER_SORT_ORDER, Sorter.Order.ASC.name());
 
         SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
@@ -442,13 +434,34 @@ public class SearchResultsServiceImplTest {
             request);
 
         assertThat(searchResultsSet.getSorter().getKeys()).hasSize(1);
-        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("invalid");
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("brand");
         assertThat(searchResultsSet.getSorter().getCurrentKey().getOrder()).isEqualTo(Sorter.Order.ASC);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(magentoGraphqlClient, times(1)).execute(captor.capture());
         String query = captor.getValue();
-        assertThat(query).doesNotContain("sort:{invalid:ASC}");
+        assertThat(query).contains("sort:{brand:ASC}");
+    }
+
+    @Test
+    public void testSearchWithDefaultSortField() {
+        searchOptions.addSorterKey("name", "Name", Sorter.Order.ASC);
+        searchOptions.setDefaultSorter("name", Sorter.Order.ASC);
+
+        SearchResultsSet searchResultsSet = serviceUnderTest.performSearch(
+            searchOptions,
+            resource,
+            productPage,
+            request);
+
+        assertThat(searchResultsSet.getSorter().getKeys()).hasSize(1);
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getName()).isEqualTo("name");
+        assertThat(searchResultsSet.getSorter().getCurrentKey().getOrder()).isEqualTo(Sorter.Order.ASC);
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(magentoGraphqlClient, times(1)).execute(captor.capture());
+        String query = captor.getValue();
+        assertThat(query).contains("sort:{name:ASC}");
     }
 
     @Test

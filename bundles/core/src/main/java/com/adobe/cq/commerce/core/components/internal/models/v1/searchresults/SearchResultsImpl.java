@@ -74,9 +74,15 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
         searchOptions.setSearchQuery(searchTerm);
 
         // configure sorting
+        String defaultSortField = properties.get(PN_DEFAULT_SORT_FIELD, String.class);
+        String defaultSortOrder = properties.get(PN_DEFAULT_SORT_ORDER, Sorter.Order.ASC.name());
+
+        if (StringUtils.isNotBlank(defaultSortField)) {
+            Sorter.Order value = Sorter.Order.fromString(defaultSortOrder, Sorter.Order.ASC);
+            searchOptions.setDefaultSorter(defaultSortField, value);
+        }
+        // relevance is not provided in the products search results, we add it manually
         searchOptions.addSorterKey("relevance", "Relevance", Sorter.Order.DESC);
-        searchOptions.addSorterKey("price", "Price", Sorter.Order.ASC);
-        searchOptions.addSorterKey("name", "Product Name", Sorter.Order.ASC);
     }
 
     protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {
@@ -95,7 +101,7 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
     @Override
     public SearchResultsSet getSearchResultsSet() {
         if (searchResultsSet == null) {
-            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);
+            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, currentPage, request);
         }
         return searchResultsSet;
     }

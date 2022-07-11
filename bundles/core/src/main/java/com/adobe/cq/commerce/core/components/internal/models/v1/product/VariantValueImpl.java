@@ -21,7 +21,13 @@ public class VariantValueImpl implements VariantValue {
 
     private String label;
 
+    private String defaultLabel;
+
     private Integer id;
+
+    private String uid;
+
+    private SwatchType swatchType;
 
     @Override
     public String getLabel() {
@@ -33,11 +39,38 @@ public class VariantValueImpl implements VariantValue {
     }
 
     @Override
+    public String getCssClassModifier() {
+        return defaultLabel;
+    }
+
+    public void setCssClassModifier(String defaultLabel) {
+        this.defaultLabel = defaultLabel;
+    }
+
+    @Override
+    public SwatchType getSwatchType() {
+        return swatchType;
+    }
+
+    public void setSwatchType(SwatchType swatchType) {
+        this.swatchType = swatchType;
+    }
+
+    @Override
     public Integer getId() {
         return id;
     }
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    @Override
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 }
