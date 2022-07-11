@@ -45,10 +45,11 @@ import com.adobe.cq.commerce.core.search.models.Sorter;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = SearchResults.class,
-    resourceType = SearchResultsImpl.RESOURCE_TYPE)
+    resourceType = { SearchResultsImpl.RESOURCE_TYPE, SearchResultsImpl.RESOURCE_TYPE_V2 })
 public class SearchResultsImpl extends ProductCollectionImpl implements SearchResults {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsImpl.class);
-    static final String RESOURCE_TYPE = "core/cif/components/commerce/searchresults";
+    static final String RESOURCE_TYPE = "core/cif/components/commerce/searchresults/v1/searchresults";
+    static final String RESOURCE_TYPE_V2 = "core/cif/components/commerce/searchresults/v2/searchresults";
 
     private String searchTerm;
 

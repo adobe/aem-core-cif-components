@@ -44,7 +44,8 @@ import com.adobe.cq.wcm.core.components.models.Page;
     resourceType = {
         com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl.RESOURCE_TYPE,
         com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImpl.RESOURCE_TYPE,
-        com.adobe.cq.commerce.core.components.internal.models.v1.productcollection.ProductCollectionImpl.RESOURCE_TYPE
+        com.adobe.cq.commerce.core.components.internal.models.v1.productcollection.ProductCollectionImpl.RESOURCE_TYPE,
+        com.adobe.cq.commerce.core.components.internal.models.v1.productcollection.ProductCollectionImpl.RESOURCE_TYPE_V2
     })
 public class CurrentPageImpl extends AbstractPageDelegator {
 
