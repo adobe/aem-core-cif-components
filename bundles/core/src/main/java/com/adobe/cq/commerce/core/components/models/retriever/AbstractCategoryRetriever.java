@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -46,6 +47,11 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * Lambda that extends the product query.
      */
     protected Consumer<ProductInterfaceQuery> productQueryHook;
+
+    /**
+     * Lambda that allows to replace or extend the category filters.
+     */
+    protected Function<CategoryFilterInput, CategoryFilterInput> categoryFilterHook;
 
     /**
      * Category instance. Is only available after populate() was called.
@@ -138,6 +144,41 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     }
 
     /**
+     * Extends or replaces the category filter with a custom instance defined by a lambda hook.
+     *
+     * Example 1 (Extend):
+     *
+     * <pre>
+     * {@code
+     * categoryRetriever.extendCategoryFilterWith(f -> f
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * Example 2 (Replace):
+     *
+     * <pre>
+     * {@code
+     * categoryRetriever.extendCategoryFilterWith(f -> new CategoryFilterInput()
+     *     .setCategoryUid(new FilterEqualTypeInput()
+     *         .setEq("custom-uid"))
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * @param categoryFilterHook Lambda that extends or replaces the category filter.
+     */
+    public void extendCategoryFilterWith(Function<CategoryFilterInput, CategoryFilterInput> categoryFilterHook) {
+        if (this.categoryFilterHook == null) {
+            this.categoryFilterHook = categoryFilterHook;
+        } else {
+            this.categoryFilterHook = this.categoryFilterHook.andThen(categoryFilterHook);
+        }
+    }
+
+    /**
      * @return The extended category query part if it was set with {@link AbstractCategoryRetriever#extendCategoryQueryWith(Consumer)}
      */
     public Consumer<CategoryTreeQuery> getCategoryQueryHook() {
@@ -204,10 +245,17 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * @return GraphQL query as string
      */
     public Pair<CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> generateCategoryQueryArgs(String identifier) {
+        CategoryFilterInput filter = new CategoryFilterInput();
         FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
-        CategoryFilterInput filter = new CategoryFilterInput().setCategoryUid(identifierFilter);
+        filter.setCategoryUid(identifierFilter);
 
-        CategoryListArgumentsDefinition searchArgs = q -> q.filters(filter);
+        // Apply category filter hook
+        if (this.categoryFilterHook != null) {
+            filter = this.categoryFilterHook.apply(filter);
+        }
+
+        CategoryFilterInput finalFilter = filter;
+        CategoryListArgumentsDefinition searchArgs = q -> q.filters(finalFilter);
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
 
         return new ImmutablePair<>(searchArgs, queryArgs);

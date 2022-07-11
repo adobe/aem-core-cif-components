@@ -55,8 +55,17 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
 
     @Override
     protected String generateQuery(List<String> identifiers) {
-        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(new FilterEqualTypeInput().setEq(identifiers.get(0)));
-        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
+        FilterEqualTypeInput skuFilter = new FilterEqualTypeInput().setEq(identifiers.get(0));
+        filter.setSku(skuFilter);
+
+        // Apply product attribute filter hook
+        if (this.productAttributeFilterHook != null) {
+            filter = this.productAttributeFilterHook.apply(filter);
+        }
+
+        ProductAttributeFilterInput finalFilter = filter;
+        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(finalFilter);
 
         ProductInterfaceQueryDefinition def;
         if (RelationType.UPSELL_PRODUCTS.equals(relationtype)) {
