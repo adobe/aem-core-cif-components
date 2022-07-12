@@ -50,3 +50,6 @@ export { useAddToCart, useAddToCartEvent } from './talons/Cart';
 
 // new since CIF-2539
 export { useAddToWishlistEvent } from './talons/Wishlist';
+
+// new since CIF-2865
+export { default as dataLayerUtils } from './utils/dataLayerUtils';

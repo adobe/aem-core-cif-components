@@ -91,13 +91,17 @@ class AddToCart {
     /**
      * Click event handler for add to cart button.
      */
-    _onAddToCart() {
+    _onAddToCart(event) {
+        const target = event.currentTarget;
         const items = this._getEventDetail();
         if (items.length > 0 && window.CIF) {
             const customEvent = new CustomEvent(AddToCart.events.addToCart, {
+                bubbles: true,
                 detail: items
             });
-            document.dispatchEvent(customEvent);
+            target.dispatchEvent(customEvent);
+            event.preventDefault();
+            event.stopPropagation();
         }
     }
 
