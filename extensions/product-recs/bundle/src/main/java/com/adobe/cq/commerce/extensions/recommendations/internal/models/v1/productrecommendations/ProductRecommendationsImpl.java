@@ -29,6 +29,8 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.extensions.recommendations.internal.models.v1.common.PriceRangeImpl;
 import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
 import com.adobe.cq.commerce.extensions.recommendations.models.productrecommendations.ProductRecommendations;
+import com.adobe.cq.wcm.core.components.models.Component;
+import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 
@@ -63,6 +65,28 @@ public class ProductRecommendationsImpl implements ProductRecommendations {
     @Self
     @Via("resource")
     private ValueMap props;
+    @Self
+    private Component component;
+
+    @Override
+    public String getId() {
+        return component.getId();
+    }
+
+    @Override
+    public ComponentData getData() {
+        return component.getData();
+    }
+
+    @Override
+    public String getAppliedCssClasses() {
+        return component.getAppliedCssClasses();
+    }
+
+    @Override
+    public String getExportedType() {
+        return component.getExportedType();
+    }
 
     private String getStringListProperty(String propertyName) {
         Object property = props.get(propertyName);

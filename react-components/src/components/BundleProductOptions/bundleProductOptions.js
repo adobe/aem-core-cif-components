@@ -13,7 +13,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { useConfigContext } from '../../context/ConfigContext';
@@ -34,12 +34,17 @@ const BundleProductOptions = props => {
     const {
         mountingPoints: { bundleProductOptionsContainer }
     } = useConfigContext();
-    const productId = document.querySelector('[data-cmp-is=product]')?.id;
+    const productComponentEl = document.querySelector('[data-cmp-is=product]');
+    const bundleProductOptionsContainerEl = document.querySelector(bundleProductOptionsContainer);
+    const productId = productComponentEl?.id;
     const [bundleState, setBundleState] = useState(null);
     const intl = useIntl();
+    const addToCartRef = useRef();
+    const addToWishlistRef = useRef();
+
     let { sku, showAddToWishList, showQuantity, useUid, autoLoadOptions } = {
         ...props,
-        ...(document.querySelector(bundleProductOptionsContainer)?.dataset || {})
+        ...(bundleProductOptionsContainerEl?.dataset || {})
     };
 
     // show-add-to-wish-list is set without a value to the dom,
@@ -189,9 +194,11 @@ const BundleProductOptions = props => {
             selected_options
         };
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
+            bubbles: true,
             detail: [productData]
         });
-        document.dispatchEvent(customEvent);
+
+        addToCartRef.current.dispatchEvent(customEvent);
     };
 
     const addToWishlist = () => {
@@ -209,9 +216,10 @@ const BundleProductOptions = props => {
         };
 
         const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+            bubbles: true,
             detail: [productData]
         });
-        document.dispatchEvent(customEvent);
+        addToWishlistRef.current.dispatchEvent(customEvent);
     };
 
     const getTotalPrice = () => {
@@ -330,7 +338,8 @@ const BundleProductOptions = props => {
                         className="button__root_highPriority button__root clickable__root button__filled"
                         type="button"
                         disabled={!canAddToCart()}
-                        onClick={addToCart}>
+                        onClick={addToCart}
+                        ref={addToCartRef}>
                         <span className="button__content">
                             <span>{intl.formatMessage({ id: 'product:add-item', defaultMessage: 'Add to Cart' })}</span>
                         </span>
@@ -339,7 +348,8 @@ const BundleProductOptions = props => {
                         <button
                             className="button__root_normalPriority button__root clickable__root"
                             type="button"
-                            onClick={addToWishlist}>
+                            onClick={addToWishlist}
+                            ref={addToWishlistRef}>
                             <span className="button__content">
                                 <span>
                                     {intl.formatMessage({

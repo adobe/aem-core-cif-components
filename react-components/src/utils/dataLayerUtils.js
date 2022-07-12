@@ -154,3 +154,11 @@ export const transformCart = cart => {
 };
 
 export { transformGraphqlResponse };
+
+export default {
+    isEnabled: isDataLayerEnabled,
+    getState,
+    pushEvent,
+    pushData,
+    generateId: generateDataLayerId
+};
