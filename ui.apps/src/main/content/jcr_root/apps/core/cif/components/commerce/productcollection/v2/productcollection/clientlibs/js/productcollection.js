@@ -131,8 +131,9 @@ class ProductCollection {
         let text = await response.text();
         let domParser = new DOMParser();
         let more = domParser.parseFromString(text, 'text/html');
-        let moreItems = more.querySelectorAll(ProductCollection.selectors.item);
+        let moreItems = more.querySelectorAll(ProductCollection.selectors.item + ', ' + ProductCollection.selectors.xfitem);
 
+        console.log('more', more, 'moreItems', moreItems);
         // Append new product items to existing product gallery
         let galleryItems = this._element.querySelector(ProductCollection.selectors.galleryItems);
         galleryItems.append(...moreItems);
@@ -156,6 +157,7 @@ ProductCollection.selectors = {
     self: '[data-cmp-is=productcollection]',
     price: '.price',
     item: '.productcollection__item[role=product]',
+    xfitem: '.productcollection__item-xf',
     sortKey: '.productcollection__sort-keys',
     galleryItems: '.productcollection__items',
     loadMoreButton: '.productcollection__loadmore-button',

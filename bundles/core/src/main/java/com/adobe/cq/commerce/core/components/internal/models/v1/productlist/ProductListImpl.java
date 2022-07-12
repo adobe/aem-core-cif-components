@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingScriptHelper;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
@@ -80,6 +81,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v1/productlist";
     public static final String PN_FRAGMENT_LOCATION = "fragmentLocation";
     public static final String PN_FRAGMENT_CSS_CLASS = "fragmentCssClass";
+    public static final String PN_FRAGMENT_PAGE = "fragmentPage";
     protected static final String PLACEHOLDER_DATA = "productlist-component-placeholder-data.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
@@ -114,7 +116,6 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
 
     protected List<CommerceExperienceFragmentContainer> fragments = new ArrayList<>();
-    protected int pageGridSize;
 
     @PostConstruct
     protected void initModel() {
@@ -158,16 +159,17 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                 return;
             }
         }
-        pageGridSize = navPageSize;
 
         if (usePlaceholderData) {
             searchResultsSet = new SearchResultsSetImpl();
         } else {
-            if (currentPageIndex == 1) {
-                Resource fragmentsNode = resource.getChild(ProductList.NN_FRAGMENTS);
-                if (fragmentsNode != null && fragmentsNode.hasChildren()) {
-                    Iterable<Resource> configuredFragments = fragmentsNode.getChildren();
-                    for (Resource fragment : configuredFragments) {
+            Resource fragmentsNode = resource.getChild(ProductList.NN_FRAGMENTS);
+            if (fragmentsNode != null && fragmentsNode.hasChildren()) {
+                Iterable<Resource> configuredFragments = fragmentsNode.getChildren();
+                for (Resource fragment : configuredFragments) {
+                    ValueMap fragmentVm = fragment.getValueMap();
+                    Integer fragmentPage = fragmentVm.get(PN_FRAGMENT_PAGE, Integer.class);
+                    if (fragmentPage.equals(currentPageIndex)) {
                         String fragmentCssClass = fragment.getValueMap().get(PN_FRAGMENT_CSS_CLASS, String.class);
                         ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(
                             fragment,

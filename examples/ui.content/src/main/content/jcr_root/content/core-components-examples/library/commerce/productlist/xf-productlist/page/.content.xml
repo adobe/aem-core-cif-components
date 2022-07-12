@@ -105,6 +105,7 @@
                             <fragments jcr:primaryType="nt:unstructured">
                                 <item0
                                     jcr:primaryType="nt:unstructured"
+                                    fragmentPage="1"
                                     fragmentLocation="grid"
                                     fragmentCssClass="test-class"/>
                             </fragments>

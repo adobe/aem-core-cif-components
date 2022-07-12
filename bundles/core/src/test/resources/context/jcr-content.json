@@ -158,7 +158,8 @@
                 "fragmentEnabled": true,
                 "fragments": {
                     "item0": {
-                        "fragmentLocation": "grid",
+                      "fragmentPage": 1,  
+                      "fragmentLocation": "grid",
                         "fragmentCssClass": "test-class"
                     }
                 }
@@ -173,14 +174,22 @@
                 "fragmentEnabled": true,
                 "fragments": {
                     "item0": {
-                        "fragmentLocation": "grid"
+                      "fragmentPage": 1,  
+                      "fragmentLocation": "grid"
                     },
                     "item1": {
-                        "fragmentLocation": "grid",
+                      "fragmentPage": 1,  
+                      "fragmentLocation": "grid",
                         "fragmentCssClass": "test-class"
                     },
                     "item2": {
-                        "fragmentLocation": "inexistent"
+                      "fragmentPage": 1,  
+                      "fragmentLocation": "inexistent"
+                    },
+                    "item3": {
+                      "fragmentPage": 2,
+                      "fragmentLocation": "grid",
+                      "fragmentCssClass": "test-class2"
                     }
                 }
             },

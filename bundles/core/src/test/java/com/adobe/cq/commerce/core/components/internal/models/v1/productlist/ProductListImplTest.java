@@ -407,8 +407,8 @@ public class ProductListImplTest {
         List<CommerceExperienceFragmentContainer> fragments = productListModel.getExperienceFragments();
         Assert.assertNotNull(fragments);
 
-        // There are 3 configured XFs. one has a location that does not match any XF
-        // resource
+        // There are 4 configured XFs. one has a location that does not match any XF
+        // resource and another one is set for page 2
         Assert.assertEquals(2, fragments.size());
 
         CommerceExperienceFragmentContainer xfItem = fragments.get(0);
@@ -416,6 +416,24 @@ public class ProductListImplTest {
         Assert.assertNotNull(xfItem.getRenderResource());
 
         xfItem = fragments.get(1);
+        Assert.assertNotNull(xfItem.getCssClassName());
+        Assert.assertNotNull(xfItem.getRenderResource());
+    }
+
+    @Test
+    public void getProductsWithMultipleFragmentsPage2() {
+        context.currentResource(PRODUCT_LIST_WITH_MULTIPLE_XF);
+        context.request().getParameterMap().put("page", new String[] { "2" });
+        adaptToProductList();
+
+        List<CommerceExperienceFragmentContainer> fragments = productListModel.getExperienceFragments();
+        Assert.assertNotNull(fragments);
+
+        // There are 4 configured XFs. one has a location that does not match any XF
+        // resource and another one is set for page 2
+        Assert.assertEquals(1, fragments.size());
+
+        CommerceExperienceFragmentContainer xfItem = fragments.get(0);
         Assert.assertNotNull(xfItem.getCssClassName());
         Assert.assertNotNull(xfItem.getRenderResource());
     }
