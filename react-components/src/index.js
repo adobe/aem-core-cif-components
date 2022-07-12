@@ -50,3 +50,8 @@ export { useAddToCart, useAddToCartEvent } from './talons/Cart';
 
 // new since CIF-2539
 export { useAddToWishlistEvent } from './talons/Wishlist';
+
+// new since CIF-2826
+export { default as useCustomUrlEvent } from './utils/useCustomUrlEvent';
+export { default as useReferrerEvent } from './utils/useReferrerEvent';
+export { default as usePageEvent } from './utils/usePageEvent';
