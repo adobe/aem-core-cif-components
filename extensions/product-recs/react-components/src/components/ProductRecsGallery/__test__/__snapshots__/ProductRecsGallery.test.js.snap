@@ -1,5 +1,104 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`ProductRecsGallery add datalayer components for product cards with parentId from hostElement 1`] = `
+<DocumentFragment>
+  <div
+    class="root"
+  >
+    <h2
+      class="title"
+    >
+      My Product Recommendations
+    </h2>
+    <div
+      class="container"
+    >
+      <div
+        class="card"
+        data-cmp-data-layer="{\\"productrecs-test-item-sku-a\\":{\\"parentId\\":\\"productrecs-test\\",\\"@type\\":\\"core/cif/components/commerce/productlistitem\\",\\"dc:title\\":\\"My Product A\\",\\"xdm:SKU\\":\\"sku-a\\",\\"xdm:currencyCode\\":\\"CHF\\",\\"xdm:listPrice\\":342.23}}"
+      >
+        <a
+          title="My Product A"
+        >
+          <div
+            class="cardImage"
+          >
+            <img
+              alt="My Product A"
+              class="productImage"
+              src="http://localhost/product-a.jpg"
+            />
+          </div>
+          <div>
+            My Product A
+          </div>
+          <div
+            class="price"
+          >
+            <span
+              class=""
+            >
+              CHF 342.23
+            </span>
+          </div>
+        </a>
+        <button
+          class="cmp-Trigger__trigger__root cmp-components__clickable__root"
+          type="button"
+        >
+          <span
+            class="addToCart"
+          >
+            Add to Cart
+          </span>
+        </button>
+      </div>
+      <div
+        class="card"
+        data-cmp-data-layer="{\\"productrecs-test-item-sku-b\\":{\\"parentId\\":\\"productrecs-test\\",\\"@type\\":\\"core/cif/components/commerce/productlistitem\\",\\"dc:title\\":\\"My Product B\\",\\"xdm:SKU\\":\\"sku-b\\",\\"xdm:currencyCode\\":\\"CHF\\",\\"xdm:listPrice\\":342.23}}"
+      >
+        <a
+          title="My Product B"
+        >
+          <div
+            class="cardImage"
+          >
+            <img
+              alt="My Product B"
+              class="productImage"
+              src="http://localhost/product-b.png"
+            />
+          </div>
+          <div>
+            My Product B
+          </div>
+          <div
+            class="price"
+          >
+            from 
+            <span
+              class=""
+            >
+              CHF 342.23
+            </span>
+          </div>
+        </a>
+        <button
+          class="cmp-Trigger__trigger__root cmp-components__clickable__root"
+          type="button"
+        >
+          <span
+            class="addToCart"
+          >
+            Add to Cart
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
 exports[`ProductRecsGallery renders a list of products (with add to wish list) 1`] = `
 <DocumentFragment>
   <div

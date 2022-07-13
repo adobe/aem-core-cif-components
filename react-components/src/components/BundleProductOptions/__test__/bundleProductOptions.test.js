@@ -87,9 +87,10 @@ describe('BundleProductOptions', () => {
             });
         });
 
-        const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation(event => {
+        const eventHandler = jest.fn().mockImplementation(event => {
             return event.detail;
         });
+        document.addEventListener('aem.cif.add-to-cart', eventHandler);
 
         const bundleProductOptionsContainer = document.createElement('div');
         bundleProductOptionsContainer.dataset.sku = 'VA24';
@@ -115,10 +116,10 @@ describe('BundleProductOptions', () => {
         fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
 
         // Add to cart should be called just once since the second click was on a disabled button
-        await wait(() => expect(dispatchEventSpy).toHaveBeenCalledTimes(1));
+        await wait(() => expect(eventHandler).toHaveBeenCalledTimes(1));
 
         // The mock dispatchEvent function returns the CustomEvent detail
-        expect(dispatchEventSpy).toHaveReturnedWith([
+        expect(eventHandler).toHaveReturnedWith([
             {
                 bundle: true,
                 options: [
@@ -140,8 +141,6 @@ describe('BundleProductOptions', () => {
                 virtual: false
             }
         ]);
-
-        dispatchEventSpy.mockClear();
     });
 
     it('renders add to wish list button', async () => {
@@ -160,9 +159,10 @@ describe('BundleProductOptions', () => {
         bundleProductOptionsContainer.dataset.showAddToWishList = '';
         bundleProductOptionsContainer.id = 'bundle-product-options';
 
-        const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation(event => {
+        const eventHandler = jest.fn().mockImplementation(event => {
             return event.detail;
         });
+        document.addEventListener('aem.cif.add-to-wishlist', eventHandler);
 
         const { asFragment, container, getByRole } = render(<BundleProductOptions />, {
             config: config,
@@ -178,10 +178,10 @@ describe('BundleProductOptions', () => {
 
         fireEvent.click(getByRole('button', { name: 'Add to Wish List' }));
 
-        await wait(() => expect(dispatchEventSpy).toHaveBeenCalledTimes(1));
+        await wait(() => expect(eventHandler).toHaveBeenCalledTimes(1));
 
         // The mock dispatchEvent function returns the CustomEvent detail
-        expect(dispatchEventSpy).toHaveReturnedWith([
+        expect(eventHandler).toHaveReturnedWith([
             {
                 quantity: 1,
                 selected_options: [
@@ -194,7 +194,5 @@ describe('BundleProductOptions', () => {
                 sku: 'VA24'
             }
         ]);
-
-        dispatchEventSpy.mockClear();
     });
 });
