@@ -263,10 +263,15 @@ describe('Productcollection', () => {
                 </div>
             </div>`
         );
+        document.body.appendChild(listRoot);
 
         window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: 'https://foo.bar/graphql' });
         window.CIF.CommerceGraphqlApi.getProductPrices = sinon.stub().resolves(clientPrices);
         delete window.CIF.enableClientSidePriceLoading;
+    });
+
+    afterEach(() => {
+        document.body.childNodes.forEach(node => node.remove());
     });
 
     it('initializes a product list component', () => {

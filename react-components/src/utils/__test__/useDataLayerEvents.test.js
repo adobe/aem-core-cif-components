@@ -29,6 +29,7 @@ describe('useDataLayerEvents', () => {
         renderHook(() => useDataLayerEvents());
         act(() => {
             const customEvent = new CustomEvent('aem.cif.add-to-cart', {
+                bubbles: true,
                 detail: [{ productId: 'test-id', sku: 'test-sku', quantity: 1 }]
             });
             document.dispatchEvent(customEvent);
@@ -36,7 +37,6 @@ describe('useDataLayerEvents', () => {
 
         expect(pushEvent).toHaveBeenCalledTimes(1);
         expect(pushEvent).toHaveBeenCalledWith('cif:addToCart', {
-            '@id': 'test-id',
             'xdm:SKU': 'test-sku',
             'xdm:quantity': 1
         });
@@ -46,6 +46,7 @@ describe('useDataLayerEvents', () => {
         renderHook(() => useDataLayerEvents());
         act(() => {
             const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+                bubbles: true,
                 detail: [{ productId: 'test-id', sku: 'test-sku', quantity: 1 }]
             });
             document.dispatchEvent(customEvent);
@@ -53,9 +54,66 @@ describe('useDataLayerEvents', () => {
 
         expect(pushEvent).toHaveBeenCalledTimes(1);
         expect(pushEvent).toHaveBeenCalledWith('cif:addToWishList', {
-            '@id': 'test-id',
             'xdm:SKU': 'test-sku',
             'xdm:quantity': 1
+        });
+    });
+
+    it('includes the event targets component id as path', () => {
+        const button = document.createElement('button');
+        button.dataset.cmpDataLayer = JSON.stringify({ 'component-id-1234': {} });
+        document.body.appendChild(button);
+
+        renderHook(() => useDataLayerEvents());
+        act(() => {
+            const bubbles = true;
+            const detail = [{ productId: 'test-id', sku: 'test-sku', quantity: 1 }];
+            let customEvent = new CustomEvent('aem.cif.add-to-cart', { bubbles, detail });
+            button.dispatchEvent(customEvent);
+
+            customEvent = new CustomEvent('aem.cif.add-to-wishlist', { bubbles, detail });
+            button.dispatchEvent(customEvent);
+        });
+
+        expect(pushEvent).toHaveBeenCalledWith('cif:addToCart', {
+            'xdm:SKU': 'test-sku',
+            'xdm:quantity': 1,
+            path: 'component.component-id-1234'
+        });
+        expect(pushEvent).toHaveBeenCalledWith('cif:addToWishList', {
+            'xdm:SKU': 'test-sku',
+            'xdm:quantity': 1,
+            path: 'component.component-id-1234'
+        });
+    });
+
+    it('includes the event targets ancestors component id as path', () => {
+        const component = document.createElement('div');
+        const button = document.createElement('button');
+        component.dataset.cmpDataLayer = JSON.stringify({ 'parent-component-id-1234': {} });
+        component.appendChild(button);
+        document.body.appendChild(component);
+
+        renderHook(() => useDataLayerEvents());
+        act(() => {
+            const bubbles = true;
+            const detail = [{ productId: 'test-id', sku: 'test-sku', quantity: 1 }];
+            let customEvent = new CustomEvent('aem.cif.add-to-cart', { bubbles, detail });
+            button.dispatchEvent(customEvent);
+
+            customEvent = new CustomEvent('aem.cif.add-to-wishlist', { bubbles, detail });
+            button.dispatchEvent(customEvent);
+        });
+
+        expect(pushEvent).toHaveBeenCalledWith('cif:addToCart', {
+            'xdm:SKU': 'test-sku',
+            'xdm:quantity': 1,
+            path: 'component.parent-component-id-1234'
+        });
+        expect(pushEvent).toHaveBeenCalledWith('cif:addToWishList', {
+            'xdm:SKU': 'test-sku',
+            'xdm:quantity': 1,
+            path: 'component.parent-component-id-1234'
         });
     });
 });

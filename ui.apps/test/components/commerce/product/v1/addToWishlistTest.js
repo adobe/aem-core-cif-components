@@ -19,8 +19,7 @@ import AddToWishlist from '../../../../../src/main/content/jcr_root/apps/core/ci
 
 describe('Product', () => {
     describe('AddToWishlist', () => {
-        const dispatchEventSpy = sinon.spy();
-        const originalDispatchEvent = document.dispatchEvent;
+        const eventHandler = sinon.spy();
 
         let productRoot;
         let addToWishlistRoot;
@@ -40,16 +39,18 @@ describe('Product', () => {
             let body = document.querySelector('body');
             pageRoot = document.createElement('div');
             body.appendChild(pageRoot);
-            document.dispatchEvent = dispatchEventSpy;
+            document.addEventListener('aem.cif.add-to-cart', eventHandler);
+            document.addEventListener('aem.cif.add-to-wishlist', eventHandler);
         });
 
         after(() => {
             pageRoot.parentNode.removeChild(pageRoot);
-            document.dispatchEvent = originalDispatchEvent;
+            document.removeEventListener('aem.cif.add-to-cart', eventHandler);
+            document.removeEventListener('aem.cif.add-to-wishlist', eventHandler);
         });
 
         afterEach(() => {
-            dispatchEventSpy.resetHistory();
+            eventHandler.resetHistory();
         });
 
         it('dispatches an event on click', () => {
@@ -72,10 +73,10 @@ describe('Product', () => {
             let addToWishlist = new AddToWishlist({ element: addToWishlistRoot, product: productRoot });
             addToWishlistRoot.click();
 
-            sinon.assert.calledOnce(dispatchEventSpy);
-            assert.equal(dispatchEventSpy.getCall(0).args[0].type, 'aem.cif.add-to-wishlist');
-            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].sku, 'my-sample-sku');
-            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].quantity, 5);
+            sinon.assert.calledOnce(eventHandler);
+            assert.equal(eventHandler.getCall(0).args[0].type, 'aem.cif.add-to-wishlist');
+            assert.equal(eventHandler.getCall(0).args[0].detail[0].sku, 'my-sample-sku');
+            assert.equal(eventHandler.getCall(0).args[0].detail[0].quantity, 5);
         });
 
         it('dispatches an event on click for grouped product', () => {
@@ -98,10 +99,10 @@ describe('Product', () => {
             let addToWishlist = new AddToWishlist({ element: addToWishlistRoot, product: productRoot });
             addToWishlistRoot.click();
 
-            sinon.assert.calledOnce(dispatchEventSpy);
-            assert.equal(dispatchEventSpy.getCall(0).args[0].type, 'aem.cif.add-to-wishlist');
-            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].sku, 'parent-sku');
-            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].quantity, 1);
+            sinon.assert.calledOnce(eventHandler);
+            assert.equal(eventHandler.getCall(0).args[0].type, 'aem.cif.add-to-wishlist');
+            assert.equal(eventHandler.getCall(0).args[0].detail[0].sku, 'parent-sku');
+            assert.equal(eventHandler.getCall(0).args[0].detail[0].quantity, 1);
         });
 
         it('dispatches an event on click with variant selected', () => {
@@ -123,12 +124,12 @@ describe('Product', () => {
 
             let addToWishlist = new AddToWishlist({ element: addToWishlistRoot, product: productRoot });
             addToWishlistRoot.click();
-            sinon.assert.calledOnce(dispatchEventSpy);
+            sinon.assert.calledOnce(eventHandler);
 
-            assert.equal(dispatchEventSpy.getCall(0).args[0].type, 'aem.cif.add-to-wishlist');
-            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].parent_sku, 'my-sample-sku');
-            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].sku, 'my-sample-variant-sku');
-            assert.equal(dispatchEventSpy.getCall(0).args[0].detail[0].quantity, 4);
+            assert.equal(eventHandler.getCall(0).args[0].type, 'aem.cif.add-to-wishlist');
+            assert.equal(eventHandler.getCall(0).args[0].detail[0].parent_sku, 'my-sample-sku');
+            assert.equal(eventHandler.getCall(0).args[0].detail[0].sku, 'my-sample-variant-sku');
+            assert.equal(eventHandler.getCall(0).args[0].detail[0].quantity, 4);
         });
 
         it('dispatches no event if no product selected', () => {
@@ -151,7 +152,7 @@ describe('Product', () => {
             let addToWishlist = new AddToWishlist({ element: addToWishlistRoot, product: productRoot });
             addToWishlistRoot.click();
 
-            sinon.assert.notCalled(dispatchEventSpy);
+            sinon.assert.notCalled(eventHandler);
         });
     });
 });

@@ -39,13 +39,17 @@ class AddToWishlist {
     /**
      * Click event handler for add to whislist button.
      */
-    _onAddToWishlist() {
+    _onAddToWishlist(event) {
+        const target = event.currentTarget;
         const items = this._getEventDetail();
         if (items.length > 0 && window.CIF) {
             const customEvent = new CustomEvent(AddToWishlist.events.addToWishlist, {
+                bubbles: true,
                 detail: items
             });
-            document.dispatchEvent(customEvent);
+            target.dispatchEvent(customEvent);
+            event.preventDefault();
+            event.stopPropagation();
         }
     }
 

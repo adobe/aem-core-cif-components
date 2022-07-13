@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -54,6 +55,46 @@ class ProductsRetriever extends AbstractProductsRetriever {
         this.productCount = productCount;
     }
 
+    /**
+     * Lambda that allows to replace or extend the category filters.
+     */
+    private Function<CategoryFilterInput, CategoryFilterInput> categoryFilterHook;
+
+    /**
+     * Extends or replaces the category filter with a custom instance defined by a lambda hook.
+     *
+     * Example 1 (Extend):
+     *
+     * <pre>
+     * {@code
+     * productsRetriever.extendCategoryFilterWith(f -> f
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * Example 2 (Replace):
+     *
+     * <pre>
+     * {@code
+     * productsRetriever.extendCategoryFilterWith(f -> new CategoryFilterInput()
+     *     .setCategoryUid(new FilterEqualTypeInput()
+     *         .setEq("custom-uid"))
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * @param categoryFilterHook Lambda that extends or replaces the category filter.
+     */
+    public void extendCategoryFilterWith(Function<CategoryFilterInput, CategoryFilterInput> categoryFilterHook) {
+        if (this.categoryFilterHook == null) {
+            this.categoryFilterHook = categoryFilterHook;
+        } else {
+            this.categoryFilterHook = this.categoryFilterHook.andThen(categoryFilterHook);
+        }
+    }
+
     CategoryInterface fetchCategory() {
         fetchProducts();
 
@@ -63,9 +104,18 @@ class ProductsRetriever extends AbstractProductsRetriever {
     @Override
     protected String generateQuery(List<String> identifiers) {
         if (isCategoryQuery()) {
+            CategoryFilterInput categoryFilter = new CategoryFilterInput();
             FilterEqualTypeInput uidFilter = new FilterEqualTypeInput().setEq(categoryUid);
-            CategoryFilterInput categoryFilter = new CategoryFilterInput().setCategoryUid(uidFilter);
-            QueryQuery.CategoryListArgumentsDefinition categoryArgs = s -> s.filters(categoryFilter);
+            categoryFilter.setCategoryUid(uidFilter);
+
+            // Apply category filter hook
+            if (this.categoryFilterHook != null) {
+                categoryFilter = this.categoryFilterHook.apply(categoryFilter);
+            }
+
+            CategoryFilterInput finalCategoryFilter = categoryFilter;
+            QueryQuery.CategoryListArgumentsDefinition categoryArgs = s -> s.filters(finalCategoryFilter);
+
             CategoryTreeQuery.ProductsArgumentsDefinition productArgs = s -> s.currentPage(1).pageSize(productCount);
             return Operations.query(query -> query.categoryList(categoryArgs, generateCategoryListQuery(productArgs))).toString();
         } else {

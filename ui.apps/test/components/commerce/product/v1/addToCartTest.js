@@ -115,16 +115,15 @@ describe('Product', () => {
 
         it('dispatches an event on click', () => {
             let spy = sinon.spy();
-            let _originalDispatch = document.dispatchEvent;
-            document.dispatchEvent = spy;
+            document.addEventListener('aem.cif.add-to-cart', spy);
+
             let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
             addToCartRoot.click();
+
             sinon.assert.calledOnce(spy);
-            assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-cart');
             assert.equal(spy.getCall(0).args[0].detail[0].sku, addToCart._state.sku);
             assert.equal(spy.getCall(0).args[0].detail[0].quantity, 5);
             assert.isFalse(spy.getCall(0).args[0].detail[0].virtual);
-            document.dispatchEvent = _originalDispatch;
         });
 
         it('dispatches a virtual add to cart event', () => {
@@ -152,15 +151,13 @@ describe('Product', () => {
             productRoot = pageRoot.querySelector(AddToCart.selectors.product);
 
             let spy = sinon.spy();
-            let _originalDispatch = document.dispatchEvent;
-            document.dispatchEvent = spy;
+            document.addEventListener('aem.cif.add-to-cart', spy);
+
             let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
             addToCartRoot.click();
             sinon.assert.calledOnce(spy);
-            assert.equal(spy.getCall(0).args[0].type, 'aem.cif.add-to-cart');
             assert.equal(spy.getCall(0).args[0].detail[0].quantity, 4);
             assert.isTrue(spy.getCall(0).args[0].detail[0].virtual);
-            document.dispatchEvent = _originalDispatch;
         });
     });
 });
