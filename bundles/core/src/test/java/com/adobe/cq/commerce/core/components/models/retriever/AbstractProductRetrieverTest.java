@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 
 import java.util.Collections;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -24,6 +25,9 @@ import org.mockito.MockitoAnnotations;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Products;
@@ -93,5 +97,22 @@ public class AbstractProductRetrieverTest {
         assertNull(product);
 
         verify(client, times(1)).execute(any());
+    }
+
+    @Test
+    public void testExtendFilterWithHook() {
+        subject.extendProductFilterWith(f -> f.setName(new FilterMatchTypeInput().setMatch("my-name")));
+
+        String query = subject.generateQuery("abc");
+        Assert.assertEquals("{products(filter:{name:{match:\"my-name\"},sku:{eq:\"abc\"}}){items{__typename,sku}}}", query);
+    }
+
+    @Test
+    public void testReplaceAndExtendFilterWithHook() {
+        subject.extendProductFilterWith(f -> new ProductAttributeFilterInput().setUrlKey(new FilterEqualTypeInput().setEq("my-product")));
+        subject.extendProductFilterWith(f -> f.setName(new FilterMatchTypeInput().setMatch("my-name")));
+
+        String query = subject.generateQuery("abc");
+        Assert.assertEquals("{products(filter:{name:{match:\"my-name\"},url_key:{eq:\"my-product\"}}){items{__typename,sku}}}", query);
     }
 }

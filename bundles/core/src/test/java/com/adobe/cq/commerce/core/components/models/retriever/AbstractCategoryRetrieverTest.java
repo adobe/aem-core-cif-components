@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 
 import java.util.Collections;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -24,8 +25,11 @@ import org.mockito.MockitoAnnotations;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
@@ -89,5 +93,22 @@ public class AbstractCategoryRetrieverTest {
         assertNull(category);
 
         verify(client, times(1)).execute(any());
+    }
+
+    @Test
+    public void testExtendFilterWithHook() {
+        subject.extendCategoryFilterWith(f -> f.setName(new FilterMatchTypeInput().setMatch("my-name")));
+
+        String query = subject.generateQuery("abc");
+        Assert.assertEquals("{categoryList(filters:{category_uid:{eq:\"abc\"},name:{match:\"my-name\"}}){uid}}", query);
+    }
+
+    @Test
+    public void testReplaceAndExtendFilterWithHook() {
+        subject.extendCategoryFilterWith(f -> new CategoryFilterInput().setUrlPath(new FilterEqualTypeInput().setEq("a/b/my-category")));
+        subject.extendCategoryFilterWith(f -> f.setName(new FilterMatchTypeInput().setMatch("my-name")));
+
+        String query = subject.generateQuery("abc");
+        Assert.assertEquals("{categoryList(filters:{name:{match:\"my-name\"},url_path:{eq:\"a/b/my-category\"}}){uid}}", query);
     }
 }
