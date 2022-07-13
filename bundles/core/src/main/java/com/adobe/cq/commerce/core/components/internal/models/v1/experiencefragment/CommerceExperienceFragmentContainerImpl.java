@@ -13,28 +13,30 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-package com.adobe.cq.commerce.core.components.models.common;
-
-import javax.annotation.Nullable;
+package com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment;
 
 import org.apache.sling.api.resource.Resource;
 
-import com.adobe.cq.wcm.core.components.models.Component;
+import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragmentContainer;
 
-/**
- * Interface for an Experience Fragment container to be used in a
- * {@code ProductList}
- */
-public interface CommerceExperienceFragmentContainer extends Component {
+public class CommerceExperienceFragmentContainerImpl implements CommerceExperienceFragmentContainer {
 
-    @Nullable
-    String getCssClassName();
+    private Resource renderResource;
+    private String cssClassName;
 
-    /**
-     * Returns the ExperienceFragment resource to be rendered.
-     *
-     * @return the ExperienceFragment resource to be rendered or {@code null}
-     */
-    @Nullable
-    Resource getRenderResource();
+    public CommerceExperienceFragmentContainerImpl(Resource renderResource, String cssClassName) {
+        this.renderResource = renderResource;
+        this.cssClassName = cssClassName;
+    }
+
+    @Override
+    public Resource getRenderResource() {
+        return renderResource;
+    }
+
+    @Override
+    public String getCssClassName() {
+        return cssClassName;
+    }
+
 }

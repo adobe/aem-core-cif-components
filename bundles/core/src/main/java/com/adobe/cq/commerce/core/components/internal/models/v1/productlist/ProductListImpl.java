@@ -48,14 +48,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceExperienceFragmentContainerImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment.CommerceExperienceFragmentContainerImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment.CommerceExperienceFragmentImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcollection.ProductCollectionImpl;
 import com.adobe.cq.commerce.core.components.internal.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.CategoryStorefrontContextImpl;
-import com.adobe.cq.commerce.core.components.models.common.CommerceExperienceFragmentContainer;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragmentContainer;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
@@ -168,7 +168,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                 Iterable<Resource> configuredFragments = fragmentsNode.getChildren();
                 for (Resource fragment : configuredFragments) {
                     ValueMap fragmentVm = fragment.getValueMap();
-                    Integer fragmentPage = fragmentVm.get(PN_FRAGMENT_PAGE, Integer.class);
+                    Integer fragmentPage = fragmentVm.get(PN_FRAGMENT_PAGE, -1);
                     if (fragmentPage.equals(currentPageIndex)) {
                         String fragmentCssClass = fragment.getValueMap().get(PN_FRAGMENT_CSS_CLASS, String.class);
                         ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(
