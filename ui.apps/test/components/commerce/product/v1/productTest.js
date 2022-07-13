@@ -144,7 +144,7 @@ describe('Product v1', () => {
             assert.isFalse(product._state.loadPrices);
         });
 
-        it('changes variant when receiving variantchanged event', () => {
+        it('changes variant when receiving variantchanged event', async () => {
             let product = new Product({ element: productRoot });
 
             // Send event
@@ -162,6 +162,9 @@ describe('Product v1', () => {
             });
             productRoot.dispatchEvent(changeEvent);
 
+            // wait for the async update to be applied
+            await new Promise(r => setTimeout(r, 20));
+
             // Check state
             assert.equal(product._state.sku, variant.sku);
 
@@ -177,7 +180,7 @@ describe('Product v1', () => {
             assert.equal(description, variant.description);
         });
 
-        it('changes variant with client-side price when receiving variantchanged event', () => {
+        it('changes variant with client-side price when receiving variantchanged event', async () => {
             let product = new Product({ element: productRoot });
             product._state.prices = {
                 'variant-sku': convertedPrices['sample-sku']
@@ -192,6 +195,9 @@ describe('Product v1', () => {
                 }
             });
             productRoot.dispatchEvent(changeEvent);
+
+            // wait for the async update to be applied
+            await new Promise(r => setTimeout(r, 20));
 
             // Check fields
             let price = productRoot.querySelector(Product.selectors.price).innerText;

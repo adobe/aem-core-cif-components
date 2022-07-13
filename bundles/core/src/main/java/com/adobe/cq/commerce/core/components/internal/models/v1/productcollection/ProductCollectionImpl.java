@@ -114,8 +114,7 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
 
         addToCartEnabled = currentStyle.get(PN_ENABLE_ADD_TO_CART, ENABLE_ADD_TO_CART_DEFAULT);
 
-        addToWishListEnabled = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS,
-            ENABLE_ADD_TO_WISH_LIST_DEFAULT) : ENABLE_ADD_TO_WISH_LIST_DEFAULT);
+        addToWishListEnabled = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS, Boolean.TRUE) : Boolean.TRUE);
         addToWishListEnabled = addToWishListEnabled && currentStyle.get(PN_ENABLE_ADD_TO_WISH_LIST, ENABLE_ADD_TO_WISH_LIST_DEFAULT);
     }
 

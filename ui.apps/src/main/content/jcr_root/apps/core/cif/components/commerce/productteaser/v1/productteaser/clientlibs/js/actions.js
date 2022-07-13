@@ -55,31 +55,40 @@ class ProductTeaser {
                     return;
             }
 
-            actionButton.addEventListener('click', e => {
-                actionHandler.call(this, e.target.dataset);
-            });
+            actionButton.addEventListener('click', event => actionHandler.call(this, event));
         });
 
         this.loadPrices && this._fetchPrices(allBaseSkus || [this.sku], queryVariants);
     }
 
-    _addToCartHandler(dataset) {
+    _addToCartHandler(event) {
+        const target = event.currentTarget;
+        const dataset = target.dataset;
         const sku = dataset.itemSku;
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
+            bubbles: true,
             detail: [{ sku, quantity: 1, virtual: this.virtual }]
         });
-        document.dispatchEvent(customEvent);
+        target.dispatchEvent(customEvent);
+        event.preventDefault();
+        event.stopPropagation();
     }
 
-    _addToWishlistHandler(dataset) {
+    _addToWishlistHandler(event) {
+        const target = event.currentTarget;
+        const dataset = target.dataset;
         const sku = dataset.itemSku;
         const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+            bubbles: true,
             detail: [{ sku, quantity: 1 }]
         });
-        document.dispatchEvent(customEvent);
+        target.dispatchEvent(customEvent);
+        event.preventDefault();
+        event.stopPropagation();
     }
 
-    _seeDetailsHandler(dataset) {
+    _seeDetailsHandler(event) {
+        const dataset = event.currentTarget.dataset;
         const url = dataset.url;
         const target = dataset.target;
         if (target) {

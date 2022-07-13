@@ -18,13 +18,14 @@ package com.adobe.cq.commerce.extensions.recommendations.models.productrecommend
 import org.osgi.annotation.versioning.ConsumerType;
 
 import com.adobe.cq.commerce.extensions.recommendations.models.common.PriceRange;
+import com.adobe.cq.wcm.core.components.models.Component;
 
 /**
  * Sling model for a product recommendation component
  * The model holds all the configured options
  */
 @ConsumerType
-public interface ProductRecommendations {
+public interface ProductRecommendations extends Component {
 
     boolean getPreconfigured();
 

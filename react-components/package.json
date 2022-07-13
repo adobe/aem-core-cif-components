@@ -19,6 +19,7 @@
     "webpack:dev": "npm run i18n:extract-compile && webpack --mode=development",
     "webpack:prod": "npm run i18n:extract-compile && webpack --mode=production && node css-template.js",
     "test": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --coverage",
+    "jest": "jest --coverage",
     "ci": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --ci --runInBand --coverage",
     "test:watch": "npm run i18n:extract-compile && npm run lint && jest --watch",
     "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
