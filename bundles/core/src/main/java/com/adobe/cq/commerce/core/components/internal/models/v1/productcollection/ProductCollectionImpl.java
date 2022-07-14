@@ -57,6 +57,7 @@ import static com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImp
 public class ProductCollectionImpl extends DataLayerComponent implements ProductCollection {
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/productcollection/v1/productcollection";
+    public static final String RESOURCE_TYPE_V2 = "core/cif/components/commerce/productcollection/v2/productcollection";
 
     protected static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
     protected static final boolean ENABLE_ADD_TO_CART_DEFAULT = false;
