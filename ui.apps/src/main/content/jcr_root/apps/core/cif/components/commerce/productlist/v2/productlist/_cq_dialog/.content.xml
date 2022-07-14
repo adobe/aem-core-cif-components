@@ -65,6 +65,9 @@
                         composite="{Boolean}true"
                         fieldDescription="Allows insertion of Experience Fragments at specified positions"
                         fieldLabel="Experince Fragment placeholders">
+                        <granite:rendercondition 
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core/cif/components/commerce/renderconditions/productlistxfstyles/v1"/>
                         <field
                             granite:class="cmp-productcollection__editor-xf_setting"
                             jcr:primaryType="nt:unstructured"
@@ -94,8 +97,7 @@
                                     name="fragmentCssClass">
                                     <datasource
                                         jcr:primaryType="nt:unstructured"
-                                        sling:resourceType="core/cif/components/commerce/datasources/productlistxfstyles/v1"
-                                        componentPath="${requestPathInfo.suffix}"/>
+                                        sling:resourceType="core/cif/components/commerce/datasources/productlistxfstyles/v1"/>
                                 </titleType>
                             </items>
                         </field>
