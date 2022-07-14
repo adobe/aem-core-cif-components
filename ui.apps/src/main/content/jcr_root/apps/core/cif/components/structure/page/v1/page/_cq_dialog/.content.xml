@@ -47,6 +47,8 @@
                                             <categoryPageCondition jcr:primaryType="nt:unstructured"
                                                 sling:resourceType="core/cif/components/renderconditions/pagetype"
                                                 pageType="category"/>
+                                            <navRootCondition jcr:primaryType="nt:unstructured"
+                                                sling:resourceType="core/cif/components/renderconditions/showNavRoot"/>
                                         </granite:rendercondition>
                                         <items jcr:primaryType="nt:unstructured">
                                             <products
