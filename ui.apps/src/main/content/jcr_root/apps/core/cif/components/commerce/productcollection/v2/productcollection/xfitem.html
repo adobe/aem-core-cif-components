@@ -13,6 +13,6 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.item="${@ item}">
     <span class="${'productcollection__item-xf {0}' @ format=[item.cssClassName], context='text'}">
-        <sly data-sly-resource="${item.renderResource}" />
+        <sly data-sly-resource="${item.renderResource @ wcmmode='disabled'}" />
     </span>
 </template>
