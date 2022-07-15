@@ -19,6 +19,8 @@ export default gql`
     query giftCardProduct($sku: String!) {
         products(filter: { sku: { eq: $sku } }) {
             items {
+                id
+                uid
                 sku
                 __typename
                 name

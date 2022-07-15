@@ -5,6 +5,7 @@
         {
           "sku": "24-WG080",
           "__typename": "BundleProduct",
+          "uid": "Zm9vYmFy",
           "name": "Sprite Yoga Companion Kit",
           "dynamic_sku": true,
           "dynamic_price": true,
@@ -30,6 +31,7 @@
                   "can_change_quantity": true,
                   "label": "Sprite Stasis Ball 55 cm",
                   "product": {
+                    "uid": "MQ==",
                     "__typename": "SimpleProduct",
                     "price_range": {
                       "maximum_price": {
@@ -51,6 +53,7 @@
                   "can_change_quantity": true,
                   "label": "Sprite Stasis Ball 65 cm",
                   "product": {
+                    "uid": "Mg==",
                     "__typename": "SimpleProduct",
                     "price_range": {
                       "maximum_price": {
@@ -72,6 +75,7 @@
                   "can_change_quantity": true,
                   "label": "Sprite Stasis Ball 75 cm",
                   "product": {
+                    "uid": "Mw==",
                     "__typename": "SimpleProduct",
                     "price_range": {
                       "maximum_price": {
@@ -103,6 +107,7 @@
                   "can_change_quantity": true,
                   "label": "Sprite Foam Yoga Brick",
                   "product": {
+                    "uid": "NA==",
                     "__typename": "SimpleProduct",
                     "price_range": {
                       "maximum_price": {
@@ -134,6 +139,7 @@
                   "can_change_quantity": true,
                   "label": "Sprite Yoga Strap 6 foot",
                   "product": {
+                    "uid": "NQ==",
                     "__typename": "SimpleProduct",
                     "price_range": {
                       "maximum_price": {
@@ -155,6 +161,7 @@
                   "can_change_quantity": true,
                   "label": "Sprite Yoga Strap 8 foot",
                   "product": {
+                    "uid": "Ng==",
                     "__typename": "SimpleProduct",
                     "price_range": {
                       "maximum_price": {
@@ -176,6 +183,7 @@
                   "can_change_quantity": true,
                   "label": "Sprite Yoga Strap 10 foot",
                   "product": {
+                    "uid": "Nw==",
                     "__typename": "SimpleProduct",
                     "price_range": {
                       "maximum_price": {
@@ -207,6 +215,7 @@
                   "can_change_quantity": true,
                   "label": "Sprite Foam Roller",
                   "product": {
+                    "uid": "OA==",
                     "__typename": "SimpleProduct",
                     "price_range": {
                       "maximum_price": {
