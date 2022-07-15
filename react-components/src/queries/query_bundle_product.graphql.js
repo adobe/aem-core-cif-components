@@ -22,6 +22,7 @@ export default gql`
                 sku
                 __typename
                 id
+                uid
                 name
                 ... on BundleProduct {
                     dynamic_sku
@@ -46,6 +47,7 @@ export default gql`
                             can_change_quantity
                             label
                             product {
+                                uid
                                 price_range {
                                     maximum_price {
                                         final_price {

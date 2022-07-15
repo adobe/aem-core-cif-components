@@ -5,6 +5,7 @@
         {
           "__typename": "BundleProduct",
           "sku": "24-WG080",
+          "uid": "Zm9vYmFy",
           "staged": false,
           "name": "Sprite Yoga Companion Kit",
           "description": {
