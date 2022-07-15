@@ -100,13 +100,13 @@ public class CommerceExperienceFragmentImplTest {
 
         Utils.setupHttpResponse("graphql/magento-graphql-xf1-category.json", httpClient, HttpStatus.SC_OK, "1\"}}){uid}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf1-product.json", httpClient, HttpStatus.SC_OK,
-            "1\"}}){items{__typename,sku,url_key}}}");
+            "1\"}}){items{__typename,sku}}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf2-category.json", httpClient, HttpStatus.SC_OK, "2\"}}){uid}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf2-product.json", httpClient, HttpStatus.SC_OK,
-            "2\"}}){items{__typename,sku,url_key}}}");
+            "2\"}}){items{__typename,sku}}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf3-category.json", httpClient, HttpStatus.SC_OK, "3\"}}){uid}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf3-product.json", httpClient, HttpStatus.SC_OK,
-            "3\"}}){items{__typename,sku,url_key}}}");
+            "3\"}}){items{__typename,sku}}}");
 
         ValueMap mockConfig = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
             "my-store", "enableUIDSupport", "true"));

@@ -27,6 +27,7 @@ import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -51,7 +52,7 @@ class UrlToProductRetriever extends AbstractProductRetriever {
 
     @Override
     protected ProductInterfaceQueryDefinition generateProductQuery() {
-        return q -> q.sku().urlKey();
+        return ProductInterfaceQuery::sku;
     }
 
     @Override
