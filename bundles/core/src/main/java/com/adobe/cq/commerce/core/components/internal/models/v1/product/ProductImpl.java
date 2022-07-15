@@ -222,7 +222,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
             productRetriever = new ProductRetriever(magentoGraphqlClient);
             productRetriever.setIdentifier(sku);
         } else {
-            UnaryOperator<ProductAttributeFilterInput> queryHook = urlProvider.getProductIdentifierFilterHook(request);
+            UnaryOperator<ProductAttributeFilterInput> queryHook = urlProvider.getProductFilterHook(request);
 
             if (queryHook != null) {
                 productRetriever = new ProductRetriever(magentoGraphqlClient);

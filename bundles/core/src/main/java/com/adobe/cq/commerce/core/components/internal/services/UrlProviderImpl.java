@@ -484,7 +484,7 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     @Override
-    public UnaryOperator<ProductAttributeFilterInput> getProductIdentifierFilterHook(SlingHttpServletRequest request) {
+    public UnaryOperator<ProductAttributeFilterInput> getProductFilterHook(SlingHttpServletRequest request) {
         Page page = getCurrentPage(request);
         ProductUrlFormat format = getProductUrlFormatFromContext(request, page);
         ProductUrlFormat.Params params = format.parse(request.getRequestPathInfo(), request.getRequestParameterMap());

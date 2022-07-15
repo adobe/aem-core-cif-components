@@ -218,8 +218,8 @@ public interface UrlProvider {
     String getProductIdentifier(SlingHttpServletRequest request);
 
     /**
-     * Returns a hook that replaces a given {@link ProductAttributeFilterInput} with a new one constructed from the identifiers available
-     * by the given request.
+     * Returns a hook that replaces a given {@link ProductAttributeFilterInput} with a new instance constructed from the identifiers
+     * available by the given request.
      * <p>
      * The hook can be passed to
      * {@link com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever#extendProductFilterWith(Function)} or
@@ -228,7 +228,7 @@ public interface UrlProvider {
      * @param request the current request
      * @return a unary operator that excepts a {@link ProductAttributeFilterInput} and returns a new instance to replace it
      */
-    UnaryOperator<ProductAttributeFilterInput> getProductIdentifierFilterHook(SlingHttpServletRequest request);
+    UnaryOperator<ProductAttributeFilterInput> getProductFilterHook(SlingHttpServletRequest request);
 
     /**
      * Parses and returns the {@link ProductUrlFormat.Params} used in the given {@link SlingHttpServletRequest} based on the URLProvider

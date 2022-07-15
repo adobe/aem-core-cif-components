@@ -105,7 +105,7 @@ public class RelatedProductsImpl extends ProductCarouselBase {
             productSku = product; // The picker is configured to return the SKU
             productsRetriever.setIdentifiers(Collections.singletonList(productSku));
         } else {
-            productsRetriever.extendProductFilterWith(urlProvider.getProductIdentifierFilterHook(request));
+            productsRetriever.extendProductFilterWith(urlProvider.getProductFilterHook(request));
         }
     }
 

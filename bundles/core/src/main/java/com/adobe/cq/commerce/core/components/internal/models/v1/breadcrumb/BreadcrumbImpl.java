@@ -293,7 +293,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
 
     private List<? extends CategoryInterface> fetchProductBreadcrumbs() {
         retriever = new BreadcrumbRetriever(magentoGraphqlClient);
-        retriever.setProductIdentifierHook(urlProvider.getProductIdentifierFilterHook(request));
+        retriever.setProductIdentifierHook(urlProvider.getProductFilterHook(request));
 
         List<? extends CategoryInterface> categories = retriever.fetchCategoriesBreadcrumbs();
         ProductUrlFormat.Params urlParams = urlProvider.parseProductUrlFormatParameters(request);
