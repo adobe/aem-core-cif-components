@@ -417,11 +417,11 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final Consumer<ProductInterfaceQuery> productQueryHook) {
         return (ProductInterfaceQuery q) -> {
             q.sku()
-                .name()
-                .smallImage(i -> i.url())
                 .urlKey()
                 .urlPath()
                 .urlRewrites(uq -> uq.url())
+                .name()
+                .smallImage(i -> i.url())
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp
