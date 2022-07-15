@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -61,6 +62,8 @@ import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.dam.cfm.content.FragmentRenderService;
 import com.day.cq.wcm.api.Page;
@@ -478,6 +481,24 @@ public class UrlProviderImpl implements UrlProvider {
         }
 
         return identifier;
+    }
+
+    @Override
+    public UnaryOperator<ProductAttributeFilterInput> getProductIdentifierFilterHook(SlingHttpServletRequest request) {
+        Page page = getCurrentPage(request);
+        ProductUrlFormat format = getProductUrlFormatFromContext(request, page);
+        ProductUrlFormat.Params params = format.parse(request.getRequestPathInfo(), request.getRequestParameterMap());
+
+        if (StringUtils.isNotEmpty(params.getSku())) {
+            FilterEqualTypeInput eq = new FilterEqualTypeInput().setEq(params.getSku());
+            return input -> new ProductAttributeFilterInput().setSku(eq);
+        } else if (StringUtils.isNotEmpty(params.getUrlKey())) {
+            FilterEqualTypeInput eq = new FilterEqualTypeInput().setEq(params.getUrlKey());
+            return input -> new ProductAttributeFilterInput().setUrlKey(eq);
+        } else {
+            // no usable filter input known
+            return null;
+        }
     }
 
     @Override

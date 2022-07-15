@@ -399,7 +399,7 @@ public class BreadcrumbImplTest {
     @Test
     public void testGraphqlClientError() throws Exception {
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
-        Utils.setupHttpErrorResponse(httpClient, 404, "{products(filter:{sku");
+        Utils.setupHttpErrorResponse(httpClient, 404, "{products(filter:{url_key");
         prepareModel("/content/venia/us/en/products/product-page");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();

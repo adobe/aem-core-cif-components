@@ -161,20 +161,19 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         ProductInterface product = null;
 
         if (siteStructure.isProductPage(page)) {
-            String productSku = urlProvider.getProductIdentifier(request);
-            if (StringUtils.isEmpty(productSku)) {
-                return false;
-            }
-            ProductUrlFormat.Params urlParams = urlProvider.parseProductUrlFormatParameters(request);
-            categoriesBreadcrumbs = fetchProductBreadcrumbs(productSku, urlParams, magentoGraphqlClient);
+            categoriesBreadcrumbs = fetchProductBreadcrumbs();
             product = retriever.fetchProduct();
             isProductPage = true;
+
+            if (product == null) {
+                return false;
+            }
         } else if (siteStructure.isCategoryPage(page)) {
             String categoryUid = urlProvider.getCategoryIdentifier(request);
             if (StringUtils.isEmpty(categoryUid)) {
                 return false;
             }
-            categoriesBreadcrumbs = fetchCategoryBreadcrumbs(categoryUid, magentoGraphqlClient);
+            categoriesBreadcrumbs = fetchCategoryBreadcrumbs(categoryUid);
             isCategoryPage = true;
         } else {
             // we reached a content page
@@ -292,12 +291,12 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             .reversed();
     }
 
-    private List<? extends CategoryInterface> fetchProductBreadcrumbs(String productSku, ProductUrlFormat.Params urlParams,
-        MagentoGraphqlClient magentoGraphqlClient) {
+    private List<? extends CategoryInterface> fetchProductBreadcrumbs() {
         retriever = new BreadcrumbRetriever(magentoGraphqlClient);
-        retriever.setProductIdentifier(productSku);
+        retriever.setProductIdentifierHook(urlProvider.getProductIdentifierFilterHook(request));
 
         List<? extends CategoryInterface> categories = retriever.fetchCategoriesBreadcrumbs();
+        ProductUrlFormat.Params urlParams = urlProvider.parseProductUrlFormatParameters(request);
         List<String> alternatives = categories.stream().map(CategoryInterface::getUrlPath).collect(Collectors.toList());
         String contextUrlPath = UrlFormatBase.selectUrlPath(null, alternatives, null, urlParams.getCategoryUrlParams().getUrlKey(),
             urlParams.getCategoryUrlParams().getUrlPath());
@@ -311,7 +310,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             .collect(Collectors.toList());
     }
 
-    private List<? extends CategoryInterface> fetchCategoryBreadcrumbs(String categoryUid, MagentoGraphqlClient magentoGraphqlClient) {
+    private List<? extends CategoryInterface> fetchCategoryBreadcrumbs(String categoryUid) {
         retriever = new BreadcrumbRetriever(magentoGraphqlClient);
         retriever.setCategoryIdentifier(categoryUid);
 

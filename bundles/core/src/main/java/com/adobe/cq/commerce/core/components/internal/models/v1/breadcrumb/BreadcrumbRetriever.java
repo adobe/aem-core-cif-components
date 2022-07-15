@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.breadcrumb;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -42,7 +43,7 @@ class BreadcrumbRetriever extends AbstractRetriever {
     private List<? extends CategoryInterface> categories;
     private Optional<ProductInterface> product;
 
-    private String productIdentifier;
+    private UnaryOperator<ProductAttributeFilterInput> productIdentifierHook;
 
     private String categoryIdentifier;
 
@@ -65,7 +66,7 @@ class BreadcrumbRetriever extends AbstractRetriever {
 
     /**
      * Executes the GraphQL query and returns the name of the product.
-     * This assumes that {@link #setProductIdentifier(String)} has been called before.
+     * This assumes that {@link #setProductIdentifierHook(UnaryOperator)} has been called before.
      * For subsequent calls of this method, a cached response is returned.
      *
      * @return The product name.
@@ -80,10 +81,10 @@ class BreadcrumbRetriever extends AbstractRetriever {
     /**
      * Set the sku of the product that should be fetched. Setting the a new product, removes any cached data.
      *
-     * @param productIdentifier The product sku.
+     * @param inputHook The product sku.
      */
-    protected void setProductIdentifier(String productIdentifier) {
-        this.productIdentifier = productIdentifier;
+    protected void setProductIdentifierHook(UnaryOperator<ProductAttributeFilterInput> inputHook) {
+        this.productIdentifierHook = inputHook;
     }
 
     /**
@@ -98,7 +99,7 @@ class BreadcrumbRetriever extends AbstractRetriever {
 
     @Override
     protected void populate() {
-        if (productIdentifier == null && categoryIdentifier == null) {
+        if (productIdentifierHook == null && categoryIdentifier == null) {
             categories = Collections.emptyList();
             product = Optional.empty();
             return;
@@ -114,24 +115,29 @@ class BreadcrumbRetriever extends AbstractRetriever {
 
         Query rootQuery = response.getData();
 
-        if (productIdentifier != null) {
+        if (productIdentifierHook != null) {
             List<ProductInterface> products = rootQuery
                 .getProducts()
                 .getItems();
 
             if (products.size() > 0) {
-                product = Optional.of(products.get(0));
-                categories = product.get().getCategories();
+                ProductInterface p = products.get(0);
+                categories = p.getCategories();
+                product = Optional.of(p);
+            } else {
+                categories = Collections.emptyList();
+                product = Optional.empty();
             }
         } else {
             categories = rootQuery.getCategoryList();
+            product = Optional.empty();
         }
     }
 
     @Override
     protected GraphqlResponse<Query, Error> executeQuery() {
         if (query == null) {
-            if (productIdentifier != null) {
+            if (productIdentifierHook != null) {
                 query = generateProductQuery();
             } else {
                 query = generateCategoryQuery();
@@ -146,8 +152,7 @@ class BreadcrumbRetriever extends AbstractRetriever {
      * @return GraphQL query as string
      */
     protected String generateProductQuery() {
-        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(productIdentifier);
-        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(identifierFilter);
+        ProductAttributeFilterInput filter = productIdentifierHook.apply(new ProductAttributeFilterInput());
 
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
