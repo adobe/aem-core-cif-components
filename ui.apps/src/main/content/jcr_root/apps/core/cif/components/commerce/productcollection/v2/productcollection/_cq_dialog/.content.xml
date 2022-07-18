@@ -5,11 +5,14 @@
     jcr:primaryType="nt:unstructured"
     jcr:title="Product Collection"
     sling:resourceType="cq/gui/components/authoring/dialog"
-    trackingFeature="cif-core-components:productcollection:v1">
+    trackingFeature="cif-core-components:productcollection:v2">
     <content
         jcr:primaryType="nt:unstructured"
+        granite:class="cmp-productcollection__editor"
         sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
         margin="{Boolean}false">
+        <granite:data jcr:primaryType="nt:unstructured"
+            cmp-is="productcollection-editor" />
         <items jcr:primaryType="nt:unstructured">
             <column
                 jcr:primaryType="nt:unstructured"

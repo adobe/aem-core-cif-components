@@ -39,6 +39,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
+import com.adobe.cq.commerce.core.components.internal.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.product.Product;
@@ -94,6 +95,8 @@ public class PageMetadataImplTest {
             // TODO: CIF-2469
             Whitebox.setInternalState(componentModelFinder, "modelFactory", context.getService(ModelFactory.class));
             context.registerService(CommerceComponentModelFinder.class, componentModelFinder);
+
+            context.registerService(CommerceExperienceFragmentsRetriever.class, mock(CommerceExperienceFragmentsRetriever.class));
         })
         .build();
 

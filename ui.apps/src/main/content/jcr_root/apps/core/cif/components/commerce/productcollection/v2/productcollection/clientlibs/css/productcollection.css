@@ -85,6 +85,10 @@
     grid-template-rows: max-content;
 }
 
+.productcollection__item-xf {
+    grid-column: 1/-1;
+}
+
 .productcollection__item-image {
     height: auto;
     width: 100%;

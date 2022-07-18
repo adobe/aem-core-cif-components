@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -33,9 +34,12 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingScriptHelper;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
+import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
@@ -44,10 +48,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment.CommerceExperienceFragmentContainerImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment.CommerceExperienceFragmentImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.productcollection.ProductCollectionImpl;
+import com.adobe.cq.commerce.core.components.internal.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.CategoryStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragmentContainer;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
@@ -65,14 +73,15 @@ import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.adobe.granite.ui.components.ValueMapResourceWrapper;
 
-@Model(
-    adaptables = SlingHttpServletRequest.class,
-    adapters = ProductList.class,
-    resourceType = ProductListImpl.RESOURCE_TYPE)
+@Model(adaptables = SlingHttpServletRequest.class, adapters = ProductList.class, resourceType = ProductListImpl.RESOURCE_TYPE)
 public class ProductListImpl extends ProductCollectionImpl implements ProductList {
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v1/productlist";
+    public static final String PN_FRAGMENT_LOCATION = "fragmentLocation";
+    public static final String PN_FRAGMENT_CSS_CLASS = "fragmentCssClass";
+    public static final String PN_FRAGMENT_PAGE = "fragmentPage";
     protected static final String PLACEHOLDER_DATA = "productlist-component-placeholder-data.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
@@ -85,7 +94,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     private boolean showTitle;
     private boolean showImage;
 
-    // This script variable is not injected when the model is instantiated in SpecificPageServlet
+    // This script variable is not injected when the model is instantiated in
+    // SpecificPageServlet
     @ScriptVariable(name = "wcmmode", injectionStrategy = InjectionStrategy.OPTIONAL)
     private SightlyWCMMode wcmMode = null;
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
@@ -95,12 +105,17 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @ValueMapValue(name = CATEGORY_PROPERTY, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String categoryUid;
 
+    @OSGiService
+    private CommerceExperienceFragmentsRetriever fragmentsRetriever;
+
     protected AbstractCategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
     private boolean isAuthor;
     private String canonicalUrl;
 
     private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
+
+    protected List<CommerceExperienceFragmentContainer> fragments = new ArrayList<>();
 
     @PostConstruct
     protected void initModel() {
@@ -113,13 +128,15 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         isAuthor = wcmMode != null && !wcmMode.isDisabled();
 
         String currentPageIndexCandidate = request.getParameter(SearchOptionsImpl.CURRENT_PAGE_PARAMETER_ID);
-        // make sure the current page from the query string is reasonable i.e. numeric and over 0
+        // make sure the current page from the query string is reasonable i.e. numeric
+        // and over 0
         Integer currentPageIndex = calculateCurrentPageCursor(currentPageIndexCandidate);
 
         Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
 
         if (StringUtils.isBlank(categoryUid)) {
-            // If not provided via the category property extract category identifier from URL
+            // If not provided via the category property extract category identifier from
+            // URL
             categoryUid = urlProvider.getCategoryIdentifier(request);
         }
 
@@ -146,6 +163,30 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         if (usePlaceholderData) {
             searchResultsSet = new SearchResultsSetImpl();
         } else {
+            Resource fragmentsNode = resource.getChild(ProductList.NN_FRAGMENTS);
+            if (fragmentsNode != null && fragmentsNode.hasChildren()) {
+                Iterable<Resource> configuredFragments = fragmentsNode.getChildren();
+                for (Resource fragment : configuredFragments) {
+                    ValueMap fragmentVm = fragment.getValueMap();
+                    Integer fragmentPage = fragmentVm.get(PN_FRAGMENT_PAGE, -1);
+                    if (fragmentPage.equals(currentPageIndex)) {
+                        String fragmentCssClass = fragment.getValueMap().get(PN_FRAGMENT_CSS_CLASS, String.class);
+                        ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(
+                            fragment,
+                            CommerceExperienceFragmentImpl.RESOURCE_TYPE);
+                        String fragmentLocation = fragment.getValueMap().get(PN_FRAGMENT_LOCATION,
+                            String.class);
+                        resourceWrapper.getValueMap().put(PN_FRAGMENT_LOCATION, fragmentLocation);
+                        if (!fragmentsRetriever
+                            .getExperienceFragmentsForCategory(categoryUid, fragmentLocation, currentPage)
+                            .isEmpty()) {
+                            fragments.add(new CommerceExperienceFragmentContainerImpl(resourceWrapper,
+                                fragmentCssClass));
+                        }
+                    }
+                }
+            }
+
             searchOptions = new SearchOptionsImpl();
             searchOptions.setCurrentPage(currentPageIndex);
             searchOptions.setPageSize(navPageSize);
@@ -196,7 +237,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         if (usePlaceholderData) {
             CategoryInterface category = getCategory();
             CategoryProducts categoryProducts = category.getProducts();
-            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(currentPage, request, urlProvider, getId(),
+            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(currentPage, request,
+                urlProvider, getId(),
                 category);
             return categoryProducts.getItems().stream()
                 .map(converter)
@@ -207,6 +249,11 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         }
     }
 
+    @Override
+    public List<CommerceExperienceFragmentContainer> getExperienceFragments() {
+        return fragments;
+    }
+
     @Nonnull
     @Override
     public SearchResultsSet getSearchResultsSet() {
@@ -215,7 +262,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
             List<SearchAggregation> searchAggregations = searchResultsSet.getSearchAggregations()
                 .stream()
-                .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_UID_PARAMETER_ID.equals(searchAggregation.getIdentifier()))
+                .filter(searchAggregation -> !SearchOptionsImpl.CATEGORY_UID_PARAMETER_ID
+                    .equals(searchAggregation.getIdentifier()))
                 .collect(Collectors.toList());
 
             CategoryTree categoryTree = (CategoryTree) getCategorySearchResultsSet().getLeft();
@@ -229,43 +277,51 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     private void processCategoryAggregation(List<SearchAggregation> searchAggregations, CategoryTree categoryTree) {
         if (categoryTree != null && categoryTree.getChildren() != null) {
             List<CategoryTree> childCategories = categoryTree.getChildren();
-            searchAggregations.stream().filter(aggregation -> CATEGORY_AGGREGATION_ID.equals(aggregation.getIdentifier())).findAny()
+            searchAggregations.stream()
+                .filter(aggregation -> CATEGORY_AGGREGATION_ID.equals(aggregation.getIdentifier())).findAny()
                 .ifPresent(categoryAggregation -> {
                     List<SearchAggregationOption> options = categoryAggregation.getOptions();
 
-                    // find and process category aggregation options related to child categories of current category
+                    // find and process category aggregation options related to child categories of
+                    // current category
                     List<SearchAggregationOption> filteredOptions = options.stream().map(
-                        option -> option instanceof SearchAggregationOptionImpl ? (SearchAggregationOptionImpl) option
-                            : new SearchAggregationOptionImpl(option)).filter(option -> {
-                                Optional<CategoryTree> categoryRef = childCategories.stream().filter(c -> String.valueOf(c.getId()).equals(
-                                    option.getFilterValue())).findAny();
+                        option -> option instanceof SearchAggregationOptionImpl
+                            ? (SearchAggregationOptionImpl) option
+                            : new SearchAggregationOptionImpl(option))
+                        .filter(option -> {
+                            Optional<CategoryTree> categoryRef = childCategories.stream()
+                                .filter(c -> String.valueOf(c.getId()).equals(
+                                    option.getFilterValue()))
+                                .findAny();
 
-                                if (categoryRef.isPresent()) {
-                                    CategoryTree category = categoryRef.get();
-                                    CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
-                                    params.setUid(category.getUid().toString());
-                                    params.setUrlKey(category.getUrlKey());
-                                    params.setUrlPath(category.getUrlPath());
-                                    option.setPageUrl(urlProvider.toCategoryUrl(request, currentPage, params));
-                                    option.getAddFilterMap().remove(CATEGORY_AGGREGATION_ID);
-                                    return true;
-                                } else {
-                                    return false;
-                                }
-                            }).collect(Collectors.toList());
+                            if (categoryRef.isPresent()) {
+                                CategoryTree category = categoryRef.get();
+                                CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+                                params.setUid(category.getUid().toString());
+                                params.setUrlKey(category.getUrlKey());
+                                params.setUrlPath(category.getUrlPath());
+                                option.setPageUrl(urlProvider.toCategoryUrl(request, currentPage, params));
+                                option.getAddFilterMap().remove(CATEGORY_AGGREGATION_ID);
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }).collect(Collectors.toList());
 
-                    // keep filtered options only or remove category aggregation if no option was found
+                    // keep filtered options only or remove category aggregation if no option was
+                    // found
                     if (filteredOptions.isEmpty()) {
                         searchAggregations.removeIf(a -> CATEGORY_AGGREGATION_ID.equals(a.getIdentifier()));
                     } else {
                         options.clear();
                         options.addAll(filteredOptions);
                         // move category aggregation to front
-                        searchAggregations.stream().filter(a -> CATEGORY_AGGREGATION_ID.equals(a.getIdentifier())).findAny().ifPresent(
-                            aggregation -> {
-                                searchAggregations.remove(aggregation);
-                                searchAggregations.add(0, aggregation);
-                            });
+                        searchAggregations.stream().filter(a -> CATEGORY_AGGREGATION_ID.equals(a.getIdentifier()))
+                            .findAny().ifPresent(
+                                aggregation -> {
+                                    searchAggregations.remove(aggregation);
+                                    searchAggregations.add(0, aggregation);
+                                });
                     }
                 });
         } else {
@@ -275,7 +331,9 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     private Pair<CategoryInterface, SearchResultsSet> getCategorySearchResultsSet() {
         if (categorySearchResultsSet == null) {
-            Consumer<ProductInterfaceQuery> productQueryHook = categoryRetriever != null ? categoryRetriever.getProductQueryHook() : null;
+            Consumer<ProductInterfaceQuery> productQueryHook = categoryRetriever != null
+                ? categoryRetriever.getProductQueryHook()
+                : null;
             categorySearchResultsSet = searchResultsService
                 .performSearch(searchOptions, resource, currentPage, request, productQueryHook, categoryRetriever);
         }
@@ -317,7 +375,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
         }
         if (canonicalUrl == null) {
             CategoryInterface category = getCategory();
-            SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
+            SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling
+                .getService(SitemapLinkExternalizerProvider.class);
 
             if (category != null && sitemapLinkExternalizerProvider != null) {
                 canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
