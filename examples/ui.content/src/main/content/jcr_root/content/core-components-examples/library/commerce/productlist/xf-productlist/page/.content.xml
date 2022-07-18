@@ -8,7 +8,7 @@
         cq:template="/conf/core-components-examples/settings/wcm/templates/content-page"
         jcr:description="Display commerce products"
         jcr:primaryType="cq:PageContent"
-        jcr:title="Product List"
+        jcr:title="XF Product List"
         sling:resourceType="cif-components-examples/components/page">
         <root
             jcr:primaryType="nt:unstructured"
@@ -101,7 +101,15 @@
                             loadClientPrice="{Boolean}true"
                             pageSize="6"
                             showImage="true"
-                            showTitle="true"/>
+                            showTitle="true">
+                            <fragments jcr:primaryType="nt:unstructured">
+                                <item0
+                                    jcr:primaryType="nt:unstructured"
+                                    fragmentPage="1"
+                                    fragmentLocation="grid"
+                                    fragmentCssClass="test-class"/>
+                            </fragments>
+                        </productlist>
                     </component>
                     <info
                         jcr:primaryType="nt:unstructured"

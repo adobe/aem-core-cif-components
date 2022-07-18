@@ -13,7 +13,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-package com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment;
+package com.adobe.cq.commerce.core.components.internal.services.experiencefragments;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,13 +43,18 @@ public class XFMockQueryResultHandler implements MockQueryResultHandler {
     private MockQuery query;
 
     /**
-     * Instantiates a result handler that will start looking at the <code>root</code> resource,
-     * and will look for resources matching the given <code>sku</code> and <code>fragmentLocation</code> parameters.
-     * 
+     * Instantiates a result handler that will start looking at the
+     * <code>root</code> resource,
+     * and will look for resources matching the given <code>sku</code> and
+     * <code>fragmentLocation</code> parameters.
+     *
      * @param root The resource where the search should start.
-     * @param productSku The value of the <code>cq:products</code> property, can be null.
-     * @param categoryId The value of the <code>cq:categories</code> property, can be null.
-     * @param fragmentLocation The value of the <code>fragmentLocation</code> property, can be null.
+     * @param productSku The value of the <code>cq:products</code> property,
+     *            can be null.
+     * @param categoryId The value of the <code>cq:categories</code> property,
+     *            can be null.
+     * @param fragmentLocation The value of the <code>fragmentLocation</code>
+     *            property, can be null.
      */
     XFMockQueryResultHandler(Resource root, String productSku, String categoryId, String fragmentLocation) {
         this.root = root;

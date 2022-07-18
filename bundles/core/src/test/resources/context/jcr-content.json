@@ -148,6 +148,51 @@
               "showTitle": true,
               "sling:resourceType": "venia/components/commerce/productlist"
             },
+            "productlist_with_xf": {
+                "loadClientPrice": true,
+                "showImage": true,
+                "showTitle": true,
+                "defaultSortField": "price",
+                "defaultSortOrder": "ASC",
+                "sling:resourceType": "venia/components/commerce/productlist",
+                "fragmentEnabled": true,
+                "fragments": {
+                    "item0": {
+                      "fragmentPage": 1,  
+                      "fragmentLocation": "grid",
+                        "fragmentCssClass": "test-class"
+                    }
+                }
+            },
+            "productlist_with_multiple_xf": {
+                "loadClientPrice": true,
+                "showImage": true,
+                "showTitle": true,
+                "defaultSortField": "price",
+                "defaultSortOrder": "ASC",
+                "sling:resourceType": "venia/components/commerce/productlist",
+                "fragmentEnabled": true,
+                "fragments": {
+                    "item0": {
+                      "fragmentPage": 1,  
+                      "fragmentLocation": "grid"
+                    },
+                    "item1": {
+                      "fragmentPage": 1,  
+                      "fragmentLocation": "grid",
+                        "fragmentCssClass": "test-class"
+                    },
+                    "item2": {
+                      "fragmentPage": 1,  
+                      "fragmentLocation": "inexistent"
+                    },
+                    "item3": {
+                      "fragmentPage": 2,
+                      "fragmentLocation": "grid",
+                      "fragmentCssClass": "test-class2"
+                    }
+                }
+            },
             "searchresults": {
                 "sling:resourceType": "core/cif/components/commerce/searchresults/v2/searchresults",
                 "defaultSortField": "relevance",
@@ -616,6 +661,31 @@
           "productlist": {
             "category": "MTI==",
             "sling:resourceType": "venia/components/commerce/productlist"
+          }
+        }
+      }
+    }
+  },
+  "experience-fragments": {
+    "jcr:primaryType": "sling:Folder",
+    "pageA": {
+      "xf": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "jcr:title": "Test XF",
+          "sling:resourceType": "cq/experience-fragments/components/experiencefragment"
+        },
+        "master": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "jcr:title": "Text XF Master",
+            "cq:xfVariantType": "web",
+            "cq:xfMasterVariation": "true",
+            "cq:products": "sku-xf2",
+            "cq:categories": "MTI==",
+            "fragmentLocation": "grid"
           }
         }
       }

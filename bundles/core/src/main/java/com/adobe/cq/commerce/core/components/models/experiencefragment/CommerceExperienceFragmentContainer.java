@@ -1,5 +1,5 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ Copyright 2021 Adobe
+ ~ Copyright 2022 Adobe
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -13,7 +13,24 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-@Version("1.13.0")
 package com.adobe.cq.commerce.core.components.models.experiencefragment;
 
-import org.osgi.annotation.versioning.Version;
+import org.apache.sling.api.resource.Resource;
+
+import com.adobe.cq.wcm.core.components.models.Component;
+
+/**
+ * Interface for an Experience Fragment container to be used in a
+ * {@code ProductList}
+ */
+public interface CommerceExperienceFragmentContainer extends Component {
+
+    String getCssClassName();
+
+    /**
+     * Returns the ExperienceFragment resource to be rendered.
+     *
+     * @return the ExperienceFragment resource to be rendered
+     */
+    Resource getRenderResource();
+}
