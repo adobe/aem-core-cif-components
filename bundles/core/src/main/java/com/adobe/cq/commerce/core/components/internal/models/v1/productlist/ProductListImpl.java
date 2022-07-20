@@ -16,6 +16,8 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -24,13 +26,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -68,10 +71,12 @@ import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryProducts;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
-import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
+import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.granite.ui.components.ValueMapResourceWrapper;
 
@@ -85,11 +90,32 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     protected static final String PLACEHOLDER_DATA = "productlist-component-placeholder-data.json";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductListImpl.class);
-
     private static final boolean SHOW_TITLE_DEFAULT = true;
     private static final boolean SHOW_IMAGE_DEFAULT = true;
     private static final String CATEGORY_PROPERTY = "category";
     static final String CATEGORY_AGGREGATION_ID = "category_id";
+
+    static Optional<CategoryInterface> PLACEHOLDER_CATEGORY;
+
+    static CategoryInterface getPlaceholderCategory() {
+        if (PLACEHOLDER_CATEGORY == null) {
+            try {
+                InputStream data = ProductListImpl.class.getClassLoader().getResourceAsStream(PLACEHOLDER_DATA);
+                if (data != null) {
+                    String json = IOUtils.toString(data, StandardCharsets.UTF_8);
+                    Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+                    PLACEHOLDER_CATEGORY = Optional.of(rootQuery.getCategory());
+                } else {
+                    LOGGER.warn("Could not find placeholder data on classpath: {}", PLACEHOLDER_DATA);
+                    PLACEHOLDER_CATEGORY = Optional.empty();
+                }
+            } catch (IOException ex) {
+                LOGGER.warn("Could not load placeholder data", ex);
+                PLACEHOLDER_CATEGORY = Optional.empty();
+            }
+        }
+        return PLACEHOLDER_CATEGORY.orElse(null);
+    }
 
     private boolean showTitle;
     private boolean showImage;
@@ -112,10 +138,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     private boolean usePlaceholderData;
     private boolean isAuthor;
     private String canonicalUrl;
-
     private Pair<CategoryInterface, SearchResultsSet> categorySearchResultsSet;
-
-    protected List<CommerceExperienceFragmentContainer> fragments = new ArrayList<>();
+    protected List<CommerceExperienceFragmentContainer> fragments;
 
     @PostConstruct
     protected void initModel() {
@@ -134,72 +158,31 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
         Map<String, String> searchFilters = createFilterMap(request.getParameterMap());
 
-        if (StringUtils.isBlank(categoryUid)) {
-            // If not provided via the category property extract category identifier from
-            // URL
-            categoryUid = urlProvider.getCategoryIdentifier(request);
-        }
-
         if (magentoGraphqlClient != null) {
             if (StringUtils.isNotBlank(categoryUid)) {
                 categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
                 categoryRetriever.setIdentifier(categoryUid);
-            } else if (isAuthor) {
-                usePlaceholderData = true;
-                loadClientPrice = false;
-                try {
-                    categoryRetriever = new CategoryPlaceholderRetriever(magentoGraphqlClient, PLACEHOLDER_DATA);
-                } catch (IOException e) {
-                    LOGGER.warn("Cannot use placeholder data", e);
-                }
             } else {
-                // There isn't any selector on publish instance
-                searchResultsSet = new SearchResultsSetImpl();
-                categorySearchResultsSet = Pair.of(null, searchResultsSet);
-                return;
+                UnaryOperator<CategoryFilterInput> hook = urlProvider.getCategoryFilterHook(request);
+                if (hook != null) {
+                    categoryRetriever = new CategoryRetriever(magentoGraphqlClient);
+                    categoryRetriever.extendCategoryFilterWith(hook);
+                }
             }
         }
 
-        if (usePlaceholderData) {
-            searchResultsSet = new SearchResultsSetImpl();
-        } else {
-            Resource fragmentsNode = resource.getChild(ProductList.NN_FRAGMENTS);
-            if (fragmentsNode != null && fragmentsNode.hasChildren()) {
-                Iterable<Resource> configuredFragments = fragmentsNode.getChildren();
-                for (Resource fragment : configuredFragments) {
-                    ValueMap fragmentVm = fragment.getValueMap();
-                    Integer fragmentPage = fragmentVm.get(PN_FRAGMENT_PAGE, -1);
-                    if (fragmentPage.equals(currentPageIndex)) {
-                        String fragmentCssClass = fragment.getValueMap().get(PN_FRAGMENT_CSS_CLASS, String.class);
-                        ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(
-                            fragment,
-                            CommerceExperienceFragmentImpl.RESOURCE_TYPE);
-                        String fragmentLocation = fragment.getValueMap().get(PN_FRAGMENT_LOCATION,
-                            String.class);
-                        resourceWrapper.getValueMap().put(PN_FRAGMENT_LOCATION, fragmentLocation);
-                        if (!fragmentsRetriever
-                            .getExperienceFragmentsForCategory(categoryUid, fragmentLocation, currentPage)
-                            .isEmpty()) {
-                            fragments.add(new CommerceExperienceFragmentContainerImpl(resourceWrapper,
-                                fragmentCssClass));
-                        }
-                    }
-                }
-            }
+        searchOptions = new SearchOptionsImpl();
+        searchOptions.setCurrentPage(currentPageIndex);
+        searchOptions.setPageSize(navPageSize);
+        searchOptions.setAttributeFilters(searchFilters);
 
-            searchOptions = new SearchOptionsImpl();
-            searchOptions.setCurrentPage(currentPageIndex);
-            searchOptions.setPageSize(navPageSize);
-            searchOptions.setAttributeFilters(searchFilters);
+        // configure sorting
+        String defaultSortField = properties.get(PN_DEFAULT_SORT_FIELD, String.class);
+        String defaultSortOrder = properties.get(PN_DEFAULT_SORT_ORDER, Sorter.Order.ASC.name());
 
-            // configure sorting
-            String defaultSortField = properties.get(PN_DEFAULT_SORT_FIELD, String.class);
-            String defaultSortOrder = properties.get(PN_DEFAULT_SORT_ORDER, Sorter.Order.ASC.name());
-
-            if (StringUtils.isNotBlank(defaultSortField)) {
-                Sorter.Order value = Sorter.Order.fromString(defaultSortOrder, Sorter.Order.ASC);
-                searchOptions.setDefaultSorter(defaultSortField, value);
-            }
+        if (StringUtils.isNotBlank(defaultSortField)) {
+            Sorter.Order value = Sorter.Order.fromString(defaultSortOrder, Sorter.Order.ASC);
+            searchOptions.setDefaultSorter(defaultSortField, value);
         }
     }
 
@@ -234,23 +217,50 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @Nonnull
     @Override
     public Collection<ProductListItem> getProducts() {
-        if (usePlaceholderData) {
-            CategoryInterface category = getCategory();
-            CategoryProducts categoryProducts = category.getProducts();
-            ProductToProductListItemConverter converter = new ProductToProductListItemConverter(currentPage, request,
-                urlProvider, getId(),
-                category);
-            return categoryProducts.getItems().stream()
-                .map(converter)
-                .filter(Objects::nonNull) // the converter returns null if the conversion fails
-                .collect(Collectors.toList());
-        } else {
-            return getSearchResultsSet().getProductListItems();
-        }
+        return getSearchResultsSet().getProductListItems();
     }
 
     @Override
     public List<CommerceExperienceFragmentContainer> getExperienceFragments() {
+        if (fragments == null) {
+            CategoryInterface categoryInterface = getCategory();
+
+            if (usePlaceholderData || categoryInterface == null) {
+                // when using placeholder data or when the category does not exist / the category uid is unknown, we can skip the logic
+                // to get the fragments completely
+                fragments = Collections.emptyList();
+                return fragments;
+            }
+
+            Resource fragmentsNode = resource.getChild(ProductList.NN_FRAGMENTS);
+            int currentPageIndex = searchOptions.getCurrentPage();
+            String categoryUidToSearchFor = categoryInterface.getUid().toString();
+            fragments = new ArrayList<>();
+
+            if (fragmentsNode != null && fragmentsNode.hasChildren()) {
+                Iterable<Resource> configuredFragments = fragmentsNode.getChildren();
+                for (Resource fragment : configuredFragments) {
+                    ValueMap fragmentVm = fragment.getValueMap();
+                    Integer fragmentPage = fragmentVm.get(PN_FRAGMENT_PAGE, -1);
+                    if (fragmentPage.equals(currentPageIndex)) {
+                        String fragmentCssClass = fragment.getValueMap().get(PN_FRAGMENT_CSS_CLASS, String.class);
+                        ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(
+                            fragment,
+                            CommerceExperienceFragmentImpl.RESOURCE_TYPE);
+                        String fragmentLocation = fragment.getValueMap().get(PN_FRAGMENT_LOCATION,
+                            String.class);
+                        resourceWrapper.getValueMap().put(PN_FRAGMENT_LOCATION, fragmentLocation);
+                        if (!fragmentsRetriever
+                            .getExperienceFragmentsForCategory(categoryUidToSearchFor, fragmentLocation, currentPage)
+                            .isEmpty()) {
+                            fragments.add(new CommerceExperienceFragmentContainerImpl(resourceWrapper,
+                                fragmentCssClass));
+                        }
+                    }
+                }
+            }
+        }
+
         return fragments;
     }
 
@@ -331,20 +341,58 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
 
     private Pair<CategoryInterface, SearchResultsSet> getCategorySearchResultsSet() {
         if (categorySearchResultsSet == null) {
-            Consumer<ProductInterfaceQuery> productQueryHook = categoryRetriever != null
-                ? categoryRetriever.getProductQueryHook()
-                : null;
-            categorySearchResultsSet = searchResultsService
-                .performSearch(searchOptions, resource, currentPage, request, productQueryHook, categoryRetriever);
+            if (categoryRetriever != null) {
+                // the retriever may be null, for example if there is no category information in the url
+                categorySearchResultsSet = searchResultsService.performSearch(searchOptions, resource, currentPage, request,
+                    categoryRetriever.getProductQueryHook(), categoryRetriever);
+            }
+            if (categorySearchResultsSet == null || categorySearchResultsSet.getLeft() == null) {
+                // category not found
+                setPlaceholderData();
+            }
+            if (categorySearchResultsSet == null) {
+                // fallback
+                categorySearchResultsSet = Pair.of(null, new SearchResultsSetImpl());
+            }
         }
         return categorySearchResultsSet;
     }
 
-    protected CategoryInterface getCategory() {
-        if (usePlaceholderData) {
-            return categoryRetriever.fetchCategory();
+    private void setPlaceholderData() {
+        // this logic is to preserve existing behaviour. we could show placeholder data also if there is no gql client
+        if (isAuthor && magentoGraphqlClient != null) {
+            usePlaceholderData = true;
+
+            CategoryInterface placeholderCategory = getPlaceholderCategory();
+
+            if (placeholderCategory != null) {
+                SearchResultsSetImpl searchResultsSetImpl = new SearchResultsSetImpl();
+                CategoryProducts categoryProducts = placeholderCategory.getProducts();
+                ProductToProductListItemConverter converter = new ProductToProductListItemConverter(currentPage, request,
+                    urlProvider, getId(),
+                    placeholderCategory);
+                List<ProductListItem> productListItems = categoryProducts.getItems().stream()
+                    .map(converter)
+                    .filter(Objects::nonNull) // the converter returns null if the conversion fails
+                    .collect(Collectors.toList());
+
+                searchResultsSetImpl.setProductListItems(productListItems);
+                searchResultsSet = searchResultsSetImpl;
+                categorySearchResultsSet = Pair.of(placeholderCategory, searchResultsSetImpl);
+            }
         }
+    }
+
+    protected CategoryInterface getCategory() {
         return getCategorySearchResultsSet().getLeft();
+    }
+
+    @Override
+    public boolean loadClientPrice() {
+        // make sure we query first to see if we show placeholder data or not
+        // usePlaceholderData is set as side effect of getCategorySearchResultsSet
+        getCategorySearchResultsSet();
+        return !usePlaceholderData && super.loadClientPrice();
     }
 
     @Override

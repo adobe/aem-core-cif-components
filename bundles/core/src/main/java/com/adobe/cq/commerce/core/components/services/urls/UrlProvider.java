@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.osgi.annotation.versioning.ProviderType;
 
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.day.cq.wcm.api.Page;
 
@@ -246,6 +247,19 @@ public interface UrlProvider {
      * @return The category uid identifier.
      */
     String getCategoryIdentifier(SlingHttpServletRequest request);
+
+    /**
+     * Returns a hook that replaces a given {@link CategoryFilterInput} with a new instance constructed from the identifiers available by
+     * the given request.
+     * <p>
+     * The hook can be passed to
+     * {@link com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever#extendCategoryFilterWith(Function)} or
+     * {@link com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever#extendCategoryFilterWith(Function)}.
+     *
+     * @param request the current request
+     * @return a unary operator that excepts a {@link ProductAttributeFilterInput} and returns a new instance to replace it
+     */
+    UnaryOperator<CategoryFilterInput> getCategoryFilterHook(SlingHttpServletRequest request);
 
     /**
      * Parses and returns the {@link CategoryUrlFormat.Params} used in the given Sling HTTP request based on the URLProvider configuration

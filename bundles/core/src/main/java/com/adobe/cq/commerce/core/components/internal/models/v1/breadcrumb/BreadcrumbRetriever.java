@@ -28,7 +28,6 @@ import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
-import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -42,10 +41,8 @@ class BreadcrumbRetriever extends AbstractRetriever {
 
     private List<? extends CategoryInterface> categories;
     private Optional<ProductInterface> product;
-
     private UnaryOperator<ProductAttributeFilterInput> productIdentifierHook;
-
-    private String categoryIdentifier;
+    private UnaryOperator<CategoryFilterInput> categoryIdentifierHook;
 
     BreadcrumbRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -91,15 +88,15 @@ class BreadcrumbRetriever extends AbstractRetriever {
      * Set the category uid of the category that should be fetched. Setting the a new category, removes any cached
      * data.
      *
-     * @param categoryIdentifier The category uid.
+     * @param inputHook The category uid.
      */
-    protected void setCategoryIdentifier(String categoryIdentifier) {
-        this.categoryIdentifier = categoryIdentifier;
+    protected void setCategoryIdentifierHook(UnaryOperator<CategoryFilterInput> inputHook) {
+        this.categoryIdentifierHook = inputHook;
     }
 
     @Override
     protected void populate() {
-        if (productIdentifierHook == null && categoryIdentifier == null) {
+        if (productIdentifierHook == null && categoryIdentifierHook == null) {
             categories = Collections.emptyList();
             product = Optional.empty();
             return;
@@ -180,8 +177,7 @@ class BreadcrumbRetriever extends AbstractRetriever {
      * @return GraphQL query as string
      */
     protected String generateCategoryQuery() {
-        FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(categoryIdentifier);
-        CategoryFilterInput filter = new CategoryFilterInput().setCategoryUid(identifierFilter);
+        CategoryFilterInput filter = categoryIdentifierHook.apply(new CategoryFilterInput());
 
         CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
 

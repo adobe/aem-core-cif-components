@@ -169,11 +169,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
                 return false;
             }
         } else if (siteStructure.isCategoryPage(page)) {
-            String categoryUid = urlProvider.getCategoryIdentifier(request);
-            if (StringUtils.isEmpty(categoryUid)) {
-                return false;
-            }
-            categoriesBreadcrumbs = fetchCategoryBreadcrumbs(categoryUid);
+            categoriesBreadcrumbs = fetchCategoryBreadcrumbs();
             isCategoryPage = true;
         } else {
             // we reached a content page
@@ -310,9 +306,9 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             .collect(Collectors.toList());
     }
 
-    private List<? extends CategoryInterface> fetchCategoryBreadcrumbs(String categoryUid) {
+    private List<? extends CategoryInterface> fetchCategoryBreadcrumbs() {
         retriever = new BreadcrumbRetriever(magentoGraphqlClient);
-        retriever.setCategoryIdentifier(categoryUid);
+        retriever.setCategoryIdentifierHook(urlProvider.getCategoryFilterHook(request));
 
         return retriever.fetchCategoriesBreadcrumbs();
     }

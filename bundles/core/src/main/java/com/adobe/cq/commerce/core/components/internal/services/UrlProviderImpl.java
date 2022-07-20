@@ -61,6 +61,7 @@ import com.adobe.cq.commerce.core.components.services.urls.GenericUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
@@ -548,6 +549,24 @@ public class UrlProviderImpl implements UrlProvider {
         }
 
         return identifier;
+    }
+
+    @Override
+    public UnaryOperator<CategoryFilterInput> getCategoryFilterHook(SlingHttpServletRequest request) {
+        Page page = getCurrentPage(request);
+        CategoryUrlFormat format = getCategoryUrlFormatFromContext(request, page);
+        CategoryUrlFormat.Params params = format.parse(request.getRequestPathInfo(), request.getRequestParameterMap());
+
+        if (StringUtils.isNotEmpty(params.getUid())) {
+            return input -> new CategoryFilterInput().setCategoryUid(new FilterEqualTypeInput().setEq(params.getUid()));
+        } else if (StringUtils.isNotEmpty(params.getUrlPath())) {
+            return input -> new CategoryFilterInput().setUrlPath(new FilterEqualTypeInput().setEq(params.getUrlPath()));
+        } else if (StringUtils.isNotEmpty(params.getUrlKey())) {
+            return input -> new CategoryFilterInput().setUrlKey(new FilterEqualTypeInput().setEq(params.getUrlKey()));
+        } else {
+            // unusable filter input
+            return null;
+        }
     }
 
     /**

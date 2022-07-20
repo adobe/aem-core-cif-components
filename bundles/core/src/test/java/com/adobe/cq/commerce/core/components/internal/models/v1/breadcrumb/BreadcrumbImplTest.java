@@ -293,10 +293,8 @@ public class BreadcrumbImplTest {
 
     @Test
     public void testCategoryPage() throws Exception {
-        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_path");
         Utils.setupHttpResponse("graphql/magento-graphql-category-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{category_uid");
+            "{categoryList(filters:{url_path");
         prepareModel("/content/venia/us/en/products/category-page");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -317,10 +315,8 @@ public class BreadcrumbImplTest {
 
     @Test
     public void testCategorySpecificPage() throws Exception {
-        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_path");
         Utils.setupHttpResponse("graphql/magento-graphql-category-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{category_uid");
+            "{categoryList(filters:{url_path");
         prepareModel("/content/venia/us/en/products/category-page/category-specific-page");
 
         // TODO: CIF-2469
