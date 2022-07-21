@@ -74,6 +74,11 @@
                         <createdBy>${vault.package.company}</createdBy>
                         <cloudManagerTarget>none</cloudManagerTarget>
                     </properties>
+                    <validatorsSettings>
+                        <jackrabbit-nodetypes>
+                            <isDisabled>true</isDisabled>
+                        </jackrabbit-nodetypes>
+                    </validatorsSettings>
                     <dependencies>
                         <dependency>
                             <groupId>com.adobe.cq</groupId>
