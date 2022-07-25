@@ -48,6 +48,7 @@ import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isNull;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -73,20 +74,21 @@ public class CommerceExperienceFragmentImplTest {
             Resource xf2uid = context.resourceResolver()
                 .getResource("/content/experience-fragments/mysite/page/xf-2-uid/master/jcr:content");
             Mockito.when(cxfRetriever.getExperienceFragmentsForProduct(eq("sku-xf1"),
-                isNull(String.class), any())).thenReturn(Collections.singletonList(xf1uid));
+                isNull(String.class), same(1), any())).thenReturn(Collections.singletonList(xf1uid));
             Mockito.when(cxfRetriever.getExperienceFragmentsForProduct(eq("sku-xf2"),
-                eq("location-xf2"), any())).thenReturn(Collections.singletonList(xf2uid));
+                eq("location-xf2"), same(1), any())).thenReturn(Collections.singletonList(xf2uid));
             Mockito.when(cxfRetriever.getExperienceFragmentsForProduct(eq("sku-xf3"),
-                any(), any())).thenReturn(Collections.emptyList());
+                any(), same(1), any())).thenReturn(Collections.emptyList());
             Mockito.when(cxfRetriever.getExperienceFragmentsForProduct(isNull(String.class),
-                any(), any())).thenReturn(Collections.emptyList());
+                any(), same(1), any())).thenReturn(Collections.emptyList());
             Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(eq("uid1"),
-                isNull(String.class), any())).thenReturn(Collections.singletonList(xf1uid));
+                isNull(String.class), same(1), any())).thenReturn(Collections.singletonList(xf1uid));
             Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(eq("uid2"),
-                eq("location-xf2"), any())).thenReturn(Collections.singletonList(xf2uid));
-            Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(eq("uid3"), any(), any())).thenReturn(Collections.emptyList());
+                eq("location-xf2"), same(1), any())).thenReturn(Collections.singletonList(xf2uid));
+            Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(eq("uid3"), any(), same(1), any())).thenReturn(Collections
+                .emptyList());
             Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(isNull(String.class),
-                any(), any())).thenReturn(Collections.emptyList());
+                any(), same(1), any())).thenReturn(Collections.emptyList());
         })
         .build();
 

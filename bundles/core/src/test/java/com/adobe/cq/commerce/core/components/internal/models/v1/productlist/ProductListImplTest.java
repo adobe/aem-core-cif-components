@@ -99,6 +99,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -133,7 +134,7 @@ public class ProductListImplTest {
                 mock(CommerceExperienceFragmentsRetriever.class));
             List<Resource> xfs = new ArrayList<>();
             xfs.add(context.resourceResolver().getResource("/content/experience-fragments/pageA/xf"));
-            Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(any(), eq("grid"), any())).thenReturn(xfs);
+            Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(any(), eq("grid"), same(1), any())).thenReturn(xfs);
         })
         .build();
 

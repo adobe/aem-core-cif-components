@@ -177,11 +177,9 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                         String fragmentLocation = fragment.getValueMap().get(PN_FRAGMENT_LOCATION,
                             String.class);
                         resourceWrapper.getValueMap().put(PN_FRAGMENT_LOCATION, fragmentLocation);
-                        if (!fragmentsRetriever
-                            .getExperienceFragmentsForCategory(categoryUid, fragmentLocation, currentPage)
-                            .isEmpty()) {
-                            fragments.add(new CommerceExperienceFragmentContainerImpl(resourceWrapper,
-                                fragmentCssClass));
+                        if (!fragmentsRetriever.getExperienceFragmentsForCategory(categoryUid, fragmentLocation,
+                            1, currentPage).isEmpty()) {
+                            fragments.add(new CommerceExperienceFragmentContainerImpl(resourceWrapper, fragmentCssClass));
                         }
                     }
                 }

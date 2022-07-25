@@ -575,6 +575,12 @@
 
         <!-- CIF Dependencies -->
         <dependency>
+            <groupId>com.adobe.cq.cif</groupId>
+            <artifactId>commerce-addon-common-bundle</artifactId>
+            <version>2022.07.05.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.adobe.commerce.cif</groupId>
             <artifactId>graphql-client</artifactId>
             <version>${graphql.client.version}</version>

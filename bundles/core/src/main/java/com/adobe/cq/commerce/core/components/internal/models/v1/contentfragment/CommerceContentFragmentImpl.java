@@ -17,11 +17,11 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.contentfragment
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.jcr.Session;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -40,6 +40,9 @@ import org.apache.sling.models.factory.ModelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.cif.common.associatedcontent.AssociatedContentQuery;
+import com.adobe.cq.cif.common.associatedcontent.AssociatedContentService;
+import com.adobe.cq.cif.common.associatedcontent.AssociatedContentService.CfParams;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
@@ -49,15 +52,8 @@ import com.adobe.cq.dam.cfm.content.FragmentRenderService;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.wcm.core.components.models.contentfragment.ContentFragment;
 import com.adobe.granite.ui.components.ValueMapResourceWrapper;
-import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.dam.api.DamConstants;
-import com.day.cq.search.PredicateGroup;
-import com.day.cq.search.Query;
-import com.day.cq.search.QueryBuilder;
-import com.day.cq.search.result.SearchResult;
 import com.day.cq.wcm.api.Page;
-
-import static com.day.cq.dam.api.DamConstants.NT_DAM_ASSET;
 
 /**
  * <code>CommerceContentFragmentImpl</code> is the Sling Model for the Commerce Content Fragment component
@@ -119,6 +115,9 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
     @Self
     private SiteStructure siteStructure;
 
+    @OSGiService
+    private AssociatedContentService associatedContentService;
+
     private ContentFragment contentFragment = EMPTY_CONTENT_FRAGMENT;
     private String modelTitle = "";
 
@@ -152,59 +151,37 @@ public class CommerceContentFragmentImpl implements CommerceContentFragment {
     }
 
     private Resource findContentFragment() {
-        Session session = resourceResolver.adaptTo(Session.class);
-        if (session == null) {
-            LOGGER.warn("Session was null therefore no query was executed");
-            return null;
-        }
-
-        QueryBuilder queryBuilder = resourceResolver.adaptTo(QueryBuilder.class);
-        if (queryBuilder == null) {
-            LOGGER.warn("Query builder was null therefore no query was executed");
-            return null;
-        }
-
-        String linkValue = null;
+        AssociatedContentQuery<com.adobe.cq.dam.cfm.ContentFragment> contentQuery = null;
         if (siteStructure.isProductPage(currentPage)) {
-            linkValue = findProductSku();
+            String sku = urlProvider.getProductIdentifier(request);
+            if (StringUtils.isNotBlank(sku)) {
+                contentQuery = associatedContentService.listProductContentFragments(resourceResolver,
+                    CfParams.of(sku).model(modelPath).property(linkElement));
+            } else {
+                LOGGER.warn("Cannot find sku or product for current request");
+            }
         } else if (siteStructure.isCategoryPage(currentPage)) {
-            linkValue = findCategoryIdentifier();
+            String categoryUid = urlProvider.getCategoryIdentifier(request);
+            if (StringUtils.isNotBlank(categoryUid)) {
+                contentQuery = associatedContentService.listCategoryContentFragments(resourceResolver,
+                    CfParams.of(categoryUid).model(modelPath).property(linkElement));
+            } else {
+                LOGGER.warn("Cannot find category identifier for current request");
+            }
+        } else {
+            LOGGER.warn("Commerce content fragment component used on incorrect page: " + currentPage.getPath());
         }
 
-        if (StringUtils.isBlank(linkValue)) {
+        if (contentQuery == null) {
             return null;
         }
 
-        Map<String, String> queryParameterMap = new HashMap<>();
-        queryParameterMap.put("path", parentPath);
-        queryParameterMap.put("type", NT_DAM_ASSET);
-        queryParameterMap.put("p.limit", "1");
-        queryParameterMap.put("1_property", JcrConstants.JCR_CONTENT + "/data/cq:model");
-        queryParameterMap.put("1_property.value", modelPath);
-        queryParameterMap.put("2_property", JcrConstants.JCR_CONTENT + "/data/master/" + linkElement);
-        queryParameterMap.put("2_property.value", linkValue);
-
-        PredicateGroup predicateGroup = PredicateGroup.create(queryParameterMap);
-        Query query = queryBuilder.createQuery(predicateGroup, session);
-
-        SearchResult searchResult = query.getResult();
-        return searchResult.getTotalMatches() > 0 ? searchResult.getResources().next() : null;
-    }
-
-    private String findCategoryIdentifier() {
-        String categoryUid = urlProvider.getCategoryIdentifier(request);
-        if (StringUtils.isBlank(categoryUid)) {
-            LOGGER.warn("Cannot find category identifier for current request");
+        Iterator<com.adobe.cq.dam.cfm.ContentFragment> fragmentIterator = contentQuery.withLimit(1).execute();
+        if (fragmentIterator.hasNext()) {
+            return fragmentIterator.next().adaptTo(Resource.class);
+        } else {
+            return null;
         }
-        return categoryUid;
-    }
-
-    private String findProductSku() {
-        String sku = urlProvider.getProductIdentifier(request);
-        if (StringUtils.isBlank(sku)) {
-            LOGGER.warn("Cannot find sku or product for current request");
-        }
-        return sku;
     }
 
     /*
