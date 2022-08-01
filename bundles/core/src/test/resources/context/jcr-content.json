@@ -486,6 +486,28 @@
                 "jcr:primaryType": "nt:unstructured",
                 "sling:resourceType": "core/cif/components/content/button/v2/button",
                 "linkType": "invalid"
+            },
+            "commercelist0": {
+              "jcr:primaryType": "nt:unstructured",
+              "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+              "listFrom": "productAssociation"
+            },
+            "commercelist6": {
+              "jcr:primaryType": "nt:unstructured",
+              "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+              "listFrom": "productAssociation",
+              "product": "mySKU"
+            },
+            "commercelist7": {
+              "jcr:primaryType": "nt:unstructured",
+              "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+              "listFrom": "categoryAssociation"
+            },
+            "commercelist8": {
+              "jcr:primaryType": "nt:unstructured",
+              "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+              "listFrom": "categoryAssociation",
+              "category": "myUID"
             }
         }
       }
@@ -548,7 +570,27 @@
   "product-page": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "jcr:language": "en_US"
+      "jcr:language": "en_US",
+      "root": {
+        "responsivegrid": {
+          "commercelist1": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+            "listFrom": "productAssociation",
+            "linkItems": true,
+            "showDescription": true,
+            "showModificationDate": true,
+            "displayItemAsTeaser": true,
+            "id": "myId"
+          },
+          "commercelist5": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+            "listFrom": "productAssociation",
+            "product": "mySKU"
+          }
+        }
+      }
     },
     "product-specific-page": {
       "jcr:primaryType": "cq:Page",
@@ -561,7 +603,32 @@
   "category-page": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "jcr:language": "en_US"
+      "jcr:language": "en_US",
+      "root": {
+        "responsivegrid": {
+          "commercelist2": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+            "listFrom": "categoryAssociation"
+          },
+          "commercelist3": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+            "listFrom": "categoryAssociation",
+            "maxItems": 2
+          },
+          "commercelist4": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/commerce/list/v1/list"
+          },
+          "commercelist9": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+            "listFrom": "categoryAssociation",
+            "category": "myUID"
+          }
+        }
+      }
     }
   },
   "pageI": {
@@ -595,6 +662,17 @@
         "jcr:primaryType": "nt:unstructured",
         "sling:resourceType": "core/cif/components/structure/header/v1/header"
       }
+    }
+  },
+  "pageK": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "jcr:title": "Page K Title",
+      "jcr:description": "Page K description",
+      "cq:lastModified": "2022-07-27T11:28:07.945+03:00",
+      "cq:categories": "MTI==",
+      "cq:products": "MJ01"
     }
   },
   "launches": {

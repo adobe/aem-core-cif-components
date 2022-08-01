@@ -6,6 +6,7 @@
         cq:lastModifiedBy="admin"
         cq:tags="[]"
         cq:template="/conf/core-components-examples/settings/wcm/templates/content-page"
+        cq:categories="uid-1"
         jcr:description="Display commerce products"
         jcr:primaryType="cq:PageContent"
         jcr:title="Product List"
@@ -162,6 +163,48 @@
                             reference="../../component"/>
                     </info>
                 </breadcrumb-demo>
+                <text_list
+                    jcr:created="{Date}2018-12-06T19:23:41.968+01:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="core-components-examples/components/text"
+                    text="&lt;p>In addition to the productlist component, this demonstrates the Commerce List component displaying the list of pages related to the category dynamically based on the UID of the category currently being displayed. This is empty unless the category UID matches uid-1.&lt;/p>" textIsRich="true" />
+                <list-demo
+                    jcr:created="{Date}2018-12-07T12:55:03.496+01:00"
+                    jcr:createdBy="admin"
+                    jcr:lastModified="{Date}2018-12-07T12:55:03.496+01:00"
+                    jcr:lastModifiedBy="admin"
+                    jcr:primaryType="nt:unstructured"
+                    sling:resourceType="cif-components-examples/components/demo">
+                    <component
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="core-components-examples/components/demo/component">
+                        <list
+                            jcr:created="{Date}2020-08-17T16:22:56.378+02:00"
+                            jcr:createdBy="admin"
+                            jcr:lastModified="{Date}2020-08-17T16:22:56.378+02:00"
+                            jcr:lastModifiedBy="admin"
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="cif-components-examples/components/list"
+                            listFrom="categoryAssociation"/>
+                    </component>
+                    <info
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="core-components-examples/components/tabs">
+                        <properties
+                            cq:panelTitle="Properties"
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core-components-examples/components/demo/properties"
+                            reference="../../component" />
+                        <markup
+                            cq:panelTitle="Markup"
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core-components-examples/components/demo/markup"
+                            reference="../../component" />
+                    </info>
+                </list-demo>
             </responsivegrid>
         </root>
     </jcr:content>
