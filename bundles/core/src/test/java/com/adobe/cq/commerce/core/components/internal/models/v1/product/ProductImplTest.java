@@ -173,16 +173,15 @@ public class ProductImplTest {
     public void testGetIdentifierFromSelector() {
         adaptToProduct();
 
-        String identifier = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
-        assertEquals("MJ01", identifier);
+        assertEquals("MJ01", productModel.getSku());
     }
 
     @Test
     public void testGetIdentifierFromProperty() {
         // Use different page
-        context.currentResource("/content/product-of-the-week");
         context.request().setServletPath("/content/product-of-the-week/jcr:content/root/responsivegrid/product.beaumont-summit-kit.html");
         productResource = context.resourceResolver().getResource("/content/product-of-the-week/jcr:content/root/responsivegrid/product");
+        context.currentResource(productResource);
 
         // Update product properties in sling bindings
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -192,7 +191,7 @@ public class ProductImplTest {
         adaptToProduct();
 
         String sku = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
-        assertEquals("MJ01", sku);
+        assertEquals("MJ02", sku);
     }
 
     @Test

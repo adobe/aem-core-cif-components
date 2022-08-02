@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
@@ -47,6 +48,7 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
     }
 
     private RelationType relationtype;
+    private Optional<ProductInterface> fetchedProduct;
 
     RelatedProductsRetriever(MagentoGraphqlClient client, RelationType relationType) {
         super(client);
@@ -55,8 +57,9 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
 
     @Override
     protected String generateQuery(List<String> identifiers) {
+        String firstIdentifier = identifiers != null && !identifiers.isEmpty() ? identifiers.get(0) : null;
         ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
-        FilterEqualTypeInput skuFilter = new FilterEqualTypeInput().setEq(identifiers.get(0));
+        FilterEqualTypeInput skuFilter = new FilterEqualTypeInput().setEq(firstIdentifier);
         filter.setSku(skuFilter);
 
         // Apply product attribute filter hook
@@ -69,25 +72,34 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
 
         ProductInterfaceQueryDefinition def;
         if (RelationType.UPSELL_PRODUCTS.equals(relationtype)) {
-            def = p -> p.upsellProducts(generateProductQuery());
+            def = p -> p.sku().upsellProducts(generateProductQuery());
         } else if (RelationType.CROSS_SELL_PRODUCTS.equals(relationtype)) {
-            def = p -> p.crosssellProducts(generateProductQuery());
+            def = p -> p.sku().crosssellProducts(generateProductQuery());
         } else {
-            def = p -> p.relatedProducts(generateProductQuery());
+            def = p -> p.sku().relatedProducts(generateProductQuery());
         }
 
         ProductsQueryDefinition queryArgs = q -> q.items(def);
         return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
     }
 
+    public String fetchSku() {
+        if (fetchedProduct == null) {
+            populate();
+        }
+        return fetchedProduct.map(ProductInterface::getSku).orElse(null);
+    }
+
     @Override
     protected void populate() {
         super.populate();
         if (products == null || products.isEmpty()) {
+            fetchedProduct = Optional.empty();
             return;
         }
 
         ProductInterface product = products.get(0);
+        fetchedProduct = Optional.of(product);
 
         if (RelationType.UPSELL_PRODUCTS.equals(relationtype)) {
             products = product.getUpsellProducts();
@@ -102,11 +114,11 @@ class RelatedProductsRetriever extends AbstractProductsRetriever {
     protected ProductInterfaceQueryDefinition generateProductQuery() {
         return q -> {
             q.sku()
-                .name()
-                .thumbnail(t -> t.label().url())
                 .urlKey()
                 .urlPath()
                 .urlRewrites(uq -> uq.url())
+                .name()
+                .thumbnail(t -> t.label().url())
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp
