@@ -79,7 +79,6 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.granite.ui.components.ValueMapResourceWrapper;
-import com.day.cq.wcm.api.Page;
 
 @Model(adaptables = SlingHttpServletRequest.class, adapters = ProductList.class, resourceType = ProductListImpl.RESOURCE_TYPE)
 public class ProductListImpl extends ProductCollectionImpl implements ProductList {
@@ -252,9 +251,8 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                         CommerceExperienceFragmentImpl.RESOURCE_TYPE);
                     String fragmentLocation = fragment.getValueMap().get(PN_FRAGMENT_LOCATION, String.class);
                     resourceWrapper.getValueMap().put(PN_FRAGMENT_LOCATION, fragmentLocation);
-                    List<Resource> fragments =
-                        fragmentsRetriever.getExperienceFragmentsForCategory(categoryUidToSearchFor, fragmentLocation, currentPage);
-                    if (!
+
+                    if (!fragmentsRetriever.getExperienceFragmentsForCategory(categoryUidToSearchFor, fragmentLocation, currentPage)
                         .isEmpty()) {
                         fragments.add(new CommerceExperienceFragmentContainerImpl(resourceWrapper,
                             fragmentCssClass));
@@ -262,10 +260,9 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                 }
             }
         }
-    }
 
         return fragments;
-}
+    }
 
     @Nonnull
     @Override
@@ -298,9 +295,9 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                     // find and process category aggregation options related to child categories of
                     // current category
                     List<SearchAggregationOption> filteredOptions = options.stream().map(
-                            option -> option instanceof SearchAggregationOptionImpl
-                                ? (SearchAggregationOptionImpl) option
-                                : new SearchAggregationOptionImpl(option))
+                        option -> option instanceof SearchAggregationOptionImpl
+                            ? (SearchAggregationOptionImpl) option
+                            : new SearchAggregationOptionImpl(option))
                         .filter(option -> {
                             Optional<CategoryTree> categoryRef = childCategories.stream()
                                 .filter(c -> String.valueOf(c.getId()).equals(
