@@ -99,7 +99,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -134,7 +133,7 @@ public class ProductListImplTest {
                 mock(CommerceExperienceFragmentsRetriever.class));
             List<Resource> xfs = new ArrayList<>();
             xfs.add(context.resourceResolver().getResource("/content/experience-fragments/pageA/xf"));
-            Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(any(), eq("grid"), same(1), any())).thenReturn(xfs);
+            Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(any(), eq("grid"), any())).thenReturn(xfs);
         })
         .build();
 
@@ -175,11 +174,12 @@ public class ProductListImplTest {
             "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK,
             "{customAttributeMetadata");
-        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient,
+            HttpStatus.SC_OK,
             "{categoryList(filters:{url_path");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient,
             HttpStatus.SC_OK,
-            "{categoryList(filters:{category_uid");
+            "{categoryList(filters:{category_uid:{eq:\"MTI==\"}");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient,
             HttpStatus.SC_OK, "pageSize:6");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient,

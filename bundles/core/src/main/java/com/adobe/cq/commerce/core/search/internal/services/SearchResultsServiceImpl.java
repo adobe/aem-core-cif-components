@@ -153,7 +153,12 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 categoryRetriever.setIdentifier(mutableSearchOptions.getCategoryUid().get());
             }
             category = categoryRetriever.fetchCategory();
-            if (category != null && category.getUid() != null) {
+            if (category == null) {
+                // category not found
+                LOGGER.debug("Category not found.");
+                return new ImmutablePair<>(null, searchResultsSet);
+            }
+            if (category.getUid() != null) {
                 mutableSearchOptions.setCategoryUid(category.getUid().toString());
             }
         }
@@ -417,11 +422,11 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final Consumer<ProductInterfaceQuery> productQueryHook) {
         return (ProductInterfaceQuery q) -> {
             q.sku()
-                .name()
-                .smallImage(i -> i.url())
                 .urlKey()
                 .urlPath()
                 .urlRewrites(uq -> uq.url())
+                .name()
+                .smallImage(i -> i.url())
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp

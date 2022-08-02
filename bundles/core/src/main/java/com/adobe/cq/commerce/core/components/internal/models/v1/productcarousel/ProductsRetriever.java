@@ -153,12 +153,12 @@ class ProductsRetriever extends AbstractProductsRetriever {
     protected ProductInterfaceQueryDefinition generateProductQuery() {
         return q -> {
             q.sku()
-                .name()
-                .thumbnail(t -> t.label()
-                    .url())
                 .urlKey()
                 .urlPath()
                 .urlRewrites(uq -> uq.url())
+                .name()
+                .thumbnail(t -> t.label()
+                    .url())
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> {

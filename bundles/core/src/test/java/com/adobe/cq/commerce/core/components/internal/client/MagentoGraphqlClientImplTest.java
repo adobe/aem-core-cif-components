@@ -40,6 +40,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
+import org.mockito.internal.verification.AtMost;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.ComponentsConfigurationAdapterFactory;
@@ -66,6 +67,7 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -155,6 +157,37 @@ public class MagentoGraphqlClientImplTest {
         assertThat(
             headerMap.values().stream().flatMap(Arrays::stream).collect(Collectors.toSet()),
             hasItems("value1", "value2", "value3", "=value3=3=3=3=3"));
+    }
+
+    @Test
+    public void testLocalCacheExactMatch() {
+        context.currentPage("/content/pageD");
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(context.currentResource(), null, context.request());
+        GraphqlResponse expected = mock(GraphqlResponse.class);
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(expected);
+
+        // execute the same query twice
+        GraphqlResponse resp1 = client.execute("{dummy}");
+        GraphqlResponse resp2 = client.execute("{dummy}");
+
+        verify(graphqlClient, new AtMost(1)).execute(any(), any(), any(), any());
+        assertSame(resp1, resp2);
+    }
+
+    @Test
+    public void testLocalCacheFuzzyMatch() {
+        context.currentPage("/content/pageD");
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(context.currentResource(), null, context.request());
+        GraphqlResponse expected = mock(GraphqlResponse.class);
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(expected);
+
+        // execute the same query twice
+        GraphqlResponse<?, ?> resp1 = client.execute(
+            "{products(filter:{sku:{eq:\"ABC\"}}){items{__typename,sku,name,url_key,price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}");
+        GraphqlResponse<?, ?> resp2 = client.execute("{products(filter:{sku:{eq:\"ABC\"}}){items{__typename,sku}}");
+
+        verify(graphqlClient, new AtMost(1)).execute(any(), any(), any(), any());
+        assertSame(resp1, resp2);
     }
 
     @Test

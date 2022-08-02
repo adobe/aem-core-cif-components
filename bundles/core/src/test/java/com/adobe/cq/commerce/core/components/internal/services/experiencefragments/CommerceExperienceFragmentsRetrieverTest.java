@@ -205,14 +205,14 @@ public class CommerceExperienceFragmentsRetrieverTest {
         mockJcrQueryResult(xfRootPath, productSku, null, fragmentLocation);
         CommerceExperienceFragmentsRetriever cxfRetriever = context
             .getService(CommerceExperienceFragmentsRetriever.class);
-        return cxfRetriever.getExperienceFragmentsForProduct(productSku, fragmentLocation, 1, page);
+        return cxfRetriever.getExperienceFragmentsForProduct(productSku, fragmentLocation, page);
     }
 
     private List<Resource> getCategoryFragments(String xfRootPath, String categoryUid, String fragmentLocation) {
         mockJcrQueryResult(xfRootPath, null, categoryUid, fragmentLocation);
         CommerceExperienceFragmentsRetriever cxfRetriever = context
             .getService(CommerceExperienceFragmentsRetriever.class);
-        return cxfRetriever.getExperienceFragmentsForCategory(categoryUid, fragmentLocation, 1, page);
+        return cxfRetriever.getExperienceFragmentsForCategory(categoryUid, fragmentLocation, page);
     }
 
     private XFMockQueryResultHandler mockJcrQueryResult(String xfRootPath, String productSku, String categoryId,

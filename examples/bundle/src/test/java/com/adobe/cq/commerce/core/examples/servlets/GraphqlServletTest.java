@@ -422,7 +422,8 @@ public class GraphqlServletTest {
         requestPathInfo.setSuffix("/unknown-category.html");
 
         ProductList productListModel = context.request().adaptTo(ProductList.class);
-        Assert.assertNull(productListModel.getCategoryRetriever());
+        Assert.assertNotNull(productListModel.getCategoryRetriever());
+        Assert.assertNull(productListModel.getCategoryRetriever().fetchCategory());
     }
 
     @Test

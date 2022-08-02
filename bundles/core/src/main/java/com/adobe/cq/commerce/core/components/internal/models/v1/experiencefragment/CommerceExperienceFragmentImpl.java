@@ -81,10 +81,10 @@ public class CommerceExperienceFragmentImpl implements CommerceExperienceFragmen
         List<Resource> xfs = null;
         if (siteNavigation.isProductPage(currentPage)) {
             String sku = urlProvider.getProductIdentifier(request);
-            xfs = fragmentsRetriever.getExperienceFragmentsForProduct(sku, fragmentLocation, 1, currentPage);
+            xfs = fragmentsRetriever.getExperienceFragmentsForProduct(sku, fragmentLocation, currentPage);
         } else if (siteNavigation.isCategoryPage(currentPage)) {
             String categoryUid = urlProvider.getCategoryIdentifier(request);
-            xfs = fragmentsRetriever.getExperienceFragmentsForCategory(categoryUid, fragmentLocation, 1, currentPage);
+            xfs = fragmentsRetriever.getExperienceFragmentsForCategory(categoryUid, fragmentLocation, currentPage);
         }
 
         if (xfs != null && !xfs.isEmpty()) {
