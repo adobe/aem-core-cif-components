@@ -218,16 +218,6 @@ public class CommerceListImplTest {
         assertEquals("Page K Title", item.getTitle());
         assertEquals("Page K description", item.getDescription());
         assertEquals("/content/pageK.html", item.getURL());
-        assertNotNull(item.getLastModified());
-        assertEquals("2022-07-27T11:28:07.945+03:00", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(item.getLastModified()
-            .getTime()));
-        Link link = item.getLink();
-        assertNotNull(link);
-        assertTrue(link.isValid());
-        assertEquals("/content/pageK.html", link.getURL());
-        Map htmlAttributes = link.getHtmlAttributes();
-        assertNotNull(htmlAttributes);
-        assertEquals("/content/pageK.html", htmlAttributes.get("href"));
 
         verify(associatedContentService).listProductContentPages(isA(ResourceResolver.class), argThat(hasId("MJ01")));
         verify(associatedContentService, times(0)).listCategoryContentPages(any(), any());
