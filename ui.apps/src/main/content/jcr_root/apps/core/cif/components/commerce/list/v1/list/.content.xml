@@ -20,4 +20,4 @@
     jcr:title="Commerce List"
     sling:resourceSuperType="core/wcm/components/list/v3/list"
     componentGroup="CIF Core Components"
-    teaserDelegate="core/cif/components/content/teaser"/>
+    teaserDelegate="core/cif/components/content/teaser/v3/teaser"/>
