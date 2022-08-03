@@ -28,14 +28,12 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.SlingHttpServletRequestWrapper;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.Via;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
-import org.apache.sling.models.annotations.via.ForcedResourceType;
 import org.apache.sling.models.factory.ModelFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -72,10 +70,6 @@ public class CommerceListImpl extends DataLayerComponent implements List {
     @OSGiService
     private ModelFactory modelFactory;
 
-    @Self
-    @Via(type = ForcedResourceType.class, value = CORE_WCM_LIST_RESOURCE_TYPE)
-    private List wcmList;
-
     @ValueMapValue(name = List.PN_SOURCE, injectionStrategy = InjectionStrategy.OPTIONAL)
     private String listFrom;
 
@@ -106,6 +100,8 @@ public class CommerceListImpl extends DataLayerComponent implements List {
     @OSGiService
     private UrlProvider urlProvider;
 
+    private List wcmList;
+
     @PostConstruct
     void initModel() {
         AssociatedContentQuery<Page> contentQuery = null;
@@ -131,29 +127,29 @@ public class CommerceListImpl extends DataLayerComponent implements List {
             }
         }
 
-        if (contentQuery == null) {
-            return;
-        }
-
-        if (maxItems > 0) {
-            contentQuery.withLimit(maxItems);
-        }
-
-        ArrayList<Page> pages = new ArrayList<>();
-        contentQuery.execute().forEachRemaining(pages::add);
-        String[] pagePaths = pages.stream().map(Page::getPath).toArray(String[]::new);
-
         ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(request.getResource(), CORE_WCM_LIST_RESOURCE_TYPE);
         ValueMap valueMap = resourceWrapper.getValueMap();
         valueMap.putAll(request.getResource().getValueMap());
-        valueMap.put(PN_PAGES, pagePaths);
-        valueMap.put(PN_SOURCE, LIST_SOURCE_STATIC);
+        if (contentQuery != null) {
+            if (maxItems > 0) {
+                contentQuery.withLimit(maxItems);
+            }
+
+            ArrayList<Page> pages = new ArrayList<>();
+            contentQuery.execute().forEachRemaining(pages::add);
+            String[] pagePaths = pages.stream().map(Page::getPath).toArray(String[]::new);
+
+            valueMap.put(PN_PAGES, pagePaths);
+            valueMap.put(PN_SOURCE, LIST_SOURCE_STATIC);
+        }
 
         CommerceListRequestWrapper requestWrapper = new CommerceListRequestWrapper(request, resourceWrapper);
         try {
             this.wcmList = modelFactory.createModel(requestWrapper, List.class);
         } catch (Exception x) {
             LOGGER.error("Cannot create Core WCM List model for Commerce List.", x);
+            // empty implementation to avoid NPEs
+            this.wcmList = new List() {};
         }
     }
 
