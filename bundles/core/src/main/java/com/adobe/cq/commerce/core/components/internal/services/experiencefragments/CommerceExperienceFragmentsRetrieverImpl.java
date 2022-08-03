@@ -54,19 +54,19 @@ public class CommerceExperienceFragmentsRetrieverImpl implements CommerceExperie
     private AssociatedContentService associatedContentService;
 
     @Override
-    public List<Resource> getExperienceFragmentsForProduct(String sku, String fragmentLocation, Integer maxItems, Page currentPage) {
+    public List<Resource> getExperienceFragmentsForProduct(String sku, String fragmentLocation, Page currentPage) {
         if (StringUtils.isBlank(sku)) {
             LOGGER.warn("Cannot find product for current request");
             return Collections.emptyList();
         }
 
         ResourceResolver resourceResolver = currentPage.getContentResource().getResourceResolver();
-        AssociatedContentQuery<Page> contentQuery = associatedContentService.listProductExperienceFragments(resourceResolver,
-            XfParams.of(sku).path(getExperienceFragmentsRoot(currentPage)).location(fragmentLocation));
-
-        if (maxItems != null) {
-            contentQuery.withLimit(maxItems);
-        }
+        AssociatedContentQuery<Page> contentQuery = associatedContentService
+            .listProductExperienceFragments(resourceResolver,
+                XfParams.of(sku)
+                    .path(getExperienceFragmentsRoot(currentPage))
+                    .location(fragmentLocation))
+            .withLimit(1);
 
         Iterator<Page> results = contentQuery.execute();
         if (results.hasNext()) {
@@ -78,20 +78,19 @@ public class CommerceExperienceFragmentsRetrieverImpl implements CommerceExperie
     }
 
     @Override
-    public List<Resource> getExperienceFragmentsForCategory(String categoryUid, String fragmentLocation, Integer maxItems,
-        Page currentPage) {
+    public List<Resource> getExperienceFragmentsForCategory(String categoryUid, String fragmentLocation, Page currentPage) {
         if (StringUtils.isBlank(categoryUid)) {
             LOGGER.warn("Cannot find category for current request");
             return Collections.emptyList();
         }
 
         ResourceResolver resourceResolver = currentPage.getContentResource().getResourceResolver();
-        AssociatedContentQuery<Page> contentQuery = associatedContentService.listCategoryExperienceFragments(resourceResolver,
-            XfParams.of(categoryUid).path(getExperienceFragmentsRoot(currentPage)).location(fragmentLocation));
-
-        if (maxItems != null) {
-            contentQuery.withLimit(maxItems);
-        }
+        AssociatedContentQuery<Page> contentQuery = associatedContentService
+            .listCategoryExperienceFragments(resourceResolver,
+                XfParams.of(categoryUid)
+                    .path(getExperienceFragmentsRoot(currentPage))
+                    .location(fragmentLocation))
+            .withLimit(1);
 
         Iterator<Page> results = contentQuery.execute();
         if (results.hasNext()) {

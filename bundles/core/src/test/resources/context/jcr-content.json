@@ -720,7 +720,7 @@
       "root": {
         "responsivegrid": {
           "product": {
-            "selection": "MJ01",
+            "selection": "MJ02",
             "sling:resourceType": "venia/components/commerce/product"
           }
         }

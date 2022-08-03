@@ -139,28 +139,6 @@
                                 </goals>
                             </execution>
                             <execution>
-                                <id>check-coverage</id>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                                <configuration>
-                                    <haltOnFailure>true</haltOnFailure>
-                                    <dataFile>${jacoco.data.file}</dataFile>
-                                    <rules>
-                                        <rule>
-                                            <element>BUNDLE</element>
-                                            <limits>
-                                                <limit>
-                                                    <counter>BRANCH</counter>
-                                                    <value>COVEREDRATIO</value>
-                                                    <minimum>0.8</minimum>
-                                                </limit>
-                                            </limits>
-                                        </rule>
-                                    </rules>
-                                </configuration>
-                            </execution>
-                            <execution>
                                 <id>report</id>
                                 <phase>prepare-package</phase>
                                 <goals>

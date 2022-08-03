@@ -25,6 +25,7 @@ import org.mockito.Mockito;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
@@ -55,7 +56,7 @@ public class BreadcrumbRetrieverTest {
 
         BreadcrumbRetriever retriever = new BreadcrumbRetriever(client);
 
-        retriever.setProductIdentifier(testSKU);
+        retriever.setProductIdentifierHook(input -> input.setSku(new FilterEqualTypeInput().setEq(testSKU)));
         retriever.fetchCategoriesBreadcrumbs();
         retriever.fetchCategoriesBreadcrumbs();
         retriever.fetchProduct();

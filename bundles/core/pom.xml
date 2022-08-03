@@ -575,9 +575,9 @@
 
         <!-- CIF Dependencies -->
         <dependency>
-            <groupId>com.adobe.cq.cif</groupId>
-            <artifactId>commerce-addon-common-bundle</artifactId>
-            <version>2022.07.05.1-SNAPSHOT</version>
+            <groupId>com.adobe.aem</groupId>
+            <artifactId>aem-cif-sdk-api</artifactId>
+            <version>2022.08.02.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

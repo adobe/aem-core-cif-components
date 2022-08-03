@@ -76,16 +76,12 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     @ScriptVariable
     private ValueMap properties;
 
-    private AbstractProductsRetriever productsRetriever;
+    private RelatedProductsRetriever productsRetriever;
     private RelationType relationType;
     private String productSku;
 
     @PostConstruct
     private void initModel() {
-        if (!isConfigured()) {
-            return;
-        }
-
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
         } else {
@@ -95,29 +91,28 @@ public class RelatedProductsImpl extends ProductCarouselBase {
 
     @Override
     public boolean isConfigured() {
-        return properties.get(PN_PRODUCT, String.class) != null
-            || urlProvider.getProductIdentifier(request) != null;
+        return productSku != null || (productsRetriever != null && productsRetriever.fetchSku() != null);
     }
 
     private void configureProductsRetriever() {
         String relationTypeProperty = properties.get(PN_RELATION_TYPE, String.class);
         String product = properties.get(PN_PRODUCT, String.class);
 
-        if (StringUtils.isNotBlank(product)) {
-            productSku = product; // The picker is configured to return the SKU
-        } else {
-            productSku = urlProvider.getProductIdentifier(request);
-        }
-
         relationType = relationTypeProperty != null ? RelationType.valueOf(relationTypeProperty) : RelationType.RELATED_PRODUCTS;
         productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, relationType);
-        productsRetriever.setIdentifiers(Collections.singletonList(productSku));
+
+        if (StringUtils.isNotBlank(product)) {
+            productSku = product; // The picker is configured to return the SKU
+            productsRetriever.setIdentifiers(Collections.singletonList(productSku));
+        } else {
+            productsRetriever.extendProductFilterWith(urlProvider.getProductFilterHook(request));
+        }
     }
 
     @Override
     @JsonIgnore
     public List<ProductListItem> getProducts() {
-        if (productsRetriever == null || !isConfigured()) {
+        if (!isConfigured()) {
             return Collections.emptyList();
         }
 
@@ -184,6 +179,9 @@ public class RelatedProductsImpl extends ProductCarouselBase {
      */
     @JsonSerialize(as = CommerceIdentifier.class)
     public CommerceIdentifier getCommerceIdentifier() {
+        if (productSku == null) {
+            productSku = productsRetriever.fetchSku();
+        }
         return new ListItemIdentifier(productSku);
     }
 }

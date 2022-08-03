@@ -120,7 +120,9 @@ public class CatalogPageNotFoundFilter implements Filter {
                 ProductList productList = commerceModelFinder.findProductListComponentModel(slingRequest, currentPage.getContentResource());
                 if (productList != null) {
                     AbstractCategoryRetriever categoryRetriever = productList.getCategoryRetriever();
-                    if (categoryRetriever == null || categoryRetriever.fetchCategory() == null) {
+                    // since CIF-2916 the categoryRetriever is null when using the placeholder data, however the product list still
+                    // returns the placeholder products and so we check additionally if the list is empty.
+                    if ((categoryRetriever == null || categoryRetriever.fetchCategory() == null) && productList.getProducts().isEmpty()) {
                         slingResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Category not found");
                         return;
                     }

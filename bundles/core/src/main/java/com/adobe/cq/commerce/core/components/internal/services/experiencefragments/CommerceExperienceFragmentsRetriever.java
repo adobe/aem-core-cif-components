@@ -35,7 +35,7 @@ public interface CommerceExperienceFragmentsRetriever {
      * 
      * @return The a list of experience fragments that match this container.
      */
-    List<Resource> getExperienceFragmentsForProduct(String sku, String fragmentLocation, Integer maxItems, Page currentPage);
+    List<Resource> getExperienceFragmentsForProduct(String sku, String fragmentLocation, Page currentPage);
 
     /**
      * This method returns a list of experience fragments that match the location
@@ -43,6 +43,6 @@ public interface CommerceExperienceFragmentsRetriever {
      * 
      * @return The a list of experience fragments that match this container.
      */
-    List<Resource> getExperienceFragmentsForCategory(String categoryUid, String fragmentLocation, Integer maxItems, Page currentPage);
+    List<Resource> getExperienceFragmentsForCategory(String categoryUid, String fragmentLocation, Page currentPage);
 
 }
