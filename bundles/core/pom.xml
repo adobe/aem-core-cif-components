@@ -577,7 +577,7 @@
         <dependency>
             <groupId>com.adobe.aem</groupId>
             <artifactId>aem-cif-sdk-api</artifactId>
-            <version>2022.08.02.1-SNAPSHOT</version>
+            <version>2022.08.02.00</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
