@@ -15,18 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.experiencefragments;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
 import javax.jcr.RangeIterator;
-import javax.jcr.Session;
-import javax.jcr.Workspace;
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryManager;
-import javax.jcr.query.QueryResult;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
@@ -36,7 +29,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragment;
+import com.adobe.cq.cif.common.associatedcontent.AssociatedContentQuery;
+import com.adobe.cq.cif.common.associatedcontent.AssociatedContentService;
+import com.adobe.cq.cif.common.associatedcontent.AssociatedContentService.XfParams;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMException;
@@ -55,6 +50,9 @@ public class CommerceExperienceFragmentsRetrieverImpl implements CommerceExperie
     @Reference
     private LiveRelationshipManager relationshipManager;
 
+    @Reference
+    private AssociatedContentService associatedContentService;
+
     @Override
     public List<Resource> getExperienceFragmentsForProduct(String sku, String fragmentLocation, Page currentPage) {
         if (StringUtils.isBlank(sku)) {
@@ -62,82 +60,50 @@ public class CommerceExperienceFragmentsRetrieverImpl implements CommerceExperie
             return Collections.emptyList();
         }
 
-        String query = buildQueryForProduct(sku, fragmentLocation, currentPage);
-        return findExperienceFragments(query, currentPage.getContentResource().getResourceResolver());
+        ResourceResolver resourceResolver = currentPage.getContentResource().getResourceResolver();
+        AssociatedContentQuery<Page> contentQuery = associatedContentService
+            .listProductExperienceFragments(resourceResolver,
+                XfParams.of(sku)
+                    .path(getExperienceFragmentsRoot(currentPage))
+                    .location(fragmentLocation))
+            .withLimit(1);
+
+        Iterator<Page> results = contentQuery.execute();
+        if (results.hasNext()) {
+            Page xfVariationPage = results.next();
+            return Collections.singletonList(xfVariationPage.getContentResource());
+        }
+
+        return Collections.emptyList();
     }
 
     @Override
-    public List<Resource> getExperienceFragmentsForCategory(String categoryUid, String fragmentLocation,
-        Page currentPage) {
+    public List<Resource> getExperienceFragmentsForCategory(String categoryUid, String fragmentLocation, Page currentPage) {
         if (StringUtils.isBlank(categoryUid)) {
             LOGGER.warn("Cannot find category for current request");
             return Collections.emptyList();
         }
 
-        String query = buildQueryForCategory(categoryUid, fragmentLocation, currentPage);
-        return findExperienceFragments(query, currentPage.getContentResource().getResourceResolver());
-    }
+        ResourceResolver resourceResolver = currentPage.getContentResource().getResourceResolver();
+        AssociatedContentQuery<Page> contentQuery = associatedContentService
+            .listCategoryExperienceFragments(resourceResolver,
+                XfParams.of(categoryUid)
+                    .path(getExperienceFragmentsRoot(currentPage))
+                    .location(fragmentLocation))
+            .withLimit(1);
 
-    private String buildQueryForProduct(String sku, String fragmentLocation, Page currentPage) {
-        // This query is backed up by an index
-        final String PRODUCT_QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s') "
-            + "AND (node.[" + CommerceExperienceFragment.PN_CQ_PRODUCTS + "] = '%s' OR node.[" + CommerceExperienceFragment.PN_CQ_PRODUCTS
-            + "] LIKE '%s#%%') "
-            + "AND node.[" + CommerceExperienceFragment.PN_FRAGMENT_LOCATION + "] ";
-
-        String query = String.format(PRODUCT_QUERY_TEMPLATE, getExperienceFragmentsRoot(currentPage), sku, sku);
-        if (fragmentLocation != null) {
-            query += "= '" + fragmentLocation + "'";
-        } else {
-            query += "IS NULL";
+        Iterator<Page> results = contentQuery.execute();
+        if (results.hasNext()) {
+            Page xfVariationPage = results.next();
+            return Collections.singletonList(xfVariationPage.getContentResource());
         }
 
-        return query;
-    }
-
-    private String buildQueryForCategory(String categoryId, String fragmentLocation, Page currentPage) {
-        final String CATEGORY_QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s') "
-            + "AND node.[" + CommerceExperienceFragment.PN_CQ_CATEGORIES + "] = '%s' "
-            + "AND node.[" + CommerceExperienceFragment.PN_FRAGMENT_LOCATION + "] ";
-
-        String query = String.format(CATEGORY_QUERY_TEMPLATE, getExperienceFragmentsRoot(currentPage), categoryId);
-        if (fragmentLocation != null) {
-            query += "= '" + fragmentLocation + "'";
-        } else {
-            query += "IS NULL";
-        }
-
-        return query;
+        return Collections.emptyList();
     }
 
     private String getExperienceFragmentsRoot(Page currentPage) {
         String localizationRoot = getLocalizationRoot(currentPage.getPath(), currentPage.getContentResource().getResourceResolver());
         return localizationRoot != null ? localizationRoot.replace("/content/", XF_ROOT) : XF_ROOT;
-    }
-
-    private List<Resource> findExperienceFragments(String query, ResourceResolver resolver) {
-        LOGGER.debug("Looking for experience fragments with query: {}", query);
-
-        List<Resource> experienceFragments = new ArrayList<>();
-        try {
-            Session session = resolver.adaptTo(Session.class);
-            Workspace workspace = session.getWorkspace();
-            QueryManager qm = workspace.getQueryManager();
-            Query jcrQuery = qm.createQuery(query, "JCR-SQL2");
-            QueryResult result = jcrQuery.execute();
-            NodeIterator nodes = result.getNodes();
-            while (nodes.hasNext()) {
-                Node node = nodes.nextNode();
-                Resource resource = resolver.getResource(node.getPath());
-                if (resource != null) {
-                    experienceFragments.add(resource);
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.error("Error looking for experience fragments", e);
-        }
-
-        return experienceFragments;
     }
 
     /**

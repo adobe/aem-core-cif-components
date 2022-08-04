@@ -238,24 +238,24 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             fragments = new ArrayList<>();
 
             if (fragmentsNode != null && fragmentsNode.hasChildren()) {
-                Iterable<Resource> configuredFragments = fragmentsNode.getChildren();
-                for (Resource fragment : configuredFragments) {
+                for (Resource fragment : fragmentsNode.getChildren()) {
                     ValueMap fragmentVm = fragment.getValueMap();
                     Integer fragmentPage = fragmentVm.get(PN_FRAGMENT_PAGE, -1);
-                    if (fragmentPage.equals(currentPageIndex)) {
-                        String fragmentCssClass = fragment.getValueMap().get(PN_FRAGMENT_CSS_CLASS, String.class);
-                        ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(
-                            fragment,
-                            CommerceExperienceFragmentImpl.RESOURCE_TYPE);
-                        String fragmentLocation = fragment.getValueMap().get(PN_FRAGMENT_LOCATION,
-                            String.class);
-                        resourceWrapper.getValueMap().put(PN_FRAGMENT_LOCATION, fragmentLocation);
-                        if (!fragmentsRetriever
-                            .getExperienceFragmentsForCategory(categoryUidToSearchFor, fragmentLocation, currentPage)
-                            .isEmpty()) {
-                            fragments.add(new CommerceExperienceFragmentContainerImpl(resourceWrapper,
-                                fragmentCssClass));
-                        }
+
+                    if (!fragmentPage.equals(currentPageIndex)) {
+                        continue;
+                    }
+
+                    String fragmentCssClass = fragment.getValueMap().get(PN_FRAGMENT_CSS_CLASS, String.class);
+                    ValueMapResourceWrapper resourceWrapper = new ValueMapResourceWrapper(fragment,
+                        CommerceExperienceFragmentImpl.RESOURCE_TYPE);
+                    String fragmentLocation = fragment.getValueMap().get(PN_FRAGMENT_LOCATION, String.class);
+                    resourceWrapper.getValueMap().put(PN_FRAGMENT_LOCATION, fragmentLocation);
+
+                    if (!fragmentsRetriever.getExperienceFragmentsForCategory(categoryUidToSearchFor, fragmentLocation, currentPage)
+                        .isEmpty()) {
+                        fragments.add(new CommerceExperienceFragmentContainerImpl(resourceWrapper,
+                            fragmentCssClass));
                     }
                 }
             }

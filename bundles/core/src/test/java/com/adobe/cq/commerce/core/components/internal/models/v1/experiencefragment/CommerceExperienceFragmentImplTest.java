@@ -84,7 +84,8 @@ public class CommerceExperienceFragmentImplTest {
                 isNull(String.class), any())).thenReturn(Collections.singletonList(xf1uid));
             Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(eq("uid2"),
                 eq("location-xf2"), any())).thenReturn(Collections.singletonList(xf2uid));
-            Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(eq("uid3"), any(), any())).thenReturn(Collections.emptyList());
+            Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(eq("uid3"), any(), any())).thenReturn(Collections
+                .emptyList());
             Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(isNull(String.class),
                 any(), any())).thenReturn(Collections.emptyList());
         })
