@@ -30,23 +30,18 @@ try {
     ci.stage("Integration Tests");
     let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
-    let graphqlClientVersion = ci.sh('mvn help:evaluate -Dexpression=graphql.client.version -q -DforceStdout', true);
     let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
 
     ci.dir(qpPath, () => {
         // Connect to QP
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
-
-        // We install the graphql-client by default except with the CIF Add-On
-        let extras = `--bundle com.adobe.commerce.cif:graphql-client:${graphqlClientVersion}:jar`;
+        
+        // Download latest add-on release from artifactory
+        ci.sh(`mvn -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=cif-cloud-ready-feature-pkg -Dversion=LATEST -Dtype=far -Dclassifier=cq-commerce-addon-authorfar -DoutputDirectory=${buildPath} -DoutputFileName=addon.far`);
+        let extras = ` --install-file ${buildPath}/addon.far`;
         if (AEM == 'classic') {
         	// The core components are already installed in the Cloud SDK
         	extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
-        	extras += ` --bundle com.adobe.cq.cif:commerce-addon-common-bundle:2022.08.02.00:jar`;
-        } else if (AEM == 'addon') {
-            // Download latest add-on release from artifactory
-            ci.sh(`mvn -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=cif-cloud-ready-feature-pkg -Dversion=LATEST -Dtype=far -Dclassifier=cq-commerce-addon-authorfar -DoutputDirectory=${buildPath} -DoutputFileName=addon.far`);
-            extras = ` --install-file ${buildPath}/addon.far`;
         }
         
         // Start CQ
