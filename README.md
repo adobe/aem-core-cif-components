@@ -36,6 +36,7 @@ See the [AEM Content & Commerce documentation](https://experienceleague.adobe.co
 - [Featured Category List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist)
 - [Commerce Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/teaser/v3/teaser)
 - [Commerce Button](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/button/v2/button)
+- [Commerce List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/list/v1/list)
 - [Sign In](react-components/src/components/SignIn)
 - [Create Account](react-components/src/components/CreateAccount)
 - [Mini Account](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/miniaccount/v2/miniaccount)

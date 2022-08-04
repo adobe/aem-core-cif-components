@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:nt="http://www.jcp.org/jcr/nt/1.0" jcr:primaryType="cq:Page">
-    <jcr:content cq:lastModified="{Date}2020-10-08T15:16:08.704+02:00" cq:lastModifiedBy="admin" cq:tags="[]" cq:template="/conf/core-components-examples/settings/wcm/templates/content-page" jcr:description="Display commerce product data" jcr:primaryType="cq:PageContent" jcr:title="Product" sling:resourceType="cif-components-examples/components/page">
+    <jcr:content cq:lastModified="{Date}2020-10-08T15:16:08.704+02:00" cq:lastModifiedBy="admin" cq:tags="[]" cq:template="/conf/core-components-examples/settings/wcm/templates/content-page" jcr:description="Display commerce product data" jcr:primaryType="cq:PageContent" jcr:title="Product" sling:resourceType="cif-components-examples/components/page" cq:products="MH01">
         <root jcr:primaryType="nt:unstructured" sling:resourceType="wcm/foundation/components/responsivegrid">
             <responsivegrid jcr:primaryType="nt:unstructured" sling:resourceType="wcm/foundation/components/responsivegrid">
                 <text_1740702241 cq:styleIds="[1644862132301]" jcr:created="{Date}2019-02-15T19:05:53.032+01:00" jcr:createdBy="admin" jcr:lastModified="{Date}2019-02-15T19:09:39.787+01:00" jcr:lastModifiedBy="admin" jcr:primaryType="nt:unstructured" sling:resourceType="core-components-examples/components/text" text="&lt;h1>Product&lt;sub>v3&lt;/sub>&lt;/h1>" textIsRich="true" />
@@ -38,7 +38,7 @@
                         <markup cq:panelTitle="Markup" jcr:primaryType="nt:unstructured" sling:resourceType="core-components-examples/components/demo/markup" reference="../../component" />
                     </info>
                 </xf-demo>
-                <text_cf jcr:created="{Date}2018-12-06T19:23:41.968+01:00" jcr:createdBy="admin" jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00" jcr:lastModifiedBy="admin" jcr:primaryType="nt:unstructured" sling:resourceType="core-components-examples/components/text" text="&lt;p>In addition to the product component, this demonstrates the Commerce Content Fragment component displaying its content dynamically based on the &quot;modePath&quot; property and the SKU of the product currently being displayed. This is empty unless the product SKU matches MH01.&lt;/p>" textIsRich="true" />
+                <text_cf jcr:created="{Date}2018-12-06T19:23:41.968+01:00" jcr:createdBy="admin" jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00" jcr:lastModifiedBy="admin" jcr:primaryType="nt:unstructured" sling:resourceType="core-components-examples/components/text" text="&lt;p>In addition to the product component, this demonstrates the Commerce Content Fragment component displaying its content dynamically based on the &quot;modelPath&quot; property and the SKU of the product currently being displayed. This is empty unless the product SKU matches MH01.&lt;/p>" textIsRich="true" />
                 <cf-demo jcr:created="{Date}2018-12-07T12:55:03.496+01:00" jcr:createdBy="admin" jcr:lastModified="{Date}2018-12-07T12:55:03.496+01:00" jcr:lastModifiedBy="admin" jcr:primaryType="nt:unstructured" sling:resourceType="cif-components-examples/components/demo">
                     <component jcr:primaryType="nt:unstructured" sling:resourceType="core-components-examples/components/demo/component">
                         <cf jcr:created="{Date}2020-08-17T16:22:56.378+02:00" jcr:createdBy="admin" jcr:lastModified="{Date}2020-08-17T16:22:56.378+02:00" jcr:lastModifiedBy="admin" jcr:primaryType="nt:unstructured" sling:resourceType="cif-components-examples/components/contentfragment" displayMode="multi" elementNames="productSpecs" modelPath="/conf/core-components-examples/settings/dam/cfm/models/product-specs" linkElement="productSku" />
@@ -48,6 +48,16 @@
                         <markup cq:panelTitle="Markup" jcr:primaryType="nt:unstructured" sling:resourceType="core-components-examples/components/demo/markup" reference="../../component" />
                     </info>
                 </cf-demo>
+                <text_list jcr:created="{Date}2018-12-06T19:23:41.968+01:00" jcr:createdBy="admin" jcr:lastModified="{Date}2019-05-22T11:26:32.604+03:00" jcr:lastModifiedBy="admin" jcr:primaryType="nt:unstructured" sling:resourceType="core-components-examples/components/text" text="&lt;p>In addition to the product component, this demonstrates the Commerce List component displaying the list of pages related to the product dynamically based on the SKU of the product currently being displayed. This is empty unless the product SKU matches MH01.&lt;/p>" textIsRich="true" />
+                <list-demo jcr:created="{Date}2018-12-07T12:55:03.496+01:00" jcr:createdBy="admin" jcr:lastModified="{Date}2018-12-07T12:55:03.496+01:00" jcr:lastModifiedBy="admin" jcr:primaryType="nt:unstructured" sling:resourceType="cif-components-examples/components/demo">
+                    <component jcr:primaryType="nt:unstructured" sling:resourceType="core-components-examples/components/demo/component">
+                        <list jcr:created="{Date}2020-08-17T16:22:56.378+02:00" jcr:createdBy="admin" jcr:lastModified="{Date}2020-08-17T16:22:56.378+02:00" jcr:lastModifiedBy="admin" jcr:primaryType="nt:unstructured" sling:resourceType="cif-components-examples/components/list" listFrom="productAssociation"/>
+                    </component>
+                    <info jcr:primaryType="nt:unstructured" sling:resourceType="core-components-examples/components/tabs">
+                        <properties cq:panelTitle="Properties" jcr:primaryType="nt:unstructured" sling:resourceType="core-components-examples/components/demo/properties" reference="../../component" />
+                        <markup cq:panelTitle="Markup" jcr:primaryType="nt:unstructured" sling:resourceType="core-components-examples/components/demo/markup" reference="../../component" />
+                    </info>
+                </list-demo>
             </responsivegrid>
         </root>
     </jcr:content>
