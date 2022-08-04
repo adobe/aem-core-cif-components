@@ -17,26 +17,16 @@ package com.adobe.cq.commerce.it.http;
 
 import org.apache.sling.testing.clients.ClientException;
 import org.apache.sling.testing.clients.SlingHttpResponse;
-import org.codehaus.jackson.JsonNode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ContentFragmentComponentIT extends CommerceTestBase {
 
     // Differentiates between the HTML output of the component itself, and the tab displaying the HTML output
     private static final String CONTENT_FRAGMENT_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .contentfragment ";
-
-    // Skip test for AEM 6.5
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        JsonNode info = adminAuthor.doGetJson("/system/console/status-productinfo.json", 0);
-        Assume.assumeFalse(info.get(6).getValueAsText().split("[\\(\\)]")[1].startsWith("6.5"));
-    }
 
     @Test
     public void testContentFragmenWithSampleData() throws ClientException {
