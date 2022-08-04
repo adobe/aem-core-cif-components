@@ -19,6 +19,7 @@ import org.apache.sling.testing.clients.ClientException;
 import org.apache.sling.testing.clients.SlingHttpResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,24 +41,24 @@ public class CommerceListComponentIT extends CommerceTestBase {
         // Check titles
         Elements titleElements = elements.get(0).select(".cmp-list__item .cmp-list__item-title");
         Assert.assertEquals(2, titleElements.size());
-        Assert.assertEquals("Product", titleElements.first().html());
-        Assert.assertEquals("Commerce List", titleElements.last().html());
+        Assert.assertTrue(checkMatch("Product", "Commerce List", titleElements.first(), titleElements.last()));
 
         titleElements = elements.get(1).select(".cmp-list__item .cmp-list__item-title");
         Assert.assertEquals(2, titleElements.size());
-        Assert.assertEquals("Product List", titleElements.first().html());
-        Assert.assertEquals("Commerce List", titleElements.last().html());
+        Assert.assertTrue(checkMatch("Product List", "Commerce List", titleElements.first(), titleElements.last()));
 
         // items as links
         titleElements = elements.get(2).select(".cmp-list__item-link .cmp-list__item-title");
         Assert.assertEquals(2, titleElements.size());
-        Assert.assertEquals("Product List", titleElements.first().html());
-        Assert.assertEquals("Commerce List", titleElements.last().html());
+        Assert.assertTrue(checkMatch("Product List", "Commerce List", titleElements.first(), titleElements.last()));
 
         // items as teasers
         titleElements = elements.get(3).select(".cmp-list__item .cmp-teaser__title");
         Assert.assertEquals(2, titleElements.size());
-        Assert.assertEquals("Product List", titleElements.first().html());
-        Assert.assertEquals("Commerce List", titleElements.last().html());
+        Assert.assertTrue(checkMatch("Product List", "Commerce List", titleElements.first(), titleElements.last()));
+    }
+
+    private static boolean checkMatch(String s1, String s2, Element e1, Element e2) {
+        return s1.equals(e1.html()) && s2.equals(e2.html()) || s1.equals(e2.html()) && s2.equals(e1.html());
     }
 }
