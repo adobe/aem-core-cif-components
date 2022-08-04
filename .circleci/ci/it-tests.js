@@ -42,7 +42,7 @@ try {
         if (AEM == 'classic') {
         	// The core components are already installed in the Cloud SDK
         	extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
-        	extras += ` --bundle com.adobe.cq.cif.commerce-addon-common-bundle:2022.08.02.00:jar`;
+        	extras += ` --bundle com.adobe.cq.cif:commerce-addon-common-bundle:2022.08.02.00:jar`;
         } else if (AEM == 'addon') {
             // Download latest add-on release from artifactory
             ci.sh(`mvn -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=cif-cloud-ready-feature-pkg -Dversion=LATEST -Dtype=far -Dclassifier=cq-commerce-addon-authorfar -DoutputDirectory=${buildPath} -DoutputFileName=addon.far`);
