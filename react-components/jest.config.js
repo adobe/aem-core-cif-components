@@ -20,7 +20,7 @@ module.exports = {
     coverageDirectory: '<rootDir>/coverage',
     coverageReporters: ['json', 'lcov'],
     coveragePathIgnorePatterns: ['<rootDir>/src/queries', '\\.(gql|graphql)$'],
-    testPathIgnorePatterns: ['<rootDir>/node_modules/'],
+    testPathIgnorePatterns: ['<rootDir>/node_modules/', '__mocks__'],
     reporters: ['default', ['jest-junit', { outputDirectory: './test-results' }]],
     transform: {
         '.+\\.json': './__mocks__/jsonTransform.js',

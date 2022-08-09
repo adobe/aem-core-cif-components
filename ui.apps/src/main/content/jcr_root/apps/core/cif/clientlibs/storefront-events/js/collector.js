@@ -15,7 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-const processProductStorefrontData = (mse) => {
+const processProductStorefrontData = mse => {
     const productCtxElement = document.querySelector('[data-cif-product-context]');
     if (productCtxElement) {
         try {
@@ -28,7 +28,7 @@ const processProductStorefrontData = (mse) => {
     }
 };
 
-const processSearchInputStorefrontData = (mse) => {
+const processSearchInputStorefrontData = mse => {
     const searchInputCtxElement = document.querySelector('[data-cif-search-input-context]');
     if (searchInputCtxElement) {
         try {
@@ -40,7 +40,7 @@ const processSearchInputStorefrontData = (mse) => {
     }
 };
 
-const processSearchResultsStorefrontData = (mse) => {
+const processSearchResultsStorefrontData = mse => {
     const searchResultsCtxElement = document.querySelector('[data-cif-search-results-context]');
     if (searchResultsCtxElement) {
         try {
@@ -52,7 +52,7 @@ const processSearchResultsStorefrontData = (mse) => {
     }
 };
 
-const processCategoryStorefrontData = (mse) => {
+const processCategoryStorefrontData = mse => {
     const categoryCtxElement = document.querySelector('[data-cif-category-context]');
     if (categoryCtxElement) {
         try {
@@ -64,7 +64,7 @@ const processCategoryStorefrontData = (mse) => {
     }
 };
 
-const setStorefrontContexts = (mse) => {
+const setStorefrontContexts = mse => {
     processProductStorefrontData(mse);
     processSearchInputStorefrontData(mse);
     processSearchResultsStorefrontData(mse);
@@ -76,5 +76,4 @@ document.addEventListener('mse-loaded', function() {
     const mse = window.magentoStorefrontEvents;
 
     setStorefrontContexts(mse);
-})
-
+});

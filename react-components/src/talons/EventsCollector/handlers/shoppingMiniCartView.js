@@ -1,0 +1,46 @@
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2022 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+import { getCartTotal, getCurrency, getFormattedProducts } from '../utils';
+
+const canHandle = event => event.type === 'MINI_CART_VIEW';
+
+const handle = (sdk, event) => {
+    const { payload } = event;
+
+    const { cartId: id, products } = payload;
+
+    const cartContext = {
+        id: id,
+        prices: {
+            subtotalExcludingTax: {
+                value: getCartTotal(products),
+                currency: getCurrency(products)
+            }
+        },
+        items: getFormattedProducts(products),
+        possibleOnepageCheckout: false,
+        giftMessageSelected: false,
+        giftWrappingSelected: false
+    };
+
+    sdk.context.setShoppingCart(cartContext);
+    sdk.publish.shoppingCartView();
+};
+
+export default {
+    canHandle,
+    handle
+};
