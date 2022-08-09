@@ -15,12 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-import mse from '@adobe/magento-storefront-events-sdk';
-
-// Expose Magento Storefront Events SDK on the global window object
-window.magentoStorefrontEvents = mse;
-
-const processProductStorefrontData = () => {
+const processProductStorefrontData = (mse) => {
     const productCtxElement = document.querySelector('[data-cif-product-context]');
     if (productCtxElement) {
         try {
@@ -33,7 +28,7 @@ const processProductStorefrontData = () => {
     }
 };
 
-const processSearchInputStorefrontData = () => {
+const processSearchInputStorefrontData = (mse) => {
     const searchInputCtxElement = document.querySelector('[data-cif-search-input-context]');
     if (searchInputCtxElement) {
         try {
@@ -45,7 +40,7 @@ const processSearchInputStorefrontData = () => {
     }
 };
 
-const processSearchResultsStorefrontData = () => {
+const processSearchResultsStorefrontData = (mse) => {
     const searchResultsCtxElement = document.querySelector('[data-cif-search-results-context]');
     if (searchResultsCtxElement) {
         try {
@@ -57,7 +52,7 @@ const processSearchResultsStorefrontData = () => {
     }
 };
 
-const processCategoryStorefrontData = () => {
+const processCategoryStorefrontData = (mse) => {
     const categoryCtxElement = document.querySelector('[data-cif-category-context]');
     if (categoryCtxElement) {
         try {
@@ -69,15 +64,17 @@ const processCategoryStorefrontData = () => {
     }
 };
 
-const onDocumentReady = () => {
-    processProductStorefrontData();
-    processSearchInputStorefrontData();
-    processSearchResultsStorefrontData();
-    processCategoryStorefrontData();
+const setStorefrontContexts = (mse) => {
+    processProductStorefrontData(mse);
+    processSearchInputStorefrontData(mse);
+    processSearchResultsStorefrontData(mse);
+    processCategoryStorefrontData(mse);
 };
 
-if (document.readyState !== 'loading') {
-    onDocumentReady();
-} else {
-    document.addEventListener('DOMContentLoaded', onDocumentReady);
-}
+document.addEventListener('mse-loaded', function() {
+    console.log('mse-loaded');
+    const mse = window.magentoStorefrontEvents;
+
+    setStorefrontContexts(mse);
+})
+
