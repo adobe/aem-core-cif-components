@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2021 Adobe
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!-- ====================================================================== -->
+    <!-- P A R E N T  P R O J E C T  D E S C R I P T I O N                      -->
+    <!-- ====================================================================== -->
+    <parent>
+        <groupId>com.adobe.commerce.cif</groupId>
+        <artifactId>core-cif-components-parent</artifactId>
+        <version>2.10.1-SNAPSHOT</version>
+        <relativePath>../../parent/pom.xml</relativePath>
+    </parent>
+    <!-- ====================================================================== -->
+    <!-- P R O J E C T  D E S C R I P T I O N                                   -->
+    <!-- ====================================================================== -->
+    <artifactId>core-cif-components-extensions-experience-platform-connector</artifactId>
+    <packaging>pom</packaging>
+
+    <name>AEM CIF Core Components - Experience Platform Connector</name>
+    <description>Experience Platform Connector for AEM CIF Core Components Product Recommendations</description>
+    <url>https://github.com/adobe/aem-core-cif-components</url>
+
+    <organization>
+        <name>Adobe</name>
+        <url>https://www.adobe.com</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <vault.package.version>${project.version}</vault.package.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <configuration>
+                    <installDirectory>../../frontend-maven-plugin</installDirectory>
+                </configuration>
+
+                <!-- The default phase for all executions is "generate-resources" -->
+                <executions>
+                    <execution>
+                        <id>Install node and npm</id>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>npm-install</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>npm-webpack-development</id> <!-- webpack development mode -->
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${webpack.prod}</skip>
+                            <arguments>run webpack:dev</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-webpack-production</id> <!-- webpack production mode -->
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${webpack.dev}</skip>
+                            <arguments>run webpack:prod</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-module-link</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>link</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-module-publish</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>publish</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <!-- This is executed during release:prepare to bump the NPM release version -->
+                    <execution>
+                        <id>npm-version</id>
+                        <configuration>
+                            <skip>false</skip>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>version</argument>
+                                <argument>${project.version}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>dist</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

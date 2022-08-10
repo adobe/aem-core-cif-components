@@ -30,9 +30,6 @@ export default ({ aep = null, snowPlow = null }) => {
                 window.magentoStorefrontEvents = mse;
             }
 
-            const event = new CustomEvent('mse-loaded');
-            document.dispatchEvent(event);
-
             mse.context.setEventForwarding({
                 aep: aep !== null,
                 commerce: snowPlow !== null
