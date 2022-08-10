@@ -28,15 +28,13 @@
     "i18n:extract-compile": "formatjs extract --out-file i18n/__temp.json 'src/**/*.js' && formatjs compile --ast --out-file i18n/en.json i18n/__temp.json && rm i18n/__temp.json"
   },
   "devDependencies": {
-    "@adobe/magento-storefront-event-collector": "^1.1.15",
-    "@adobe/magento-storefront-events-sdk": "^1.1.15",
     "@apollo/client": "~3.1.2",
     "@babel/core": "^7.8.7",
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-react": "^7.8.3",
     "@formatjs/cli": "^4.2.33",
-    "@magento/peregrine": "~12.5.0",
+    "@magento/peregrine": "^11.0.0",
     "@peculiar/webcrypto": "^1.1.4",
     "@testing-library/jest-dom": "^5.14.0",
     "@testing-library/react": "^9.5.0",
@@ -76,8 +74,6 @@
     "webpack-cli": "^3.3.11"
   },
   "peerDependencies": {
-    "@adobe/magento-storefront-event-collector": "^1.1.15",
-    "@adobe/magento-storefront-events-sdk": "^1.1.15",
     "@apollo/client": "^3.1.2",
     "@magento/peregrine": "^11.0.0 || ~12.5.0",
     "braintree-web-drop-in": "^1.22.1",
