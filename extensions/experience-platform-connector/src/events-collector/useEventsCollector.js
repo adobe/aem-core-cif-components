@@ -16,9 +16,9 @@
 import { useEventingContext } from '@magento/peregrine/lib/context/eventing';
 import { useUserContext } from '@magento/peregrine/lib/context/user';
 import { useEffect, useState } from 'react';
-import { default as handleEvent } from './handleEvent';
+import { default as handleEvent } from '@magento/experience-platform-connector/src/handleEvent';
 
-export default ({ aep = null, snowPlow = null }) => {
+export default ({ aep = null, acds = false }) => {
     const [{ isSignedIn, currentUser }] = useUserContext();
     const [observable] = useEventingContext();
 
@@ -32,7 +32,7 @@ export default ({ aep = null, snowPlow = null }) => {
 
             mse.context.setEventForwarding({
                 aep: aep !== null,
-                commerce: snowPlow !== null
+                commerce: acds
             });
 
             if (aep) {

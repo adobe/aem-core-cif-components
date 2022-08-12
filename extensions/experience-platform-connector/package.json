@@ -18,13 +18,11 @@
     "lint:fix": "eslint --fix 'src/**/*.js'",
     "webpack:dev": "webpack --mode=development",
     "webpack:prod": "webpack --mode=production && node css-template.js",
-    "test": "npm run lint && npm run prettier:check && jest --coverage",
-    "jest": "jest --coverage",
-    "ci": "npm run lint && npm run prettier:check && jest --ci --runInBand --coverage",
-    "test:watch": "npm run lint && jest --watch",
+    "test": "npm run lint && npm run prettier:check",
+    "ci": "npm run lint && npm run prettier:check",
+    "test:watch": "npm run lint",
     "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
-    "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc",
-    "snapshot:update": "jest --updateSnapshot"
+    "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc"
   },
   "devDependencies": {
     "@adobe/magento-storefront-event-collector": "^1.1.15",
@@ -33,6 +31,7 @@
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-react": "^7.8.3",
+    "@magento/experience-platform-connector": "^1.0.0",
     "@magento/peregrine": "^12.5.0",
     "@testing-library/jest-dom": "^5.14.0",
     "@testing-library/react": "^9.5.0",
@@ -56,6 +55,7 @@
   "peerDependencies": {
     "@adobe/magento-storefront-event-collector": "^1.1.15",
     "@adobe/magento-storefront-events-sdk": "^1.1.15",
+    "@magento/experience-platform-connector": "^1.0.0",
     "@magento/peregrine": "^12.5.0",
     "react": "^17.0.2"
   },

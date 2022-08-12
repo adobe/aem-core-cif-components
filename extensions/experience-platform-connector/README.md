@@ -16,7 +16,7 @@ limitations under the License.
 
 # Experience Platform Connector
 
-This is a Javascript library collects Storefront events and forwards them to AEP.
+This Javascript library collects Storefront events and forwards them to AEP.
 
 It exports the `useEventsCollector` React hook which subscribes to all storefront events.
 This hook requires the Peregrine user context. So it must be used in a React component that is wrapped inside that context.
@@ -24,6 +24,7 @@ The hook takes the configuration as an argument:
 
 ```javascript
 useEventsCollector({
-    aep: { orgId: 'IMS ORG ID', datastreamId: 'The ID of the datastream used in AEP' }
+    aep: { orgId: 'IMS ORG ID', datastreamId: 'The ID of the datastream used in AEP' },
+    acds: false
 });
 ```
