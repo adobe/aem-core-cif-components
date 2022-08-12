@@ -1,0 +1,1 @@
+This clientlib has been deprecated in favour of @adobe/aem-core-cif-experience-platform-connector library
