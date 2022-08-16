@@ -30,6 +30,9 @@ class VariantSelector {
             // Currently selected variant attributes
             attributes: {},
 
+            // Currently selected variant attributes for Beacon tracking
+            selections: {},
+
             // Reference to buttons
             buttons: [],
 
@@ -74,6 +77,11 @@ class VariantSelector {
             this._state.attributes = this._state.variant.hasOwnProperty('variantAttributesUid')
                 ? { ...this._state.variant.variantAttributesUid }
                 : { ...this._state.variant.variantAttributes };
+
+            Object.entries(this._state.attributes).forEach(([attribute, id]) => {
+                this._state.selections[attribute] = this._element.querySelector(`button[data-id="${id}"]`).dataset.title
+            })
+
             this._emitVariantChangedEvent();
         }
     }
@@ -162,6 +170,7 @@ class VariantSelector {
         // Get value identifier from button
         const button = event.target.closest('button');
         const valueIdentifier = button.dataset.id;
+        const valueLabel = button.dataset.title;
 
         // Get attribute identifier from parent
         const parent = button.closest('div.tileList__root');
@@ -169,6 +178,9 @@ class VariantSelector {
 
         // Store selected variant
         this._state.attributes[attributeIdentifier] = valueIdentifier;
+
+        // Store selection
+        this._state.selections[attributeIdentifier] = valueLabel;
 
         // Find selected variant based on selected variants attributes
         this._state.variant = this._findSelectedVariant.bind(this)();

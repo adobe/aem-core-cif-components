@@ -35,6 +35,7 @@ class AddToCart {
             parentSku,
             productId,
             attributes: {},
+            storefrontData: {},
             configurable,
             virtual,
             grouped,
@@ -67,7 +68,7 @@ class AddToCart {
      * Variant changed event handler.
      */
     _onUpdateVariant(event) {
-        const { variant, attributes } = event.detail;
+        const { variant, attributes, selections } = event.detail;
 
         // Disable add to cart button if no valid variant is available
         if (!variant) {
@@ -80,6 +81,17 @@ class AddToCart {
         this._state.productId = variant.id;
         this._state.attributes = attributes;
         this._element.disabled = false;
+        this._state.storefrontData = {
+            sku: variant.sku,
+            name: variant.name,
+            priceTotal: variant.priceRange.finalPrice,
+            currencyCode: variant.priceRange.currency,
+            discountAmount: variant.priceRange.discountAmount,
+            selectedOptions: Object.entries(selections).map(([attribute, value]) => ({
+                attribute,
+                value
+            }))
+        }
     }
 
     _onQuantityChanged() {
@@ -121,7 +133,11 @@ class AddToCart {
                     productId: selection.dataset.productId,
                     sku: selection.dataset.productSku,
                     virtual: this._state.grouped ? selection.dataset.virtual !== undefined : this._state.virtual,
-                    quantity: selection.value
+                    quantity: selection.value,
+                    storefrontData: {
+                        ...this._state.storefrontData,
+                        quantity: selection.value
+                    },
                 };
 
                 if (this._state.useUid) {
@@ -143,7 +159,11 @@ class AddToCart {
                 productId: this._state.productId,
                 sku: this._state.sku,
                 virtual: this._state.virtual,
-                quantity: quantity
+                quantity: quantity,
+                storefrontData: {
+                    ...this._state.storefrontData,
+                    quantity: quantity
+                },
             };
 
             if (this._state.useUid) {

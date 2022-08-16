@@ -13,7 +13,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import { useEventListener } from '../../utils/hooks';
+import { useEventListener, useStorefrontEvents } from '../../utils/hooks';
 import useAddToCart from './useAddToCart';
 
 const productMapper = item => ({
@@ -36,7 +36,7 @@ const giftCardProductMapper = item => ({
 
 const useAddToCartEvent = (props = {}) => {
     const { fallbackHandler } = props;
-    const [, defaultAddToCartApi] = useAddToCart();
+    const [{ cartId }, defaultAddToCartApi] = useAddToCart();
     const { addToCartApi = defaultAddToCartApi } = props;
 
     useEventListener(document, 'aem.cif.add-to-cart', async event => {
@@ -56,6 +56,45 @@ const useAddToCartEvent = (props = {}) => {
         const virtualCartItems = nonUidItems.filter(item => item.virtual).map(productMapper);
         const bundleCartItems = nonUidItems.filter(item => item.bundle).map(bundledProductMapper);
         const giftCardCartItems = nonUidItems.filter(item => item.giftCard).map(giftCardProductMapper);
+
+        const mse = useStorefrontEvents();
+        if (mse) {
+            const cartItemContext = {
+                id: cartId,
+                prices: {
+                    subtotalExcludingTax: {
+                        value: 0,
+                        currency: ''
+                    }
+                },
+                items: [],
+                possibleOnepageCheckout: false,
+                giftMessageSelected: false,
+                giftWrappingSelected: false
+            }
+
+            items.forEach(item => {
+                const { storefrontData } = item;
+                cartItemContext.items.push({
+                    product: {
+                        name: storefrontData.name,
+                        sku: storefrontData.sku,
+                        configurableOptions: storefrontData.selectedOptions
+                    },
+                    prices: {
+                        price: {
+                            value: storefrontData.priceTotal,
+                            currency: storefrontData.currencyCode
+                        }
+                    }
+                });
+                cartItemContext.prices.subtotalExcludingTax.value += storefrontData.priceTotal * storefrontData.quantity;
+                cartItemContext.prices.subtotalExcludingTax.currency = storefrontData.currencyCode
+            })
+
+            mse.context.setShoppingCart(cartItemContext);
+            mse.publish.addToCart();
+        }
 
         if (useUidItems.length > 0) {
             await addToCartApi.addProductsToCart(useUidItems);

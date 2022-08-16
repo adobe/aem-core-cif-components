@@ -64,7 +64,7 @@
     "graphql": "^15.3.0"
   },
   "dependencies": {
-    "@adobe/magento-storefront-events-sdk": "^0.17.0",
+    "@adobe/magento-storefront-events-sdk": "^1.1.15",
     "@babel/polyfill": "^7.8.3"
   }
 }
