@@ -57,6 +57,7 @@ const useAddToCartEvent = (props = {}) => {
         const bundleCartItems = nonUidItems.filter(item => item.bundle).map(bundledProductMapper);
         const giftCardCartItems = nonUidItems.filter(item => item.giftCard).map(giftCardProductMapper);
 
+        // eslint-disable-next-line react-hooks/rules-of-hooks
         const mse = useStorefrontEvents();
         if (mse) {
             const cartItemContext = {
