@@ -70,7 +70,7 @@ const processCategoryStorefrontData = () => {
 };
 
 const processAddToCartStorefronData = () => {
-    document.addEventListener('aem.cif.add-to-cart', (event) => {
+    document.addEventListener('aem.cif.add-to-cart', event => {
         console.log('aem.cif.add-to-cart', event);
         //mse.publish.addToCart();
 
@@ -106,8 +106,8 @@ const processAddToCartStorefronData = () => {
     sdk.context.setShoppingCart(cartItemContext);
     sdk.publish.addToCart();
     */
-    })
-}
+    });
+};
 
 const onDocumentReady = () => {
     processProductStorefrontData();

@@ -91,7 +91,7 @@ class AddToCart {
                 attribute,
                 value
             }))
-        }
+        };
     }
 
     _onQuantityChanged() {
@@ -137,7 +137,7 @@ class AddToCart {
                     storefrontData: {
                         ...this._state.storefrontData,
                         quantity: selection.value
-                    },
+                    }
                 };
 
                 if (this._state.useUid) {
@@ -163,7 +163,7 @@ class AddToCart {
                 storefrontData: {
                     ...this._state.storefrontData,
                     quantity: quantity
-                },
+                }
             };
 
             if (this._state.useUid) {

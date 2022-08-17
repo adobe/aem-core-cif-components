@@ -79,8 +79,10 @@ class VariantSelector {
                 : { ...this._state.variant.variantAttributes };
 
             Object.entries(this._state.attributes).forEach(([attribute, id]) => {
-                this._state.selections[attribute] = this._element.querySelector(`button[data-id="${id}"]`).dataset.title
-            })
+                this._state.selections[attribute] = this._element.querySelector(
+                    `button[data-id="${id}"]`
+                ).dataset.title;
+            });
 
             this._emitVariantChangedEvent();
         }
