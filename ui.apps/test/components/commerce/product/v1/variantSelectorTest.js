@@ -51,8 +51,8 @@ describe('Product', () => {
                 'afterbegin',
                 `<div class="productFullDetail__options">
                     <div class="tileList__root" data-id="color">
-                        <button class="swatch__root" data-id="red" />
-                        <button data-id="blue" />
+                        <button class="swatch__root" data-id="red" data-title="red"/>
+                        <button data-id="blue" data-title="blue"/>
                     </div>
                 </div>
                 <div class="productFullDetail__quantity">
@@ -74,8 +74,8 @@ describe('Product', () => {
                 'afterbegin',
                 `<div class="productFullDetail__options">
                     <div class="tileList__root" data-id="color">
-                        <button class="swatch__root" data-id="cmVk" />
-                        <button data-id="Ymx1ZQ==" />
+                        <button class="swatch__root" data-id="cmVk" data-title="red" />
+                        <button data-id="Ymx1ZQ==" data-title="blue" />
                     </div>
                 </div>
                 <div class="productFullDetail__quantity">
@@ -201,7 +201,7 @@ describe('Product', () => {
             // Simulate button click
             selector._onSelectVariant({
                 target: selectorRoot.querySelector("[data-id='red']"),
-                preventDefault: () => {}
+                preventDefault: () => { }
             });
 
             assert.isTrue(spy.called);
@@ -217,7 +217,7 @@ describe('Product', () => {
             // Simulate button click
             selector._onSelectVariant({
                 target: selectorRootUid.querySelector("[data-id='cmVk']"),
-                preventDefault: () => {}
+                preventDefault: () => { }
             });
 
             assert.isTrue(spy.called);
@@ -229,7 +229,7 @@ describe('Product', () => {
             // Simulate button click
             selector._onSelectVariant({
                 target: selectorRoot.querySelector("[data-id='red']"),
-                preventDefault: () => {}
+                preventDefault: () => { }
             });
 
             // Verify location hash
@@ -244,7 +244,7 @@ describe('Product', () => {
             // Simulate button click
             selector._onSelectVariant({
                 target: selectorRootUid.querySelector("[data-id='cmVk']"),
-                preventDefault: () => {}
+                preventDefault: () => { }
             });
 
             // Verify location hash

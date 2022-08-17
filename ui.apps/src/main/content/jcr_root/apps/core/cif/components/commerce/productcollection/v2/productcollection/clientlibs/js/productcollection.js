@@ -135,7 +135,6 @@ class ProductCollection {
             ProductCollection.selectors.item + ', ' + ProductCollection.selectors.xfitem
         );
 
-        console.log('more', more, 'moreItems', moreItems);
         // Append new product items to existing product gallery
         let galleryItems = this._element.querySelector(ProductCollection.selectors.galleryItems);
         galleryItems.append(...moreItems);

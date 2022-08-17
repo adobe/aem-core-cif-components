@@ -99,9 +99,17 @@ describe('Product', () => {
                 bubbles: true,
                 detail: {
                     variant: {
-                        sku: 'variant-sku'
+                        sku: 'variant-sku',
+                        priceRange: {
+                            finalPrice: 10,
+                            currency: "USD",
+                            discountAmount: 0
+                        },
                     },
                     attributes: {
+                        color: 'red'
+                    },
+                    selections: {
                         color: 'red'
                     }
                 }
