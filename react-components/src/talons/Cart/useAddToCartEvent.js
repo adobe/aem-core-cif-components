@@ -71,7 +71,7 @@ const useAddToCartEvent = (props = {}) => {
                 possibleOnepageCheckout: false,
                 giftMessageSelected: false,
                 giftWrappingSelected: false
-            }
+            };
 
             items.forEach(item => {
                 const { storefrontData } = item;
@@ -79,18 +79,29 @@ const useAddToCartEvent = (props = {}) => {
                     product: {
                         name: storefrontData.name,
                         sku: storefrontData.sku,
-                        configurableOptions: storefrontData.selectedOptions
+                        pricing: {
+                            regularPrice: storefrontData.priceTotal,
+                            specialPrice:
+                                storefrontData.priceTotal -
+                                (isNaN(storefrontData.discount) ? 0 : storefrontData.discount)
+                        }
                     },
                     prices: {
                         price: {
                             value: storefrontData.priceTotal,
                             currency: storefrontData.currencyCode
                         }
-                    }
+                    },
+                    configurableOptions: storefrontData.selectedOptions.map(o => ({
+                        optionLabel: o.attribute,
+                        valueLabel: o.value
+                    })),
+                    quantity: storefrontData.quantity
                 });
-                cartItemContext.prices.subtotalExcludingTax.value += storefrontData.priceTotal * storefrontData.quantity;
-                cartItemContext.prices.subtotalExcludingTax.currency = storefrontData.currencyCode
-            })
+                cartItemContext.prices.subtotalExcludingTax.value +=
+                    storefrontData.priceTotal * storefrontData.quantity;
+                cartItemContext.prices.subtotalExcludingTax.currency = storefrontData.currencyCode;
+            });
 
             mse.context.setShoppingCart(cartItemContext);
             mse.publish.addToCart();
