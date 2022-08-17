@@ -74,9 +74,10 @@ class VariantSelector {
         // If variant is valid, store variant attributes and emit event to update
         // buttons and parent components.
         if (this._state.variant) {
-            this._state.attributes = this._state.useUid && this._state.variant.hasOwnProperty('variantAttributesUid')
-                ? { ...this._state.variant.variantAttributesUid }
-                : { ...this._state.variant.variantAttributes };
+            this._state.attributes =
+                this._state.useUid && this._state.variant.hasOwnProperty('variantAttributesUid')
+                    ? { ...this._state.variant.variantAttributesUid }
+                    : { ...this._state.variant.variantAttributes };
 
             Object.entries(this._state.attributes).forEach(([attribute, id]) => {
                 this._state.selections[attribute] = this._element.querySelector(

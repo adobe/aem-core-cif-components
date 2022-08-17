@@ -102,9 +102,9 @@ describe('Product', () => {
                         sku: 'variant-sku',
                         priceRange: {
                             finalPrice: 10,
-                            currency: "USD",
+                            currency: 'USD',
                             discountAmount: 0
-                        },
+                        }
                     },
                     attributes: {
                         color: 'red'

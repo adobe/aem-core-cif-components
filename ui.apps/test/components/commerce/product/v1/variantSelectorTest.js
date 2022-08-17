@@ -201,7 +201,7 @@ describe('Product', () => {
             // Simulate button click
             selector._onSelectVariant({
                 target: selectorRoot.querySelector("[data-id='red']"),
-                preventDefault: () => { }
+                preventDefault: () => {}
             });
 
             assert.isTrue(spy.called);
@@ -217,7 +217,7 @@ describe('Product', () => {
             // Simulate button click
             selector._onSelectVariant({
                 target: selectorRootUid.querySelector("[data-id='cmVk']"),
-                preventDefault: () => { }
+                preventDefault: () => {}
             });
 
             assert.isTrue(spy.called);
@@ -229,7 +229,7 @@ describe('Product', () => {
             // Simulate button click
             selector._onSelectVariant({
                 target: selectorRoot.querySelector("[data-id='red']"),
-                preventDefault: () => { }
+                preventDefault: () => {}
             });
 
             // Verify location hash
@@ -244,7 +244,7 @@ describe('Product', () => {
             // Simulate button click
             selector._onSelectVariant({
                 target: selectorRootUid.querySelector("[data-id='cmVk']"),
-                preventDefault: () => { }
+                preventDefault: () => {}
             });
 
             // Verify location hash
