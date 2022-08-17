@@ -69,52 +69,11 @@ const processCategoryStorefrontData = () => {
     }
 };
 
-const processAddToCartStorefronData = () => {
-    document.addEventListener('aem.cif.add-to-cart', event => {
-        console.log('aem.cif.add-to-cart', event);
-        //mse.publish.addToCart();
-
-        /*
-        const cartItemContext = {
-        id: cartId,
-        prices: {
-            subtotalExcludingTax: {
-                value: priceTotal * quantity,
-                currency: currencyCode
-            }
-        },
-        items: [
-            {
-                product: {
-                    name: name,
-                    sku: sku,
-                    configurableOptions: configurableOptions
-                },
-                prices: {
-                    price: {
-                        value: priceTotal,
-                        currency: currencyCode
-                    }
-                }
-            }
-        ],
-        possibleOnepageCheckout: false,
-        giftMessageSelected: false,
-        giftWrappingSelected: false
-    };
-
-    sdk.context.setShoppingCart(cartItemContext);
-    sdk.publish.addToCart();
-    */
-    });
-};
-
 const onDocumentReady = () => {
     processProductStorefrontData();
     processSearchInputStorefrontData();
     processSearchResultsStorefrontData();
     processCategoryStorefrontData();
-    processAddToCartStorefronData();
 };
 
 if (document.readyState !== 'loading') {
