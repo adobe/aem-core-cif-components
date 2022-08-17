@@ -126,26 +126,6 @@
                             <arguments>run prettier:check</arguments>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>npm-webpack-development</id> <!-- webpack development mode -->
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${webpack.prod}</skip>
-                            <arguments>run webpack:dev</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm-webpack-production</id> <!-- webpack production mode -->
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${webpack.dev}</skip>
-                            <arguments>run webpack:prod</arguments>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             <plugin>

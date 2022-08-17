@@ -333,6 +333,7 @@
                         <!-- Clientlib files -->
                         <exclude>**/js.txt</exclude>
                         <exclude>**/css.txt</exclude>
+                        <exclude>**/DEPRECATED.txt</exclude>
                         <!-- Karma tests -->
                         <exclude>**/karma-junit/*.xml</exclude>
                         <exclude>**/coverage/**</exclude>
