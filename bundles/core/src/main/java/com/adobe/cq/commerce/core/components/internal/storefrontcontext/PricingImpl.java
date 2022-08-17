@@ -1,5 +1,5 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ Copyright 2021 Adobe
+ ~ Copyright 2022 Adobe
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -15,43 +15,29 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.storefrontcontext;
 
-import org.apache.sling.api.resource.Resource;
-
 import com.adobe.cq.commerce.core.components.storefrontcontext.Pricing;
-import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 
-public class ProductStorefrontContextImpl extends AbstractCommerceStorefrontContext
-    implements ProductStorefrontContext {
-
+public class PricingImpl implements Pricing {
     private final ProductInterface product;
-    private Pricing pricing = null;
 
-    public ProductStorefrontContextImpl(ProductInterface product, Resource resource) {
-        super(resource);
+    public PricingImpl(ProductInterface product) {
         this.product = product;
     }
 
     @Override
-    public Integer getId() {
-        return 0;
+    public Double getSpecialPrice() {
+        return product.getPriceRange().getMinimumPrice().getFinalPrice().getValue();
     }
 
     @Override
-    public String getSku() {
-        return product.getSku();
+    public Double getRegularPrice() {
+        return product.getPriceRange().getMinimumPrice().getRegularPrice().getValue();
     }
 
     @Override
-    public String getName() {
-        return product.getName();
+    public String getCurrencyCode() {
+        return product.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency().toString();
     }
 
-    @Override
-    public Pricing getPricing() {
-        if (pricing == null) {
-            pricing = new PricingImpl(product);
-        }
-        return pricing;
-    }
 }
