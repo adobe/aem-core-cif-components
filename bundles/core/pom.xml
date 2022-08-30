@@ -575,6 +575,12 @@
 
         <!-- CIF Dependencies -->
         <dependency>
+            <groupId>com.adobe.aem</groupId>
+            <artifactId>aem-cif-sdk-api</artifactId>
+            <version>2022.08.02.00</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.adobe.commerce.cif</groupId>
             <artifactId>graphql-client</artifactId>
             <version>${graphql.client.version}</version>

@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productlist;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Currency;
 import java.util.List;
@@ -50,9 +51,11 @@ import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
+import com.adobe.cq.commerce.core.components.internal.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizer;
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragmentContainer;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
@@ -81,8 +84,10 @@ import com.adobe.cq.commerce.magento.graphql.Products;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
+import com.day.cq.wcm.msm.api.LiveRelationshipManager;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Function;
@@ -93,6 +98,7 @@ import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -102,9 +108,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ProductListImplTest {
 
-    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-        "my-store", "enableUIDSupport", "true"));
-    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
+    private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(
+        ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+            "my-store", "enableUIDSupport", "true"));
+    private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(
+        MOCK_CONFIGURATION);
 
     @Rule
     public final AemContext context = buildAemContext("/context/jcr-content.json")
@@ -115,6 +123,17 @@ public class ProductListImplTest {
             Utils.addDataLayerConfig(mockConfigBuilder, true);
             Utils.addStorefrontContextConfig(mockConfigBuilder, true);
             context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
+            context.registerService(LiveRelationshipManager.class, mock(LiveRelationshipManager.class));
+            LanguageManager languageManager = context.registerService(LanguageManager.class,
+                mock(LanguageManager.class));
+            Page rootPage = context.pageManager().getPage(PAGE);
+            Mockito.when(languageManager.getLanguageRoot(any())).thenReturn(rootPage);
+            CommerceExperienceFragmentsRetriever cxfRetriever = context.registerService(
+                CommerceExperienceFragmentsRetriever.class,
+                mock(CommerceExperienceFragmentsRetriever.class));
+            List<Resource> xfs = new ArrayList<>();
+            xfs.add(context.resourceResolver().getResource("/content/experience-fragments/pageA/xf"));
+            Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(any(), eq("grid"), any())).thenReturn(xfs);
         })
         .build();
 
@@ -122,6 +141,8 @@ public class ProductListImplTest {
     private static final String PAGE = "/content/pageA";
     private static final String PRODUCTLIST = "/content/pageA/jcr:content/root/responsivegrid/productlist";
     private static final String PRODUCT_LIST_NO_SORTING = "/content/pageA/jcr:content/root/responsivegrid/productlist_no_sorting";
+    private static final String PRODUCT_LIST_WITH_XF = "/content/pageA/jcr:content/root/responsivegrid/productlist_with_xf";
+    private static final String PRODUCT_LIST_WITH_MULTIPLE_XF = "/content/pageA/jcr:content/root/responsivegrid/productlist_with_multiple_xf";
 
     private Resource productListResource;
     private Resource pageResource;
@@ -141,25 +162,38 @@ public class ProductListImplTest {
 
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
-        category = Utils.getQueryFromResource("graphql/magento-graphql-search-category-result-category.json").getCategoryList().get(0);
-        products = Utils.getQueryFromResource("graphql/magento-graphql-search-category-result-products.json").getProducts();
+        category = Utils.getQueryFromResource("graphql/magento-graphql-search-category-result-category.json")
+            .getCategoryList().get(0);
+        products = Utils.getQueryFromResource("graphql/magento-graphql-search-category-result-products.json")
+            .getProducts();
 
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
         context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
 
-        Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
-        Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
-        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
+        Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK,
+            "{__type");
+        Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK,
+            "{customAttributeMetadata");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient,
+            HttpStatus.SC_OK,
             "{categoryList(filters:{url_path");
-        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{category_uid");
-        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient,
+            HttpStatus.SC_OK,
+            "{categoryList(filters:{category_uid:{eq:\"MTI==\"}");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient,
+            HttpStatus.SC_OK, "pageSize:6");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient,
+            HttpStatus.SC_OK, "pageSize:5");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products-pagesize-1.json", httpClient,
+            HttpStatus.SC_OK,
+            "pageSize:1");
 
         // magento-graphql-category-uid
 
         when(productListResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
-        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
-            "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+        context.registerAdapter(Resource.class, GraphqlClient.class,
+            (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+                "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         // This is needed by the SearchResultsService used by the productlist component
         pageResource = Mockito.spy(page.adaptTo(Resource.class));
@@ -174,7 +208,8 @@ public class ProductListImplTest {
         requestPathInfo.setSuffix("/category-1.html");
         context.request().setServletPath(PAGE + ".html/category-1.html"); // used by context.request().getRequestURI();
 
-        // This sets the page attribute injected in the models with @Inject or @ScriptVariable
+        // This sets the page attribute injected in the models with @Inject or
+        // @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         slingBindings.setResource(productListResource);
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
@@ -214,7 +249,8 @@ public class ProductListImplTest {
         Collection<ProductListItem> products = productListModel.getProducts();
 
         // We cannot differentiate if the items are created from a productlist v1 and v2
-        // and do not want to introduce a new mock JSON response for this, so this is always "true"
+        // and do not want to introduce a new mock JSON response for this, so this is
+        // always "true"
         Assert.assertTrue(products.stream().allMatch(p -> p.isStaged().equals(true)));
     }
 
@@ -289,20 +325,26 @@ public class ProductListImplTest {
             Assert.assertEquals(productInterface.getName(), item.getTitle());
             Assert.assertEquals(productInterface.getSku(), item.getSKU());
             Assert.assertEquals(productInterface.getUrlKey(), item.getSlug());
-            Assert.assertEquals(String.format(PRODUCT_PAGE + ".html/%s.html", productInterface.getUrlKey()), item.getURL());
+            Assert.assertEquals(String.format(PRODUCT_PAGE + ".html/%s.html", productInterface.getUrlKey()),
+                item.getURL());
 
             Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue(),
                 item.getPriceRange().getFinalPrice(), 0);
-            Assert.assertEquals(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency().toString(),
+            Assert.assertEquals(
+                productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency().toString(),
                 item.getPriceRange().getCurrency());
-            priceFormatter.setCurrency(Currency.getInstance(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency()
-                .toString()));
-            Assert.assertEquals(priceFormatter.format(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue()),
+            priceFormatter.setCurrency(Currency
+                .getInstance(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getCurrency()
+                    .toString()));
+            Assert.assertEquals(
+                priceFormatter
+                    .format(productInterface.getPriceRange().getMinimumPrice().getFinalPrice().getValue()),
                 item.getPriceRange().getFormattedFinalPrice());
 
             ProductImage smallImage = productInterface.getSmallImage();
             if (smallImage == null) {
-                // if small image is missing for a product in GraphQL response then image URL is null for the related item
+                // if small image is missing for a product in GraphQL response then image URL is
+                // null for the related item
                 Assert.assertNull(item.getImageURL());
             } else {
                 Assert.assertEquals(smallImage.getUrl(), item.getImageURL());
@@ -316,8 +358,9 @@ public class ProductListImplTest {
         Assert.assertEquals(8, searchAggregations.size());
 
         // check category aggregation
-        Optional<SearchAggregation> categoryIdAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals(
-            ProductListImpl.CATEGORY_AGGREGATION_ID))
+        Optional<SearchAggregation> categoryIdAggregation = searchAggregations.stream()
+            .filter(a -> a.getIdentifier().equals(
+                ProductListImpl.CATEGORY_AGGREGATION_ID))
             .findAny();
         Assert.assertTrue(categoryIdAggregation.isPresent());
         List<SearchAggregationOption> options = categoryIdAggregation.get().getOptions();
@@ -334,12 +377,66 @@ public class ProductListImplTest {
         Assert.assertEquals("/content/category-page.html/running/bags.html", opt.getPageUrl());
 
         // We want to make sure all price ranges are properly processed
-        SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();
+        SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price"))
+            .findFirst().get();
         Assert.assertEquals(3, priceAggregation.getOptions().size());
         Assert.assertEquals(3, priceAggregation.getOptionCount());
         Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("30-40")));
         Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("40-*")));
         Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("14")));
+    }
+
+    @Test
+    public void getProductsWithOneFragment() {
+        context.currentResource(PRODUCT_LIST_WITH_XF);
+        adaptToProductList();
+
+        List<CommerceExperienceFragmentContainer> fragments = productListModel.getExperienceFragments();
+        Assert.assertNotNull(fragments);
+        Assert.assertEquals(1, fragments.size());
+
+        CommerceExperienceFragmentContainer xfItem = fragments.get(0);
+        Assert.assertNotNull(xfItem.getCssClassName());
+        Assert.assertNotNull(xfItem.getRenderResource());
+    }
+
+    @Test
+    public void getProductsWithMultipleFragments() {
+        context.currentResource(PRODUCT_LIST_WITH_MULTIPLE_XF);
+        adaptToProductList();
+
+        List<CommerceExperienceFragmentContainer> fragments = productListModel.getExperienceFragments();
+        Assert.assertNotNull(fragments);
+
+        // There are 4 configured XFs. one has a location that does not match any XF
+        // resource and another one is set for page 2
+        Assert.assertEquals(2, fragments.size());
+
+        CommerceExperienceFragmentContainer xfItem = fragments.get(0);
+        Assert.assertNull(xfItem.getCssClassName());
+        Assert.assertNotNull(xfItem.getRenderResource());
+
+        xfItem = fragments.get(1);
+        Assert.assertNotNull(xfItem.getCssClassName());
+        Assert.assertNotNull(xfItem.getRenderResource());
+    }
+
+    @Test
+    public void getProductsWithMultipleFragmentsPage2() {
+        context.currentResource(PRODUCT_LIST_WITH_MULTIPLE_XF);
+        context.request().getParameterMap().put("page", new String[] { "2" });
+        adaptToProductList();
+
+        List<CommerceExperienceFragmentContainer> fragments = productListModel.getExperienceFragments();
+        Assert.assertNotNull(fragments);
+
+        // There are 4 configured XFs. one has a location that does not match any XF
+        // resource and another one is set for page 2
+        Assert.assertEquals(1, fragments.size());
+
+        CommerceExperienceFragmentContainer xfItem = fragments.get(0);
+        Assert.assertNotNull(xfItem.getCssClassName());
+        Assert.assertNotNull(xfItem.getRenderResource());
     }
 
     // custom marker interface for search aggregation options
@@ -349,7 +446,8 @@ public class ProductListImplTest {
     public void getProductsWithCustomAggregationOptions() {
         adaptToProductList();
 
-        // inject custom search results service which returns custom search aggregation objects
+        // inject custom search results service which returns custom search aggregation
+        // objects
         SearchResultsService searchResultsService = (SearchResultsService) Whitebox.getInternalState(productListModel,
             "searchResultsService");
         ClassLoader classLoader = getClass().getClassLoader();
@@ -369,7 +467,8 @@ public class ProductListImplTest {
                         List<SearchAggregationOption> options = aggregation.getOptions();
                         List<SearchAggregationOption> myOptions = options.stream().map(
                             o -> (SearchAggregationOption) Proxy.newProxyInstance(classLoader, optionInterfaces,
-                                (oProxy, oMethod, oArgs) -> oMethod.invoke(o, oArgs))).collect(Collectors.toList());
+                                (oProxy, oMethod, oArgs) -> oMethod.invoke(o, oArgs)))
+                            .collect(Collectors.toList());
                         options.clear();
                         options.addAll(myOptions);
                     }
@@ -391,8 +490,9 @@ public class ProductListImplTest {
         Assert.assertEquals(8, searchAggregations.size());
 
         // check category aggregation
-        Optional<SearchAggregation> categoryIdAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals(
-            ProductListImpl.CATEGORY_AGGREGATION_ID))
+        Optional<SearchAggregation> categoryIdAggregation = searchAggregations.stream()
+            .filter(a -> a.getIdentifier().equals(
+                ProductListImpl.CATEGORY_AGGREGATION_ID))
             .findAny();
         Assert.assertTrue(categoryIdAggregation.isPresent());
         List<SearchAggregationOption> options = categoryIdAggregation.get().getOptions();
@@ -412,7 +512,8 @@ public class ProductListImplTest {
         Assert.assertEquals("/content/category-page.html/running/bags.html", opt.getPageUrl());
 
         // We want to make sure all price ranges are properly processed
-        SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price")).findFirst().get();
+        SearchAggregation priceAggregation = searchAggregations.stream().filter(a -> a.getIdentifier().equals("price"))
+            .findFirst().get();
         Assert.assertEquals(3, priceAggregation.getOptions().size());
         Assert.assertEquals(3, priceAggregation.getOptionCount());
         Assert.assertTrue(priceAggregation.getOptions().stream().anyMatch(o -> o.getDisplayLabel().equals("30-40")));
@@ -425,16 +526,20 @@ public class ProductListImplTest {
 
     @Test
     public void testFilterQueriesReturnNull() throws IOException {
-        // We want to make sure that components will not fail if the __type and/or customAttributeMetadata fields are null
+        // We want to make sure that components will not fail if the __type and/or
+        // customAttributeMetadata fields are null
         // For example, 3rd-party integrations might not support this immediately
 
         Mockito.reset(httpClient);
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{__type");
-        Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
-        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK, "{products");
+        Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK,
+            "{customAttributeMetadata");
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient,
+            HttpStatus.SC_OK, "{products");
         Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{url_path");
-        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
+        Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient,
+            HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid");
 
         adaptToProductList();
@@ -471,7 +576,8 @@ public class ProductListImplTest {
         context.request().setServletPath(PAGE + ".html"); // used by context.request().getRequestURI();
         adaptToProductList();
 
-        // Check that we get an empty list of products and the GraphQL client is never called
+        // Check that we get an empty list of products and the GraphQL client is never
+        // called
         Assert.assertTrue(productListModel.getProducts().isEmpty());
         Mockito.verify(graphqlClient, never()).execute(any(), any(), any());
         Mockito.verify(graphqlClient, never()).execute(any(), any(), any(), any());
@@ -540,14 +646,16 @@ public class ProductListImplTest {
         Map<String, String> currentOrderParameters = currentKey.getCurrentOrderParameters();
         Assert.assertNotNull(currentOrderParameters);
         Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, currentOrderParameters.size());
-        resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, currentOrderParameters.get(key)));
+        resultSet.getAppliedQueryParameters()
+            .forEach((key, value) -> Assert.assertEquals(value, currentOrderParameters.get(key)));
         Assert.assertEquals("price", currentOrderParameters.get(Sorter.PARAMETER_SORT_KEY));
         Assert.assertEquals("asc", currentOrderParameters.get(Sorter.PARAMETER_SORT_ORDER));
 
         Map<String, String> oppositeOrderParameters = currentKey.getOppositeOrderParameters();
         Assert.assertNotNull(oppositeOrderParameters);
         Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, oppositeOrderParameters.size());
-        resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, oppositeOrderParameters.get(key)));
+        resultSet.getAppliedQueryParameters()
+            .forEach((key, value) -> Assert.assertEquals(value, oppositeOrderParameters.get(key)));
         Assert.assertEquals("price", oppositeOrderParameters.get(Sorter.PARAMETER_SORT_KEY));
         Assert.assertEquals("desc", oppositeOrderParameters.get(Sorter.PARAMETER_SORT_ORDER));
 
@@ -583,14 +691,16 @@ public class ProductListImplTest {
         Map<String, String> currentOrderParameters = currentKey.getCurrentOrderParameters();
         Assert.assertNotNull(currentOrderParameters);
         Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, currentOrderParameters.size());
-        resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, currentOrderParameters.get(key)));
+        resultSet.getAppliedQueryParameters()
+            .forEach((key, value) -> Assert.assertEquals(value, currentOrderParameters.get(key)));
         Assert.assertEquals("price", currentOrderParameters.get(Sorter.PARAMETER_SORT_KEY));
         Assert.assertEquals("asc", currentOrderParameters.get(Sorter.PARAMETER_SORT_ORDER));
 
         Map<String, String> oppositeOrderParameters = currentKey.getOppositeOrderParameters();
         Assert.assertNotNull(oppositeOrderParameters);
         Assert.assertEquals(resultSet.getAppliedQueryParameters().size() + 2, oppositeOrderParameters.size());
-        resultSet.getAppliedQueryParameters().forEach((key, value) -> Assert.assertEquals(value, oppositeOrderParameters.get(key)));
+        resultSet.getAppliedQueryParameters()
+            .forEach((key, value) -> Assert.assertEquals(value, oppositeOrderParameters.get(key)));
         Assert.assertEquals("price", oppositeOrderParameters.get(Sorter.PARAMETER_SORT_KEY));
         Assert.assertEquals("desc", oppositeOrderParameters.get(Sorter.PARAMETER_SORT_ORDER));
 

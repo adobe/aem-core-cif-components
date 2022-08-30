@@ -15,11 +15,15 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.loadmoreproducts="${@ productCollection}"
           data-sly-use.itemTemplate="item.html"
+          data-sly-use.xfItemTemplate="xfitem.html"
           data-sly-use.loadMoreButtonTemplate="loadmorebutton.html">
 
 <sly data-sly-test.hasProducts="${productCollection.products}">
     <sly data-sly-list.product="${productCollection.products}">
         <sly data-sly-call="${itemTemplate.item @ item = product, productCollection=productCollection}"/>
+    </sly>
+    <sly data-sly-list.fragment="${productCollection.experienceFragments}">
+        <sly data-sly-call="${xfItemTemplate.item @ item = fragment, productCollection=productCollection}"/>
     </sly>
     <sly data-sly-call="${loadMoreButtonTemplate.loadmorebutton @ pager = productCollection.searchResultsSet.pager}"></sly>
 </sly>

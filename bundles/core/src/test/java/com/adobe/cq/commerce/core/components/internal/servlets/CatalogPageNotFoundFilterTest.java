@@ -41,6 +41,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
+import com.adobe.cq.commerce.core.components.internal.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
 import com.adobe.cq.commerce.core.search.internal.services.SearchResultsServiceImpl;
 import com.adobe.cq.commerce.core.testing.TestContext;
@@ -88,6 +89,9 @@ public class CatalogPageNotFoundFilterTest {
         this.contentModelFinder = spy(commerceModelFinder);
         aemContext.registerService(CommerceComponentModelFinder.class, this.contentModelFinder);
 
+        aemContext.registerService(CommerceExperienceFragmentsRetriever.class,
+            mock(CommerceExperienceFragmentsRetriever.class));
+
         aemContext.registerInjectActivateService(new SearchFilterServiceImpl());
         aemContext.registerInjectActivateService(new SearchResultsServiceImpl());
         aemContext.registerInjectActivateService(subject);
@@ -110,10 +114,8 @@ public class CatalogPageNotFoundFilterTest {
             "{products(filter:{sku:{eq:\"MJ01\"}}");
         Utils.setupHttpResponse("graphql/magento-graphql-product-sku.json", httpClient, HttpStatus.SC_OK,
             "{products(filter:{url_key:{eq:\"beaumont-summit-kit\"}}");
-        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_path:{eq:\"men/tops-men/jackets-men\"}}");
         Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{category_uid:{eq:\"MTI==\"}}");
+            "{categoryList(filters:{url_path:{eq:\"men/tops-men/jackets-men\"}}");
         Utils.setupHttpResponse(null, httpClient, HttpStatus.SC_NOT_FOUND, "url_key:{eq:\"does-not-exist\"}}");
     }
 

@@ -246,8 +246,27 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
     private GraphqlResponse<Query, Error> executeCached(String query, RequestOptions options) {
         try {
-            if (localResponseCache != null && localResponseCache.containsKey(query)) {
-                return localResponseCache.get(query);
+            if (localResponseCache != null) {
+                if (localResponseCache.containsKey(query)) {
+                    LOGGER.debug("Cache hit for query '{}'", query);
+                    return localResponseCache.get(query);
+                }
+
+                // fuzzy matching (a very simplified version of caching resolved graphql response objects)
+                // If a cache key (query) starts with the given query trimmed by any trailing curley brackets can assume
+                // that the cached response queried with the same filter the same fields. This only works if the queries
+                // we use define the queried fields always in the same order.
+                // Example: The query to resolve the sku from the url_key done by the UrlProvider can reuse the response
+                // from the query done by the product detail component. This helps any Commerce Content Fragment or
+                // Commerce Experience Fragment on a product detail page that is rendered after the product detail
+                // component to get the product identifier.
+                String fuzzyKey = StringUtils.removePattern(query, "\\}+$");
+                for (Map.Entry<String, GraphqlResponse<Query, Error>> entry : localResponseCache.entrySet()) {
+                    if (entry.getKey().startsWith(fuzzyKey)) {
+                        LOGGER.debug("Fuzzy cache hit for query '{}', return response of query '{}'", query, entry.getKey());
+                        return entry.getValue();
+                    }
+                }
             }
 
             GraphqlRequest request = new GraphqlRequest(query);

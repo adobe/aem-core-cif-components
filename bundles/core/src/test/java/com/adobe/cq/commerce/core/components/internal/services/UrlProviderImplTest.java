@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -62,6 +63,7 @@ import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -72,6 +74,8 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -969,5 +973,32 @@ public class UrlProviderImplTest {
             copy.setSku(parameters.getSku());
             return copy;
         }
+    }
+
+    @Test
+    public void testProductFilterHook() {
+        setCurrentPage("/content");
+        // no information in the url
+        UnaryOperator<ProductAttributeFilterInput> inputHook = urlProvider.getProductFilterHook(request);
+        assertNull(inputHook);
+
+        // default url format (url_key)
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/foobar.html");
+        ProductAttributeFilterInput input = urlProvider.getProductFilterHook(request).apply(null);
+        assertNotNull(input);
+        assertNull(input.getSku());
+        assertNotNull(input.getUrlKey());
+        assertEquals("foobar", input.getUrlKey().getEq());
+
+        // with sku and url_key, sku takes precedence
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/FOO007/foobar.html");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            UrlFormat.PRODUCT_PAGE_URL_FORMAT, ProductPageWithSkuAndUrlKey.PATTERN);
+        input = urlProvider.getProductFilterHook(request).apply(null);
+        assertNotNull(input);
+        assertNull(input.getUrlKey());
+        assertNotNull(input.getSku());
+        assertEquals("FOO007", input.getSku().getEq());
     }
 }

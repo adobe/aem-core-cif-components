@@ -75,7 +75,7 @@
   },
   "peerDependencies": {
     "@apollo/client": "^3.1.2",
-    "@magento/peregrine": "^11.0.0",
+    "@magento/peregrine": "^11.0.0 || ~12.5.0",
     "braintree-web-drop-in": "^1.22.1",
     "graphql": "~15.3.0",
     "informed": "~3.29.4",

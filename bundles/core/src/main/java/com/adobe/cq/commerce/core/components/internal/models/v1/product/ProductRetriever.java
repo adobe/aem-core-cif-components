@@ -62,11 +62,11 @@ class ProductRetriever extends AbstractProductRetriever {
     protected ProductInterfaceQueryDefinition generateProductQuery() {
         return q -> {
             q.sku()
+                .urlKey()
                 .name()
                 .description(d -> d.html())
                 .image(i -> i.label().url())
                 .thumbnail(t -> t.label().url())
-                .urlKey()
                 .stockStatus()
                 .metaDescription()
                 .metaKeyword()

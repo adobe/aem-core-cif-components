@@ -46,6 +46,7 @@ import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.internal.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -122,6 +123,8 @@ public class GraphqlServletTest {
                     (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
 
                 context.registerService(Externalizer.class, Mockito.mock(Externalizer.class));
+                context.registerService(CommerceExperienceFragmentsRetriever.class,
+                    mock(CommerceExperienceFragmentsRetriever.class));
 
                 XSSAPI xssApi = mock(XSSAPI.class);
                 when(xssApi.filterHTML(Mockito.anyString())).then(i -> i.getArgumentAt(0, String.class));
@@ -419,7 +422,8 @@ public class GraphqlServletTest {
         requestPathInfo.setSuffix("/unknown-category.html");
 
         ProductList productListModel = context.request().adaptTo(ProductList.class);
-        Assert.assertNull(productListModel.getCategoryRetriever());
+        Assert.assertNotNull(productListModel.getCategoryRetriever());
+        Assert.assertNull(productListModel.getCategoryRetriever().fetchCategory());
     }
 
     @Test
