@@ -61,17 +61,6 @@ public class SearchResultsStorefrontContextImpl extends AbstractCommerceStorefro
 
     @Override
     public List<SearchResultCategory> getCategories() {
-        SearchAggregation searchAggregationOptions = searchResultsSet
-            .getSearchAggregations().stream()
-            .filter(a -> a.getIdentifier().equals("category_id"))
-            .findFirst()
-            .orElse(null);
-
-        if (searchAggregationOptions != null) {
-            return searchAggregationOptions.getOptions().stream()
-                .map(SearchResultCategoryImpl::new).collect(Collectors.toList());
-        }
-
         return Collections.emptyList();
     }
 
