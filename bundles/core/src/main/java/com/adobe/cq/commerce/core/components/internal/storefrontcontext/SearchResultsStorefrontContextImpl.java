@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchFacet;
@@ -27,7 +26,6 @@ import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultCateg
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultProduct;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultSuggestion;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultsStorefrontContext;
-import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 
 public class SearchResultsStorefrontContextImpl extends AbstractCommerceStorefrontContext implements SearchResultsStorefrontContext {
