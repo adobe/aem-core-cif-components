@@ -188,6 +188,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
           name: Provision (Core)
           command: |
             node -v
