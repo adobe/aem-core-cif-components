@@ -33,20 +33,24 @@ import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 public class SearchResultsStorefrontContextImpl extends AbstractCommerceStorefrontContext implements SearchResultsStorefrontContext {
 
     private final SearchResultsSet searchResultsSet;
+    private final String unitId;
+    private final String requestId;
 
-    public SearchResultsStorefrontContextImpl(SearchResultsSet searchResultsSet, Resource resource) {
+    public SearchResultsStorefrontContextImpl(SearchResultsSet searchResultsSet, String requestId, String unitId, Resource resource) {
         super(resource);
         this.searchResultsSet = searchResultsSet;
+        this.unitId = unitId;
+        this.requestId = requestId;
     }
 
     @Override
     public String getSearchUnitId() {
-        return StringUtils.EMPTY;
+        return unitId;
     }
 
     @Override
     public String getSearchRequestId() {
-        return StringUtils.EMPTY;
+        return requestId;
     }
 
     @Override
@@ -88,6 +92,7 @@ public class SearchResultsStorefrontContextImpl extends AbstractCommerceStorefro
 
     @Override
     public List<SearchFacet> getFacets() {
+        // TODO: return the facets as we have them available in our result set
         return null;
     }
 

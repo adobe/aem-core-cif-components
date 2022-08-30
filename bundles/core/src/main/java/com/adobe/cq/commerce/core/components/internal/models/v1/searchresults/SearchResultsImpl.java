@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
@@ -52,6 +53,7 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
     static final String RESOURCE_TYPE_V2 = "core/cif/components/commerce/searchresults/v2/searchresults";
 
     private String searchTerm;
+    String searchRequestId = UUID.randomUUID().toString();
 
     @PostConstruct
     protected void initModel() {
@@ -109,11 +111,11 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
 
     @Override
     public SearchStorefrontContext getSearchStorefrontContext() {
-        return new SearchStorefrontContextImpl(getSearchResultsSet().getSearchOptions(), resource);
+        return new SearchStorefrontContextImpl(getSearchResultsSet().getSearchOptions(), searchRequestId, getId(), resource);
     }
 
     @Override
     public SearchResultsStorefrontContext getSearchResultsStorefrontContext() {
-        return new SearchResultsStorefrontContextImpl(getSearchResultsSet(), resource);
+        return new SearchResultsStorefrontContextImpl(getSearchResultsSet(), searchRequestId, getId(), resource);
     }
 }
