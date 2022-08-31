@@ -39,7 +39,7 @@ jest.mock('@magento/recommendations-js-sdk', () => {
 
 describe('useRecommendations', () => {
     const wrapper = ({ children }) => (
-        <StorefrontInstanceContext.Provider value={{ context: {}, error: null }}>
+        <StorefrontInstanceContext.Provider value={{ context: {}, error: null, mse }}>
             {children}
         </StorefrontInstanceContext.Provider>
     );

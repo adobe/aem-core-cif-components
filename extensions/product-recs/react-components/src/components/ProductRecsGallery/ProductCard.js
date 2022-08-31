@@ -17,19 +17,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { useIntl } from 'react-intl';
-import {
-    useStorefrontEvents,
-    Price,
-    Trigger,
-    createProductPageUrl,
-    dataLayerUtils
-} from '@adobe/aem-core-cif-react-components';
-
+import { Price, Trigger, createProductPageUrl, dataLayerUtils } from '@adobe/aem-core-cif-react-components';
+import { useStorefrontInstanceContext } from '../../context/StorefrontInstanceContext';
 import classes from './ProductCard.css';
 
 const ProductCard = props => {
     const { showAddToWishList, parentId } = props;
-    const mse = useStorefrontEvents();
+    const { mse } = useStorefrontInstanceContext();
     const intl = useIntl();
     const addToCartRef = useRef();
     const addToWishlistRef = useRef();
