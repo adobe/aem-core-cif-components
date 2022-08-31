@@ -38,6 +38,8 @@ const useAddToCartEvent = (props = {}) => {
     const { fallbackHandler } = props;
     const [{ cartId }, defaultAddToCartApi] = useAddToCart();
     const { addToCartApi = defaultAddToCartApi } = props;
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const mse = typeof props.mse !== 'undefined' ? props.mse : useStorefrontEvents();
 
     useEventListener(document, 'aem.cif.add-to-cart', async event => {
         const items = typeof event.detail === 'string' ? JSON.parse(event.detail) : event.detail;
@@ -57,8 +59,7 @@ const useAddToCartEvent = (props = {}) => {
         const bundleCartItems = nonUidItems.filter(item => item.bundle).map(bundledProductMapper);
         const giftCardCartItems = nonUidItems.filter(item => item.giftCard).map(giftCardProductMapper);
 
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const mse = useStorefrontEvents();
+        
         if (mse) {
             const cartItemContext = {
                 id: cartId,
@@ -76,6 +77,13 @@ const useAddToCartEvent = (props = {}) => {
 
             items.forEach(item => {
                 const { storefrontData } = item;
+
+                if (!storefrontData) {
+                    // make sure that all places that do add to cart provide the data 
+                    // otherwise the integration will not work correctly
+                    return;
+                }
+
                 cartItemContext.items.push({
                     product: {
                         name: storefrontData.name,

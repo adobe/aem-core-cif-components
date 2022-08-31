@@ -23,10 +23,11 @@ const STORAGE_KEY = 'CIF_STOREFRONT_INSTANCE_CONTEXT';
 
 export const StorefrontInstanceContext = React.createContext();
 
-export const StorefrontInstanceContextProvider = props => {
+export const StorefrontInstanceContextProvider = (props = {}) => {
     const getStorefrontInstanceContext = useAwaitQuery(QUERY_STOREFRONT_INSTANCE_CONTEXT);
-    const mse = useStorefrontEvents();
     const [storefrontContext, setStorefrontContext] = useState({ context: null, error: null });
+    // eslint-disable-next-line react-hooks/rules-of-hook
+    const mse = typeof props.mse !== 'undefined' ? props.mse : useStorefrontEvents();
 
     useEffect(() => {
         (async () => {
@@ -104,7 +105,7 @@ export const StorefrontInstanceContextProvider = props => {
             mse && mse.context.setStorefrontInstance(context);
             setStorefrontContext({ context, error: null });
         })();
-    }, []);
+    }, [mse]);
 
     return (
         <StorefrontInstanceContext.Provider value={storefrontContext}>

@@ -13,4 +13,14 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-export * from './events-collector';
+ export const processCategoryStorefrontData = mse => {
+    const categoryCtxElement = document.querySelector('[data-cif-category-context]');
+    if (categoryCtxElement) {
+        try {
+            const categoryCtx = JSON.parse(categoryCtxElement.dataset.cifCategoryContext);
+            mse.context.setCategory(categoryCtx);
+        } catch (e) {
+            console.error(e);
+        }
+    }
+};

@@ -17,7 +17,7 @@
     "lint": "eslint 'src/**/*.js'",
     "lint:fix": "eslint --fix 'src/**/*.js'",
     "webpack:dev": "webpack --mode=development",
-    "webpack:prod": "webpack --mode=production && node css-template.js",
+    "webpack:prod": "webpack --mode=production",
     "test": "npm run lint && npm run prettier:check",
     "ci": "npm run lint && npm run prettier:check",
     "test:watch": "npm run lint",

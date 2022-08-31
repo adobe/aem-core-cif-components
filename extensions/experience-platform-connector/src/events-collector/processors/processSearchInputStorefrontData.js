@@ -13,4 +13,15 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-export * from './events-collector';
+ export const processSearchInputStorefrontData = mse => {
+    const searchInputCtxElement = document.querySelector('[data-cif-search-input-context]');
+    if (searchInputCtxElement) {
+        try {
+            const searchInputCtx = JSON.parse(searchInputCtxElement.dataset.cifSearchInputContext);
+            mse.context.setSearchInput({ units: [searchInputCtx] });
+            mse.context.searchRequestSent();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+};

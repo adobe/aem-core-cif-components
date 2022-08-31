@@ -13,4 +13,14 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-export * from './events-collector';
+import { processCategoryStorefrontData } from './processCategoryStorefrontData';
+import { processProductStorefrontData } from './processProductStorefrontData';
+import { processSearchInputStorefrontData } from './processSearchInputStorefrontData';
+import { processSearchResultsStorefrontData } from './processSearchResultsStorefrontData';
+
+export default mse => {
+    processCategoryStorefrontData(mse);
+    processProductStorefrontData(mse);
+    processSearchInputStorefrontData(mse);
+    processSearchResultsStorefrontData(mse);
+}
