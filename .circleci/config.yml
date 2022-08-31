@@ -343,6 +343,10 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - jest-extension-experience-platfom-connector:
+          filters:
+            tags:
+              only: /.*/
       - integration-test-655:
           context:
             - CIF Artifactory Cloud
@@ -355,6 +359,7 @@ workflows:
             - karma
             - jest
             - jest-extension-product-recs
+            - jest-extension-experience-platfom-connector
       - integration-test-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -367,6 +372,7 @@ workflows:
             - karma
             - jest
             - jest-extension-product-recs
+            - jest-extension-experience-platfom-connector
       - selenium-chrome-655:
           context:
             - CIF Artifactory Cloud
@@ -379,6 +385,7 @@ workflows:
             - karma
             - jest
             - jest-extension-product-recs
+            - jest-extension-experience-platfom-connector
       - selenium-chrome-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -391,6 +398,7 @@ workflows:
             - karma
             - jest
             - jest-extension-product-recs
+            - jest-extension-experience-platfom-connector
       - release:
           context:
             - CIF Artifactory Cloud
