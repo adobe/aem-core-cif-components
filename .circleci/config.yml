@@ -216,7 +216,7 @@ jobs:
       - codecov/upload:
           flags: jest
 
-  jest-extension-experience-platfom-connector:
+  jest-extension-experience-platform-connector:
     docker:
       - image: cimg/node:lts-browsers
     steps:
@@ -225,15 +225,15 @@ jobs:
           name: Provision (Extension)
           command: |
             npm install
-          working_directory: ./extensions/experience-platfom-connector
+          working_directory: ./extensions/experience-platform-connector
       - run:
           name: Run Unit Tests (Jest)
           command: npm run ci
-          working_directory: ./extensions/experience-platfom-connector
+          working_directory: ./extensions/experience-platform-connector
       - store_test_results:
-          path: ./extensions/experience-platfom-connector/test-results
+          path: ./extensions/experience-platform-connector/test-results
       - store_artifacts:
-          path: ./extensions/experience-platfom-connector/test-results
+          path: ./extensions/experience-platform-connector/test-results
       - codecov/upload:
           flags: jest
 
@@ -343,7 +343,7 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - jest-extension-experience-platfom-connector:
+      - jest-extension-experience-platform-connector:
           filters:
             tags:
               only: /.*/
@@ -359,7 +359,7 @@ workflows:
             - karma
             - jest
             - jest-extension-product-recs
-            - jest-extension-experience-platfom-connector
+            - jest-extension-experience-platform-connector
       - integration-test-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -372,7 +372,7 @@ workflows:
             - karma
             - jest
             - jest-extension-product-recs
-            - jest-extension-experience-platfom-connector
+            - jest-extension-experience-platform-connector
       - selenium-chrome-655:
           context:
             - CIF Artifactory Cloud
@@ -385,7 +385,7 @@ workflows:
             - karma
             - jest
             - jest-extension-product-recs
-            - jest-extension-experience-platfom-connector
+            - jest-extension-experience-platform-connector
       - selenium-chrome-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
