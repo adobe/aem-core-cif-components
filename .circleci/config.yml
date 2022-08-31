@@ -398,7 +398,7 @@ workflows:
             - karma
             - jest
             - jest-extension-product-recs
-            - jest-extension-experience-platfom-connector
+            - jest-extension-experience-platform-connector
       - release:
           context:
             - CIF Artifactory Cloud
