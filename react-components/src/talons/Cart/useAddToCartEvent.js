@@ -59,7 +59,24 @@ const useAddToCartEvent = (props = {}) => {
         const bundleCartItems = nonUidItems.filter(item => item.bundle).map(bundledProductMapper);
         const giftCardCartItems = nonUidItems.filter(item => item.giftCard).map(giftCardProductMapper);
 
-        
+        if (useUidItems.length > 0) {
+            await addToCartApi.addProductsToCart(useUidItems);
+        }
+
+        if (bundleCartItems.length > 0) {
+            await addToCartApi.addBundledProductItems(bundleCartItems);
+        } else if (giftCardCartItems.length > 0) {
+            await addToCartApi.addGiftCardProductItems(giftCardCartItems);
+        } else if (virtualCartItems.length > 0 && physicalCartItems.length > 0) {
+            await addToCartApi.addPhysicalAndVirtualProductItems(physicalCartItems, virtualCartItems);
+        } else if (virtualCartItems.length > 0) {
+            await addToCartApi.addVirtualProductItems(virtualCartItems);
+        } else if (physicalCartItems.length > 0) {
+            await addToCartApi.addPhysicalProductItems(physicalCartItems);
+        } else if (fallbackHandler) {
+            await fallbackHandler(event);
+        }
+
         if (mse) {
             const cartItemContext = {
                 id: cartId,
@@ -77,61 +94,32 @@ const useAddToCartEvent = (props = {}) => {
 
             items.forEach(item => {
                 const { storefrontData } = item;
+                const { sku, quantity } = item;
 
-                if (!storefrontData) {
-                    // make sure that all places that do add to cart provide the data 
+                if (!storefrontData || !quantity || !sku) {
+                    // make sure that all places that do add to cart provide the data
                     // otherwise the integration will not work correctly
                     return;
                 }
 
+                const regularPrice = storefrontData.regularPrice || 0;
+                const specialPrice = storefrontData.finalPrice || 0;
+                const currency = storefrontData.currencyCode || '';
+                const name = storefrontData.name;
+                const options = storefrontData.selectedOptions || [];
+
                 cartItemContext.items.push({
-                    product: {
-                        name: storefrontData.name,
-                        sku: storefrontData.sku,
-                        pricing: {
-                            regularPrice: storefrontData.priceTotal,
-                            specialPrice:
-                                storefrontData.priceTotal -
-                                (isNaN(storefrontData.discount) ? 0 : storefrontData.discount)
-                        }
-                    },
-                    prices: {
-                        price: {
-                            value: storefrontData.priceTotal,
-                            currency: storefrontData.currencyCode
-                        }
-                    },
-                    configurableOptions: storefrontData.selectedOptions.map(o => ({
-                        optionLabel: o.attribute,
-                        valueLabel: o.value
-                    })),
-                    quantity: storefrontData.quantity
+                    quantity,
+                    product: { name, sku, pricing: { regularPrice, specialPrice } },
+                    prices: { price: { value: specialPrice, currency } },
+                    configurableOptions: options.map(o => ({ optionLabel: o.attribute, valueLabel: o.value }))
                 });
-                cartItemContext.prices.subtotalExcludingTax.value +=
-                    storefrontData.priceTotal * storefrontData.quantity;
-                cartItemContext.prices.subtotalExcludingTax.currency = storefrontData.currencyCode;
+                cartItemContext.prices.subtotalExcludingTax.value += specialPrice * quantity;
+                cartItemContext.prices.subtotalExcludingTax.currency = currency;
             });
 
             mse.context.setShoppingCart(cartItemContext);
             mse.publish.addToCart();
-        }
-
-        if (useUidItems.length > 0) {
-            await addToCartApi.addProductsToCart(useUidItems);
-        }
-
-        if (bundleCartItems.length > 0) {
-            await addToCartApi.addBundledProductItems(bundleCartItems);
-        } else if (giftCardCartItems.length > 0) {
-            await addToCartApi.addGiftCardProductItems(giftCardCartItems);
-        } else if (virtualCartItems.length > 0 && physicalCartItems.length > 0) {
-            await addToCartApi.addPhysicalAndVirtualProductItems(physicalCartItems, virtualCartItems);
-        } else if (virtualCartItems.length > 0) {
-            await addToCartApi.addVirtualProductItems(virtualCartItems);
-        } else if (physicalCartItems.length > 0) {
-            await addToCartApi.addPhysicalProductItems(physicalCartItems);
-        } else if (fallbackHandler) {
-            await fallbackHandler(event);
         }
     });
 };

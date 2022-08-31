@@ -155,6 +155,11 @@ public abstract class DataLayerComponent implements Component {
     }
 
     @JsonIgnore
+    public Double getDataLayerDiscountAmount() {
+        return null;
+    }
+
+    @JsonIgnore
     public String getDataLayerCurrency() {
         return null;
     }

@@ -14,6 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { useContext, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useEventingContext } from '@magento/peregrine/lib/context/eventing';
 import { useUserContext } from '@magento/peregrine/lib/context/user';
 import { default as handleEvent } from '@magento/experience-platform-connector/src/handleEvent';
@@ -26,31 +27,29 @@ export const EventCollectorContextProvider = props => {
     const [sdk, setSdk] = useState(null);
     const [{ isSignedIn, currentUser }] = useUserContext();
     const [observable] = useEventingContext();
-    
+
     useEffect(() => {
-        import('@adobe/magento-storefront-events-sdk')
-            .then(mse => {
-                if (!window.magentoStorefrontEvents) {
-                    window.magentoStorefrontEvents = mse;
-                }
+        import('@adobe/magento-storefront-events-sdk').then(mse => {
+            if (!window.magentoStorefrontEvents) {
+                window.magentoStorefrontEvents = mse;
+            }
 
-                mse.context.setEventForwarding({
-                    aep: aep !== null,
-                    commerce: acds
-                });
-
-                if (aep) {
-                    mse.context.setAEP({
-                        imsOrgId: aep.orgId,
-                        datastreamId: aep.datastreamId
-                    });
-                }
-
-                // load the collector after the sdk to make sure that
-                // the AEP context is set before the connector initializes
-                import('@adobe/magento-storefront-event-collector')
-                    .then(msec => setSdk(mse));
+            mse.context.setEventForwarding({
+                aep: aep !== null,
+                commerce: acds
             });
+
+            if (aep) {
+                mse.context.setAEP({
+                    imsOrgId: aep.orgId,
+                    datastreamId: aep.datastreamId
+                });
+            }
+
+            // load the collector after the sdk to make sure that
+            // the AEP context is set before the connector initializes
+            import('@adobe/magento-storefront-event-collector').then(() => setSdk(mse));
+        });
     }, []);
 
     useEffect(() => {
@@ -89,13 +88,17 @@ export const EventCollectorContextProvider = props => {
         }
     }, [sdk, isSignedIn, currentUser]);
 
-    const contextValue = [ { sdk }, {} ];
+    const contextValue = [{ sdk }, {}];
 
-    return (
-        <EventCollectorContext.Provider value={contextValue}>
-            {props.children}
-        </EventCollectorContext.Provider>
-    );
+    return <EventCollectorContext.Provider value={contextValue}>{props.children}</EventCollectorContext.Provider>;
+};
+
+EventCollectorContextProvider.propTypes = {
+    acds: PropTypes.bool,
+    aep: PropTypes.shape({
+        orgId: PropTypes.string.isRequired,
+        datastreamId: PropTypes.string.isRequired
+    })
 };
 
 export const useEventCollectorContext = () => useContext(EventCollectorContext);

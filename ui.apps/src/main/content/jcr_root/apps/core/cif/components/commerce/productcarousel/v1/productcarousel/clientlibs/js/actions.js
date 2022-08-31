@@ -36,10 +36,31 @@ class ProductCarouselActions {
         const dataset = target.dataset;
         const sku = dataset.itemSku;
         const action = dataset.action;
+
+        const item = target.closest('.product__card');
+        const itemDataLayer =
+            (item.dataset.cmpDataLayer && Object.values(JSON.parse(item.dataset.cmpDataLayer))[0]) || {};
+        const quantity = 1;
+        const finalPrice = (itemDataLayer && itemDataLayer['xdm:listPrice']) || 0; // special price after discount
+        const discountAmount = (itemDataLayer && itemDataLayer['xdm:discountAmount']) || 0;
+        const regularPrice = finalPrice + discountAmount; // price before discount
+
         if (action === 'add-to-cart') {
             const customEvent = new CustomEvent('aem.cif.add-to-cart', {
                 bubbles: true,
-                detail: [{ sku, quantity: 1, virtual: this.virtual }]
+                detail: [
+                    {
+                        sku,
+                        quantity,
+                        virtual: this.virtual,
+                        storefrontData: {
+                            name: itemDataLayer['dc:title'] || sku,
+                            regularPrice,
+                            finalPrice,
+                            currencyCode: itemDataLayer['xdm:currencyCode'] || ''
+                        }
+                    }
+                ]
             });
             target.dispatchEvent(customEvent);
             event.preventDefault();

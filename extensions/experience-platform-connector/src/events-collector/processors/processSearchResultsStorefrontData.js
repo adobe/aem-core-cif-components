@@ -13,14 +13,14 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
- export const processSearchResultsStorefrontData = mse => {
+export const processSearchResultsStorefrontData = mse => {
     const searchResultsCtxElement = document.querySelector('[data-cif-search-results-context]');
     if (searchResultsCtxElement) {
         try {
             const searchResultsUnit = JSON.parse(searchResultsCtxElement.dataset.cifSearchResultsContext);
-            const searchResultsCtx = { units: [ searchResultsUnit ] };
+            const searchResultsCtx = { units: [searchResultsUnit] };
             mse.context.setSearchResults(searchResultsCtx);
-            mse.context.searchResponseReceived(searchResultsUnit.searchUnitId, searchResultsCtx)
+            mse.context.searchResponseReceived(searchResultsUnit.searchUnitId, searchResultsCtx);
         } catch (e) {
             console.error(e);
         }

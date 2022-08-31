@@ -37,6 +37,11 @@ public class ProductDataImpl extends ComponentDataImpl implements ProductData {
     }
 
     @Override
+    public Double getDiscountAmount() {
+        return component.getDataLayerDiscountAmount();
+    }
+
+    @Override
     public String getCurrency() {
         return component.getDataLayerCurrency();
     }

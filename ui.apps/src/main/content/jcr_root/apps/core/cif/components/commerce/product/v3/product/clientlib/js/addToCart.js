@@ -47,6 +47,19 @@ class AddToCart {
             this._element.disabled = true;
         }
 
+        // prefill the storefrontData if available
+        if (config.product.dataset.cifProductContext) {
+            try {
+                const contextData = JSON.parse(config.product.dataset.cifProductContext);
+                this._state.storefrontData.name = contextData.name;
+                this._state.storefrontData.regularPrice = contextData.pricing.regularPrice;
+                this._state.storefrontData.finalPrice = contextData.pricing.specialPrice;
+                this._state.storefrontData.currencyCode = contextData.pricing.currencyCode;
+            } catch (e) {
+                // ignore any parsing errors or incomplete data
+            }
+        }
+
         if (grouped) {
             // init
             this._onQuantityChanged();
@@ -84,9 +97,9 @@ class AddToCart {
         this._state.storefrontData = {
             sku: variant.sku,
             name: variant.name,
-            priceTotal: variant.priceRange.finalPrice,
+            regularPrice: variant.priceRange.regularPrice,
             currencyCode: variant.priceRange.currency,
-            discountAmount: variant.priceRange.discountAmount,
+            finalPrice: variant.priceRange.finalPrice,
             selectedOptions: Object.entries(selections).map(([attribute, value]) => ({
                 attribute,
                 value

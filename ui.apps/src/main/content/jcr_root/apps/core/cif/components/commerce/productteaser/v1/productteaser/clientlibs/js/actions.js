@@ -35,6 +35,8 @@ class ProductTeaser {
         this.virtual = element.dataset.virtual !== undefined;
         this.loadPrices = window.CIF.enableClientSidePriceLoading;
         this._formatter = new window.CIF.PriceFormatter();
+        this.dataLayer =
+            (element.dataset.cmpDataLayer && Object.values(JSON.parse(element.dataset.cmpDataLayer))[0]) || {};
 
         const actionButtons = element.querySelectorAll(`.productteaser__cta button`);
         actionButtons.forEach(actionButton => {
@@ -65,10 +67,29 @@ class ProductTeaser {
         const target = event.currentTarget;
         const dataset = target.dataset;
         const sku = dataset.itemSku;
+
+        const quantity = 1;
+        const finalPrice = (this.dataLayer && this.dataLayer['xdm:listPrice']) || 0; // special price after discount
+        const discountAmount = (this.dataLayer && this.dataLayer['xdm:discountAmount']) || 0;
+        const regularPrice = finalPrice + discountAmount; // price before discount
+
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
             bubbles: true,
-            detail: [{ sku, quantity: 1, virtual: this.virtual }]
+            detail: [
+                {
+                    sku,
+                    quantity,
+                    virtual: this.virtual,
+                    storefrontData: {
+                        name: (this.dataLayer && this.dataLayer['dc:title']) || sku,
+                        regularPrice,
+                        finalPrice,
+                        currencyCode: (this.dataLayer && this.dataLayer['xdm:currencyCode']) || ''
+                    }
+                }
+            ]
         });
+
         target.dispatchEvent(customEvent);
         event.preventDefault();
         event.stopPropagation();

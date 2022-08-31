@@ -214,6 +214,11 @@ public class ProductListItemImpl extends DataLayerListItem implements ProductLis
     }
 
     @Override
+    public Double getDataLayerDiscountAmount() {
+        return this.getPriceRange() != null ? this.getPriceRange().getDiscountAmount() : null;
+    }
+
+    @Override
     public String getDataLayerCurrency() {
         return this.getPriceRange() != null ? this.getPriceRange().getCurrency() : null;
     }

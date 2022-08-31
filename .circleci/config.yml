@@ -182,7 +182,7 @@ jobs:
       - codecov/upload:
           flags: jest
 
-  jest-extension:
+  jest-extension-product-recs:
     docker:
       - image: cimg/node:lts-browsers
     steps:
@@ -210,6 +210,27 @@ jobs:
           path: ./extensions/product-recs/react-components/test-results
       - store_artifacts:
           path: ./extensions/product-recs/react-components/test-results
+      - codecov/upload:
+          flags: jest
+
+  jest-extension-experience-platfom-connector:
+    docker:
+      - image: cimg/node:lts-browsers
+    steps:
+      - checkout
+      - run:
+          name: Provision (Extension)
+          command: |
+            npm install
+          working_directory: ./extensions/experience-platfom-connector
+      - run:
+          name: Run Unit Tests (Jest)
+          command: npm run ci
+          working_directory: ./extensions/experience-platfom-connector
+      - store_test_results:
+          path: ./extensions/experience-platfom-connector/test-results
+      - store_artifacts:
+          path: ./extensions/experience-platfom-connector/test-results
       - codecov/upload:
           flags: jest
 
@@ -315,7 +336,7 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - jest-extension:
+      - jest-extension-product-recs:
           filters:
             tags:
               only: /.*/
@@ -330,7 +351,7 @@ workflows:
             - build-java-8
             - karma
             - jest
-            - jest-extension
+            - jest-extension-product-recs
       - integration-test-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -342,7 +363,7 @@ workflows:
             - build-java-8
             - karma
             - jest
-            - jest-extension
+            - jest-extension-product-recs
       - selenium-chrome-655:
           context:
             - CIF Artifactory Cloud
@@ -354,7 +375,7 @@ workflows:
             - build-java-8
             - karma
             - jest
-            - jest-extension
+            - jest-extension-product-recs
       - selenium-chrome-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -366,7 +387,7 @@ workflows:
             - build-java-8
             - karma
             - jest
-            - jest-extension
+            - jest-extension-product-recs
       - release:
           context:
             - CIF Artifactory Cloud

@@ -51,9 +51,9 @@ const processSearchResultsStorefrontData = () => {
     if (searchResultsCtxElement) {
         try {
             const searchResultsUnit = JSON.parse(searchResultsCtxElement.dataset.cifSearchResultsContext);
-            const searchResultsCtx = { units: [ searchResultsUnit ] };
+            const searchResultsCtx = { units: [searchResultsUnit] };
             mse.context.setSearchResults(searchResultsCtx);
-            mse.context.searchResponseReceived(searchResultsUnit.searchUnitId, searchResultsCtx)
+            mse.context.searchResponseReceived(searchResultsUnit.searchUnitId, searchResultsCtx);
         } catch (e) {
             console.error(e);
         }

@@ -23,4 +23,4 @@ export default mse => {
     processProductStorefrontData(mse);
     processSearchInputStorefrontData(mse);
     processSearchResultsStorefrontData(mse);
-}
+};
