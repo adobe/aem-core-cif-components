@@ -138,7 +138,19 @@ describe('BundleProductOptions', () => {
                     'YnVuZGxlLzQvOC8x'
                 ],
                 sku: 'VA24',
-                virtual: false
+                virtual: false,
+                storefrontData: {
+                    name: 'Night Out Collection',
+                    currencyCode: 'USD',
+                    regularPrice: 380,
+                    finalPrice: 380,
+                    selectedOptions: [
+                        { attribute: '1', value: '1' },
+                        { attribute: '2', value: '3' },
+                        { attribute: '3', value: '5' },
+                        { attribute: '4', value: '7,8' }
+                    ]
+                }
             }
         ]);
     });
