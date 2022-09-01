@@ -289,7 +289,7 @@ describe('useAddToCartEvent', () => {
             publish: {
                 addToCart: mseAddToCart
             }
-        }
+        };
 
         // when
         render(<MockComponent mse={mse} addToCartApi={{ addProductsToCart }} />);
@@ -313,7 +313,7 @@ describe('useAddToCartEvent', () => {
                         {
                             attribute: 'attr2',
                             value: 'val2'
-                        },
+                        }
                     ]
                 }
             },
@@ -397,7 +397,6 @@ describe('useAddToCartEvent', () => {
                         },
                         configurableOptions: []
                     }
-
                 ],
                 possibleOnepageCheckout: false,
                 giftMessageSelected: false,

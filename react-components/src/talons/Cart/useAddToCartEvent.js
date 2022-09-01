@@ -96,7 +96,7 @@ const useAddToCartEvent = (props = {}) => {
                 const { storefrontData } = item;
                 const { sku, parentSku, quantity } = item;
 
-                if (!storefrontData || !quantity || (!sku && !parentSku) ) {
+                if (!storefrontData || !quantity || (!sku && !parentSku)) {
                     // make sure that all places that do add to cart provide the data
                     // otherwise the integration will not work correctly
                     return;
