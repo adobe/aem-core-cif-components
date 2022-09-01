@@ -17,6 +17,17 @@ import React from 'react';
 import useAddToCartEvent from '../useAddToCartEvent';
 import { render, wait } from '../../../utils/test-utils';
 
+jest.mock('@magento/peregrine/lib/context/cart', () => {
+    const cartState = { cartId: 'TestCart' };
+    const cartApi = {};
+    const useCartContext = jest.fn(() => [cartState, cartApi]);
+    return {
+        __esModule: true,
+        default: jest.requireActual('@magento/peregrine/lib/context/cart').default,
+        useCartContext
+    };
+});
+
 describe('useAddToCartEvent', () => {
     const dispatchEvent = items =>
         document.dispatchEvent(
@@ -263,6 +274,135 @@ describe('useAddToCartEvent', () => {
                     selected_options: ['Z2lmdGNhcmQvZ2lmdGNhcmRfYW1vdW50LzEyLjAwMDA=']
                 }
             ]);
+        });
+    });
+
+    it('calls mse.addToCart', async () => {
+        // given
+        const addProductsToCart = jest.fn();
+        const mseAddToCart = jest.fn();
+        const mseSetShoppingCart = jest.fn();
+        const mse = {
+            context: {
+                setShoppingCart: mseSetShoppingCart
+            },
+            publish: {
+                addToCart: mseAddToCart
+            }
+        }
+
+        // when
+        render(<MockComponent mse={mse} addToCartApi={{ addProductsToCart }} />);
+        dispatchEvent([
+            {
+                sku: 'test-sku-variant',
+                parentSku: 'test-sku',
+                virtual: false,
+                useUid: true,
+                quantity: 1,
+                selected_options: ['Y29uZmlndXJhYmxlLzU3My8xNTY='],
+                storefrontData: {
+                    regularPrice: 159.9,
+                    finalPrice: 110.0,
+                    currencyCode: 'USD',
+                    selectedOptions: [
+                        {
+                            attribute: 'attr1',
+                            value: 'val1'
+                        },
+                        {
+                            attribute: 'attr2',
+                            value: 'val2'
+                        },
+                    ]
+                }
+            },
+            {
+                sku: 'simple-product',
+                parentSku: 'simple-product',
+                virtual: false,
+                useUid: true,
+                quantity: 2,
+                storefrontData: {
+                    name: 'Simple Product',
+                    regularPrice: 15.0,
+                    finalPrice: 15.0,
+                    currencyCode: 'USD'
+                }
+            },
+            {
+                sku: 'no-storefront-data',
+                parentSku: 'no-storefront-data',
+                virtual: false,
+                useUid: true,
+                quantity: 1
+            }
+        ]);
+
+        // then
+        await wait(() => {
+            expect(mse.publish.addToCart).toHaveBeenCalledTimes(1);
+            expect(mse.context.setShoppingCart).toHaveBeenCalledTimes(1);
+            expect(mse.context.setShoppingCart).toHaveBeenCalledWith({
+                id: 'TestCart',
+                prices: {
+                    subtotalExcludingTax: {
+                        value: 140.0,
+                        currency: 'USD'
+                    }
+                },
+                items: [
+                    {
+                        quantity: 1,
+                        product: {
+                            name: 'test-sku-variant',
+                            sku: 'test-sku',
+                            pricing: {
+                                regularPrice: 159.9,
+                                specialPrice: 110.0
+                            }
+                        },
+                        prices: {
+                            price: {
+                                value: 110.0,
+                                currency: 'USD'
+                            }
+                        },
+                        configurableOptions: [
+                            {
+                                optionLabel: 'attr1',
+                                valueLabel: 'val1'
+                            },
+                            {
+                                optionLabel: 'attr2',
+                                valueLabel: 'val2'
+                            }
+                        ]
+                    },
+                    {
+                        quantity: 2,
+                        product: {
+                            name: 'Simple Product',
+                            sku: 'simple-product',
+                            pricing: {
+                                regularPrice: 15.0,
+                                specialPrice: 15.0
+                            }
+                        },
+                        prices: {
+                            price: {
+                                value: 15.0,
+                                currency: 'USD'
+                            }
+                        },
+                        configurableOptions: []
+                    }
+
+                ],
+                possibleOnepageCheckout: false,
+                giftMessageSelected: false,
+                giftWrappingSelected: false
+            });
         });
     });
 });

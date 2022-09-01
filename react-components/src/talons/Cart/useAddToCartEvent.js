@@ -94,9 +94,9 @@ const useAddToCartEvent = (props = {}) => {
 
             items.forEach(item => {
                 const { storefrontData } = item;
-                const { sku, quantity } = item;
+                const { sku, parentSku, quantity } = item;
 
-                if (!storefrontData || !quantity || !sku) {
+                if (!storefrontData || !quantity || (!sku && !parentSku) ) {
                     // make sure that all places that do add to cart provide the data
                     // otherwise the integration will not work correctly
                     return;
@@ -105,12 +105,12 @@ const useAddToCartEvent = (props = {}) => {
                 const regularPrice = storefrontData.regularPrice || 0;
                 const specialPrice = storefrontData.finalPrice || 0;
                 const currency = storefrontData.currencyCode || '';
-                const name = storefrontData.name;
+                const name = storefrontData.name || sku;
                 const options = storefrontData.selectedOptions || [];
 
                 cartItemContext.items.push({
                     quantity,
-                    product: { name, sku, pricing: { regularPrice, specialPrice } },
+                    product: { name, sku: parentSku || sku, pricing: { regularPrice, specialPrice } },
                     prices: { price: { value: specialPrice, currency } },
                     configurableOptions: options.map(o => ({ optionLabel: o.attribute, valueLabel: o.value }))
                 });
