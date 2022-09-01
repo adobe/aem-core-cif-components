@@ -146,16 +146,29 @@ class AddToCart {
                     productId: selection.dataset.productId,
                     sku: selection.dataset.productSku,
                     virtual: this._state.grouped ? selection.dataset.virtual !== undefined : this._state.virtual,
-                    quantity: selection.value,
-                    storefrontData: {
-                        ...this._state.storefrontData,
-                        quantity: selection.value
-                    }
+                    quantity: selection.value
                 };
+
+                // get the storefrontData for the selection
+                const groupedProductContext = selection.closest('[data-cif-grouped-product-context]')?.dataset
+                    ?.cifGroupedProductContext;
+                if (groupedProductContext) {
+                    try {
+                        const contextData = JSON.parse(groupedProductContext);
+                        item.storefrontData = {
+                            name: contextData.name,
+                            regularPrice: contextData.pricing.regularPrice,
+                            finalPrice: contextData.pricing.specialPrice,
+                            currencyCode: contextData.pricing.currencyCode
+                        };
+                    } catch (e) {
+                        // ignore any invalid data
+                    }
+                }
 
                 if (this._state.useUid) {
                     item.useUid = true;
-                    item.parentSku = this._state.grouped ? item.sku : this._state.parentSku;
+                    item.parentSku = item.sku;
                     item.selected_options = Object.values(this._state.attributes);
                 }
 
@@ -172,12 +185,12 @@ class AddToCart {
                 productId: this._state.productId,
                 sku: this._state.sku,
                 virtual: this._state.virtual,
-                quantity: quantity,
-                storefrontData: {
-                    ...this._state.storefrontData,
-                    quantity: quantity
-                }
+                quantity: quantity
             };
+
+            if (Object.keys(this._state.storefrontData).length) {
+                item.storefrontData = this._state.storefrontData;
+            }
 
             if (this._state.useUid) {
                 item.useUid = true;

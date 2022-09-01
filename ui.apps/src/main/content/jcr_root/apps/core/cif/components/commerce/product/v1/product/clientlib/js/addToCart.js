@@ -145,9 +145,29 @@ class AddToCart {
                 productId: selection.dataset.productId,
                 sku: selection.dataset.productSku,
                 virtual: this._state.grouped ? selection.dataset.virtual !== undefined : this._state.virtual,
-                quantity: selection.value,
-                storefrontData: this._state.storefrontData
+                quantity: selection.value
             };
+
+            if (this._state.grouped) {
+                // get the storefrontData for the selection
+                const groupedProductContext = selection.closest('[data-cif-grouped-product-context]')?.dataset
+                    ?.cifGroupedProductContext;
+                if (groupedProductContext) {
+                    try {
+                        const contextData = JSON.parse(groupedProductContext);
+                        item.storefrontData = {
+                            name: contextData.name,
+                            regularPrice: contextData.pricing.regularPrice,
+                            finalPrice: contextData.pricing.specialPrice,
+                            currencyCode: contextData.pricing.currencyCode
+                        };
+                    } catch (e) {
+                        // ignore any invalid data
+                    }
+                }
+            } else if (Object.keys(this._state.storefrontData).length) {
+                item.storefrontData = this._state.storefrontData;
+            }
 
             if (this._state.useUid) {
                 item.useUid = true;
