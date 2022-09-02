@@ -19,7 +19,7 @@ export const processSearchInputStorefrontData = mse => {
         try {
             const searchInputCtx = JSON.parse(searchInputCtxElement.dataset.cifSearchInputContext);
             mse.context.setSearchInput({ units: [searchInputCtx] });
-            mse.context.searchRequestSent();
+            mse.publish.searchRequestSent(searchInputCtx.searchUnitId);
         } catch (e) {
             console.error(e);
         }
