@@ -16,9 +16,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useEventingContext } from '@magento/peregrine/lib/context/eventing';
+import { useAwaitQuery } from '@magento/peregrine/lib/hooks/useAwaitQuery';
 import { useUserContext } from '@magento/peregrine/lib/context/user';
 import { default as handleEvent } from '@magento/experience-platform-connector/src/handleEvent';
 import { default as callProcessors } from './processors';
+import STORE_CONFIG_QUERY from './storeConfigQuery.gql';
 
 export const EventCollectorContext = React.createContext();
 
@@ -27,6 +29,7 @@ export const EventCollectorContextProvider = props => {
     const [sdk, setSdk] = useState(null);
     const [{ isSignedIn, currentUser }] = useUserContext();
     const [observable] = useEventingContext();
+    const storeConfigQuery = useAwaitQuery(STORE_CONFIG_QUERY)
 
     useEffect(() => {
         import('@adobe/magento-storefront-events-sdk').then(mse => {
@@ -49,6 +52,13 @@ export const EventCollectorContextProvider = props => {
             // load the collector after the sdk to make sure that
             // the AEP context is set before the connector initializes
             import('@adobe/magento-storefront-event-collector').then(() => setSdk(mse));
+
+            // initialise the storefrontInstance context with some basic data that do not
+            // depend on the dataServiceStorefrontInstanceContext query
+            storeConfigQuery().then(({ data }) => mse.context.setStorefrontInstance({
+                storeViewCurrencyCode: data.storeConfig.base_currency_code,
+                baseCurrencyCode: data.storeConfig.base_currency_code
+            }));
         });
     }, []);
 
