@@ -29,7 +29,7 @@ export const EventCollectorContextProvider = props => {
     const [sdk, setSdk] = useState(null);
     const [{ isSignedIn, currentUser }] = useUserContext();
     const [observable] = useEventingContext();
-    const storeConfigQuery = useAwaitQuery(STORE_CONFIG_QUERY)
+    const storeConfigQuery = useAwaitQuery(STORE_CONFIG_QUERY);
 
     useEffect(() => {
         import('@adobe/magento-storefront-events-sdk').then(mse => {
@@ -55,10 +55,12 @@ export const EventCollectorContextProvider = props => {
 
             // initialise the storefrontInstance context with some basic data that do not
             // depend on the dataServiceStorefrontInstanceContext query
-            storeConfigQuery().then(({ data }) => mse.context.setStorefrontInstance({
-                storeViewCurrencyCode: data.storeConfig.base_currency_code,
-                baseCurrencyCode: data.storeConfig.base_currency_code
-            }));
+            storeConfigQuery().then(({ data }) =>
+                mse.context.setStorefrontInstance({
+                    storeViewCurrencyCode: data.storeConfig.base_currency_code,
+                    baseCurrencyCode: data.storeConfig.base_currency_code
+                })
+            );
         });
     }, []);
 
