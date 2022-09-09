@@ -129,13 +129,11 @@ class ProductCollection {
 
         // Parse response and only select product items
         let text = await response.text();
-        let domParser = new DOMParser();
-        let more = domParser.parseFromString(text, 'text/html');
+        let more = document.createRange().createContextualFragment(text);
         let moreItems = more.querySelectorAll(
             ProductCollection.selectors.item + ', ' + ProductCollection.selectors.xfitem
         );
 
-        console.log('more', more, 'moreItems', moreItems);
         // Append new product items to existing product gallery
         let galleryItems = this._element.querySelector(ProductCollection.selectors.galleryItems);
         galleryItems.append(...moreItems);
