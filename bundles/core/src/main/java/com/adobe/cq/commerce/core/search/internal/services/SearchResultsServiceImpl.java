@@ -65,6 +65,7 @@ import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterRangeTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeSortInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
@@ -307,7 +308,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final List<FilterAttributeMetadata> availableFilters,
         final Consumer<ProductInterfaceQuery> productQueryHook,
         final SorterKey sorterKey) {
-        GenericProductAttributeFilterInput filterInputs = new GenericProductAttributeFilterInput();
+        ProductAttributeFilterInput filterInputs = new ProductAttributeFilterInput();
 
         searchOptions.getAllFilters().entrySet()
             .stream()
@@ -323,11 +324,11 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 if ("FilterEqualTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterEqualTypeInput filter = new FilterEqualTypeInput();
                     filter.setEq(value);
-                    filterInputs.addEqualTypeInput(code, filter);
+                    filterInputs.setCustomFilter(code, filter);
                 } else if ("FilterMatchTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterMatchTypeInput filter = new FilterMatchTypeInput();
                     filter.setMatch(value);
-                    filterInputs.addMatchTypeInput(code, filter);
+                    filterInputs.setCustomFilter(code, filter);
                 } else if ("FilterRangeTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterRangeTypeInput filter = new FilterRangeTypeInput();
                     final String[] rangeValues = value.split("_");
@@ -335,7 +336,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                         // The range has a single value like '60'
                         filter.setFrom(rangeValues[0]);
                         filter.setTo(rangeValues[0]);
-                        filterInputs.addRangeTypeInput(code, filter);
+                        filterInputs.setCustomFilter(code, filter);
                     } else if (rangeValues.length > 1) {
                         // For values such as '*_60', the from range should be left empty
                         if (StringUtils.isNumeric(rangeValues[0])) {
@@ -345,7 +346,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                         if (StringUtils.isNumeric(rangeValues[1])) {
                             filter.setTo(rangeValues[1]);
                         }
-                        filterInputs.addRangeTypeInput(code, filter);
+                        filterInputs.setCustomFilter(code, filter);
                     }
                 }
             });

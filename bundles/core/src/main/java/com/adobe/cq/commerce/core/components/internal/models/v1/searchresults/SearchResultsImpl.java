@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
@@ -38,6 +39,7 @@ import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 
 /**
  * Concrete implementation of the {@link SearchResults} Sling Model API
@@ -52,6 +54,8 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
     static final String RESOURCE_TYPE_V2 = "core/cif/components/commerce/searchresults/v2/searchresults";
 
     private String searchTerm;
+
+    private Consumer<ProductInterfaceQuery> productQueryHook;
 
     @PostConstruct
     protected void initModel() {
@@ -102,7 +106,7 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
     @Override
     public SearchResultsSet getSearchResultsSet() {
         if (searchResultsSet == null) {
-            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, currentPage, request);
+            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, currentPage, request, productQueryHook);
         }
         return searchResultsSet;
     }
@@ -115,5 +119,14 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
     @Override
     public SearchResultsStorefrontContext getSearchResultsStorefrontContext() {
         return new SearchResultsStorefrontContextImpl(getSearchResultsSet(), resource);
+    }
+
+    @Override
+    public void extendProductQueryWith(Consumer<ProductInterfaceQuery> productQueryHook) {
+        if (this.productQueryHook == null) {
+            this.productQueryHook = productQueryHook;
+        } else {
+            this.productQueryHook = this.productQueryHook.andThen(productQueryHook);
+        }
     }
 }

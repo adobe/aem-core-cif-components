@@ -15,9 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.searchresults;
 
+import java.util.function.Consumer;
+
 import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultsStorefrontContext;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchStorefrontContext;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 
 /**
  * Don't forget the comment
@@ -37,4 +40,24 @@ public interface SearchResults extends ProductCollection {
      * @return search results context
      */
     SearchResultsStorefrontContext getSearchResultsStorefrontContext();
+
+    /**
+     * Extend the product query part of the search GraphQL query with a partial query provided by a lambda hook that sets additional
+     * fields.
+     *
+     * Example:
+     *
+     * <pre>
+     * {@code
+     * searchResults.extendProductQueryWith(p -> p
+     *     .createdAt()
+     *     .addCustomSimpleField("is_returnable"));
+     * }
+     * </pre>
+     *
+     * If called multiple times, each hook will be "appended" to the previously registered hook(s).
+     *
+     * @param productQueryHook Lambda that extends the product query
+     */
+    void extendProductQueryWith(Consumer<ProductInterfaceQuery> productQueryHook);
 }
