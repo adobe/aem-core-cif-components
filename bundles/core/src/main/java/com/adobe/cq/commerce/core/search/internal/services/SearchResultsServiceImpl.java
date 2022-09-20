@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -33,6 +34,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.jetbrains.annotations.NotNull;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -114,7 +116,15 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final Page productPage,
         final SlingHttpServletRequest request,
         final Consumer<ProductInterfaceQuery> productQueryHook) {
-        return performSearch(searchOptions, resource, productPage, request, productQueryHook, null).getRight();
+        return performSearch(searchOptions, resource, productPage, request, productQueryHook, null, null).getRight();
+    }
+
+    @NotNull
+    @Override
+    public SearchResultsSet performSearch(SearchOptions searchOptions, Resource resource, Page productPage,
+        SlingHttpServletRequest request, Consumer<ProductInterfaceQuery> productQueryHook,
+        Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook) {
+        return performSearch(searchOptions, resource, productPage, request, productQueryHook, productAttributeFilterHook, null).getRight();
     }
 
     @Nonnull
@@ -125,6 +135,17 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final Page productPage,
         final SlingHttpServletRequest request,
         final Consumer<ProductInterfaceQuery> productQueryHook,
+        AbstractCategoryRetriever categoryRetriever) {
+        return performSearch(searchOptions, resource, productPage, request, productQueryHook, null, categoryRetriever);
+    }
+
+    private Pair<CategoryInterface, SearchResultsSet> performSearch(
+        final SearchOptions searchOptions,
+        final Resource resource,
+        final Page productPage,
+        final SlingHttpServletRequest request,
+        final Consumer<ProductInterfaceQuery> productQueryHook,
+        Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook,
         AbstractCategoryRetriever categoryRetriever) {
 
         SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
@@ -188,6 +209,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         SorterKey currentSorterKey = findSortKey(mutableSearchOptions);
 
         String productsQueryString = generateProductsQueryString(mutableSearchOptions, availableFilters, productQueryHook,
+            productAttributeFilterHook,
             currentSorterKey);
         LOGGER.debug("Generated products query string {}", productsQueryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(productsQueryString);
@@ -307,8 +329,15 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final SearchOptions searchOptions,
         final List<FilterAttributeMetadata> availableFilters,
         final Consumer<ProductInterfaceQuery> productQueryHook,
+        Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook,
         final SorterKey sorterKey) {
         ProductAttributeFilterInput filterInputs = new ProductAttributeFilterInput();
+
+        // Apply product attribute filter hook if set
+        if (productAttributeFilterHook != null) {
+            filterInputs = productAttributeFilterHook.apply(filterInputs);
+        }
+        final ProductAttributeFilterInput filterInputs2 = filterInputs;
 
         searchOptions.getAllFilters().entrySet()
             .stream()
@@ -324,11 +353,11 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 if ("FilterEqualTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterEqualTypeInput filter = new FilterEqualTypeInput();
                     filter.setEq(value);
-                    filterInputs.setCustomFilter(code, filter);
+                    filterInputs2.setCustomFilter(code, filter);
                 } else if ("FilterMatchTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterMatchTypeInput filter = new FilterMatchTypeInput();
                     filter.setMatch(value);
-                    filterInputs.setCustomFilter(code, filter);
+                    filterInputs2.setCustomFilter(code, filter);
                 } else if ("FilterRangeTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterRangeTypeInput filter = new FilterRangeTypeInput();
                     final String[] rangeValues = value.split("_");
@@ -336,7 +365,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                         // The range has a single value like '60'
                         filter.setFrom(rangeValues[0]);
                         filter.setTo(rangeValues[0]);
-                        filterInputs.setCustomFilter(code, filter);
+                        filterInputs2.setCustomFilter(code, filter);
                     } else if (rangeValues.length > 1) {
                         // For values such as '*_60', the from range should be left empty
                         if (StringUtils.isNumeric(rangeValues[0])) {
@@ -346,7 +375,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                         if (StringUtils.isNumeric(rangeValues[1])) {
                             filter.setTo(rangeValues[1]);
                         }
-                        filterInputs.setCustomFilter(code, filter);
+                        filterInputs2.setCustomFilter(code, filter);
                     }
                 }
             });
@@ -359,7 +388,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             }
             productArguments.currentPage(searchOptions.getCurrentPage());
             productArguments.pageSize(searchOptions.getPageSize());
-            productArguments.filter(filterInputs);
+            productArguments.filter(filterInputs2);
             if (sorterKey != null) {
                 String sortKey = sorterKey.getName();
                 String sortOrder = sorterKey.getOrder().name();

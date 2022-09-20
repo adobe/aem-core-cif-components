@@ -54,6 +54,7 @@ import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
+import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
@@ -349,5 +350,26 @@ public class SearchResultsImplTest {
         verify(graphqlClient, times(3)).execute(argumentCaptor.capture(), any(), any(), any());
         String query = argumentCaptor.getAllValues().get(2).getQuery();
         Assert.assertTrue(query.contains("meta_title"));
+    }
+
+    @Test
+    public void testExtendProductFilter() {
+        ArgumentCaptor<GraphqlRequest> argumentCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+
+        // Customize query
+        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+        Assert.assertNotNull(searchResultsModel);
+        searchResultsModel.extendProductFilterWith(f -> f
+            .setName(new FilterMatchTypeInput()
+                .setMatch("winter")));
+
+        // Execute query
+        SearchResultsSet resultSet = searchResultsModel.getSearchResultsSet();
+
+        // Verify that query contains customized value
+        verify(graphqlClient, times(3)).execute(argumentCaptor.capture(), any(), any(), any());
+        String query = argumentCaptor.getAllValues().get(2).getQuery();
+        Assert.assertTrue(query.contains("filter:{name:{match:\"winter\"}}"));
     }
 }
