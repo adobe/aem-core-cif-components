@@ -34,6 +34,7 @@ export default gql`
         }
         storeConfig {
             base_currency_code
+            store_code
         }
     }
 `;

@@ -17,8 +17,10 @@ import { useEffect } from 'react';
 
 import { useStorefrontEvents } from './hooks';
 
-const useReferrerEvent = () => {
-    const mse = useStorefrontEvents();
+// @deprecated, will be moved to @adobe/aem-core-cif-experience-platform-connector
+const useReferrerEvent = (props = {}) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const mse = typeof props.mse !== 'undefined' ? props.mse : useStorefrontEvents();
 
     useEffect(() => {
         if (!document.referrer || !mse) {
@@ -27,7 +29,7 @@ const useReferrerEvent = () => {
 
         mse.context.setReferrerUrl({ referrerUrl: document.referrer });
         mse.publish.referrerUrl();
-    }, []);
+    }, [mse]);
 };
 
 export default useReferrerEvent;

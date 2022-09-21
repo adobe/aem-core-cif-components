@@ -14,7 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React, { useContext, useState, useEffect } from 'react';
-
+import PropTypes from 'prop-types';
 import { useAwaitQuery, useStorefrontEvents } from '@adobe/aem-core-cif-react-components';
 
 import QUERY_STOREFRONT_INSTANCE_CONTEXT from '../queries/query_storefront_instance_context.graphql';
@@ -23,10 +23,11 @@ const STORAGE_KEY = 'CIF_STOREFRONT_INSTANCE_CONTEXT';
 
 export const StorefrontInstanceContext = React.createContext();
 
-export const StorefrontInstanceContextProvider = props => {
+export const StorefrontInstanceContextProvider = (props = {}) => {
     const getStorefrontInstanceContext = useAwaitQuery(QUERY_STOREFRONT_INSTANCE_CONTEXT);
-    const mse = useStorefrontEvents();
-    const [storefrontContext, setStorefrontContext] = useState({ context: null, error: null });
+    const [storefrontContext, setStorefrontContext] = useState({ context: null, error: null, mse: undefined });
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const mse = typeof props.mse !== 'undefined' ? props.mse : useStorefrontEvents();
 
     useEffect(() => {
         (async () => {
@@ -102,15 +103,19 @@ export const StorefrontInstanceContextProvider = props => {
 
             // Store storefront context in mse
             mse && mse.context.setStorefrontInstance(context);
-            setStorefrontContext({ context, error: null });
+            setStorefrontContext({ context, error: null, mse });
         })();
-    }, []);
+    }, [mse]);
 
     return (
         <StorefrontInstanceContext.Provider value={storefrontContext}>
             {props.children}
         </StorefrontInstanceContext.Provider>
     );
+};
+
+StorefrontInstanceContextProvider.propTypes = {
+    mse: PropTypes.object
 };
 
 export const useStorefrontInstanceContext = () => useContext(StorefrontInstanceContext);

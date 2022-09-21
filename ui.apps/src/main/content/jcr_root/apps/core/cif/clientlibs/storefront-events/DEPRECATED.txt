@@ -1,0 +1,4 @@
+This clientlib has been deprecated in favour of @adobe/aem-core-cif-experience-platform-connector library
+
+If you use @adobe/aem-core-cif-experience-platform-connector in your project, make sure you do not include this clientlib anymore on your
+page, to not duplicate the Magento Storefront Events SDK.

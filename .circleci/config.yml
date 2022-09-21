@@ -182,7 +182,7 @@ jobs:
       - codecov/upload:
           flags: jest
 
-  jest-extension:
+  jest-extension-product-recs:
     docker:
       - image: cimg/node:lts-browsers
     steps:
@@ -213,6 +213,27 @@ jobs:
           path: ./extensions/product-recs/react-components/test-results
       - store_artifacts:
           path: ./extensions/product-recs/react-components/test-results
+      - codecov/upload:
+          flags: jest
+
+  jest-extension-experience-platform-connector:
+    docker:
+      - image: cimg/node:lts-browsers
+    steps:
+      - checkout
+      - run:
+          name: Provision (Extension)
+          command: |
+            npm install
+          working_directory: ./extensions/experience-platform-connector
+      - run:
+          name: Run Unit Tests (Jest)
+          command: npm run ci
+          working_directory: ./extensions/experience-platform-connector
+      - store_test_results:
+          path: ./extensions/experience-platform-connector/test-results
+      - store_artifacts:
+          path: ./extensions/experience-platform-connector/test-results
       - codecov/upload:
           flags: jest
 
@@ -318,7 +339,11 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - jest-extension:
+      - jest-extension-product-recs:
+          filters:
+            tags:
+              only: /.*/
+      - jest-extension-experience-platform-connector:
           filters:
             tags:
               only: /.*/
@@ -333,7 +358,8 @@ workflows:
             - build-java-8
             - karma
             - jest
-            - jest-extension
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
       - integration-test-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -345,7 +371,8 @@ workflows:
             - build-java-8
             - karma
             - jest
-            - jest-extension
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
       - selenium-chrome-655:
           context:
             - CIF Artifactory Cloud
@@ -357,7 +384,8 @@ workflows:
             - build-java-8
             - karma
             - jest
-            - jest-extension
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
       - selenium-chrome-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -369,7 +397,8 @@ workflows:
             - build-java-8
             - karma
             - jest
-            - jest-extension
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
       - release:
           context:
             - CIF Artifactory Cloud

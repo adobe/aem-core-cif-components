@@ -53,22 +53,40 @@ describe('GroupedProduct', () => {
                         <button class="button__root_highPriority" data-cmp-is="add-to-cart">Add to cart</button>
                     </section>
                     <section class="productFullDetail__groupedProducts productFullDetail__quantity">
-                        <select data-product-sku="sku1">
-                            <option value="0" selected></option>
-                            <option value="1"></option>
-                        </select>
-                        <select data-product-sku="sku2">
-                            <option value="0" selected></option>
-                            <option value="1"></option>
-                        </select>
-                        <select data-product-sku="sku3">
-                            <option value="0" selected></option>
-                            <option value="1"></option>
-                        </select>
-                        <select data-product-sku="sku4" data-virtual>
-                            <option value="0" selected></option>
-                            <option value="1"></option>
-                        </select>
+                        <table>
+                            <tr data-cif-grouped-product-context="{&#34;pricing&#34;:{&#34;regularPrice&#34;:11.0,&#34;specialPrice&#34;:11.0,&#34;currencyCode&#34;:&#34;USD&#34;},&#34;sku&#34;:&#34;sku1&#34;,&#34;name&#34;:&#34;SKU 1&#34;}">
+                                <td>
+                                    <select data-product-sku="sku1">
+                                        <option value="0" selected></option>
+                                        <option value="1"></option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr data-cif-grouped-product-context="{&#34;pricing&#34;:{&#34;regularPrice&#34;:22.0,&#34;specialPrice&#34;:22.0,&#34;currencyCode&#34;:&#34;USD&#34;},&#34;sku&#34;:&#34;sku2&#34;,&#34;name&#34;:&#34;SKU 2&#34;}">
+                                <td>
+                                    <select data-product-sku="sku2">
+                                        <option value="0" selected></option>
+                                        <option value="1"></option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr data-cif-grouped-product-context="{&#34;pricing&#34;:{&#34;regularPrice&#34;:33.0,&#34;specialPrice&#34;:33.0,&#34;currencyCode&#34;:&#34;USD&#34;},&#34;sku&#34;:&#34;sku3&#34;,&#34;name&#34;:&#34;SKU 3&#34;}">
+                                <td>
+                                    <select data-product-sku="sku3">
+                                        <option value="0" selected></option>
+                                        <option value="1"></option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr data-cif-grouped-product-context="{&#34;pricing&#34;:{&#34;regularPrice&#34;:44.0,&#34;specialPrice&#34;:44.0,&#34;currencyCode&#34;:&#34;USD&#34;},&#34;sku&#34;:&#34;sku4&#34;,&#34;name&#34;:&#34;SKU 4&#34;}">
+                                <td>
+                                    <select data-product-sku="sku4" data-virtual>
+                                        <option value="0" selected></option>
+                                        <option value="1"></option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
                     </section>
                 </div>`
             );
@@ -117,8 +135,20 @@ describe('GroupedProduct', () => {
             assert.equal(event.detail.length, 2);
             assert.equal(event.detail[0].sku, 'sku1');
             assert.equal(event.detail[0].quantity, 1);
+            assert.deepEqual(event.detail[0].storefrontData, {
+                name: 'SKU 1',
+                regularPrice: 11.0,
+                finalPrice: 11.0,
+                currencyCode: 'USD'
+            });
             assert.equal(event.detail[1].sku, 'sku3');
             assert.equal(event.detail[1].quantity, 1);
+            assert.deepEqual(event.detail[1].storefrontData, {
+                name: 'SKU 3',
+                regularPrice: 33.0,
+                finalPrice: 33.0,
+                currencyCode: 'USD'
+            });
         });
 
         it('dispatches add-to-cart event with virtual product on click', () => {

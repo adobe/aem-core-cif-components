@@ -92,7 +92,10 @@ describe('Product', () => {
         });
 
         it('reacts to a variantchanged event', () => {
+            let spy = sinon.spy();
+            document.addEventListener('aem.cif.add-to-cart', spy);
             productRoot.dataset.configurable = true;
+
             let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
 
             // Send event
@@ -100,9 +103,18 @@ describe('Product', () => {
                 bubbles: true,
                 detail: {
                     variant: {
-                        sku: 'variant-sku'
+                        sku: 'variant-sku',
+                        name: 'Variant ABC',
+                        priceRange: {
+                            finalPrice: 10,
+                            currency: 'USD',
+                            regularPrice: 10
+                        }
                     },
                     attributes: {
+                        color: 'red'
+                    },
+                    selections: {
                         color: 'red'
                     }
                 }
@@ -112,6 +124,27 @@ describe('Product', () => {
             assert.equal(addToCart._state.sku, 'variant-sku');
             assert.deepEqual(addToCart._state.attributes, { color: 'red' });
             assert.isFalse(addToCartRoot.disabled);
+
+            // verify that the storefrontData of the variant is passed to the add to cart event on click
+            addToCartRoot.click();
+            sinon.assert.calledOnce(spy);
+            assert.equal(spy.getCall(0).args[0].detail[0].sku, 'variant-sku');
+            assert.equal(spy.getCall(0).args[0].detail[0].parentSku, 'my-sample-sku');
+            assert.equal(spy.getCall(0).args[0].detail[0].quantity, 5);
+            assert.isFalse(spy.getCall(0).args[0].detail[0].virtual);
+            assert.deepEqual(spy.getCall(0).args[0].detail[0].storefrontData, {
+                name: 'Variant ABC',
+                sku: 'variant-sku',
+                regularPrice: 10,
+                finalPrice: 10,
+                currencyCode: 'USD',
+                selectedOptions: [
+                    {
+                        attribute: 'color',
+                        value: 'red'
+                    }
+                ]
+            });
         });
 
         it('dispatches an event on click', () => {
@@ -124,6 +157,33 @@ describe('Product', () => {
             assert.equal(spy.getCall(0).args[0].detail[0].sku, addToCart._state.sku);
             assert.equal(spy.getCall(0).args[0].detail[0].quantity, 5);
             assert.isFalse(spy.getCall(0).args[0].detail[0].virtual);
+            assert.isUndefined(spy.getCall(0).args[0].detail[0].storefrontData);
+        });
+
+        it('dispatches an event on click with storefrontData', () => {
+            let spy = sinon.spy();
+            document.addEventListener('aem.cif.add-to-cart', spy);
+
+            productRoot.dataset.cifProductContext = JSON.stringify({
+                name: 'My Sample Product',
+                pricing: {
+                    regularPrice: 159.9,
+                    specialPrice: 110.0,
+                    currencyCode: 'USD'
+                }
+            });
+
+            let addToCart = new AddToCart({ element: addToCartRoot, product: productRoot });
+            addToCartRoot.click();
+            sinon.assert.calledOnce(spy);
+            assert.equal(spy.getCall(0).args[0].detail[0].sku, addToCart._state.sku);
+            assert.equal(spy.getCall(0).args[0].detail[0].quantity, 5);
+            assert.deepEqual(spy.getCall(0).args[0].detail[0].storefrontData, {
+                name: 'My Sample Product',
+                regularPrice: 159.9,
+                finalPrice: 110.0,
+                currencyCode: 'USD'
+            });
         });
 
         it('dispatches a virtual add to cart event', () => {

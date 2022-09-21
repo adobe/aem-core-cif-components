@@ -34,25 +34,9 @@
     }
   ],
   "page": 1,
-  "searchUnitId": "",
-  "searchRequestId": "",
+  "searchUnitId": "searchresults-31385d3306",
+  "searchRequestId": "77bd0c4b-4c93-46d8-bf3a-ba1a5f58650d",
   "perPage": 6,
   "suggestions": [],
-  "categories": [
-    {
-      "url": "",
-      "name": "Gear",
-      "rank": 0
-    },
-    {
-      "url": "",
-      "name": "Bags",
-      "rank": 0
-    },
-    {
-      "url": "",
-      "name": "Collections",
-      "rank": 0
-    }
-  ]
+  "categories": []
 }
