@@ -115,8 +115,7 @@ class ProductCollection {
 
         // Parse response and only select product items
         let text = await response.text();
-        let domParser = new DOMParser();
-        let more = domParser.parseFromString(text, 'text/html');
+        let more = document.createRange().createContextualFragment(text);
         let moreItems = more.querySelectorAll(ProductCollection.selectors.item);
 
         // Append new product items to existing product gallery
