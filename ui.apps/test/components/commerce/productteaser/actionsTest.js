@@ -204,20 +204,38 @@ describe('ProductTeaser', () => {
         pageRoot.insertAdjacentHTML('afterbegin', generateTeaserHtml(addToCartAction));
         teaserRoot = pageRoot.querySelector(ProductTeaser.selectors.rootElement);
 
-        document.addEventListener('aem.cif.add-to-cart', e => {
-            let response = document.createElement('div');
-            response.classList.add('response');
-            response.innerText = JSON.stringify(e.detail);
-            pageRoot.appendChild(response);
+        const response = { detail: null };
+        const button = teaserRoot.querySelector('button.button__root_highPriority');
+
+        document.addEventListener('aem.cif.add-to-cart', e => (response.detail = e.detail));
+
+        // without datalayer
+        new ProductTeaser(teaserRoot);
+        button.click();
+        assert.deepInclude(response.detail[0], {
+            sku: '1234',
+            quantity: 1,
+            virtual: false,
+            storefrontData: { name: '1234', regularPrice: 0, finalPrice: 0, currencyCode: '' }
         });
 
-        const productTeaser = new ProductTeaser(teaserRoot);
-        const button = teaserRoot.querySelector('button.button__root_highPriority');
+        // with datalayer
+        teaserRoot.dataset.cmpDataLayer = JSON.stringify({
+            productteaser: {
+                'dc:title': 'Expensive Product',
+                'xdm:listPrice': 110.0,
+                'xdm:discountAmount': 49.9,
+                'xdm:currencyCode': 'USD'
+            }
+        });
+        new ProductTeaser(teaserRoot);
         button.click();
-
-        const response = pageRoot.querySelector('div.response');
-        assert.isNotNull(response);
-        assert.equal('[{"sku":"1234","quantity":1,"virtual":false}]', response.innerText);
+        assert.deepInclude(response.detail[0], {
+            sku: '1234',
+            quantity: 1,
+            virtual: false,
+            storefrontData: { name: 'Expensive Product', regularPrice: 159.9, finalPrice: 110.0, currencyCode: 'USD' }
+        });
     });
 
     it('triggers the wishlist addition event for the Add To Wishlist CTA', () => {

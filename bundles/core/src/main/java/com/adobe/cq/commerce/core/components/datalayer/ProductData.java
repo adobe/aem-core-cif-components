@@ -31,6 +31,11 @@ public interface ProductData extends ComponentData, CategoryListData {
         throw new UnsupportedOperationException();
     }
 
+    @JsonProperty("xdm:discountAmount")
+    default Double getDiscountAmount() {
+        return null;
+    }
+
     @JsonProperty("xdm:currencyCode")
     default String getCurrency() {
         throw new UnsupportedOperationException();

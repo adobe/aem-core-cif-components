@@ -53,8 +53,8 @@ describe('Product', () => {
                 <div data-cmp-is="product" data-product-sku="sample-sku">
                     <div class="productFullDetail__options" data-variants>
                         <div class="tileList__root" data-id="color">
-                            <button class="swatch__root" data-id="red" />
-                            <button data-id="blue" />
+                            <button class="swatch__root" data-id="red" data-name="red"/>
+                            <button data-id="blue" data-name="blue"/>
                         </div>
                     </div>
                     <div class="productFullDetail__quantity">
@@ -79,8 +79,8 @@ describe('Product', () => {
                 <div data-cmp-is="product" data-uid-cart data-product-sku="sample-sku">
                     <div class="productFullDetail__options" data-variants>
                         <div class="tileList__root" data-id="color">
-                            <button class="swatch__root" data-id="cmVk" />
-                            <button data-id="Ymx1ZQ==" />
+                            <button class="swatch__root" data-id="cmVk" data-name="red"/>
+                            <button data-id="Ymx1ZQ==" data-name="blue"/>
                         </div>
                     </div>
                     <div class="productFullDetail__quantity">

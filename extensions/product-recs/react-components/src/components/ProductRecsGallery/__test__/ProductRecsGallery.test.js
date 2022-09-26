@@ -21,6 +21,7 @@ import ProductRecsGallery from '../ProductRecsGallery';
 import mockMagentoStorefrontEvents from '../../../__test__/mockMagentoStorefrontEvents';
 import ContextWrapper from '../../../__test__/context-wrapper';
 import { dataLayerUtils } from '@adobe/aem-core-cif-react-components';
+import { StorefrontInstanceContext } from '../../../context/StorefrontInstanceContext';
 
 const mockUseRecommendationsValue = jest.fn();
 
@@ -89,6 +90,12 @@ describe('ProductRecsGallery', () => {
         }
     ];
 
+    const TestWrapper = ({ children }) => (
+        <ContextWrapper>
+            <StorefrontInstanceContext.Provider value={{ mse }}>{children}</StorefrontInstanceContext.Provider>
+        </ContextWrapper>
+    );
+
     beforeAll(() => {
         mse = window.magentoStorefrontEvents = mockMagentoStorefrontEvents;
     });
@@ -105,7 +112,8 @@ describe('ProductRecsGallery', () => {
         mockUseRecommendationsValue.mockReturnValue({ loading: true, units: null });
 
         const { asFragment } = render(
-            <ProductRecsGallery title="My Product Recommendations" recommendationType="most-viewed" />
+            <ProductRecsGallery title="My Product Recommendations" recommendationType="most-viewed" />,
+            { wrapper: TestWrapper }
         );
 
         expect(asFragment()).toMatchSnapshot();
@@ -126,10 +134,11 @@ describe('ProductRecsGallery', () => {
                 recommendationType="most-viewed"
                 showAddToWishList={showAddToWishList}
             />,
-            { wrapper: ContextWrapper }
+            { wrapper: TestWrapper }
         );
 
         expect(asFragment()).toMatchSnapshot();
+        expect(mse.publish.recsUnitRender).toHaveBeenCalledTimes(1);
         expect(mse.publish.recsUnitRender).toHaveBeenCalledWith('my-unit-id');
     });
 
@@ -181,7 +190,7 @@ describe('ProductRecsGallery', () => {
                 recommendationType="most-viewed"
                 hostElement={hostElement}
             />,
-            { wrapper: ContextWrapper }
+            { wrapper: TestWrapper }
         );
 
         expect(dispatchEvent).toHaveBeenCalledTimes(1);
@@ -208,7 +217,7 @@ describe('ProductRecsGallery', () => {
                 hostElement={hostElement}
                 cmpDataLayer='{"productrecs-test": {}}'
             />,
-            { wrapper: ContextWrapper }
+            { wrapper: TestWrapper }
         );
 
         // wait for data-cmp-data-layer to be rendered in 2nd pass

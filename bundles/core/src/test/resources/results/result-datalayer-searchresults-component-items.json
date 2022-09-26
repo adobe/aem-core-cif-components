@@ -4,6 +4,7 @@
       "xdm:currencyCode": "USD",
       "xdm:SKU": "24-WB01",
       "xdm:listPrice": 32.0,
+      "xdm:discountAmount": 0.0,
       "dc:title": "Voyage Yoga Bag",
       "@type": "core/cif/components/commerce/productlistitem"
     }
@@ -13,6 +14,7 @@
       "xdm:currencyCode": "USD",
       "xdm:SKU": "24-WB04",
       "xdm:listPrice": 45.0,
+      "xdm:discountAmount": 0.0,
       "dc:title": "Push It Messenger Bag",
       "@type": "core/cif/components/commerce/productlistitem"
     }
@@ -22,6 +24,7 @@
       "xdm:currencyCode": "USD",
       "xdm:SKU": "24-WB02",
       "xdm:listPrice": 32.0,
+      "xdm:discountAmount": 0.0,
       "dc:title": "Compete Track Tote",
       "@type": "core/cif/components/commerce/productlistitem"
     }
@@ -31,6 +34,7 @@
       "xdm:currencyCode": "USD",
       "xdm:SKU": "24-WG085_Group",
       "xdm:listPrice": 14.0,
+      "xdm:discountAmount": 0.0,
       "dc:title": "Set of Sprite Yoga Straps",
       "@type": "core/cif/components/commerce/productlistitem"
     }

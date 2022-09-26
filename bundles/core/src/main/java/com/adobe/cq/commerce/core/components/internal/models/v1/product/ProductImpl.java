@@ -443,6 +443,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         groupedProductItem.setPriceRange(new PriceImpl(product.getPriceRange(), locale));
         groupedProductItem.setDefaultQuantity(item.getQty());
         groupedProductItem.setVirtualProduct(product instanceof VirtualProduct);
+        groupedProductItem.setStorefrontContext(new ProductStorefrontContextImpl(product, this.resource));
 
         return groupedProductItem;
     }

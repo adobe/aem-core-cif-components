@@ -13,11 +13,12 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { useStorefrontEvents, LoadingIndicator } from '@adobe/aem-core-cif-react-components';
+import { LoadingIndicator } from '@adobe/aem-core-cif-react-components';
 
+import { useStorefrontInstanceContext } from '../../context/StorefrontInstanceContext';
 import { useRecommendations } from '../../hooks/useRecommendations';
 import { useVisibilityObserver } from '../../hooks/useVisibilityObserver';
 
@@ -26,17 +27,17 @@ import ProductCard from './ProductCard';
 
 const ProductRecsGallery = props => {
     const { hostElement, cmpDataLayer } = props;
-    const mse = useStorefrontEvents();
-    const rendered = useRef(false);
+    const { mse } = useStorefrontInstanceContext();
     const { showAddToWishList } = props;
     const { loading, units } = useRecommendations(props);
     const { observeElement } = useVisibilityObserver();
+    const unit = units && units.length > 0 && units[0];
 
     let content = '';
 
     useEffect(() => {
         if (!loading && hostElement) {
-            const products = units && units.length > 0 ? units[0].products : [];
+            const products = unit?.products || [];
             hostElement.dispatchEvent(
                 new CustomEvent('aem.cif.product-recs-loaded', {
                     bubbles: true,
@@ -44,7 +45,13 @@ const ProductRecsGallery = props => {
                 })
             );
         }
-    }, [loading, units]);
+    }, [loading, unit]);
+
+    useEffect(() => {
+        if (unit) {
+            mse && mse.publish.recsUnitRender(unit.unitId);
+        }
+    }, [mse, units]);
 
     if (loading) {
         content = <LoadingIndicator />;
@@ -79,11 +86,6 @@ const ProductRecsGallery = props => {
                 </div>
             </>
         );
-
-        if (!rendered.current) {
-            mse && mse.publish.recsUnitRender(unit.unitId);
-            rendered.current = true;
-        }
     }
 
     return <div className={classes.root}>{content}</div>;

@@ -39,6 +39,7 @@ const processSearchInputStorefrontData = () => {
         try {
             const searchInputCtx = JSON.parse(searchInputCtxElement.dataset.cifSearchInputContext);
             mse.context.setSearchInput({ units: [searchInputCtx] });
+            mse.publish.searchRequestSent(searchInputCtx.searchUnitId);
         } catch (e) {
             console.error(e);
         }
@@ -49,8 +50,10 @@ const processSearchResultsStorefrontData = () => {
     const searchResultsCtxElement = document.querySelector('[data-cif-search-results-context]');
     if (searchResultsCtxElement) {
         try {
-            const searchResultsCtx = JSON.parse(searchResultsCtxElement.dataset.cifSearchResultsContext);
-            mse.context.setSearchResults({ units: [searchResultsCtx] });
+            const searchResultsUnit = JSON.parse(searchResultsCtxElement.dataset.cifSearchResultsContext);
+            const searchResultsCtx = { units: [searchResultsUnit] };
+            mse.context.setSearchResults(searchResultsCtx);
+            mse.publish.searchResponseReceived(searchResultsUnit.searchUnitId, searchResultsCtx);
         } catch (e) {
             console.error(e);
         }

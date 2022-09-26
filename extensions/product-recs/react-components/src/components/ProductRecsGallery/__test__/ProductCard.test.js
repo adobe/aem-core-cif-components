@@ -20,6 +20,7 @@ import { fireEvent, render } from '@testing-library/react';
 import ProductCard from '../ProductCard';
 import mockMagentoStorefrontEvents from '../../../__test__/mockMagentoStorefrontEvents';
 import ContextWrapper from '../../../__test__/context-wrapper';
+import { StorefrontInstanceContext } from '../../../context/StorefrontInstanceContext';
 
 describe('ProductCard', () => {
     let mse;
@@ -27,6 +28,12 @@ describe('ProductCard', () => {
     const unit = {
         unitId: 'my-unit-id'
     };
+
+    const TestWrapper = ({ children }) => (
+        <ContextWrapper>
+            <StorefrontInstanceContext.Provider value={{ mse }}>{children}</StorefrontInstanceContext.Provider>
+        </ContextWrapper>
+    );
 
     beforeAll(() => {
         document.body.dataset.storeRootUrl = '/content/venia/us/en.html';
@@ -61,7 +68,7 @@ describe('ProductCard', () => {
     ])('renders a product card (%s)', (_name, showAddToWishList) => {
         const { asFragment } = render(
             <ProductCard unit={unit} product={product} showAddToWishList={showAddToWishList} />,
-            { wrapper: ContextWrapper }
+            { wrapper: TestWrapper }
         );
 
         expect(asFragment()).toMatchSnapshot();
@@ -69,7 +76,7 @@ describe('ProductCard', () => {
 
     it('renders a product card with a price range', () => {
         product.prices.maximum.final = 650.0;
-        const { asFragment } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
+        const { asFragment } = render(<ProductCard unit={unit} product={product} />, { wrapper: TestWrapper });
 
         expect(asFragment()).toMatchSnapshot();
     });
@@ -78,7 +85,7 @@ describe('ProductCard', () => {
         const eventListener = jest.fn();
         document.addEventListener('aem.cif.add-to-cart', eventListener);
 
-        const { queryByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
+        const { queryByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: TestWrapper });
 
         fireEvent.click(
             queryByRole('button', {
@@ -94,7 +101,7 @@ describe('ProductCard', () => {
         document.addEventListener('aem.cif.add-to-wishlist', eventListener);
 
         const { queryByRole } = render(<ProductCard unit={unit} product={product} showAddToWishList={true} />, {
-            wrapper: ContextWrapper
+            wrapper: TestWrapper
         });
 
         fireEvent.click(
@@ -125,14 +132,14 @@ describe('ProductCard', () => {
             }
         };
 
-        const { queryByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
+        const { queryByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: TestWrapper });
 
         fireEvent.click(queryByRole('button', { name: 'Add to Cart' }));
         expect(mse.publish.recsItemClick).toHaveBeenCalledWith(unit.unitId, product.productId);
     });
 
     it('redirects to the product page', () => {
-        const { getByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
+        const { getByRole } = render(<ProductCard unit={unit} product={product} />, { wrapper: TestWrapper });
 
         // Check href on link
         expect(getByRole('link').href).toEqual('http://localhost/content/venia/us/en.cifproductredirect.html/my-sku');
@@ -144,14 +151,14 @@ describe('ProductCard', () => {
 
     it('renders a product without image', () => {
         product.smallImage = null;
-        const { asFragment } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
+        const { asFragment } = render(<ProductCard unit={unit} product={product} />, { wrapper: TestWrapper });
 
         expect(asFragment()).toMatchSnapshot();
     });
 
     it('renders a product without price', () => {
         product.prices = null;
-        const { asFragment } = render(<ProductCard unit={unit} product={product} />, { wrapper: ContextWrapper });
+        const { asFragment } = render(<ProductCard unit={unit} product={product} />, { wrapper: TestWrapper });
 
         expect(asFragment()).toMatchSnapshot();
     });

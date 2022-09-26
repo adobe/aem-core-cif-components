@@ -51,8 +51,8 @@ describe('Product', () => {
                 'afterbegin',
                 `<div class="productFullDetail__options">
                     <div class="tileList__root" data-id="color">
-                        <button class="swatch__root" data-id="red" />
-                        <button data-id="blue" />
+                        <button class="swatch__root" data-id="red" data-title="red"/>
+                        <button data-id="blue" data-title="blue"/>
                     </div>
                 </div>
                 <div class="productFullDetail__quantity">
@@ -74,8 +74,8 @@ describe('Product', () => {
                 'afterbegin',
                 `<div class="productFullDetail__options">
                     <div class="tileList__root" data-id="color">
-                        <button class="swatch__root" data-id="cmVk" />
-                        <button data-id="Ymx1ZQ==" />
+                        <button class="swatch__root" data-id="cmVk" data-title="red" />
+                        <button data-id="Ymx1ZQ==" data-title="blue" />
                     </div>
                 </div>
                 <div class="productFullDetail__quantity">

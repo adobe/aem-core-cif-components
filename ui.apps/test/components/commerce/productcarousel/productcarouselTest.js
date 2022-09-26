@@ -213,10 +213,28 @@ describe('ProductCarousel', () => {
         const spy = sinon.spy();
         document.addEventListener('aem.cif.add-to-cart', spy);
         const button = carouselRoot.querySelector('button.product__card-button--add-to-cart');
+        const item = button.closest('.product__card');
+        item.dataset.cmpDataLayer = JSON.stringify({
+            'product-item': {
+                'dc:title': 'My Product',
+                'xdm:listPrice': 123.0,
+                'xdm:discountAmount': 7.0,
+                'xdm:currencyCode': 'USD'
+            }
+        });
 
         button.click();
 
-        assert.isTrue(spy.called);
+        assert.isTrue(spy.calledOnce);
+        const event = spy.getCalls()[0].args[0].detail[0];
+        assert.equal('sku-a', event.sku);
+        assert.equal(1, event.quantity);
+        assert.deepEqual(event.storefrontData, {
+            name: 'My Product',
+            regularPrice: 130.0,
+            finalPrice: 123.0,
+            currencyCode: 'USD'
+        });
     });
 
     it('propagates the click to the parent link for the Add to Cart button details call to action', () => {

@@ -295,6 +295,7 @@ public class SearchResultsImplTest {
     public void testStorefrontContextRender() throws IOException {
         context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
         searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+        searchResultsModel.searchRequestId = "77bd0c4b-4c93-46d8-bf3a-ba1a5f58650d";
 
         ObjectMapper mapper = new ObjectMapper();
 
@@ -312,6 +313,7 @@ public class SearchResultsImplTest {
         context.request().setParameterMap(
             ImmutableMap.of("search_query", "glove", "category_id", "21", "sort_key", "price", "sort_order", "asc"));
         searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+        searchResultsModel.searchRequestId = "77bd0c4b-4c93-46d8-bf3a-ba1a5f58650d";
 
         ObjectMapper mapper = new ObjectMapper();
 

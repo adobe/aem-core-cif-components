@@ -26,7 +26,7 @@
         </thead>
         <tbody>
             <sly data-sly-list.item="${groupedProductItems}">
-            <tr>
+            <tr data-cif-grouped-product-context="${item.storefrontContext.json}">
                 <td data-th="${'Product Name' @ i18n}">
                     <h3>${item.name}</h3>
                     <sly data-sly-use.template="core/cif/components/commons/v1/price.html"

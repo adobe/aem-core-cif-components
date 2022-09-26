@@ -35,6 +35,7 @@ class AddToCart {
             parentSku,
             productId,
             attributes: {},
+            storefrontData: {},
             configurable,
             virtual,
             grouped,
@@ -44,6 +45,19 @@ class AddToCart {
         // Disable add to cart if configurable product and no variant was selected
         if (this._state.configurable && !this._state.sku) {
             this._element.disabled = true;
+        }
+
+        // prefill the storefrontData if available
+        if (config.product.dataset.cifProductContext) {
+            try {
+                const contextData = JSON.parse(config.product.dataset.cifProductContext);
+                this._state.storefrontData.name = contextData.name;
+                this._state.storefrontData.regularPrice = contextData.pricing.regularPrice;
+                this._state.storefrontData.finalPrice = contextData.pricing.specialPrice;
+                this._state.storefrontData.currencyCode = contextData.pricing.currencyCode;
+            } catch (e) {
+                // ignore any parsing errors or incomplete data
+            }
         }
 
         if (grouped) {
@@ -67,7 +81,7 @@ class AddToCart {
      * Variant changed event handler.
      */
     _onUpdateVariant(event) {
-        const { variant, attributes } = event.detail;
+        const { variant, attributes, selections } = event.detail;
 
         // Disable add to cart button if no valid variant is available
         if (!variant) {
@@ -80,6 +94,17 @@ class AddToCart {
         this._state.productId = variant.id;
         this._state.attributes = attributes;
         this._element.disabled = false;
+        this._state.storefrontData = {
+            sku: variant.sku,
+            name: variant.name,
+            regularPrice: variant.priceRange.regularPrice,
+            currencyCode: variant.priceRange.currency,
+            finalPrice: variant.priceRange.finalPrice,
+            selectedOptions: Object.entries(selections).map(([attribute, value]) => ({
+                attribute,
+                value
+            }))
+        };
     }
 
     _onQuantityChanged() {
@@ -124,9 +149,26 @@ class AddToCart {
                     quantity: selection.value
                 };
 
+                // get the storefrontData for the selection
+                const groupedProductContext = selection.closest('[data-cif-grouped-product-context]')?.dataset
+                    ?.cifGroupedProductContext;
+                if (groupedProductContext) {
+                    try {
+                        const contextData = JSON.parse(groupedProductContext);
+                        item.storefrontData = {
+                            name: contextData.name,
+                            regularPrice: contextData.pricing.regularPrice,
+                            finalPrice: contextData.pricing.specialPrice,
+                            currencyCode: contextData.pricing.currencyCode
+                        };
+                    } catch (e) {
+                        // ignore any invalid data
+                    }
+                }
+
                 if (this._state.useUid) {
                     item.useUid = true;
-                    item.parentSku = this._state.grouped ? item.sku : this._state.parentSku;
+                    item.parentSku = item.sku;
                     item.selected_options = Object.values(this._state.attributes);
                 }
 
@@ -145,6 +187,10 @@ class AddToCart {
                 virtual: this._state.virtual,
                 quantity: quantity
             };
+
+            if (Object.keys(this._state.storefrontData).length) {
+                item.storefrontData = this._state.storefrontData;
+            }
 
             if (this._state.useUid) {
                 item.useUid = true;

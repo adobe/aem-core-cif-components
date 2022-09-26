@@ -27,6 +27,7 @@
                     <button
                         class="${'swatch__root clickable__root tile__root tile__root--{0}' @ format=[variantValue.cssClassModifier], context='text'}"
                         title="${variantValue.label}"
+                        data-title="${variantValue.label}"
                         data-id="${variantValue.id}"
                         style="${'background-color: {0};' @ format=[variantValue.label], context='styleString'}"
                     ></button>
@@ -37,6 +38,7 @@
                     <button 
                         class="${'clickable__root tile__root tile__root--{0}' @ format=[variantValue.cssClassModifier], context='text'}" 
                         data-id="${variantValue.id}"
+                        data-title="${variantValue.label}"
                     >
                         <span>${variantValue.label}</span>
                     </button>

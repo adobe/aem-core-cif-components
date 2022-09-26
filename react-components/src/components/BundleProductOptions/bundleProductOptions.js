@@ -121,7 +121,7 @@ const BundleProductOptions = props => {
                     })
             };
         });
-        setBundleState({ selections, currencyCode, quantity: 1 });
+        setBundleState({ selections, currencyCode, quantity: 1, name: bundleOptions.name });
     };
 
     const handleSelectionChange = (option_id, quantity, customization) => {
@@ -169,12 +169,20 @@ const BundleProductOptions = props => {
     };
 
     const addToCart = () => {
-        const { selections, quantity } = bundleState;
+        const { selections, quantity, name, currencyCode } = bundleState;
         const selected_options = [];
         selections.forEach(s => {
             s.customization.forEach(c => {
                 selected_options.push(window.btoa(`bundle/${s.option_id}/${c.id}/${s.quantity}`));
             });
+        });
+        const finalPrice = calculatePrice();
+        const options = selections.map(s => {
+            return {
+                id: s.option_id,
+                quantity: s.quantity,
+                value: s.customization.map(c => c.id.toString())
+            };
         });
         const productData = {
             useUid,
@@ -184,14 +192,15 @@ const BundleProductOptions = props => {
             virtual: false,
             bundle: true,
             quantity: quantity,
-            options: selections.map(s => {
-                return {
-                    id: s.option_id,
-                    quantity: s.quantity,
-                    value: s.customization.map(c => c.id.toString())
-                };
-            }),
-            selected_options
+            options,
+            selected_options,
+            storefrontData: {
+                name,
+                currencyCode,
+                finalPrice,
+                regularPrice: finalPrice,
+                selectedOptions: options.map(({ id, value }) => ({ attribute: String(id), value: value.join(',') }))
+            }
         };
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
             bubbles: true,
@@ -222,8 +231,8 @@ const BundleProductOptions = props => {
         addToWishlistRef.current.dispatchEvent(customEvent);
     };
 
-    const getTotalPrice = () => {
-        const { selections, currencyCode } = bundleState;
+    const calculatePrice = () => {
+        const { selections } = bundleState;
         const price = selections.reduce((acc, selection) => {
             return (
                 acc +
@@ -234,6 +243,12 @@ const BundleProductOptions = props => {
             );
         }, 0);
 
+        return price;
+    };
+
+    const getTotalPrice = () => {
+        const { currencyCode } = bundleState;
+        const price = calculatePrice();
         return <Price currencyCode={currencyCode} value={price} className="bundlePrice" />;
     };
 

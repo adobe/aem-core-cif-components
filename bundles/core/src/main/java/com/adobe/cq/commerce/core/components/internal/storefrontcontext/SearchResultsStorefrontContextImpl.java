@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchFacet;
@@ -27,26 +26,29 @@ import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultCateg
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultProduct;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultSuggestion;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultsStorefrontContext;
-import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 
 public class SearchResultsStorefrontContextImpl extends AbstractCommerceStorefrontContext implements SearchResultsStorefrontContext {
 
     private final SearchResultsSet searchResultsSet;
+    private final String unitId;
+    private final String requestId;
 
-    public SearchResultsStorefrontContextImpl(SearchResultsSet searchResultsSet, Resource resource) {
+    public SearchResultsStorefrontContextImpl(SearchResultsSet searchResultsSet, String requestId, String unitId, Resource resource) {
         super(resource);
         this.searchResultsSet = searchResultsSet;
+        this.unitId = unitId;
+        this.requestId = requestId;
     }
 
     @Override
     public String getSearchUnitId() {
-        return StringUtils.EMPTY;
+        return unitId;
     }
 
     @Override
     public String getSearchRequestId() {
-        return StringUtils.EMPTY;
+        return requestId;
     }
 
     @Override
@@ -57,17 +59,6 @@ public class SearchResultsStorefrontContextImpl extends AbstractCommerceStorefro
 
     @Override
     public List<SearchResultCategory> getCategories() {
-        SearchAggregation searchAggregationOptions = searchResultsSet
-            .getSearchAggregations().stream()
-            .filter(a -> a.getIdentifier().equals("category_id"))
-            .findFirst()
-            .orElse(null);
-
-        if (searchAggregationOptions != null) {
-            return searchAggregationOptions.getOptions().stream()
-                .map(SearchResultCategoryImpl::new).collect(Collectors.toList());
-        }
-
         return Collections.emptyList();
     }
 
@@ -88,6 +79,7 @@ public class SearchResultsStorefrontContextImpl extends AbstractCommerceStorefro
 
     @Override
     public List<SearchFacet> getFacets() {
+        // TODO: return the facets as we have them available in our result set
         return null;
     }
 
