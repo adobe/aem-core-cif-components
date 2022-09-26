@@ -17,9 +17,9 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.UUID;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
