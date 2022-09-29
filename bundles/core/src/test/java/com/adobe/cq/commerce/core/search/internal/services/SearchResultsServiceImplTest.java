@@ -542,7 +542,8 @@ public class SearchResultsServiceImplTest {
         searchOptions.setCategoryUid("foobar");
 
         Pair<CategoryInterface, SearchResultsSet> result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,
-            null, null);
+            null,
+            (AbstractCategoryRetriever) null);
 
         SearchResultsSet resultsSet = result.getRight();
         List<ProductListItem> items = resultsSet.getProductListItems();
@@ -556,7 +557,7 @@ public class SearchResultsServiceImplTest {
     @Test
     public void testProductItemsReturnedWithCanonicalUrl() {
         Pair<CategoryInterface, SearchResultsSet> result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,
-            null, null);
+            null, (AbstractCategoryRetriever) null);
 
         SearchResultsSet resultsSet = result.getRight();
         List<ProductListItem> items = resultsSet.getProductListItems();
