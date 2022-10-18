@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
@@ -41,7 +40,6 @@ import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
-import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 
 /**
@@ -60,8 +58,6 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
     String searchRequestId = UUID.randomUUID().toString();
 
     private Consumer<ProductInterfaceQuery> productQueryHook;
-
-    private Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook;
 
     @PostConstruct
     protected void initModel() {
@@ -134,16 +130,6 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
             this.productQueryHook = productQueryHook;
         } else {
             this.productQueryHook = this.productQueryHook.andThen(productQueryHook);
-        }
-    }
-
-    @Override
-    public void extendProductFilterWith(
-        Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook) {
-        if (this.productAttributeFilterHook == null) {
-            this.productAttributeFilterHook = productAttributeFilterHook;
-        } else {
-            this.productAttributeFilterHook = this.productAttributeFilterHook.andThen(productAttributeFilterHook);
         }
     }
 }

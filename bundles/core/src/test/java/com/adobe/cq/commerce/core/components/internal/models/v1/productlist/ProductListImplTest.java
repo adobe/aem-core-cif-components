@@ -76,7 +76,9 @@ import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
@@ -453,14 +455,15 @@ public class ProductListImplTest {
         ClassLoader classLoader = getClass().getClassLoader();
         Whitebox.setInternalState(productListModel, "searchResultsService", Proxy.newProxyInstance(classLoader,
             new Class[] { SearchResultsService.class }, (proxy, method, args) -> {
-                if (method.getName().equals("performSearch") && method.getParameterCount() == 6) {
+                if (method.getName().equals("performSearch") && method.getParameterCount() == 7) {
                     Pair<CategoryInterface, SearchResultsSet> pair = searchResultsService.performSearch(
                         (SearchOptions) args[0],
                         (Resource) args[1],
                         (Page) args[2],
                         (SlingHttpServletRequest) args[3],
                         (Consumer<ProductInterfaceQuery>) args[4],
-                        (AbstractCategoryRetriever) args[5]);
+                        (java.util.function.Function<ProductAttributeFilterInput, ProductAttributeFilterInput>) args[5],
+                        (AbstractCategoryRetriever) args[6]);
 
                     Class[] optionInterfaces = { SearchAggregationOption.class, MySearchAggregationOption.class };
                     for (SearchAggregation aggregation : pair.getRight().getSearchAggregations()) {
@@ -624,7 +627,33 @@ public class ProductListImplTest {
                 break;
             }
         }
+        Assert.assertNotNull(productsQuery);
         Assert.assertTrue(productsQuery.contains("created_at,stock_status,staged"));
+    }
+
+    @Test
+    public void testExtendProductFilterQuery() {
+        adaptToProductList();
+
+        productListModel.extendProductFilterWith(f -> f
+            .setName(new FilterMatchTypeInput()
+                .setMatch("winter")));
+        productListModel.getProducts();
+
+        ArgumentCaptor<GraphqlRequest> captor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        verify(graphqlClient, atLeastOnce()).execute(captor.capture(), any(), any(), any());
+
+        // Check the "products" query
+        List<GraphqlRequest> requests = captor.getAllValues();
+        String productsQuery = null;
+        for (GraphqlRequest request : requests) {
+            if (request.getQuery().startsWith("{products")) {
+                productsQuery = request.getQuery();
+                break;
+            }
+        }
+        Assert.assertNotNull(productsQuery);
+        Assert.assertTrue(productsQuery.contains("filter:{name:{match:\"winter\"}}"));
     }
 
     @Test

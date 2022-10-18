@@ -344,7 +344,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             if (categoryRetriever != null) {
                 // the retriever may be null, for example if there is no category information in the url
                 categorySearchResultsSet = searchResultsService.performSearch(searchOptions, resource, currentPage, request,
-                    categoryRetriever.getProductQueryHook(), categoryRetriever);
+                    categoryRetriever.getProductQueryHook(), productAttributeFilterHook, categoryRetriever);
             }
             if (categorySearchResultsSet == null || categorySearchResultsSet.getLeft() == null) {
                 // category not found

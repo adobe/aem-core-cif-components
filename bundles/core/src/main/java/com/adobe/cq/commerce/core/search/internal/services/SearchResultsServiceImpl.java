@@ -139,7 +139,9 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         return performSearch(searchOptions, resource, productPage, request, productQueryHook, null, categoryRetriever);
     }
 
-    private Pair<CategoryInterface, SearchResultsSet> performSearch(
+    @Nonnull
+    @Override
+    public Pair<CategoryInterface, SearchResultsSet> performSearch(
         final SearchOptions searchOptions,
         final Resource resource,
         final Page productPage,
