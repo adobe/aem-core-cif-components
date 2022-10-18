@@ -76,6 +76,7 @@ import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
@@ -638,6 +639,10 @@ public class ProductListImplTest {
         productListModel.extendProductFilterWith(f -> f
             .setName(new FilterMatchTypeInput()
                 .setMatch("winter")));
+        // Add another filter which should be concatenated to the first
+        productListModel.extendProductFilterWith(f -> f
+            .setCustomFilter("myKey", new FilterEqualTypeInput()
+                .setEq("myValue")));
         productListModel.getProducts();
 
         ArgumentCaptor<GraphqlRequest> captor = ArgumentCaptor.forClass(GraphqlRequest.class);
@@ -653,7 +658,7 @@ public class ProductListImplTest {
             }
         }
         Assert.assertNotNull(productsQuery);
-        Assert.assertTrue(productsQuery.contains("filter:{name:{match:\"winter\"}}"));
+        Assert.assertTrue(productsQuery.contains("filter:{myKey:{eq:\"myValue\"},name:{match:\"winter\"}}"));
     }
 
     @Test
