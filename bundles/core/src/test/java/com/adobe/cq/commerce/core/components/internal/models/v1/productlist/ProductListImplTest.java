@@ -56,6 +56,7 @@ import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLi
 import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLinkExternalizerProvider;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragmentContainer;
+import com.adobe.cq.commerce.core.components.models.productlist.CategoryRetriever;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
@@ -636,11 +637,12 @@ public class ProductListImplTest {
     public void testExtendProductFilterQuery() {
         adaptToProductList();
 
-        productListModel.extendProductFilterWith(f -> f
+        CategoryRetriever retriever = productListModel.getCategoryRetriever();
+        retriever.extendProductFilterWith(f -> f
             .setName(new FilterMatchTypeInput()
                 .setMatch("winter")));
         // Add another filter which should be concatenated to the first
-        productListModel.extendProductFilterWith(f -> f
+        retriever.extendProductFilterWith(f -> f
             .setCustomFilter("myKey", new FilterEqualTypeInput()
                 .setEq("myValue")));
         productListModel.getProducts();

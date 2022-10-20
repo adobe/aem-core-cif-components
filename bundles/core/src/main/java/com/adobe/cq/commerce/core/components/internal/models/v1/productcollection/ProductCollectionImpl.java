@@ -18,7 +18,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.productcollecti
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
@@ -43,7 +42,6 @@ import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.services.SearchResultsService;
-import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.Externalizer;
 import com.day.cq.wcm.api.Page;
@@ -95,7 +93,6 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
     protected SearchResultsSet searchResultsSet;
     protected boolean addToCartEnabled;
     protected boolean addToWishListEnabled;
-    protected Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook;
 
     @PostConstruct
     private void baseInitModel() {
@@ -181,15 +178,5 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
             searchResultsSet = new SearchResultsSetImpl();
         }
         return searchResultsSet;
-    }
-
-    @Override
-    public void extendProductFilterWith(
-        Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook) {
-        if (this.productAttributeFilterHook == null) {
-            this.productAttributeFilterHook = productAttributeFilterHook;
-        } else {
-            this.productAttributeFilterHook = this.productAttributeFilterHook.andThen(productAttributeFilterHook);
-        }
     }
 }

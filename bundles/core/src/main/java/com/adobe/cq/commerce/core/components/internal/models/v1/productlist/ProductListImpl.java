@@ -59,8 +59,8 @@ import com.adobe.cq.commerce.core.components.internal.services.sitemap.SitemapLi
 import com.adobe.cq.commerce.core.components.internal.storefrontcontext.CategoryStorefrontContextImpl;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragmentContainer;
+import com.adobe.cq.commerce.core.components.models.productlist.CategoryRetriever;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefrontContext;
 import com.adobe.cq.commerce.core.search.internal.converters.ProductToProductListItemConverter;
@@ -134,7 +134,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     @OSGiService
     private CommerceExperienceFragmentsRetriever fragmentsRetriever;
 
-    protected AbstractCategoryRetriever categoryRetriever;
+    protected CategoryRetriever categoryRetriever;
     private boolean usePlaceholderData;
     private boolean isAuthor;
     private String canonicalUrl;
@@ -344,7 +344,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
             if (categoryRetriever != null) {
                 // the retriever may be null, for example if there is no category information in the url
                 categorySearchResultsSet = searchResultsService.performSearch(searchOptions, resource, currentPage, request,
-                    categoryRetriever.getProductQueryHook(), productAttributeFilterHook, categoryRetriever);
+                    categoryRetriever.getProductQueryHook(), categoryRetriever.getProductFilterHook(), categoryRetriever);
             }
             if (categorySearchResultsSet == null || categorySearchResultsSet.getLeft() == null) {
                 // category not found
@@ -396,7 +396,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
     }
 
     @Override
-    public AbstractCategoryRetriever getCategoryRetriever() {
+    public CategoryRetriever getCategoryRetriever() {
         return categoryRetriever;
     }
 

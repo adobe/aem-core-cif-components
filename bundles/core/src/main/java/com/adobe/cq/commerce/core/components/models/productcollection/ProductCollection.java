@@ -16,13 +16,11 @@
 package com.adobe.cq.commerce.core.components.models.productcollection;
 
 import java.util.Collection;
-import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
-import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 
 public interface ProductCollection {
 
@@ -114,33 +112,4 @@ public interface ProductCollection {
     default boolean isAddToWishListEnabled() {
         return false;
     }
-
-    /**
-     * Extends or replaces the product attribute filter with a custom instance defined by a lambda hook.
-     *
-     * Example 1 (Extend):
-     *
-     * <pre>
-     * {@code
-     * collection.extendProductFilterWith(f -> f
-     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
-     *         .setEq("my-value")));
-     * }
-     * </pre>
-     *
-     * Example 2 (Replace):
-     *
-     * <pre>
-     * {@code
-     * collection.extendProductFilterWith(f -> new ProductAttributeFilterInput()
-     *     .setSku(new FilterEqualTypeInput()
-     *         .setEq("custom-sku"))
-     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
-     *         .setEq("my-value")));
-     * }
-     * </pre>
-     *
-     * @param productAttributeFilterHook Lambda that extends or replaces the product attribute filter.
-     */
-    default void extendProductFilterWith(Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook) {}
 }
