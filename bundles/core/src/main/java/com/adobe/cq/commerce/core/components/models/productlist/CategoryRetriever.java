@@ -17,12 +17,19 @@ package com.adobe.cq.commerce.core.components.models.productlist;
 
 import java.util.function.Function;
 
+import org.osgi.annotation.versioning.ConsumerType;
+
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQuery;
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 
+/**
+ * This extension of the {@link AbstractCategoryRetriever} allows to extend the products query of the {@link ProductList} with a filter,
+ * additionally to the query field extension.
+ */
+@ConsumerType
 public class CategoryRetriever extends AbstractCategoryRetriever {
 
     private Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook;
