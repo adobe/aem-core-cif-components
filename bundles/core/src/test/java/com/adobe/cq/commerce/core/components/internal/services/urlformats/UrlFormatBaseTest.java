@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.services.urlformats;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Test;
 
@@ -140,5 +141,15 @@ public class UrlFormatBaseTest {
                 null,
                 Arrays.asList("top", "top/urlKey", "top/2nd/urlKey"),
                 "noKey"));
+    }
+
+    @Test
+    public void testSelectUrlPathDoesNotThrowOnNullAlternative() {
+        assertEquals(
+            "urlKey",
+            UrlFormatBase.selectUrlPath(
+                null,
+                Collections.singletonList(null),
+                "urlKey"));
     }
 }
