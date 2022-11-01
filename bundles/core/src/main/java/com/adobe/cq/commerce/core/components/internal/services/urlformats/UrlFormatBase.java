@@ -131,6 +131,10 @@ public class UrlFormatBase {
         int candidateScore = 0;
 
         for (String alternative : alternatives) {
+            if (StringUtils.isEmpty(alternative)) {
+                // skip null or empty strings
+                continue;
+            }
             String[] alternativeParts = alternative.split("/");
             if (alternativeParts[alternativeParts.length - 1].equals(urlKey) || urlKey == null) {
                 int alternativeScore = matchesContext(contextUrlKey, contextParts, alternativeParts);
