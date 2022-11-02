@@ -64,7 +64,7 @@ common:
 executors:
   cif_executor:
     docker:
-      - image: cimg/openjdk:11.0-browsers
+      - image: cimg/openjdk:11.0.16-browsers
   cif_executor_java8:
     docker:
       - image: cimg/openjdk:8.0-browsers
@@ -136,7 +136,7 @@ jobs:
 
   karma:
     docker:
-      - image: cimg/node:lts-browsers
+      - image: cimg/node:16.17.1-browsers
     steps:
       - checkout
       - browser-tools/install-browser-tools
@@ -184,7 +184,7 @@ jobs:
 
   jest-extension-product-recs:
     docker:
-      - image: cimg/node:lts-browsers
+      - image: cimg/node:16.17.1-browsers
     steps:
       - checkout
       - run:
