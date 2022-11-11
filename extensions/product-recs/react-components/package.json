@@ -54,7 +54,7 @@
     "graphql": "~15.3.0",
     "identity-obj-proxy": "^3.0.0",
     "informed": "~3.29.4",
-    "jest": "^24.9.0",
+    "jest": "^26.0.0",
     "jest-junit": "^10.0.0",
     "mini-css-extract-plugin": "^0.8.2",
     "prettier": "^1.19.1",
