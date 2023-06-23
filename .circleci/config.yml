@@ -161,7 +161,7 @@ jobs:
 
   jest:
     docker:
-      - image: cimg/node:lts-browsers
+      - image: cimg/node:16.20.0-browsers
     steps:
       - checkout
       - run:
@@ -169,7 +169,7 @@ jobs:
           command: |
             node -v
             npm -v
-            npm install
+            npm ci --legacy-peer-deps
           working_directory: ./react-components
       - run:
           name: Run Unit Tests (Jest)
