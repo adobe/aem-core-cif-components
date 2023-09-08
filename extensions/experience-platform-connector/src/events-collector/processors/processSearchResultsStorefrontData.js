@@ -20,7 +20,8 @@ export const processSearchResultsStorefrontData = mse => {
             const searchResultsUnit = JSON.parse(searchResultsCtxElement.dataset.cifSearchResultsContext);
             const searchResultsCtx = { units: [searchResultsUnit] };
             mse.context.setSearchResults(searchResultsCtx);
-            mse.publish.searchResponseReceived(searchResultsUnit.searchUnitId, searchResultsCtx);
+            mse.publish.searchResponseReceived(searchResultsUnit.searchUnitId);
+            mse.publish.searchResultsView(searchResultsUnit.searchUnitId);
         } catch (e) {
             console.error(e);
         }
