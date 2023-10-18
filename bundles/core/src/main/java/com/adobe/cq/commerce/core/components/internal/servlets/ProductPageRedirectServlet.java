@@ -42,6 +42,8 @@ import com.day.cq.wcm.api.PageManagerFactory;
             + com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl.RESOURCE_TYPE,
         ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "="
             + com.adobe.cq.commerce.core.components.internal.models.v2.page.PageImpl.RESOURCE_TYPE,
+        ServletResolverConstants.SLING_SERVLET_RESOURCE_TYPES + "="
+            + com.adobe.cq.commerce.core.components.internal.models.v3.page.PageImpl.RESOURCE_TYPE,
         ServletResolverConstants.SLING_SERVLET_SELECTORS + "=" + ProductPageRedirectServlet.SELECTOR,
         ServletResolverConstants.SLING_SERVLET_EXTENSIONS + "=" + ProductPageRedirectServlet.EXTENSION
     })
