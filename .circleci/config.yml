@@ -220,13 +220,13 @@ jobs:
 
   jest-extension-experience-platform-connector:
     docker:
-      - image: cimg/node:lts-browsers
+      - image: cimg/node:16.17.1-browsers
     steps:
       - checkout
       - run:
           name: Provision (Extension)
           command: |
-            npm install
+            npm install --legacy-peer-deps
           working_directory: ./extensions/experience-platform-connector
       - run:
           name: Run Unit Tests (Jest)
