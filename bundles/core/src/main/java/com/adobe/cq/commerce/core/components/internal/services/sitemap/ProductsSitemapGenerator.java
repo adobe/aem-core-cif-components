@@ -68,7 +68,7 @@ public class ProductsSitemapGenerator extends SitemapGeneratorBase implements Si
         @AttributeDefinition(
             name = "Pagination Size",
             description = "The number of products to query from the commerce backend per iteration.")
-        int pageSize() default 10;
+        int pageSize() default 100;
 
         @AttributeDefinition(
             name = "Add Last Modified",
