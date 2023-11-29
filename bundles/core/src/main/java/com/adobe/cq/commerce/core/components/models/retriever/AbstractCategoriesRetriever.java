@@ -17,11 +17,15 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -36,6 +40,8 @@ import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCategoriesRetriever.class);
 
     public static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
@@ -194,6 +200,21 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
             categories.sort(Comparator.comparing(c -> identifiers.indexOf(c.getUid().toString())));
         } else {
             categories = Collections.emptyList();
+        }
+        logDuplicateCategories();
+    }
+
+    private void logDuplicateCategories() {
+        if (categories == null) {
+            return;
+        }
+        Set<String> categoryIds = new HashSet<>();
+        for (CategoryTree category : categories) {
+            String uid = category.getUid().toString();
+            if (categoryIds.contains(uid)) {
+                LOGGER.warn("Duplicate category detected: {}", uid);
+            }
+            categoryIds.add(uid);
         }
     }
 }
