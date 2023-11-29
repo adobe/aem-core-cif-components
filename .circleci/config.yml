@@ -40,7 +40,8 @@ common:
   selenium_test_steps: &selenium_test_steps
     steps:
       - checkout
-      - browser-tools/install-browser-tools
+      - browser-tools/install-browser-tools:
+          chrome-version: 114.0.5735.90 # TODO: remove -> https://github.com/CircleCI-Public/browser-tools-orb/issues/75
       - *restore_cache
       - attach_workspace:
           at: /home/circleci/build
@@ -139,7 +140,8 @@ jobs:
       - image: cimg/node:16.17.1-browsers
     steps:
       - checkout
-      - browser-tools/install-browser-tools
+      - browser-tools/install-browser-tools:
+          chrome-version: 114.0.5735.90 # TODO: remove -> https://github.com/CircleCI-Public/browser-tools-orb/issues/75
       - run:
           name: Provision
           command: |
@@ -161,7 +163,7 @@ jobs:
 
   jest:
     docker:
-      - image: cimg/node:lts-browsers
+      - image: cimg/node:16.20.0-browsers
     steps:
       - checkout
       - run:
@@ -169,7 +171,7 @@ jobs:
           command: |
             node -v
             npm -v
-            npm install
+            npm ci --legacy-peer-deps
           working_directory: ./react-components
       - run:
           name: Run Unit Tests (Jest)
