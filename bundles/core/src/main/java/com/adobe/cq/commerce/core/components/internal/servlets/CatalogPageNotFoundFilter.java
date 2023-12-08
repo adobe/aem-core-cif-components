@@ -61,6 +61,8 @@ import com.day.cq.wcm.api.PageManagerFactory;
             + com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl.RESOURCE_TYPE,
         EngineConstants.SLING_FILTER_RESOURCETYPES + "="
             + com.adobe.cq.commerce.core.components.internal.models.v2.page.PageImpl.RESOURCE_TYPE,
+        EngineConstants.SLING_FILTER_RESOURCETYPES + "="
+            + com.adobe.cq.commerce.core.components.internal.models.v3.page.PageImpl.RESOURCE_TYPE,
         // limit to typical content rendering requests
         EngineConstants.SLING_FILTER_EXTENSIONS + "=html",
         EngineConstants.SLING_FILTER_EXTENSIONS + "=json",
