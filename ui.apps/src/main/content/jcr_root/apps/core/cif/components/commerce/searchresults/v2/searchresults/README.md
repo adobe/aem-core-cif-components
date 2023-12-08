@@ -22,6 +22,9 @@ term is read from request parameters of the page and the data is retrieved
 from Magento via GraphQL. The main usage of this component would be on a 
 search result page.
 
+> [!NOTE]
+> Adobe Commerce customers should use the [Live Search Widget](https://experienceleague.adobe.com/docs/experience-manager-cloud-service/content/content-and-commerce/integrations/live-search-plp.html?lang=en) instead.
+
 ## Features
 
 - Support for full-text search
