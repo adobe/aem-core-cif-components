@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.storefrontcontext;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,7 +81,7 @@ public class SearchResultsStorefrontContextImpl extends AbstractCommerceStorefro
     @Override
     public List<SearchFacet> getFacets() {
         // TODO: return the facets as we have them available in our result set
-        return null;
+        return new ArrayList<SearchFacet>();
     }
 
 }

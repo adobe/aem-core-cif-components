@@ -19,7 +19,7 @@ limitations under the License.
 This Javascript library collects Storefront events and forwards them to Adobe Experience Platform and/or Adobe Commerce Data Service.
 
 It exports the `EventCollectorContext` React Context which
-- loads the magento-storefront-events-sdk and magento-storefront-event-collector libray, 
+- loads the magento-storefront-events-sdk and magento-storefront-event-collector library, 
 - initialises them with a given configuration for AEP and/or ACDS
 - subscribes to all events from Peregrine and forwards them to the events SDK
 
