@@ -19,7 +19,7 @@ limitations under the License.
 This Javascript library collects Storefront events and forwards them to Adobe Experience Platform and/or Adobe Commerce Data Service.
 
 It exports the `EventCollectorContext` React Context which
-- loads the magento-storefront-events-sdk and magento-storefront-event-collector library, 
+- loads the magento-storefront-events-sdk and magento-storefront-event-collector library,
 - initialises them with a given configuration for AEP and/or ACDS
 - subscribes to all events from Peregrine and forwards them to the events SDK
 
@@ -28,6 +28,8 @@ It exports the `EventCollectorContext` React Context which
 The `EventCollectorContext` requires the Peregrine user context. So it must be used in a React component that is wrapped inside that context.
 
 ```javascript
+import { EventCollectorContextProvider } from '@adobe/aem-core-cif-experience-platform-connector';
+
 export const App = () => {
     <PeregrineContext>
         <EventCollectorContextProvider acds={true} aep={{ orgId: '...', datastreamId: '...' }}>
@@ -37,13 +39,15 @@ export const App = () => {
 }
 ```
 
-As the `EventCollectorContext` loads the magento-storefront-events-sdk it is not recommended to use it together with the `core.cif.components.storefront-events.v1` which as well embeds the sdk. Instead the `EventCollectContext` provides the loaded and initialized sdk to descendant components. 
+As the `EventCollectorContext` loads the magento-storefront-events-sdk it is not recommended to use it together with the `core.cif.components.storefront-events.v1` which as well embeds the sdk. Instead the `EventCollectContext` provides the loaded and initialized sdk to descendant components.
 
 The sdk is still available as global variable on `window.magentoStorefrontEvents`, but it is recommended to use obtain it from the EventCollectorContext and pass it to the other Core CIF React Components as needed. This guarantees that logic that requires the sdk can reliable use it.
 
 The same applies when it is being used together with the Core CIF Components Extension for Product Recommendations. Make sure that you enable the Adobe Commerce Data Service as this is required for Product Recommendations to work.
 
 ```javascript
+import { EventCollectorContextProvider } from '@adobe/aem-core-cif-experience-platform-connector';
+
 export const AppContent = () => {
     const { sdk: mse } = useEventCollectorContext();
 
@@ -72,6 +76,8 @@ export const App = () => {
 
 ## Known Limitations
 
+- requires depedencies|peerDependencies `"@magento/peregrine"` >= `12.5.0`
+- for projects using `"@magento/venia-ui"`, it requires >= `10.0.0`
 - for bundled products only the final price is provided without any information of applied discounts
 - add-to-cart events for gift gard products are not yet supported
 - add-to-cart events do not support client side price loading yet
