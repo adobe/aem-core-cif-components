@@ -555,4 +555,72 @@ describe('Productcollection', () => {
 
         assert.isTrue(spy.calledOnce);
     });
+
+    it('lazy loads products and sets the actions on new product items', () => {
+        listRoot.insertAdjacentHTML(
+            'beforeend',
+            `<button class="productcollection__loadmore-button" data-load-more="http://more.products">Load more</button>
+            <div class="productcollection__loadmore-spinner"></div>`
+        );
+        listRoot.dataset.loadClientPrice = true;
+
+        let response = `
+            <div class="productcollection__item" data-sku="sku-e" role="product">
+                <div class="price">
+                    <span>123</span>
+                </div>
+                <div class="productcollection__item-actions">
+                    <button data-action="add-to-cart" data-item-sku="sku-e" class="productcollection__item-button productcollection__item-button--add-to-cart" type="button">
+                        <span class="productcollection__item-button-content">
+                            <span>Add to Cart</span>
+                        </span>
+                    </button>
+                    <button data-item-sku="sku-e" class="productcollection__item-button productcollection__item-button--add-to-wish-list" type="button" data-cmp-is="add-to-wish-list">
+                        <span class="productcollection__item-button-content">
+                            <span>Add to Wish List</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+            <button class="productcollection__loadmore-button" data-load-more="http://more.products2">Load more</button>`;
+
+        let mockResponse = new window.Response(response, {
+            status: 200,
+            headers: {
+                'Content-type': 'text/html'
+            }
+        });
+
+        let list = new ProductCollection({ element: listRoot });
+        list._fetchMoreProducts = sinon.stub().resolves(mockResponse);
+        let loadMoreButton = listRoot.querySelector('.productcollection__loadmore-button');
+
+        return list._loadMore(loadMoreButton).then(() => {
+            // check add to cart event for new product item
+            const addToCartSpy = sinon.spy();
+            document.addEventListener('aem.cif.add-to-cart', addToCartSpy);
+            const addToCart = listRoot.querySelector(
+                '[data-sku="sku-e"] button.productcollection__item-button--add-to-cart'
+            );
+
+            addToCart.click();
+
+            assert.isTrue(addToCartSpy.calledOnce);
+            const addToCartEvents = addToCartSpy.getCalls()[0].args[0].detail[0];
+            assert.equal('sku-e', addToCartEvents.sku);
+
+            // check add to wishlist event for new product item
+            const addToWishlistSpy = sinon.spy();
+            document.addEventListener('aem.cif.add-to-wishlist', addToWishlistSpy);
+            const addToWishlist = listRoot.querySelector(
+                '[data-sku="sku-e"] button.productcollection__item-button--add-to-wish-list'
+            );
+
+            addToWishlist.click();
+
+            assert.isTrue(addToWishlistSpy.calledOnce);
+            const addToWishlistEvent = addToWishlistSpy.getCalls()[0].args[0].detail[0];
+            assert.equal('sku-e', addToWishlistEvent.sku);
+        });
+    });
 });
