@@ -18,7 +18,7 @@
 
 class ProductCollectionActions {
     constructor(element) {
-        this.virtual = element.dataset.virtual !== undefined;
+        this.virtual = element.dataset && element.dataset.virtual !== undefined;
 
         element.querySelectorAll('.productcollection__item-button--add-to-cart').forEach(actionButton => {
             let actionHandler = this._addToCartHandler.bind(this);

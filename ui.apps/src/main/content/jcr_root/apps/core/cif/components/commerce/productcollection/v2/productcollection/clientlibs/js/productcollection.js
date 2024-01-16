@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
+import ProductCollectionActions from './actions';
+
 class ProductCollection {
     constructor(config) {
         this._element = config.element;
@@ -130,6 +132,10 @@ class ProductCollection {
         // Parse response and only select product items
         let text = await response.text();
         let more = document.createRange().createContextualFragment(text);
+
+        // install addToCart and addToWishList actions on new items
+        new ProductCollectionActions(more);
+
         let moreItems = more.querySelectorAll(
             ProductCollection.selectors.item + ', ' + ProductCollection.selectors.xfitem
         );
