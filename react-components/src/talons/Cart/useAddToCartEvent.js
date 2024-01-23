@@ -13,7 +13,7 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import { useEventListener } from '../../utils/hooks';
+import { useEventListener, useStorefrontEvents } from '../../utils/hooks';
 import useAddToCart from './useAddToCart';
 
 const productMapper = item => ({
@@ -36,8 +36,10 @@ const giftCardProductMapper = item => ({
 
 const useAddToCartEvent = (props = {}) => {
     const { fallbackHandler } = props;
-    const [, defaultAddToCartApi] = useAddToCart();
+    const [{ cartId }, defaultAddToCartApi] = useAddToCart();
     const { addToCartApi = defaultAddToCartApi } = props;
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const mse = typeof props.mse !== 'undefined' ? props.mse : useStorefrontEvents();
 
     useEventListener(document, 'aem.cif.add-to-cart', async event => {
         const items = typeof event.detail === 'string' ? JSON.parse(event.detail) : event.detail;
@@ -73,6 +75,51 @@ const useAddToCartEvent = (props = {}) => {
             await addToCartApi.addPhysicalProductItems(physicalCartItems);
         } else if (fallbackHandler) {
             await fallbackHandler(event);
+        }
+
+        if (mse) {
+            const cartItemContext = {
+                id: cartId,
+                prices: {
+                    subtotalExcludingTax: {
+                        value: 0,
+                        currency: ''
+                    }
+                },
+                items: [],
+                possibleOnepageCheckout: false,
+                giftMessageSelected: false,
+                giftWrappingSelected: false
+            };
+
+            items.forEach(item => {
+                const { storefrontData } = item;
+                const { sku, parentSku, quantity } = item;
+
+                if (!storefrontData || !quantity || (!sku && !parentSku)) {
+                    // make sure that all places that do add to cart provide the data
+                    // otherwise the integration will not work correctly
+                    return;
+                }
+
+                const regularPrice = storefrontData.regularPrice || 0;
+                const specialPrice = storefrontData.finalPrice || 0;
+                const currency = storefrontData.currencyCode || '';
+                const name = storefrontData.name || sku;
+                const options = storefrontData.selectedOptions || [];
+
+                cartItemContext.items.push({
+                    quantity,
+                    product: { name, sku: parentSku || sku, pricing: { regularPrice, specialPrice } },
+                    prices: { price: { value: specialPrice, currency } },
+                    configurableOptions: options.map(o => ({ optionLabel: o.attribute, valueLabel: o.value }))
+                });
+                cartItemContext.prices.subtotalExcludingTax.value += specialPrice * quantity;
+                cartItemContext.prices.subtotalExcludingTax.currency = currency;
+            });
+
+            mse.context.setShoppingCart(cartItemContext);
+            mse.publish.addToCart();
         }
     });
 };

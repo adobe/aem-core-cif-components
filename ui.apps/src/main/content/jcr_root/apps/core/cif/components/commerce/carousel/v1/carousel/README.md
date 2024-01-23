@@ -37,8 +37,10 @@ Two carousel implementaions are provided based on this component:
 
 The following properties are written to JCR for this component and are expected to be available as `Resource` properties:
 
-- `jcr:title` - optional title text
-- `titleType` - the HTML heading element type used for rendering the title text. If missing, the component falls back to the type defined in the component policy of the specific carousel implementation
+1. `./jcr:title` - optional title text
+2. `./titleType` - the HTML heading element type used for rendering the title text. If missing, the component falls back to the type defined in the component policy of the specific carousel implementation
+3. `./linkTarget` - defines the link target of the links generated for the component.
+4. `./id` - defines the component HTML ID attribute.
 
 ### Parameters
 

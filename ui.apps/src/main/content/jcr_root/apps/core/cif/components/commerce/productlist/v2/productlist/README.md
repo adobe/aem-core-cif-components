@@ -37,10 +37,12 @@ The following properties are written to JCR for this component and are expected 
 1. `./category` - the uid of the category to be displayed in the component, if missing the component displays a
                    category based on the page URL 
 2. `./pageSize` - the number of products shown on one page
-3. `./showTitle` - if true the component displays the category title
-4. `./showImage` - if true the component displays the category image
-5. `./id` - defines the component HTML ID attribute
-
+3. `./defaultSortField` - the default sort field for products
+4. `./defaultSortOrder` - the default sort order for products
+5. `./showTitle` - if true the component displays the category title
+6. `./showImage` - if true the component displays the category image
+7. `./id` - defines the component HTML ID attribute
+8. `./fragments` - this is a multifield allowing configuration of experience fragments to be inserted in the product list
 
 ## BEM Description
 
@@ -48,6 +50,12 @@ In addition to the elements documented for the version 2 of the productcollectio
 version 2 of productlist introduces these extra elements to display the details of a category 
 and a "staged" flag on the category itself or its products. 
 Note that this is only relevant for AEM author instances.
+
+This version also introduces the possibility to introduce experience fragment placeholders.
+Using the edit dialog, placeholders containing the position of the placeholder in the grid
+and the fragment "location" property can be configured. 
+This will search for fragments configured for the current category and the configured location
+and insert them at specified positions.
 
 ```
 BLOCK category

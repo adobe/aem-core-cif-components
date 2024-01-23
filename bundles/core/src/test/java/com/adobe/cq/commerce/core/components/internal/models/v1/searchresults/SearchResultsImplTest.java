@@ -36,6 +36,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -51,7 +52,10 @@ import com.adobe.cq.commerce.core.search.models.Sorter;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
+import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -65,6 +69,8 @@ import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -252,15 +258,15 @@ public class SearchResultsImplTest {
         List<SorterKey> keys = sorter.getKeys();
         Assert.assertNotNull(keys);
         Assert.assertEquals(3, keys.size());
-        SorterKey defaultKey = keys.get(0);
+        SorterKey defaultKey = keys.get(2);
         Assert.assertEquals(currentKey.getName(), defaultKey.getName());
 
-        SorterKey otherKey = keys.get(1);
+        SorterKey otherKey = keys.get(0);
         Assert.assertEquals("price", otherKey.getName());
         Assert.assertEquals("Price", otherKey.getLabel());
         Assert.assertEquals(Sorter.Order.ASC, otherKey.getOrder());
 
-        otherKey = keys.get(2);
+        otherKey = keys.get(1);
         Assert.assertEquals("name", otherKey.getName());
         Assert.assertEquals("Product Name", otherKey.getLabel());
         Assert.assertEquals(Sorter.Order.ASC, otherKey.getOrder());
@@ -289,6 +295,7 @@ public class SearchResultsImplTest {
     public void testStorefrontContextRender() throws IOException {
         context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
         searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+        searchResultsModel.searchRequestId = "77bd0c4b-4c93-46d8-bf3a-ba1a5f58650d";
 
         ObjectMapper mapper = new ObjectMapper();
 
@@ -306,6 +313,7 @@ public class SearchResultsImplTest {
         context.request().setParameterMap(
             ImmutableMap.of("search_query", "glove", "category_id", "21", "sort_key", "price", "sort_order", "asc"));
         searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+        searchResultsModel.searchRequestId = "77bd0c4b-4c93-46d8-bf3a-ba1a5f58650d";
 
         ObjectMapper mapper = new ObjectMapper();
 
@@ -325,5 +333,45 @@ public class SearchResultsImplTest {
         searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
 
         Assert.assertNull(searchResultsModel.getSearchResultsStorefrontContext().getJson());
+    }
+
+    @Test
+    public void testExtendProductQuery() {
+        ArgumentCaptor<GraphqlRequest> argumentCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+
+        // Customize query
+        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+        Assert.assertNotNull(searchResultsModel);
+        searchResultsModel.extendProductQueryWith(ProductInterfaceQuery::metaTitle);
+
+        // Execute query
+        SearchResultsSet resultSet = searchResultsModel.getSearchResultsSet();
+
+        // Verify that query contains customized value
+        verify(graphqlClient, times(3)).execute(argumentCaptor.capture(), any(), any(), any());
+        String query = argumentCaptor.getAllValues().get(2).getQuery();
+        Assert.assertTrue(query.contains("meta_title"));
+    }
+
+    @Test
+    public void testExtendProductFilter() {
+        ArgumentCaptor<GraphqlRequest> argumentCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+
+        // Customize query
+        context.request().setParameterMap(Collections.singletonMap("search_query", "glove"));
+        searchResultsModel = context.request().adaptTo(SearchResultsImpl.class);
+        Assert.assertNotNull(searchResultsModel);
+        searchResultsModel.extendProductFilterWith(f -> f
+            .setName(new FilterMatchTypeInput()
+                .setMatch("winter")));
+
+        // Execute query
+        SearchResultsSet resultSet = searchResultsModel.getSearchResultsSet();
+
+        // Verify that query contains customized value
+        verify(graphqlClient, times(3)).execute(argumentCaptor.capture(), any(), any(), any());
+        String query = argumentCaptor.getAllValues().get(2).getQuery();
+        Assert.assertTrue(query.contains("filter:{name:{match:\"winter\"}}"));
     }
 }

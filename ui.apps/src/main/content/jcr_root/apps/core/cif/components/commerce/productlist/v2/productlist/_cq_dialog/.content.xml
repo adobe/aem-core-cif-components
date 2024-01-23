@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jcr:root xmlns:sling="http://sling.apache.org/jcr/sling/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0"
     xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:cq="http://www.day.com/jcr/cq/1.0"
+    xmlns:granite="http://www.adobe.com/jcr/granite/1.0"
     jcr:primaryType="nt:unstructured"
     jcr:title="Product List"
     sling:resourceType="cq/gui/components/authoring/dialog"
+    extraClientlibs="[core.cif.components.productlist.v2.editor]"
     trackingFeature="cif-core-components:productlist:v2">
     <content
         jcr:primaryType="nt:unstructured"
         sling:resourceType="granite/ui/components/coral/foundation/fixedcolumns"
+        granite:class="cmp-productcollection__editor"
         margin="{Boolean}false">
+        <granite:data jcr:primaryType="nt:unstructured"
+            cmp-is="productcollection-editor" />
         <items jcr:primaryType="nt:unstructured">
             <column
                 jcr:primaryType="nt:unstructured"
@@ -20,6 +25,7 @@
                         sling:resourceType="commerce/gui/components/common/cifcategoryfield"
                         fieldDescription="The category that should be displayed by the product list component."
                         fieldLabel="Manual Category Selection"
+                        showLink="{Boolean}true"
                         name="./category"/>
                     <well
                         jcr:primaryType="nt:unstructured"
@@ -52,6 +58,50 @@
                         uncheckedValue="false"
                         value="true"
                         checked="{String}true"/>
+                    <xfItems
+                        granite:class="foundation-toggleable cmp-productcollection__editor-xf_settings"
+                        jcr:primaryType="nt:unstructured"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/multifield"
+                        composite="{Boolean}true"
+                        fieldDescription="Allows insertion of Experience Fragments at specified positions"
+                        fieldLabel="Experince Fragment placeholders">
+                        <granite:rendercondition 
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="core/cif/components/commerce/renderconditions/productlistxfstyles/v1"/>
+                        <field
+                            granite:class="cmp-productcollection__editor-xf_setting"
+                            jcr:primaryType="nt:unstructured"
+                            sling:resourceType="granite/ui/components/coral/foundation/container"
+                            name="./fragments">
+                            <items jcr:primaryType="nt:unstructured">
+                                <xfLocation
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/form/textfield"
+                                    fieldDescription="The name of this Experience Fragment location."
+                                    fieldLabel="Experience Fragment location name."
+                                    required="{Boolean}true"
+                                    name="fragmentLocation"/>
+                                <pageNumber 
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                                    fieldDescription="The page number where this Experience Fragment will be shown."
+                                    fieldLabel="Experience Fragment page number."
+                                    required="{Boolean}true"
+                                    value="1"
+                                    min="1"
+                                    name="fragmentPage"/>
+                                <titleType granite:class="core-title-sizes"
+                                    jcr:primaryType="nt:unstructured"
+                                    sling:resourceType="granite/ui/components/coral/foundation/form/select"
+                                    fieldLabel="The Style to be applied."
+                                    name="fragmentCssClass">
+                                    <datasource
+                                        jcr:primaryType="nt:unstructured"
+                                        sling:resourceType="core/cif/components/commerce/datasources/productlistxfstyles/v1"/>
+                                </titleType>
+                            </items>
+                        </field>
+                    </xfItems>
                 </items>
             </column>
         </items>

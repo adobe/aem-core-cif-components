@@ -16,8 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
@@ -71,6 +70,7 @@ import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -78,9 +78,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -111,9 +111,9 @@ public class ProductImplTest {
         })
         .build();
 
-    private Resource productResource;
-    private Resource pageResource;
-    private GraphqlClient graphqlClient;
+    protected Resource productResource;
+    protected Resource pageResource;
+    protected GraphqlClient graphqlClient;
 
     protected ProductInterface product;
     protected Product productModel;
@@ -155,7 +155,9 @@ public class ProductImplTest {
         slingBindings.put(WCMBindingsConstants.NAME_PROPERTIES, productResource.getValueMap());
 
         style = mock(Style.class);
-        when(style.get(anyString(), anyBoolean())).then(i -> i.getArgumentAt(1, Boolean.class));
+        doAnswer(i -> i.getArguments()[1]).when(style).get(eq("loadClientPrice"), anyBoolean());
+        doAnswer(i -> i.getArguments()[1]).when(style).get(eq("enableAddToWishList"), anyBoolean());
+        doAnswer(i -> i.getArguments()[1]).when(style).get(eq("visibleSections"), any(String[].class));
         slingBindings.put("currentStyle", style);
 
         SightlyWCMMode wcmMode = mock(SightlyWCMMode.class);
@@ -171,16 +173,15 @@ public class ProductImplTest {
     public void testGetIdentifierFromSelector() {
         adaptToProduct();
 
-        String identifier = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
-        assertEquals("MJ01", identifier);
+        assertEquals("MJ01", productModel.getSku());
     }
 
     @Test
     public void testGetIdentifierFromProperty() {
         // Use different page
-        context.currentResource("/content/product-of-the-week");
         context.request().setServletPath("/content/product-of-the-week/jcr:content/root/responsivegrid/product.beaumont-summit-kit.html");
         productResource = context.resourceResolver().getResource("/content/product-of-the-week/jcr:content/root/responsivegrid/product");
+        context.currentResource(productResource);
 
         // Update product properties in sling bindings
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -190,7 +191,7 @@ public class ProductImplTest {
         adaptToProduct();
 
         String sku = (String) Whitebox.getInternalState(productModel.getProductRetriever(), "identifier");
-        assertEquals("MJ01", sku);
+        assertEquals("MJ02", sku);
     }
 
     @Test
@@ -290,6 +291,42 @@ public class ProductImplTest {
                 ConfigurableProductOptionsValues optionValue = option.getValues().get(j);
                 assertEquals(optionValue.getValueIndex(), value.getId());
                 assertEquals(optionValue.getLabel(), value.getLabel());
+                assertEquals(optionValue.getLabel().trim().replaceAll("\\s+", "-").toLowerCase(), value.getCssClassModifier());
+                assertNull(value.getSwatchType());
+            }
+        }
+    }
+
+    @Test
+    public void testSwatchDataInVariantAttributes() throws IOException {
+        Query rootQuery = Utils.getQueryFromResource("graphql/magento-graphql-configurableproduct-result.json");
+        product = rootQuery.getProducts().getItems().get(0);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-configurableproduct-result.json", httpClient, 200, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-configurableproduct-result.json", httpClient, 200, "{products(filter:{sku");
+
+        adaptToProduct();
+        List<VariantAttribute> attributes = productModel.getVariantAttributes();
+        assertNotNull(attributes);
+
+        ConfigurableProduct cp = (ConfigurableProduct) product;
+        assertEquals(cp.getConfigurableOptions().size(), attributes.size());
+
+        for (int i = 0; i < attributes.size(); i++) {
+            VariantAttribute attribute = attributes.get(i);
+            ConfigurableProductOptions option = cp.getConfigurableOptions().get(i);
+
+            assertEquals(option.getAttributeCode(), attribute.getId());
+            assertEquals(option.getLabel(), attribute.getLabel());
+
+            for (int j = 0; j < attribute.getValues().size(); j++) {
+                VariantValue value = attribute.getValues().get(j);
+                ConfigurableProductOptionsValues optionValue = option.getValues().get(j);
+                assertEquals(optionValue.getValueIndex(), value.getId());
+                assertEquals(optionValue.getLabel(), value.getLabel());
+                assertEquals(optionValue.getDefaultLabel().trim().replaceAll("\\s+", "-").toLowerCase(), value.getCssClassModifier());
+                assertTrue("SwatchData type mismatch", optionValue.getSwatchData().getGraphQlTypeName().toUpperCase().startsWith(
+                    value.getSwatchType().toString()));
             }
         }
     }
@@ -580,7 +617,7 @@ public class ProductImplTest {
             assertEquals("MJ01", parameters.getSku());
             Page page = inv.getArgumentAt(1, Page.class);
             assertNotNull(page);
-            assertEquals("/content/product-page", page.getPath());
+            assertEquals("/content/pageA", page.getPath());
             // invoke the callback directly
             return urlProvider.toProductUrl(inv.getArgumentAt(0, SlingHttpServletRequest.class), page, parameters);
         });
@@ -596,5 +633,13 @@ public class ProductImplTest {
         when(style.get(eq("enableAddToWishList"), anyBoolean())).thenReturn(Boolean.TRUE);
         adaptToProduct();
         assertTrue(productModel.getAddToWishListEnabled());
+    }
+
+    @Test
+    public void testVisibleSectionsDefault() {
+        adaptToProduct();
+        assertThat(productModel.getVisibleSections()).containsOnly(Product.ACTIONS_SECTION, Product.DESCRIPTION_SECTION,
+            Product.DETAILS_SECTION, Product.IMAGE_SECTION, Product.PRICE_SECTION, Product.QUANTITY_SECTION, Product.OPTIONS_SECTION,
+            Product.SKU_SECTION, Product.TITLE_SECTION);
     }
 }

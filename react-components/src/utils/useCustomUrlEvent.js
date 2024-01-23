@@ -17,8 +17,10 @@ import { useEffect } from 'react';
 
 import { useStorefrontEvents } from './hooks';
 
-const useCustomUrlEvent = () => {
-    const mse = useStorefrontEvents();
+// @deprecated, will be moved to @adobe/aem-core-cif-experience-platform-connector
+const useCustomUrlEvent = (props = {}) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const mse = typeof props.mse !== 'undefined' ? props.mse : useStorefrontEvents();
 
     useEffect(() => {
         const customUrl = window.location && window.location.href;
@@ -29,7 +31,7 @@ const useCustomUrlEvent = () => {
 
         mse.context.setCustomUrl({ customUrl });
         mse.publish.customUrl();
-    }, []);
+    }, [mse]);
 };
 
 export default useCustomUrlEvent;

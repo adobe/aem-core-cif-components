@@ -29,6 +29,7 @@
                                     sling:resourceType="commerce/gui/components/common/cifcategoryfield" 
                                     fieldLabel="Category" 
                                     multiple="{Boolean}false" 
+                                    showLink="{Boolean}true"
                                     name="./categoryId" />
                                 <asset jcr:primaryType="nt:unstructured" 
                                     sling:resourceType="granite/ui/components/coral/foundation/form/pathfield" 

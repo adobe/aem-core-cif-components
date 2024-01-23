@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.models.product;
 import org.osgi.annotation.versioning.ConsumerType;
 
 import com.adobe.cq.commerce.core.components.models.common.Price;
+import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
 
 /**
  * GroupItem is a view model interface representing the item of a grouped product.
@@ -34,4 +35,8 @@ public interface GroupItem {
     Double getDefaultQuantity();
 
     Boolean isVirtualProduct();
+
+    default ProductStorefrontContext getStorefrontContext() {
+        return null;
+    }
 }

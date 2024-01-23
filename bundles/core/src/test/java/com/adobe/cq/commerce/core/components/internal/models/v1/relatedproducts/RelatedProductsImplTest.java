@@ -47,7 +47,9 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Money;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.wcm.core.components.models.Title;
@@ -111,8 +113,6 @@ public class RelatedProductsImplTest {
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
         context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
 
-        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200, "{products(filter:{url_key");
-
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         Style style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
@@ -142,7 +142,14 @@ public class RelatedProductsImplTest {
             ProductInterface product = rootQuery.getProducts().getItems().get(0);
             products = PRODUCTS_GETTER.get(relationType).apply(product);
 
-            Utils.setupHttpResponse(jsonResponsePath, httpClient, HttpStatus.SC_OK, "{products(filter:{sku");
+            if (addSlugInSelector) {
+                // search by url_key
+                Utils.setupHttpResponse(jsonResponsePath, httpClient, HttpStatus.SC_OK,
+                    "{products(filter:{url_key:{eq:\"endurance-watch\"");
+            } else {
+                // search by sku
+                Utils.setupHttpResponse(jsonResponsePath, httpClient, HttpStatus.SC_OK, "{products(filter:{sku:{eq:\"24-MG01\"");
+            }
             context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap()
                 .get("cq:graphqlClient", String.class) != null ? graphqlClient : null);
         }
@@ -204,7 +211,27 @@ public class RelatedProductsImplTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(clientSpy, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{products(filter:{sku:{eq:\"24-MG01\"}}){items{__typename,related_products{__typename,sku,name,thumbnail{label,url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on ConfigurableProduct{variants{product{sku}}},description{html}}}}}";
+        String expectedQuery = "{products(filter:{sku:{eq:\"24-MG01\"}}){items{__typename,sku,related_products{__typename,sku,url_key,url_path,url_rewrites{url},name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on ConfigurableProduct{variants{product{sku}}},description{html}}}}}";
+        Assert.assertEquals(expectedQuery, captor.getValue());
+    }
+
+    @Test
+    public void testExtendAndReplaceFilterExtensions() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false);
+        AbstractProductsRetriever retriever = relatedProducts.getProductsRetriever();
+        retriever.extendProductFilterWith(f -> new ProductAttributeFilterInput().setUrlKey(new FilterEqualTypeInput().setEq("my-product")));
+        retriever.extendProductFilterWith(f -> f.setSku(new FilterEqualTypeInput().setEq("24-MG01")));
+
+        MagentoGraphqlClient client = (MagentoGraphqlClient) Whitebox.getInternalState(retriever, "client");
+        MagentoGraphqlClient clientSpy = Mockito.spy(client);
+        Whitebox.setInternalState(retriever, "client", clientSpy);
+
+        assertProducts();
+
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(clientSpy, times(1)).execute(captor.capture());
+
+        String expectedQuery = "{products(filter:{sku:{eq:\"24-MG01\"},url_key:{eq:\"my-product\"}}){items{__typename,sku,related_products{__typename,sku,url_key,url_path,url_rewrites{url},name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 

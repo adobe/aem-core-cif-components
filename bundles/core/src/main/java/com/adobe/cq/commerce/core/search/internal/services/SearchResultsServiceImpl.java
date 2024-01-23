@@ -16,13 +16,14 @@
 package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
@@ -33,6 +34,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
+import org.jetbrains.annotations.NotNull;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -51,7 +53,6 @@ import com.adobe.cq.commerce.core.search.internal.models.SorterImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SorterKeyImpl;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
-import com.adobe.cq.commerce.core.search.models.SearchAggregationOption;
 import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
@@ -66,6 +67,7 @@ import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
 import com.adobe.cq.commerce.magento.graphql.FilterRangeTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeSortInput;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
@@ -76,6 +78,8 @@ import com.adobe.cq.commerce.magento.graphql.ProductsQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.SortEnum;
+import com.adobe.cq.commerce.magento.graphql.SortField;
+import com.adobe.cq.commerce.magento.graphql.SortFields;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.wcm.core.components.util.ComponentUtils;
 import com.day.cq.wcm.api.Page;
@@ -112,7 +116,15 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final Page productPage,
         final SlingHttpServletRequest request,
         final Consumer<ProductInterfaceQuery> productQueryHook) {
-        return performSearch(searchOptions, resource, productPage, request, productQueryHook, null).getRight();
+        return performSearch(searchOptions, resource, productPage, request, productQueryHook, null, null).getRight();
+    }
+
+    @NotNull
+    @Override
+    public SearchResultsSet performSearch(SearchOptions searchOptions, Resource resource, Page productPage,
+        SlingHttpServletRequest request, Consumer<ProductInterfaceQuery> productQueryHook,
+        Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook) {
+        return performSearch(searchOptions, resource, productPage, request, productQueryHook, productAttributeFilterHook, null).getRight();
     }
 
     @Nonnull
@@ -123,6 +135,19 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final Page productPage,
         final SlingHttpServletRequest request,
         final Consumer<ProductInterfaceQuery> productQueryHook,
+        AbstractCategoryRetriever categoryRetriever) {
+        return performSearch(searchOptions, resource, productPage, request, productQueryHook, null, categoryRetriever);
+    }
+
+    @Nonnull
+    @Override
+    public Pair<CategoryInterface, SearchResultsSet> performSearch(
+        final SearchOptions searchOptions,
+        final Resource resource,
+        final Page productPage,
+        final SlingHttpServletRequest request,
+        final Consumer<ProductInterfaceQuery> productQueryHook,
+        Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook,
         AbstractCategoryRetriever categoryRetriever) {
 
         SearchResultsSetImpl searchResultsSet = new SearchResultsSetImpl();
@@ -152,14 +177,19 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 categoryRetriever.setIdentifier(mutableSearchOptions.getCategoryUid().get());
             }
             category = categoryRetriever.fetchCategory();
-            if (category != null && category.getUid() != null) {
+            if (category == null) {
+                // category not found
+                LOGGER.debug("Category not found.");
+                return new ImmutablePair<>(null, searchResultsSet);
+            }
+            if (category.getUid() != null) {
                 mutableSearchOptions.setCategoryUid(category.getUid().toString());
             }
         }
 
         if (categoryRetriever == null && StringUtils.isNotEmpty(mutableSearchOptions.getAllFilters().get(CATEGORY_ID_FILTER))) {
-            // if no categoryRetriever is given but an id filter, fetch the category only but dont set the uid filter as id and uid filter
-            // cannot be used toether in the same query
+            // if no categoryRetriever is given but an id filter, fetch the category only but don't set the uid filter as id and uid filter
+            // cannot be used together in the same query
             categoryRetriever = new CategoryUrlParameterRetriever(magentoGraphqlClient) {
                 @Override
                 public Pair<QueryQuery.CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> generateCategoryQueryArgs(
@@ -178,12 +208,16 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
         // has available for querying against
         List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(request, page);
-        SorterKey currentSorterKey = prepareSorting(mutableSearchOptions, searchResultsSet);
+        SorterKey currentSorterKey = findSortKey(mutableSearchOptions);
 
         String productsQueryString = generateProductsQueryString(mutableSearchOptions, availableFilters, productQueryHook,
+            productAttributeFilterHook,
             currentSorterKey);
         LOGGER.debug("Generated products query string {}", productsQueryString);
         GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(productsQueryString);
+
+        // remove the category_uid filter from the search options after the query to not included it in all places
+        removeCategoryUidFilterEntriesIfPossible(mutableSearchOptions, request);
 
         // If we have any errors returned we'll log them and return an empty search result
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
@@ -198,12 +232,10 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final List<ProductListItem> productListItems = extractProductsFromResponse(products.getItems(), productPage, request, resource,
             category);
 
+        prepareSortKeys(currentSorterKey, products.getSortFields(), mutableSearchOptions, searchResultsSet);
+
         List<SearchAggregation> searchAggregations = extractSearchAggregationsFromResponse(products.getAggregations(),
             mutableSearchOptions.getAllFilters(), availableFilters);
-
-        // special handling of category identifier(s)
-        removeCategoryIdAggregationIfNecessary(searchAggregations, mutableSearchOptions);
-        removeCategoryUidFilterEntriesIfPossible(searchAggregations, request);
 
         searchResultsSet.setTotalResults(products.getTotalCount());
         searchResultsSet.setProductListItems(productListItems);
@@ -212,40 +244,56 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         return new ImmutablePair<>(category, searchResultsSet);
     }
 
-    private SorterKey prepareSorting(SearchOptions searchOptions, SearchResultsSetImpl searchResultsSet) {
-        List<SorterKey> availableSorterKeys = searchOptions.getSorterKeys();
-        if (CollectionUtils.isEmpty(availableSorterKeys)) {
-            return null;
-        }
-
-        SorterKey resultSorterKey = null;
-
-        SorterKey defaultSorterKey = availableSorterKeys.get(0);
+    private SorterKey findSortKey(SearchOptionsImpl searchOptions) {
+        SorterKey defaultSorterKey = searchOptions.getDefaultSorter();
         String sortKeyParam = searchOptions.getAllFilters().get(Sorter.PARAMETER_SORT_KEY);
         if (sortKeyParam == null) {
-            sortKeyParam = defaultSorterKey.getName();
-        }
-        String sortOrderParam = searchOptions.getAllFilters().get(Sorter.PARAMETER_SORT_ORDER);
-        Sorter.Order sortOrder;
-        try {
-            if (sortOrderParam != null) {
-                sortOrderParam = Sorter.Order.valueOf(sortOrderParam.toUpperCase()).name();
+            if (defaultSorterKey != null) {
+                sortKeyParam = defaultSorterKey.getName();
+            } else {
+                return null;
             }
-        } catch (RuntimeException x) {
-            sortOrderParam = null;
-        }
-        if (sortOrderParam == null) {
-            sortOrder = defaultSorterKey.getOrder();
-            if (sortOrder == null) {
-                sortOrder = Sorter.Order.ASC;
-            }
-        } else {
-            sortOrder = Sorter.Order.valueOf(sortOrderParam.toUpperCase());
         }
 
+        Sorter.Order defaultSortOrder;
+        if (defaultSorterKey != null) {
+            defaultSortOrder = defaultSorterKey.getOrder();
+            if (defaultSortOrder == null) {
+                defaultSortOrder = Sorter.Order.ASC;
+            }
+        } else {
+            defaultSortOrder = Sorter.Order.ASC;
+        }
+
+        String sortOrderParam = searchOptions.getAllFilters().get(Sorter.PARAMETER_SORT_ORDER);
+        Sorter.Order sortOrder = Sorter.Order.fromString(sortOrderParam, defaultSortOrder);
+
+        SorterKeyImpl resultSorterKey = new SorterKeyImpl(sortKeyParam, sortKeyParam);
+        resultSorterKey.setOrder(sortOrder);
+        resultSorterKey.setSelected(true);
+
+        return resultSorterKey;
+    }
+
+    private void prepareSortKeys(SorterKey currentSorterKey, SortFields sortFields, SearchOptions searchOptions,
+        SearchResultsSetImpl searchResultsSet) {
+
+        String defaultSortField = null;
+        if (sortFields != null) {
+            for (SortField sortField : sortFields.getOptions()) {
+                if (searchOptions.getSorterKeys().stream().noneMatch(sk -> sk.getName().equals(sortField.getValue()))) {
+                    searchOptions.addSorterKey(sortField.getValue(), sortField.getLabel(), Sorter.Order.ASC);
+                }
+            }
+
+            defaultSortField = sortFields.getDefault();
+        }
+
+        List<SorterKey> availableSorterKeys = searchOptions.getSorterKeys();
+
         SorterImpl sorter = searchResultsSet.getSorter();
-        List<SorterKey> keys = new ArrayList<>();
-        keys.addAll(availableSorterKeys);
+        List<SorterKey> keys = new ArrayList<>(availableSorterKeys);
+        keys.sort(Comparator.comparing(SorterKey::getLabel));
         sorter.setKeys(keys);
 
         for (SorterKey key : keys) {
@@ -254,13 +302,19 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             Map<String, String> cParams = new HashMap<>(searchOptions.getAllFilters());
             cParams.put(Sorter.PARAMETER_SORT_KEY, key.getName());
             Sorter.Order keyOrder = keyImpl.getOrder();
-            if (sortKeyParam.equals(key.getName())) {
-                keyImpl.setSelected(true);
-                sorter.setCurrentKey(key);
-                keyOrder = sortOrder;
-                resultSorterKey = keyImpl;
-            } else if (keyOrder == null) {
-                keyOrder = sortOrder;
+            if (currentSorterKey == null) {
+                if (defaultSortField != null && defaultSortField.equals(key.getName())) {
+                    keyImpl.setSelected(true);
+                    sorter.setCurrentKey(key);
+                }
+            } else {
+                if (currentSorterKey.getName().equals(key.getName())) {
+                    keyImpl.setSelected(true);
+                    sorter.setCurrentKey(key);
+                    keyOrder = currentSorterKey.getOrder();
+                } else if (keyOrder == null) {
+                    keyOrder = currentSorterKey.getOrder();
+                }
             }
             keyImpl.setOrder(keyOrder);
             cParams.put(Sorter.PARAMETER_SORT_ORDER, keyOrder.name().toLowerCase());
@@ -271,16 +325,21 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             oParams.put(Sorter.PARAMETER_SORT_ORDER, keyOrder.opposite().name().toLowerCase());
             keyImpl.setOppositeOrderParameters(oParams);
         }
-
-        return resultSorterKey;
     }
 
     private String generateProductsQueryString(
         final SearchOptions searchOptions,
         final List<FilterAttributeMetadata> availableFilters,
         final Consumer<ProductInterfaceQuery> productQueryHook,
+        Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook,
         final SorterKey sorterKey) {
-        GenericProductAttributeFilterInput filterInputs = new GenericProductAttributeFilterInput();
+        ProductAttributeFilterInput filterInputs = new ProductAttributeFilterInput();
+
+        // Apply product attribute filter hook if set
+        if (productAttributeFilterHook != null) {
+            filterInputs = productAttributeFilterHook.apply(filterInputs);
+        }
+        final ProductAttributeFilterInput filterInputs2 = filterInputs;
 
         searchOptions.getAllFilters().entrySet()
             .stream()
@@ -296,11 +355,11 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 if ("FilterEqualTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterEqualTypeInput filter = new FilterEqualTypeInput();
                     filter.setEq(value);
-                    filterInputs.addEqualTypeInput(code, filter);
+                    filterInputs2.setCustomFilter(code, filter);
                 } else if ("FilterMatchTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterMatchTypeInput filter = new FilterMatchTypeInput();
                     filter.setMatch(value);
-                    filterInputs.addMatchTypeInput(code, filter);
+                    filterInputs2.setCustomFilter(code, filter);
                 } else if ("FilterRangeTypeInput".equals(filterAttributeMetadata.getFilterInputType())) {
                     FilterRangeTypeInput filter = new FilterRangeTypeInput();
                     final String[] rangeValues = value.split("_");
@@ -308,7 +367,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                         // The range has a single value like '60'
                         filter.setFrom(rangeValues[0]);
                         filter.setTo(rangeValues[0]);
-                        filterInputs.addRangeTypeInput(code, filter);
+                        filterInputs2.setCustomFilter(code, filter);
                     } else if (rangeValues.length > 1) {
                         // For values such as '*_60', the from range should be left empty
                         if (StringUtils.isNumeric(rangeValues[0])) {
@@ -318,7 +377,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                         if (StringUtils.isNumeric(rangeValues[1])) {
                             filter.setTo(rangeValues[1]);
                         }
-                        filterInputs.addRangeTypeInput(code, filter);
+                        filterInputs2.setCustomFilter(code, filter);
                     }
                 }
             });
@@ -331,7 +390,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             }
             productArguments.currentPage(searchOptions.getCurrentPage());
             productArguments.pageSize(searchOptions.getPageSize());
-            productArguments.filter(filterInputs);
+            productArguments.filter(filterInputs2);
             if (sorterKey != null) {
                 String sortKey = sorterKey.getName();
                 String sortOrder = sorterKey.getOrder().name();
@@ -348,10 +407,21 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                     sort.setPosition(sortEnum);
                 } else {
                     validSortKey = false;
-                    LOGGER.warn("Unknown sort key: " + sortKey);
+                    LOGGER.debug("Unrecognized sort key: " + sortKey);
                 }
                 if (validSortKey) {
                     productArguments.sort(sort);
+                } else {
+                    // handle sort keys not supported in the current magento-graphql library
+                    productArguments.sort(new ProductAttributeSortInput() {
+                        @Override
+                        public void appendTo(StringBuilder _queryBuilder) {
+                            _queryBuilder.append('{');
+                            _queryBuilder.append(sortKey + ":");
+                            _queryBuilder.append(sortEnum.toString());
+                            _queryBuilder.append('}');
+                        }
+                    });
                 }
             }
         };
@@ -366,7 +436,8 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                     .value())
                 .attributeCode()
                 .count()
-                .label());
+                .label())
+            .sortFields(s -> s.options(sf -> sf.value().label()).defaultValue());
 
         return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
     }
@@ -383,11 +454,11 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         final Consumer<ProductInterfaceQuery> productQueryHook) {
         return (ProductInterfaceQuery q) -> {
             q.sku()
-                .name()
-                .smallImage(i -> i.url())
                 .urlKey()
                 .urlPath()
                 .urlRewrites(uq -> uq.url())
+                .name()
+                .smallImage(i -> i.url())
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .onConfigurableProduct(cp -> cp
@@ -472,33 +543,16 @@ public class SearchResultsServiceImpl implements SearchResultsService {
     }
 
     /**
-     * Removes the category_id filter from the search aggregations when category_uid filter is present because either cannot be combined
-     * with the other.
+     * Removes the category_uid filter from the search options if it can be obtained from the request.
      *
-     * @param aggs
-     * @param searchOptions
-     */
-    private void removeCategoryIdAggregationIfNecessary(List<SearchAggregation> aggs, SearchOptionsImpl searchOptions) {
-        // Special treatment for category_id filter as this is always present and collides with category_uid filter (CIF-2206)
-        if (searchOptions.getCategoryUid().isPresent()) {
-            aggs.removeIf(agg -> CATEGORY_ID_FILTER.equals(agg.getIdentifier()));
-        }
-    }
-
-    /**
-     * Removes the category_uid filter from all filter options' filter maps when the category uid can be retrieved from the request already.
-     *
-     * @param aggs
+     * @param mutableSearchOptions
      * @param request
      */
-    private void removeCategoryUidFilterEntriesIfPossible(List<SearchAggregation> aggs, SlingHttpServletRequest request) {
+    private void removeCategoryUidFilterEntriesIfPossible(SearchOptionsImpl mutableSearchOptions, SlingHttpServletRequest request) {
         String categoryUid = urlProvider.getCategoryIdentifier(request);
-        if (StringUtils.isNotBlank(categoryUid)) {
-            aggs.stream()
-                .map(SearchAggregation::getOptions)
-                .flatMap(Collection::stream)
-                .map(SearchAggregationOption::getAddFilterMap)
-                .forEach(filterMap -> filterMap.remove(CATEGORY_UID_FILTER, categoryUid));
+        if (StringUtils.isNotBlank(categoryUid) &&
+            mutableSearchOptions.getCategoryUid().filter(categoryUid::equals).isPresent()) {
+            mutableSearchOptions.setCategoryUid(null);
         }
     }
 }

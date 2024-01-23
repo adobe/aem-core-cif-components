@@ -16,15 +16,14 @@
 import { useEffect, useState } from 'react';
 
 import RecommendationsClient from '@magento/recommendations-js-sdk';
-import { useStorefrontEvents, usePageType } from '@adobe/aem-core-cif-react-components';
+import { usePageType } from '@adobe/aem-core-cif-react-components';
 
 import { useStorefrontInstanceContext } from '../context/StorefrontInstanceContext';
 
 const commaToOrList = list => list.split(',').join(' OR ');
 
 export const useRecommendations = props => {
-    const mse = useStorefrontEvents();
-    const { context: storefrontInstance, error: storefrontInstanceError } = useStorefrontInstanceContext();
+    const { context: storefrontInstance, error: storefrontInstanceError, mse } = useStorefrontInstanceContext();
     const [data, setData] = useState({ loading: true, units: null });
     const pageType = usePageType();
 
@@ -133,7 +132,7 @@ export const useRecommendations = props => {
 
             setData({ loading: false, units: newUnits });
         })();
-    }, [storefrontInstance, storefrontInstanceError]);
+    }, [storefrontInstance, storefrontInstanceError, mse]);
 
     return data;
 };

@@ -22,41 +22,70 @@ class ProductCarouselActions {
 
         element.querySelectorAll('.product__card-button--add-to-cart').forEach(actionButton => {
             let actionHandler = this._addToCartHandler.bind(this);
-            actionButton.addEventListener('click', ev => {
-                actionHandler(ev);
-            });
+            actionButton.addEventListener('click', ev => actionHandler(ev));
         });
 
         element.querySelectorAll('.product__card-button--add-to-wish-list').forEach(actionButton => {
             let actionHandler = this._addToWishlistHandler.bind(this);
-            actionButton.addEventListener('click', ev => {
-                ev.preventDefault();
-                const element = ev.currentTarget;
-                actionHandler(element.dataset);
-            });
+            actionButton.addEventListener('click', ev => actionHandler(ev));
         });
     }
 
-    _addToCartHandler(ev) {
-        const dataset = ev.currentTarget.dataset;
-        const sku = dataset['itemSku'];
-        const action = dataset['action'];
+    _addToCartHandler(event) {
+        const target = event.currentTarget;
+        const dataset = target.dataset;
+        const sku = dataset.itemSku;
+        const action = dataset.action;
+
         if (action === 'add-to-cart') {
+            const quantity = 1;
+            const detail = {
+                sku,
+                quantity,
+                virtual: this.virtual
+            };
+
+            const item = target.closest('.product__card');
+            if (item.dataset.cmpDataLayer) {
+                try {
+                    const itemDataLayer = Object.values(JSON.parse(item.dataset.cmpDataLayer))[0];
+                    const finalPrice = itemDataLayer['xdm:listPrice']; // special price after discount
+                    const discountAmount = itemDataLayer['xdm:discountAmount'];
+                    const regularPrice = finalPrice + discountAmount; // price before discount
+                    detail.storefrontData = {
+                        name: itemDataLayer['dc:title'],
+                        regularPrice,
+                        finalPrice,
+                        currencyCode: itemDataLayer['xdm:currencyCode']
+                    };
+                } catch (e) {
+                    // ignore
+                }
+            }
+
             const customEvent = new CustomEvent('aem.cif.add-to-cart', {
-                detail: [{ sku, quantity: 1, virtual: this.virtual }]
+                bubbles: true,
+                detail: [detail]
             });
-            document.dispatchEvent(customEvent);
-            ev.preventDefault();
+
+            target.dispatchEvent(customEvent);
+            event.preventDefault();
+            event.stopPropagation();
         }
         // else click hits parent link
     }
 
-    _addToWishlistHandler(dataset) {
-        const sku = dataset['itemSku'];
+    _addToWishlistHandler(event) {
+        const target = event.currentTarget;
+        const dataset = target.dataset;
+        const sku = dataset.itemSku;
         const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+            bubbles: true,
             detail: [{ sku, quantity: 1 }]
         });
-        document.dispatchEvent(customEvent);
+        target.dispatchEvent(customEvent);
+        event.preventDefault();
+        event.stopPropagation();
     }
 }
 

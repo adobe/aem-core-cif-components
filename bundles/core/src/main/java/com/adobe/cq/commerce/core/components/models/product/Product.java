@@ -15,7 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.product;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
@@ -30,6 +32,16 @@ import com.adobe.cq.wcm.core.components.models.Component;
  */
 @ConsumerType
 public interface Product extends Component, PageMetadata {
+
+    String TITLE_SECTION = "TITLE";
+    String PRICE_SECTION = "PRICE";
+    String SKU_SECTION = "SKU";
+    String IMAGE_SECTION = "IMAGE";
+    String OPTIONS_SECTION = "OPTIONS";
+    String QUANTITY_SECTION = "QUANTITY";
+    String ACTIONS_SECTION = "ACTIONS";
+    String DESCRIPTION_SECTION = "DESCRIPTION";
+    String DETAILS_SECTION = "DETAILS";
 
     /**
      * Name of the boolean resource property indicating if the product component should load prices on the client-side.
@@ -64,13 +76,13 @@ public interface Product extends Component, PageMetadata {
      * The version 1 of the product component always returns <code>false</code> as it does not support this feature.
      * The version 2 of the product component does support this feature but it requires a Magento EE instance with
      * at least Magento version 2.4.2.
-     * 
+     *
      * @return <code>true</code> if the product data contains staged changes, <code>false</code> otherwise.
      * @since com.adobe.cq.commerce.core.components.models.product 3.1.0
      */
     default Boolean isStaged() {
         return false;
-    };
+    }
 
     String getVariantsJson();
 
@@ -84,6 +96,12 @@ public interface Product extends Component, PageMetadata {
 
     List<VariantAttribute> getVariantAttributes();
 
+    /**
+     * @return
+     * @deprecated Per component client-side price loading is deprecated. This information is exposed in the
+     *             {@link com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter} and enabled site wide.
+     */
+    @Deprecated
     Boolean loadClientPrice();
 
     AbstractProductRetriever getProductRetriever();
@@ -102,5 +120,24 @@ public interface Product extends Component, PageMetadata {
      */
     default boolean getAddToWishListEnabled() {
         return false;
+    }
+
+    /**
+     * Returns a set of sections to be displayed.
+     *
+     * @return
+     */
+    default Set<String> getVisibleSections() {
+        Set<String> defaultSections = new HashSet<>();
+        defaultSections.add(TITLE_SECTION);
+        defaultSections.add(PRICE_SECTION);
+        defaultSections.add(SKU_SECTION);
+        defaultSections.add(IMAGE_SECTION);
+        defaultSections.add(OPTIONS_SECTION);
+        defaultSections.add(QUANTITY_SECTION);
+        defaultSections.add(ACTIONS_SECTION);
+        defaultSections.add(DESCRIPTION_SECTION);
+        defaultSections.add(DETAILS_SECTION);
+        return defaultSections;
     }
 }

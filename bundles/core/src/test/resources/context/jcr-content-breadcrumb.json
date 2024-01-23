@@ -11,7 +11,8 @@
       "jcr:language": "en_US",
       "jcr:primaryType": "cq:PageContent",
       "jcr:title": "Venia",
-      "magentoStore": "my-store"
+      "magentoStore": "my-store",
+      "navRoot": true
     },
     "us": {
       "jcr:primaryType": "cq:Page",

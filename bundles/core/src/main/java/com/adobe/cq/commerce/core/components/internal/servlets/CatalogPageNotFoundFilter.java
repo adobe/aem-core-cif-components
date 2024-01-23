@@ -40,10 +40,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
@@ -60,6 +61,8 @@ import com.day.cq.wcm.api.PageManagerFactory;
             + com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl.RESOURCE_TYPE,
         EngineConstants.SLING_FILTER_RESOURCETYPES + "="
             + com.adobe.cq.commerce.core.components.internal.models.v2.page.PageImpl.RESOURCE_TYPE,
+        EngineConstants.SLING_FILTER_RESOURCETYPES + "="
+            + com.adobe.cq.commerce.core.components.internal.models.v3.page.PageImpl.RESOURCE_TYPE,
         // limit to typical content rendering requests
         EngineConstants.SLING_FILTER_EXTENSIONS + "=html",
         EngineConstants.SLING_FILTER_EXTENSIONS + "=json",
@@ -75,6 +78,8 @@ public class CatalogPageNotFoundFilter implements Filter {
     private PageManagerFactory pageManagerFactory;
     @Reference
     private CommerceComponentModelFinder commerceModelFinder;
+    @Reference
+    private SiteStructureFactory siteStructureFactory;
 
     private BundleContext bundleContext;
 
@@ -102,20 +107,24 @@ public class CatalogPageNotFoundFilter implements Filter {
         LOGGER.debug("Check if content on catalog page exists: {}", slingRequest.getRequestURI());
 
         if (currentPage != null) {
+            SiteStructure siteStructure = siteStructureFactory.getSiteStructure(slingRequest, currentPage);
             boolean removeSlingScriptHelperFromBindings = false;
-            if (SiteNavigation.isProductPage(currentPage)) {
+
+            if (siteStructure.isProductPage(currentPage)) {
                 removeSlingScriptHelperFromBindings = addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
                 Product product = commerceModelFinder.findProductComponentModel(slingRequest, currentPage.getContentResource());
                 if (product != null && !product.getFound()) {
                     slingResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
                     return;
                 }
-            } else if (SiteNavigation.isCategoryPage(currentPage)) {
+            } else if (siteStructure.isCategoryPage(currentPage)) {
                 removeSlingScriptHelperFromBindings = addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
                 ProductList productList = commerceModelFinder.findProductListComponentModel(slingRequest, currentPage.getContentResource());
                 if (productList != null) {
                     AbstractCategoryRetriever categoryRetriever = productList.getCategoryRetriever();
-                    if (categoryRetriever == null || categoryRetriever.fetchCategory() == null) {
+                    // since CIF-2916 the categoryRetriever is null when using the placeholder data, however the product list still
+                    // returns the placeholder products and so we check additionally if the list is empty.
+                    if ((categoryRetriever == null || categoryRetriever.fetchCategory() == null) && productList.getProducts().isEmpty()) {
                         slingResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Category not found");
                         return;
                     }

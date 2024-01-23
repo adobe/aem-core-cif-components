@@ -15,11 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import React from 'react';
 
-import { render } from '@testing-library/react';
+import { render, waitForDomChange } from '@testing-library/react';
 
 import ProductRecsGallery from '../ProductRecsGallery';
 import mockMagentoStorefrontEvents from '../../../__test__/mockMagentoStorefrontEvents';
 import ContextWrapper from '../../../__test__/context-wrapper';
+import { dataLayerUtils } from '@adobe/aem-core-cif-react-components';
+import { StorefrontInstanceContext } from '../../../context/StorefrontInstanceContext';
 
 const mockUseRecommendationsValue = jest.fn();
 
@@ -30,6 +32,17 @@ jest.mock('../../../hooks/useRecommendations', () => ({
 jest.mock('../../../hooks/useVisibilityObserver', () => ({
     useVisibilityObserver: () => ({ observeElement: jest.fn() })
 }));
+
+jest.mock('@adobe/aem-core-cif-react-components', () => {
+    const cifCoreComponents = jest.requireActual('@adobe/aem-core-cif-react-components');
+    return {
+        ...cifCoreComponents,
+        dataLayerUtils: {
+            pushData: jest.fn(),
+            generateId: (prefix, sku, separator) => prefix + separator + sku
+        }
+    };
+});
 
 describe('ProductRecsGallery', () => {
     let mse;
@@ -77,6 +90,12 @@ describe('ProductRecsGallery', () => {
         }
     ];
 
+    const TestWrapper = ({ children }) => (
+        <ContextWrapper>
+            <StorefrontInstanceContext.Provider value={{ mse }}>{children}</StorefrontInstanceContext.Provider>
+        </ContextWrapper>
+    );
+
     beforeAll(() => {
         mse = window.magentoStorefrontEvents = mockMagentoStorefrontEvents;
     });
@@ -93,7 +112,8 @@ describe('ProductRecsGallery', () => {
         mockUseRecommendationsValue.mockReturnValue({ loading: true, units: null });
 
         const { asFragment } = render(
-            <ProductRecsGallery title="My Product Recommendations" recommendationType="most-viewed" />
+            <ProductRecsGallery title="My Product Recommendations" recommendationType="most-viewed" />,
+            { wrapper: TestWrapper }
         );
 
         expect(asFragment()).toMatchSnapshot();
@@ -114,10 +134,11 @@ describe('ProductRecsGallery', () => {
                 recommendationType="most-viewed"
                 showAddToWishList={showAddToWishList}
             />,
-            { wrapper: ContextWrapper }
+            { wrapper: TestWrapper }
         );
 
         expect(asFragment()).toMatchSnapshot();
+        expect(mse.publish.recsUnitRender).toHaveBeenCalledTimes(1);
         expect(mse.publish.recsUnitRender).toHaveBeenCalledWith('my-unit-id');
     });
 
@@ -169,12 +190,65 @@ describe('ProductRecsGallery', () => {
                 recommendationType="most-viewed"
                 hostElement={hostElement}
             />,
-            { wrapper: ContextWrapper }
+            { wrapper: TestWrapper }
         );
 
         expect(dispatchEvent).toHaveBeenCalledTimes(1);
         expect(dispatchEvent.mock.calls[0][0].type).toBe('aem.cif.product-recs-loaded');
         expect(dispatchEvent.mock.calls[0][0].bubbles).toBe(true);
         expect(dispatchEvent.mock.calls[0][0].detail).toEqual(products || []);
+    });
+
+    it('add datalayer components for product cards with parentId from hostElement', async () => {
+        const dispatchEvent = jest.fn();
+        const hostElement = { dispatchEvent };
+
+        mockUseRecommendationsValue.mockReturnValue({
+            loading: false,
+            units
+        });
+
+        window.data;
+
+        const { asFragment, container } = render(
+            <ProductRecsGallery
+                title="My Product Recommendations"
+                recommendationType="most-viewed"
+                hostElement={hostElement}
+                cmpDataLayer='{"productrecs-test": {}}'
+            />,
+            { wrapper: TestWrapper }
+        );
+
+        // wait for data-cmp-data-layer to be rendered in 2nd pass
+        await waitForDomChange({ container });
+
+        expect(asFragment()).toMatchSnapshot();
+
+        expect(dataLayerUtils.pushData).toHaveBeenCalledTimes(2);
+        expect(dataLayerUtils.pushData).toHaveBeenCalledWith({
+            component: {
+                'productrecs-test-item-sku-a': {
+                    parentId: 'productrecs-test',
+                    '@type': 'core/cif/components/commerce/productlistitem',
+                    'dc:title': 'My Product A',
+                    'xdm:SKU': 'sku-a',
+                    'xdm:currencyCode': 'CHF',
+                    'xdm:listPrice': 342.23
+                }
+            }
+        });
+        expect(dataLayerUtils.pushData).toHaveBeenCalledWith({
+            component: {
+                'productrecs-test-item-sku-b': {
+                    parentId: 'productrecs-test',
+                    '@type': 'core/cif/components/commerce/productlistitem',
+                    'dc:title': 'My Product B',
+                    'xdm:SKU': 'sku-b',
+                    'xdm:currencyCode': 'CHF',
+                    'xdm:listPrice': 342.23
+                }
+            }
+        });
     });
 });

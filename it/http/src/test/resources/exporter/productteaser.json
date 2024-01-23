@@ -13,6 +13,7 @@
       "xdm:currencyCode": "USD",
       "xdm:SKU": "24-MG03",
       "xdm:listPrice": 54.0,
+      "xdm:discountAmount": 0.0,
       "repo:modifyDate": "2020-05-11T09:25:24Z",
       "@type": "cif-components-examples/components/productteaser",
       "dc:title": "Summit Watch"

@@ -1,0 +1,19 @@
+{
+    "data": {
+        "categoryList": [
+            {
+                "uid": "uid-4",
+                "url_key": "outdoor",
+                "url_path": "outdoor",
+                "description": "A collection of products for outdoor activities",
+                "name": "Outdoor Collection",
+                "image": null,
+                "product_count": 0,
+                "meta_description": "Meta description for Outdoor Collection",
+                "meta_keywords": "Meta keywords for Outdoor Collection",
+                "meta_title": "Meta title for Outdoor Collection",
+                "staged": false
+            }
+        ]
+    }
+}

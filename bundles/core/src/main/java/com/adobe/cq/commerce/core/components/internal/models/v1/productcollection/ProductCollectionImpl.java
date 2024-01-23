@@ -38,7 +38,6 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
@@ -58,6 +57,7 @@ import static com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImp
 public class ProductCollectionImpl extends DataLayerComponent implements ProductCollection {
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/productcollection/v1/productcollection";
+    public static final String RESOURCE_TYPE_V2 = "core/cif/components/commerce/productcollection/v2/productcollection";
 
     protected static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
     protected static final boolean ENABLE_ADD_TO_CART_DEFAULT = false;
@@ -65,7 +65,6 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
     protected static final String PAGINATION_TYPE_DEFAULT = "paginationbar";
     protected static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
 
-    protected Page productPage;
     protected boolean loadClientPrice;
     protected int navPageSize;
     protected String paginationType;
@@ -115,15 +114,8 @@ public class ProductCollectionImpl extends DataLayerComponent implements Product
 
         addToCartEnabled = currentStyle.get(PN_ENABLE_ADD_TO_CART, ENABLE_ADD_TO_CART_DEFAULT);
 
-        addToWishListEnabled = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS,
-            ENABLE_ADD_TO_WISH_LIST_DEFAULT) : ENABLE_ADD_TO_WISH_LIST_DEFAULT);
+        addToWishListEnabled = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS, Boolean.TRUE) : Boolean.TRUE);
         addToWishListEnabled = addToWishListEnabled && currentStyle.get(PN_ENABLE_ADD_TO_WISH_LIST, ENABLE_ADD_TO_WISH_LIST_DEFAULT);
-
-        // get product template page
-        productPage = SiteNavigation.getProductPage(currentPage);
-        if (productPage == null) {
-            productPage = currentPage;
-        }
     }
 
     public Integer calculateCurrentPageCursor(final String currentPageIndexCandidate) {

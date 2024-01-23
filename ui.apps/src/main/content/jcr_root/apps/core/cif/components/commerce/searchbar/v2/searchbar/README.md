@@ -20,6 +20,9 @@ Searchbar component is a server-side component written in HTL, displaying a sear
 
 The visibility of the component can be toggled using any DOM element with the `searchbar__trigger` CSS class assigned.
 
+> [!NOTE]
+> Adobe Commerce customers should use the [Live Search Widget](https://experienceleague.adobe.com/docs/experience-manager-cloud-service/content/content-and-commerce/integrations/live-search-popover.html?lang=en) instead.
+
 ## Features
 
 - Input field with visibility toggle

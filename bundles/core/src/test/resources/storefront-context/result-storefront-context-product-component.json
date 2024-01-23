@@ -1,5 +1,10 @@
 {
   "productId": 0,
   "sku": "MJ01",
-  "name": "Beaumont Summit Kit"
+  "name": "Beaumont Summit Kit",
+  "pricing": {
+    "specialPrice": 58.0,
+    "regularPrice": 58.0,
+    "currencyCode": "USD"
+  }
 }

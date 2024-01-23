@@ -14,6 +14,7 @@
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <sly data-sly-use.product="com.adobe.cq.commerce.core.components.models.productteaser.ProductTeaser"
+    data-sly-use.page="com.adobe.cq.wcm.core.components.models.Page"
     data-sly-use.templates="core/wcm/components/commons/v1/templates.html"
     data-sly-use.imageTpl="image.html"
     data-sly-use.titleTpl="title.html"
@@ -27,7 +28,8 @@
      data-cmp-is="productteaser"
      data-cmp-data-layer="${product.data.json}"
      data-virtual="${product.virtualProduct}"
-     data-product-sku="${product.commerceIdentifier.value}">
+     data-product-sku="${product.sku}"
+     data-product-base-sku="${product.combinedSku.baseSku}">
     <sly data-sly-call="${imageTpl.actions @ product=product}"/>
     <sly data-sly-call="${titleTpl.actions @ product=product}"/>
     <sly data-sly-use.template="core/cif/components/commons/v1/price.html"

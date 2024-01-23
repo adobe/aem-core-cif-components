@@ -63,4 +63,13 @@ public interface FeaturedCategoryList extends Component {
      * @return The HTML tag type that should be used to display the component title.
      */
     String getTitleType();
+
+    /**
+     * Returns the link target for the links generated on the component.
+     *
+     * @return the link target or {@code null} if no link target is configured
+     */
+    default String getLinkTarget() {
+        return null;
+    };
 }

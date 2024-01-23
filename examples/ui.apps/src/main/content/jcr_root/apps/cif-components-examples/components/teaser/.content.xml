@@ -3,6 +3,6 @@
     jcr:description="Commerce Teaser for the Core Components Library"
     jcr:primaryType="cq:Component"
     jcr:title="Commerce Teaser"
-    sling:resourceSuperType="core/cif/components/content/teaser/v2/teaser"
+    sling:resourceSuperType="core/cif/components/content/teaser/v3/teaser"
     componentGroup="Core Components Examples"
     imageDelegate="cif-components-examples/components/image"/>

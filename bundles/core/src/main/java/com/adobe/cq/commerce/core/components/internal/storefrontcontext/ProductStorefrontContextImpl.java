@@ -17,12 +17,15 @@ package com.adobe.cq.commerce.core.components.internal.storefrontcontext;
 
 import org.apache.sling.api.resource.Resource;
 
+import com.adobe.cq.commerce.core.components.storefrontcontext.Pricing;
 import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 
-public class ProductStorefrontContextImpl extends AbstractCommerceStorefrontContext implements ProductStorefrontContext {
+public class ProductStorefrontContextImpl extends AbstractCommerceStorefrontContext
+    implements ProductStorefrontContext {
 
     private final ProductInterface product;
+    private Pricing pricing = null;
 
     public ProductStorefrontContextImpl(ProductInterface product, Resource resource) {
         super(resource);
@@ -42,5 +45,13 @@ public class ProductStorefrontContextImpl extends AbstractCommerceStorefrontCont
     @Override
     public String getName() {
         return product.getName();
+    }
+
+    @Override
+    public Pricing getPricing() {
+        if (pricing == null) {
+            pricing = new PricingImpl(product);
+        }
+        return pricing;
     }
 }

@@ -4,6 +4,13 @@
       "id": "teaser-28faf4b577-item-1dd38cd5b3",
       "title": "Find out more",
       "url": "/content/core-components-examples/library/commerce/product/sample-product.html/summit-watch.html",
+      "link": {
+        "htmlAttributes": {
+          "href": "/content/core-components-examples/library/commerce/product/sample-product.html/summit-watch.html"
+        },
+        "url": "/content/core-components-examples/library/commerce/product/sample-product.html/summit-watch.html",
+        "valid": true
+      },
       "entityIdentifier": {
         "entityType": "PRODUCT",
         "value": "24-MG03",
@@ -26,10 +33,10 @@
   "titleLinkHidden": false,
   "dataLayer": {
     "teaser-28faf4b577": {
-      "@type": "core/wcm/components/teaser/v1/teaser",
+      "@type": "core/wcm/components/teaser/v2/teaser",
       "repo:modifyDate": "2020-06-02T09:59:07Z",
       "dc:title": "Get ready for the cold !"
     }
   },
-  ":type": "core/cif/components/content/teaser/v2/teaser"
+  ":type": "core/cif/components/content/teaser/v3/teaser"
 }

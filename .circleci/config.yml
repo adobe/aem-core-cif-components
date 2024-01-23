@@ -40,7 +40,8 @@ common:
   selenium_test_steps: &selenium_test_steps
     steps:
       - checkout
-      - browser-tools/install-browser-tools
+      - browser-tools/install-browser-tools:
+          chrome-version: 114.0.5735.90 # TODO: remove -> https://github.com/CircleCI-Public/browser-tools-orb/issues/75
       - *restore_cache
       - attach_workspace:
           at: /home/circleci/build
@@ -64,7 +65,7 @@ common:
 executors:
   cif_executor:
     docker:
-      - image: cimg/openjdk:11.0-browsers
+      - image: cimg/openjdk:11.0.16-browsers
   cif_executor_java8:
     docker:
       - image: cimg/openjdk:8.0-browsers
@@ -72,7 +73,7 @@ executors:
     docker:
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:6582-openjdk11
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:9398-openjdk11
         <<: *docker_auth
   test_executor_655:
     docker:
@@ -136,10 +137,11 @@ jobs:
 
   karma:
     docker:
-      - image: cimg/node:lts-browsers
+      - image: cimg/node:16.17.1-browsers
     steps:
       - checkout
-      - browser-tools/install-browser-tools
+      - browser-tools/install-browser-tools:
+          chrome-version: 114.0.5735.90 # TODO: remove -> https://github.com/CircleCI-Public/browser-tools-orb/issues/75
       - run:
           name: Provision
           command: |
@@ -161,18 +163,15 @@ jobs:
 
   jest:
     docker:
-      - image: cimg/node:lts-browsers
+      - image: cimg/node:16.20.0-browsers
     steps:
       - checkout
-      - run:
-          name: Update permissions
-          command: sudo chown -R circleci /usr/local/lib/node_modules
       - run:
           name: Provision
           command: |
             node -v
             npm -v
-            npm install
+            npm ci --legacy-peer-deps
           working_directory: ./react-components
       - run:
           name: Run Unit Tests (Jest)
@@ -185,9 +184,9 @@ jobs:
       - codecov/upload:
           flags: jest
 
-  jest-extension:
+  jest-extension-product-recs:
     docker:
-      - image: cimg/node:lts-browsers
+      - image: cimg/node:16.17.1-browsers
     steps:
       - checkout
       - run:
@@ -206,7 +205,7 @@ jobs:
           name: Provision (Extension)
           command: |
             npm install
-            npm link @adobe/aem-core-cif-react-components
+            npm link @adobe/aem-core-cif-react-components --legacy-peer-deps
           working_directory: ./extensions/product-recs/react-components
       - run:
           name: Run Unit Tests (Jest)
@@ -216,6 +215,27 @@ jobs:
           path: ./extensions/product-recs/react-components/test-results
       - store_artifacts:
           path: ./extensions/product-recs/react-components/test-results
+      - codecov/upload:
+          flags: jest
+
+  jest-extension-experience-platform-connector:
+    docker:
+      - image: cimg/node:16.17.1-browsers
+    steps:
+      - checkout
+      - run:
+          name: Provision (Extension)
+          command: |
+            npm install --legacy-peer-deps
+          working_directory: ./extensions/experience-platform-connector
+      - run:
+          name: Run Unit Tests (Jest)
+          command: npm run ci
+          working_directory: ./extensions/experience-platform-connector
+      - store_test_results:
+          path: ./extensions/experience-platform-connector/test-results
+      - store_artifacts:
+          path: ./extensions/experience-platform-connector/test-results
       - codecov/upload:
           flags: jest
 
@@ -321,7 +341,11 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - jest-extension:
+      - jest-extension-product-recs:
+          filters:
+            tags:
+              only: /.*/
+      - jest-extension-experience-platform-connector:
           filters:
             tags:
               only: /.*/
@@ -336,7 +360,8 @@ workflows:
             - build-java-8
             - karma
             - jest
-            - jest-extension
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
       - integration-test-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -348,7 +373,8 @@ workflows:
             - build-java-8
             - karma
             - jest
-            - jest-extension
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
       - selenium-chrome-655:
           context:
             - CIF Artifactory Cloud
@@ -360,7 +386,8 @@ workflows:
             - build-java-8
             - karma
             - jest
-            - jest-extension
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
       - selenium-chrome-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -372,7 +399,8 @@ workflows:
             - build-java-8
             - karma
             - jest
-            - jest-extension
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
       - release:
           context:
             - CIF Artifactory Cloud

@@ -25,6 +25,10 @@ import com.adobe.cq.commerce.magento.graphql.FilterRangeTypeInput;
 import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.shopify.graphql.support.Input;
 
+/**
+ * @deprecated Use {@link ProductAttributeFilterInput#setCustomFilter} instead.
+ */
+@Deprecated
 public class GenericProductAttributeFilterInput extends ProductAttributeFilterInput {
 
     private Map<String, Input<FilterEqualTypeInput>> equalInputs = new HashMap<>();

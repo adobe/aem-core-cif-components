@@ -25,7 +25,11 @@ import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.wrappers.SlingHttpServletRequestWrapper;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.metatype.annotations.AttributeDefinition;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +38,7 @@ import com.adobe.cq.commerce.core.search.internal.converters.FilterAttributeMeta
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
 import com.adobe.cq.commerce.core.search.services.SearchFilterService;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.magento.graphql.Attribute;
 import com.adobe.cq.commerce.magento.graphql.AttributeInput;
 import com.adobe.cq.commerce.magento.graphql.CustomAttributeMetadata;
@@ -49,9 +54,29 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 
 @Component(service = { SearchFilterServiceImpl.class, SearchFilterService.class })
+@Designate(ocd = SearchFilterServiceImpl.Configuration.class)
 public class SearchFilterServiceImpl implements SearchFilterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchFilterServiceImpl.class);
+
+    @ObjectClassDefinition(name = "CIF Search Filter Service")
+    @interface Configuration {
+
+        @AttributeDefinition(
+            name = "Enforce POST",
+            description = "If enabled, the service uses POST requests to execute the custom "
+                + "attribute metadata query. This may be helpful for catalogs with many custom attributes, where the query string exceeds "
+                + "the size limits of GET requests. Defaults to false")
+        boolean enforcePost() default false;
+
+    }
+
+    private boolean enforcePost;
+
+    @Activate
+    protected void activate(Configuration configuration) {
+        enforcePost = configuration.enforcePost();
+    }
 
     @Override
     public List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(final Page page) {
@@ -111,7 +136,9 @@ public class SearchFilterServiceImpl implements SearchFilterService {
                 .inputType());
         final QueryQuery attributeQuery = Operations.query(query -> query.customAttributeMetadata(attributeInputs, queryArgs));
 
-        final GraphqlResponse<Query, Error> response = magentoGraphqlClient.execute(attributeQuery.toString());
+        final GraphqlResponse<Query, Error> response = enforcePost
+            ? magentoGraphqlClient.execute(attributeQuery.toString(), HttpMethod.POST)
+            : magentoGraphqlClient.execute(attributeQuery.toString());
 
         // If there are errors we'll log them and return a safe but empty list
         if (CollectionUtils.isNotEmpty(response.getErrors())) {

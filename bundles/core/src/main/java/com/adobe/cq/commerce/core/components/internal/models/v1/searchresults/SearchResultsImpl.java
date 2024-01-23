@@ -17,6 +17,9 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.searchresults;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
@@ -38,6 +41,8 @@ import com.adobe.cq.commerce.core.search.internal.models.SearchOptionsImpl;
 import com.adobe.cq.commerce.core.search.internal.models.SearchResultsSetImpl;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.Sorter;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 
 /**
  * Concrete implementation of the {@link SearchResults} Sling Model API
@@ -45,12 +50,18 @@ import com.adobe.cq.commerce.core.search.models.Sorter;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = SearchResults.class,
-    resourceType = SearchResultsImpl.RESOURCE_TYPE)
+    resourceType = { SearchResultsImpl.RESOURCE_TYPE, SearchResultsImpl.RESOURCE_TYPE_V2 })
 public class SearchResultsImpl extends ProductCollectionImpl implements SearchResults {
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchResultsImpl.class);
-    static final String RESOURCE_TYPE = "core/cif/components/commerce/searchresults";
+    static final String RESOURCE_TYPE = "core/cif/components/commerce/searchresults/v1/searchresults";
+    static final String RESOURCE_TYPE_V2 = "core/cif/components/commerce/searchresults/v2/searchresults";
 
     private String searchTerm;
+    String searchRequestId = UUID.randomUUID().toString();
+
+    private Consumer<ProductInterfaceQuery> productQueryHook;
+
+    private Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook;
 
     @PostConstruct
     protected void initModel() {
@@ -74,9 +85,15 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
         searchOptions.setSearchQuery(searchTerm);
 
         // configure sorting
+        String defaultSortField = properties.get(PN_DEFAULT_SORT_FIELD, String.class);
+        String defaultSortOrder = properties.get(PN_DEFAULT_SORT_ORDER, Sorter.Order.ASC.name());
+
+        if (StringUtils.isNotBlank(defaultSortField)) {
+            Sorter.Order value = Sorter.Order.fromString(defaultSortOrder, Sorter.Order.ASC);
+            searchOptions.setDefaultSorter(defaultSortField, value);
+        }
+        // relevance is not provided in the products search results, we add it manually
         searchOptions.addSorterKey("relevance", "Relevance", Sorter.Order.DESC);
-        searchOptions.addSorterKey("price", "Price", Sorter.Order.ASC);
-        searchOptions.addSorterKey("name", "Product Name", Sorter.Order.ASC);
     }
 
     protected Map<String, String> createFilterMap(final Map<String, String[]> parameterMap) {
@@ -95,18 +112,38 @@ public class SearchResultsImpl extends ProductCollectionImpl implements SearchRe
     @Override
     public SearchResultsSet getSearchResultsSet() {
         if (searchResultsSet == null) {
-            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, productPage, request);
+            searchResultsSet = searchResultsService.performSearch(searchOptions, resource, currentPage, request, productQueryHook,
+                productAttributeFilterHook);
         }
         return searchResultsSet;
     }
 
     @Override
     public SearchStorefrontContext getSearchStorefrontContext() {
-        return new SearchStorefrontContextImpl(getSearchResultsSet().getSearchOptions(), resource);
+        return new SearchStorefrontContextImpl(getSearchResultsSet().getSearchOptions(), searchRequestId, getId(), resource);
     }
 
     @Override
     public SearchResultsStorefrontContext getSearchResultsStorefrontContext() {
-        return new SearchResultsStorefrontContextImpl(getSearchResultsSet(), resource);
+        return new SearchResultsStorefrontContextImpl(getSearchResultsSet(), searchRequestId, getId(), resource);
+    }
+
+    @Override
+    public void extendProductQueryWith(Consumer<ProductInterfaceQuery> productQueryHook) {
+        if (this.productQueryHook == null) {
+            this.productQueryHook = productQueryHook;
+        } else {
+            this.productQueryHook = this.productQueryHook.andThen(productQueryHook);
+        }
+    }
+
+    @Override
+    public void extendProductFilterWith(
+        Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook) {
+        if (this.productAttributeFilterHook == null) {
+            this.productAttributeFilterHook = productAttributeFilterHook;
+        } else {
+            this.productAttributeFilterHook = this.productAttributeFilterHook.andThen(productAttributeFilterHook);
+        }
     }
 }

@@ -19,10 +19,12 @@ import java.util.HashMap;
 
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.osgi.annotation.versioning.ProviderType;
 
 /**
  * Simple POJO to store the configuration properties
  */
+@ProviderType
 public final class ComponentsConfiguration {
 
     public static final ComponentsConfiguration EMPTY = new ComponentsConfiguration(ValueMap.EMPTY);

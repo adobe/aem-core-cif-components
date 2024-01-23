@@ -26,4 +26,8 @@ public interface ProductStorefrontContext extends CommerceStorefrontContext {
 
     String getName();
 
+    default Pricing getPricing() {
+        return null;
+    };
+
 }

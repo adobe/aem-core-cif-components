@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.models.productteaser;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
+import com.adobe.cq.commerce.core.components.models.common.CombinedSku;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
@@ -64,18 +65,35 @@ public interface ProductTeaser extends Component {
     String getUrl();
 
     /**
-     * Returns the SKU of the product displayed by this {@code ProductTeaser}
-     * 
+     * Returns the link target for the links generated on the product teaser.
+     *
+     * @return the link target or {@code null} if no link target is configured
+     */
+    default String getLinkTarget() {
+        return null;
+    }
+
+    /**
+     * Returns the effective SKU of the product displayed by this {@code ProductTeaser}. For a variant of a configurable product thi is
+     * always the SKU of the configured variant.
+     *
      * @return a String value representing the SKU
      */
     String getSku();
+
+    /**
+     * Returns the SKU of the product displayed by this {@code ProductTeaser} as {@link CombinedSku}
+     *
+     * @return a {@link CombinedSku} representing the SKU
+     */
+    CombinedSku getCombinedSku();
 
     /**
      * Returns the "call to action" configured for this teaser.
      * If the configured product cannot be added directly to the cart and for CTA
      * "add-to-cart" is configured then "details" is returned.
      * If no CTA is configured then {@code null} is returned.
-     * 
+     *
      * @return the value of the "call to action" option. This can be "add-to-cart" or "details".
      */
     String getCallToAction();

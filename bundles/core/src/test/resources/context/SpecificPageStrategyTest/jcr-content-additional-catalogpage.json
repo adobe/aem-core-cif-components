@@ -1,0 +1,17 @@
+{
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+        "jcr:primaryType":"cq:PageContent",
+        "sling:resourceType": "core/cif/components/structure/catalogpage/v3/catalogpage",
+        "cq:cifProductPage": "/content/additional-catalog-page/product-page",
+        "cq:cifCategoryPage": "/content/additional-catalog-page/category-page",
+        "magentoRootCategoryId": "men/men-tops",
+        "magentoRootCategoryIdType": "urlPath"
+    },
+    "product-page": {
+        "jcr:primaryType": "cq:Page"
+    },
+    "category-page": {
+        "jcr:primaryType": "cq:Page"
+    }
+}

@@ -18,8 +18,10 @@ import { useEffect } from 'react';
 import { usePageType, useStorefrontEvents } from './hooks';
 import useViewedOffsets from './useViewedOffsets';
 
-const usePageEvent = () => {
-    const mse = useStorefrontEvents();
+// @deprecated, will be moved to @adobe/aem-core-cif-experience-platform-connector
+const usePageEvent = (props = {}) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const mse = typeof props.mse !== 'undefined' ? props.mse : useStorefrontEvents();
     const { minXOffset, maxXOffset, minYOffset, maxYOffset } = useViewedOffsets();
     const pageType = usePageType();
 
@@ -48,7 +50,7 @@ const usePageEvent = () => {
         return () => {
             window.removeEventListener('beforeunload', sendPageEvent);
         };
-    }, []);
+    }, [mse]);
 };
 
 export default usePageEvent;

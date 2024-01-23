@@ -96,6 +96,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String CATEGORY_UID = "uid-1";
     private static final String CATEGORY_STAGED_PRODUCTS_UID = "uid-2";
     private static final String CATEGORY_PRODUCT_CAROUSEL_UID = "uid-3";
+    private static final String CATEGORY_PRODUCT_LIST_XF_UID = "uid-4";
 
     private static final String STAGED_PRODUCT_URL_KEY = "chaz-crocodile-hoodie";
     private static final String STAGED_PRODUCT_SKU = "MH02";
@@ -117,6 +118,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String PRODUCT_CAROUSEL_CATEGORY_JSON = "magento-graphql-productcarousel-category.json";
     private static final String PRODUCT_TEASER_JSON = "magento-graphql-productteaser.json";
     private static final String PRODUCTS_COLLECTION_JSON = "magento-graphql-products-collection.json";
+    private static final String PRODUCTS_COLLECTION_XF_JSON = "magento-graphql-products-collection-with-xf.json";
     private static final String PRODUCTS_COLLECTION_WITH_STAGED_PRODUCTS_JSON = "magento-graphql-products-collection-with-staged-products.json";
     private static final String GROUPED_PRODUCT_JSON = "magento-graphql-grouped-product.json";
     private static final String PRODUCTS_JSON = "magento-graphql-products.json";
@@ -124,6 +126,7 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
     private static final String CATEGORY_UID_JSON = "magento-graphql-category.json";
     private static final String CATEGORY_JSON = "magento-graphql-category.json";
     private static final String CATEGORY_WITH_STAGED_PRODUCTS_JSON = "magento-graphql-category-with-staged-products.json";
+    private static final String CATEGORY_WITH_XF_JSON = "magento-graphql-category-with-xf.json";
     private static final String UNKNOWN_CATEGORY_JSON = "magento-graphql-category-empty.json";
     private static final String FEATURED_CATEGORY_LIST_JSON = "magento-graphql-featuredcategorylist.json";
     private static final String CATEGORIES_CAROUSEL_JSON = "magento-graphql-categories-carousel.json";
@@ -426,6 +429,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                     return readProductsFrom(PRODUCTS_COLLECTION_JSON);
                 } else if (CATEGORY_STAGED_PRODUCTS_UID.equals(uidPattern.group(1))) {
                     return readProductsFrom(PRODUCTS_COLLECTION_WITH_STAGED_PRODUCTS_JSON);
+                } else if (CATEGORY_PRODUCT_LIST_XF_UID.equals(uidPattern.group(1))) {
+                    return readProductsFrom(PRODUCTS_COLLECTION_XF_JSON);
                 }
             } else if (urlKeyEqPattern.matches()) {
                 if (GROUPED_PRODUCT_URL_KEY.equals(urlKeyEqPattern.group(1))) {
@@ -473,6 +478,11 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
         Map<String, Map<String, Object>> filters = env.getArgument("filters");
         DataFetchingFieldSelectionSet selectionSet = env.getSelectionSet();
 
+        if (filters.containsKey("url_path") && !filters.containsKey("url_key")) {
+            // handle the url_path as url_key in order to simplify the query resolution logic
+            filters.put("url_key", filters.get("url_path"));
+        }
+
         // Only category the Breadcrumb components selects this field
         if (selectionSet.contains("breadcrumbs")) {
             graphqlResponse = readGraphqlResponse(CATEGORYLIST_BREADCRUMB_JSON);
@@ -486,6 +496,9 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
             } else if (filters.get("url_key").get("eq").equals("unknown-category")) {
                 // return empty response
                 graphqlResponse = readGraphqlResponse(UNKNOWN_CATEGORY_JSON);
+            } else if (filters.get("url_key").get("eq").equals("outdoor-xf")) {
+                // The URLProvider example will return category uid
+                graphqlResponse = readGraphqlResponse(CATEGORY_WITH_XF_JSON);
             } else {
                 graphqlResponse = readGraphqlResponse(CATEGORY_UID_JSON);
             }
@@ -499,6 +512,8 @@ public class GraphqlServlet extends SlingAllMethodsServlet {
                     graphqlResponse = readGraphqlResponse(CATEGORY_JSON);
                 } else if (filters.get("category_uid").get("eq").equals("uid-2")) {
                     graphqlResponse = readGraphqlResponse(CATEGORY_WITH_STAGED_PRODUCTS_JSON);
+                } else if (filters.get("category_uid").get("eq").equals("uid-4")) {
+                    graphqlResponse = readGraphqlResponse(CATEGORY_WITH_XF_JSON);
                 } else if (filters.get("category_uid").get("eq").equals("Mg==")) {
                     // The navigation example will require item "Mg==" as the default root category
                     graphqlResponse = readGraphqlResponse(CATEGORY_LIST_TREE_JSON);

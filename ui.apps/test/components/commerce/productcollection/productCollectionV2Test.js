@@ -17,7 +17,7 @@
 
 import ProductCollection from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v2/productcollection/clientlibs/js/productcollection.js';
 import ProductCollectionActions from '../../../../src/main/content/jcr_root/apps/core/cif/components/commerce/productcollection/v2/productcollection/clientlibs/js/actions.js';
-import PriceFormatter from '../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/PriceFormatter.js';
+import CommerceGraphqlApi from '../../../../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js';
 
 describe('Productcollection', () => {
     let listRoot;
@@ -110,7 +110,7 @@ describe('Productcollection', () => {
 
     const convertedPrices = {
         'sku-a': {
-            isStartPrice: false,
+            productType: 'SimpleProduct',
             currency: 'USD',
             regularPrice: 156.89,
             finalPrice: 156.89,
@@ -120,7 +120,7 @@ describe('Productcollection', () => {
             range: false
         },
         'sku-b': {
-            isStartPrice: false,
+            productType: 'ConfigurableProduct',
             currency: 'USD',
             regularPrice: 123.45,
             finalPrice: 123.45,
@@ -134,7 +134,7 @@ describe('Productcollection', () => {
             range: true
         },
         'sku-c': {
-            isStartPrice: false,
+            productType: 'SimpleProduct',
             currency: 'USD',
             regularPrice: 20,
             finalPrice: 10,
@@ -144,7 +144,7 @@ describe('Productcollection', () => {
             range: false
         },
         'sku-d': {
-            isStartPrice: true,
+            productType: 'GroupedProduct',
             currency: 'USD',
             regularPrice: 20,
             finalPrice: 20,
@@ -158,8 +158,7 @@ describe('Productcollection', () => {
     before(() => {
         // Create empty context
         windowCIF = window.CIF;
-        window.CIF = {};
-        window.CIF.PriceFormatter = PriceFormatter;
+        window.CIF = { ...window.CIF };
     });
 
     after(() => {
@@ -264,10 +263,15 @@ describe('Productcollection', () => {
                 </div>
             </div>`
         );
+        document.body.appendChild(listRoot);
 
-        window.CIF.CommerceGraphqlApi = {
-            getProductPrices: sinon.stub().resolves(clientPrices)
-        };
+        window.CIF.CommerceGraphqlApi = new CommerceGraphqlApi({ graphqlEndpoint: 'https://foo.bar/graphql' });
+        window.CIF.CommerceGraphqlApi.getProductPrices = sinon.stub().resolves(clientPrices);
+        delete window.CIF.enableClientSidePriceLoading;
+    });
+
+    afterEach(() => {
+        document.body.childNodes.forEach(node => node.remove());
     });
 
     it('initializes a product list component', () => {
@@ -276,8 +280,26 @@ describe('Productcollection', () => {
         assert.deepEqual(list._state.skus, ['sku-a', 'sku-b', 'sku-c', 'sku-d']);
     });
 
-    it('retrieves prices via GraphQL', () => {
+    it('retrieves prices via GraphQL (enabled in component dataset)', () => {
         listRoot.dataset.loadClientPrice = true;
+        let list = new ProductCollection({ element: listRoot });
+        assert.isTrue(list._state.loadPrices);
+
+        return list._fetchPrices().then(() => {
+            assert.isTrue(window.CIF.CommerceGraphqlApi.getProductPrices.called);
+            assert.deepEqual(list._state.prices, convertedPrices);
+
+            // Verify price updates
+            assert.equal(listRoot.querySelector('[data-sku=sku-a] .price').innerText, '$156.89');
+            assert.equal(listRoot.querySelector('[data-sku=sku-b] .price').innerText, 'From $123.45 To $150.45');
+            assert.include(listRoot.querySelector('[data-sku=sku-c] .price').innerText, '$20.00');
+            assert.include(listRoot.querySelector('[data-sku=sku-c] .price').innerText, '$10.00');
+            assert.equal(listRoot.querySelector('[data-sku=sku-d] .price').innerText, 'Starting at $20.00');
+        });
+    });
+
+    it('retrieves prices via GraphQL (enabled globally)', () => {
+        window.CIF.enableClientSidePriceLoading = true;
         let list = new ProductCollection({ element: listRoot });
         assert.isTrue(list._state.loadPrices);
 
@@ -480,10 +502,28 @@ describe('Productcollection', () => {
         const spy = sinon.spy();
         document.addEventListener('aem.cif.add-to-cart', spy);
         const button = listRoot.querySelector('button.productcollection__item-button--add-to-cart');
+        const item = button.closest('.productcollection__item');
+        item.dataset.cmpDataLayer = JSON.stringify({
+            'product-item': {
+                'dc:title': 'My Product',
+                'xdm:listPrice': 123.0,
+                'xdm:discountAmount': 7.0,
+                'xdm:currencyCode': 'USD'
+            }
+        });
 
         button.click();
 
         assert.isTrue(spy.calledOnce);
+        const event = spy.getCalls()[0].args[0].detail[0];
+        assert.equal('sku-a', event.sku);
+        assert.equal(1, event.quantity);
+        assert.deepEqual(event.storefrontData, {
+            name: 'My Product',
+            regularPrice: 130.0,
+            finalPrice: 123.0,
+            currencyCode: 'USD'
+        });
     });
 
     it('propagates the click to the parent link for the Add to Cart button details call to action', () => {
@@ -514,5 +554,73 @@ describe('Productcollection', () => {
         button.click();
 
         assert.isTrue(spy.calledOnce);
+    });
+
+    it('lazy loads products and sets the actions on new product items', () => {
+        listRoot.insertAdjacentHTML(
+            'beforeend',
+            `<button class="productcollection__loadmore-button" data-load-more="http://more.products">Load more</button>
+            <div class="productcollection__loadmore-spinner"></div>`
+        );
+        listRoot.dataset.loadClientPrice = true;
+
+        let response = `
+            <div class="productcollection__item" data-sku="sku-e" role="product">
+                <div class="price">
+                    <span>123</span>
+                </div>
+                <div class="productcollection__item-actions">
+                    <button data-action="add-to-cart" data-item-sku="sku-e" class="productcollection__item-button productcollection__item-button--add-to-cart" type="button">
+                        <span class="productcollection__item-button-content">
+                            <span>Add to Cart</span>
+                        </span>
+                    </button>
+                    <button data-item-sku="sku-e" class="productcollection__item-button productcollection__item-button--add-to-wish-list" type="button" data-cmp-is="add-to-wish-list">
+                        <span class="productcollection__item-button-content">
+                            <span>Add to Wish List</span>
+                        </span>
+                    </button>
+                </div>
+            </div>
+            <button class="productcollection__loadmore-button" data-load-more="http://more.products2">Load more</button>`;
+
+        let mockResponse = new window.Response(response, {
+            status: 200,
+            headers: {
+                'Content-type': 'text/html'
+            }
+        });
+
+        let list = new ProductCollection({ element: listRoot });
+        list._fetchMoreProducts = sinon.stub().resolves(mockResponse);
+        let loadMoreButton = listRoot.querySelector('.productcollection__loadmore-button');
+
+        return list._loadMore(loadMoreButton).then(() => {
+            // check add to cart event for new product item
+            const addToCartSpy = sinon.spy();
+            document.addEventListener('aem.cif.add-to-cart', addToCartSpy);
+            const addToCart = listRoot.querySelector(
+                '[data-sku="sku-e"] button.productcollection__item-button--add-to-cart'
+            );
+
+            addToCart.click();
+
+            assert.isTrue(addToCartSpy.calledOnce);
+            const addToCartEvents = addToCartSpy.getCalls()[0].args[0].detail[0];
+            assert.equal('sku-e', addToCartEvents.sku);
+
+            // check add to wishlist event for new product item
+            const addToWishlistSpy = sinon.spy();
+            document.addEventListener('aem.cif.add-to-wishlist', addToWishlistSpy);
+            const addToWishlist = listRoot.querySelector(
+                '[data-sku="sku-e"] button.productcollection__item-button--add-to-wish-list'
+            );
+
+            addToWishlist.click();
+
+            assert.isTrue(addToWishlistSpy.calledOnce);
+            const addToWishlistEvent = addToWishlistSpy.getCalls()[0].args[0].detail[0];
+            assert.equal('sku-e', addToWishlistEvent.sku);
+        });
     });
 });

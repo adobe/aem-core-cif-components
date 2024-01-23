@@ -13,11 +13,12 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { useStorefrontEvents, LoadingIndicator } from '@adobe/aem-core-cif-react-components';
+import { LoadingIndicator } from '@adobe/aem-core-cif-react-components';
 
+import { useStorefrontInstanceContext } from '../../context/StorefrontInstanceContext';
 import { useRecommendations } from '../../hooks/useRecommendations';
 import { useVisibilityObserver } from '../../hooks/useVisibilityObserver';
 
@@ -25,18 +26,18 @@ import classes from './ProductRecsGallery.css';
 import ProductCard from './ProductCard';
 
 const ProductRecsGallery = props => {
-    const { hostElement } = props;
-    const mse = useStorefrontEvents();
-    const rendered = useRef(false);
+    const { hostElement, cmpDataLayer } = props;
+    const { mse } = useStorefrontInstanceContext();
     const { showAddToWishList } = props;
     const { loading, units } = useRecommendations(props);
     const { observeElement } = useVisibilityObserver();
+    const unit = units && units.length > 0 && units[0];
 
     let content = '';
 
     useEffect(() => {
         if (!loading && hostElement) {
-            const products = units && units.length > 0 ? units[0].products : [];
+            const products = unit?.products || [];
             hostElement.dispatchEvent(
                 new CustomEvent('aem.cif.product-recs-loaded', {
                     bubbles: true,
@@ -44,18 +45,30 @@ const ProductRecsGallery = props => {
                 })
             );
         }
-    }, [loading, units]);
+    }, [loading, unit]);
+
+    useEffect(() => {
+        if (unit) {
+            mse && mse.publish.recsUnitRender(unit.unitId);
+        }
+    }, [mse, units]);
 
     if (loading) {
         content = <LoadingIndicator />;
     }
 
     if (units && units.length > 0 && units[0].products.length > 0) {
+        let parentId;
         const unit = units[0];
 
         const isVisible = () => {
             mse && mse.publish.recsUnitView(unit.unitId);
         };
+
+        if (cmpDataLayer) {
+            const dataLayer = JSON.parse(cmpDataLayer);
+            parentId = Object.keys(dataLayer)[0];
+        }
 
         content = (
             <>
@@ -63,6 +76,7 @@ const ProductRecsGallery = props => {
                 <div className={classes.container} ref={e => observeElement(e, isVisible)}>
                     {unit.products.map(product => (
                         <ProductCard
+                            parentId={parentId}
                             unit={unit}
                             product={product}
                             key={product.sku}
@@ -72,11 +86,6 @@ const ProductRecsGallery = props => {
                 </div>
             </>
         );
-
-        if (!rendered.current) {
-            mse && mse.publish.recsUnitRender(unit.unitId);
-            rendered.current = true;
-        }
     }
 
     return <div className={classes.root}>{content}</div>;
@@ -93,7 +102,8 @@ ProductRecsGallery.propTypes = {
     includeMinPrice: PropTypes.string,
     preconfigured: PropTypes.bool,
     showAddToWishList: PropTypes.bool,
-    hostElement: PropTypes.instanceOf(HTMLElement)
+    hostElement: PropTypes.instanceOf(HTMLElement),
+    cmpDataLayer: PropTypes.string
 };
 
 export default ProductRecsGallery;

@@ -38,7 +38,10 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithCategoryAndUrlKey;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
+import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.testing.MockLaunch;
@@ -53,6 +56,7 @@ import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.ListItem;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.adobe.cq.wcm.core.components.services.link.PathProcessor;
+import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -289,10 +293,8 @@ public class BreadcrumbImplTest {
 
     @Test
     public void testCategoryPage() throws Exception {
-        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-category-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{category_uid");
+            "{categoryList(filters:{url_path");
         prepareModel("/content/venia/us/en/products/category-page");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -313,10 +315,8 @@ public class BreadcrumbImplTest {
 
     @Test
     public void testCategorySpecificPage() throws Exception {
-        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-category-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{category_uid");
+            "{categoryList(filters:{url_path");
         prepareModel("/content/venia/us/en/products/category-page/category-specific-page");
 
         // TODO: CIF-2469
@@ -395,7 +395,7 @@ public class BreadcrumbImplTest {
     @Test
     public void testGraphqlClientError() throws Exception {
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
-        Utils.setupHttpErrorResponse(httpClient, 404, "{products(filter:{sku");
+        Utils.setupHttpErrorResponse(httpClient, 404, "{products(filter:{url_key");
         prepareModel("/content/venia/us/en/products/product-page");
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -488,5 +488,47 @@ public class BreadcrumbImplTest {
             .map(i -> i.getData().getJson())
             .collect(Collectors.joining(",", "[", "]"));
         assertEquals(mapper.readTree(itemsJsonExpected), mapper.readTree(itemsJsonResult));
+    }
+
+    @Test
+    public void testBreadcrumbContainsOnlyDescendantCategoriesOfSpecificCatalogPage() throws Exception {
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
+            "{products(filter:{sku");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
+            "breadcrumbs{category_uid,category_url_path,category_name}");
+
+        // make the catalog page a specific catalog page for men/tops-men
+        Page catalogPage = context.pageManager().getPage("/content/venia/us/en/products");
+        ValueMap properties = catalogPage.getContentResource().adaptTo(ModifiableValueMap.class);
+        properties.put(Navigation.PN_SHOW_MAIN_CATEGORIES, false);
+        properties.put(JcrConstants.JCR_TITLE, "Catalog");
+        properties.put(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, "men/tops-men");
+        properties.put(SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE, "urlPath");
+        properties.put(SiteStructureImpl.PN_CIF_PRODUCT_PAGE, "/content/venia/us/en/products/product-page");
+
+        // make us/en the navRoot
+        Page navRoot = context.pageManager().getPage("/content/venia/us/en");
+        properties = navRoot.getContentResource().adaptTo(ModifiableValueMap.class);
+        properties.put(SiteStructure.PN_NAV_ROOT, true);
+        properties.put(SiteStructureImpl.PN_CIF_CATEGORY_PAGE, "/content/venia/us/en/products/category-page");
+        properties.put(SiteStructureImpl.PN_CIF_PRODUCT_PAGE, "/content/venia/us/en/products/product-page");
+
+        prepareModel("/content/venia/us/en/products/product-page");
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/tiberius-gym-tank.html");
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+        List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
+        assertThat(items.stream().map(i -> i.getTitle())).containsExactly("en", "Catalog", "Tanks", "Tiberius Gym Tank");
+
+        NavigationItem menCategory = items.get(1);
+        assertThat(menCategory.getURL()).isEqualTo("/content/venia/us/en/products.html");
+        assertThat(menCategory.isActive()).isFalse();
+
+        NavigationItem product = items.get(3);
+        assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/product-page.html/tiberius-gym-tank.html");
+        assertThat(product.isActive()).isTrue();
     }
 }

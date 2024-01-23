@@ -25,6 +25,9 @@ import org.mockito.ArgumentCaptor;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
+import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
+import com.adobe.cq.commerce.magento.graphql.FilterMatchTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Query;
 
 import static org.mockito.Matchers.any;
@@ -72,7 +75,7 @@ public class ProductsRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"uid-1\"}}){uid,url_key,url_path,products(currentPage:1,pageSize:5){items{__typename,sku,name,thumbnail{label,url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}";
+        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"uid-1\"}}){uid,url_key,url_path,products(currentPage:1,pageSize:5){items{__typename,sku,url_key,url_path,url_rewrites{url},name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 
@@ -86,7 +89,7 @@ public class ProductsRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{products(filter:{sku:{in:[\"sku-a\",\"sku-b\"]}}){items{__typename,sku,name,thumbnail{label,url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,is_returnable_custom_:is_returnable}}}";
+        String expectedQuery = "{products(filter:{sku:{in:[\"sku-a\",\"sku-b\"]}}){items{__typename,sku,url_key,url_path,url_rewrites{url},name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,is_returnable_custom_:is_returnable}}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 
@@ -100,7 +103,7 @@ public class ProductsRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{products(filter:{sku:{in:[\"sku-a\",\"sku-b\"]}}){items{__typename,sku,name,thumbnail{label,url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},weight,volume_custom_:volume}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}";
+        String expectedQuery = "{products(filter:{sku:{in:[\"sku-a\",\"sku-b\"]}}){items{__typename,sku,url_key,url_path,url_rewrites{url},name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{variants{product{sku,name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},weight,volume_custom_:volume}},price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
     }
 
@@ -115,7 +118,32 @@ public class ProductsRetrieverTest {
         final ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(mockClient, times(1)).execute(captor.capture());
 
-        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"uid-1\"}}){uid,url_key,url_path,products(currentPage:1,pageSize:5){items{__typename,sku,name,thumbnail{label,url},url_key,url_path,url_rewrites{url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,is_returnable_custom_:is_returnable}}}}";
+        String expectedQuery = "{categoryList(filters:{category_uid:{eq:\"uid-1\"}}){uid,url_key,url_path,products(currentPage:1,pageSize:5){items{__typename,sku,url_key,url_path,url_rewrites{url},name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},created_at,is_returnable_custom_:is_returnable}}}}";
         Assert.assertEquals(expectedQuery, captor.getValue());
+    }
+
+    @Test
+    public void testExtendCategoryFilterWithHook() {
+        retriever.extendCategoryFilterWith(f -> f.setName(new FilterMatchTypeInput().setMatch("my-name")));
+        retriever.setCategoryUid("uid-1");
+        retriever.setProductCount(5);
+
+        String query = retriever.generateQuery(Collections.singletonList("abc"));
+        Assert.assertEquals(
+            "{categoryList(filters:{category_uid:{eq:\"uid-1\"},name:{match:\"my-name\"}}){uid,url_key,url_path,products(currentPage:1,pageSize:5){items{__typename,sku,url_key,url_path,url_rewrites{url},name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}",
+            query);
+    }
+
+    @Test
+    public void testReplaceAndExtendCategoryFilterWithHook() {
+        retriever.extendCategoryFilterWith(f -> new CategoryFilterInput().setUrlPath(new FilterEqualTypeInput().setEq("a/b/my-category")));
+        retriever.extendCategoryFilterWith(f -> f.setName(new FilterMatchTypeInput().setMatch("my-name")));
+        retriever.setCategoryUid("uid-1");
+        retriever.setProductCount(5);
+
+        String query = retriever.generateQuery(Collections.singletonList("abc"));
+        Assert.assertEquals(
+            "{categoryList(filters:{name:{match:\"my-name\"},url_path:{eq:\"a/b/my-category\"}}){uid,url_key,url_path,products(currentPage:1,pageSize:5){items{__typename,sku,url_key,url_path,url_rewrites{url},name,thumbnail{label,url},price_range{minimum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}},... on ConfigurableProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}},... on BundleProduct{price_range{maximum_price{regular_price{value,currency},final_price{value,currency},discount{amount_off,percent_off}}}}}}}}",
+            query);
     }
 }

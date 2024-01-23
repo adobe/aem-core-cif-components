@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
     Copyright 2019 Adobe
 
@@ -23,7 +23,7 @@
     <groupId>com.adobe.commerce.cif</groupId>
     <artifactId>core-cif-components-parent</artifactId>
     <packaging>pom</packaging>
-    <version>2.8.1-SNAPSHOT</version>
+    <version>2.12.7-SNAPSHOT</version>
 
     <name>AEM CIF Core Components - Parent</name>
     <description>Parent POM for AEM CIF Core Components</description>
@@ -108,7 +108,7 @@
         <slf4j.version>1.7.6</slf4j.version>
         <jacoco.version>0.8.7</jacoco.version>
         <graphql.client.version>1.7.7</graphql.client.version>
-        <magento.graphql.version>9.0.0-magento242ee</magento.graphql.version>
+        <magento.graphql.version>9.1.0-magento242ee</magento.graphql.version>
 
         <core.wcm.components.version>2.18.6</core.wcm.components.version>
         <core.wcm.components.library.version>2.9.0</core.wcm.components.library.version>
@@ -333,6 +333,7 @@
                         <!-- Clientlib files -->
                         <exclude>**/js.txt</exclude>
                         <exclude>**/css.txt</exclude>
+                        <exclude>**/DEPRECATED.txt</exclude>
                         <!-- Karma tests -->
                         <exclude>**/karma-junit/*.xml</exclude>
                         <exclude>**/coverage/**</exclude>
@@ -523,7 +524,7 @@
                         <resourceBundles>
                             <resourceBundle>
                                 com.adobe:adobe-jar-resource-bundle:1.0.0
-                            </resourceBundle>
+</resourceBundle>
                         </resourceBundles>
                     </configuration>
                 </plugin>
@@ -590,13 +591,13 @@
                                     <pluginExecutionFilter>
                                         <groupId>
                                             org.apache.maven.plugins
-                                        </groupId>
+</groupId>
                                         <artifactId>
                                             maven-dependency-plugin
-                                        </artifactId>
+</artifactId>
                                         <versionRange>
                                             [2.2,)
-                                        </versionRange>
+</versionRange>
                                         <goals>
                                             <goal>copy-dependencies</goal>
                                             <goal>unpack</goal>
@@ -610,17 +611,17 @@
                                     <pluginExecutionFilter>
                                         <groupId>
                                             org.codehaus.mojo
-                                        </groupId>
+</groupId>
                                         <artifactId>
                                             build-helper-maven-plugin
-                                        </artifactId>
+</artifactId>
                                         <versionRange>
                                             [1.5,)
-                                        </versionRange>
+</versionRange>
                                         <goals>
                                             <goal>
                                                 reserve-network-port
-                                            </goal>
+</goal>
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
@@ -645,7 +646,7 @@
                 <plugin>
                     <groupId>net.revelc.code.formatter</groupId>
                     <artifactId>formatter-maven-plugin</artifactId>
-                    <version>2.9.0</version>
+                    <version>2.16.0</version>
                     <executions>
                         <execution>
                             <id>verify-code-formatting</id>
@@ -664,7 +665,14 @@
                 <plugin>
                     <groupId>net.revelc.code</groupId>
                     <artifactId>impsort-maven-plugin</artifactId>
-                    <version>1.4.1</version>
+                    <version>1.6.2</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.codehaus.plexus</groupId>
+                            <artifactId>plexus-utils</artifactId>
+                            <version>3.5.1</version>
+                        </dependency>
+                    </dependencies>
                     <configuration>
                         <groups>java, javax, org</groups>
                         <staticGroups>*</staticGroups>
@@ -785,7 +793,6 @@
                     <plugin>
                         <groupId>net.revelc.code.formatter</groupId>
                         <artifactId>formatter-maven-plugin</artifactId>
-                        <version>2.9.0</version>
                         <executions>
                             <execution>
                                 <id>format-code</id>
@@ -897,7 +904,7 @@
             <dependency>
                 <groupId>com.adobe.aem</groupId>
                 <artifactId>uber-jar</artifactId>
-                <version>6.5.7</version>
+                <version>6.5.8</version>
                 <scope>provided</scope>
             </dependency>
 

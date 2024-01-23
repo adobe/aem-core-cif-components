@@ -1,10 +1,15 @@
 {
+  "jcr:primaryType": "cq:Page",
+  "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "cq:cifProductPage": "/content/product-page",
+      "cq:cifCategoryPage": "/content/category-page",
+      "navRoot": true
+  },
   "pageA": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "sling:resourceType": "core/cif/components/structure/page/v1/page",
-      "cq:cifProductPage": "/content/product-page",
-      "cq:cifCategoryPage": "/content/category-page",
       "jcr:language": "en_US",
       "jcr:primaryType": "cq:PageContent",
       "magentoStore": "my-store",
@@ -51,6 +56,18 @@
               "selection": "sku",
               "ctaText": "custom"
             },
+            "productteaser-link-target-unchecked": {
+              "sling:resourceType": "venia/components/commerce/productteaser",
+              "cta": "details",
+              "selection": "sku",
+              "linkTarget": "_self"
+            },
+            "productteaser-link-target-checked": {
+              "sling:resourceType": "venia/components/commerce/productteaser",
+              "cta": "details",
+              "selection": "sku",
+              "linkTarget": "_blank"
+            },
             "productcarousel": {
                 "product": [
                     "NOT-FOUND",
@@ -92,6 +109,16 @@
               "enableAddToCart": true,
               "enableAddToWishList": true
             },
+            "productcarousel_with_link_target_unchecked": {
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "product": ["24-MG01", "MJ01#MJ01-L-Red"],
+              "linkTarget": "_self"
+            },
+            "productcarousel_with_link_target_checked": {
+              "sling:resourceType": "venia/components/commerce/productcarousel",
+              "product": ["24-MG01", "MJ01#MJ01-L-Red"],
+              "linkTarget": "_blank"
+            },
             "product": {
                 "sling:resourceType": "venia/components/commerce/product"
             },
@@ -99,14 +126,77 @@
               "sling:resourceType": "venia/components/commerce/product",
               "id": "custom-id"
             },
+            "productwithvisiblesections": {
+                "sling:resourceType": "venia/components/commerce/product",
+                "visibleSections": [
+                    "title",
+                    "price",
+                    "sku"
+                ]
+            },
             "productlist": {
                 "loadClientPrice": true,
                 "showImage": true,
                 "showTitle": true,
+                "defaultSortField": "price",
+                "defaultSortOrder": "ASC",
                 "sling:resourceType": "venia/components/commerce/productlist"
             },
+            "productlist_no_sorting": {
+              "loadClientPrice": true,
+              "showImage": true,
+              "showTitle": true,
+              "sling:resourceType": "venia/components/commerce/productlist"
+            },
+            "productlist_with_xf": {
+                "loadClientPrice": true,
+                "showImage": true,
+                "showTitle": true,
+                "defaultSortField": "price",
+                "defaultSortOrder": "ASC",
+                "sling:resourceType": "venia/components/commerce/productlist",
+                "fragmentEnabled": true,
+                "fragments": {
+                    "item0": {
+                      "fragmentPage": 1,  
+                      "fragmentLocation": "grid",
+                        "fragmentCssClass": "test-class"
+                    }
+                }
+            },
+            "productlist_with_multiple_xf": {
+                "loadClientPrice": true,
+                "showImage": true,
+                "showTitle": true,
+                "defaultSortField": "price",
+                "defaultSortOrder": "ASC",
+                "sling:resourceType": "venia/components/commerce/productlist",
+                "fragmentEnabled": true,
+                "fragments": {
+                    "item0": {
+                      "fragmentPage": 1,  
+                      "fragmentLocation": "grid"
+                    },
+                    "item1": {
+                      "fragmentPage": 1,  
+                      "fragmentLocation": "grid",
+                        "fragmentCssClass": "test-class"
+                    },
+                    "item2": {
+                      "fragmentPage": 1,  
+                      "fragmentLocation": "inexistent"
+                    },
+                    "item3": {
+                      "fragmentPage": 2,
+                      "fragmentLocation": "grid",
+                      "fragmentCssClass": "test-class2"
+                    }
+                }
+            },
             "searchresults": {
-                "sling:resourceType": "venia/components/commerce/searchresults"
+                "sling:resourceType": "core/cif/components/commerce/searchresults/v2/searchresults",
+                "defaultSortField": "relevance",
+                "defaultSortOrder": "DESC"
             },
             "relatedproducts": {
                 "product": "24-MG01",
@@ -192,6 +282,41 @@
                     }
                 }
             },
+            "commerceteaser3": {
+              "actionsEnabled": true,
+              "sling:resourceType": "venia/components/content/teaser",
+              "pretitle": "Pretitle",
+              "titleFromPage": "flase",
+              "jcr:title": "Title",
+              "descriptionFromPage": false,
+              "jcr:description": "Description",
+              "id": "id",
+              "fileReference": "/content/dam/image.jpg",
+              "actions": {
+                "item0": {
+                  "productSku": "MJ01",
+                  "text": "A product",
+                  "linkTarget": "_blank"
+                },
+                "item1": {
+                  "categoryId": "uid-5",
+                  "text": "A category",
+                  "linkTarget": "_self"
+                },
+                "item2": {
+                  "categoryId": "uid-5",
+                  "productSku": "MJ01",
+                  "text": "A category"
+                },
+                "item3": {
+                  "text": "Some text"
+                },
+                "item4": {
+                  "link": "/content/page",
+                  "text": "A page"
+                }
+              }
+            },
             "featuredcategorylist": {
                 "sling:resourceType": "venia/components/commerce/featuredcategorylist",
                 "titleType": "h2",
@@ -240,6 +365,17 @@
                         "categoryId": "uid-7"
                     }
                 }
+            },
+            "featuredcategorylist_with_link_target_unchecked": {
+              "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+              "product": ["24-MG01", "MJ01#MJ01-L-Red"],
+              "items": { "item0": { "categoryId": "uid-5"}},
+              "linkTarget": "_self"
+            },
+            "featuredcategorylist_with_link_target_checked": {
+              "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+              "items": { "item0": { "categoryId": "uid-5"}},
+              "linkTarget": "_blank"
             },
             "productcollection": {
                 "sling:resourceType": "venia/components/commerce/productcollection"
@@ -350,6 +486,28 @@
                 "jcr:primaryType": "nt:unstructured",
                 "sling:resourceType": "core/cif/components/content/button/v2/button",
                 "linkType": "invalid"
+            },
+            "commercelist0": {
+              "jcr:primaryType": "nt:unstructured",
+              "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+              "listFrom": "productAssociation"
+            },
+            "commercelist6": {
+              "jcr:primaryType": "nt:unstructured",
+              "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+              "listFrom": "productAssociation",
+              "product": "mySKU"
+            },
+            "commercelist7": {
+              "jcr:primaryType": "nt:unstructured",
+              "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+              "listFrom": "categoryAssociation"
+            },
+            "commercelist8": {
+              "jcr:primaryType": "nt:unstructured",
+              "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+              "listFrom": "categoryAssociation",
+              "category": "myUID"
             }
         }
       }
@@ -412,7 +570,27 @@
   "product-page": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "jcr:language": "en_US"
+      "jcr:language": "en_US",
+      "root": {
+        "responsivegrid": {
+          "commercelist1": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+            "listFrom": "productAssociation",
+            "linkItems": true,
+            "showDescription": true,
+            "showModificationDate": true,
+            "displayItemAsTeaser": true,
+            "id": "myId"
+          },
+          "commercelist5": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+            "listFrom": "productAssociation",
+            "product": "mySKU"
+          }
+        }
+      }
     },
     "product-specific-page": {
       "jcr:primaryType": "cq:Page",
@@ -425,7 +603,32 @@
   "category-page": {
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
-      "jcr:language": "en_US"
+      "jcr:language": "en_US",
+      "root": {
+        "responsivegrid": {
+          "commercelist2": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+            "listFrom": "categoryAssociation"
+          },
+          "commercelist3": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+            "listFrom": "categoryAssociation",
+            "maxItems": 2
+          },
+          "commercelist4": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/commerce/list/v1/list"
+          },
+          "commercelist9": {
+            "jcr:primaryType": "nt:unstructured",
+            "sling:resourceType": "core/cif/components/commerce/list/v1/list",
+            "listFrom": "categoryAssociation",
+            "category": "myUID"
+          }
+        }
+      }
     }
   },
   "pageI": {
@@ -465,10 +668,11 @@
     "jcr:primaryType": "cq:Page",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent",
-      "header": {
-        "jcr:primaryType": "nt:unstructured",
-        "sling:resourceType": "core/cif/components/structure/header/v1/header"
-      }
+      "jcr:title": "Page K Title",
+      "jcr:description": "Page K description",
+      "cq:lastModified": "2022-07-27T11:28:07.945+03:00",
+      "cq:categories": "MTI==",
+      "cq:products": "MJ01"
     }
   },
   "launches": {
@@ -516,7 +720,7 @@
       "root": {
         "responsivegrid": {
           "product": {
-            "selection": "MJ01",
+            "selection": "MJ02",
             "sling:resourceType": "venia/components/commerce/product"
           }
         }
@@ -535,6 +739,31 @@
           "productlist": {
             "category": "MTI==",
             "sling:resourceType": "venia/components/commerce/productlist"
+          }
+        }
+      }
+    }
+  },
+  "experience-fragments": {
+    "jcr:primaryType": "sling:Folder",
+    "pageA": {
+      "xf": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "jcr:title": "Test XF",
+          "sling:resourceType": "cq/experience-fragments/components/experiencefragment"
+        },
+        "master": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "jcr:title": "Text XF Master",
+            "cq:xfVariantType": "web",
+            "cq:xfMasterVariation": "true",
+            "cq:products": "sku-xf2",
+            "cq:categories": "MTI==",
+            "fragmentLocation": "grid"
           }
         }
       }

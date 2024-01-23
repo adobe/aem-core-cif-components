@@ -39,6 +39,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
+import com.adobe.cq.commerce.core.components.internal.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.product.Product;
@@ -94,6 +95,8 @@ public class PageMetadataImplTest {
             // TODO: CIF-2469
             Whitebox.setInternalState(componentModelFinder, "modelFactory", context.getService(ModelFactory.class));
             context.registerService(CommerceComponentModelFinder.class, componentModelFinder);
+
+            context.registerService(CommerceExperienceFragmentsRetriever.class, mock(CommerceExperienceFragmentsRetriever.class));
         })
         .build();
 
@@ -141,7 +144,7 @@ public class PageMetadataImplTest {
         assertFalse("The product doesn't have staged data", productModel.isStaged());
 
         // Verify that GraphQL client is only called once, so Sling model caching works as expected
-        verify(graphqlClient, times(2)).execute(any(), any(), any(), any());
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
         verify(graphqlClient, never()).execute(any(), any(), any());
 
         // Asserts that the right product resource is used when PageMetadataImpl adapts the request to the Product component
@@ -217,7 +220,7 @@ public class PageMetadataImplTest {
 
         // Verify that GraphQL client is only called 5 times, so Sling model caching works as expected
         // --> see testPageMetadataModelOnCategoryPage(String) to see why we expect 5 queries
-        verify(graphqlClient, times(5)).execute(any(), any(), any(), any());
+        verify(graphqlClient, times(4)).execute(any(), any(), any(), any());
         verify(graphqlClient, never()).execute(any(), any(), any());
 
         // Asserts that the right productlist resource is used when PageMetadataImpl adapts the request to the ProductList component
@@ -270,10 +273,8 @@ public class PageMetadataImplTest {
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
-        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-category.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{category_uid");
+            "{categoryList(filters:{url_path");
         Utils.setupHttpResponse("graphql/magento-graphql-search-category-result-products.json", httpClient, HttpStatus.SC_OK,
             "{products");
 

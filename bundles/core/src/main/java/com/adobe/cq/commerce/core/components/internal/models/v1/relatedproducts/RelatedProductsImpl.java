@@ -45,11 +45,9 @@ import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
-import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -61,7 +59,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @Exporter(
     name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
     extensions = ExporterConstants.SLING_MODEL_EXTENSION)
-public class RelatedProductsImpl extends ProductCarouselBase implements ProductCarousel {
+public class RelatedProductsImpl extends ProductCarouselBase {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/relatedproducts/v1/relatedproducts";
     private static final Logger LOGGER = LoggerFactory.getLogger(RelatedProductsImpl.class);
@@ -78,22 +76,12 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
     @ScriptVariable
     private ValueMap properties;
 
-    private Page productPage;
-    private AbstractProductsRetriever productsRetriever;
+    private RelatedProductsRetriever productsRetriever;
     private RelationType relationType;
     private String productSku;
 
     @PostConstruct
     private void initModel() {
-        if (!isConfigured()) {
-            return;
-        }
-
-        productPage = SiteNavigation.getProductPage(currentPage);
-        if (productPage == null) {
-            productPage = currentPage;
-        }
-
         if (magentoGraphqlClient == null) {
             LOGGER.error("Cannot get a GraphqlClient using the resource at {}", resource.getPath());
         } else {
@@ -103,29 +91,28 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
 
     @Override
     public boolean isConfigured() {
-        return properties.get(PN_PRODUCT, String.class) != null
-            || urlProvider.getProductIdentifier(request) != null;
+        return productSku != null || (productsRetriever != null && productsRetriever.fetchSku() != null);
     }
 
     private void configureProductsRetriever() {
         String relationTypeProperty = properties.get(PN_RELATION_TYPE, String.class);
         String product = properties.get(PN_PRODUCT, String.class);
 
-        if (StringUtils.isNotBlank(product)) {
-            productSku = product; // The picker is configured to return the SKU
-        } else {
-            productSku = urlProvider.getProductIdentifier(request);
-        }
-
         relationType = relationTypeProperty != null ? RelationType.valueOf(relationTypeProperty) : RelationType.RELATED_PRODUCTS;
         productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, relationType);
-        productsRetriever.setIdentifiers(Collections.singletonList(productSku));
+
+        if (StringUtils.isNotBlank(product)) {
+            productSku = product; // The picker is configured to return the SKU
+            productsRetriever.setIdentifiers(Collections.singletonList(productSku));
+        } else {
+            productsRetriever.extendProductFilterWith(urlProvider.getProductFilterHook(request));
+        }
     }
 
     @Override
     @JsonIgnore
     public List<ProductListItem> getProducts() {
-        if (productsRetriever == null || !isConfigured()) {
+        if (!isConfigured()) {
             return Collections.emptyList();
         }
 
@@ -137,7 +124,7 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
         List<ProductListItem> carouselProductList = new ArrayList<>();
         for (ProductInterface product : products) {
             try {
-                ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), productPage, request, urlProvider)
+                ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), currentPage, request, urlProvider)
                     .product(product)
                     .image(product.getThumbnail());
                 carouselProductList.add(builder.build());
@@ -172,8 +159,7 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
     public List<ProductListItem> getProductIdentifiers() {
         return getProducts().stream()
             .map(ProductListItem::getSKU)
-            .map(ListItemIdentifier::new)
-            .map(id -> new ProductListItemImpl(id, getId(), productPage))
+            .map(sku -> new ProductListItemImpl(sku, new ListItemIdentifier(sku), getId(), currentPage))
             .collect(Collectors.toList());
     }
 
@@ -193,6 +179,9 @@ public class RelatedProductsImpl extends ProductCarouselBase implements ProductC
      */
     @JsonSerialize(as = CommerceIdentifier.class)
     public CommerceIdentifier getCommerceIdentifier() {
+        if (productSku == null) {
+            productSku = productsRetriever.fetchSku();
+        }
         return new ListItemIdentifier(productSku);
     }
 }

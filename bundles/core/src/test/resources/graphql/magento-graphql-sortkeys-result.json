@@ -1,0 +1,23 @@
+{
+	"data": {
+		"products": {
+			"sort_fields": {
+				"default": "position",
+				"options": [
+					{
+						"label": "Position",
+						"value": "position"
+					},
+					{
+						"label": "Product Name",
+						"value": "name"
+					},
+					{
+						"label": "Price",
+						"value": "price"
+					}
+				]
+			}
+		}
+	}
+}

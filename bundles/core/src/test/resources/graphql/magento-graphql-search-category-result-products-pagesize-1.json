@@ -1,0 +1,257 @@
+{
+  "data": {
+    "products": {
+      "total_count": 4,
+      "items": [
+        {
+          "__typename": "SimpleProduct",
+          "uid": "MzQ3OA==",
+          "sku": "24-WB01",
+          "staged": true,
+          "name": "Voyage Yoga Bag",
+          "small_image": {
+            "url": "https://some-hostname.magentosite.cloud/pub/media/catalog/product/cache/cafecb2c660d511e3918d429acdc5ff6/w/b/wb01-black-0.jpg"
+          },
+          "url_key": "voyage-yoga-bag",
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 32,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 32,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          }
+        }
+      ],
+      "aggregations": [
+        {
+          "options": [
+            {
+              "count": 2,
+              "label": "30-40",
+              "value": "30_40"
+            },
+            {
+              "count": 1,
+              "label": "40-*",
+              "value": "40_*"
+            },
+            {
+              "count": 1,
+              "label": "14",
+              "value": "14"
+            }
+          ],
+          "attribute_code": "price",
+          "count": 3,
+          "label": "Price"
+        },
+        {
+          "options": [
+            {
+              "count": 3,
+              "label": "Gear",
+              "value": "3"
+            },
+            {
+              "count": 3,
+              "label": "Bags",
+              "value": "4"
+            },
+            {
+              "count": 1,
+              "label": "Collections",
+              "value": "7"
+            }
+          ],
+          "attribute_code": "category_id",
+          "count": 3,
+          "label": "Category"
+        },
+        {
+          "options": [
+            {
+              "count": 3,
+              "label": "Yoga",
+              "value": "8"
+            },
+            {
+              "count": 2,
+              "label": "Gym",
+              "value": "11"
+            },
+            {
+              "count": 2,
+              "label": "School",
+              "value": "20"
+            },
+            {
+              "count": 1,
+              "label": "Urban",
+              "value": "23"
+            }
+          ],
+          "attribute_code": "activity",
+          "count": 4,
+          "label": "Activity"
+        },
+        {
+          "options": [
+            {
+              "count": 1,
+              "label": "Messenger",
+              "value": "27"
+            },
+            {
+              "count": 1,
+              "label": "Laptop",
+              "value": "28"
+            },
+            {
+              "count": 2,
+              "label": "Exercise",
+              "value": "29"
+            },
+            {
+              "count": 2,
+              "label": "Tote",
+              "value": "30"
+            }
+          ],
+          "attribute_code": "style_bags",
+          "count": 4,
+          "label": "Style Bags"
+        },
+        {
+          "options": [
+            {
+              "count": 3,
+              "label": "Nylon",
+              "value": "37"
+            },
+            {
+              "count": 3,
+              "label": "Polyester",
+              "value": "38"
+            },
+            {
+              "count": 1,
+              "label": "Rayon",
+              "value": "39"
+            }
+          ],
+          "attribute_code": "material",
+          "count": 3,
+          "label": "Material"
+        },
+        {
+          "options": [
+            {
+              "count": 2,
+              "label": "Adjustable",
+              "value": "61"
+            },
+            {
+              "count": 1,
+              "label": "Cross Body",
+              "value": "62"
+            },
+            {
+              "count": 1,
+              "label": "Detachable",
+              "value": "63"
+            },
+            {
+              "count": 2,
+              "label": "Double",
+              "value": "64"
+            },
+            {
+              "count": 1,
+              "label": "Padded",
+              "value": "65"
+            },
+            {
+              "count": 3,
+              "label": "Shoulder",
+              "value": "66"
+            },
+            {
+              "count": 1,
+              "label": "Single",
+              "value": "67"
+            }
+          ],
+          "attribute_code": "strap_bags",
+          "count": 7,
+          "label": "Strap/Handle"
+        },
+        {
+          "options": [
+            {
+              "count": 3,
+              "label": "Waterproof",
+              "value": "74"
+            },
+            {
+              "count": 2,
+              "label": "Lightweight",
+              "value": "75"
+            },
+            {
+              "count": 2,
+              "label": "Reflective",
+              "value": "77"
+            },
+            {
+              "count": 1,
+              "label": "Laptop Sleeve",
+              "value": "78"
+            },
+            {
+              "count": 2,
+              "label": "Lockable",
+              "value": "79"
+            }
+          ],
+          "attribute_code": "features_bags",
+          "count": 5,
+          "label": "Features"
+        },
+        {
+          "options": [
+            {
+              "count": 1,
+              "label": "1",
+              "value": "1"
+            }
+          ],
+          "attribute_code": "performance_fabric",
+          "count": 1,
+          "label": "Performance Fabric"
+        }
+      ],
+      "sort_fields": {
+        "default": "price",
+        "options": [
+          {
+            "value": "name",
+            "label": "Product Name"
+          },
+          {
+            "value": "price",
+            "label": "Price"
+          }
+        ]
+      }
+    }
+  }
+}

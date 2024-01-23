@@ -16,12 +16,12 @@
 <template data-sly-template.actions ="${@ product}">
     <div class="productteaser__cta" data-sly-test="${product.callToAction != null}">
         <button data-sly-test="${product.callToAction == 'add-to-cart'}" data-action="addToCart" 
-                data-item-sku="${product.sku}" data-cmp-clickable="${product.data ? true : false}"
-                class="button__root_highPriority button__root clickable__root button__filled" type="button">
+                data-item-sku="${product.sku}" class="button__root_highPriority button__root clickable__root button__filled" 
+                type="button">
             <span class="button__content"><span>${product.callToActionText || 'Add to Cart' @ i18n}</span></span>
         </button>
         <button data-sly-test="${product.callToAction == 'details'}" data-action="details" 
-                data-url="${product.url}" data-cmp-clickable="${product.data ? true : false}"
+                data-url="${product.url}" data-target="${product.linkTarget}" data-cmp-clickable="${product.data ? true : false}"
                 class="button__root_highPriority button__root clickable__root button__filled" type="button">
             <span class="button__content"><span>${product.callToActionText || 'See more details' @ i18n}</span></span>
         </button>
