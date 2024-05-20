@@ -142,7 +142,6 @@ jobs:
       - checkout
       - browser-tools/install-browser-tools:
           chrome-version: 116.0.5845.96 # TODO: remove until: https://github.com/CircleCI-Public/browser-tools-orb/issues/75
-          replace-existing: true # TODO: remove until: https://github.com/CircleCI-Public/browser-tools-orb/issues/75
       - run:
           name: Provision
           command: |
