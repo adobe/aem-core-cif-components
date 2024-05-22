@@ -104,7 +104,8 @@ class BreadcrumbRetriever extends AbstractRetriever {
 
         GraphqlResponse<Query, Error> response = executeQuery();
 
-        if (CollectionUtils.isNotEmpty(response.getErrors())) {
+        errors = response.getErrors();
+        if (CollectionUtils.isNotEmpty(errors)) {
             categories = Collections.emptyList();
             product = Optional.empty();
             return;
