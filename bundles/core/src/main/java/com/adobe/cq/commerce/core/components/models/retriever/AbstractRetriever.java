@@ -65,6 +65,10 @@ public abstract class AbstractRetriever {
         return errors == null ? Collections.emptyList() : errors;
     }
 
+    public final boolean hasErrors() {
+        return !getErrors().isEmpty();
+    }
+
     /**
      * Executes the query and parses the response.
      */

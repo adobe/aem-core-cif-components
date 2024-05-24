@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.search.models;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import javax.annotation.Nonnull;
 import org.osgi.annotation.versioning.ConsumerType;
 
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 /**
  * Represents a set of search results from a backend service. This would generally contain the actual {@link ProductListItem}s
@@ -113,4 +115,12 @@ public interface SearchResultsSet {
      * @return {@code true} if the result set provides support for sorting of the results, {@code false} otherwise
      */
     boolean hasSorting();
+
+    default List<Error> getErrors() {
+        return Collections.emptyList();
+    }
+
+    default boolean hasErrors() {
+        return getErrors() != null && !getErrors().isEmpty();
+    }
 }

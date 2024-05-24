@@ -155,7 +155,7 @@ public class SearchResultsServiceImplTest {
             new UrlRewrite().setUrl("just-another/category/product")));
         productHits.add(product);
 
-        when(searchFilterService.retrieveCurrentlyAvailableCommerceFilters(any(), any())).thenReturn(Arrays.asList(
+        when(searchFilterService.retrieveCurrentlyAvailableCommerceFiltersInfo(any(), any())).thenReturn(Pair.of(Arrays.asList(
             createMatchFilterAttributeMetadata(FILTER_ATTRIBUTE_NAME_CODE),
             createStringEqualFilterAttributeMetadata(FILTER_ATTRIBUTE_COLOR_CODE),
             createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE1_CODE),
@@ -164,7 +164,7 @@ public class SearchResultsServiceImplTest {
             createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE4_CODE),
             createRangeFilterAttributeMetadata(FILTER_ATTRIBUTE_PRICE5_CODE),
             createBooleanEqualFilterAttributeMetadata(FILTER_ATTRIBUTE_BOOLEAN_CODE),
-            createUnknownAttributeMetadata()));
+            createUnknownAttributeMetadata()), Collections.emptyList()));
 
         when(products.getTotalCount()).thenReturn(0);
         when(products.getItems()).thenReturn(productHits);
@@ -259,7 +259,7 @@ public class SearchResultsServiceImplTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(magentoGraphqlClient, times(1)).execute(captor.capture());
 
-        verify(searchFilterService, times(1)).retrieveCurrentlyAvailableCommerceFilters(any(), any());
+        verify(searchFilterService, times(1)).retrieveCurrentlyAvailableCommerceFiltersInfo(any(), any());
         assertThat(searchResultsSet).isNotNull();
         assertThat(searchResultsSet.getTotalResults()).isEqualTo(0);
         assertThat(searchResultsSet.getAppliedQueryParameters()).containsKeys("search_query");
