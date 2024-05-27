@@ -126,7 +126,7 @@ public interface SearchResultsSet {
     }
 
     /**
-     * Check if there wehre errors during the search.
+     * Check if there were errors during the search.
      *
      * @return {@code true} if the result set contains errors, {@code false} otherwise
      */

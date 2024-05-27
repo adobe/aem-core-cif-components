@@ -347,7 +347,15 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     private static GraphqlResponse<Query, Error> newErrorResponse(Throwable throwable) {
         GraphqlResponse<Query, Error> response = new GraphqlResponse<>();
         Error error = new Error();
-        error.setMessage(throwable.getMessage());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("[%s: \"%s\"]", throwable.getClass().getName(), throwable.getMessage()));
+        while (throwable.getCause() != null) {
+            throwable = throwable.getCause();
+            sb.append(String.format(" Caused by: [%s: \"%s\"]", throwable.getClass().getName(), throwable.getMessage()));
+        }
+
+        error.setMessage(sb.toString());
         error.setCategory(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
         response.setErrors(Collections.singletonList(error));
         return response;
