@@ -383,22 +383,26 @@ public class MagentoGraphqlClientImplTest {
         when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         MagentoGraphqlClient client = new MagentoGraphqlClientImpl(pageResource, page, context.request());
-
-        doThrow(new RuntimeException("foobar")).when(graphqlClient).execute(any(), any(), any());
-        doThrow(new RuntimeException("foobar")).when(graphqlClient).execute(any(), any(), any(), any());
+        RuntimeException foobar = new RuntimeException("foobar");
+        doThrow(foobar).when(graphqlClient).execute(any(), any(), any(), any());
 
         GraphqlResponse<Query, Error> response = client.execute("query");
         assertNull(response.getData());
         assertNotNull(response.getErrors());
         assertEquals(1, response.getErrors().size());
-        assertEquals("foobar", response.getErrors().get(0).getMessage());
+        assertEquals("[java.lang.RuntimeException: \"foobar\"]", response.getErrors().get(0).getMessage());
         assertEquals(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY, response.getErrors().get(0).getCategory());
+
+        RuntimeException bar = new RuntimeException("bar");
+        RuntimeException foo = new RuntimeException("foo", bar);
+        doThrow(foo).when(graphqlClient).execute(any(), any(), any(), any());
 
         response = client.execute("query", HttpMethod.POST);
         assertNull(response.getData());
         assertNotNull(response.getErrors());
         assertEquals(1, response.getErrors().size());
-        assertEquals("foobar", response.getErrors().get(0).getMessage());
+        assertEquals("[java.lang.RuntimeException: \"foo\"] Caused by: [java.lang.RuntimeException: \"bar\"]",
+            response.getErrors().get(0).getMessage());
         assertEquals(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY, response.getErrors().get(0).getCategory());
     }
 

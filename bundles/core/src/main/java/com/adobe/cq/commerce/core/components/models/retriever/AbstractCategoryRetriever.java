@@ -285,7 +285,8 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     @Override
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
-        if (CollectionUtils.isEmpty(response.getErrors())) {
+        errors = response.getErrors();
+        if (CollectionUtils.isEmpty(errors)) {
             Query rootQuery = response.getData();
             if (rootQuery.getCategoryList() != null && !rootQuery.getCategoryList().isEmpty()) {
                 category = Optional.of(rootQuery.getCategoryList().get(0));

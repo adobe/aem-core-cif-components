@@ -19,9 +19,11 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
@@ -51,6 +53,7 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -192,5 +195,26 @@ public class SearchFilterServiceImplTest {
         final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
             .retrieveCurrentlyAvailableCommerceFilters(page);
         assertThat(filterAttributeMetadata).hasSize(0);
+    }
+
+    @Test
+    public void testRetrieveCurrentlyAvailableCommerceFiltersInfoWithErrors() {
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient") != null ? graphqlClient : null);
+
+        Query query = new Query();
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
+        response.setData(query);
+        Error error = new Error();
+        response.setErrors(Collections.singletonList(error));
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+
+        SlingHttpServletRequest request = context.request();
+
+        final Pair<List<FilterAttributeMetadata>, List<Error>> filterAttributeMetadata = searchFilterServiceUnderTest
+            .retrieveCurrentlyAvailableCommerceFiltersInfo(request, page);
+        assertThat(filterAttributeMetadata.getLeft()).hasSize(0);
+        assertThat(filterAttributeMetadata.getRight()).hasSize(2);
     }
 }
