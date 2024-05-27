@@ -116,10 +116,20 @@ public interface SearchResultsSet {
      */
     boolean hasSorting();
 
+    /**
+     * Get the list of errors that occurred during the search.
+     *
+     * @return the list of errors
+     */
     default List<Error> getErrors() {
         return Collections.emptyList();
     }
 
+    /**
+     * Check if there wehre errors during the search.
+     *
+     * @return {@code true} if the result set contains errors, {@code false} otherwise
+     */
     default boolean hasErrors() {
         return getErrors() != null && !getErrors().isEmpty();
     }

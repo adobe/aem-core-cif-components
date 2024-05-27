@@ -91,10 +91,6 @@ public class SearchFilterServiceImpl implements SearchFilterService {
             .orElseGet(Collections::emptyList);
     }
 
-    public List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(final SlingHttpServletRequest request, Page page) {
-        return retrieveCurrentlyAvailableCommerceFiltersInfo(request, page).getLeft();
-    }
-
     public Pair<List<FilterAttributeMetadata>, List<Error>> retrieveCurrentlyAvailableCommerceFiltersInfo(
         final SlingHttpServletRequest request, Page page) {
         // This is used to configure the cache in the GraphqlClient with a cache name of
