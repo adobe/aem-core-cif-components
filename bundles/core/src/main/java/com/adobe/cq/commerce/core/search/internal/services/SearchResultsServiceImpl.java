@@ -231,6 +231,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             response.getErrors()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
 
+            searchResultsSet.setErrors(errors);
             return new ImmutablePair<>(category, searchResultsSet);
         }
 

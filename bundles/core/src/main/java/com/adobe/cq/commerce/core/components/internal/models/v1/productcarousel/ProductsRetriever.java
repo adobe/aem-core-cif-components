@@ -131,7 +131,8 @@ class ProductsRetriever extends AbstractProductsRetriever {
         }
 
         GraphqlResponse<Query, Error> response = executeQuery();
-        if (CollectionUtils.isEmpty(response.getErrors())) {
+        errors = response.getErrors();
+        if (CollectionUtils.isEmpty(errors)) {
             Query rootQuery = response.getData();
             List<CategoryTree> items = rootQuery.getCategoryList();
             if (CollectionUtils.isNotEmpty(items)) {
