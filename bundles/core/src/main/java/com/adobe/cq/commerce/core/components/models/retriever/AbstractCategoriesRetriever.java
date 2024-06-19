@@ -100,7 +100,7 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     }
 
     /**
-     * Set the identifiers of the categories that should be fetched. Categories are retrieved using the default identifier UID.
+     * Set the Category filter type which will using during fetch. Categories are retrieved using this filter type if not set then it will use UID.
      *
      * @param filterType Filter Type
      */
