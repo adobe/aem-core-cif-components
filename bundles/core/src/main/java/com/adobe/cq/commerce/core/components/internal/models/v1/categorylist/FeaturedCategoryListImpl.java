@@ -76,6 +76,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     private static final String CATEGORY_IDENTIFIER = "categoryId";
     private static final String ASSET_PROP = "asset";
     private static final String ITEMS_PROP = "items";
+    private static final String CATEGORY_IDENTIFIER_TYPE = "categoryIdType";
 
     @ScriptVariable
     private Page currentPage;

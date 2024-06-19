@@ -61,13 +61,13 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     protected List<CategoryTree> categories;
 
     /**
-     * Identifiers of the categories that should be fetched. Which kind of filter is used (usually uid) is implementation
+     * Identifiers of the categories that should be fetched. Which kind of identifier is used (usually uid) is implementation
      * specific and should be checked in subclass implementations.
      */
     protected List<String> identifiers;
 
     /**
-     * filter type that should be used when fetched. usually uid but we can define it explicitly in the implementation
+     * Filter type that should be used when fetched. usually uid but we can define it explicitly in the implementation
      * specific and should be checked in subclass implementations.
      */
     protected String filterType;
@@ -179,6 +179,7 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
         CategoryFilterInput filter = new CategoryFilterInput();
         FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setIn(identifiers);
 
+        //Set category filter based on filter type
         if ("urlPath".equals(this.filterType)) {
             filter.setUrlPath(identifiersFilter);
         } else if ("urlKey".equals(this.filterType)) {
