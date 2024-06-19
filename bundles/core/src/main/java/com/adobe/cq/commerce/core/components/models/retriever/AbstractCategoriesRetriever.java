@@ -61,10 +61,16 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     protected List<CategoryTree> categories;
 
     /**
-     * Identifiers of the categories that should be fetched. Which kind of identifier is used (usually uid) is implementation
+     * filter type that should be used when fetched. usually uid but we can define it explicitly in the implementation
      * specific and should be checked in subclass implementations.
      */
     protected List<String> identifiers;
+
+    /**
+     * Identifiers of the categories that should be fetched. Which kind of filter is used (usually uid) is implementation
+     * specific and should be checked in subclass implementations.
+     */
+    protected String filterType;
 
     public AbstractCategoriesRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -91,6 +97,15 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
         categories = null;
         query = null;
         this.identifiers = identifiers;
+    }
+
+    /**
+     * Set the identifiers of the categories that should be fetched. Categories are retrieved using the default identifier UID.
+     *
+     * @param filterType Filter Type
+     */
+    public void setCategoryFilterType(String filterType) {
+        this.filterType = filterType;
     }
 
     /**
@@ -163,7 +178,14 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     protected String generateQuery(List<String> identifiers) {
         CategoryFilterInput filter = new CategoryFilterInput();
         FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setIn(identifiers);
-        filter.setCategoryUid(identifiersFilter);
+
+        if ("urlPath".equals(this.filterType)) {
+            filter.setUrlPath(identifiersFilter);
+        } else if ("urlKey".equals(this.filterType)) {
+            filter.setUrlKey(identifiersFilter);
+        } else {
+            filter.setCategoryUid(identifiersFilter);
+        }
 
         // Apply category filter hook
         if (this.categoryFilterHook != null) {
