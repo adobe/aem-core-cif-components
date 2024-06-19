@@ -61,12 +61,12 @@ import com.day.cq.wcm.api.designer.Style;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Model(
-    adaptables = SlingHttpServletRequest.class,
-    adapters = { FeaturedCategoryList.class, ComponentExporter.class },
-    resourceType = com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCategoryListImpl.RESOURCE_TYPE)
+        adaptables = SlingHttpServletRequest.class,
+        adapters = { FeaturedCategoryList.class, ComponentExporter.class },
+        resourceType = com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCategoryListImpl.RESOURCE_TYPE)
 @Exporter(
-    name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
-    extensions = ExporterConstants.SLING_MODEL_EXTENSION)
+        name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
+        extensions = ExporterConstants.SLING_MODEL_EXTENSION)
 public class FeaturedCategoryListImpl extends DataLayerComponent implements FeaturedCategoryList {
 
     protected static final String RESOURCE_TYPE = "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist";
@@ -76,7 +76,6 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     private static final String CATEGORY_IDENTIFIER = "categoryId";
     private static final String ASSET_PROP = "asset";
     private static final String ITEMS_PROP = "items";
-    private static final String CATEGORY_IDENTIFIER_TYPE = "categoryIdType";
 
     @ScriptVariable
     private Page currentPage;
@@ -94,8 +93,8 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     protected Style currentStyle;
 
     @ValueMapValue(
-        name = Link.PN_LINK_TARGET,
-        injectionStrategy = InjectionStrategy.OPTIONAL)
+            name = Link.PN_LINK_TARGET,
+            injectionStrategy = InjectionStrategy.OPTIONAL)
     protected String linkTarget;
 
     private Map<String, Asset> assetOverride;
@@ -234,8 +233,8 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     @Override
     public CategoryData[] getDataLayerCategories() {
         return getCategories().stream()
-            .map(c -> new CategoryDataImpl(c.getUid().toString(), c.getName(), c.getImage()))
-            .toArray(CategoryData[]::new);
+                .map(c -> new CategoryDataImpl(c.getUid().toString(), c.getName(), c.getImage()))
+                .toArray(CategoryData[]::new);
     }
 
     @Override

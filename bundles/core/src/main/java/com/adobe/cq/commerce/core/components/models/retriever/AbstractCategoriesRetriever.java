@@ -61,13 +61,13 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     protected List<CategoryTree> categories;
 
     /**
-     * filter type that should be used when fetched. usually uid but we can define it explicitly in the implementation
+     * Identifiers of the categories that should be fetched. Which kind of filter is used (usually uid) is implementation
      * specific and should be checked in subclass implementations.
      */
     protected List<String> identifiers;
 
     /**
-     * Identifiers of the categories that should be fetched. Which kind of filter is used (usually uid) is implementation
+     * filter type that should be used when fetched. usually uid but we can define it explicitly in the implementation
      * specific and should be checked in subclass implementations.
      */
     protected String filterType;
