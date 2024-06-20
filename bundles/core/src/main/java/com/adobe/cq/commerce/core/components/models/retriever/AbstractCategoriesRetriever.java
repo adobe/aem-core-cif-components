@@ -100,7 +100,8 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     }
 
     /**
-     * Set the Category filter type which will using during fetch. Categories are retrieved using this filter type if not set then it will use UID.
+     * Set the Category filter type which will using during fetch. Categories are retrieved using
+     * this filter type if not set then it will use UID.
      *
      * @param filterType Filter Type
      */
@@ -179,7 +180,7 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
         CategoryFilterInput filter = new CategoryFilterInput();
         FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setIn(identifiers);
 
-        //Set category filter based on filter type
+        // Set category filter based on filter type
         if ("urlPath".equals(this.filterType)) {
             filter.setUrlPath(identifiersFilter);
         } else if ("urlKey".equals(this.filterType)) {
