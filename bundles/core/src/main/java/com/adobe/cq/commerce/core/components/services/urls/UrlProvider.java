@@ -249,13 +249,12 @@ public interface UrlProvider {
     String getCategoryIdentifier(SlingHttpServletRequest request);
 
     /**
-     * Set the category type id used for filter. The category type id can be
+     * Set the category type id used for filter. The category id type can be
      * used to load category data based on filter.
      *
      * @param categoryIdType The current categoryIdType.
-     * @return String The category uid identifier.
      */
-    String setCategoryIdType(String categoryIdType);
+    void setCategoryIdType(String categoryIdType);
 
     /**
      * Returns a hook that replaces a given {@link CategoryFilterInput} with a new instance constructed from the identifiers available by

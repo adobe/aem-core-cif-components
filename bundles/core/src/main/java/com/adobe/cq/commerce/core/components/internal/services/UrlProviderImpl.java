@@ -200,8 +200,8 @@ public class UrlProviderImpl implements UrlProvider {
         systemDefaultProductUrlFormat = null;
     }
 
-    public String setCategoryIdType(String categoryIdType) {
-        return this.categoryFilterType = categoryIdType;
+    public void setCategoryIdType(String categoryIdType) {
+        this.categoryFilterType = categoryIdType;
     }
 
     private static <T> T getUrlFormatFromContext(SlingHttpServletRequest request, Page page, String propertyName,
