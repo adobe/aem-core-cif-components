@@ -105,7 +105,7 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
      *
      * @param filterType Filter Type
      */
-    public void setCategoryFilterType(String filterType) {
+    public void setCategoryIdType(String filterType) {
         this.filterType = filterType;
     }
 
@@ -180,11 +180,9 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
         CategoryFilterInput filter = new CategoryFilterInput();
         FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setIn(identifiers);
 
-        // Set category filter based on filter type
-        if ("urlPath".equals(this.filterType)) {
+        // Set the filter type
+        if (CATEGORY_IDENTIFIER_URL_PATH.equals(this.filterType)) {
             filter.setUrlPath(identifiersFilter);
-        } else if ("urlKey".equals(this.filterType)) {
-            filter.setUrlKey(identifiersFilter);
         } else {
             filter.setCategoryUid(identifiersFilter);
         }

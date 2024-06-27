@@ -71,6 +71,8 @@ public class ButtonImpl implements Button {
     private String productIdentifier;
     @ValueMapValue(name = "categoryId", injectionStrategy = InjectionStrategy.OPTIONAL)
     private String categoryIdentifier;
+    @ValueMapValue(name = "categoryIdType", injectionStrategy = InjectionStrategy.OPTIONAL)
+    private String categoryIdType;
     @ValueMapValue(injectionStrategy = InjectionStrategy.OPTIONAL)
     private String externalLink;
     @ValueMapValue(injectionStrategy = InjectionStrategy.OPTIONAL)
@@ -100,6 +102,7 @@ public class ButtonImpl implements Button {
         } else if (PRODUCT.equals(linkType) && productIdentifier != null) {
             link = urlProvider.toProductUrl(request, currentPage, productIdentifier);
         } else if (CATEGORY.equals(linkType) && categoryIdentifier != null) {
+            urlProvider.setCategoryIdType(categoryIdType);
             link = urlProvider.toCategoryUrl(request, currentPage, categoryIdentifier);
         } else if (StringUtils.isNotEmpty(linkTo)) {
             link = linkTo + ".html";

@@ -55,6 +55,7 @@ import com.adobe.cq.commerce.core.components.internal.services.urlformats.Produc
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.GenericUrlFormat;
@@ -157,6 +158,11 @@ public class UrlProviderImpl implements UrlProvider {
     private ProductUrlFormat systemDefaultProductUrlFormat;
     private CategoryUrlFormat systemDefaultCategoryUrlFormat;
 
+    /**
+     * Category type filter that should be used when category fetched.
+     */
+    protected String categoryFilterType;
+
     @Activate
     public void activate(UrlProviderConfiguration conf) {
         if (CollectionUtils.isEmpty(newProductUrlFormat)) {
@@ -192,6 +198,10 @@ public class UrlProviderImpl implements UrlProvider {
         newCategoryUrlFormat = null;
         systemDefaultCategoryUrlFormat = null;
         systemDefaultProductUrlFormat = null;
+    }
+
+    public String setCategoryIdType(String categoryIdType) {
+        return this.categoryFilterType = categoryIdType;
     }
 
     private static <T> T getUrlFormatFromContext(SlingHttpServletRequest request, Page page, String propertyName,
@@ -363,17 +373,29 @@ public class UrlProviderImpl implements UrlProvider {
     @Override
     public String toCategoryUrl(SlingHttpServletRequest request, Page page, String categoryIdentifier) {
         CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
-        params.setUid(categoryIdentifier);
+        boolean urlPathFlag = AbstractRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(this.categoryFilterType);
+        if (urlPathFlag) {
+            params.setUrlPath(categoryIdentifier);
+        } else {
+            params.setUid(categoryIdentifier);
+        }
 
         MagentoGraphqlClient magentoGraphqlClient = request != null ? request.adaptTo(MagentoGraphqlClient.class)
             : null;
         if (magentoGraphqlClient != null && StringUtils.isNotBlank(categoryIdentifier)) {
             CategoryUrlParameterRetriever retriever = new CategoryUrlParameterRetriever(magentoGraphqlClient);
             retriever.setIdentifier(categoryIdentifier);
+            if (urlPathFlag) {
+                retriever.setCategoryIdType(this.categoryFilterType);
+            }
             CategoryInterface category = retriever.fetchCategory();
             if (category != null) {
+                if (urlPathFlag) {
+                    params.setUid(category.get("uid").toString());
+                } else {
+                    params.setUrlPath(category.getUrlPath());
+                }
                 params.setUrlKey(category.getUrlKey());
-                params.setUrlPath(category.getUrlPath());
             } else {
                 LOGGER.debug("Could not generate category page URL for {}.", categoryIdentifier);
             }

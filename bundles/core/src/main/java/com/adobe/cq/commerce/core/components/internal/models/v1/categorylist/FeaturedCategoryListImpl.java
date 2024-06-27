@@ -107,7 +107,8 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
         // After the identifier type has been determined, the specific list will be used further
         List<String> categoryIdentifiers = new ArrayList<>();
         assetOverride = new HashMap<>();
-        String categoryFilterType = null;
+        String categoryIdType = null;
+        String categoryFilterType;
 
         // Iterate entries of composite multifield
         Resource items = resource.getChild(ITEMS_PROP);
@@ -119,11 +120,9 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 ValueMap props = item.getValueMap();
 
                 String categoryIdentifier = props.get(CATEGORY_IDENTIFIER, String.class);
-                String categoryIdentifierType = props.get(CATEGORY_IDENTIFIER_TYPE, String.class);
-                if ("urlPath".equals(categoryIdentifierType)) {
-                    categoryFilterType = categoryIdentifierType;
-                } else if ("urlKey".equals(categoryIdentifierType)) {
-                    categoryFilterType = categoryIdentifierType;
+                categoryFilterType = props.get(CATEGORY_IDENTIFIER_TYPE, String.class);
+                if (AbstractCategoriesRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryFilterType)) {
+                    categoryIdType = categoryFilterType;
                 }
                 if (StringUtils.isEmpty(categoryIdentifier)) {
                     continue;
@@ -149,10 +148,9 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
                 // Setting the identifiers list based on the determined identifier type
                 categoriesRetriever.setIdentifiers(categoryIdentifiers);
-                if (!StringUtils.isEmpty(categoryFilterType)) {
-                    categoriesRetriever.setCategoryFilterType(categoryFilterType);
+                if (!StringUtils.isEmpty(categoryIdType)) {
+                    categoriesRetriever.setCategoryIdType(categoryIdType);
                 }
-
             }
         }
     }

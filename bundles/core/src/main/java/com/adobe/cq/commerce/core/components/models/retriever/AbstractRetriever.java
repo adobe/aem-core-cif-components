@@ -28,6 +28,12 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
  * Abstract implementation of retriever that fetches data using GraphQL.
  */
 public abstract class AbstractRetriever {
+
+    /**
+     * Category Identifier url path
+     */
+    public static final String CATEGORY_IDENTIFIER_URL_PATH = "urlPath";
+
     private static final List<Error> INITIAL_ERRORS = Collections.unmodifiableList(new ArrayList<>());
 
     /**

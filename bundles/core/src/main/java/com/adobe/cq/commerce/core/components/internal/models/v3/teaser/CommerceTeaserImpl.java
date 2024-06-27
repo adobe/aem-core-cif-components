@@ -34,6 +34,7 @@ import org.apache.sling.models.annotations.via.ResourceSuperType;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractRetriever;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.export.json.ComponentExporter;
@@ -91,6 +92,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 ValueMap actionProperties = action.getValueMap();
                 String productSku = actionProperties.get(PN_ACTION_PRODUCT_SKU, String.class);
                 String categoryUid = actionProperties.get(PN_ACTION_CATEGORY_ID, String.class);
+                String categoryIdType = actionProperties.get(PN_ACTION_CATEGORY_ID_TYPE, String.class);
                 String link = actionProperties.get(Teaser.PN_ACTION_LINK, String.class);
 
                 ListItem wcmAction = null;
@@ -98,6 +100,10 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 CommerceIdentifier identifier = null;
 
                 if (StringUtils.isNotBlank(categoryUid)) {
+
+                    if (AbstractRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryIdType)) {
+                        urlProvider.setCategoryIdType(categoryIdType);
+                    }
                     actionUrl = urlProvider.toCategoryUrl(request, currentPage, categoryUid);
                     identifier = new CommerceIdentifierImpl(categoryUid, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY);
