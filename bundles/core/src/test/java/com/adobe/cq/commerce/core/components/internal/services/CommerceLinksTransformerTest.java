@@ -155,8 +155,12 @@ public class CommerceLinksTransformerTest {
         // verify transformed HTML
         String transformedHtml = writer.toString();
 
-        Path filePath = Paths.get(classLoader.getResource(TEST_HTML).getPath());
+        Path filePath = Paths.get(classLoader.getResource(TEST_HTML).toURI());
         String originalHtml = Files.lines(filePath).collect(Collectors.joining(System.lineSeparator()));
+
+        // to make CRLF compatiable
+        transformedHtml = transformedHtml.replaceAll("\r\n", "\n");
+        originalHtml = originalHtml.replaceAll("\r\n", "\n");
 
         assertTrue(transformedHtml.endsWith(originalHtml));
     }
