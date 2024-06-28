@@ -366,6 +366,32 @@
                     }
                 }
             },
+            "featuredcategorywithurlpathlist3": {
+              "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+              "items": {
+                "item0": {
+                  "categoryId": "equipment",
+                  "categoryIdType": "urlPath"
+                }
+              }
+            },
+            "featuredcategorywithurlpathlist4": {
+              "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+              "items": {
+                "item0": {
+                  "categoryId": "equipment",
+                  "categoryIdType": "urlPath"
+                },
+                "item1": {
+                  "categoryId": "equipment/running",
+                  "categoryIdType": "urlPath"
+                },
+                "item2": {
+                  "categoryId": "equipment/bike",
+                  "categoryIdType": "urlPath"
+                }
+              }
+            },
             "featuredcategorylist_with_link_target_unchecked": {
               "sling:resourceType": "venia/components/commerce/featuredcategorylist",
               "product": ["24-MG01", "MJ01#MJ01-L-Red"],
