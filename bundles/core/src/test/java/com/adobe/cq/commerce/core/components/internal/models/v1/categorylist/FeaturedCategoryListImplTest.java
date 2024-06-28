@@ -82,7 +82,7 @@ public class FeaturedCategoryListImplTest {
     private static final String COMPONENT_PATH_LINK_TARGET_UNCHECKED = "/content/pageA/jcr:content/root/responsivegrid/productcarousel_with_link_target_unchecked";
     private static final String COMPONENT_PATH_LINK_TARGET_CHECKED = "/content/pageA/jcr:content/root/responsivegrid/productcarousel_with_link_target_checked";
     private static final String COMPONENT_PATH_WITH_URL_PATH = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorywithurlpathlist3";
-    private static final String COMPONENT_PATH_WITH_MULTIPLE_URL_PATH= "/content/pageA/jcr:content/root/responsivegrid/featuredcategorywithurlpathlist4";
+    private static final String COMPONENT_PATH_WITH_MULTIPLE_URL_PATH = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorywithurlpathlist4";
 
     @Rule
     public final AemContext context = buildAemContext("/context/jcr-content.json")
@@ -106,7 +106,7 @@ public class FeaturedCategoryListImplTest {
         Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid:{in:[\"uid-5");
         Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
-                "{categoryList(filters:{url_path:{in:[\"equipment");
+            "{categoryList(filters:{url_path:{in:[\"equipment");
 
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> withNullGraphqlClient
             ? null
