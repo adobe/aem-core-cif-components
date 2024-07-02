@@ -31,6 +31,11 @@ public class CategoryPageWithUrlKey extends UrlFormatBase implements CategoryUrl
     }
 
     @Override
+    public boolean validateRequiredParams(Params parameters) {
+        return StringUtils.isNotEmpty(parameters.getUrlPath()) || StringUtils.isNotEmpty(parameters.getUrlKey());
+    }
+
+    @Override
     public String format(Params parameters) {
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")
             + HTML_EXTENSION_AND_SUFFIX

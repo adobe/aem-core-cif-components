@@ -76,6 +76,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     private static final String CATEGORY_IDENTIFIER = "categoryId";
     private static final String ASSET_PROP = "asset";
     private static final String ITEMS_PROP = "items";
+    private static final String CATEGORY_IDENTIFIER_TYPE = "categoryIdType";
 
     @ScriptVariable
     private Page currentPage;
@@ -106,6 +107,8 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
         // After the identifier type has been determined, the specific list will be used further
         List<String> categoryIdentifiers = new ArrayList<>();
         assetOverride = new HashMap<>();
+        String categoryIdType = null;
+        String categoryFilterType;
 
         // Iterate entries of composite multifield
         Resource items = resource.getChild(ITEMS_PROP);
@@ -117,6 +120,10 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 ValueMap props = item.getValueMap();
 
                 String categoryIdentifier = props.get(CATEGORY_IDENTIFIER, String.class);
+                categoryFilterType = props.get(CATEGORY_IDENTIFIER_TYPE, String.class);
+                if (AbstractCategoriesRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryFilterType)) {
+                    categoryIdType = categoryFilterType;
+                }
                 if (StringUtils.isEmpty(categoryIdentifier)) {
                     continue;
                 }
@@ -141,6 +148,9 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
                 // Setting the identifiers list based on the determined identifier type
                 categoriesRetriever.setIdentifiers(categoryIdentifiers);
+                if (!StringUtils.isEmpty(categoryIdType)) {
+                    categoriesRetriever.setCategoryIdType(categoryIdType);
+                }
             }
         }
     }

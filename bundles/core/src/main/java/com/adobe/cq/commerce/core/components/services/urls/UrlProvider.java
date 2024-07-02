@@ -208,6 +208,7 @@ public interface UrlProvider {
      * @param categoryIdentifier The category identifier.
      * @return The category URL.
      */
+    @Deprecated
     String toCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, String categoryIdentifier);
 
     /**
