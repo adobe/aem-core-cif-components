@@ -361,23 +361,44 @@ public class UrlProviderImpl implements UrlProvider {
         return toCategoryUrl(request, page, new CategoryUrlFormat.Params(params));
     }
 
-    @Override
-    public String toCategoryUrl(SlingHttpServletRequest request, Page page, String categoryIdentifier) {
-        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
-        params.setUid(categoryIdentifier);
-
+    /**
+     * Call the category Api whenever required
+     *
+     * @param request The current Sling HTTP request
+     * @param categoryIdentifier The category identifier
+     * @return CategoryInterface
+     */
+    protected CategoryInterface callCategoryApi(
+        SlingHttpServletRequest request,
+        String categoryIdentifier,
+        String categoryIdType) {
+        CategoryInterface category = null;
         MagentoGraphqlClient magentoGraphqlClient = request != null ? request.adaptTo(MagentoGraphqlClient.class)
             : null;
         if (magentoGraphqlClient != null && StringUtils.isNotBlank(categoryIdentifier)) {
             CategoryUrlParameterRetriever retriever = new CategoryUrlParameterRetriever(magentoGraphqlClient);
             retriever.setIdentifier(categoryIdentifier);
-            CategoryInterface category = retriever.fetchCategory();
-            if (category != null) {
-                params.setUrlKey(category.getUrlKey());
-                params.setUrlPath(category.getUrlPath());
-            } else {
+            if (AbstractRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryIdType)) {
+                retriever.setCategoryIdType(AbstractRetriever.CATEGORY_IDENTIFIER_URL_PATH);
+            }
+
+            category = retriever.fetchCategory();
+            if (category == null) {
                 LOGGER.debug("Could not generate category page URL for {}.", categoryIdentifier);
             }
+        }
+        return category;
+    }
+
+    @Override
+    public String toCategoryUrl(SlingHttpServletRequest request, Page page, String categoryIdentifier) {
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUid(categoryIdentifier);
+
+        CategoryInterface category = callCategoryApi(request, categoryIdentifier, null);
+        if (category != null) {
+            params.setUrlKey(category.getUrlKey());
+            params.setUrlPath(category.getUrlPath());
         }
         return toCategoryUrl(request, page, params);
     }
@@ -399,26 +420,18 @@ public class UrlProviderImpl implements UrlProvider {
             }
 
             // Call the MagentoGraphqlClient to get the category details
-            MagentoGraphqlClient magentoGraphqlClient = request != null ? request.adaptTo(MagentoGraphqlClient.class)
-                : null;
-            if (magentoGraphqlClient != null && StringUtils.isNotBlank(categoryIdentifier)) {
-                CategoryUrlParameterRetriever retriever = new CategoryUrlParameterRetriever(magentoGraphqlClient);
-                retriever.setIdentifier(categoryIdentifier);
+            CategoryInterface category = callCategoryApi(
+                request,
+                categoryIdentifier,
+                urlPathFlag ? AbstractRetriever.CATEGORY_IDENTIFIER_URL_PATH : null);
+            if (category != null) {
+                // Set the required parameters for the category URL format on the basis of the category details
                 if (urlPathFlag) {
-                    retriever.setCategoryIdType(AbstractRetriever.CATEGORY_IDENTIFIER_URL_PATH);
-                }
-                CategoryInterface category = retriever.fetchCategory();
-                if (category != null) {
-                    // Set the required parameters for the category URL format on the basis of the category details
-                    if (urlPathFlag) {
-                        params.setUid(category.get("uid").toString());
-                    } else {
-                        params.setUrlPath(category.getUrlPath());
-                    }
-                    params.setUrlKey(category.getUrlKey());
+                    params.setUid(category.get("uid").toString());
                 } else {
-                    LOGGER.debug("Could not generate category page URL for {}.", categoryIdentifier);
+                    params.setUrlPath(category.getUrlPath());
                 }
+                params.setUrlKey(category.getUrlKey());
             }
         }
         if (givenPage != null) {
