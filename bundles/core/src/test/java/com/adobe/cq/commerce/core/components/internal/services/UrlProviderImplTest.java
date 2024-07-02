@@ -778,6 +778,40 @@ public class UrlProviderImplTest {
     }
 
     @Test
+    public void testCAConfigWithDefaultCategoryUrlPathFormatWithSelectionIdAsUid() {
+        Page page = setCurrentPage("/content/category-page");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            UrlFormat.CATEGORY_PAGE_URL_FORMAT,
+            CategoryPageWithUrlPath.PATTERN);
+
+        caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CategoryPageWithUrlPath.PATTERN);
+
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUid("uid-5");
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        assertEquals("/content/category-page.html/equipment.html", url);
+    }
+
+    @Test
+    public void testCAConfigWithDefaultCategoryUrlPathFormatWithSelectionIdAsUrlPath() {
+        Page page = setCurrentPage("/content/category-page");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            UrlFormat.CATEGORY_PAGE_URL_FORMAT,
+            CategoryPageWithUrlPath.PATTERN);
+
+        caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CategoryPageWithUrlPath.PATTERN);
+
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUrlPath("tops/men");
+
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        assertEquals("/content/category-page.html/tops/men.html", url);
+    }
+
+    @Test
     public void testCAConfigWithLegacyCustomProductUrlFormat() {
         // register multiple formats
         context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.PRODUCT_PAGE_URL_FORMAT);

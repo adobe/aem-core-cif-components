@@ -512,6 +512,13 @@
                 "linkType": "category",
                 "categoryId": "MTI=="
             },
+            "button2TypeCategoryWithSelectionIdUrlPath": {
+              "jcr:primaryType": "nt:unstructured",
+              "sling:resourceType": "core/cif/components/content/button/v2/button",
+              "linkType": "category",
+              "categoryId": "equipment",
+              "categoryIdType": "urlPath"
+            },
             "button2TypeCategoryEmpty": {
                 "jcr:primaryType": "nt:unstructured",
                 "sling:resourceType": "core/cif/components/content/button/v2/button",

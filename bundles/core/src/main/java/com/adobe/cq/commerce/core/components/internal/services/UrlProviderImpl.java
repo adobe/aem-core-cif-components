@@ -406,17 +406,15 @@ public class UrlProviderImpl implements UrlProvider {
     @Override
     public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page givenPage, CategoryUrlFormat.Params params) {
         CategoryUrlFormat categoryUrlFormat = getCategoryUrlFormatFromContext(request, givenPage);
-        String categoryIdentifier = params.getUid();
+        String categoryIdentifier = StringUtils.isNotEmpty(params.getUid()) ? params.getUid() : params.getUrlKey();
         boolean urlPathFlag = false;
 
         // Checks all the required parameters for the category URL format
         if (!categoryUrlFormat.validateRequiredParams(params)) {
             // Ignore the urlKey checks as it is not unique
-            if (!StringUtils.isBlank(params.getUrlPath())) {
+            if (StringUtils.isNotEmpty(params.getUrlPath())) {
                 categoryIdentifier = params.getUrlPath();
                 urlPathFlag = true;
-            } else if (!StringUtils.isBlank(params.getUrlKey())) {
-                categoryIdentifier = params.getUrlKey();
             }
 
             // Call the MagentoGraphqlClient to get the category details
