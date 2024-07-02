@@ -30,6 +30,11 @@ public class CategoryPageWithUrlPath extends UrlFormatBase implements CategoryUr
     }
 
     @Override
+    public boolean validateRequiredParams(Params parameters) {
+        return StringUtils.isNotEmpty(parameters.getUrlPath());
+    }
+
+    @Override
     public String format(Params parameters) {
         String urlKey = StringUtils.defaultIfEmpty(parameters.getUrlKey(), "{{url_path}}");
         return StringUtils.defaultIfEmpty(parameters.getPage(), "{{page}}")

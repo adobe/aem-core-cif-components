@@ -29,14 +29,12 @@ import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.models.annotations.Default;
 import org.apache.sling.models.annotations.DefaultInjectionStrategy;
 import org.apache.sling.models.annotations.Model;
-import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
-import org.apache.sling.models.annotations.injectorspecific.OSGiService;
-import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
-import org.apache.sling.models.annotations.injectorspecific.Self;
-import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
+import org.apache.sling.models.annotations.injectorspecific.*;
 import org.apache.sling.models.factory.ModelFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractRetriever;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.wcm.core.components.commons.link.Link;
 import com.adobe.cq.wcm.core.components.models.Button;
@@ -102,8 +100,13 @@ public class ButtonImpl implements Button {
         } else if (PRODUCT.equals(linkType) && productIdentifier != null) {
             link = urlProvider.toProductUrl(request, currentPage, productIdentifier);
         } else if (CATEGORY.equals(linkType) && categoryIdentifier != null) {
-            urlProvider.setCategoryIdType(categoryIdType);
-            link = urlProvider.toCategoryUrl(request, currentPage, categoryIdentifier);
+            CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+            if (AbstractRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryIdType)) {
+                params.setUrlPath(categoryIdentifier);
+            } else {
+                params.setUid(categoryIdentifier);
+            }
+            link = urlProvider.toCategoryUrl(request, currentPage, params);
         } else if (StringUtils.isNotEmpty(linkTo)) {
             link = linkTo + ".html";
         }

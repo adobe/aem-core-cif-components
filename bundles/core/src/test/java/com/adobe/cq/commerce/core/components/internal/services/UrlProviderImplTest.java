@@ -567,17 +567,6 @@ public class UrlProviderImplTest {
     }
 
     @Test
-    public void testCategoryUrlWhenCategoryTypeIsUrlPathWithGraphQLClient() {
-        Page page = setCurrentPage("/content/category-page");
-
-        urlProvider.setCategoryIdType("urlPath");
-        String url = urlProvider.toCategoryUrl(request, page, "men/tops-men/jackets-men");
-        assertEquals("/content/category-page.html/men/tops-men/jackets-men.html", url);
-
-        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
-    }
-
-    @Test
     public void testCategoryUrlNotFoundWithGraphQLClient() {
         Page page = setCurrentPage("/content/category-page");
 

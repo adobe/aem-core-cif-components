@@ -36,6 +36,7 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceI
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractRetriever;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
@@ -100,11 +101,13 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 CommerceIdentifier identifier = null;
 
                 if (StringUtils.isNotBlank(categoryUid)) {
-
+                    CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
                     if (AbstractRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryIdType)) {
-                        urlProvider.setCategoryIdType(categoryIdType);
+                        params.setUrlPath(categoryUid);
+                    } else {
+                        params.setUid(categoryUid);
                     }
-                    actionUrl = urlProvider.toCategoryUrl(request, currentPage, categoryUid);
+                    actionUrl = urlProvider.toCategoryUrl(request, currentPage, params);
                     identifier = new CommerceIdentifierImpl(categoryUid, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY);
                 } else if (StringUtils.isNotBlank(productSku)) {

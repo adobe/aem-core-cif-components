@@ -317,6 +317,41 @@
                 }
               }
             },
+            "commerceteaserwithcategoryselectionasurlpath": {
+              "actionsEnabled": true,
+              "sling:resourceType": "venia/components/content/teaser",
+              "pretitle": "Pretitle",
+              "titleFromPage": "flase",
+              "jcr:title": "Title",
+              "descriptionFromPage": false,
+              "jcr:description": "Description",
+              "id": "id",
+              "fileReference": "/content/dam/image.jpg",
+              "actions": {
+                "item0": {
+                  "productSku": "MJ01",
+                  "text": "A product"
+                },
+                "item1": {
+                  "categoryId": "equipment",
+                  "categoryIdType": "urlPath",
+                  "text": "A category"
+                },
+                "item2": {
+                  "categoryId": "equipment",
+                  "categoryIdType": "urlPath",
+                  "productSku": "MJ01",
+                  "text": "A category"
+                },
+                "item3": {
+                  "text": "Some text"
+                },
+                "item4": {
+                  "link": "/content/page",
+                  "text": "A page"
+                }
+            }
+          },
             "featuredcategorylist": {
                 "sling:resourceType": "venia/components/commerce/featuredcategorylist",
                 "titleType": "h2",
