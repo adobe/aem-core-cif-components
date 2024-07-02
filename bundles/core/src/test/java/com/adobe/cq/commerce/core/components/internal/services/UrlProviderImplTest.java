@@ -795,23 +795,6 @@ public class UrlProviderImplTest {
     }
 
     @Test
-    public void testCAConfigWithDefaultCategoryUrlPathFormatWithSelectionIdAsUrlPath() {
-        Page page = setCurrentPage("/content/category-page");
-        MockOsgi.deactivate(urlProvider, context.bundleContext());
-        MockOsgi.activate(urlProvider, context.bundleContext(),
-            UrlFormat.CATEGORY_PAGE_URL_FORMAT,
-            CategoryPageWithUrlPath.PATTERN);
-
-        caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CategoryPageWithUrlPath.PATTERN);
-
-        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
-        params.setUrlPath("tops/men");
-
-        String url = urlProvider.toCategoryUrl(request, page, params);
-        assertEquals("/content/category-page.html/tops/men.html", url);
-    }
-
-    @Test
     public void testCAConfigWithLegacyCustomProductUrlFormat() {
         // register multiple formats
         context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.PRODUCT_PAGE_URL_FORMAT);
@@ -895,6 +878,24 @@ public class UrlProviderImplTest {
         assertEquals("/content/category-page.html/bar.html", url);
     }
 
+    @Test
+    public void testCAConfigWithCustomCategoryUrlFormatWithUrlPathAndUid() {
+        // register formats
+        context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.CATEGORY_PAGE_URL_FORMAT);
+        context.registerService(CategoryUrlFormat.class, new ThirdCustomCategoryPageUrlFormat());
+        // registering the custom format causes a new service to be created
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUrlPath("men/tops-men/jackets-men");
+
+        // configure another new custom category url format
+        request = newRequest();
+        Page page = setCurrentPage("/content/category-page");
+        caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, ThirdCustomCategoryPageUrlFormat.class.getName());
+        String url = urlProvider.toCategoryUrl(request, page, params);
+        assertEquals("/content/category-page.html/MTI==/men/tops-men/jackets-men.html", url);
+    }
+
     private static class CustomLegacyUrlFormat implements UrlFormat {
 
         String anchor = null;
@@ -935,6 +936,28 @@ public class UrlProviderImplTest {
         AnotherCustomCategoryPageUrlFormat() {
             anchor = "B";
         }
+    }
+
+    private static class ThirdCustomCategoryPageUrlFormat extends CustomCategoryPageUrlFormat {
+        ThirdCustomCategoryPageUrlFormat() {
+            anchor = "c";
+        }
+
+        @Override
+        public boolean validateRequiredParams(Params parameters) {
+            return StringUtils.isNotEmpty(parameters.getUid()) && StringUtils.isNotEmpty(parameters.getUid());
+        }
+
+        @Override
+        public String format(Params parameters) {
+            String urlKey = StringUtils.defaultIfEmpty(parameters.getUrlKey(), "{{url_path}}");
+            return parameters.getPage()
+                + ".html/"
+                + parameters.getUid() + "/"
+                + StringUtils.defaultIfEmpty(parameters.getUrlPath(), urlKey)
+                + ".html";
+        }
+
     }
 
     private static class CustomCategoryPageUrlFormat implements CategoryUrlFormat {
