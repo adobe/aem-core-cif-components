@@ -20,7 +20,6 @@ import java.lang.annotation.Annotation;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -155,9 +154,8 @@ public class CommerceLinksTransformerTest {
         // verify transformed HTML
         String transformedHtml = writer.toString();
 
-        Path filePath = Paths.get(classLoader.getResource(TEST_HTML).getPath());
-        String originalHtml = Files.lines(filePath).collect(Collectors.joining(System.lineSeparator()));
-
+        Path filePath = Paths.get(classLoader.getResource(TEST_HTML).toURI());
+        String originalHtml = new String(Files.readAllBytes(filePath));
         assertTrue(transformedHtml.endsWith(originalHtml));
     }
 
