@@ -138,7 +138,8 @@ public class ButtonImpl implements Button {
                             params = new CategoryUrlFormat.Params(category);
                         }
                     }
-                    url = urlProvider.toCategoryUrl(request, currentPage, params != null ? params : new CategoryUrlFormat.Params());
+                    url = urlProvider.toCategoryUrlWithParams(request, currentPage, params != null ? params
+                        : new CategoryUrlFormat.Params());
                 } else {
                     LOGGER.debug("Can not get Category identifier!");
                 }

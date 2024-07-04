@@ -33,7 +33,7 @@ import org.apache.sling.models.annotations.injectorspecific.*;
 import org.apache.sling.models.factory.ModelFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.wcm.core.components.commons.link.Link;
@@ -101,12 +101,12 @@ public class ButtonImpl implements Button {
             link = urlProvider.toProductUrl(request, currentPage, productIdentifier);
         } else if (CATEGORY.equals(linkType) && categoryIdentifier != null) {
             CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
-            if (AbstractRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryIdType)) {
+            if (AbstractCategoryRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryIdType)) {
                 params.setUrlPath(categoryIdentifier);
             } else {
                 params.setUid(categoryIdentifier);
             }
-            link = urlProvider.toCategoryUrl(request, currentPage, params);
+            link = urlProvider.toCategoryUrlWithParams(request, currentPage, params);
         } else if (StringUtils.isNotEmpty(linkTo)) {
             link = linkTo + ".html";
         }

@@ -47,6 +47,7 @@ import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategor
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryListItem;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -121,7 +122,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
 
                 String categoryIdentifier = props.get(CATEGORY_IDENTIFIER, String.class);
                 categoryFilterType = props.get(CATEGORY_IDENTIFIER_TYPE, String.class);
-                if (AbstractCategoriesRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryFilterType)) {
+                if (AbstractCategoryRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryFilterType)) {
                     categoryIdType = categoryFilterType;
                 }
                 if (StringUtils.isEmpty(categoryIdentifier)) {

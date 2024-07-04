@@ -181,7 +181,7 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
         FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setIn(identifiers);
 
         // Set the filter type
-        if (CATEGORY_IDENTIFIER_URL_PATH.equals(this.filterType)) {
+        if (AbstractCategoryRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(this.filterType)) {
             filter.setUrlPath(identifiersFilter);
         } else {
             filter.setCategoryUid(identifiersFilter);

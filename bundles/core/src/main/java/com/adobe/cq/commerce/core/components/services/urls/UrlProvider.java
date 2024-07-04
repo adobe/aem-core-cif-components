@@ -190,6 +190,27 @@ public interface UrlProvider {
     String toCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, CategoryUrlFormat.Params params);
 
     /**
+     * Returns the category page URL. If the required attributes are not available
+     * then need to provide necessary attribute to call commerce service
+     * in order to create category url
+     * {@code params} parameter.
+     * <p>
+     * This method should be used if the component already loaded the URL
+     * attributes.
+     * <p>
+     * Either {@code request} or {@code page} parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
+     *
+     * @param request The current Sling HTTP request.
+     * @param page This parameter can be null if the URL template does set a
+     *            {{page}} parameter and a request is given.
+     * @param params The parameters used in the URL template.
+     * @return The category URL.
+     */
+    String toCategoryUrlWithParams(@Nullable SlingHttpServletRequest request, @Nullable Page page, CategoryUrlFormat.Params params);
+
+    /**
      * Returns the category page URL. Only the category identifier must be provided,
      * the implementation will query the needed URL
      * attributes to generate a complete URL based on the configuration.
@@ -208,7 +229,6 @@ public interface UrlProvider {
      * @param categoryIdentifier The category identifier.
      * @return The category URL.
      */
-    @Deprecated
     String toCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, String categoryIdentifier);
 
     /**

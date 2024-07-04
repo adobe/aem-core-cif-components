@@ -39,6 +39,11 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 public abstract class AbstractCategoryRetriever extends AbstractRetriever {
 
     /**
+     * Category Identifier url path
+     */
+    public static final String CATEGORY_IDENTIFIER_URL_PATH = "urlPath";
+
+    /**
      * Lambda that extends the category query.
      */
     protected Consumer<CategoryTreeQuery> categoryQueryHook;

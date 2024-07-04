@@ -55,7 +55,7 @@ import com.adobe.cq.commerce.core.components.internal.services.urlformats.Produc
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.GenericUrlFormat;
@@ -361,6 +361,19 @@ public class UrlProviderImpl implements UrlProvider {
         return toCategoryUrl(request, page, new CategoryUrlFormat.Params(params));
     }
 
+    @Override
+    public String toCategoryUrl(SlingHttpServletRequest request, Page page, String categoryIdentifier) {
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUid(categoryIdentifier);
+
+        CategoryInterface category = callCategoryApi(request, categoryIdentifier, null);
+        if (category != null) {
+            params.setUrlKey(category.getUrlKey());
+            params.setUrlPath(category.getUrlPath());
+        }
+        return toCategoryUrl(request, page, params);
+    }
+
     /**
      * Call the category Api whenever required
      *
@@ -378,8 +391,8 @@ public class UrlProviderImpl implements UrlProvider {
         if (magentoGraphqlClient != null && StringUtils.isNotBlank(categoryIdentifier)) {
             CategoryUrlParameterRetriever retriever = new CategoryUrlParameterRetriever(magentoGraphqlClient);
             retriever.setIdentifier(categoryIdentifier);
-            if (AbstractRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryIdType)) {
-                retriever.setCategoryIdType(AbstractRetriever.CATEGORY_IDENTIFIER_URL_PATH);
+            if (AbstractCategoryRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryIdType)) {
+                retriever.setCategoryIdType(AbstractCategoryRetriever.CATEGORY_IDENTIFIER_URL_PATH);
             }
 
             category = retriever.fetchCategory();
@@ -390,21 +403,50 @@ public class UrlProviderImpl implements UrlProvider {
         return category;
     }
 
-    @Override
-    public String toCategoryUrl(SlingHttpServletRequest request, Page page, String categoryIdentifier) {
-        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
-        params.setUid(categoryIdentifier);
+    /**
+     * Set the page parameter for the category URL format
+     *
+     * @param request The current Sling HTTP request
+     * @param categoryUrlFormat The current category URL format
+     * @param givenPage This parameter can be null if the URL template does set a
+     *            {{page}} parameter and a request is given.
+     * @param params The parameters used in the URL template.
+     * @return CategoryInterface
+     */
+    protected Pair<CategoryUrlFormat, CategoryUrlFormat.Params> getSpecificPageFormatAndParams(SlingHttpServletRequest request,
+        CategoryUrlFormat categoryUrlFormat, @Nullable Page givenPage, CategoryUrlFormat.Params params) {
+        SiteStructure siteStructure = siteStructureFactory.getSiteStructure(request, givenPage);
+        Pair<Page, CategoryUrlFormat> pair = getSpecificPageAndFormat(siteStructure, params,
+            this::getCategoryUrlFormatFromContext, specificPageStrategy::getGenericPage, specificPageStrategy::getSpecificPage);
 
-        CategoryInterface category = callCategoryApi(request, categoryIdentifier, null);
-        if (category != null) {
-            params.setUrlKey(category.getUrlKey());
-            params.setUrlPath(category.getUrlPath());
+        if (pair != null) {
+            Page specificPage = pair.getLeft();
+            categoryUrlFormat = pair.getRight();
+
+            if (!specificPage.getPath().equals(params.getPage())) {
+                params = new CategoryUrlFormat.Params(params);
+                params.setPage(specificPage.getPath());
+            }
         }
-        return toCategoryUrl(request, page, params);
+        return Pair.of(categoryUrlFormat, params);
     }
 
     @Override
     public String toCategoryUrl(SlingHttpServletRequest request, @Nullable Page givenPage, CategoryUrlFormat.Params params) {
+        CategoryUrlFormat categoryUrlFormat = getCategoryUrlFormatFromContext(request, givenPage);
+
+        if (givenPage != null) {
+            Pair<CategoryUrlFormat, CategoryUrlFormat.Params> pair = getSpecificPageFormatAndParams(request, categoryUrlFormat, givenPage,
+                params);
+            categoryUrlFormat = pair.getLeft();
+            params = pair.getRight();
+        }
+
+        return categoryUrlFormat.format(params);
+    }
+
+    @Override
+    public String toCategoryUrlWithParams(SlingHttpServletRequest request, @Nullable Page givenPage, CategoryUrlFormat.Params params) {
         CategoryUrlFormat categoryUrlFormat = getCategoryUrlFormatFromContext(request, givenPage);
         String categoryIdentifier = StringUtils.isNotEmpty(params.getUid()) ? params.getUid() : params.getUrlKey();
         boolean urlPathFlag = false;
@@ -421,7 +463,7 @@ public class UrlProviderImpl implements UrlProvider {
             CategoryInterface category = callCategoryApi(
                 request,
                 categoryIdentifier,
-                urlPathFlag ? AbstractRetriever.CATEGORY_IDENTIFIER_URL_PATH : null);
+                urlPathFlag ? AbstractCategoryRetriever.CATEGORY_IDENTIFIER_URL_PATH : null);
             if (category != null) {
                 // Set the required parameters for the category URL format on the basis of the category details
                 if (urlPathFlag) {
@@ -433,19 +475,10 @@ public class UrlProviderImpl implements UrlProvider {
             }
         }
         if (givenPage != null) {
-            SiteStructure siteStructure = siteStructureFactory.getSiteStructure(request, givenPage);
-            Pair<Page, CategoryUrlFormat> pair = getSpecificPageAndFormat(siteStructure, params,
-                this::getCategoryUrlFormatFromContext, specificPageStrategy::getGenericPage, specificPageStrategy::getSpecificPage);
-
-            if (pair != null) {
-                Page specificPage = pair.getLeft();
-                categoryUrlFormat = pair.getRight();
-
-                if (!specificPage.getPath().equals(params.getPage())) {
-                    params = new CategoryUrlFormat.Params(params);
-                    params.setPage(specificPage.getPath());
-                }
-            }
+            Pair<CategoryUrlFormat, CategoryUrlFormat.Params> pair = getSpecificPageFormatAndParams(request, categoryUrlFormat, givenPage,
+                params);
+            categoryUrlFormat = pair.getLeft();
+            params = pair.getRight();
         }
 
         return categoryUrlFormat.format(params);

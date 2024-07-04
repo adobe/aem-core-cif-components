@@ -34,7 +34,7 @@ import org.apache.sling.models.annotations.via.ResourceSuperType;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
-import com.adobe.cq.commerce.core.components.models.retriever.AbstractRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
@@ -102,12 +102,12 @@ public class CommerceTeaserImpl implements CommerceTeaser {
 
                 if (StringUtils.isNotBlank(categoryUid)) {
                     CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
-                    if (AbstractRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryIdType)) {
+                    if (AbstractCategoryRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryIdType)) {
                         params.setUrlPath(categoryUid);
                     } else {
                         params.setUid(categoryUid);
                     }
-                    actionUrl = urlProvider.toCategoryUrl(request, currentPage, params);
+                    actionUrl = urlProvider.toCategoryUrlWithParams(request, currentPage, params);
                     identifier = new CommerceIdentifierImpl(categoryUid, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY);
                 } else if (StringUtils.isNotBlank(productSku)) {

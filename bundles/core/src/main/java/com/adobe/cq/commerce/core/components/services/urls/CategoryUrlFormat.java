@@ -40,7 +40,7 @@ public interface CategoryUrlFormat extends GenericUrlFormat<CategoryUrlFormat.Pa
      * @return boolean
      */
     default boolean validateRequiredParams(CategoryUrlFormat.Params params) {
-        return true;
+        return false;
     }
 
     /**
