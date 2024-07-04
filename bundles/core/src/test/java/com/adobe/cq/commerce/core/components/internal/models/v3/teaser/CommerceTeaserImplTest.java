@@ -167,12 +167,16 @@ public class CommerceTeaserImplTest {
         Assert.assertEquals("A category", actionItems.get(1).getTitle());
         Assert.assertEquals("uid-5",
             ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getValue());
+        Assert.assertEquals("UID",
+            ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getType().toString());
 
         // Both are configured, category links "wins"
         Assert.assertEquals(CATEGORY_PAGE + ".html/equipment.html", actionItems.get(2).getLink().getURL());
         Assert.assertEquals("A category", actionItems.get(2).getTitle());
         Assert.assertEquals("uid-5", ((CommerceTeaserActionItem) actionItems.get(2))
             .getEntityIdentifier().getValue());
+        Assert.assertEquals("UID",
+            ((CommerceTeaserActionItem) actionItems.get(2)).getEntityIdentifier().getType().toString());
 
         // Some text is entered, current page is used
         Assert.assertEquals(PAGE + ".html", actionItems.get(3).getLink().getURL());
@@ -220,12 +224,16 @@ public class CommerceTeaserImplTest {
         Assert.assertEquals("A category", actionItems.get(1).getTitle());
         Assert.assertEquals("equipment",
             ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getValue());
+        Assert.assertEquals("URL_PATH",
+            ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getType().toString());
 
         // Both are configured, category links "wins"
         Assert.assertEquals(CATEGORY_PAGE + ".html/equipment.html", actionItems.get(2).getURL());
         Assert.assertEquals("A category", actionItems.get(2).getTitle());
         Assert.assertEquals("equipment", ((CommerceTeaserActionItem) actionItems.get(2))
             .getEntityIdentifier().getValue());
+        Assert.assertEquals("URL_PATH",
+            ((CommerceTeaserActionItem) actionItems.get(2)).getEntityIdentifier().getType().toString());
 
         // Some text is entered, current page is used
         Assert.assertEquals(PAGE + ".html", actionItems.get(3).getURL());
