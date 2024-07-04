@@ -77,7 +77,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class UrlProviderImplTest {
 
@@ -87,7 +92,7 @@ public class UrlProviderImplTest {
     private MockSlingHttpServletRequest request;
     private CloseableHttpClient httpClient;
     private GraphqlClient graphqlClient;
-    private final Map<String, Object> caConfig = new HashMap<>();
+    private Map<String, Object> caConfig = new HashMap<>();
 
     private Function<Resource, ComponentsConfiguration> caConfigSupplier = r -> new ComponentsConfiguration(
         new ValueMapDecorator(caConfig));
