@@ -130,10 +130,10 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     }
 
     /**
-     * Set the Category filter type which will using during fetch. Categories are retrieved using
+     * Set the type category identifier which will using during fetch. Categories are retrieved using
      * this categoryIdType if not set then it will use UID.
      *
-     * @param categoryIdType Category filter type
+     * @param categoryIdType Type category identifier
      */
     public void setCategoryIdType(String categoryIdType) {
         this.categoryIdType = categoryIdType;
