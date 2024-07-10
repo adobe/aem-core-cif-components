@@ -67,10 +67,10 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     protected List<String> identifiers;
 
     /**
-     * Filter type that should be used when fetched. usually uid but we can define it explicitly in the implementation
+     * CategoryIdType that should be used when fetched. Usually uid but we can define it explicitly in the implementation
      * specific and should be checked in subclass implementations.
      */
-    protected String filterType;
+    protected String categoryIdType;
 
     public AbstractCategoriesRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -103,10 +103,10 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
      * Set the Category filter type which will using during fetch. Categories are retrieved using
      * this filter type if not set then it will use UID.
      *
-     * @param filterType Filter Type
+     * @param categoryIdType Category filter type
      */
-    public void setCategoryIdType(String filterType) {
-        this.filterType = filterType;
+    public void setCategoryIdType(String categoryIdType) {
+        this.categoryIdType = categoryIdType;
     }
 
     /**
@@ -181,7 +181,7 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
         FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setIn(identifiers);
 
         // Set the filter type
-        if (AbstractCategoryRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(this.filterType)) {
+        if (AbstractCategoryRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(this.categoryIdType)) {
             filter.setUrlPath(identifiersFilter);
         } else {
             filter.setCategoryUid(identifiersFilter);
