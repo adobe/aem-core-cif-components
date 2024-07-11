@@ -188,6 +188,11 @@ public abstract class AbstractProductsRetriever extends AbstractRetriever {
             .products(searchArgs, queryArgs)).toString();
     }
 
+    @Override
+    public String generateQuery() {
+        return generateQuery(identifiers);
+    }
+
     /**
      * Execute the GraphQL query with the GraphQL client.
      *

@@ -89,7 +89,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
 
-    @ScriptVariable
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     protected Style currentStyle;
 
     @ValueMapValue(

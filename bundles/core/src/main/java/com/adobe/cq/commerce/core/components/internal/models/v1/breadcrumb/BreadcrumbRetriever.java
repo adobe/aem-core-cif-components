@@ -144,6 +144,11 @@ class BreadcrumbRetriever extends AbstractRetriever {
         return client.execute(query);
     }
 
+    @Override
+    public String generateQuery() {
+        return generateProductQuery();
+    }
+
     /**
      * Generate a complete breadcrumbs GraphQL query with a filter for the product identifier.
      *

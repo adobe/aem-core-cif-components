@@ -1,0 +1,9 @@
+{
+  "modelConfiguration": [
+    "core/cif/components/commerce/product/v1/product=com.adobe.cq.commerce.core.components.models.product.Product",
+    "core/cif/components/commerce/productlist/v2/productlist=com.adobe.cq.commerce.core.components.models.productlist.ProductList",
+    "core/cif/components/commerce/productcarousel/v1/productcarousel=com.adobe.cq.commerce.core.components.models.productcarousel.ProductCarousel",
+    "core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist=com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList",
+    "core/cif/components/commerce/categorycarousel/v1/categorycarousel=com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryList"
+  ]
+}

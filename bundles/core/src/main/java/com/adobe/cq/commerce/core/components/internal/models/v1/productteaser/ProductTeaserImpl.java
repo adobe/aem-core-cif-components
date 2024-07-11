@@ -100,7 +100,9 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
         name = Link.PN_LINK_TARGET,
         injectionStrategy = InjectionStrategy.OPTIONAL)
     private String linkTarget;
-    @ScriptVariable(name = WCMBindingsConstants.NAME_CURRENT_STYLE)
+    @ScriptVariable(
+        name = WCMBindingsConstants.NAME_CURRENT_STYLE,
+        injectionStrategy = InjectionStrategy.OPTIONAL)
     private Style currentStyle;
 
     private CombinedSku combinedSku;
@@ -133,7 +135,7 @@ public class ProductTeaserImpl extends DataLayerComponent implements ProductTeas
         }
 
         enableAddToWishList = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS, Boolean.TRUE) : Boolean.TRUE)
-            && currentStyle.get(PN_STYLE_ADD_TO_WISHLIST_ENABLED, ProductTeaser.super.getAddToWishListEnabled());
+            && (currentStyle != null && currentStyle.get(PN_STYLE_ADD_TO_WISHLIST_ENABLED, ProductTeaser.super.getAddToWishListEnabled()));
     }
 
     @JsonIgnore

@@ -192,6 +192,11 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     }
 
     @Override
+    public String generateQuery() {
+        return generateQuery(identifiers);
+    }
+
+    @Override
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
         errors = response.getErrors();

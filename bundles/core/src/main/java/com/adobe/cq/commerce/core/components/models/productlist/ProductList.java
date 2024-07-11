@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
+import com.adobe.cq.commerce.core.components.models.RetrievingModel;
 import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragmentContainer;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
@@ -29,7 +30,7 @@ import com.adobe.cq.commerce.core.components.storefrontcontext.CategoryStorefron
 import com.adobe.cq.wcm.core.components.models.Component;
 
 @ConsumerType
-public interface ProductList extends Component, ProductCollection, PageMetadata {
+public interface ProductList extends Component, ProductCollection, PageMetadata, RetrievingModel {
 
     /**
      * Name of the boolean resource property indicating if the product list should render the category title.
@@ -98,5 +99,16 @@ public interface ProductList extends Component, ProductCollection, PageMetadata 
      */
     default List<CommerceExperienceFragmentContainer> getExperienceFragments() {
         return Collections.emptyList();
+    }
+
+    @Override
+    default CategoryRetriever getRetriever() {
+        return getCategoryRetriever();
+    }
+
+    @Override
+    default void doRetrieve() {
+        getTitle();
+        getProducts();
     }
 }

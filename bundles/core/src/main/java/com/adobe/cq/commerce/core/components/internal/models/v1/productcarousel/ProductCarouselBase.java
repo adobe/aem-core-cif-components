@@ -52,7 +52,7 @@ public abstract class ProductCarouselBase extends DataLayerComponent implements 
     protected SlingHttpServletRequest request;
     @ScriptVariable
     protected Page currentPage;
-    @ScriptVariable
+    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     protected Style currentStyle;
     protected boolean addToCartEnabled;
     protected boolean addToWishListEnabled;
@@ -66,10 +66,12 @@ public abstract class ProductCarouselBase extends DataLayerComponent implements 
     private void initModel0() {
         ValueMap properties = resource.getValueMap();
         ComponentsConfiguration configProperties = currentPage.adaptTo(Resource.class).adaptTo(ComponentsConfiguration.class);
-        addToCartEnabled = properties.get(PN_ENABLE_ADD_TO_CART, currentStyle.get(PN_ENABLE_ADD_TO_CART, ENABLE_ADD_TO_CART_DEFAULT));
+        addToCartEnabled = properties.get(PN_ENABLE_ADD_TO_CART,
+            currentStyle != null ? currentStyle.get(PN_ENABLE_ADD_TO_CART, ENABLE_ADD_TO_CART_DEFAULT) : ENABLE_ADD_TO_CART_DEFAULT);
         addToWishListEnabled = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS, Boolean.TRUE) : Boolean.TRUE);
-        addToWishListEnabled = addToWishListEnabled && properties.get(PN_ENABLE_ADD_TO_WISH_LIST, currentStyle.get(
-            PN_ENABLE_ADD_TO_WISH_LIST, ENABLE_ADD_TO_WISH_LIST_DEFAULT));
+        addToWishListEnabled = addToWishListEnabled && properties.get(PN_ENABLE_ADD_TO_WISH_LIST,
+            currentStyle != null ? currentStyle.get(PN_ENABLE_ADD_TO_WISH_LIST, ENABLE_ADD_TO_WISH_LIST_DEFAULT)
+                : ENABLE_ADD_TO_WISH_LIST_DEFAULT);
     }
 
     @Override

@@ -109,7 +109,8 @@ public class ProductCarouselImpl extends ProductCarouselBase {
             selectionType = PRODUCT_SELECTION;
         }
 
-        productCount = resource.getValueMap().get(PRODUCT_COUNT_PROPERTY, currentStyle.get(PRODUCT_COUNT_PROPERTY, DEFAULT_PRODUCT_COUNT));
+        productCount = resource.getValueMap().get(PRODUCT_COUNT_PROPERTY,
+            currentStyle != null ? currentStyle.get(PRODUCT_COUNT_PROPERTY, DEFAULT_PRODUCT_COUNT) : DEFAULT_PRODUCT_COUNT);
         productCount = Math.max(MIN_PRODUCT_COUNT, productCount);
 
         if (magentoGraphqlClient == null) {

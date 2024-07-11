@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
+import com.adobe.cq.commerce.core.components.models.RetrievingModel;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.wcm.core.components.models.Component;
@@ -27,7 +28,7 @@ import com.adobe.cq.wcm.core.components.models.Component;
  * Provides the list of categories to CategoryList Componenet.
  */
 @ConsumerType
-public interface FeaturedCategoryList extends Component {
+public interface FeaturedCategoryList extends Component, RetrievingModel {
 
     /**
      * Returns the categories data in a list from Magento depending on configurations.
@@ -72,4 +73,13 @@ public interface FeaturedCategoryList extends Component {
     default String getLinkTarget() {
         return null;
     };
+
+    default AbstractCategoriesRetriever getRetriever() {
+        return getCategoriesRetriever();
+    }
+
+    @Override
+    default void doRetrieve() {
+        getCategories();
+    }
 }

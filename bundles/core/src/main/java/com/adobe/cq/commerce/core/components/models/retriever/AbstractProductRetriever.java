@@ -216,6 +216,11 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
         return client.execute(query);
     }
 
+    @Override
+    public String generateQuery() {
+        return generateQuery(identifier);
+    }
+
     protected ProductPriceQueryDefinition generatePriceQuery() {
         return q -> q
             .regularPrice(r -> r

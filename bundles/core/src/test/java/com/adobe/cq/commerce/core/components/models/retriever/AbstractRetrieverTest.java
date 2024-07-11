@@ -109,5 +109,10 @@ public class AbstractRetrieverTest {
         public String getQuery() {
             return query;
         }
+
+        @Override
+        public String generateQuery() {
+            return "";
+        }
     }
 }

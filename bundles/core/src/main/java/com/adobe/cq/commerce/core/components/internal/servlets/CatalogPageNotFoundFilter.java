@@ -16,6 +16,8 @@
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.*;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -25,6 +27,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.Resource;
@@ -39,12 +42,15 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
+import com.adobe.cq.commerce.core.components.models.RetrievingModel;
 import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractRetriever;
 import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
@@ -109,6 +115,45 @@ public class CatalogPageNotFoundFilter implements Filter {
         if (currentPage != null) {
             SiteStructure siteStructure = siteStructureFactory.getSiteStructure(slingRequest, currentPage);
             boolean removeSlingScriptHelperFromBindings = false;
+
+            removeSlingScriptHelperFromBindings = addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
+            // iterate over collection of models to find them in the current page
+            List<String> queries = new ArrayList<>();
+            Collection<RetrievingModel> models = commerceModelFinder.findModels(slingRequest, currentPage.getContentResource());
+            for (RetrievingModel model : models) {
+                AbstractRetriever retriever = model.getRetriever();
+                if (retriever != null) {
+                    String query = retriever.generateQuery();
+                    if (StringUtils.isNotBlank(query)) {
+                        queries.add(query);
+                    }
+                }
+            }
+
+            if (!queries.isEmpty()) {
+                AbstractRetriever retriever = models.iterator().next().getRetriever();
+                if (retriever != null) {
+                    try {
+                        Field field = AbstractRetriever.class.getDeclaredField("client");
+                        field.setAccessible(true);
+                        MagentoGraphqlClient graphqlClient = (MagentoGraphqlClient) field.get(retriever);
+                        if (graphqlClient != null) {
+                            graphqlClient.executeAllAsync(queries);
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            // for (RetrievingModel model : models) {
+            // model.doRetrieve();
+            // AbstractRetriever retriever = model.getRetriever();
+            // if (retriever != null && retriever.hasErrors()) {
+            // slingResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "GraphQL error");
+            // return;
+            // }
+            // }
 
             if (siteStructure.isProductPage(currentPage)) {
                 removeSlingScriptHelperFromBindings = addSlingScriptHelperIfNeeded(slingRequest, slingResponse);

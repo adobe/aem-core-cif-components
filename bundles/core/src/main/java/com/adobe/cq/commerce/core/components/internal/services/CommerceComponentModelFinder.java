@@ -15,22 +15,21 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.factory.ModelFactory;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v2.productlist.ProductListImpl;
+import com.adobe.cq.commerce.core.components.models.RetrievingModel;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
+import com.adobe.cq.commerce.core.components.services.ModelMappingProvider;
 import com.drew.lang.annotations.Nullable;
 
 /**
@@ -38,8 +37,7 @@ import com.drew.lang.annotations.Nullable;
  * found adapting them to given adapter type. This helps for example finding the product component on the page and return the Product model
  * from it.
  */
-@Component(
-    service = CommerceComponentModelFinder.class)
+@Component(service = CommerceComponentModelFinder.class)
 public class CommerceComponentModelFinder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CommerceComponentModelFinder.class);
@@ -50,6 +48,36 @@ public class CommerceComponentModelFinder {
 
     @Reference
     private ModelFactory modelFactory;
+
+    @Reference
+    private final List<ModelMappingProvider> modelProviders = Collections.synchronizedList(new ArrayList<>());
+    private final Map<String, Class<?>> modelMap = Collections.synchronizedMap(new HashMap<>());
+
+    @Reference(
+        service = ModelMappingProvider.class,
+        cardinality = ReferenceCardinality.MULTIPLE,
+        policy = ReferencePolicy.DYNAMIC,
+        unbind = "removeModelProvider")
+    protected void addModelProvider(ModelMappingProvider provider) {
+        if (provider instanceof DefaultModelMappingProvider) {
+            modelProviders.add(0, provider);
+        } else {
+            modelProviders.add(provider);
+        }
+        updateModelMap();
+    }
+
+    protected void removeModelProvider(ModelMappingProvider provider) {
+        modelProviders.remove(provider);
+        updateModelMap();
+    }
+
+    private void updateModelMap() {
+        modelMap.clear();
+        for (ModelMappingProvider provider : modelProviders) {
+            modelMap.putAll(provider.getModels());
+        }
+    }
 
     @Nullable
     public Product findProductComponentModel(SlingHttpServletRequest request) {
@@ -119,5 +147,37 @@ public class CommerceComponentModelFinder {
         }
 
         return null;
+    }
+
+    public Collection<RetrievingModel> findModels(SlingHttpServletRequest request, Resource resource) {
+        if (resource == null || modelMap.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        LOGGER.trace("Looking for model of type '{}' at {}", modelMap, resource.getPath());
+        Class<?> type = modelMap.get(resource.getResourceType());
+        if (type == null) {
+            for (Map.Entry<String, Class<?>> typeInfo : modelMap.entrySet()) {
+                if (resource.isResourceType(typeInfo.getKey())) {
+                    LOGGER.debug("Found model of type '{}' at {}", typeInfo, resource.getPath());
+                    type = typeInfo.getValue();
+                }
+            }
+        }
+
+        ArrayList<RetrievingModel> models = new ArrayList<>();
+        if (type != null) {
+            Object model = modelFactory.getModelFromWrappedRequest(request, resource, type);
+            if (model instanceof RetrievingModel) {
+                LOGGER.debug("Created model of type '{}' at {}", type, resource.getPath());
+                models.add((RetrievingModel) model);
+            }
+        }
+
+        for (Resource child : resource.getChildren()) {
+            models.addAll(findModels(request, child));
+        }
+
+        return models;
     }
 }

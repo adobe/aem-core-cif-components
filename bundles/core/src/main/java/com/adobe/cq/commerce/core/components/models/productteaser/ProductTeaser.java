@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.models.productteaser;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
+import com.adobe.cq.commerce.core.components.models.RetrievingModel;
 import com.adobe.cq.commerce.core.components.models.common.CombinedSku;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.common.Price;
@@ -27,7 +28,7 @@ import com.adobe.cq.wcm.core.components.models.Component;
  * Product Teaser is the sling model interface for the CIF Teaser component.
  */
 @ConsumerType
-public interface ProductTeaser extends Component {
+public interface ProductTeaser extends Component, RetrievingModel {
 
     /**
      * Returns the identifier of this product.
@@ -137,4 +138,13 @@ public interface ProductTeaser extends Component {
         return false;
     }
 
+    @Override
+    default AbstractProductRetriever getRetriever() {
+        return getProductRetriever();
+    }
+
+    @Override
+    default void doRetrieve() {
+        getName();
+    }
 }

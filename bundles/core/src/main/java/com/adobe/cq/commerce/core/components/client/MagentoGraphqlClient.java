@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.client;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -59,6 +60,10 @@ public interface MagentoGraphqlClient {
      * @return The GraphQL response.
      */
     GraphqlResponse<Query, Error> execute(String query);
+
+    List<GraphqlResponse<Query, Error>> executeAll(List<String> queries);
+
+    List<GraphqlResponse<Query, Error>> executeAllAsync(List<String> queries);
 
     /**
      * Executes the given Magento query and returns the response. This method

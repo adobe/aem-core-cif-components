@@ -90,6 +90,8 @@ public abstract class AbstractRetriever {
      */
     abstract protected void populate();
 
+    public abstract String generateQuery();
+
     /**
      * Execute the GraphQL query with the GraphQL client.
      *

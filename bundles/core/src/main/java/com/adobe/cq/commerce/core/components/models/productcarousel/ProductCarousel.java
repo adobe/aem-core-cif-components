@@ -19,11 +19,12 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import com.adobe.cq.commerce.core.components.models.RetrievingModel;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
 import com.adobe.cq.wcm.core.components.models.Component;
 
-public interface ProductCarousel extends Component {
+public interface ProductCarousel extends Component, RetrievingModel {
 
     /**
      * Returns the list of products to be displayed in the carousel.
@@ -83,5 +84,15 @@ public interface ProductCarousel extends Component {
      */
     default String getLinkTarget() {
         return null;
+    }
+
+    @Override
+    default AbstractProductsRetriever getRetriever() {
+        return getProductsRetriever();
+    }
+
+    @Override
+    default void doRetrieve() {
+        getProducts();
     }
 }

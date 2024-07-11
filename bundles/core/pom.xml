@@ -438,7 +438,7 @@
         <dependency>
             <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.models.impl</artifactId>
-            <version>1.4.16</version>
+            <version>1.6.4</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>

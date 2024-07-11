@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.osgi.annotation.versioning.ConsumerType;
 
+import com.adobe.cq.commerce.core.components.models.RetrievingModel;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
@@ -31,7 +32,7 @@ import com.adobe.cq.wcm.core.components.models.Component;
  * Product is the sling model interface for the CIF core product component.
  */
 @ConsumerType
-public interface Product extends Component, PageMetadata {
+public interface Product extends Component, PageMetadata, RetrievingModel {
 
     String TITLE_SECTION = "TITLE";
     String PRICE_SECTION = "PRICE";
@@ -139,5 +140,15 @@ public interface Product extends Component, PageMetadata {
         defaultSections.add(DESCRIPTION_SECTION);
         defaultSections.add(DETAILS_SECTION);
         return defaultSections;
+    }
+
+    @Override
+    default AbstractProductRetriever getRetriever() {
+        return getProductRetriever();
+    }
+
+    @Override
+    default void doRetrieve() {
+        getName();
     }
 }

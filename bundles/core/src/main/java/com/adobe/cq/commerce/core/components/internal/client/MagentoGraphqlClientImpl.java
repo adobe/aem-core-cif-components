@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -225,6 +227,16 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     }
 
     @Override
+    public List<GraphqlResponse<Query, Error>> executeAll(List<String> queries) {
+        return executeCached(queries, requestOptions);
+    }
+
+    @Override
+    public List<GraphqlResponse<Query, Error>> executeAllAsync(List<String> queries) {
+        return executeCachedAsync(queries, requestOptions);
+    }
+
+    @Override
     public GraphqlResponse<Query, Error> execute(String query, HttpMethod httpMethod) {
         // We do not set the HTTP method in 'this.requestOptions' to avoid setting it as the new default
         RequestOptions options = new RequestOptions().withGson(requestOptions.getGson())
@@ -249,7 +261,11 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             if (localResponseCache != null) {
                 if (localResponseCache.containsKey(query)) {
                     LOGGER.debug("Cache hit for query '{}'", query);
-                    return localResponseCache.get(query);
+                    GraphqlResponse<Query, Error> response = localResponseCache.get(query);
+                    if (response instanceof FutureResponse) {
+                        ((FutureResponse) response).complete();
+                    }
+                    return response;
                 }
 
                 // fuzzy matching (a very simplified version of caching resolved graphql response objects)
@@ -281,6 +297,108 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             LOGGER.error("Failed to execute query: {}", query, ex);
             return newErrorResponse(ex);
         }
+    }
+
+    private List<GraphqlResponse<Query, Error>> executeCached(List<String> queries, RequestOptions requestOptions) {
+        if (queries == null || queries.isEmpty()) {
+            return Collections.emptyList();
+        } else if (queries.size() == 1) {
+            return Collections.singletonList(executeCached(queries.get(0), requestOptions));
+        }
+
+        List<GraphqlResponse<Query, Error>> responses = new ArrayList<>();
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append('{');
+        List<String> labels = new ArrayList<>();
+        for (int i = 0; i < queries.size(); i++) {
+            String query = queries.get(i);
+            query = query.trim();
+            // remove surrounding curly brackets
+            query = query.substring(1, query.length() - 1);
+            String type = query.substring(0, query.indexOf('('));
+            int len = queryBuilder.length();
+            queryBuilder.append(type).append("__").append(i + 1);
+            labels.add(queryBuilder.substring(len));
+            queryBuilder.append(':');
+            queryBuilder.append(query).append('\n');
+        }
+        queryBuilder.append('}');
+        String combinedQuery = queryBuilder.toString();
+
+        try {
+            GraphqlRequest request = new GraphqlRequest(combinedQuery);
+            GraphqlResponse<Query, Error> response = graphqlClient.execute(request, Query.class, Error.class, requestOptions);
+            if (response.getData() != null) {
+                for (int i = 0; i < labels.size(); i++) {
+                    String label = labels.get(i);
+                    Query responseData = response.getData();
+                    Query subQuery = new Query();
+                    subQuery.responseData.put(label.substring(0, label.indexOf("__")), responseData.responseData.get(label));
+                    GraphqlResponse<Query, Error> subResponse = new GraphqlResponse<>();
+                    subResponse.setData(subQuery);
+                    subResponse.setErrors(response.getErrors());
+                    if (localResponseCache != null) {
+                        localResponseCache.put(queries.get(i), subResponse);
+                    }
+                    responses.add(subResponse);
+                }
+            } else {
+                responses.add(response);
+            }
+        } catch (RuntimeException ex) {
+            LOGGER.error("Failed to execute combined query: {}", combinedQuery, ex);
+            return Collections.singletonList(newErrorResponse(ex));
+        }
+
+        return responses;
+    }
+
+    private List<GraphqlResponse<Query, Error>> executeCachedAsync(List<String> queries, RequestOptions requestOptions) {
+        if (queries == null || queries.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        if (queries.size() == 1) {
+            return Collections.singletonList(executeCached(queries.get(0), requestOptions));
+        }
+
+        List<GraphqlResponse<Query, Error>> responses = new ArrayList<>();
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append('{');
+        List<String> labels = new ArrayList<>();
+        for (int i = 0; i < queries.size(); i++) {
+            String query = queries.get(i);
+            query = query.trim();
+            // remove surrounding curly brackets
+            query = query.substring(1, query.length() - 1);
+            String type = query.substring(0, query.indexOf('('));
+            int len = queryBuilder.length();
+            queryBuilder.append(type).append("__").append(i + 1);
+            labels.add(queryBuilder.substring(len));
+            queryBuilder.append(':');
+            queryBuilder.append(query).append('\n');
+        }
+        queryBuilder.append('}');
+        String combinedQuery = queryBuilder.toString();
+
+        GraphqlRequest request = new GraphqlRequest(combinedQuery);
+        Future<GraphqlResponse<Query, Error>> future = Executors.newSingleThreadExecutor().submit(() -> {
+            try {
+                GraphqlResponse<Query, Error> response = graphqlClient.execute(request, Query.class, Error.class, requestOptions);
+                return response;
+            } catch (Exception x) {
+                return newErrorResponse(x);
+            }
+        });
+
+        for (int i = 0; i < labels.size(); i++) {
+            String label = labels.get(i);
+            if (localResponseCache != null) {
+                localResponseCache.put(queries.get(i), new FutureResponse(queries.get(i), label, future));
+            }
+        }
+
+        return responses;
     }
 
     @Override
@@ -399,5 +517,37 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             }
         }
         return page;
+    }
+
+    private static class FutureResponse extends GraphqlResponse<Query, Error> {
+        private final Future<GraphqlResponse<Query, Error>> future;
+        private final String query;
+        private final String label;
+        private boolean completed;
+
+        public FutureResponse(String query, String label, Future<GraphqlResponse<Query, Error>> future) {
+            this.query = query;
+            this.label = label;
+            this.future = future;
+        }
+
+        public void complete() {
+            if (!completed) {
+                try {
+                    GraphqlResponse<Query, Error> response = future.get();
+                    Query responseData = response.getData();
+                    Query subQuery = new Query();
+                    subQuery.responseData.put(label.substring(0, label.indexOf("__")), responseData.responseData.get(label));
+                    setData(subQuery);
+                    setErrors(response.getErrors());
+                } catch (Exception e) {
+                    LOGGER.error("Failed to resolve future response for query: {}", query, e);
+                    GraphqlResponse<Query, Error> errorResponse = newErrorResponse(e);
+                    setData(errorResponse.getData());
+                    setErrors(errorResponse.getErrors());
+                }
+                completed = true;
+            }
+        }
     }
 }
