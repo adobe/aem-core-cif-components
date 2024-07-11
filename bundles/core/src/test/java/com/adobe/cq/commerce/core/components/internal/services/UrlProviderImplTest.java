@@ -736,7 +736,8 @@ public class UrlProviderImplTest {
         params.setUrlKey("tops");
         params.setUid("category-uid-3");
 
-        assertEquals("/content/category-page/sub-page-with-urlpath-array.html?uid=category-uid-3", urlProvider.toCategoryUrl(request, page,
+        assertEquals("/content/category-page/sub-page-with-urlpath-array.html?uid=category-uid-3", urlProvider.formatCategoryUrl(request,
+            page,
             params));
     }
 
@@ -790,7 +791,7 @@ public class UrlProviderImplTest {
         CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
         params.setUid("uid-5");
 
-        String url = urlProvider.toCategoryUrlWithParams(request, page, params);
+        String url = urlProvider.formatCategoryUrl(request, page, params);
         assertEquals("/content/category-page.html/equipment.html", url);
     }
 
@@ -853,28 +854,28 @@ public class UrlProviderImplTest {
         // no configuration, defaults to highest-ranked/first new custom format
         request = newRequest();
         Page page = setCurrentPage("/content/category-page");
-        String url = urlProvider.toCategoryUrl(request, page, params);
+        String url = urlProvider.formatCategoryUrl(request, page, params);
         assertEquals("/content/category-page.html?uid=uid-1#A", url);
 
         // configure another new custom url format
         request = newRequest();
         page = setCurrentPage("/content/category-page");
         caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, AnotherCustomCategoryPageUrlFormat.class.getName());
-        url = urlProvider.toCategoryUrl(request, page, params);
+        url = urlProvider.formatCategoryUrl(request, page, params);
         assertEquals("/content/category-page.html?uid=uid-1#B", url);
 
         // configure legacy custom url format
         request = newRequest();
         page = setCurrentPage("/content/category-page");
         caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CustomLegacyUrlFormat.class.getName());
-        url = urlProvider.toCategoryUrl(request, page, params);
+        url = urlProvider.formatCategoryUrl(request, page, params);
         assertEquals("/content/category-page.html?uid=uid-1", url);
 
         // use default format
         request = newRequest();
         page = setCurrentPage("/content/category-page");
         caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CategoryPageWithUrlKey.PATTERN);
-        url = urlProvider.toCategoryUrl(request, page, params);
+        url = urlProvider.formatCategoryUrl(request, page, params);
         assertEquals("/content/category-page.html/bar.html", url);
     }
 
@@ -892,7 +893,7 @@ public class UrlProviderImplTest {
         CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
         params.setUrlPath("men/tops-men/jackets-men");
         params.setUrlKey("jackets-men");
-        String url = urlProvider.toCategoryUrlWithParams(request, page, params);
+        String url = urlProvider.formatCategoryUrl(request, page, params);
         assertEquals("/content/category-page.html/jackets-men/men/tops-men/jackets-men.html", url);
         // It should call the graphql client even if it got the required parameters
         // as validateRequiredParams method is set to false as default
@@ -912,7 +913,7 @@ public class UrlProviderImplTest {
         // Test when urlPath only provided
         CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
         params.setUrlPath("men/tops-men/jackets-men");
-        String url = urlProvider.toCategoryUrlWithParams(request, page, params);
+        String url = urlProvider.formatCategoryUrl(request, page, params);
         assertEquals("/content/category-page.html/jackets-men/men/tops-men/jackets-men.html", url);
         // It should call the graphql client as it doesn't satisfy the validateRequiredParams method
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
@@ -932,7 +933,7 @@ public class UrlProviderImplTest {
         CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
         params.setUrlPath("men/tops-men/jackets-men");
         params.setUrlKey("jackets-men");
-        String url = urlProvider.toCategoryUrlWithParams(request, page, params);
+        String url = urlProvider.formatCategoryUrl(request, page, params);
         assertEquals("/content/category-page.html/jackets-men/men/tops-men/jackets-men.html", url);
         // It shouldn't call the graphql client as it is satisfy the validateRequiredParams method
         verify(graphqlClient, never()).execute(any(), any(), any(), any());

@@ -109,7 +109,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                     } else {
                         params.setUid(categoryId);
                     }
-                    actionUrl = urlProvider.toCategoryUrlWithParams(request, currentPage, params);
+                    actionUrl = urlProvider.formatCategoryUrl(request, currentPage, params);
                     identifier = new CommerceIdentifierImpl(categoryId, identifierType,
                         CommerceIdentifier.EntityType.CATEGORY);
                 } else if (StringUtils.isNotBlank(productSku)) {

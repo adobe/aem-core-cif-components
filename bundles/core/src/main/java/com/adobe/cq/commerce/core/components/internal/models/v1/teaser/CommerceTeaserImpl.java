@@ -145,7 +145,7 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                         params = new CategoryUrlFormat.Params();
                         params.setUid(categoryId);
                     }
-                    actionUrl = urlProvider.toCategoryUrl(request, currentPage, params);
+                    actionUrl = urlProvider.formatCategoryUrl(request, currentPage, params);
                     identifier = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY);
                 } else if (productSlug != null) {

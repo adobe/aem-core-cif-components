@@ -163,7 +163,7 @@ public interface UrlProvider {
      * @param params The parameters used in the URL template.
      * @return The category URL.
      * @deprecated use
-     *             {@link UrlProvider#toCategoryUrl(SlingHttpServletRequest, Page, CategoryUrlFormat.Params)}
+     *             {@link UrlProvider#formatCategoryUrl(SlingHttpServletRequest, Page, CategoryUrlFormat.Params)}
      *             instead
      */
     @Deprecated
@@ -186,7 +186,11 @@ public interface UrlProvider {
      *            {{page}} parameter and a request is given.
      * @param params The parameters used in the URL template.
      * @return The category URL.
+     * @deprecated use
+     *             {@link UrlProvider#formatCategoryUrl(SlingHttpServletRequest, Page, CategoryUrlFormat.Params)}
+     *             instead
      */
+    @Deprecated
     String toCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, CategoryUrlFormat.Params params);
 
     /**
@@ -208,7 +212,7 @@ public interface UrlProvider {
      * @param params The parameters used in the URL template.
      * @return The category URL.
      */
-    String toCategoryUrlWithParams(@Nullable SlingHttpServletRequest request, @Nullable Page page, CategoryUrlFormat.Params params);
+    String formatCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, CategoryUrlFormat.Params params);
 
     /**
      * Returns the category page URL. Only the category identifier must be provided,

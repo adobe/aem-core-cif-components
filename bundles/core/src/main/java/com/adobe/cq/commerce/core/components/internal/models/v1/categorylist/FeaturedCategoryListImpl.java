@@ -162,7 +162,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
         List<CategoryTree> categories = categoriesRetriever.fetchCategories();
         for (CategoryTree category : categories) {
             CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(category);
-            category.setPath(urlProvider.toCategoryUrl(request, currentPage, params));
+            category.setPath(urlProvider.formatCategoryUrl(request, currentPage, params));
 
             // Replace image if there is an asset override
             String uid = category.getUid().toString();

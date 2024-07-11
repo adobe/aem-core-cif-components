@@ -255,7 +255,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         params.setUid(uid.toString());
         params.setUrlKey(urlKey);
         params.setUrlPath(urlPath);
-        String url = urlProvider.toCategoryUrl(request, currentPage, params);
+        String url = urlProvider.formatCategoryUrl(request, currentPage, params);
         // if there is no category page, the url will contain the placeholder {{page}}
         if (!url.contains(PAGE_PLACEHOLDER)) {
             NavigationItemImpl categoryItem = newNavigationItem(name, url, isActive);
