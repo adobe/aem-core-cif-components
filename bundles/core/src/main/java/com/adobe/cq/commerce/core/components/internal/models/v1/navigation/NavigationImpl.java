@@ -204,7 +204,7 @@ public class NavigationImpl implements Navigation {
 
         for (CategoryTree child : children) {
             CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(child);
-            String url = urlProvider.formatCategoryUrl(request, currentPage, params);
+            String url = urlProvider.toCategoryUrl(request, currentPage, params);
             boolean active = request.getRequestURI().equals(url);
             CategoryNavigationItem navigationItem = new CategoryNavigationItem(null, child.getName(), url, active, child, request);
             pages.add(navigationItem);
@@ -298,7 +298,7 @@ public class NavigationImpl implements Navigation {
 
             for (CategoryTree child : children) {
                 CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(child);
-                String url = urlProvider.formatCategoryUrl(request, currentPage, params);
+                String url = urlProvider.toCategoryUrl(request, currentPage, params);
                 boolean active = request.getRequestURI().equals(url);
                 pages.add(new CategoryNavigationItem(this, child.getName(), url, active, child, request));
             }

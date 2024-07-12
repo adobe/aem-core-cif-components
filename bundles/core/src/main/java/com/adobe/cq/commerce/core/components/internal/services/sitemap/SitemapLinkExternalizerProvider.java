@@ -76,7 +76,7 @@ public class SitemapLinkExternalizerProvider {
 
         @Override
         public String toExternalCategoryUrl(SlingHttpServletRequest request, Page page, CategoryUrlFormat.Params params) {
-            return externalizer.externalize(resourceResolver, urlProvider.formatCategoryUrl(request, page, params));
+            return externalizer.externalize(resourceResolver, urlProvider.toCategoryUrl(request, page, params));
         }
     }
 
@@ -108,7 +108,7 @@ public class SitemapLinkExternalizerProvider {
 
         @Override
         public String toExternalCategoryUrl(SlingHttpServletRequest request, Page page, CategoryUrlFormat.Params params) {
-            String url = urlProvider.formatCategoryUrl(request, page, params);
+            String url = urlProvider.toCategoryUrl(request, page, params);
             Resource resolvedResource = resourceResolver.resolve(url);
             String externalPath = externalizer.externalize(resolvedResource);
 

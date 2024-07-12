@@ -829,7 +829,7 @@ public class ProductListImplTest {
             assertNotNull(page);
             assertEquals("/content/pageA", page.getPath());
             // invoke the callback directly
-            return urlProvider.formatCategoryUrl(inv.getArgumentAt(0, SlingHttpServletRequest.class), page, parameters);
+            return urlProvider.toCategoryUrl(inv.getArgumentAt(0, SlingHttpServletRequest.class), page, parameters);
         });
         context.registerService(SitemapLinkExternalizerProvider.class, externalizerProvider);
 

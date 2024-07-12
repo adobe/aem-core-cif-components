@@ -245,7 +245,7 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
             CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(category);
             params.setUid(categoryUid);
 
-            return new LinkInfo(urlProvider.formatCategoryUrl(request, categoryPage, params), category.getName());
+            return new LinkInfo(urlProvider.toCategoryUrl(request, categoryPage, params), category.getName());
         }
     }
 

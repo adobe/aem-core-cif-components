@@ -358,7 +358,7 @@ public class UrlProviderImpl implements UrlProvider {
 
     @Override
     public String toCategoryUrl(SlingHttpServletRequest request, Page page, Map<String, String> params) {
-        return formatCategoryUrl(request, page, new CategoryUrlFormat.Params(params));
+        return toCategoryUrl(request, page, new CategoryUrlFormat.Params(params));
     }
 
     @Override
@@ -366,7 +366,12 @@ public class UrlProviderImpl implements UrlProvider {
         CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
         params.setUid(categoryIdentifier);
 
-        return formatCategoryUrl(request, page, params);
+        CategoryInterface category = callCategoryApi(request, categoryIdentifier, null);
+        if (category != null) {
+            params.setUrlKey(category.getUrlKey());
+            params.setUrlPath(category.getUrlPath());
+        }
+        return toCategoryUrl(request, page, params);
     }
 
     /**
@@ -441,7 +446,7 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     @Override
-    public String formatCategoryUrl(SlingHttpServletRequest request, @Nullable Page givenPage, CategoryUrlFormat.Params params) {
+    public String toCategoryUrlWithParams(SlingHttpServletRequest request, @Nullable Page givenPage, CategoryUrlFormat.Params params) {
         CategoryUrlFormat categoryUrlFormat = getCategoryUrlFormatFromContext(request, givenPage);
         String categoryIdentifier = StringUtils.isNotEmpty(params.getUid()) ? params.getUid() : params.getUrlKey();
         boolean urlPathFlag = false;

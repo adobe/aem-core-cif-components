@@ -310,7 +310,7 @@ public class ProductListImpl extends ProductCollectionImpl implements ProductLis
                                 params.setUid(category.getUid().toString());
                                 params.setUrlKey(category.getUrlKey());
                                 params.setUrlPath(category.getUrlPath());
-                                option.setPageUrl(urlProvider.formatCategoryUrl(request, currentPage, params));
+                                option.setPageUrl(urlProvider.toCategoryUrl(request, currentPage, params));
                                 option.getAddFilterMap().remove(CATEGORY_AGGREGATION_ID);
                                 return true;
                             } else {
