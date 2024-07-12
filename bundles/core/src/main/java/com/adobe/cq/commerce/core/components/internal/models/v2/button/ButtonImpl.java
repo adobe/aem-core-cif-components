@@ -110,7 +110,7 @@ public class ButtonImpl implements Button {
             } else {
                 params.setUid(categoryIdentifier);
             }
-            link = urlProvider.toCategoryUrlWithParams(request, currentPage, params);
+            link = urlProvider.formatCategoryUrl(request, currentPage, params);
         } else if (StringUtils.isNotEmpty(linkTo)) {
             link = linkTo + ".html";
         }

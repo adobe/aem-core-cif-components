@@ -446,7 +446,7 @@ public class UrlProviderImpl implements UrlProvider {
     }
 
     @Override
-    public String toCategoryUrlWithParams(SlingHttpServletRequest request, @Nullable Page givenPage, CategoryUrlFormat.Params params) {
+    public String formatCategoryUrl(SlingHttpServletRequest request, @Nullable Page givenPage, CategoryUrlFormat.Params params) {
         CategoryUrlFormat categoryUrlFormat = getCategoryUrlFormatFromContext(request, givenPage);
         String categoryIdentifier = StringUtils.isNotEmpty(params.getUid()) ? params.getUid() : params.getUrlKey();
         boolean urlPathFlag = false;
