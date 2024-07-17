@@ -1,6 +1,6 @@
 {
   "name": "@adobe/aem-core-cif-experience-platform-connector",
-  "version": "2.13.2",
+  "version": "2.14.0",
   "description": "Experience Platform Connector for AEM CIF Core Components Product Recommendations",
   "author": "Adobe Systems Inc.",
   "license": "Apache-2.0",
