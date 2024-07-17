@@ -422,4 +422,4 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /^deploy-queries-0$/
+              only: /^deploy-queries-1$/
