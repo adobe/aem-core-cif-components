@@ -422,4 +422,4 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /^deploy-queries-1$/
+              only: /^core-cif-components-reactor-\d+\.\d+\.\d+$/
