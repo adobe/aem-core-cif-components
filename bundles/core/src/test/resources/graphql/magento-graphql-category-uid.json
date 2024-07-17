@@ -2,7 +2,9 @@
   "data": {
     "categoryList": [
       {
-        "uid": "MTI=="
+        "uid": "MTI==",
+        "url_path": "men/tops-men/jackets-men",
+        "url_key": "jackets-men"
       }
     ]
   }

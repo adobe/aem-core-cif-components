@@ -173,4 +173,13 @@ public class ButtonImplTest {
 
         assertEquals(expResult, button.getLink());
     }
+
+    @Test
+    public void testGetLinkForCategoryWhenSelectionIdIsUrlPath() {
+        final String expResult = "/content/category-page.html/equipment.html";
+        setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeCategoryWithSelectionIdUrlPath");
+        button = context.request().adaptTo(Button.class);
+
+        assertEquals(expResult, button.getLink());
+    }
 }

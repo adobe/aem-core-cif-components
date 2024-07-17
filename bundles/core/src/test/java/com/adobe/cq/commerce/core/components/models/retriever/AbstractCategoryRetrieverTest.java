@@ -111,4 +111,17 @@ public class AbstractCategoryRetrieverTest {
         String query = subject.generateQuery("abc");
         Assert.assertEquals("{categoryList(filters:{name:{match:\"my-name\"},url_path:{eq:\"a/b/my-category\"}}){uid}}", query);
     }
+
+    @Test
+    public void testGenerateQueryWhenCategoryIdTypeAsDefault() {
+        String query = subject.generateQuery("abc");
+        Assert.assertEquals("{categoryList(filters:{category_uid:{eq:\"abc\"}}){uid}}", query);
+    }
+
+    @Test
+    public void testGenerateQueryWhenCategoryIdTypeAsUrlPath() {
+        subject.setCategoryIdType("urlPath");
+        String query = subject.generateQuery("tops");
+        Assert.assertEquals("{categoryList(filters:{url_path:{eq:\"tops\"}}){uid}}", query);
+    }
 }

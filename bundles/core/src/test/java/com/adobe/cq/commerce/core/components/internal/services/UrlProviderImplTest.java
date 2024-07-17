@@ -778,6 +778,23 @@ public class UrlProviderImplTest {
     }
 
     @Test
+    public void testCAConfigWithDefaultCategoryUrlPathFormatWithSelectionIdAsUid() {
+        Page page = setCurrentPage("/content/category-page");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            UrlFormat.CATEGORY_PAGE_URL_FORMAT,
+            CategoryPageWithUrlPath.PATTERN);
+
+        caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CategoryPageWithUrlPath.PATTERN);
+
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUid("uid-5");
+
+        String url = urlProvider.formatCategoryUrl(request, page, params);
+        assertEquals("/content/category-page.html/equipment.html", url);
+    }
+
+    @Test
     public void testCAConfigWithLegacyCustomProductUrlFormat() {
         // register multiple formats
         context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.PRODUCT_PAGE_URL_FORMAT);
@@ -861,6 +878,67 @@ public class UrlProviderImplTest {
         assertEquals("/content/category-page.html/bar.html", url);
     }
 
+    @Test
+    public void testCAConfigWhenValidateMethodNotDeclaredWithUrlPathAndUrlKey() {
+        // register formats
+        context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.CATEGORY_PAGE_URL_FORMAT);
+        context.registerService(CategoryUrlFormat.class, new CustomCategoryPageUrlFormatWithoutValidateRequiredParamsMethod());
+        request = newRequest();
+        Page page = setCurrentPage("/content/category-page");
+        caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CustomCategoryPageUrlFormatWithoutValidateRequiredParamsMethod.class.getName());
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+
+        // Provide the required parameters for generating the url
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUrlPath("men/tops-men/jackets-men");
+        params.setUrlKey("jackets-men");
+        String url = urlProvider.formatCategoryUrl(request, page, params);
+        assertEquals("/content/category-page.html/jackets-men/men/tops-men/jackets-men.html", url);
+        // It should call the graphql client even if it got the required parameters
+        // as validateRequiredParams method is set to false as default
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testCAConfigWhenValidateMethodDeclaredWithUrlPathOnly() {
+        // register formats
+        context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.CATEGORY_PAGE_URL_FORMAT);
+        context.registerService(CategoryUrlFormat.class, new CustomCategoryPageUrlFormatWithValidateRequiredParamsMethod());
+        request = newRequest();
+        Page page = setCurrentPage("/content/category-page");
+        caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CustomCategoryPageUrlFormatWithValidateRequiredParamsMethod.class.getName());
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+
+        // Test when urlPath only provided
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUrlPath("men/tops-men/jackets-men");
+        String url = urlProvider.formatCategoryUrl(request, page, params);
+        assertEquals("/content/category-page.html/jackets-men/men/tops-men/jackets-men.html", url);
+        // It should call the graphql client as it doesn't satisfy the validateRequiredParams method
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testCAConfigWhenValidateMethodDeclaredWithUrlPathAndUrlKey() {
+        // register formats
+        context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.CATEGORY_PAGE_URL_FORMAT);
+        context.registerService(CategoryUrlFormat.class, new CustomCategoryPageUrlFormatWithValidateRequiredParamsMethod());
+        request = newRequest();
+        Page page = setCurrentPage("/content/category-page");
+        caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CustomCategoryPageUrlFormatWithValidateRequiredParamsMethod.class.getName());
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+
+        // Test when urlPath only provided
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUrlPath("men/tops-men/jackets-men");
+        params.setUrlKey("jackets-men");
+        String url = urlProvider.formatCategoryUrl(request, page, params);
+        assertEquals("/content/category-page.html/jackets-men/men/tops-men/jackets-men.html", url);
+        // It shouldn't call the graphql client as it is satisfy the validateRequiredParams method
+        verify(graphqlClient, never()).execute(any(), any(), any(), any());
+
+    }
+
     private static class CustomLegacyUrlFormat implements UrlFormat {
 
         String anchor = null;
@@ -900,6 +978,34 @@ public class UrlProviderImplTest {
     private static class AnotherCustomCategoryPageUrlFormat extends CustomCategoryPageUrlFormat {
         AnotherCustomCategoryPageUrlFormat() {
             anchor = "B";
+        }
+    }
+
+    private static class CustomCategoryPageUrlFormatWithoutValidateRequiredParamsMethod extends CustomCategoryPageUrlFormat {
+        CustomCategoryPageUrlFormatWithoutValidateRequiredParamsMethod() {
+            anchor = "c";
+        }
+
+        @Override
+        public String format(Params parameters) {
+            String urlKey = StringUtils.defaultIfEmpty(parameters.getUrlKey(), "{{url_path}}");
+            return parameters.getPage()
+                + ".html/"
+                + parameters.getUrlKey() + "/"
+                + StringUtils.defaultIfEmpty(parameters.getUrlPath(), urlKey)
+                + ".html";
+        }
+    }
+
+    private static class CustomCategoryPageUrlFormatWithValidateRequiredParamsMethod extends
+        CustomCategoryPageUrlFormatWithoutValidateRequiredParamsMethod {
+        CustomCategoryPageUrlFormatWithValidateRequiredParamsMethod() {
+            anchor = "d";
+        }
+
+        @Override
+        public boolean validateRequiredParams(Params parameters) {
+            return StringUtils.isNotEmpty(parameters.getUrlPath()) && StringUtils.isNotEmpty(parameters.getUrlKey());
         }
     }
 

@@ -20,7 +20,6 @@ import java.util.List;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
-import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
@@ -74,6 +73,7 @@ public class CommerceTeaserImplTest {
     private static final String CATEGORY_PAGE = "/content/category-page";
     private static final String PAGE = "/content/pageA";
     private static final String TEASER = "/content/pageA/jcr:content/root/responsivegrid/commerceteaser3";
+    private static final String TEASER_WITH_URL_PATH_FOR_CATEGORY = "/content/pageA/jcr:content/root/responsivegrid/commerceteaserwithcategoryselectionasurlpath";
 
     private Resource commerceTeaserResource;
     private CommerceTeaser commerceTeaser;
@@ -95,16 +95,18 @@ public class CommerceTeaserImplTest {
 
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+    }
 
+    private void setupTest(String componentPath) throws Exception {
         // Mock resource and resolver
-        commerceTeaserResource = spy(context.resourceResolver().getResource(TEASER));
+        commerceTeaserResource = spy(context.resourceResolver().getResource(componentPath));
         ResourceResolver resolver = spy(commerceTeaserResource.getResourceResolver());
         when(commerceTeaserResource.getResourceResolver()).thenReturn(resolver);
         when(commerceTeaserResource.getResourceSuperType()).thenReturn("core/wcm/components/teaser/v1/teaser");
         when(commerceTeaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         Page page = spy(context.currentPage(PAGE));
-        context.currentResource(TEASER);
+        context.currentResource(componentPath);
         context.currentResource(commerceTeaserResource);
         context.registerService(PathProcessor.class, new MockPathProcessor());
         Resource pageResource = spy(page.adaptTo(Resource.class));
@@ -117,7 +119,7 @@ public class CommerceTeaserImplTest {
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
         slingBindings.put(WCMBindingsConstants.NAME_PAGE_MANAGER, page.getPageManager());
         ComponentManager componentManager = commerceTeaserResource.getResourceResolver().adaptTo(ComponentManager.class);
-        slingBindings.put(WCMBindingsConstants.NAME_COMPONENT, componentManager.getComponent(TEASER));
+        slingBindings.put(WCMBindingsConstants.NAME_COMPONENT, componentManager.getComponent(componentPath));
         Style style = mock(Style.class);
         when(style.get(anyString(), anyInt())).then(i -> i.getArgumentAt(1, Object.class));
         slingBindings.put("currentStyle", style);
@@ -130,7 +132,8 @@ public class CommerceTeaserImplTest {
     }
 
     @Test
-    public void verifyProperties() {
+    public void verifyProperties() throws Exception {
+        setupTest(TEASER);
         commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
         Assert.assertNotNull("The CommerceTeaser object is null", commerceTeaser);
 
@@ -145,7 +148,8 @@ public class CommerceTeaserImplTest {
     }
 
     @Test
-    public void verifyActions() {
+    public void verifyActions() throws Exception {
+        setupTest(TEASER);
         commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
         List<ListItem> actionItems = commerceTeaser.getActions();
 
@@ -163,12 +167,16 @@ public class CommerceTeaserImplTest {
         Assert.assertEquals("A category", actionItems.get(1).getTitle());
         Assert.assertEquals("uid-5",
             ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getValue());
+        Assert.assertEquals("UID",
+            ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getType().toString());
 
         // Both are configured, category links "wins"
         Assert.assertEquals(CATEGORY_PAGE + ".html/equipment.html", actionItems.get(2).getLink().getURL());
         Assert.assertEquals("A category", actionItems.get(2).getTitle());
         Assert.assertEquals("uid-5", ((CommerceTeaserActionItem) actionItems.get(2))
             .getEntityIdentifier().getValue());
+        Assert.assertEquals("UID",
+            ((CommerceTeaserActionItem) actionItems.get(2)).getEntityIdentifier().getType().toString());
 
         // Some text is entered, current page is used
         Assert.assertEquals(PAGE + ".html", actionItems.get(3).getLink().getURL());
@@ -180,7 +188,8 @@ public class CommerceTeaserImplTest {
     }
 
     @Test
-    public void verifyNoActionsConfigured() throws PersistenceException {
+    public void verifyNoActionsConfigured() throws Exception {
+        setupTest(TEASER);
         context.resourceResolver().delete(commerceTeaserResource.getChild("actions"));
         commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
 
@@ -189,8 +198,49 @@ public class CommerceTeaserImplTest {
     }
 
     @Test
-    public void verifyJsonExport() {
+    public void verifyJsonExport() throws Exception {
+        setupTest(TEASER);
         commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
         Utils.testJSONExport(commerceTeaser, "/exporter/commerce-teaser-v3.json");
+    }
+
+    @Test
+    public void verifyActionsWhenCategoryIdentifierSetAsUrlPath() throws Exception {
+        setupTest(TEASER_WITH_URL_PATH_FOR_CATEGORY);
+        commerceTeaser = context.request().adaptTo(CommerceTeaserImpl.class);
+        List<ListItem> actionItems = commerceTeaser.getActions();
+
+        Assert.assertTrue(commerceTeaser.isActionsEnabled());
+        Assert.assertTrue(actionItems.size() == 5);
+
+        // Product slug is configured and there is a dedicated specific subpage for that product
+        Assert.assertEquals(PRODUCT_SPECIFIC_PAGE + ".html/beaumont-summit-kit.html", actionItems.get(0).getURL());
+        Assert.assertEquals("A product", actionItems.get(0).getTitle());
+        Assert.assertEquals("MJ01", ((CommerceTeaserActionItem) actionItems
+            .get(0)).getEntityIdentifier().getValue());
+
+        // Category id is configured
+        Assert.assertEquals(CATEGORY_PAGE + ".html/equipment.html", actionItems.get(1).getURL());
+        Assert.assertEquals("A category", actionItems.get(1).getTitle());
+        Assert.assertEquals("equipment",
+            ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getValue());
+        Assert.assertEquals("URL_PATH",
+            ((CommerceTeaserActionItem) actionItems.get(1)).getEntityIdentifier().getType().toString());
+
+        // Both are configured, category links "wins"
+        Assert.assertEquals(CATEGORY_PAGE + ".html/equipment.html", actionItems.get(2).getURL());
+        Assert.assertEquals("A category", actionItems.get(2).getTitle());
+        Assert.assertEquals("equipment", ((CommerceTeaserActionItem) actionItems.get(2))
+            .getEntityIdentifier().getValue());
+        Assert.assertEquals("URL_PATH",
+            ((CommerceTeaserActionItem) actionItems.get(2)).getEntityIdentifier().getType().toString());
+
+        // Some text is entered, current page is used
+        Assert.assertEquals(PAGE + ".html", actionItems.get(3).getURL());
+        Assert.assertEquals("Some text", actionItems.get(3).getTitle());
+
+        // Link is configured
+        Assert.assertEquals("/content/page", actionItems.get(4).getURL());
+        Assert.assertEquals("A page", actionItems.get(4).getTitle());
     }
 }

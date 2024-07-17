@@ -39,6 +39,11 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 public abstract class AbstractCategoryRetriever extends AbstractRetriever {
 
     /**
+     * Category Identifier url path
+     */
+    public static final String CATEGORY_IDENTIFIER_URL_PATH = "urlPath";
+
+    /**
      * Lambda that extends the category query.
      */
     protected Consumer<CategoryTreeQuery> categoryQueryHook;
@@ -72,6 +77,12 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * Page size for pagination of products in a category.
      */
     protected int pageSize = 6;
+
+    /**
+     * CategoryIdType that should be used when fetched. Usually uid but we can define it explicitly in the implementation
+     * specific and should be checked in subclass implementations.
+     */
+    protected String categoryIdType;
 
     public AbstractCategoryRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -116,6 +127,16 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
         category = null;
         query = null;
         this.identifier = identifier;
+    }
+
+    /**
+     * Set the type category identifier which will using during fetch. Categories are retrieved using
+     * this categoryIdType if not set then it will use UID.
+     *
+     * @param categoryIdType Type category identifier
+     */
+    public void setCategoryIdType(String categoryIdType) {
+        this.categoryIdType = categoryIdType;
     }
 
     /**
@@ -247,7 +268,13 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     public Pair<CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> generateCategoryQueryArgs(String identifier) {
         CategoryFilterInput filter = new CategoryFilterInput();
         FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
-        filter.setCategoryUid(identifierFilter);
+
+        // Set the filter type
+        if (CATEGORY_IDENTIFIER_URL_PATH.equals(this.categoryIdType)) {
+            filter.setUrlPath(identifierFilter);
+        } else {
+            filter.setCategoryUid(identifierFilter);
+        }
 
         // Apply category filter hook
         if (this.categoryFilterHook != null) {
