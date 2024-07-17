@@ -422,4 +422,4 @@ workflows:
             branches:
               ignore: /.*/
             tags:
-              only: /^core-cif-components-reactor-\d+\.\d+\.\d+$/
+              only: /^core-cif-components-reactor-dt1$/
