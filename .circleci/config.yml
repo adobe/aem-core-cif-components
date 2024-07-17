@@ -311,7 +311,7 @@ jobs:
           working_directory: bundles/core
       - add_ssh_keys:
           fingerprints:
-            - "16:2d:61:b7:70:89:21:ee:5f:53:30:ed:34:33:90:06"
+            - "SHA256:oZQqzw8d3jyfVJ/96RvCghdJg0gVXszZop0EGZzyfwI"
       - run:
           name: Deploy Queries
           command: |
