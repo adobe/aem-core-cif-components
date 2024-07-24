@@ -40,8 +40,7 @@ common:
   selenium_test_steps: &selenium_test_steps
     steps:
       - checkout
-      - browser-tools/install-chrome
-      - browser-tools/install-chromedriver
+      - browser-tools/install-browser-tools
       - *restore_cache
       - attach_workspace:
           at: /home/circleci/build
@@ -140,8 +139,7 @@ jobs:
       - image: cimg/node:16.17.1-browsers
     steps:
       - checkout
-      - browser-tools/install-chrome
-      - browser-tools/install-chromedriver
+      - browser-tools/install-browser-tools
       - run:
           name: Provision
           command: |
