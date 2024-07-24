@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   codecov: codecov/codecov@1.1.1
-  browser-tools: circleci/browser-tools@1.4.4
+  browser-tools: circleci/browser-tools@1.4.8
 
 common:
   restore_cache: &restore_cache
@@ -40,8 +40,7 @@ common:
   selenium_test_steps: &selenium_test_steps
     steps:
       - checkout
-      - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.96 # TODO: remove -> https://github.com/CircleCI-Public/browser-tools-orb/issues/75
+      - browser-tools/install-browser-tools
       - *restore_cache
       - attach_workspace:
           at: /home/circleci/build
@@ -140,8 +139,7 @@ jobs:
       - image: cimg/node:16.17.1-browsers
     steps:
       - checkout
-      - browser-tools/install-browser-tools:
-          chrome-version: 116.0.5845.96 # TODO: remove until: https://github.com/CircleCI-Public/browser-tools-orb/issues/75
+      - browser-tools/install-browser-tools
       - run:
           name: Provision
           command: |
