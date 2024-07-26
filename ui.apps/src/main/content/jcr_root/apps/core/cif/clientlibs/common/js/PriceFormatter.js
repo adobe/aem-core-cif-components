@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
+import DOMPurify from 'dompurify';
+
 class PriceFormatter {
     constructor(locale) {
         this._locale = locale || window.CIF.locale || document.documentElement.lang || navigator.language;
@@ -88,7 +90,7 @@ class PriceFormatter {
                 })}</span>`;
             }
         }
-        return innerHTML;
+        return DOMPurify.sanitize(innerHTML);
     }
 
     formatPrice(price) {

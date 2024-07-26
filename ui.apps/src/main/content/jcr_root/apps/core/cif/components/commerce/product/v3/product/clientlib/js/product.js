@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
+import DOMPurify from 'dompurify';
+
 class Product {
     constructor(config) {
         this._element = config.element;
@@ -88,7 +90,7 @@ class Product {
         const nameEl = this._element.querySelector(Product.selectors.name);
         if (nameEl) nameEl.innerText = variant.name;
         const descriptionEl = this._element.querySelector(Product.selectors.description);
-        if (descriptionEl) descriptionEl.innerHTML = variant.description;
+        if (descriptionEl) descriptionEl.innerHTML = DOMPurify.sanitize(variant.description);
 
         // Use client-side fetched price
         if (this._state.sku in this._state.prices) {
