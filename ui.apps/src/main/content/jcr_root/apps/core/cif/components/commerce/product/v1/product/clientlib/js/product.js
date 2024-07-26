@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
+import DOMPurify from 'dompurify';
+
 class Product {
     constructor(config) {
         this._element = config.element;
@@ -90,7 +92,7 @@ class Product {
         // Update values and enable add to cart button
         this._element.querySelector(Product.selectors.sku).innerText = variant.sku;
         this._element.querySelector(Product.selectors.name).innerText = variant.name;
-        this._element.querySelector(Product.selectors.description).innerHTML = variant.description;
+        this._element.querySelector(Product.selectors.description).innerHTML = DOMPurify.sanitize(variant.description);
 
         // Use client-side fetched price
         if (this._state.sku in this._state.prices) {
