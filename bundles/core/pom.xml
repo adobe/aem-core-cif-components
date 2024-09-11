@@ -385,6 +385,11 @@
             <artifactId>org.apache.sling.i18n</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.10.0</version>
+        </dependency>
+        <dependency>
             <!-- TODO: remove when the API is provided by the sdk/uber-jar -->
             <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.sitemap</artifactId>
