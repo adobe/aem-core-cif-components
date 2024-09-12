@@ -144,7 +144,7 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
                 }
             } else {
                 String categoryUid = attributes.getValue(ATTR_CATEGORY_UID);
-                //categoryuid fail
+                /*categoryuid fail*/
                 if (StringUtils.isNotBlank(categoryUid)) {
                     Page currentPage = request.getResourceResolver().adaptTo(PageManager.class).getContainingPage(request.getResource());
                     if (replaceText) {
