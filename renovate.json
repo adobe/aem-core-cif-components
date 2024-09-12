@@ -90,10 +90,6 @@
       "allowedVersions": "3.10.0"
     },
     {
-      "matchPackageNames": ["org.apache.commons:commons-text"],
-      "allowedVersions": "1.10.0"
-    },
-    {
       "matchPackageNames": ["commons-io:commons-io"],
       "allowedVersions": "<=2.7.0"
     },
