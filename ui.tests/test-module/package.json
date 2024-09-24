@@ -4,6 +4,9 @@
   "description": "UI tests for CIF components",
   "author": "catalan@adobe.com",
   "private": true,
+  "extra": {
+    "note": "DON'T UPGRADE MOCHA(use 7.4.6) ELSE SYNC MODE WILL NOT WORK"
+  },
   "keywords": [
     "aem",
     "cloud",
