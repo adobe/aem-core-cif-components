@@ -5,7 +5,7 @@
   "author": "catalan@adobe.com",
   "private": true,
   "extra": {
-    "note": "DON'T UPGRADE MOCHA(use 7.4.6) ELSE SYNC MODE WILL NOT WORK"
+    "note": "DON'T UPGRADE @wdio/mocha-framework(use 7.4.6) ELSE SYNC MODE WILL NOT WORK"
   },
   "keywords": [
     "aem",
