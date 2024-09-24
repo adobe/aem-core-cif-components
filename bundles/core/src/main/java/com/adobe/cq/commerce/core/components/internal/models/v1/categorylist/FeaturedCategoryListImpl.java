@@ -64,7 +64,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = { FeaturedCategoryList.class, ComponentExporter.class },
-    resourceType = com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCategoryListImpl.RESOURCE_TYPE)
+    resourceType = {
+        com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCategoryListImpl.RESOURCE_TYPE,
+        "core/cif/components/commerce/categorycarousel/v1/categorycarousel"
+    })
 @Exporter(
     name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
     extensions = ExporterConstants.SLING_MODEL_EXTENSION)
