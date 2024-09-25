@@ -904,7 +904,7 @@
             <dependency>
                 <groupId>com.adobe.aem</groupId>
                 <artifactId>uber-jar</artifactId>
-                <version>6.5.8</version>
+                <version>6.5.18</version>
                 <scope>provided</scope>
             </dependency>
 
@@ -1005,6 +1005,12 @@
                 <groupId>com.adobe.cq</groupId>
                 <artifactId>core.wcm.components.core</artifactId>
                 <version>${core.wcm.components.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-text</artifactId>
+                <version>1.10.0</version>
                 <scope>provided</scope>
             </dependency>
 

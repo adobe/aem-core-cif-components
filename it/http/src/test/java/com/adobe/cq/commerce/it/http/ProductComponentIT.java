@@ -47,7 +47,7 @@ public class ProductComponentIT extends CommerceTestBase {
             doc -> doc.select("meta[name=keywords]").first().attr("content"), "Meta keywords for Chaz Kangeroo Hoodie",
             doc -> doc.select("meta[name=description]").first().attr("content"), "Meta description for Chaz Kangeroo Hoodie",
             // 6.5.8 uses the externalizer author link to create the canonical link
-            doc -> doc.select("link[rel=canonical]").first().attr("href"), "http://localhost:4502" + pagePath));
+            doc -> doc.select("link[rel=canonical]").first().attr("href"), pagePath));
     }
 
     @Test
