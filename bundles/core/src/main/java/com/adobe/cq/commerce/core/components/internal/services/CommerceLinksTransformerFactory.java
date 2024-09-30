@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.services;
 import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.rewriter.DefaultTransformer;
 import org.apache.sling.rewriter.ProcessingComponentConfiguration;
@@ -143,7 +144,7 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
                     linkInfo = new LinkInfo(urlProvider.toProductUrl(request, currentPage, productSku));
                 }
             } else {
-                String categoryUid = attributes.getValue(ATTR_CATEGORY_UID);
+                String categoryUid = StringEscapeUtils.unescapeHtml4(attributes.getValue(ATTR_CATEGORY_UID));
                 if (StringUtils.isNotBlank(categoryUid)) {
                     Page currentPage = request.getResourceResolver().adaptTo(PageManager.class).getContainingPage(request.getResource());
                     if (replaceText) {
