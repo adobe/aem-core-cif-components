@@ -67,7 +67,7 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 
 | CIF Core Components | AEM as a Cloud Service | AEM 6.5 | AEM Commerce Add-On | Adobe Commerce | Java  |
 |---------------------| ---------------------- | ------- | ------------------- | -------------- | ----- |
-| 2.15.0              | Continual              | 6.5.18   | v2024.09.05.00       | 2.4.2 ee       |  11 |
+| 2.15.0              | Continual              | 6.5.18   | v2022.08.02.00      | 2.4.2 ee       |  11 |
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 
