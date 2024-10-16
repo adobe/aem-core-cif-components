@@ -64,10 +64,10 @@ common:
 executors:
   cif_executor:
     docker:
-      - image: cimg/openjdk:11.0.16-browsers
+      - image: cimg/openjdk:11.0.16-browsers@sha256:d41abcf26cb4714c8c451f87560ae3dc88767c84e0c03754286df1f301c00a51
   cif_executor_java8:
     docker:
-      - image: cimg/openjdk:8.0-browsers
+      - image: cimg/openjdk:8.0-browsers@sha256:fb51c47b933865be82c78d15089fbd7b5a35f719c208c7692925bc98c626b31a
   test_executor_cloudready:
     docker:
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
@@ -136,7 +136,7 @@ jobs:
 
   karma:
     docker:
-      - image: cimg/node:16.17.1-browsers
+      - image: cimg/node:16.17.1-browsers@sha256:0c64656d30e674482e117c80439e49a86e7cf517c8a20377f490488ba0e74d58
     steps:
       - checkout
       - browser-tools/install-browser-tools
@@ -161,7 +161,7 @@ jobs:
 
   jest:
     docker:
-      - image: cimg/node:16.20.0-browsers
+      - image: cimg/node:16.20.0-browsers@sha256:12230011c5d81ca32d79fe92bc5212c4f05c10eb5ac3a15c467e6a40750d9889
     steps:
       - checkout
       - run:
@@ -184,7 +184,7 @@ jobs:
 
   jest-extension-product-recs:
     docker:
-      - image: cimg/node:16.17.1-browsers
+      - image: cimg/node:16.17.1-browsers@sha256:0c64656d30e674482e117c80439e49a86e7cf517c8a20377f490488ba0e74d58
     steps:
       - checkout
       - run:
@@ -218,7 +218,7 @@ jobs:
 
   jest-extension-experience-platform-connector:
     docker:
-      - image: cimg/node:16.17.1-browsers
+      - image: cimg/node:16.17.1-browsers@sha256:0c64656d30e674482e117c80439e49a86e7cf517c8a20377f490488ba0e74d58
     steps:
       - checkout
       - run:
