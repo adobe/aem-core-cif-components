@@ -88,6 +88,7 @@
             <section data-sly-test="${'DETAILS' in visibleSections}" class="productFullDetail__details productFullDetail__section">
                 <sly data-sly-call="${detailsTpl.product @ product=product}"></sly>
             </section>
+            <sly data-sly-include="productjsonld.html"/>
         </sly>
         <p data-sly-test="${!found}">${'Product not found.' @ i18n}</p>
     </form>

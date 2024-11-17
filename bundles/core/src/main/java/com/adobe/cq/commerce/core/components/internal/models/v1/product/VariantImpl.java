@@ -30,7 +30,11 @@ public class VariantImpl implements Variant {
 
     private String description;
 
+    private String specialToDate;
+
     private String sku;
+
+    private String canonicalUrl;
 
     private Boolean inStock;
 
@@ -62,6 +66,17 @@ public class VariantImpl implements Variant {
         this.name = name;
     }
 
+    private Double specialPrice;
+
+    @Override
+    public Double getSpecialPrice() {
+        return specialPrice;
+    }
+
+    public void setSpecialPrice(Double specialPrice) {
+        this.specialPrice = specialPrice;
+    }
+
     @Override
     public String getDescription() {
         return description;
@@ -74,6 +89,24 @@ public class VariantImpl implements Variant {
     @Override
     public String getSku() {
         return sku;
+    }
+
+    @Override
+    public String getCanonicalUrl() {
+        return canonicalUrl;
+    }
+
+    public void setCanonicalUrl(String canonicalUrl) {
+        this.canonicalUrl = canonicalUrl;
+    }
+
+    @Override
+    public String getSpecialToDate() {
+        return specialToDate;
+    }
+
+    public void setSpecialToDate(String specialToDate) {
+        this.specialToDate = specialToDate;
     }
 
     public void setSku(String sku) {

@@ -43,8 +43,20 @@ class Product {
         // Update product data
         this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
 
-        this._state.loadPrices && this._initPrices();
+          if (this._state.loadPrices) {
+                    this._initPrices();
+                }
+
+                // Testing fetch call (for development purpose)
+                // You can remove or move this to a proper function later.
+                if (sku) {
+                    window.CIF.CommerceGraphqlApi.getProductPriceModels([sku], true)
+                        .then(response => console.log('Sample SKU Price Response:', response))
+                        .catch(err => console.error('Error fetching prices:', err));
+                }
     }
+
+
 
     _initPrices() {
         // Retrieve current prices
@@ -61,6 +73,7 @@ class Product {
                             continue; // Only update the prices of the items inside the group
                         }
                         this._updatePrice(this._state.prices[key], key);
+
                     }
                 } else {
                     this._updatePrice(this._state.prices[this._state.sku]);
@@ -116,7 +129,52 @@ class Product {
         });
         const priceEl = this._element.querySelector(Product.selectors.price + `[data-product-sku="${sku}"]`);
         if (priceEl) priceEl.innerHTML = innerHTML;
+         this._updateJsonLdPrice(price)
     }
+
+
+_updateJsonLdPrice(price) {
+
+ if (!window.CIF.enableClientSidePriceLoading) {
+        console.log('Client-side price loading is not enabled, skipping JSON-LD price update.');
+        return;
+    }
+
+console.log('Client-sid p.');
+
+
+    const jsonLdScript = document.querySelector('script[type="application/ld+json"]');
+    if (!jsonLdScript) {
+        console.error("No JSON-LD script tag found.");
+        return;
+    }
+
+    // Extract the raw JSON-LD content from the script tag
+    const jsonLdContent = jsonLdScript.innerHTML.trim();
+    console.log("Raw JSON-LD Content before update:", jsonLdContent);
+
+    let jsonLdData = JSON.parse(jsonLdContent);
+
+    if (Array.isArray(jsonLdData.offers)) {
+        let priceUpdated = false;
+        for (let i = 0; i < jsonLdData.offers.length; i++) {
+            const offer = jsonLdData.offers[i];
+            // Check if the offer's sku matches the state.sku
+            if (offer.sku === this._state.sku) {
+                console.log(`Updating price for SKU: ${offer.sku}`);
+                offer.price = price.finalPrice;
+                offer.priceSpecification.price = price.regularPrice;
+
+                priceUpdated = true;
+            }
+        }
+
+        // Only update the JSON-LD if the price was actually modified
+        if (priceUpdated) {
+            jsonLdScript.innerHTML = JSON.stringify(jsonLdData, null, 2);
+        }
+    }
+}
 }
 
 Product.selectors = {

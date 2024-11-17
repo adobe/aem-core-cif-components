@@ -18,13 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -275,6 +269,17 @@ public class ProductImpl extends DataLayerComponent implements Product {
     }
 
     @Override
+    public Integer getReviewCount() {
+        return fetchProduct().getReviewCount();
+    }
+
+    @Override
+    public Double getReviewSummary() {
+        double ratingSummary = fetchProduct().getRatingSummary();
+        return ratingSummary / 20.0;
+    }
+
+    @Override
     public Price getPriceRange() {
         return new PriceImpl(fetchProduct().getPriceRange(), locale);
     }
@@ -346,6 +351,8 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
         return product.getVariants().parallelStream().map(this::mapVariant).collect(Collectors.toList());
     }
+
+    // Method to convert the list of Variant objects to a JSONArray
 
     @Override
     public List<GroupItem> getGroupedProductItems() {
@@ -419,6 +426,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         productVariant.setName(product.getName());
         productVariant.setDescription(safeDescription(product));
         productVariant.setSku(product.getSku());
+
         productVariant.setColor(product.getColor());
         productVariant.setPriceRange(new PriceImpl(product.getPriceRange(), locale));
         productVariant.setInStock(ProductStockStatus.IN_STOCK.equals(product.getStockStatus()));
@@ -426,6 +434,13 @@ public class ProductImpl extends DataLayerComponent implements Product {
         // Map variant attributes
         for (ConfigurableAttributeOption option : variant.getAttributes()) {
             productVariant.getVariantAttributes().put(option.getCode(), option.getValueIndex());
+        }
+
+        if (product.getSpecialPrice() != null) {
+            productVariant.setSpecialPrice(product.getSpecialPrice());
+        }
+        if (product.getSpecialToDate() != null) {
+            productVariant.setSpecialToDate(product.getSpecialToDate());
         }
 
         List<Asset> assets = filterAndSortAssets(product.getMediaGallery());
