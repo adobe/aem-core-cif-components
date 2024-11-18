@@ -38,6 +38,8 @@ import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.xss.XSSAPI;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -657,5 +659,22 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public boolean getAddToWishListEnabled() {
         return enableAddToWishList;
+    }
+
+    public String getAggregateRating() throws JSONException {
+
+        if (product.getRatingSummary() != 0 && product.getReviewCount() != 0) {
+
+            JSONObject aggregateRatingJson = new JSONObject();
+
+            aggregateRatingJson.put("@type", "AggregateRating");
+            aggregateRatingJson.put("ratingValue", product.getRatingSummary());
+            aggregateRatingJson.put("reviewCount", product.getReviewCount());
+
+            return aggregateRatingJson.toString(2);
+        } else {
+
+            return null;
+        }
     }
 }

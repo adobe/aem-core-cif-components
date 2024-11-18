@@ -164,7 +164,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     }
 
     public JSONArray fetchVariantsAsJsonArray() throws JSONException {
-        List<Variant> variants = getVariants(); // Fetch variants using existing method
+        List<Variant> variants = getVariants();
         JSONArray jsonArray = new JSONArray();
 
         for (Variant variant : variants) {
@@ -177,19 +177,16 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
             variantMap.put("availability", variant.getInStock() ? "InStock" : "OutOfStock");
 
-            // Create assets array
             JSONArray assets = new JSONArray();
             for (Asset asset : variant.getAssets()) {
                 JSONObject jsonAsset = new JSONObject();
                 jsonAsset.put("label", asset.getLabel());
-                jsonAsset.put("path", asset.getPath()); // Fetching image path from the Asset
+                jsonAsset.put("path", asset.getPath());
                 assets.put(jsonAsset);
             }
 
-            // Use the first asset as the image
             variantMap.put("image", assets.length() > 0 ? assets.getJSONObject(0).getString("path") : "");
 
-            // Get price range
             Price priceRange = variant.getPriceRange();
             JSONObject priceSpecification = new JSONObject();
             priceSpecification.put("@type", "UnitPriceSpecification");
@@ -200,7 +197,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             }
             variantMap.put("priceSpecification", priceSpecification);
 
-            // Handle special price
             if (variant.getSpecialPrice() != null) {
                 variantMap.put("price", variant.getSpecialPrice());
             } else {
@@ -213,14 +209,10 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
                 variantMap.put("SpecialPricedate", " ");
             }
 
-            // Add date and currency
-
             variantMap.put("priceCurrency", priceRange != null ? priceRange.getCurrency() : "");
 
-            // Create JSONObject from the LinkedHashMap to preserve the key order
             JSONObject jsonVariant = new JSONObject(variantMap);
 
-            // Add the jsonVariant to the jsonArray
             jsonArray.put(jsonVariant);
         }
 
@@ -230,73 +222,61 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     // Method to transform products into the desired JSON structure
     public String transformProducts() throws JSONException, JSONException {
-        JSONArray products = fetchVariantsAsJsonArray(); // Fetch the products dynamically
+        JSONArray products = fetchVariantsAsJsonArray();
         JSONArray offers = new JSONArray();
 
-        // Iterate through each product in the JSONArray
         for (int i = 0; i < products.length(); i++) {
             JSONObject product = products.getJSONObject(i);
-            offers.put(product); // Add each product directly to offers
+            offers.put(product);
         }
 
-        // Create the final result JSON object
         JSONObject result = new JSONObject();
         result.put("offers", offers);
 
-        return offers.toString(2); // Pretty print with 2 spaces
+        return offers.toString(2);
     }
 
-    // Method to generate offers JSON
+
     public String generateOffersJson() throws JSONException {
 
         String finaljson = StringEscapeUtils.unescapeHtml4(transformProducts());
-        return finaljson; // Generate the JSON output
+        return finaljson;
     }
 
     public String getConfigProperty() {
-        Page page = currentPage; // Assuming this is your Page object
+        Page page = currentPage;
 
-        // Traverse up the page hierarchy to look for the cq:conf property
         while (page != null) {
-            // Get the resource for the current page
+
             Resource pageResource = page.adaptTo(Resource.class);
 
             if (pageResource != null) {
-                // Append "/jcr:content" to the page path
-                String jcrContentPath = page.getPath() + "/jcr:content";
+
                 Resource jcrContentResource = pageResource.getChild("jcr:content");
 
-                // Try to get the "cq:conf" property from the current page's jcr:content node
                 if (jcrContentResource != null) {
                     String cqConfing = jcrContentResource.getValueMap().get("cq:conf", String.class);
                     if (cqConfing != null && !cqConfing.isEmpty()) {
-                        return cqConfing; // Return the value if it's found
+                        return cqConfing;
                     }
                 }
             }
 
-            // If "cq:conf" not found, move to the parent page
             page = page.getParent();
         }
 
-        // Return null if the property is not found in any of the parent pages
         return null;
     }
 
     public Boolean getEnableJsonLDScript() {
-        // Construct the new resource path by appending "/settings/cloudconfigs/commerce/jcr:content"
         String newConfigPath = getConfigProperty() + "/settings/cloudconfigs/commerce/jcr:content";
 
-        // Retrieve the resource at the constructed path
         Resource configResource = resourceResolver.getResource(newConfigPath);
 
-        // If the resource exists, get the property "enableJsonLDScript"
         if (configResource != null) {
             ValueMap valueMap = configResource.getValueMap();
-            // Return the value of "enableJsonLDScript", if it exists
             return valueMap.get("enableJsonLDScript", Boolean.class);
         } else {
-            // If the resource is not found, log the error and return null
 
             return false;
         }

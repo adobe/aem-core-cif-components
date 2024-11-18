@@ -25,13 +25,12 @@
             "description": "${product.description @ context="unsafe"}",
             "@id": "${product.id @ context="unsafe"}",
             "offers": ${product.generateOffersJson@ context="unsafe" },
-        <sly data-sly-test="${product.getReviewSummary != 0 && product.getReviewCount != 0}">
-        "aggregateRating": {
+         "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "${product.getReviewSummary @ context='unsafe'}",
         "reviewCount": "${product.getReviewCount @ context='unsafe'}"
         }
-        </sly> }
+         }
 
         </script>
 
