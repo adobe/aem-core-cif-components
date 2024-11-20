@@ -661,20 +661,5 @@ public class ProductImpl extends DataLayerComponent implements Product {
         return enableAddToWishList;
     }
 
-    public String getAggregateRating() throws JSONException {
 
-        if (product.getRatingSummary() != 0 && product.getReviewCount() != 0) {
-
-            JSONObject aggregateRatingJson = new JSONObject();
-
-            aggregateRatingJson.put("@type", "AggregateRating");
-            aggregateRatingJson.put("ratingValue", product.getRatingSummary());
-            aggregateRatingJson.put("reviewCount", product.getReviewCount());
-
-            return aggregateRatingJson.toString(2);
-        } else {
-
-            return null;
-        }
-    }
 }
