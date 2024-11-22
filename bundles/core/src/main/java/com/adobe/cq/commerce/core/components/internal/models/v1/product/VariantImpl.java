@@ -34,8 +34,6 @@ public class VariantImpl implements Variant {
 
     private String sku;
 
-    private String canonicalUrl;
-
     private Boolean inStock;
 
     private Integer color;

@@ -91,8 +91,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     private boolean enableJson;
 
-    private Boolean loadClientPrice;
-
     @PostConstruct
     protected void initModel() {
         super.initModel();
