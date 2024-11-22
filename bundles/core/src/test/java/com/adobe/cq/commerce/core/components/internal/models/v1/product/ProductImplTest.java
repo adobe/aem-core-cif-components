@@ -547,6 +547,7 @@ public class ProductImplTest {
         assertTrue(productModel.loadClientPrice());
         Page launch = context.pageManager().getPage("/content/launches/2020/09/14/mylaunch" + PAGE);
         Whitebox.setInternalState(productModel, "currentPage", launch);
+        System.out.println(productModel.loadClientPrice());
         assertFalse(productModel.loadClientPrice());
     }
 
