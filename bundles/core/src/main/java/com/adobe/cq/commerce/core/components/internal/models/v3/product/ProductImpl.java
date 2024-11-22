@@ -60,7 +60,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     private ObjectMapper objectMapper;
 
-    private static final String PN_CONFIG_ENABLE_WISH_LISTSS = "enableJsons";
+    private static final String PN_CONFIG_ENABLE_WISH_LISTSS = "enableJson";
 
     protected static final Map<String, String> SECTIONS_MAP = Collections.unmodifiableMap(new HashMap<String, String>() {
         {
@@ -85,10 +85,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     private Page currentPage;
-
-    public boolean isEnableJson() {
-        return enableJson;
-    }
 
     @Inject
     private ResourceResolver resourceResolver;
@@ -242,7 +238,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     @Override
     public String generateProductJsonLDString() throws JsonProcessingException, JSONException {
-        if (enableJson) {
+        if (!enableJson) {
             return null;
         }
         ObjectMapper mapper = new ObjectMapper();
