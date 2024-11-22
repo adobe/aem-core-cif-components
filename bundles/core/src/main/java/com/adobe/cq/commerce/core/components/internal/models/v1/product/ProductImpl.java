@@ -38,8 +38,6 @@ import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.Self;
 import org.apache.sling.models.annotations.injectorspecific.SlingObject;
 import org.apache.sling.xss.XSSAPI;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -660,6 +658,5 @@ public class ProductImpl extends DataLayerComponent implements Product {
     public boolean getAddToWishListEnabled() {
         return enableAddToWishList;
     }
-
 
 }

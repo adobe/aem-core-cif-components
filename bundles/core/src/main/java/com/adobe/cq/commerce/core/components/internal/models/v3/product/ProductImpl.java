@@ -21,11 +21,9 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
-import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
@@ -38,11 +36,16 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.product.VariantA
 import com.adobe.cq.commerce.core.components.internal.models.v1.product.VariantValueImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.*;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
 import com.day.cq.wcm.api.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -54,6 +57,10 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v3/product";
 
     protected static final String PN_VISIBLE_SECTIONS = "visibleSections";
+
+    private ObjectMapper objectMapper;
+
+    private static final String PN_CONFIG_ENABLE_WISH_LISTSS = "enableJsons";
 
     protected static final Map<String, String> SECTIONS_MAP = Collections.unmodifiableMap(new HashMap<String, String>() {
         {
@@ -79,12 +86,23 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     private Page currentPage;
 
+    public boolean isEnableJson() {
+        return enableJson;
+    }
+
     @Inject
     private ResourceResolver resourceResolver;
+
+    private boolean enableJson;
+
+    private Boolean loadClientPrice;
 
     @PostConstruct
     protected void initModel() {
         super.initModel();
+
+        Resource contentResource = currentPage.getContentResource();
+        ComponentsConfiguration configProperties = contentResource.adaptTo(ComponentsConfiguration.class);
 
         if (productRetriever != null) {
             productRetriever.extendProductQueryWith(p -> p.onConfigurableProduct(cp -> cp
@@ -98,6 +116,9 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             visibleSections = currentStyle.get(PN_VISIBLE_SECTIONS, VISIBLE_SECTIONS_DEFAULT);
         }
         visibleSectionsSet = Collections.unmodifiableSet(Arrays.stream(visibleSections).map(SECTIONS_MAP::get).collect(Collectors.toSet()));
+
+        enableJson = configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTSS, Boolean.FALSE) : Boolean.FALSE;
+
     }
 
     @Override
@@ -180,7 +201,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             JSONArray assets = new JSONArray();
             for (Asset asset : variant.getAssets()) {
                 JSONObject jsonAsset = new JSONObject();
-                jsonAsset.put("label", asset.getLabel());
                 jsonAsset.put("path", asset.getPath());
                 assets.put(jsonAsset);
             }
@@ -220,66 +240,38 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     }
 
-    // Method to transform products into the desired JSON structure
-    public String transformProducts() throws JSONException, JSONException {
-        JSONArray products = fetchVariantsAsJsonArray();
-        JSONArray offers = new JSONArray();
+    @Override
+    public String generateProductJsonLDString() throws JsonProcessingException, JSONException {
+        if (enableJson) {
+            return null;
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode productJson = mapper.createObjectNode();
 
-        for (int i = 0; i < products.length(); i++) {
-            JSONObject product = products.getJSONObject(i);
-            offers.put(product);
+        productJson.put("@context", "http://schema.org");
+        productJson.put("@type", "Product");
+        productJson.put("sku", getSku());
+        productJson.put("name", getName());
+        productJson.put("image", getAssets().get(0).getPath());  // Assuming the first asset is the image
+        productJson.put("description", getDescription());
+        productJson.put("@id", getId());
+
+        // Generate Offers JSON (Assumes fetchVariantsAsJsonArray is already implemented)
+        ArrayNode offersArray = mapper.createArrayNode();
+        JSONArray offers = fetchVariantsAsJsonArray();
+        for (int i = 0; i < offers.length(); i++) {
+            offersArray.add(mapper.readTree(offers.get(i).toString()));
+        }
+        productJson.set("offers", offersArray);
+
+        if (getReviewSummary() != 0 && getReviewCount() != 0) {
+            ObjectNode aggregateRating = mapper.createObjectNode();
+            aggregateRating.put("@type", "AggregateRating");
+            aggregateRating.put("ratingValue", getReviewSummary());
+            aggregateRating.put("reviewCount", getReviewCount());
+            productJson.set("aggregateRating", aggregateRating);
         }
 
-        JSONObject result = new JSONObject();
-        result.put("offers", offers);
-
-        return offers.toString(2);
+        return "<script type=\"application/ld+json\">" + mapper.writeValueAsString(productJson) + "</script>";
     }
-
-
-    public String generateOffersJson() throws JSONException {
-
-        String finaljson = StringEscapeUtils.unescapeHtml4(transformProducts());
-        return finaljson;
-    }
-
-    public String getConfigProperty() {
-        Page page = currentPage;
-
-        while (page != null) {
-
-            Resource pageResource = page.adaptTo(Resource.class);
-
-            if (pageResource != null) {
-
-                Resource jcrContentResource = pageResource.getChild("jcr:content");
-
-                if (jcrContentResource != null) {
-                    String cqConfing = jcrContentResource.getValueMap().get("cq:conf", String.class);
-                    if (cqConfing != null && !cqConfing.isEmpty()) {
-                        return cqConfing;
-                    }
-                }
-            }
-
-            page = page.getParent();
-        }
-
-        return null;
-    }
-
-    public Boolean getEnableJsonLDScript() {
-        String newConfigPath = getConfigProperty() + "/settings/cloudconfigs/commerce/jcr:content";
-
-        Resource configResource = resourceResolver.getResource(newConfigPath);
-
-        if (configResource != null) {
-            ValueMap valueMap = configResource.getValueMap();
-            return valueMap.get("enableJsonLDScript", Boolean.class);
-        } else {
-
-            return false;
-        }
-    }
-
 }

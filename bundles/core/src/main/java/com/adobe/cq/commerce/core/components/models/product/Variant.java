@@ -39,8 +39,6 @@ public interface Variant {
 
     String getSku();
 
-    String getCanonicalUrl();
-
     Double getSpecialPrice();
 
     Price getPriceRange();

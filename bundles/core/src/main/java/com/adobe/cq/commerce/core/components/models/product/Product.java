@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.json.JSONException;
 import org.osgi.annotation.versioning.ConsumerType;
 
 import com.adobe.cq.commerce.core.components.models.common.Price;
@@ -26,6 +27,7 @@ import com.adobe.cq.commerce.core.components.models.page.PageMetadata;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever;
 import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
 import com.adobe.cq.wcm.core.components.models.Component;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * Product is the sling model interface for the CIF core product component.
@@ -89,6 +91,10 @@ public interface Product extends Component, PageMetadata {
     }
 
     String getVariantsJson();
+
+    default String generateProductJsonLDString() throws JsonProcessingException, JSONException {
+        return null;
+    }
 
     List<Variant> getVariants();
 

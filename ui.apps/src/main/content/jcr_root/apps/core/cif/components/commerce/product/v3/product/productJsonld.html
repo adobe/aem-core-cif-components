@@ -1,5 +1,5 @@
 <!--/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ~ Copyright 2019 Adobe
+  ~ Copyright 2024 Adobe
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -13,44 +13,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
+
 <sly data-sly-use.product="com.adobe.cq.commerce.core.components.models.product.Product">
-
-
-    <sly data-sly-test="${product.getEnableJsonLDScript && product.getReviewSummary != 0 && product.getReviewCount != 0}">
-        <script type="application/ld+json">
-            {
-                "@context": "http://schema.org",
-                "@type": "Product",
-                "sku": "${product.sku @ context='unsafe'}",
-                "name": "${product.name @ context='unsafe'}",
-                "image": "${product.assets[0].path @ context='unsafe'}",
-                "description": "${product.description) @ context='unsafe'}",
-                "@id": "${product.id @ context='unsafe'}",
-                "offers": ${product.generateOffersJson @ context='unsafe'},
-
-            "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "${product.getReviewSummary @ context='unsafe'}",
-            "reviewCount": "${product.getReviewCount @ context='unsafe'}"
-            }
-            }
-        </script>
-    </sly>
-
-
-    <sly data-sly-test="${product.getEnableJsonLDScript && product.getReviewSummary == 0 && product.getReviewCount == 0}">
-        <script type="application/ld+json">
-            {
-                "@context": "http://schema.org",
-                "@type": "Product",
-                "sku": "${product.sku @ context='unsafe'}",
-                "name": "${product.name @ context='unsafe'}",
-                "image": "${product.assets[0].path @ context='unsafe'}",
-                "description": "${product.description @ context='unsafe'}",
-                "@id": "${product.id @ context='unsafe'}",
-                "offers": ${product.generateOffersJson @ context='unsafe'}
-            }
-        </script>
-    </sly>
-
+    ${product.generateProductJsonLDString  @ context='unsafe'}
 </sly>

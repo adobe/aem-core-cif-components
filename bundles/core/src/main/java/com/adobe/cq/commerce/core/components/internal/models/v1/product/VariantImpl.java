@@ -92,15 +92,6 @@ public class VariantImpl implements Variant {
     }
 
     @Override
-    public String getCanonicalUrl() {
-        return canonicalUrl;
-    }
-
-    public void setCanonicalUrl(String canonicalUrl) {
-        this.canonicalUrl = canonicalUrl;
-    }
-
-    @Override
     public String getSpecialToDate() {
         return specialToDate;
     }
