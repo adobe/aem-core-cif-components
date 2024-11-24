@@ -145,7 +145,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
-    private Page currentPage;
+    public Page currentPage;
     @OSGiService
     private UrlProvider urlProvider;
     @ScriptVariable(name = WCMBindingsConstants.NAME_CURRENT_STYLE, injectionStrategy = InjectionStrategy.OPTIONAL)
@@ -225,7 +225,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         }
     }
 
-    private ProductInterface fetchProduct() {
+    protected ProductInterface fetchProduct() {
         ProductInterface product = null;
 
         // we never return a product when no graphql client is available
@@ -266,17 +266,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public String getSku() {
         return fetchProduct().getSku();
-    }
-
-    @Override
-    public Integer getReviewCount() {
-        return fetchProduct().getReviewCount();
-    }
-
-    @Override
-    public Double getReviewSummary() {
-        double ratingSummary = fetchProduct().getRatingSummary();
-        return ratingSummary / 20.0;
     }
 
     @Override
@@ -434,13 +423,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
         // Map variant attributes
         for (ConfigurableAttributeOption option : variant.getAttributes()) {
             productVariant.getVariantAttributes().put(option.getCode(), option.getValueIndex());
-        }
-
-        if (product.getSpecialPrice() != null) {
-            productVariant.setSpecialPrice(product.getSpecialPrice());
-        }
-        if (product.getSpecialToDate() != null) {
-            productVariant.setSpecialToDate(product.getSpecialToDate());
         }
 
         List<Asset> assets = filterAndSortAssets(product.getMediaGallery());

@@ -15,5 +15,9 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 
 <sly data-sly-use.product="com.adobe.cq.commerce.core.components.models.product.Product">
-    ${product.generateProductJsonLDString  @ context='unsafe'}
+    <sly data-sly-test="${product.generateProductJsonLDString != null}">
+        <script type="application/ld+json">
+            ${product.generateProductJsonLDString @ context='unsafe'}
+        </script>
+    </sly>
 </sly>

@@ -26,22 +26,18 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
-import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.product.VariantAttributeImpl;
+import com.adobe.cq.commerce.core.components.internal.models.v1.product.VariantImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.product.VariantValueImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.*;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableAttributeOption;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableVariant;
-import com.day.cq.wcm.api.Page;
+import com.adobe.cq.commerce.magento.graphql.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -60,7 +56,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     private ObjectMapper objectMapper;
 
-    private static final String PN_CONFIG_ENABLE_WISH_LISTSS = "enableJson";
+    private static final String PN_ENABLE_JSONLD_SCRIPT = "enableJson";
 
     protected static final Map<String, String> SECTIONS_MAP = Collections.unmodifiableMap(new HashMap<String, String>() {
         {
@@ -83,9 +79,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     private Set<String> visibleSectionsSet;
 
-    @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
-    private Page currentPage;
-
     @Inject
     private ResourceResolver resourceResolver;
 
@@ -94,7 +87,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     @PostConstruct
     protected void initModel() {
         super.initModel();
-
         Resource contentResource = currentPage.getContentResource();
         ComponentsConfiguration configProperties = contentResource.adaptTo(ComponentsConfiguration.class);
 
@@ -110,8 +102,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             visibleSections = currentStyle.get(PN_VISIBLE_SECTIONS, VISIBLE_SECTIONS_DEFAULT);
         }
         visibleSectionsSet = Collections.unmodifiableSet(Arrays.stream(visibleSections).map(SECTIONS_MAP::get).collect(Collectors.toSet()));
-
-        enableJson = configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTSS, Boolean.FALSE) : Boolean.FALSE;
+        enableJson = configProperties != null ? configProperties.get(PN_ENABLE_JSONLD_SCRIPT, Boolean.FALSE) : Boolean.FALSE;
 
     }
 
@@ -164,10 +155,20 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     @Override
     protected Variant mapVariant(ConfigurableVariant variant) {
         Variant mappedVariant = super.mapVariant(variant);
+        SimpleProduct product = variant.getProduct();
 
         // Map variant attributes
         for (ConfigurableAttributeOption option : variant.getAttributes()) {
             mappedVariant.getVariantAttributesUid().put(option.getCode(), option.getUid().toString());
+        }
+        if (product.getSpecialPrice() != null) {
+            // Assuming the special price is a Double, you can directly set it on the VariantImpl
+            ((VariantImpl) mappedVariant).setSpecialPrice(product.getSpecialPrice());
+        }
+
+        if (product.getSpecialToDate() != null) {
+            // Assuming specialToDate is a String, you can directly set it on the VariantImpl
+            ((VariantImpl) mappedVariant).setSpecialToDate(product.getSpecialToDate());
         }
 
         return mappedVariant;
@@ -176,6 +177,15 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     @Override
     public Set<String> getVisibleSections() {
         return visibleSectionsSet;
+    }
+
+    public Integer getReviewCount() {
+        return fetchProduct().getReviewCount();
+    }
+
+    public Double getReviewSummary() {
+        double ratingSummary = fetchProduct().getRatingSummary();
+        return ratingSummary / 20.0;
     }
 
     public JSONArray fetchVariantsAsJsonArray() throws JSONException {
@@ -250,7 +260,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         productJson.put("description", getDescription());
         productJson.put("@id", getId());
 
-        // Generate Offers JSON (Assumes fetchVariantsAsJsonArray is already implemented)
         ArrayNode offersArray = mapper.createArrayNode();
         JSONArray offers = fetchVariantsAsJsonArray();
         for (int i = 0; i < offers.length(); i++) {
@@ -266,6 +275,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             productJson.set("aggregateRating", aggregateRating);
         }
 
-        return "<script type=\"application/ld+json\">" + mapper.writeValueAsString(productJson) + "</script>";
+        return mapper.writeValueAsString(productJson);
     }
 }

@@ -58,10 +58,6 @@ public interface Product extends Component, PageMetadata {
 
     String getSku();
 
-    Integer getReviewCount();
-
-    Double getReviewSummary();
-
     Price getPriceRange();
 
     Boolean getInStock();
