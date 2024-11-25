@@ -73,8 +73,6 @@ class ProductRetriever extends AbstractProductRetriever {
                 .metaDescription()
                 .metaKeyword()
                 .metaTitle()
-                .ratingSummary()
-                .reviewCount()
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .mediaGallery(g -> g

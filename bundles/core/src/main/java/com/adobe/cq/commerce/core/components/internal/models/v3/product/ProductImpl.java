@@ -179,15 +179,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         return visibleSectionsSet;
     }
 
-    public Integer getReviewCount() {
-        return fetchProduct().getReviewCount();
-    }
-
-    public Double getReviewSummary() {
-        double ratingSummary = fetchProduct().getRatingSummary();
-        return ratingSummary / 20.0;
-    }
-
     public JSONArray fetchVariantsAsJsonArray() throws JSONException {
         List<Variant> variants = getVariants();
         JSONArray jsonArray = new JSONArray();
@@ -266,14 +257,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             offersArray.add(mapper.readTree(offers.get(i).toString()));
         }
         productJson.set("offers", offersArray);
-
-        if (getReviewSummary() != 0 && getReviewCount() != 0) {
-            ObjectNode aggregateRating = mapper.createObjectNode();
-            aggregateRating.put("@type", "AggregateRating");
-            aggregateRating.put("ratingValue", getReviewSummary());
-            aggregateRating.put("reviewCount", getReviewCount());
-            productJson.set("aggregateRating", aggregateRating);
-        }
 
         return mapper.writeValueAsString(productJson);
     }
