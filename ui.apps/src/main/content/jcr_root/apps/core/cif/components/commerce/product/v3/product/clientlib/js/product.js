@@ -42,11 +42,8 @@ class Product {
 
         // Update product data
         this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
-          this._state.loadPrices && this._initPrices();
-
+        this._state.loadPrices && this._initPrices();
     }
-
-
 
     _initPrices() {
         // Retrieve current prices
@@ -63,7 +60,6 @@ class Product {
                             continue; // Only update the prices of the items inside the group
                         }
                         this._updatePrice(this._state.prices[key], key);
-
                     }
                 } else {
                     this._updatePrice(this._state.prices[this._state.sku]);
@@ -119,46 +115,41 @@ class Product {
         });
         const priceEl = this._element.querySelector(Product.selectors.price + `[data-product-sku="${sku}"]`);
         if (priceEl) priceEl.innerHTML = innerHTML;
-         this._updateJsonLdPrice(price)
+        this._updateJsonLdPrice(price);
     }
 
+    _updateJsonLdPrice(price) {
+        if (!window.CIF.enableClientSidePriceLoading) {
+            return;
+        }
 
-_updateJsonLdPrice(price) {
+        const jsonLdScript = document.querySelector('script[type="application/ld+json"]');
+        if (!jsonLdScript) {
+            return;
+        }
 
- if (!window.CIF.enableClientSidePriceLoading) {
-        return;
-    }
+        const jsonLdContent = jsonLdScript.innerHTML.trim();
 
+        let jsonLdData = JSON.parse(jsonLdContent);
 
-    const jsonLdScript = document.querySelector('script[type="application/ld+json"]');
-    if (!jsonLdScript) {
-        return;
-    }
+        if (Array.isArray(jsonLdData.offers)) {
+            let priceUpdated = false;
+            for (let i = 0; i < jsonLdData.offers.length; i++) {
+                const offer = jsonLdData.offers[i];
 
+                if (offer.sku === this._state.sku) {
+                    offer.price = price.finalPrice;
+                    offer.priceSpecification.price = price.regularPrice;
 
-    const jsonLdContent = jsonLdScript.innerHTML.trim();
+                    priceUpdated = true;
+                }
+            }
 
-    let jsonLdData = JSON.parse(jsonLdContent);
-
-    if (Array.isArray(jsonLdData.offers)) {
-        let priceUpdated = false;
-        for (let i = 0; i < jsonLdData.offers.length; i++) {
-            const offer = jsonLdData.offers[i];
-
-            if (offer.sku === this._state.sku) {
-
-                offer.price = price.finalPrice;
-                offer.priceSpecification.price = price.regularPrice;
-
-                priceUpdated = true;
+            if (priceUpdated) {
+                jsonLdScript.innerHTML = JSON.stringify(jsonLdData, null, 2);
             }
         }
-
-        if (priceUpdated) {
-            jsonLdScript.innerHTML = JSON.stringify(jsonLdData, null, 2);
-        }
     }
-}
 }
 
 Product.selectors = {
