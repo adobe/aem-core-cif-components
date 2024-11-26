@@ -62,7 +62,8 @@ class Product {
                         this._updatePrice(this._state.prices[key], key);
                     }
                 } else {
-                    this._updatePrice(this._state.prices[this._state.sku]);
+                    this._updatePrice(this._state.prices[this._state.sku]); // Update base product price
+                    this._updateJsonLdPrice(this._state.prices);
                 }
             })
             .catch(err => {
@@ -104,7 +105,6 @@ class Product {
      * Update price in the DOM.
      */
     _updatePrice(price, optionalSku) {
-        // Only update if prices are not null
         if (!price || !price.regularPrice || !price.finalPrice) {
             return;
         }
@@ -115,33 +115,38 @@ class Product {
         });
         const priceEl = this._element.querySelector(Product.selectors.price + `[data-product-sku="${sku}"]`);
         if (priceEl) priceEl.innerHTML = innerHTML;
-        this._updateJsonLdPrice(price);
     }
 
-    _updateJsonLdPrice(price) {
+    _updateJsonLdPrice(prices) {
         if (!window.CIF.enableClientSidePriceLoading) {
             return;
         }
 
         const jsonLdScript = document.querySelector('script[type="application/ld+json"]');
-        if (!jsonLdScript) {
-            return;
-        }
+        if (!jsonLdScript) return;
 
         const jsonLdContent = jsonLdScript.innerHTML.trim();
-
         let jsonLdData = JSON.parse(jsonLdContent);
 
         if (Array.isArray(jsonLdData.offers)) {
             let priceUpdated = false;
-            for (let i = 0; i < jsonLdData.offers.length; i++) {
-                const offer = jsonLdData.offers[i];
 
-                if (offer.sku === this._state.sku) {
-                    offer.price = price.finalPrice;
-                    offer.priceSpecification.price = price.regularPrice;
+            for (let sku in prices) {
+                const convertedPrice = prices[sku];
+                for (let i = 0; i < jsonLdData.offers.length; i++) {
+                    const offer = jsonLdData.offers[i];
 
-                    priceUpdated = true;
+                    if (offer.sku === sku) {
+                        // Update price in JSON-LD
+                        offer.price = convertedPrice.finalPrice;
+
+                        // Ensure priceSpecification exists before updating
+                        if (offer.priceSpecification) {
+                            offer.priceSpecification.price = convertedPrice.regularPrice;
+                        }
+
+                        priceUpdated = true;
+                    }
                 }
             }
 
@@ -151,7 +156,6 @@ class Product {
         }
     }
 }
-
 Product.selectors = {
     self: '[data-cmp-is=product]',
     sku: '.productFullDetail__sku [role=sku]',
