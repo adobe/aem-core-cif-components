@@ -118,38 +118,28 @@ class Product {
     }
 
     _updateJsonLdPrice(prices) {
-        if (!window.CIF.enableClientSidePriceLoading) {
+        if (!window.CIF.enableClientSidePriceLoading || !document.querySelector('script[type="application/ld+json"]')) {
             return;
         }
 
         const jsonLdScript = document.querySelector('script[type="application/ld+json"]');
-        if (!jsonLdScript) return;
-
-        const jsonLdContent = jsonLdScript.innerHTML.trim();
-        let jsonLdData = JSON.parse(jsonLdContent);
+        const jsonLdData = JSON.parse(jsonLdScript.innerHTML.trim());
 
         if (Array.isArray(jsonLdData.offers)) {
             let priceUpdated = false;
 
-            for (let sku in prices) {
-                const convertedPrice = prices[sku];
-                for (let i = 0; i < jsonLdData.offers.length; i++) {
-                    const offer = jsonLdData.offers[i];
-
-                    if (offer.sku === sku) {
-                        // Update price in JSON-LD
-                        offer.price = convertedPrice.finalPrice;
-
-                        // Ensure priceSpecification exists before updating
-                        if (offer.priceSpecification) {
-                            offer.priceSpecification.price = convertedPrice.regularPrice;
-                        }
-
-                        priceUpdated = true;
+            jsonLdData.offers.forEach(offer => {
+                const convertedPrice = prices[offer.sku];
+                if (convertedPrice) {
+                    offer.price = convertedPrice.finalPrice;
+                    if (offer.priceSpecification) {
+                        offer.priceSpecification.price = convertedPrice.regularPrice;
                     }
+                    priceUpdated = true;
                 }
-            }
+            });
 
+            // Update the JSON-LD script if any price was updated
             if (priceUpdated) {
                 jsonLdScript.innerHTML = JSON.stringify(jsonLdData, null, 2);
             }
