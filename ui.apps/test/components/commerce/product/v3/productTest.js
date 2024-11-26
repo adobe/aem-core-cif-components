@@ -347,5 +347,40 @@ describe('Product v3', () => {
                 assert.equal(price, '');
             });
         });
+
+        it('updates JSON-LD price when new prices are provided', () => {
+            // Add a JSON-LD script to the document
+            const jsonLdScript = document.createElement('script');
+            jsonLdScript.type = 'application/ld+json';
+            jsonLdScript.innerHTML = JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'Product',
+                offers: [
+                    {
+                        sku: 'sample-sku',
+                        price: 0,
+                        priceCurrency: 'USD',
+                        priceSpecification: {
+                            price: 0
+                        }
+                    }
+                ]
+            });
+            document.head.appendChild(jsonLdScript);
+
+            // Mock the _updateJsonLdPrice method, if it's not automatically triggered
+            let product = new Product({ element: productRoot });
+
+            // Call the _updateJsonLdPrice method with the client/converted prices
+            product._updateJsonLdPrice(convertedPrices);
+
+            // Now, verify the updated JSON-LD data in the script tag
+            const updatedJsonLdData = JSON.parse(jsonLdScript.innerHTML);
+            assert.equal(updatedJsonLdData.offers[0].price, 98); // Ensure the final price is updated
+            assert.equal(updatedJsonLdData.offers[0].priceSpecification.price, 98); // Ensure regular price is updated
+
+            // Clean up the JSON-LD script after the test
+            document.head.removeChild(jsonLdScript);
+        });
     });
 });
