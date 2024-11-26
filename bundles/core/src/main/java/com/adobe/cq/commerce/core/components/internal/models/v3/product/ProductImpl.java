@@ -186,53 +186,54 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         for (Variant variant : variants) {
 
             LinkedHashMap<String, Object> variantMap = new LinkedHashMap<>();
-
-            variantMap.put("@type", "Offer");
-            variantMap.put("sku", variant.getSku());
-            variantMap.put("url", getCanonicalUrl());
-
-            variantMap.put("availability", variant.getInStock() ? "InStock" : "OutOfStock");
-
+            LinkedHashMap<String, Object> variantMapWithNoSpecialPrice = new LinkedHashMap<>();
             JSONArray assets = new JSONArray();
+
+            // Process assets
             for (Asset asset : variant.getAssets()) {
                 JSONObject jsonAsset = new JSONObject();
                 jsonAsset.put("path", asset.getPath());
                 assets.put(jsonAsset);
             }
 
-            variantMap.put("image", assets.length() > 0 ? assets.getJSONObject(0).getString("path") : "");
-
             Price priceRange = variant.getPriceRange();
-            JSONObject priceSpecification = new JSONObject();
-            priceSpecification.put("@type", "UnitPriceSpecification");
-            priceSpecification.put("priceType", "https://schema.org/ListPrice");
-            if (priceRange != null) {
-                priceSpecification.put("price", priceRange.getRegularPrice());
-                priceSpecification.put("priceCurrency", priceRange.getCurrency());
-            }
-            variantMap.put("priceSpecification", priceSpecification);
-
-            if (variant.getSpecialPrice() != null) {
-                variantMap.put("price", variant.getSpecialPrice());
-            } else {
-                variantMap.put("price", " ");
-            }
-
-            if (variant.getSpecialToDate() != null) {
-                variantMap.put("SpecialPricedate", variant.getSpecialToDate());
-            } else {
-                variantMap.put("SpecialPricedate", " ");
-            }
-
+            // Set common fields for both cases
+            variantMap.put("@type", "Offer");
+            variantMap.put("sku", variant.getSku());
+            variantMap.put("url", getCanonicalUrl());
+            variantMap.put("image", assets.length() > 0 ? assets.getJSONObject(0).getString("path") : "");
             variantMap.put("priceCurrency", priceRange != null ? priceRange.getCurrency() : "");
 
-            JSONObject jsonVariant = new JSONObject(variantMap);
+            // Case when there is no special price
+            if (variant.getSpecialPrice() == null && variant.getSpecialToDate() == null) {
+                // For variants with no special price
+                variantMapWithNoSpecialPrice.putAll(variantMap);  // Copy common fields
+                variantMapWithNoSpecialPrice.put("price", priceRange.getRegularPrice());  // Set regular price
+                jsonArray.put(new JSONObject(variantMapWithNoSpecialPrice));  // Add to the array
+            } else {
+                // Case when there's a special price
+                variantMap.put("availability", variant.getInStock() ? "InStock" : "OutOfStock");
 
-            jsonArray.put(jsonVariant);
+                // Price specification
+                JSONObject priceSpecification = new JSONObject();
+                priceSpecification.put("@type", "UnitPriceSpecification");
+                priceSpecification.put("priceType", "https://schema.org/ListPrice");
+                if (priceRange != null) {
+                    priceSpecification.put("price", priceRange.getRegularPrice());
+                    priceSpecification.put("priceCurrency", priceRange.getCurrency());
+                }
+                variantMap.put("priceSpecification", priceSpecification);
+
+                // Set special price and date
+                variantMap.put("price", variant.getSpecialPrice());
+                variantMap.put("SpecialPricedate", variant.getSpecialToDate());
+
+                // Add the variant with special price to the array
+                jsonArray.put(new JSONObject(variantMap));
+            }
         }
 
         return jsonArray;
-
     }
 
     @Override
