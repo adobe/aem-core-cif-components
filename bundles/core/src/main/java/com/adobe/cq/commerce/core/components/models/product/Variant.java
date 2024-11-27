@@ -33,13 +33,9 @@ public interface Variant {
 
     String getName();
 
-    String getSpecialToDate();
-
     String getDescription();
 
     String getSku();
-
-    Double getSpecialPrice();
 
     Price getPriceRange();
 

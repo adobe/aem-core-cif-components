@@ -67,7 +67,6 @@ public class VariantImpl implements Variant {
 
     private Double specialPrice;
 
-    @Override
     @JsonIgnore
     public Double getSpecialPrice() {
         return specialPrice;
@@ -91,7 +90,6 @@ public class VariantImpl implements Variant {
         return sku;
     }
 
-    @Override
     @JsonIgnore
     public String getSpecialToDate() {
         return specialToDate;

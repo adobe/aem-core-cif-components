@@ -30,6 +30,8 @@ import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.product.VariantAttributeImpl;
 import com.adobe.cq.commerce.core.components.internal.models.v1.product.VariantImpl;
@@ -57,6 +59,9 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     private ObjectMapper objectMapper;
 
     private static final String PN_ENABLE_JSONLD_SCRIPT = "enableJson";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+        com.adobe.cq.commerce.core.components.internal.models.v3.product.ProductImpl.class);
 
     protected static final Map<String, String> SECTIONS_MAP = Collections.unmodifiableMap(new HashMap<String, String>() {
         {
@@ -204,32 +209,34 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             variantMap.put("image", assets.length() > 0 ? assets.getJSONObject(0).getString("path") : "");
             variantMap.put("priceCurrency", priceRange != null ? priceRange.getCurrency() : "");
 
-            // Case when there is no special price
-            if (variant.getSpecialPrice() == null && variant.getSpecialToDate() == null) {
-                // For variants with no special price
-                variantMapWithNoSpecialPrice.putAll(variantMap);  // Copy common fields
-                variantMapWithNoSpecialPrice.put("price", priceRange.getRegularPrice());  // Set regular price
-                jsonArray.put(new JSONObject(variantMapWithNoSpecialPrice));  // Add to the array
-            } else {
-                // Case when there's a special price
-                variantMap.put("availability", variant.getInStock() ? "InStock" : "OutOfStock");
+            if (variant instanceof VariantImpl) {
+                VariantImpl variantImpl = (VariantImpl) variant;
+                if (variantImpl.getSpecialPrice() == null && variantImpl.getSpecialToDate() == null) {
 
-                // Price specification
-                JSONObject priceSpecification = new JSONObject();
-                priceSpecification.put("@type", "UnitPriceSpecification");
-                priceSpecification.put("priceType", "https://schema.org/ListPrice");
-                if (priceRange != null) {
-                    priceSpecification.put("price", priceRange.getRegularPrice());
-                    priceSpecification.put("priceCurrency", priceRange.getCurrency());
+                    // For variants with no special price
+                    variantMapWithNoSpecialPrice.putAll(variantMap);  // Copy common fields
+                    variantMapWithNoSpecialPrice.put("price", priceRange.getRegularPrice());  // Set regular price
+                    jsonArray.put(new JSONObject(variantMapWithNoSpecialPrice));  // Add to the array
+                } else {
+                    // Case when there's a special price
+                    variantMap.put("availability", variant.getInStock() ? "InStock" : "OutOfStock");
+
+                    // Price specification
+                    JSONObject priceSpecification = new JSONObject();
+                    priceSpecification.put("@type", "UnitPriceSpecification");
+                    priceSpecification.put("priceType", "https://schema.org/ListPrice");
+                    if (priceRange != null) {
+                        priceSpecification.put("price", priceRange.getRegularPrice());
+                        priceSpecification.put("priceCurrency", priceRange.getCurrency());
+                    }
+                    variantMap.put("priceSpecification", priceSpecification);
+
+                    variantMap.put("price", variantImpl.getSpecialPrice());  // Access special price directly
+                    variantMap.put("SpecialPricedates", variantImpl.getSpecialToDate());  // Access special date directly
+
+                    // Add the variant with special price to the array
+                    jsonArray.put(new JSONObject(variantMap));
                 }
-                variantMap.put("priceSpecification", priceSpecification);
-
-                // Set special price and date
-                variantMap.put("price", variant.getSpecialPrice());
-                variantMap.put("SpecialPricedate", variant.getSpecialToDate());
-
-                // Add the variant with special price to the array
-                jsonArray.put(new JSONObject(variantMap));
             }
         }
 
@@ -237,28 +244,50 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     }
 
     @Override
-    public String generateProductJsonLDString() throws JsonProcessingException, JSONException {
-        if (!enableJson) {
+    public String generateProductJsonLDString() {
+        try {
+            // If JSON generation is disabled, return null early
+            if (!enableJson) {
+                return null;
+            }
+
+            // Initialize ObjectMapper to create JSON nodes
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode productJson = mapper.createObjectNode();
+
+            // Set basic product attributes
+            productJson.put("@context", "http://schema.org");
+            productJson.put("@type", "Product");
+            productJson.put("sku", getSku());
+            productJson.put("name", getName());
+
+            // Assuming the first asset is the image
+            if (!getAssets().isEmpty()) {
+                productJson.put("image", getAssets().get(0).getPath());
+            } else {
+                productJson.put("image", "");  // Default to empty if no assets are available
+            }
+
+            productJson.put("description", getDescription());
+            productJson.put("@id", getId());
+
+            // Create the "offers" array for variants
+            ArrayNode offersArray = mapper.createArrayNode();
+            JSONArray offers = fetchVariantsAsJsonArray();
+            for (int i = 0; i < offers.length(); i++) {
+                offersArray.add(mapper.readTree(offers.get(i).toString()));
+            }
+            productJson.set("offers", offersArray);
+
+            // Return the JSON string representation
+            return mapper.writeValueAsString(productJson);
+
+        } catch (JsonProcessingException | JSONException e) {
+            // Log the error using a logger (ensure you have a logger configured)
+            LOGGER.warn("Could not serialize product variants");
+
             return null;
         }
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode productJson = mapper.createObjectNode();
-
-        productJson.put("@context", "http://schema.org");
-        productJson.put("@type", "Product");
-        productJson.put("sku", getSku());
-        productJson.put("name", getName());
-        productJson.put("image", getAssets().get(0).getPath());  // Assuming the first asset is the image
-        productJson.put("description", getDescription());
-        productJson.put("@id", getId());
-
-        ArrayNode offersArray = mapper.createArrayNode();
-        JSONArray offers = fetchVariantsAsJsonArray();
-        for (int i = 0; i < offers.length(); i++) {
-            offersArray.add(mapper.readTree(offers.get(i).toString()));
-        }
-        productJson.set("offers", offersArray);
-
-        return mapper.writeValueAsString(productJson);
     }
+
 }
