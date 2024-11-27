@@ -349,7 +349,6 @@ describe('Product v3', () => {
         });
 
         it('updates JSON-LD price when new prices are provided', () => {
-            // Add a JSON-LD script to the document
             const jsonLdScript = document.createElement('script');
             jsonLdScript.type = 'application/ld+json';
             jsonLdScript.innerHTML = JSON.stringify({
@@ -358,10 +357,10 @@ describe('Product v3', () => {
                 offers: [
                     {
                         sku: 'sample-sku',
-                        price: 0,
+                        price: 0, // initial price
                         priceCurrency: 'USD',
                         priceSpecification: {
-                            price: 0
+                            price: 0 // initial regular price
                         }
                     }
                 ]
@@ -371,10 +370,7 @@ describe('Product v3', () => {
             let product = new Product({ element: productRoot });
 
             product._updateJsonLdPrice = function(prices) {
-                if (
-                    !window.CIF.enableClientSidePriceLoading ||
-                    !document.querySelector('script[type="application/ld+json"]')
-                ) {
+                if (CIF.enableClientSidePriceLoading || !document.querySelector('script[type="application/ld+json"]')) {
                     return;
                 }
 
@@ -406,8 +402,8 @@ describe('Product v3', () => {
 
             const updatedJsonLdData = JSON.parse(jsonLdScript.innerHTML);
 
-            assert.equal(updatedJsonLdData.offers[0].price, 98); // Expect the price to be updated to 98
-            assert.equal(updatedJsonLdData.offers[0].priceSpecification.price, 98); // Expect regular price to be updated to 98
+            assert.equal(updatedJsonLdData.offers[0].price, 98);
+            assert.equal(updatedJsonLdData.offers[0].priceSpecification.price, 98);
 
             document.head.removeChild(jsonLdScript);
         });
