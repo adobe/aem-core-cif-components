@@ -15,11 +15,8 @@
  * from Adobe.
  ***************************************************************************/
 const config = require('../lib/config');
-const { OnboardingDialogHandler } = require('../lib/commons');
 
 describe('Checkbox Uncheck Test', () => {
-    let onboardingHandler;
-
     before(() => {
         // Set window size to desktop
         browser.setWindowSize(1280, 960);
@@ -28,15 +25,6 @@ describe('Checkbox Uncheck Test', () => {
         browser.AEMForceLogout();
         browser.url(config.aem.author.base_url);
         browser.AEMLogin(config.aem.author.username, config.aem.author.password);
-
-        // Enable helper to handle onboarding dialog popup
-        onboardingHandler = new OnboardingDialogHandler(browser);
-        onboardingHandler.enable();
-    });
-
-    after(function () {
-        // Disable helper to handle onboarding dialog popup
-        onboardingHandler.disable();
     });
 
     it('can enable/disable JSON-LD, save changes, and verify JSON-LD on the product page', async () => {
