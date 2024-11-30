@@ -14,7 +14,7 @@
  * is strictly forbidden unless prior written permission is obtained
  * from Adobe.
  ***************************************************************************/
-const config = require('../lib/config');
+const config = require('../../lib/config');
 
 describe('Checkbox Uncheck Test', () => {
     before(() => {
