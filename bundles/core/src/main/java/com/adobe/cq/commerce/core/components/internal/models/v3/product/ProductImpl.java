@@ -19,11 +19,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
@@ -56,7 +54,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     protected static final String PN_VISIBLE_SECTIONS = "visibleSections";
 
-    private ObjectMapper objectMapper;
+    private String cachedJsonLD;
 
     private static final String PN_ENABLE_JSONLD_SCRIPT = "enableJson";
 
@@ -84,10 +82,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     private Set<String> visibleSectionsSet;
 
-    @Inject
-    private ResourceResolver resourceResolver;
-
-    private boolean enableJson;
+    boolean enableJson;
 
     @PostConstruct
     protected void initModel() {
@@ -246,12 +241,14 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     @Override
     public String generateProductJsonLDString() {
         try {
-            // If JSON generation is disabled, return null early
+            if (cachedJsonLD != null) {
+                return cachedJsonLD;
+            }
+
             if (!enableJson) {
                 return null;
             }
 
-            // Initialize ObjectMapper to create JSON nodes
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode productJson = mapper.createObjectNode();
 
@@ -279,11 +276,11 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             }
             productJson.set("offers", offersArray);
 
-            // Return the JSON string representation
-            return mapper.writeValueAsString(productJson);
+            cachedJsonLD = mapper.writeValueAsString(productJson);
+            return cachedJsonLD;
 
         } catch (JsonProcessingException | JSONException e) {
-            // Log the error using a logger (ensure you have a logger configured)
+
             LOGGER.warn("Could not serialize product variants");
 
             return null;

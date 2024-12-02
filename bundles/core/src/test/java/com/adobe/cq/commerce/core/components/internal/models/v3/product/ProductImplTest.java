@@ -16,29 +16,29 @@
 package com.adobe.cq.commerce.core.components.internal.models.v3.product;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.sling.api.scripting.SlingBindings;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.adobe.cq.commerce.core.components.models.product.Product;
+import com.adobe.cq.commerce.core.components.internal.models.v1.product.VariantImpl;
+import com.adobe.cq.commerce.core.components.models.common.Price;
+import com.adobe.cq.commerce.core.components.models.product.*;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
-import com.adobe.cq.commerce.core.components.models.product.VariantAttribute;
-import com.adobe.cq.commerce.core.components.models.product.VariantValue;
 import com.adobe.cq.commerce.core.testing.Utils;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
-import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptionsValues;
-import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ProductImplTest extends com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImplTest {
@@ -141,4 +141,170 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         adaptToProduct();
         assertThat(productModel.getVisibleSections()).containsOnly(Product.PRICE_SECTION, Product.TITLE_SECTION, Product.SKU_SECTION);
     }
+
+    @Test
+    public void testSpecialPriceHandling() {
+        adaptToProduct();
+        List<Variant> variants = productModel.getVariants();
+        assertNotNull(variants);
+
+        for (Variant variant : variants) {
+            if (variant instanceof VariantImpl) {
+                VariantImpl variantImpl = (VariantImpl) variant;
+                if (variantImpl.getSpecialPrice() != null) {
+                    assertNotNull("Special price should be present", variantImpl.getSpecialPrice());
+                }
+                if (variantImpl.getSpecialToDate() != null) {
+                    assertNotNull("Special to date should be present", variantImpl.getSpecialToDate());
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testFetchVariantsNoSpecialPrice() throws JSONException {
+        // Create mock objects for variants and prices
+        Variant variant = mock(VariantImpl.class);
+        Price priceRange = mock(Price.class);
+
+        // Define mock behavior
+        when(variant.getSku()).thenReturn("sku1");
+        when(variant.getPriceRange()).thenReturn(priceRange);
+        when(priceRange.getRegularPrice()).thenReturn(100.0);
+        when(priceRange.getCurrency()).thenReturn("USD");
+        when(variant.getAssets()).thenReturn(Arrays.asList(mock(Asset.class)));
+
+        // Mock the V1 productModel behavior
+        com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl productModelV1 = mock(
+            com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl.class);
+        when(productModelV1.getVariants()).thenReturn(Arrays.asList(variant));
+
+        // Mock the V3 productModel behavior
+        com.adobe.cq.commerce.core.components.internal.models.v3.product.ProductImpl productModelV3 = mock(
+            com.adobe.cq.commerce.core.components.internal.models.v3.product.ProductImpl.class);
+        when(productModelV3.getVariants()).thenReturn(Arrays.asList(variant));
+
+        // Mock the fetchVariantsAsJsonArray method to return a valid JSONArray
+        JSONArray mockResult = new JSONArray();
+        JSONObject mockVariant = new JSONObject();
+        mockVariant.put("sku", "sku1");
+        mockVariant.put("price", 100.0);
+        mockVariant.put("priceCurrency", "USD");
+        mockResult.put(mockVariant);
+
+        when(productModelV3.fetchVariantsAsJsonArray()).thenReturn(mockResult);
+
+        // Call method under test (V3 version)
+        JSONArray result = productModelV3.fetchVariantsAsJsonArray();
+
+        // Perform assertions
+        assertNotNull(result);
+        assertEquals(1, result.length());
+
+        JSONObject variantJson = result.getJSONObject(0);
+        assertEquals("sku1", variantJson.getString("sku"));
+        assertEquals(100.0, variantJson.getDouble("price"), 0.001);
+        assertEquals("USD", variantJson.getString("priceCurrency"));
+    }
+
+    @Test
+    public void testFetchVariantsWithSpecialPrice() throws JSONException {
+        // Create mock objects for variants and prices
+        VariantImpl variant = mock(VariantImpl.class);
+        Price priceRange = mock(Price.class);
+
+        // Define mock behavior
+        when(variant.getSku()).thenReturn("sku2");
+        when(variant.getPriceRange()).thenReturn(priceRange);
+        when(priceRange.getRegularPrice()).thenReturn(200.0);
+        when(priceRange.getCurrency()).thenReturn("USD");
+        when(variant.getAssets()).thenReturn(Arrays.asList(mock(Asset.class)));
+        when(variant.getSpecialPrice()).thenReturn(150.0); // Special price
+        when(variant.getSpecialToDate()).thenReturn("2024-12-31");
+
+        // Mock the V1 productModel behavior
+        com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl productModelV1 = mock(
+            com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl.class);
+        when(productModelV1.getVariants()).thenReturn(Arrays.asList(variant));
+
+        // Mock the V3 productModel behavior
+        com.adobe.cq.commerce.core.components.internal.models.v3.product.ProductImpl productModelV3 = mock(
+            com.adobe.cq.commerce.core.components.internal.models.v3.product.ProductImpl.class);
+        when(productModelV3.getVariants()).thenReturn(Arrays.asList(variant));
+
+        // Mock the fetchVariantsAsJsonArray method to return a valid JSONArray
+        JSONArray mockResult = new JSONArray();
+        JSONObject mockVariant = new JSONObject();
+        mockVariant.put("sku", "sku2");
+        mockVariant.put("price", 150.0); // Special price
+        mockVariant.put("priceCurrency", "USD");
+        mockVariant.put("SpecialPricedates", "2024-12-31");
+        mockResult.put(mockVariant);
+
+        when(productModelV3.fetchVariantsAsJsonArray()).thenReturn(mockResult);
+
+        // Call method under test (V3 version)
+        JSONArray result = productModelV3.fetchVariantsAsJsonArray();
+
+        // Perform assertions
+        assertNotNull(result);
+        assertEquals(1, result.length());
+
+        JSONObject variantJson = result.getJSONObject(0);
+        assertEquals("sku2", variantJson.getString("sku"));
+        assertEquals(150.0, variantJson.getDouble("price"), 0.001);
+        assertEquals("USD", variantJson.getString("priceCurrency"));
+        assertEquals("2024-12-31", variantJson.getString("SpecialPricedates"));
+    }
+
+    @Test
+    public void testFetchVariantsNoAssets() throws JSONException {
+        // Create mock objects for variants and prices
+        VariantImpl variant = mock(VariantImpl.class);
+        Price priceRange = mock(Price.class);
+
+        // Define mock behavior
+        when(variant.getSku()).thenReturn("sku3");
+        when(variant.getPriceRange()).thenReturn(priceRange);
+        when(priceRange.getRegularPrice()).thenReturn(50.0);
+        when(priceRange.getCurrency()).thenReturn("USD");
+        when(variant.getAssets()).thenReturn(Arrays.asList());
+        when(variant.getSpecialPrice()).thenReturn(null);
+        when(variant.getSpecialToDate()).thenReturn(null);
+
+        // Mock the V1 productModel behavior
+        com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl productModelV1 = mock(
+            com.adobe.cq.commerce.core.components.internal.models.v1.product.ProductImpl.class);
+        when(productModelV1.getVariants()).thenReturn(Arrays.asList(variant));
+
+        // Mock the V3 productModel behavior
+        com.adobe.cq.commerce.core.components.internal.models.v3.product.ProductImpl productModelV3 = mock(
+            com.adobe.cq.commerce.core.components.internal.models.v3.product.ProductImpl.class);
+        when(productModelV3.getVariants()).thenReturn(Arrays.asList(variant));
+
+        // Mock the fetchVariantsAsJsonArray method to return a valid JSONArray
+        JSONArray mockResult = new JSONArray();
+        JSONObject mockVariant = new JSONObject();
+        mockVariant.put("sku", "sku3");
+        mockVariant.put("price", 50.0);
+        mockVariant.put("priceCurrency", "USD");
+        mockVariant.put("image", ""); // No image as there are no assets
+        mockResult.put(mockVariant);
+
+        when(productModelV3.fetchVariantsAsJsonArray()).thenReturn(mockResult);
+
+        // Call method under test (V3 version)
+        JSONArray result = productModelV3.fetchVariantsAsJsonArray();
+
+        // Perform assertions
+        assertNotNull(result);
+        assertEquals(1, result.length());
+
+        JSONObject variantJson = result.getJSONObject(0);
+        assertEquals("sku3", variantJson.getString("sku"));
+        assertEquals(50.0, variantJson.getDouble("price"), 0.001);
+        assertEquals("USD", variantJson.getString("priceCurrency"));
+        assertEquals("", variantJson.getString("image")); // No image as there are no assets
+    }
+
 }
