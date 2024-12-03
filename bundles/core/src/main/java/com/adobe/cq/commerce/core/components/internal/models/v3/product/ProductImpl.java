@@ -56,7 +56,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     private String cachedJsonLD;
 
-    private static final String PN_ENABLE_JSONLD_SCRIPT = "enableJson";
+    public static final String PN_ENABLE_JSONLD_SCRIPT = "enableJson";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(
         com.adobe.cq.commerce.core.components.internal.models.v3.product.ProductImpl.class);
