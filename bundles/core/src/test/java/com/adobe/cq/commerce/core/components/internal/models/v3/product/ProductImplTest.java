@@ -21,8 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,6 +36,8 @@ import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -58,9 +58,9 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
     @Before
     public void updateGraphQlResponse() throws IOException {
         Utils.setupHttpResponse("graphql/magento-graphql-product-result-uid-variants.json", httpClient, 200,
-                "{products(filter:{url_key");
+            "{products(filter:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-product-result-uid-variants.json", httpClient, 200,
-                "{products(filter:{sku");
+            "{products(filter:{sku");
     }
 
     @Test
@@ -97,7 +97,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         product = rootQuery.getProducts().getItems().get(0);
 
         Utils.setupHttpResponse("graphql/magento-graphql-configurableproduct-uid-result.json", httpClient, 200,
-                "{products(filter:{url_key");
+            "{products(filter:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-configurableproduct-uid-result.json", httpClient, 200, "{products(filter:{sku");
 
         adaptToProduct();
@@ -121,14 +121,14 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
                 assertEquals(optionValue.getLabel(), value.getLabel());
                 assertEquals(optionValue.getDefaultLabel().trim().replaceAll("\\s+", "-").toLowerCase(), value.getCssClassModifier());
                 assertTrue("SwatchData type mismatch", optionValue.getSwatchData().getGraphQlTypeName().toUpperCase().startsWith(
-                        value.getSwatchType().toString()));
+                    value.getSwatchType().toString()));
             }
         }
     }
 
     @Test
     public void testVisibleSectionsWithStyle() {
-        when(style.get(eq("visibleSections"), any(String[].class))).thenReturn(new String[]{"price", "title"});
+        when(style.get(eq("visibleSections"), any(String[].class))).thenReturn(new String[] { "price", "title" });
         adaptToProduct();
         assertThat(productModel.getVisibleSections()).containsOnly(Product.PRICE_SECTION, Product.TITLE_SECTION);
     }
@@ -386,7 +386,6 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         assertNull(jsonLD);
     }
 
-
     @Test
     public void testCreateBasicProductJson() throws Exception {
         ProductImpl product = spy(new ProductImpl());
@@ -445,7 +444,6 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         assertEquals(productJson.toString(), jsonLD);
     }
 
-
     @Test
     public void testFetchVariantsAsJsonArrayWithEmptyVariantsList() throws JSONException {
         ProductImpl product = spy(new ProductImpl());
@@ -472,8 +470,6 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         assertEquals(0, result.length());
     }
 
-
-
     @Test
     public void testGenerateProductJsonLDStringWithCachedData() throws Exception {
         ProductImpl product = spy(new ProductImpl());
@@ -490,6 +486,5 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         assertNotNull(jsonLD);
         assertEquals("{\"@context\":\"http://schema.org\",\"@type\":\"Product\"}", jsonLD);
     }
-
 
 }

@@ -174,7 +174,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         return mappedVariant;
     }
 
-
     @Override
     public Set<String> getVisibleSections() {
         return visibleSectionsSet;
