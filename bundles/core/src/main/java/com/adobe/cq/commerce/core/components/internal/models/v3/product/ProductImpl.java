@@ -54,7 +54,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     protected static final String PN_VISIBLE_SECTIONS = "visibleSections";
 
-    private String cachedJsonLD;
+    protected String cachedJsonLD;
 
     public static final String PN_ENABLE_JSONLD_SCRIPT = "enableJson";
 
@@ -174,6 +174,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         return mappedVariant;
     }
 
+
     @Override
     public Set<String> getVisibleSections() {
         return visibleSectionsSet;
@@ -183,8 +184,11 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         List<Variant> variants = getVariants();
         JSONArray jsonArray = new JSONArray();
 
-        for (Variant variant : variants) {
+        if (variants == null || variants.isEmpty()) {
+            return jsonArray;
+        }
 
+        for (Variant variant : variants) {
             LinkedHashMap<String, Object> variantMap = new LinkedHashMap<>();
             LinkedHashMap<String, Object> variantMapWithNoSpecialPrice = new LinkedHashMap<>();
             JSONArray assets = new JSONArray();
@@ -207,10 +211,9 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             if (variant instanceof VariantImpl) {
                 VariantImpl variantImpl = (VariantImpl) variant;
                 if (variantImpl.getSpecialPrice() == null && variantImpl.getSpecialToDate() == null) {
-
                     // For variants with no special price
                     variantMapWithNoSpecialPrice.putAll(variantMap);  // Copy common fields
-                    variantMapWithNoSpecialPrice.put("price", priceRange.getRegularPrice());  // Set regular price
+                    variantMapWithNoSpecialPrice.put("price", priceRange != null ? priceRange.getRegularPrice() : 0);  // Set regular price
                     jsonArray.put(new JSONObject(variantMapWithNoSpecialPrice));  // Add to the array
                 } else {
                     // Case when there's a special price
@@ -240,51 +243,67 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     @Override
     public String generateProductJsonLDString() {
+        // Return null if JSON generation is not enabled
+        if (!isEnableJson()) {
+            return null;
+        }
+
+        if (cachedJsonLD != null) {
+            return cachedJsonLD;
+        }
+
         try {
-            if (cachedJsonLD != null) {
-                return cachedJsonLD;
-            }
-
-            if (!enableJson) {
-                return null;
-            }
-
             ObjectMapper mapper = new ObjectMapper();
-            ObjectNode productJson = mapper.createObjectNode();
+            ObjectNode productJson = createBasicProductJson(mapper);
 
-            // Set basic product attributes
-            productJson.put("@context", "http://schema.org");
-            productJson.put("@type", "Product");
-            productJson.put("sku", getSku());
-            productJson.put("name", getName());
-
-            // Assuming the first asset is the image
-            if (!getAssets().isEmpty()) {
-                productJson.put("image", getAssets().get(0).getPath());
-            } else {
-                productJson.put("image", "");  // Default to empty if no assets are available
-            }
-
-            productJson.put("description", getDescription());
-            productJson.put("@id", getId());
-
-            // Create the "offers" array for variants
-            ArrayNode offersArray = mapper.createArrayNode();
-            JSONArray offers = fetchVariantsAsJsonArray();
-            for (int i = 0; i < offers.length(); i++) {
-                offersArray.add(mapper.readTree(offers.get(i).toString()));
-            }
-            productJson.set("offers", offersArray);
+            addOffersToJson(productJson, mapper);
 
             cachedJsonLD = mapper.writeValueAsString(productJson);
             return cachedJsonLD;
 
         } catch (JsonProcessingException | JSONException e) {
-
-            LOGGER.warn("Could not serialize product variants");
-
+            LOGGER.warn("Failed to serialize product JSON-LD", e);
             return null;
         }
+    }
+
+    /**
+     * Creates the basic product JSON-LD structure.
+     */
+    protected ObjectNode createBasicProductJson(ObjectMapper mapper) {
+        ObjectNode productJson = mapper.createObjectNode();
+
+        // Set basic product attributes
+        productJson.put("@context", "http://schema.org");
+        productJson.put("@type", "Product");
+        productJson.put("sku", Optional.ofNullable(getSku()).orElse(""));
+        productJson.put("name", Optional.ofNullable(getName()).orElse(""));
+        productJson.put("image", getAssets().stream().findFirst().map(Asset::getPath).orElse(""));
+        productJson.put("description", Optional.ofNullable(getDescription()).orElse(""));
+        productJson.put("@id", Optional.ofNullable(getId()).orElse(""));
+
+        return productJson;
+    }
+
+    /**
+     * Adds the "offers" (variants) to the product JSON.
+     */
+    protected void addOffersToJson(ObjectNode productJson, ObjectMapper mapper) throws JSONException, JsonProcessingException {
+        ArrayNode offersArray = mapper.createArrayNode();
+        JSONArray offers = fetchVariantsAsJsonArray();
+
+        if (offers != null) {
+            for (int i = 0; i < offers.length(); i++) {
+                offersArray.add(mapper.readTree(offers.get(i).toString()));
+            }
+        }
+
+        // Add the "offers" array to the product JSON
+        productJson.set("offers", offersArray);
+    }
+
+    public boolean isEnableJson() {
+        return enableJson;
     }
 
 }
