@@ -42,6 +42,7 @@ class Product {
 
         // Update product data
         this._element.addEventListener(Product.events.variantChanged, this._onUpdateVariant.bind(this));
+
         this._state.loadPrices && this._initPrices();
     }
 
@@ -139,7 +140,6 @@ class Product {
                 }
             });
 
-            // Update the JSON-LD script if any price was updated
             if (priceUpdated) {
                 jsonLdScript.innerHTML = JSON.stringify(jsonLdData, null, 2);
             }

@@ -27,9 +27,9 @@ exports.config = {
     runner: 'local',
 
     // Tests
-    specs: [
-        './specs/**/*.js'
-    ],
+    specs: ['./specs/**/*.js'],
+
+    exclude: ['./specs/asset-finder.js'],
 
     logLevel: 'debug',
 

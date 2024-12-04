@@ -515,10 +515,10 @@ describe('Product v3', () => {
             product._updateJsonLdPrice(convertedPrices);
 
             const updatedJsonLdData = JSON.parse(jsonLdScript.innerHTML);
-            assert.equal(updatedJsonLdData.offers[0].price, 50); // Updated price for sku-1
-            assert.equal(updatedJsonLdData.offers[0].priceSpecification.price, 60); // Regular price for sku-1
-            assert.equal(updatedJsonLdData.offers[1].price, 100); // Updated price for sku-2
-            assert.equal(updatedJsonLdData.offers[1].priceSpecification.price, 120); // Regular price for sku-2
+            assert.equal(updatedJsonLdData.offers[0].price, 50);
+            assert.equal(updatedJsonLdData.offers[0].priceSpecification.price, 60);
+            assert.equal(updatedJsonLdData.offers[1].price, 100);
+            assert.equal(updatedJsonLdData.offers[1].priceSpecification.price, 120);
 
             document.head.removeChild(jsonLdScript);
         });

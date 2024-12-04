@@ -162,12 +162,10 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             mappedVariant.getVariantAttributesUid().put(option.getCode(), option.getUid().toString());
         }
         if (product.getSpecialPrice() != null) {
-            // Assuming the special price is a Double, you can directly set it on the VariantImpl
             ((VariantImpl) mappedVariant).setSpecialPrice(product.getSpecialPrice());
         }
 
         if (product.getSpecialToDate() != null) {
-            // Assuming specialToDate is a String, you can directly set it on the VariantImpl
             ((VariantImpl) mappedVariant).setSpecialToDate(product.getSpecialToDate());
         }
 
@@ -192,7 +190,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             LinkedHashMap<String, Object> variantMapWithNoSpecialPrice = new LinkedHashMap<>();
             JSONArray assets = new JSONArray();
 
-            // Process assets
             for (Asset asset : variant.getAssets()) {
                 JSONObject jsonAsset = new JSONObject();
                 jsonAsset.put("path", asset.getPath());
@@ -200,7 +197,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             }
 
             Price priceRange = variant.getPriceRange();
-            // Set common fields for both cases
             variantMap.put("@type", "Offer");
             variantMap.put("sku", variant.getSku());
             variantMap.put("url", getCanonicalUrl());
@@ -210,15 +206,12 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             if (variant instanceof VariantImpl) {
                 VariantImpl variantImpl = (VariantImpl) variant;
                 if (variantImpl.getSpecialPrice() == null && variantImpl.getSpecialToDate() == null) {
-                    // For variants with no special price
-                    variantMapWithNoSpecialPrice.putAll(variantMap);  // Copy common fields
-                    variantMapWithNoSpecialPrice.put("price", priceRange != null ? priceRange.getRegularPrice() : 0);  // Set regular price
-                    jsonArray.put(new JSONObject(variantMapWithNoSpecialPrice));  // Add to the array
+                    variantMapWithNoSpecialPrice.putAll(variantMap);
+                    variantMapWithNoSpecialPrice.put("price", priceRange != null ? priceRange.getRegularPrice() : 0);
+                    jsonArray.put(new JSONObject(variantMapWithNoSpecialPrice));
                 } else {
-                    // Case when there's a special price
                     variantMap.put("availability", variant.getInStock() ? "InStock" : "OutOfStock");
 
-                    // Price specification
                     JSONObject priceSpecification = new JSONObject();
                     priceSpecification.put("@type", "UnitPriceSpecification");
                     priceSpecification.put("priceType", "https://schema.org/ListPrice");
@@ -228,10 +221,9 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
                     }
                     variantMap.put("priceSpecification", priceSpecification);
 
-                    variantMap.put("price", variantImpl.getSpecialPrice());  // Access special price directly
-                    variantMap.put("SpecialPricedates", variantImpl.getSpecialToDate());  // Access special date directly
+                    variantMap.put("price", variantImpl.getSpecialPrice());
+                    variantMap.put("SpecialPricedates", variantImpl.getSpecialToDate());
 
-                    // Add the variant with special price to the array
                     jsonArray.put(new JSONObject(variantMap));
                 }
             }
@@ -240,9 +232,12 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         return jsonArray;
     }
 
+    public boolean isEnableJson() {
+        return enableJson;
+    }
+
     @Override
     public String generateProductJsonLDString() {
-        // Return null if JSON generation is not enabled
         if (!isEnableJson()) {
             return null;
         }
@@ -266,9 +261,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         }
     }
 
-    /**
-     * Creates the basic product JSON-LD structure.
-     */
     protected ObjectNode createBasicProductJson(ObjectMapper mapper) {
         ObjectNode productJson = mapper.createObjectNode();
 
@@ -284,9 +276,6 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         return productJson;
     }
 
-    /**
-     * Adds the "offers" (variants) to the product JSON.
-     */
     protected void addOffersToJson(ObjectNode productJson, ObjectMapper mapper) throws JSONException, JsonProcessingException {
         ArrayNode offersArray = mapper.createArrayNode();
         JSONArray offers = fetchVariantsAsJsonArray();
@@ -297,12 +286,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             }
         }
 
-        // Add the "offers" array to the product JSON
         productJson.set("offers", offersArray);
-    }
-
-    public boolean isEnableJson() {
-        return enableJson;
     }
 
 }

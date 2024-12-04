@@ -341,8 +341,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
         return product.getVariants().parallelStream().map(this::mapVariant).collect(Collectors.toList());
     }
 
-    // Method to convert the list of Variant objects to a JSONArray
-
     @Override
     public List<GroupItem> getGroupedProductItems() {
         // Don't return any items if the current product is not of type GroupedProduct.
@@ -415,7 +413,6 @@ public class ProductImpl extends DataLayerComponent implements Product {
         productVariant.setName(product.getName());
         productVariant.setDescription(safeDescription(product));
         productVariant.setSku(product.getSku());
-
         productVariant.setColor(product.getColor());
         productVariant.setPriceRange(new PriceImpl(product.getPriceRange(), locale));
         productVariant.setInStock(ProductStockStatus.IN_STOCK.equals(product.getStockStatus()));
@@ -640,5 +637,4 @@ public class ProductImpl extends DataLayerComponent implements Product {
     public boolean getAddToWishListEnabled() {
         return enableAddToWishList;
     }
-
 }

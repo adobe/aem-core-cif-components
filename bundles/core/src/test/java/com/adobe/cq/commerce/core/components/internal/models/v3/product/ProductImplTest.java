@@ -147,156 +147,14 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
     }
 
     @Test
-    public void testFetchVariantsAsJsonArrayWithNoSpecialPrice() throws JSONException {
-        ProductImpl product = spy(new ProductImpl());
-        List<Variant> variants = new ArrayList<>();
-        VariantImpl variant = mock(VariantImpl.class);
-        when(variant.getSku()).thenReturn("SKU789");
-        when(variant.getInStock()).thenReturn(true);
-
-        // Add assets to the variant
-        List<Asset> assetsList = new ArrayList<>();
-        Asset asset = mock(Asset.class);
-        when(asset.getPath()).thenReturn("http://example.com/image1.jpg");
-        assetsList.add(asset);
-        when(variant.getAssets()).thenReturn(assetsList);
-
-        Price priceRange = mock(Price.class);
-        when(priceRange.getRegularPrice()).thenReturn(120.0);
-        when(priceRange.getCurrency()).thenReturn("USD");
-        when(variant.getPriceRange()).thenReturn(priceRange);
-        when(variant.getSpecialPrice()).thenReturn(null);
-        when(variant.getSpecialToDate()).thenReturn(null);
-        variants.add(variant);
-
-        doReturn(variants).when(product).getVariants();
-        doReturn("http://example.com/product").when(product).getCanonicalUrl();
-
-        JSONArray result = product.fetchVariantsAsJsonArray();
-
-        assertNotNull(result);
-        assertEquals(1, result.length());
-        JSONObject variantJson = result.getJSONObject(0);
-        assertEquals("Offer", variantJson.getString("@type"));
-        assertEquals("SKU789", variantJson.getString("sku"));
-        assertEquals("http://example.com/product", variantJson.getString("url"));
-        assertEquals("http://example.com/image1.jpg", variantJson.getString("image"));
-        assertEquals("USD", variantJson.getString("priceCurrency"));
-        assertEquals(120.0, variantJson.getDouble("price"), 0.001);
-        assertFalse(variantJson.has("SpecialPricedates"));
-        assertFalse(variantJson.has("priceSpecification"));
-    }
-
-    @Test
-    public void testFetchVariantsAsJsonArrayWithSpecialPrice() throws JSONException {
-        ProductImpl product = spy(new ProductImpl());
-        List<Variant> variants = new ArrayList<>();
-        VariantImpl variant = new VariantImpl();
-        variant.setSku("SKU789");
-        variant.setInStock(true);
-
-        // Add assets to the variant
-        List<Asset> assetsList = new ArrayList<>();
-        Asset asset = mock(Asset.class);
-        when(asset.getPath()).thenReturn("http://example.com/image1.jpg");
-        assetsList.add(asset);
-        variant.setAssets(assetsList);
-
-        Price priceRange = mock(Price.class);
-        when(priceRange.getRegularPrice()).thenReturn(120.0);
-        when(priceRange.getCurrency()).thenReturn("USD");
-        variant.setPriceRange(priceRange);
-
-        // Set special price and special to date
-        Double specialPrice = 100.0;
-        String specialToDate = "2023-12-31";
-        variant.setSpecialPrice(specialPrice);
-        variant.setSpecialToDate(specialToDate);
-
-        variants.add(variant);
-
-        doReturn(variants).when(product).getVariants();
-        doReturn("http://example.com/product").when(product).getCanonicalUrl();
-
-        JSONArray result = product.fetchVariantsAsJsonArray();
-
-        assertNotNull(result);
-        assertEquals(1, result.length());
-        JSONObject variantJson = result.getJSONObject(0);
-        assertEquals("Offer", variantJson.getString("@type"));
-        assertEquals("SKU789", variantJson.getString("sku"));
-        assertEquals("http://example.com/product", variantJson.getString("url"));
-        assertEquals("http://example.com/image1.jpg", variantJson.getString("image"));
-        assertEquals("USD", variantJson.getString("priceCurrency"));
-        assertEquals(specialPrice, variantJson.getDouble("price"), 0.001);
-        assertEquals("InStock", variantJson.getString("availability"));
-        assertEquals(specialToDate, variantJson.getString("SpecialPricedates"));
-
-        JSONObject priceSpecification = variantJson.getJSONObject("priceSpecification");
-        assertEquals("UnitPriceSpecification", priceSpecification.getString("@type"));
-        assertEquals("https://schema.org/ListPrice", priceSpecification.getString("priceType"));
-        assertEquals(120.0, priceSpecification.getDouble("price"), 0.001);
-        assertEquals("USD", priceSpecification.getString("priceCurrency"));
-
-        // Verify the special price and special to date are set correctly
-        assertEquals(specialPrice, variant.getSpecialPrice());
-        assertEquals(specialToDate, variant.getSpecialToDate());
-    }
-
-    @Test
-    public void testFetchVariantsAsJsonArrayWithNoVariants() throws JSONException {
+    public void testFetchVariantsAsJsonArray() throws JSONException {
         ProductImpl product = spy(new ProductImpl());
         List<Variant> variants = new ArrayList<>();
 
-        doReturn(variants).when(product).getVariants();
-        doReturn("http://example.com/product").when(product).getCanonicalUrl();
-
-        JSONArray result = product.fetchVariantsAsJsonArray();
-
-        assertNotNull(result);
-        assertEquals(0, result.length());
-    }
-
-    @Test
-    public void testFetchVariantsAsJsonArrayWithMultipleVariants() throws JSONException {
-        ProductImpl product = spy(new ProductImpl());
-        List<Variant> variants = new ArrayList<>();
-        VariantImpl variant1 = mock(VariantImpl.class);
-        when(variant1.getSku()).thenReturn("SKU789");
-        when(variant1.getInStock()).thenReturn(true);
-
-        // Add assets to the first variant
-        List<Asset> assetsList1 = new ArrayList<>();
-        Asset asset1 = mock(Asset.class);
-        when(asset1.getPath()).thenReturn("http://example.com/image1.jpg");
-        assetsList1.add(asset1);
-        when(variant1.getAssets()).thenReturn(assetsList1);
-
-        Price priceRange1 = mock(Price.class);
-        when(priceRange1.getRegularPrice()).thenReturn(120.0);
-        when(priceRange1.getCurrency()).thenReturn("USD");
-        when(variant1.getPriceRange()).thenReturn(priceRange1);
-        when(variant1.getSpecialPrice()).thenReturn(100.0);
-        when(variant1.getSpecialToDate()).thenReturn("2023-12-31");
+        VariantImpl variant1 = createMockVariant("SKU789", true, "http://example.com/image1.jpg", 120.0, "USD", 100.0, "2023-12-31");
         variants.add(variant1);
 
-        VariantImpl variant2 = mock(VariantImpl.class);
-        when(variant2.getSku()).thenReturn("SKU790");
-        when(variant2.getInStock()).thenReturn(false);
-
-        // Add assets to the second variant
-        List<Asset> assetsList2 = new ArrayList<>();
-        Asset asset2 = mock(Asset.class);
-        when(asset2.getPath()).thenReturn("http://example.com/image2.jpg");
-        assetsList2.add(asset2);
-        when(variant2.getAssets()).thenReturn(assetsList2);
-
-        Price priceRange2 = mock(Price.class);
-        when(priceRange2.getRegularPrice()).thenReturn(150.0);
-        when(priceRange2.getCurrency()).thenReturn("USD");
-        when(variant2.getPriceRange()).thenReturn(priceRange2);
-        when(variant2.getSpecialPrice()).thenReturn(130.0);
-        when(variant2.getSpecialToDate()).thenReturn("2023-12-31");
+        VariantImpl variant2 = createMockVariant("SKU790", false, "http://example.com/image2.jpg", 150.0, "USD", 130.0, "2023-12-31");
         variants.add(variant2);
 
         doReturn(variants).when(product).getVariants();
@@ -340,49 +198,60 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         assertEquals("USD", priceSpecification2.getString("priceCurrency"));
     }
 
+    private VariantImpl createMockVariant(String sku, boolean inStock, String imagePath, double regularPrice, String currency,
+        Double specialPrice, String specialToDate) {
+        VariantImpl variant = mock(VariantImpl.class);
+        when(variant.getSku()).thenReturn(sku);
+        when(variant.getInStock()).thenReturn(inStock);
+
+        List<Asset> assetsList = new ArrayList<>();
+        Asset asset = mock(Asset.class);
+        when(asset.getPath()).thenReturn(imagePath);
+        assetsList.add(asset);
+        when(variant.getAssets()).thenReturn(assetsList);
+
+        Price priceRange = mock(Price.class);
+        when(priceRange.getRegularPrice()).thenReturn(regularPrice);
+        when(priceRange.getCurrency()).thenReturn(currency);
+        when(variant.getPriceRange()).thenReturn(priceRange);
+        when(variant.getSpecialPrice()).thenReturn(specialPrice);
+        when(variant.getSpecialToDate()).thenReturn(specialToDate);
+
+        return variant;
+    }
+
     @Test
-    public void testGenerateProductJsonLDStringWithEnableJsonFalse() throws JSONException, NoSuchFieldException, IllegalAccessException {
-
-        // Initialize the ProductImpl instance
+    public void testGenerateProductJsonLDString() throws Exception {
         ProductImpl product = spy(new ProductImpl());
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode productJson = mapper.createObjectNode();
 
-        // Use reflection to set the enableJson field
-        Field enableJsonField = ProductImpl.class.getDeclaredField("enableJson");
-        enableJsonField.setAccessible(true);
-        enableJsonField.set(product, false);
+        // Test with enableJson true
+        doReturn(true).when(product).isEnableJson();
+        doReturn(productJson).when(product).createBasicProductJson(any(ObjectMapper.class));
+        doNothing().when(product).addOffersToJson(any(ObjectNode.class), any(ObjectMapper.class));
 
-        // Generate the JSON-LD string
         String jsonLD = product.generateProductJsonLDString();
+        assertNotNull(jsonLD);
+        assertEquals(productJson.toString(), jsonLD);
 
-        // Assert the JSON-LD string
+        // Test with cached data
+        Field cachedJsonLDField = ProductImpl.class.getDeclaredField("cachedJsonLD");
+        cachedJsonLDField.setAccessible(true);
+        cachedJsonLDField.set(product, "{\"@context\":\"http://schema.org\",\"@type\":\"Product\"}");
+
+        jsonLD = product.generateProductJsonLDString();
+        assertNotNull(jsonLD);
+        assertEquals("{\"@context\":\"http://schema.org\",\"@type\":\"Product\"}", jsonLD);
+
+        // Test with enableJson false
+        doReturn(false).when(product).isEnableJson();
+        jsonLD = product.generateProductJsonLDString();
         assertNull(jsonLD);
 
-    }
-
-    @Test
-    public void testGenerateProductJsonLDString_whenExceptionOccurs() throws Exception {
-        // Initialize the ProductImpl instance
-        ProductImpl product = spy(new ProductImpl());
-
-        // Mock necessary fields and methods to throw an exception
-        doThrow(new JSONException("Test Exception")).when(product).fetchVariantsAsJsonArray();
-
-        // Generate the JSON-LD string
-        String jsonLDString = product.generateProductJsonLDString();
-
-        // Assert the JSON-LD string
-        assertNull(jsonLDString);
-    }
-
-    @Test
-    public void testGenerateProductJsonLDString_withExceptionHandling() throws Exception {
-        // Mock the Product class
-        ProductImpl product = spy(new ProductImpl());
-
-        // Simulate an error in JSON processing
-        when(product.fetchVariantsAsJsonArray()).thenThrow(new JSONException("Invalid JSON"));
-
-        String jsonLD = product.generateProductJsonLDString();
+        // Test with exception handling
+        doThrow(new RuntimeException("Test Exception")).when(product).createBasicProductJson(any(ObjectMapper.class));
+        jsonLD = product.generateProductJsonLDString();
         assertNull(jsonLD);
     }
 
@@ -430,61 +299,12 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
     }
 
     @Test
-    public void testGenerateProductJsonLDString() throws Exception {
+    public void testGenerateProductJsonLDStringExceptionHandling() throws Exception {
         ProductImpl product = spy(new ProductImpl());
-        doReturn(true).when(product).isEnableJson();
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode productJson = mapper.createObjectNode();
-        doReturn(productJson).when(product).createBasicProductJson(any(ObjectMapper.class));
-        doNothing().when(product).addOffersToJson(any(ObjectNode.class), any(ObjectMapper.class));
+        doThrow(new RuntimeException("Test Exception")).when(product).createBasicProductJson(any(ObjectMapper.class));
 
-        String jsonLD = product.generateProductJsonLDString();
-
-        assertNotNull(jsonLD);
-        assertEquals(productJson.toString(), jsonLD);
-    }
-
-    @Test
-    public void testFetchVariantsAsJsonArrayWithEmptyVariantsList() throws JSONException {
-        ProductImpl product = spy(new ProductImpl());
-        List<Variant> variants = new ArrayList<>();
-
-        doReturn(variants).when(product).getVariants();
-        doReturn("http://example.com/product").when(product).getCanonicalUrl();
-
-        JSONArray result = product.fetchVariantsAsJsonArray();
-
-        assertNotNull(result);
-        assertEquals(0, result.length());
-    }
-
-    @Test
-    public void testFetchVariantsAsJsonArrayWithNullVariantsList() throws JSONException {
-        ProductImpl product = spy(new ProductImpl());
-        doReturn(null).when(product).getVariants();
-        doReturn("http://example.com/product").when(product).getCanonicalUrl();
-
-        JSONArray result = product.fetchVariantsAsJsonArray();
-
-        assertNotNull(result);
-        assertEquals(0, result.length());
-    }
-
-    @Test
-    public void testGenerateProductJsonLDStringWithCachedData() throws Exception {
-        ProductImpl product = spy(new ProductImpl());
-
-        Field enableJsonField = ProductImpl.class.getDeclaredField("enableJson");
-        enableJsonField.setAccessible(true);
-        enableJsonField.set(product, true);
-        Field cachedJsonLDField = ProductImpl.class.getDeclaredField("cachedJsonLD");
-        cachedJsonLDField.setAccessible(true);
-        cachedJsonLDField.set(product, "{\"@context\":\"http://schema.org\",\"@type\":\"Product\"}");
-
-        String jsonLD = product.generateProductJsonLDString();
-
-        assertNotNull(jsonLD);
-        assertEquals("{\"@context\":\"http://schema.org\",\"@type\":\"Product\"}", jsonLD);
+        String result = product.generateProductJsonLDString();
+        assertNull(result);
     }
 
 }

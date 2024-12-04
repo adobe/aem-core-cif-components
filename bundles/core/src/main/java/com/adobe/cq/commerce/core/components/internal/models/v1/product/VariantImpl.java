@@ -31,8 +31,6 @@ public class VariantImpl implements Variant {
 
     private String description;
 
-    private String specialToDate;
-
     private String sku;
 
     private Boolean inStock;
@@ -46,6 +44,10 @@ public class VariantImpl implements Variant {
     private Map<String, String> variantAttributesUid = new HashMap<>();
 
     private Price priceRange;
+
+    private Double specialPrice;
+
+    private String specialToDate;
 
     @Override
     public String getId() {
@@ -65,17 +67,6 @@ public class VariantImpl implements Variant {
         this.name = name;
     }
 
-    private Double specialPrice;
-
-    @JsonIgnore
-    public Double getSpecialPrice() {
-        return specialPrice;
-    }
-
-    public void setSpecialPrice(Double specialPrice) {
-        this.specialPrice = specialPrice;
-    }
-
     @Override
     public String getDescription() {
         return description;
@@ -88,15 +79,6 @@ public class VariantImpl implements Variant {
     @Override
     public String getSku() {
         return sku;
-    }
-
-    @JsonIgnore
-    public String getSpecialToDate() {
-        return specialToDate;
-    }
-
-    public void setSpecialToDate(String specialToDate) {
-        this.specialToDate = specialToDate;
     }
 
     public void setSku(String sku) {
@@ -147,5 +129,23 @@ public class VariantImpl implements Variant {
 
     public void setAssets(List<Asset> assets) {
         this.assets = assets;
+    }
+
+    @JsonIgnore
+    public String getSpecialToDate() {
+        return specialToDate;
+    }
+
+    public void setSpecialToDate(String specialToDate) {
+        this.specialToDate = specialToDate;
+    }
+
+    @JsonIgnore
+    public Double getSpecialPrice() {
+        return specialPrice;
+    }
+
+    public void setSpecialPrice(Double specialPrice) {
+        this.specialPrice = specialPrice;
     }
 }
