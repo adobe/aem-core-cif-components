@@ -299,12 +299,69 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
     }
 
     @Test
-    public void testGenerateProductJsonLDStringExceptionHandling() throws Exception {
+    public void testFetchVariantsAsJsonArrayWithEmptyVariantsList() throws JSONException {
         ProductImpl product = spy(new ProductImpl());
-        doThrow(new RuntimeException("Test Exception")).when(product).createBasicProductJson(any(ObjectMapper.class));
+        doReturn(Collections.emptyList()).when(product).getVariants();
 
-        String result = product.generateProductJsonLDString();
-        assertNull(result);
+        JSONArray result = product.fetchVariantsAsJsonArray();
+
+        assertNotNull(result);
+        assertEquals(0, result.length());
+    }
+
+    @Test
+    public void testGetAndSetSpecialPriceAndToDate() {
+        VariantImpl variant = new VariantImpl();
+
+        String specialToDate = "2023-12-31";
+        variant.setSpecialToDate(specialToDate);
+        assertEquals(specialToDate, variant.getSpecialToDate());
+
+        Double specialPrice = 99.99;
+        variant.setSpecialPrice(specialPrice);
+        assertEquals(specialPrice, variant.getSpecialPrice(), 0.001);
+    }
+
+    @Test
+    public void testFetchVariantsAsJsonArrayWithNullOrEmptyVariants() throws JSONException {
+        ProductImpl product = spy(new ProductImpl());
+
+        // Test with null variants
+        doReturn(null).when(product).getVariants();
+        JSONArray result = product.fetchVariantsAsJsonArray();
+        assertNotNull(result);
+        assertEquals(0, result.length());
+
+        // Test with empty variants
+        doReturn(Collections.emptyList()).when(product).getVariants();
+        result = product.fetchVariantsAsJsonArray();
+        assertNotNull(result);
+        assertEquals(0, result.length());
+    }
+
+    @Test
+    public void testFetchVariantsAsJsonArrayWithSpecialPriceAndDate() throws JSONException {
+        ProductImpl product = spy(new ProductImpl());
+        List<Variant> variants = new ArrayList<>();
+
+        VariantImpl variant = createMockVariant("SKU789", true, "http://example.com/image1.jpg", 120.0, "USD", null, null);
+        variants.add(variant);
+
+        doReturn(variants).when(product).getVariants();
+        doReturn("http://example.com/product").when(product).getCanonicalUrl();
+
+        JSONArray result = product.fetchVariantsAsJsonArray();
+
+        assertNotNull(result);
+        assertEquals(1, result.length());
+
+        JSONObject variantJson = result.getJSONObject(0);
+        assertEquals("Offer", variantJson.getString("@type"));
+        assertEquals("SKU789", variantJson.getString("sku"));
+        assertEquals("http://example.com/product", variantJson.getString("url"));
+        assertEquals("http://example.com/image1.jpg", variantJson.getString("image"));
+        assertEquals("USD", variantJson.getString("priceCurrency"));
+        assertEquals(120.0, variantJson.getDouble("price"), 0.001);
     }
 
 }
