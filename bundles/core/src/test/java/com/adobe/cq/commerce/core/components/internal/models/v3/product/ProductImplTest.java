@@ -298,15 +298,24 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         assertEquals("test-sku", offersArray.get(0).get("sku").asText());
     }
 
+    private ProductImpl createSpyProductWithVariants(List<Variant> variants) {
+        ProductImpl product = spy(new ProductImpl());
+        doReturn(variants).when(product).getVariants();
+        return product;
+    }
+
+    private void assertJsonArray(JSONArray result, int expectedLength) throws JSONException {
+        assertNotNull(result);
+        assertEquals(expectedLength, result.length());
+    }
+
     @Test
     public void testFetchVariantsAsJsonArrayWithEmptyVariantsList() throws JSONException {
-        ProductImpl product = spy(new ProductImpl());
-        doReturn(Collections.emptyList()).when(product).getVariants();
+        ProductImpl product = createSpyProductWithVariants(Collections.emptyList());
 
         JSONArray result = product.fetchVariantsAsJsonArray();
 
-        assertNotNull(result);
-        assertEquals(0, result.length());
+        assertJsonArray(result, 0);
     }
 
     @Test
@@ -324,36 +333,29 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
 
     @Test
     public void testFetchVariantsAsJsonArrayWithNullOrEmptyVariants() throws JSONException {
-        ProductImpl product = spy(new ProductImpl());
-
         // Test with null variants
-        doReturn(null).when(product).getVariants();
+        ProductImpl product = createSpyProductWithVariants(null);
         JSONArray result = product.fetchVariantsAsJsonArray();
-        assertNotNull(result);
-        assertEquals(0, result.length());
+        assertJsonArray(result, 0);
 
         // Test with empty variants
-        doReturn(Collections.emptyList()).when(product).getVariants();
+        product = createSpyProductWithVariants(Collections.emptyList());
         result = product.fetchVariantsAsJsonArray();
-        assertNotNull(result);
-        assertEquals(0, result.length());
+        assertJsonArray(result, 0);
     }
 
     @Test
     public void testFetchVariantsAsJsonArrayWithSpecialPriceAndDate() throws JSONException {
-        ProductImpl product = spy(new ProductImpl());
         List<Variant> variants = new ArrayList<>();
-
         VariantImpl variant = createMockVariant("SKU789", true, "http://example.com/image1.jpg", 120.0, "USD", null, null);
         variants.add(variant);
 
-        doReturn(variants).when(product).getVariants();
+        ProductImpl product = createSpyProductWithVariants(variants);
         doReturn("http://example.com/product").when(product).getCanonicalUrl();
 
         JSONArray result = product.fetchVariantsAsJsonArray();
 
-        assertNotNull(result);
-        assertEquals(1, result.length());
+        assertJsonArray(result, 1);
 
         JSONObject variantJson = result.getJSONObject(0);
         assertEquals("Offer", variantJson.getString("@type"));
@@ -363,5 +365,4 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         assertEquals("USD", variantJson.getString("priceCurrency"));
         assertEquals(120.0, variantJson.getDouble("price"), 0.001);
     }
-
 }

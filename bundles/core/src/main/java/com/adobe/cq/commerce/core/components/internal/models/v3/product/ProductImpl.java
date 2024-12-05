@@ -82,7 +82,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     private Set<String> visibleSectionsSet;
 
-    boolean enableJson;
+    public boolean enableJson;
 
     @PostConstruct
     protected void initModel() {
