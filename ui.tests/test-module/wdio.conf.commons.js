@@ -29,7 +29,7 @@ exports.config = {
     // Tests
     specs: ['./specs/**/*.js'],
 
-    exclude: ['./specs/asset-finder.js'],
+    exclude: ['./specs/cif-components-library/product-jsonld.js'],
 
     logLevel: 'debug',
 
