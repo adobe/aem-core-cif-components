@@ -12,17 +12,20 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.cacheInvalidation.internal;
+package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 
 @Component(service = InvalidateCacheSupport.class, immediate = true)
@@ -82,6 +85,19 @@ public class InvalidateCacheSupport {
         ClientHolder(GraphqlClient graphqlClient, Map<String, Object> properties) {
             this.graphqlClient = graphqlClient;
             this.properties = properties;
+        }
+    }
+
+    public static ComponentsConfiguration getCommerceProperties(ResourceResolver resourceResolver, String storePath) {
+        Resource resourceStorePath = getResource(resourceResolver, storePath);
+        return resourceStorePath != null ? resourceStorePath.adaptTo(ComponentsConfiguration.class) : null;
+    }
+
+    private static Resource getResource(ResourceResolver resourceResolver, String path) {
+        try {
+            return resourceResolver.getResource(path);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

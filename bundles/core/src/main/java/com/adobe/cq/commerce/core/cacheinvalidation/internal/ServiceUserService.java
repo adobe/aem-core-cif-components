@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.cacheInvalidation.internal;
+package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.HashMap;
 import java.util.Map;

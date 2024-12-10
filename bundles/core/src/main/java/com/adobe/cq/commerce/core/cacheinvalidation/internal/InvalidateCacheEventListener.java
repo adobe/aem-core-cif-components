@@ -11,7 +11,7 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-package com.adobe.cq.commerce.core.cacheInvalidation.internal;
+package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
