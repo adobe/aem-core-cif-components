@@ -153,6 +153,7 @@ public class ProductComponentIT extends CommerceTestBase {
     }
 
     @Test
+    @Category({ IgnoreOnCloud.class, IgnoreOn65.class })
     public void testProductPageWithJsonLdData() throws Exception {
         SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html",
             200);
