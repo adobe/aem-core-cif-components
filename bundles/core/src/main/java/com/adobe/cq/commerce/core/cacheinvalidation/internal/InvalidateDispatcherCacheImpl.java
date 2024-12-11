@@ -47,7 +47,7 @@ import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
+import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.google.gson.reflect.TypeToken;
@@ -110,14 +110,14 @@ public class InvalidateDispatcherCacheImpl {
 
             if (InvalidateCacheSupport.TYPE_SKU.equals(type)) {
                 invalidateDispatcherPagePaths = getCorrespondingProductsPageBasedOnSku(session, storePath, invalidCacheEntries);
-                String query = generateSkuQuery(dataString);
+                String query = generateSkuQuery(invalidCacheEntries);
                 Map<String, Object> data = getGraphqlResponseData(client, query);
                 if (data != null && data.get("products") != null) {
                     correspondingPaths = getSkuBasedInvalidPaths(resourceResolver, data, commerceProperties, storePath);
                 }
             } else if (InvalidateCacheSupport.TYPE_CATEGORY.equals(type)) {
                 invalidateDispatcherPagePaths = getCorrespondingCategoryPageBasedOnUid(session, storePath, invalidCacheEntries);
-                String query = generateCategoryQuery(dataString);
+                String query = generateCategoryQuery(invalidCacheEntries);
                 Map<String, Object> data = getGraphqlResponseData(client, query);
                 if (data != null && data.get("categoryList") != null) {
                     correspondingPaths = getCategoryBasedInvalidPaths(resourceResolver, data, commerceProperties, storePath);
@@ -334,43 +334,35 @@ public class InvalidateDispatcherCacheImpl {
         return null;
     }
 
-    private static String generateSkuQuery(String skuString) {
-        return "{\n" +
-            "  products(\n" +
-            "    filter: { sku: { in: [" + skuString + "] } }\n" +
-            "    pageSize: 100\n" +
-            "    currentPage: 1\n" +
-            "  ) {\n" +
-            "    items {\n" +
-            "      sku\n" +
-            "      uid\n" +
-            "      url_key\n" +
-            "      url_path\n" +
-            "      canonical_url\n" +
-            "      url_rewrites {\n" +
-            "        url\n" +
-            "      }\n" +
-            "      categories {\n" +
-            "        uid\n" +
-            "        url_key\n" +
-            "        url_path\n" +
-            "      }\n" +
-            "    }\n" +
-            "  }\n" +
-            "}";
+    private static String generateSkuQuery(String[] skus) {
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
+        FilterEqualTypeInput skuFilter = new FilterEqualTypeInput().setIn(Arrays.asList(skus));
+        filter.setSku(skuFilter);
+        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+
+        ProductsQueryDefinition queryArgs = q -> q.items(item -> {
+            item.sku()
+                .urlKey()
+                .urlPath()
+                .urlRewrites(uq -> uq.url())
+                .categories(c -> c.uid().urlKey().urlPath());
+        });
+        return Operations.query(query -> query
+            .products(searchArgs, queryArgs)).toString();
     }
 
-    private static String generateCategoryQuery(String uidString) {
+    private static String generateCategoryQuery(String[] uids) {
+        CategoryFilterInput filter = new CategoryFilterInput();
+        FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setIn(Arrays.asList(uids));
+        filter.setCategoryUid(identifiersFilter);
+        QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
 
-        return "{\n" +
-            "  categoryList(\n" +
-            "    filters: { category_uid: { in: [" + uidString + "] } }\n" +
-            "  ) {\n" +
-            "    uid\n" +
-            "    url_path\n" +
-            "    url_key\n" +
-            "  }\n" +
-            "}";
+        CategoryTreeQueryDefinition queryArgs = q -> {
+            q.uid().name().urlKey().urlPath();
+        };
+
+        return Operations.query(query -> query
+            .categoryList(searchArgs, queryArgs)).toString();
     }
 
     private static String formatList(String[] invalidCacheEntries, String delimiter, String pattern) {
