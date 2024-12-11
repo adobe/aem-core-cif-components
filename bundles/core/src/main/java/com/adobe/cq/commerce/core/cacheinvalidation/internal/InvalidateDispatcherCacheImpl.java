@@ -146,7 +146,8 @@ public class InvalidateDispatcherCacheImpl {
 
         for (Map<String, Object> item : items) {
             addProductPaths(uniquePagePaths, item, page);
-            addCategoryPaths(uniquePagePaths, item, page);
+            List<Map<String, String>> categories = (List<Map<String, String>>) item.get("categories");
+            addCategoryPaths(uniquePagePaths, categories, page);
         }
         return uniquePagePaths.toArray(new String[0]);
     }
@@ -167,9 +168,8 @@ public class InvalidateDispatcherCacheImpl {
         }
     }
 
-    private void addCategoryPaths(Set<String> uniquePagePaths, Map<String, Object> item, Page page) {
+    private void addCategoryPaths(Set<String> uniquePagePaths, List<Map<String, String>> categories, Page page) {
         CategoryUrlFormat.Params categoryParams = new CategoryUrlFormat.Params();
-        List<Map<String, String>> categories = (List<Map<String, String>>) item.get("categories");
         if (categories != null) {
             for (Map<String, String> category : categories) {
                 categoryParams.setUid(category.get("uid"));
@@ -188,28 +188,29 @@ public class InvalidateDispatcherCacheImpl {
         return urlFormat;
     }
 
-    private static String[] getCategoryBasedInvalidPaths(ResourceResolver resourceResolver, Map<String, Object> data,
+    private String[] getCategoryBasedInvalidPaths(ResourceResolver resourceResolver, Map<String, Object> data,
         ComponentsConfiguration commerceProperties,
         String storePath) throws RepositoryException {
+        Page page = getPage(resourceResolver, storePath);
         Set<String> uniquePagePaths = new HashSet<>();
-        String productPath = getCorrespondingPageProperties(resourceResolver, storePath, "cq:cifProductPage");
-        String productPageUrlFormat = getPageFormatUrl(commerceProperties, PROPERTY_PRODUCT_PAGE_URL_FORMAT);
-        String categoryPath = getCorrespondingPageProperties(resourceResolver, storePath, "cq:cifCategoryPage");
-        String categoryPageUrlFormat = getPageFormatUrl(commerceProperties, PROPERTY_CATEGORY_PAGE_URL_FORMAT);
 
-        productPageUrlFormat = truncateUrlFormat(productPageUrlFormat);
-        categoryPageUrlFormat = truncateUrlFormat(categoryPageUrlFormat);
+        List<Map<String, String>> items = (List<Map<String, String>>) data.get("categoryList");
+        addCategoryPaths(uniquePagePaths, items, page);
+        ProductUrlFormat.Params productParams = new ProductUrlFormat.Params();
 
-        List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("categoryList");
-        for (Map<String, Object> item : items) {
-            String productUrlPath = productPageUrlFormat.replace("{{page}}", productPath)
-                .replace("{{url_key}}", (String) item.get("url_key"))
-                .replace("{{url_path}}", (String) item.get("url_path"));
-            String categoryUrlPath = categoryPageUrlFormat.replace("{{page}}", categoryPath)
-                .replace("{{url_key}}", (String) item.get("url_key"))
-                .replace("{{url_path}}", (String) item.get("url_path"));
+        for (Map<String, String> item : items) {
+            // To-Do: For now the below one is an hack to get the product page path,
+            // we need to find a better way to get the product page path
+            productParams.setUrlKey(item.get("url_key"));
+            productParams.setUrlPath(item.get("url_path"));
+
+            // For now, we are not using the below code, but we can use it in future
+            // productParams.getCategoryUrlParams().setUid(item.get("uid"));
+            // productParams.getCategoryUrlParams().setUrlKey(item.get("url_key"));
+            // productParams.getCategoryUrlParams().setUrlPath(item.get("url_path"));
+
+            String productUrlPath = urlProvider.toProductUrl(null, page, productParams);
             uniquePagePaths.add(productUrlPath);
-            uniquePagePaths.add(categoryUrlPath);
         }
         return uniquePagePaths.toArray(new String[0]);
     }
@@ -287,14 +288,6 @@ public class InvalidateDispatcherCacheImpl {
         jsonData.put("productPath", createFunctionProperty("getCorrespondingPageProperties", new Class<?>[] { ResourceResolver.class,
             String.class, String.class },
             new Object[] { resourceResolver, actualStorePath, "cq:cifProductPage" }));
-        jsonData.put(PROPERTY_PRODUCT_PAGE_URL_FORMAT, createFunctionProperty("getPageFormatUrl", new Class<?>[] {
-            ComponentsConfiguration.class,
-            String.class },
-            new Object[] { commerceProperties, PROPERTY_PRODUCT_PAGE_URL_FORMAT }));
-        jsonData.put(PROPERTY_CATEGORY_PAGE_URL_FORMAT, createFunctionProperty("getPageFormatUrl", new Class<?>[] {
-            ComponentsConfiguration.class,
-            String.class },
-            new Object[] { commerceProperties, PROPERTY_CATEGORY_PAGE_URL_FORMAT }));
 
         return jsonData;
     }
@@ -440,17 +433,6 @@ public class InvalidateDispatcherCacheImpl {
     private String extractPagePath(String fullPath) {
         int jcrContentIndex = fullPath.indexOf("/jcr:content");
         return jcrContentIndex != -1 ? fullPath.substring(0, jcrContentIndex) : fullPath;
-    }
-
-    private static String getPageFormatUrl(ComponentsConfiguration commerceProperties, String propertyName) {
-        String url = commerceProperties.get(propertyName, (String) null);
-        // Find the last occurrence of ".html" to include the entire relevant path
-        int htmlIndex = url.lastIndexOf(".html");
-        if (htmlIndex != -1) {
-            // Include everything up to the last ".html"
-            url = url.substring(0, htmlIndex + 5);
-        }
-        return url;
     }
 
     private static void flushCache(String handle) {
