@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
@@ -47,6 +48,9 @@ public class InvalidateCacheSupport {
     public static final String TYPE_ClEAR_SPECIFIC_CACHE = "clearSpecificCache";
     public static final String TYPE_ATTRIBUTE = "attribute";
     public static final String TYPE_CLEAR_ALL = "clearAll";
+
+    @Reference
+    private ServiceUserService serviceUserService;
 
     private final Collection<ClientHolder> clients = new ArrayList<>();
 
@@ -88,16 +92,20 @@ public class InvalidateCacheSupport {
         }
     }
 
-    public static ComponentsConfiguration getCommerceProperties(ResourceResolver resourceResolver, String storePath) {
+    public ComponentsConfiguration getCommerceProperties(ResourceResolver resourceResolver, String storePath) {
         Resource resourceStorePath = getResource(resourceResolver, storePath);
         return resourceStorePath != null ? resourceStorePath.adaptTo(ComponentsConfiguration.class) : null;
     }
 
-    private static Resource getResource(ResourceResolver resourceResolver, String path) {
+    public Resource getResource(ResourceResolver resourceResolver, String path) {
         try {
             return resourceResolver.getResource(path);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public ResourceResolver getResourceResolver() throws LoginException {
+        return serviceUserService.getServiceUserResourceResolver(SERVICE_USER);
     }
 }

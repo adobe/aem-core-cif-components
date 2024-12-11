@@ -23,14 +23,11 @@ import java.util.stream.Stream;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.query.*;
 import javax.jcr.query.Query;
-import javax.jcr.query.QueryResult;
-import javax.jcr.query.Row;
-import javax.jcr.query.RowIterator;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
@@ -65,9 +62,6 @@ public class InvalidateDispatcherCacheImpl {
     private SlingSettingsService slingSettingsService;
 
     @Reference
-    private ServiceUserService serviceUserService;
-
-    @Reference
     private InvalidateCacheSupport invalidateCacheSupport;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateDispatcherCacheImpl.class);
@@ -77,64 +71,70 @@ public class InvalidateDispatcherCacheImpl {
             LOGGER.error("Operation is only supported for author");
             return;
         }
-        try (ResourceResolver resourceResolver = serviceUserService.getServiceUserResourceResolver(InvalidateCacheSupport.SERVICE_USER)) {
-            Resource resource = resourceResolver.getResource(path);
-            if (resource == null) {
-                LOGGER.error("Resource not found at path: {}", path);
+        try (ResourceResolver resourceResolver = invalidateCacheSupport.getResourceResolver()) {
+            Resource resource = invalidateCacheSupport.getResource(resourceResolver, path);
+            if (resource == null)
                 return;
-            }
 
-            Session session = resourceResolver.adaptTo(Session.class);
-            if (session == null) {
-                LOGGER.error("Session not found for resource resolver");
+            Session session = getSession(resourceResolver);
+            if (session == null)
                 return;
-            }
 
             ValueMap properties = resource.getValueMap();
             String storePath = properties.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class);
-            ComponentsConfiguration commerceProperties = InvalidateCacheSupport.getCommerceProperties(resourceResolver, storePath);
-            if (commerceProperties == null || !isValid(properties, resourceResolver, commerceProperties, storePath)) {
-                LOGGER.error("Commerce data not found or invalid at path: {}", path);
+            ComponentsConfiguration commerceProperties = getCommerceProperties(resourceResolver, storePath);
+            if (!isValid(properties, resourceResolver, commerceProperties, storePath))
                 return;
-            }
 
             String graphqlClientId = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, (String) null);
             String[] invalidCacheEntries = properties.get(InvalidateCacheSupport.PROPERTIES_INVALID_CACHE_ENTRIES, String[].class);
             String type = properties.get(InvalidateCacheSupport.PROPERTIES_TYPE, String.class);
 
             GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
-            String dataString = formatList(invalidCacheEntries, ", ", "\"%s\"");
+            String[] allPaths = getAllInvalidPaths(session, resourceResolver, commerceProperties, storePath, invalidCacheEntries, type,
+                client);
 
-            String[] invalidateDispatcherPagePaths = new String[0];
-            String[] correspondingPaths = new String[0];
-
-            if (InvalidateCacheSupport.TYPE_SKU.equals(type)) {
-                invalidateDispatcherPagePaths = getCorrespondingProductsPageBasedOnSku(session, storePath, invalidCacheEntries);
-                String query = generateSkuQuery(invalidCacheEntries);
-                Map<String, Object> data = getGraphqlResponseData(client, query);
-                if (data != null && data.get("products") != null) {
-                    correspondingPaths = getSkuBasedInvalidPaths(resourceResolver, data, commerceProperties, storePath);
-                }
-            } else if (InvalidateCacheSupport.TYPE_CATEGORY.equals(type)) {
-                invalidateDispatcherPagePaths = getCorrespondingCategoryPageBasedOnUid(session, storePath, invalidCacheEntries);
-                String query = generateCategoryQuery(invalidCacheEntries);
-                Map<String, Object> data = getGraphqlResponseData(client, query);
-                if (data != null && data.get("categoryList") != null) {
-                    correspondingPaths = getCategoryBasedInvalidPaths(resourceResolver, data, commerceProperties, storePath);
-                }
-            }
-
-            String[] allPaths = Stream.concat(Arrays.stream(invalidateDispatcherPagePaths), Arrays.stream(correspondingPaths))
-                .toArray(String[]::new);
-
-            for (String dispatcherPath : allPaths) {
-                flushCache(dispatcherPath);
-            }
-        } catch (LoginException e) {
-            LOGGER.error("Error getting service user: {}", e.getMessage(), e);
+            Arrays.stream(allPaths).forEach(this::flushCache);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            LOGGER.error("Error invalidating cache: {}", e.getMessage(), e);
         }
+    }
+
+    private Session getSession(ResourceResolver resourceResolver) {
+        Session session = resourceResolver.adaptTo(Session.class);
+        if (session == null) {
+            LOGGER.error("Session not found for resource resolver");
+        }
+        return session;
+    }
+
+    private ComponentsConfiguration getCommerceProperties(ResourceResolver resourceResolver, String storePath) {
+        return invalidateCacheSupport.getCommerceProperties(resourceResolver, storePath);
+    }
+
+    private String[] getAllInvalidPaths(Session session, ResourceResolver resourceResolver, ComponentsConfiguration commerceProperties,
+        String storePath, String[] invalidCacheEntries, String type, GraphqlClient client) throws Exception {
+        String[] invalidateDispatcherPagePaths = new String[0];
+        String[] correspondingPaths = new String[0];
+
+        if (InvalidateCacheSupport.TYPE_SKU.equals(type)) {
+            invalidateDispatcherPagePaths = getCorrespondingProductsPageBasedOnSku(session, storePath, invalidCacheEntries);
+            String query = generateSkuQuery(invalidCacheEntries);
+            Map<String, Object> data = getGraphqlResponseData(client, query);
+            if (data != null && data.get("products") != null) {
+                correspondingPaths = getSkuBasedInvalidPaths(resourceResolver, data, commerceProperties, storePath);
+            }
+        } else if (InvalidateCacheSupport.TYPE_CATEGORY.equals(type)) {
+            invalidateDispatcherPagePaths = getCorrespondingCategoryPageBasedOnUid(session, storePath, invalidCacheEntries);
+            String query = generateCategoryQuery(invalidCacheEntries);
+            Map<String, Object> data = getGraphqlResponseData(client, query);
+            if (data != null && data.get("categoryList") != null) {
+                correspondingPaths = getCategoryBasedInvalidPaths(resourceResolver, data, commerceProperties, storePath);
+            }
+        }
+
+        return Stream.concat(Arrays.stream(invalidateDispatcherPagePaths), Arrays.stream(correspondingPaths))
+            .toArray(String[]::new);
     }
 
     private String[] getSkuBasedInvalidPaths(ResourceResolver resourceResolver, Map<String, Object> data,
@@ -179,13 +179,6 @@ public class InvalidateDispatcherCacheImpl {
                 uniquePagePaths.add(categoryUrlPath);
             }
         }
-    }
-
-    private static String truncateUrlFormat(String urlFormat) {
-        if (urlFormat != null && urlFormat.endsWith("/")) {
-            return urlFormat.substring(0, urlFormat.length() - 1);
-        }
-        return urlFormat;
     }
 
     private String[] getCategoryBasedInvalidPaths(ResourceResolver resourceResolver, Map<String, Object> data,
@@ -371,19 +364,25 @@ public class InvalidateDispatcherCacheImpl {
             .collect(Collectors.joining(delimiter));
     }
 
-    private static String getSkuBasedSql2Query(String storePath, String skuList) {
-        return "SELECT content.[jcr:path] " +
+    private static Query getSkuBasedSql2Query(Session session, String storePath, String skuListString) throws Exception {
+        QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+        String sql2Query = "SELECT content.[jcr:path] " +
             "FROM [cq:Page] AS page " +
             "INNER JOIN [nt:unstructured] AS content ON ISDESCENDANTNODE(content, page) " +
-            "WHERE ISDESCENDANTNODE(page,'" + storePath + "' ) " +
-            "AND (" +
-            "(content.[product] in (" + skuList + ") AND content.[productType] in ('combinedSku')) " +
-            "OR (content.[selection] in (" + skuList + ") AND content.[selectionType] in ('combinedSku', 'sku'))" +
+            "WHERE ISDESCENDANTNODE(page, '" + storePath + "') " +
+            "AND ( " +
+            "    (content.[product] IN (" + skuListString + ") AND content.[productType] = 'combinedSku') " +
+            "    OR (content.[selection] IN (" + skuListString + ") AND content.[selectionType] IN ('combinedSku', 'sku')) " +
             ")";
+
+        return queryManager.createQuery(sql2Query, Query.JCR_SQL2);
     }
 
-    private static String getCategoryBasedSql2Query(Session session, String storePath, String categoryList) throws RepositoryException {
-        return "SELECT content.[jcr:path] " +
+    private static Query getCategoryBasedSql2Query(Session session, String storePath, String categoryList) throws RepositoryException {
+        QueryManager queryManager = session.getWorkspace().getQueryManager();
+
+        String sql2Query = "SELECT content.[jcr:path] " +
             "FROM [cq:Page] AS page " +
             "INNER JOIN [nt:unstructured] AS content ON ISDESCENDANTNODE(content, page) " +
             "WHERE ISDESCENDANTNODE(page,'" + storePath + "' ) " +
@@ -391,26 +390,24 @@ public class InvalidateDispatcherCacheImpl {
             "(content.[categoryId] in (" + categoryList + ") AND content.[categoryIdType] in ('uid')) " +
             "OR (content.[category] in (" + categoryList + ") AND content.[categoryType] in ('uid'))" +
             ")";
+        return queryManager.createQuery(sql2Query, Query.JCR_SQL2);
     }
 
     private String[] getCorrespondingProductsPageBasedOnSku(Session session, String storePath, String[] invalidCacheEntries)
         throws Exception {
         String skuList = formatList(invalidCacheEntries, ", ", "'%s'");
-        String sql2Query = getSkuBasedSql2Query(storePath, skuList);
-        return getCorrespondingPageBasedOnQuery(session, sql2Query);
+        return getQueryResult(getSkuBasedSql2Query(session, storePath, skuList));
     }
 
     private String[] getCorrespondingCategoryPageBasedOnUid(Session session, String storePath, String[] invalidCacheEntries)
         throws Exception {
         String categoryList = formatList(invalidCacheEntries, ", ", "'%s'");
-        String sql2Query = getCategoryBasedSql2Query(session, storePath, categoryList);
-        return getCorrespondingPageBasedOnQuery(session, sql2Query);
+        return getQueryResult(getCategoryBasedSql2Query(session, storePath, categoryList));
     }
 
-    private String[] getCorrespondingPageBasedOnQuery(Session session, String queryString)
+    private String[] getQueryResult(Query query)
         throws Exception {
         Set<String> uniquePagePaths = new HashSet<>();
-        Query query = session.getWorkspace().getQueryManager().createQuery(queryString, Query.JCR_SQL2);
         QueryResult result = query.execute();
         RowIterator rows = result.getRows();
         while (rows.hasNext()) {
@@ -427,7 +424,7 @@ public class InvalidateDispatcherCacheImpl {
         return jcrContentIndex != -1 ? fullPath.substring(0, jcrContentIndex) : fullPath;
     }
 
-    private static void flushCache(String handle) {
+    private void flushCache(String handle) {
         try {
             String server = "localhost:80";
             String uri = "/dispatcher/invalidate.cache";

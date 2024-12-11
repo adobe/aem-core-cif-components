@@ -30,15 +30,12 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 public class InvalidateCacheImpl {
 
     @Reference
-    private ServiceUserService serviceUserService;
-
-    @Reference
     private InvalidateCacheSupport invalidateCacheSupport;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheImpl.class);
 
     public void invalidateCache(String path) {
-        try (ResourceResolver resourceResolver = serviceUserService.getServiceUserResourceResolver(InvalidateCacheSupport.SERVICE_USER)) {
+        try (ResourceResolver resourceResolver = invalidateCacheSupport.getResourceResolver()) {
             Resource resource = resourceResolver.getResource(path);
             if (resource != null) {
                 processResource(resourceResolver, resource);
@@ -52,7 +49,7 @@ public class InvalidateCacheImpl {
 
     private void processResource(ResourceResolver resourceResolver, Resource resource) {
         String storePath = resource.getValueMap().get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class);
-        ComponentsConfiguration commerceProperties = InvalidateCacheSupport.getCommerceProperties(resourceResolver, storePath);
+        ComponentsConfiguration commerceProperties = invalidateCacheSupport.getCommerceProperties(resourceResolver, storePath);
         if (commerceProperties != null) {
             handleCacheInvalidation(resource, commerceProperties);
         } else {
