@@ -42,9 +42,12 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.google.gson.reflect.TypeToken;
@@ -135,42 +138,47 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     private String[] getSkuBasedInvalidPaths(ResourceResolver resourceResolver, Map<String, Object> data,
-        ComponentsConfiguration commerceProperties,
-        String storePath) throws RepositoryException {
+        ComponentsConfiguration commerceProperties, String storePath) throws RepositoryException {
         Page page = getPage(resourceResolver, storePath);
-
         Set<String> uniquePagePaths = new HashSet<>();
-        String categoryPath = getCorrespondingPageProperties(resourceResolver, storePath, "cq:cifCategoryPage");
-        String categoryPageUrlFormat = getPageFormatUrl(commerceProperties, PROPERTY_CATEGORY_PAGE_URL_FORMAT);
-
-        categoryPageUrlFormat = truncateUrlFormat(categoryPageUrlFormat);
 
         List<Map<String, Object>> items = (List<Map<String, Object>>) ((Map<String, Object>) data.get("products")).get("items");
-        Map<String, String> params = new HashMap<>();
 
         for (Map<String, Object> item : items) {
-            params.put("url_path", (String) item.get("url_path"));
-            params.put("url_key", (String) item.get("url_key"));
-            params.put("sku", (String) item.get("sku"));
-
-            String productUrlPath = urlProvider.toProductUrl(null, page, params);
-
-            String categoryUrlPath = categoryPageUrlFormat.replace("{{page}}", categoryPath);
-
-            List<Map<String, String>> urlRewrites = (List<Map<String, String>>) item.get("url_rewrites");
-            if (urlRewrites != null) {
-                for (Map<String, String> urlRewrite : urlRewrites) {
-                    String productUrl = urlRewrite.get("url").replace(".html", "");
-                    String[] parts = productUrl.split("/");
-                    if (parts.length > 1) {
-                        String categoryUrl = String.join("/", Arrays.copyOf(parts, parts.length - 1));
-                        uniquePagePaths.add(categoryUrlPath.replace("{{url_path}}", categoryUrl));
-                    }
-                    uniquePagePaths.add(productUrlPath.replace("{{url_path}}", productUrl));
-                }
-            }
+            addProductPaths(uniquePagePaths, item, page);
+            addCategoryPaths(uniquePagePaths, item, page);
         }
         return uniquePagePaths.toArray(new String[0]);
+    }
+
+    private void addProductPaths(Set<String> uniquePagePaths, Map<String, Object> item, Page page) {
+        ProductUrlFormat.Params productParams = new ProductUrlFormat.Params();
+        productParams.setSku((String) item.get("sku"));
+        productParams.setUrlKey((String) item.get("url_key"));
+        productParams.setUrlPath((String) item.get("url_path"));
+
+        List<Map<String, String>> urlRewrites = (List<Map<String, String>>) item.get("url_rewrites");
+        if (urlRewrites != null) {
+            for (Map<String, String> urlRewrite : urlRewrites) {
+                productParams.setUrlRewrites(Collections.singletonList(new UrlRewrite().setUrl(urlRewrite.get("url"))));
+                String productUrlPath = urlProvider.toProductUrl(null, page, productParams);
+                uniquePagePaths.add(productUrlPath);
+            }
+        }
+    }
+
+    private void addCategoryPaths(Set<String> uniquePagePaths, Map<String, Object> item, Page page) {
+        CategoryUrlFormat.Params categoryParams = new CategoryUrlFormat.Params();
+        List<Map<String, String>> categories = (List<Map<String, String>>) item.get("categories");
+        if (categories != null) {
+            for (Map<String, String> category : categories) {
+                categoryParams.setUid(category.get("uid"));
+                categoryParams.setUrlKey(category.get("url_key"));
+                categoryParams.setUrlPath(category.get("url_path"));
+                String categoryUrlPath = urlProvider.toCategoryUrl(null, page, categoryParams);
+                uniquePagePaths.add(categoryUrlPath);
+            }
+        }
     }
 
     private static String truncateUrlFormat(String urlFormat) {
@@ -334,7 +342,6 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     private static String generateSkuQuery(String skuString) {
-
         return "{\n" +
             "  products(\n" +
             "    filter: { sku: { in: [" + skuString + "] } }\n" +
@@ -343,10 +350,17 @@ public class InvalidateDispatcherCacheImpl {
             "  ) {\n" +
             "    items {\n" +
             "      sku\n" +
+            "      uid\n" +
             "      url_key\n" +
             "      url_path\n" +
+            "      canonical_url\n" +
             "      url_rewrites {\n" +
             "        url\n" +
+            "      }\n" +
+            "      categories {\n" +
+            "        uid\n" +
+            "        url_key\n" +
+            "        url_path\n" +
             "      }\n" +
             "    }\n" +
             "  }\n" +
@@ -359,6 +373,7 @@ public class InvalidateDispatcherCacheImpl {
             "  categoryList(\n" +
             "    filters: { category_uid: { in: [" + uidString + "] } }\n" +
             "  ) {\n" +
+            "    uid\n" +
             "    url_path\n" +
             "    url_key\n" +
             "  }\n" +
