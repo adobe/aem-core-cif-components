@@ -63,17 +63,15 @@ public class InvalidateCacheEventListener implements EventListener {
 
     @Override
     public void onEvent(EventIterator events) {
-        LOGGER.info("on Event triggering");
         while (events.hasNext()) {
             Event event = events.nextEvent();
             try {
                 String path = event.getPath();
                 String actualPath = InvalidateCacheSupport.INVALIDATE_WORKING_AREA + "/" + InvalidateCacheSupport.NODE_NAME_BASE;
                 if (path.startsWith(actualPath)) {
-                    LOGGER.info("Cache invalidation event detected: {} and {}", path, event.getType());
+                    LOGGER.debug("Cache invalidation event detected: {} and {}", path, event.getType());
                     invalidateCacheImpl.invalidateCache(path);
                     invalidateDispatcherCacheImpl.invalidateCache(path);
-
                 }
             } catch (RepositoryException e) {
                 LOGGER.error("Error processing JCR event: {}", e.getMessage(), e);

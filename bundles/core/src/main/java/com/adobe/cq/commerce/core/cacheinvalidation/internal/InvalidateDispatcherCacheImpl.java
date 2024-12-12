@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
@@ -52,9 +53,6 @@ import com.google.gson.reflect.TypeToken;
 @Component(service = InvalidateDispatcherCacheImpl.class, immediate = true)
 public class InvalidateDispatcherCacheImpl {
 
-    static final String PROPERTY_PRODUCT_PAGE_URL_FORMAT = "productPageUrlFormat";
-    static final String PROPERTY_CATEGORY_PAGE_URL_FORMAT = "categoryPageUrlFormat";
-
     @Reference
     private UrlProviderImpl urlProvider;
 
@@ -67,11 +65,12 @@ public class InvalidateDispatcherCacheImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateDispatcherCacheImpl.class);
 
     public void invalidateCache(String path) {
+        // To Do: Change this to for non-author run modes
         if (!slingSettingsService.getRunModes().contains("author")) {
             LOGGER.error("Operation is only supported for author");
             return;
         }
-        try (ResourceResolver resourceResolver = invalidateCacheSupport.getResourceResolver()) {
+        try (ResourceResolver resourceResolver = invalidateCacheSupport.getServiceUserResourceResolver()) {
             Resource resource = invalidateCacheSupport.getResource(resourceResolver, path);
             if (resource == null)
                 return;
@@ -87,12 +86,15 @@ public class InvalidateDispatcherCacheImpl {
                 return;
 
             String graphqlClientId = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, (String) null);
-            String[] invalidCacheEntries = properties.get(InvalidateCacheSupport.PROPERTIES_INVALID_CACHE_ENTRIES, String[].class);
-            String type = properties.get(InvalidateCacheSupport.PROPERTIES_TYPE, String.class);
+            Map<String, String[]> dynamicProperties = new HashMap<>();
+            dynamicProperties.put(InvalidateCacheSupport.PROPERTIES_PRODUCT_SKUS, properties.get(
+                InvalidateCacheSupport.PROPERTIES_PRODUCT_SKUS, String[].class));
+            dynamicProperties.put(InvalidateCacheSupport.PROPERTIES_CATEGORY_UIDS, properties.get(
+                InvalidateCacheSupport.PROPERTIES_CATEGORY_UIDS, String[].class));
 
             GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
-            String[] allPaths = getAllInvalidPaths(session, resourceResolver, commerceProperties, storePath, invalidCacheEntries, type,
-                client);
+
+            String[] allPaths = getAllInvalidPaths(session, resourceResolver, client, commerceProperties, storePath, dynamicProperties);
 
             Arrays.stream(allPaths).forEach(this::flushCache);
         } catch (Exception e) {
@@ -112,29 +114,62 @@ public class InvalidateDispatcherCacheImpl {
         return invalidateCacheSupport.getCommerceProperties(resourceResolver, storePath);
     }
 
-    private String[] getAllInvalidPaths(Session session, ResourceResolver resourceResolver, ComponentsConfiguration commerceProperties,
-        String storePath, String[] invalidCacheEntries, String type, GraphqlClient client) throws Exception {
+    private String[] getAllInvalidPaths(Session session, ResourceResolver resourceResolver, GraphqlClient client,
+        ComponentsConfiguration commerceProperties,
+        String storePath, Map<String, String[]> dynamicProperties) throws Exception {
         String[] invalidateDispatcherPagePaths = new String[0];
         String[] correspondingPaths = new String[0];
 
-        if (InvalidateCacheSupport.TYPE_SKU.equals(type)) {
-            invalidateDispatcherPagePaths = getCorrespondingProductsPageBasedOnSku(session, storePath, invalidCacheEntries);
-            String query = generateSkuQuery(invalidCacheEntries);
-            Map<String, Object> data = getGraphqlResponseData(client, query);
-            if (data != null && data.get("products") != null) {
-                correspondingPaths = getSkuBasedInvalidPaths(resourceResolver, data, commerceProperties, storePath);
-            }
-        } else if (InvalidateCacheSupport.TYPE_CATEGORY.equals(type)) {
-            invalidateDispatcherPagePaths = getCorrespondingCategoryPageBasedOnUid(session, storePath, invalidCacheEntries);
-            String query = generateCategoryQuery(invalidCacheEntries);
-            Map<String, Object> data = getGraphqlResponseData(client, query);
-            if (data != null && data.get("categoryList") != null) {
-                correspondingPaths = getCategoryBasedInvalidPaths(resourceResolver, data, commerceProperties, storePath);
+        for (Map.Entry<String, String[]> entry : dynamicProperties.entrySet()) {
+            String key = entry.getKey();
+            String[] values = entry.getValue();
+
+            if (values != null && values.length > 0) {
+                String[] paths = getCorrespondingPageBasedOnEntries(session, storePath, values, key);
+                String query = generateQuery(values, key);
+                Map<String, Object> data = getGraphqlResponseData(client, query);
+                if (data != null) {
+                    String[] invalidPaths = getInvalidPaths(resourceResolver, data, commerceProperties, storePath, key);
+                    correspondingPaths = Stream.concat(Arrays.stream(correspondingPaths), Arrays.stream(invalidPaths))
+                        .toArray(String[]::new);
+                }
+                invalidateDispatcherPagePaths = Stream.concat(Arrays.stream(invalidateDispatcherPagePaths), Arrays.stream(paths))
+                    .toArray(String[]::new);
             }
         }
 
         return Stream.concat(Arrays.stream(invalidateDispatcherPagePaths), Arrays.stream(correspondingPaths))
             .toArray(String[]::new);
+    }
+
+    private String[] getCorrespondingPageBasedOnEntries(Session session, String storePath, String[] entries, String key) throws Exception {
+        String entryList = formatList(entries, ", ", "'%s'");
+        if ("productSkus".equals(key)) {
+            return getQueryResult(getSkuBasedSql2Query(session, storePath, entryList));
+        } else if ("categoryUids".equals(key)) {
+            return getQueryResult(getCategoryBasedSql2Query(session, storePath, entryList));
+        }
+        return new String[0];
+    }
+
+    private String generateQuery(String[] entries, String key) {
+        if ("productSkus".equals(key)) {
+            return generateSkuQuery(entries);
+        } else if ("categoryUids".equals(key)) {
+            return generateCategoryQuery(entries);
+        }
+        return "";
+    }
+
+    private String[] getInvalidPaths(ResourceResolver resourceResolver, Map<String, Object> data,
+        ComponentsConfiguration commerceProperties,
+        String storePath, String key) throws RepositoryException {
+        if ("productSkus".equals(key)) {
+            return getSkuBasedInvalidPaths(resourceResolver, data, commerceProperties, storePath);
+        } else if ("categoryUids".equals(key)) {
+            return getCategoryBasedInvalidPaths(resourceResolver, data, commerceProperties, storePath);
+        }
+        return new String[0];
     }
 
     private String[] getSkuBasedInvalidPaths(ResourceResolver resourceResolver, Map<String, Object> data,
@@ -242,7 +277,6 @@ public class InvalidateDispatcherCacheImpl {
                     } else {
                         throw new IllegalArgumentException("Invalid method parameters for: " + methodName);
                     }
-
                     if (result == null) {
                         return false;
                     }
@@ -272,15 +306,13 @@ public class InvalidateDispatcherCacheImpl {
         Map<String, Map<String, Object>> jsonData = new HashMap<>();
 
         jsonData.put(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, createProperty(false, String.class));
-        jsonData.put(InvalidateCacheSupport.PROPERTIES_INVALID_CACHE_ENTRIES, createProperty(false, String[].class));
         jsonData.put(InvalidateCacheSupport.PROPERTIES_STORE_PATH, createProperty(false, String.class));
-        jsonData.put(InvalidateCacheSupport.PROPERTIES_TYPE, createProperty(false, String.class));
         jsonData.put("categoryPath", createFunctionProperty("getCorrespondingPageProperties", new Class<?>[] { ResourceResolver.class,
             String.class, String.class },
-            new Object[] { resourceResolver, actualStorePath, "cq:cifCategoryPage" }));
+            new Object[] { resourceResolver, actualStorePath, SiteStructureImpl.PN_CIF_CATEGORY_PAGE }));
         jsonData.put("productPath", createFunctionProperty("getCorrespondingPageProperties", new Class<?>[] { ResourceResolver.class,
             String.class, String.class },
-            new Object[] { resourceResolver, actualStorePath, "cq:cifProductPage" }));
+            new Object[] { resourceResolver, actualStorePath, SiteStructureImpl.PN_CIF_PRODUCT_PAGE }));
 
         return jsonData;
     }

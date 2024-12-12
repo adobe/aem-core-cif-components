@@ -16,11 +16,13 @@ package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.api.resource.ResourceResolverFactory;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -37,20 +39,14 @@ public class InvalidateCacheSupport {
     public static final String SERVICE_USER = "cif-flush";
     public static final String PROPERTIES_GRAPHQL_CLIENT_ID = "cq:catalogIdentifier";
     public static final String PROPERTIES_STORE_VIEW = "magentoStore";
-    public static final String PROPERTIES_TYPE = "type";
     public static final String PROPERTIES_STORE_PATH = "storePath";
-    public static final String PROPERTIES_INVALID_CACHE_ENTRIES = "invalidCacheEntries";
-    public static final String PROPERTIES_ATTRIBUTE = "attribute";
     public static final String PROPERTIES_LIST_OF_CACHE_TO_SEARCH = "listOfCacheToSearch";
-    public static final String TYPE_SKU = "skus";
-    public static final String TYPE_CATEGORY = "categories";
-    public static final String TYPE_UUIDS = "uuids";
-    public static final String TYPE_ClEAR_SPECIFIC_CACHE = "clearSpecificCache";
-    public static final String TYPE_ATTRIBUTE = "attribute";
-    public static final String TYPE_CLEAR_ALL = "clearAll";
+    public static final String PROPERTIES_PRODUCT_SKUS = "productSkus";
+    public static final String PROPERTIES_CATEGORY_UIDS = "categoryUids";
+    public static final String PROPERTIES_REGEX_PATTERNS = "regexPatterns";
 
     @Reference
-    private ServiceUserService serviceUserService;
+    private ResourceResolverFactory resourceResolverFactory;
 
     private final Collection<ClientHolder> clients = new ArrayList<>();
 
@@ -105,7 +101,18 @@ public class InvalidateCacheSupport {
         }
     }
 
-    public ResourceResolver getResourceResolver() throws LoginException {
-        return serviceUserService.getServiceUserResourceResolver(SERVICE_USER);
+    public ResourceResolver getServiceUserResourceResolver() {
+        ResourceResolver resourceResolver = null;
+        Map<String, Object> param = new HashMap<>();
+        param.put(ResourceResolverFactory.SUBSERVICE, SERVICE_USER);
+
+        try {
+            // Get the service user ResourceResolver
+            resourceResolver = resourceResolverFactory.getServiceResourceResolver(param);
+        } catch (LoginException e) {
+            throw new IllegalStateException("Successfully obtained ResourceResolver for service user: " + SERVICE_USER + e);
+        }
+
+        return resourceResolver;
     }
 }

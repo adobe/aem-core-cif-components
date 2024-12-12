@@ -14,10 +14,12 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.api.resource.ValueMap;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
@@ -35,12 +37,12 @@ public class InvalidateCacheImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheImpl.class);
 
     public void invalidateCache(String path) {
-        try (ResourceResolver resourceResolver = invalidateCacheSupport.getResourceResolver()) {
+        try (ResourceResolver resourceResolver = invalidateCacheSupport.getServiceUserResourceResolver()) {
             Resource resource = resourceResolver.getResource(path);
             if (resource != null) {
                 processResource(resourceResolver, resource);
             } else {
-                LOGGER.error("Resource not found at path: {}", path);
+                LOGGER.debug("Resource not found at path: {}", path);
             }
         } catch (Exception e) {
             LOGGER.error("Error processing JCR event: {}", e.getMessage(), e);
@@ -53,7 +55,7 @@ public class InvalidateCacheImpl {
         if (commerceProperties != null) {
             handleCacheInvalidation(resource, commerceProperties);
         } else {
-            LOGGER.error("Commerce data not found at path: {}", resource.getPath());
+            LOGGER.debug("Commerce data not found at path: {}", resource.getPath());
         }
     }
 
@@ -62,50 +64,43 @@ public class InvalidateCacheImpl {
         String storeView = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_STORE_VIEW, "default");
 
         GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
+        ValueMap properties = resource.getValueMap();
 
-        String[] invalidCacheEntries = resource.getValueMap().get(InvalidateCacheSupport.PROPERTIES_INVALID_CACHE_ENTRIES, String[].class);
-        String[] listOfCacheToSearch = resource.getValueMap().get(InvalidateCacheSupport.PROPERTIES_LIST_OF_CACHE_TO_SEARCH,
+        String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_LIST_OF_CACHE_TO_SEARCH,
             String[].class);
+        // Store dynamic properties in a map
+        Map<String, String[]> dynamicProperties = new HashMap<>();
+        dynamicProperties.put("productSkus", properties.get(InvalidateCacheSupport.PROPERTIES_PRODUCT_SKUS, String[].class));
+        dynamicProperties.put("categoryUids", properties.get(InvalidateCacheSupport.PROPERTIES_CATEGORY_UIDS, String[].class));
+        dynamicProperties.put("regexPatterns", properties.get(InvalidateCacheSupport.PROPERTIES_REGEX_PATTERNS, String[].class));
 
-        String type = resource.getValueMap().get(InvalidateCacheSupport.PROPERTIES_TYPE, String.class);
-        String attribute = resource.getValueMap().get(InvalidateCacheSupport.PROPERTIES_ATTRIBUTE, String.class);
-
-        invalidateCacheByType(client, storeView, listOfCacheToSearch, invalidCacheEntries, type, attribute);
+        invalidateCacheByType(client, storeView, listOfCacheToSearch, dynamicProperties);
     }
 
-    private void invalidateCacheByType(GraphqlClient client, String storeView, String[] listOfCacheToSearch, String[] invalidCacheEntries,
-        String type, String attribute) {
-        String[] cachePatterns;
-        switch (Objects.requireNonNull(type)) {
-            case InvalidateCacheSupport.TYPE_SKU:
-                cachePatterns = getAttributePatterns(invalidCacheEntries, "sku");
+    private void invalidateCacheByType(GraphqlClient client, String storeView, String[] listOfCacheToSearch,
+        Map<String, String[]> dynamicProperties) {
+        for (Map.Entry<String, String[]> entry : dynamicProperties.entrySet()) {
+            String key = entry.getKey();
+            String[] values = entry.getValue();
+
+            if (values != null && values.length > 0) {
+                String[] cachePatterns;
+                if ("regexPatterns".equals(key)) {
+                    cachePatterns = values;
+                } else {
+                    cachePatterns = getAttributePatterns(values, key);
+                }
                 client.invalidateCache(storeView, listOfCacheToSearch, cachePatterns);
-                break;
-            case InvalidateCacheSupport.TYPE_CATEGORY:
-            case InvalidateCacheSupport.TYPE_UUIDS:
-                cachePatterns = getAttributePatterns(invalidCacheEntries, "uuid");
-                client.invalidateCache(storeView, listOfCacheToSearch, cachePatterns);
-                break;
-            case InvalidateCacheSupport.TYPE_ATTRIBUTE:
-                cachePatterns = getAttributePatterns(invalidCacheEntries, attribute);
-                client.invalidateCache(storeView, listOfCacheToSearch, cachePatterns);
-                break;
-            case InvalidateCacheSupport.TYPE_ClEAR_SPECIFIC_CACHE:
-                client.invalidateCache(storeView, invalidCacheEntries, null);
-                break;
-            case InvalidateCacheSupport.TYPE_CLEAR_ALL:
-                client.invalidateCache(storeView, null, null);
-                break;
-            default:
-                LOGGER.warn("Unknown cache type: {}", type);
-                throw new IllegalStateException("Unknown cache type" + type);
+            }
         }
     }
 
     private static String getRegexBasedOnAttribute(String attribute) {
         switch (attribute) {
-            case "uuid":
+            case "categoryUids":
                 return "\"uid\"\\s*:\\s*\\{\"id\"\\s*:\\s*\"";
+            case "productSkus":
+                return "\"sku\":\\s*\"";
             default:
                 return "\"" + attribute + "\":\\s*\"";
         }
