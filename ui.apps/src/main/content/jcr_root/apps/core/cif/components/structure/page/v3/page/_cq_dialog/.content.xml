@@ -170,6 +170,12 @@
                                                 <granite:rendercondition jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="core/cif/components/renderconditions/showNavRoot"/>
                                             </navRoot>
+                                            <label
+                                                    jcr:primaryType="nt:unstructured"
+                                                    sling:resourceType="granite/ui/components/coral/foundation/text"
+                                                    granite:class="clear-cache-label"
+                                                    text="Click the button below to clear the cache">
+                                            </label>
                                             <clearCache
                                                     jcr:primaryType="nt:unstructured"
                                                     sling:resourceType="granite/ui/components/coral/foundation/button"

@@ -20,6 +20,36 @@
         $(".clear-cache-button").click(function(e) {
             e.preventDefault();
 
+            // Show confirmation dialog
+            showConfirmationDialog();
+        });
+
+        function showConfirmationDialog() {
+            let dialog = new Coral.Dialog().set({
+                id: "confirm-clear-cache-dialog",
+                header: {
+                    innerHTML: Granite.I18n.get('Confirm Clear Cache')
+                },
+                content: {
+                    innerHTML: `<p>${Granite.I18n.get('Are you sure you want to clear the commerce cache?')}</p>`
+                },
+                footer: {
+                    innerHTML:
+                        '<button is="coral-button" variant="primary" coral-close id="confirm-clear-cache-yes">' + Granite.I18n.get('Yes') + '</button>' +
+                        '<button is="coral-button" variant="default" coral-close>' + Granite.I18n.get('No') + '</button>'
+                }
+            });
+            document.body.appendChild(dialog);
+            dialog.show();
+
+            // Handle confirmation
+            $("#confirm-clear-cache-yes").click(function() {
+                clearCache();
+            });
+        }
+
+        function clearCache() {
+            // Get the action and method from data attributes
             // Get the action and method from data attributes
             let actionUrl = $(this).data("action");
             let method = $(this).data("method");
@@ -40,7 +70,7 @@
                     showDialog(Granite.I18n.get('Failed to clear cache!'));
                 }
             });
-        });
+        }
 
         function showDialog(message) {
             let dialog = new Coral.Dialog().set({

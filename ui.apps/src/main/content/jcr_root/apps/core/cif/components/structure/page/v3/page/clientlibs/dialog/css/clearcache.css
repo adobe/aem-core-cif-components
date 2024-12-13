@@ -12,6 +12,12 @@
  *
  ******************************************************************************/
 
+.clear-cache-label {
+    display: block;
+    line-height: 1.6875rem;
+    color: #6d6d6d;
+}
+
 .clear-cache-button {
     margin: 6px 0;
 }
