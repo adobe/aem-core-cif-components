@@ -66,7 +66,7 @@ public class InvalidateCacheImpl {
         GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
         ValueMap properties = resource.getValueMap();
 
-        String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_LIST_OF_CACHE_TO_SEARCH,
+        String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAME,
             String[].class);
         // Store dynamic properties in a map
         Map<String, String[]> dynamicProperties = new HashMap<>();

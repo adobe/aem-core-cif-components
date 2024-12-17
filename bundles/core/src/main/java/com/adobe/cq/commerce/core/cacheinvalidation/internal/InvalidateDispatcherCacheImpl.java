@@ -53,6 +53,9 @@ import com.google.gson.reflect.TypeToken;
 @Component(service = InvalidateDispatcherCacheImpl.class, immediate = true)
 public class InvalidateDispatcherCacheImpl {
 
+    private static final String HTML_SUFFIX = ".html";
+    private static final String PRODUCT_SAMPLE_URL = "XXXXXX";
+
     @Reference
     private UrlProviderImpl urlProvider;
 
@@ -95,8 +98,23 @@ public class InvalidateDispatcherCacheImpl {
             GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
 
             String[] allPaths = getAllInvalidPaths(session, resourceResolver, client, commerceProperties, storePath, dynamicProperties);
+            // Remove null or empty values
+            allPaths = Arrays.stream(allPaths)
+                .filter(urlPath -> urlPath != null && !urlPath.isEmpty())
+                .toArray(String[]::new);
 
-            Arrays.stream(allPaths).forEach(this::flushCache);
+            // Sort paths based on the number of '/' characters in increasing order
+            Arrays.sort(allPaths, Comparator.comparingInt(urlPath -> urlPath.split("/").length));
+
+            Set<String> invalidateCachePaths = new HashSet<>();
+            for (String urlPath : allPaths) {
+                boolean isSubPath = invalidateCachePaths.stream().anyMatch(topPath -> urlPath.startsWith(topPath + "/"));
+                if (!isSubPath) {
+                    invalidateCachePaths.add(urlPath);
+                }
+            }
+
+            invalidateCachePaths.forEach(this::flushCache);
         } catch (Exception e) {
             LOGGER.error("Error invalidating cache: {}", e.getMessage(), e);
         }
@@ -181,7 +199,7 @@ public class InvalidateDispatcherCacheImpl {
 
         for (Map<String, Object> item : items) {
             addProductPaths(uniquePagePaths, item, page);
-            List<Map<String, String>> categories = (List<Map<String, String>>) item.get("categories");
+            List<Map<String, Object>> categories = (List<Map<String, Object>>) item.get("categories");
             addCategoryPaths(uniquePagePaths, categories, page);
         }
         return uniquePagePaths.toArray(new String[0]);
@@ -191,7 +209,6 @@ public class InvalidateDispatcherCacheImpl {
         ProductUrlFormat.Params productParams = new ProductUrlFormat.Params();
         productParams.setSku((String) item.get("sku"));
         productParams.setUrlKey((String) item.get("url_key"));
-        productParams.setUrlPath((String) item.get("url_path"));
 
         List<Map<String, String>> urlRewrites = (List<Map<String, String>>) item.get("url_rewrites");
         if (urlRewrites != null) {
@@ -203,14 +220,15 @@ public class InvalidateDispatcherCacheImpl {
         }
     }
 
-    private void addCategoryPaths(Set<String> uniquePagePaths, List<Map<String, String>> categories, Page page) {
+    private void addCategoryPaths(Set<String> uniquePagePaths, List<Map<String, Object>> categories, Page page) {
         CategoryUrlFormat.Params categoryParams = new CategoryUrlFormat.Params();
         if (categories != null) {
-            for (Map<String, String> category : categories) {
-                categoryParams.setUid(category.get("uid"));
-                categoryParams.setUrlKey(category.get("url_key"));
-                categoryParams.setUrlPath(category.get("url_path"));
+            for (Map<String, Object> category : categories) {
+                categoryParams.setUid((String) category.get("uid"));
+                categoryParams.setUrlKey((String) category.get("url_key"));
+                categoryParams.setUrlPath((String) category.get("url_path"));
                 String categoryUrlPath = urlProvider.toCategoryUrl(null, page, categoryParams);
+                categoryUrlPath = removeUpToDelimiter(categoryUrlPath, HTML_SUFFIX, true);
                 uniquePagePaths.add(categoryUrlPath);
             }
         }
@@ -222,25 +240,41 @@ public class InvalidateDispatcherCacheImpl {
         Page page = getPage(resourceResolver, storePath);
         Set<String> uniquePagePaths = new HashSet<>();
 
-        List<Map<String, String>> items = (List<Map<String, String>>) data.get("categoryList");
+        List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("categoryList");
         addCategoryPaths(uniquePagePaths, items, page);
         ProductUrlFormat.Params productParams = new ProductUrlFormat.Params();
 
-        for (Map<String, String> item : items) {
+        for (Map<String, Object> item : items) {
             // To-Do: For now the below one is an hack to get the product page path,
             // we need to find a better way to get the product page path
-            productParams.setUrlKey(item.get("url_key"));
-            productParams.setUrlPath(item.get("url_path"));
+            productParams.setUrlKey(PRODUCT_SAMPLE_URL);
+            List<UrlRewrite> urlRewrites = Arrays.asList(
+                new UrlRewrite().setUrl((String) item.get("url_path") + "/" + PRODUCT_SAMPLE_URL),
+                new UrlRewrite().setUrl((String) item.get("url_key") + "/" + PRODUCT_SAMPLE_URL));
+            productParams.setUrlRewrites(urlRewrites);
 
             // For now, we are not using the below code, but we can use it in future
-            // productParams.getCategoryUrlParams().setUid(item.get("uid"));
-            // productParams.getCategoryUrlParams().setUrlKey(item.get("url_key"));
-            // productParams.getCategoryUrlParams().setUrlPath(item.get("url_path"));
+            productParams.getCategoryUrlParams().setUid((String) item.get("uid"));
+            productParams.getCategoryUrlParams().setUrlKey((String) item.get("url_key"));
+            productParams.getCategoryUrlParams().setUrlPath((String) item.get("url_path"));
 
             String productUrlPath = urlProvider.toProductUrl(null, page, productParams);
-            uniquePagePaths.add(productUrlPath);
+            productUrlPath = removeUpToDelimiter(productUrlPath, PRODUCT_SAMPLE_URL, false);
+            productUrlPath = removeUpToDelimiter(productUrlPath, "/", true);
+
+            if (!productUrlPath.endsWith("product-page.html")) {
+                uniquePagePaths.add(productUrlPath);
+            }
         }
         return uniquePagePaths.toArray(new String[0]);
+    }
+
+    private String removeUpToDelimiter(String input, String delimiter, boolean useLastIndex) {
+        int index = useLastIndex ? input.lastIndexOf(delimiter) : input.indexOf(delimiter);
+        if (index != -1) {
+            input = input.substring(0, index);
+        }
+        return input;
     }
 
     private static Map<String, Object> getGraphqlResponseData(GraphqlClient client, String query) {
@@ -445,7 +479,7 @@ public class InvalidateDispatcherCacheImpl {
         while (rows.hasNext()) {
             Row row = rows.nextRow();
             String fullPath = row.getPath("content");
-            String pagePath = extractPagePath(fullPath) + ".html";
+            String pagePath = extractPagePath(fullPath) + HTML_SUFFIX;
             uniquePagePaths.add(pagePath);
         }
         return uniquePagePaths.toArray(new String[0]);

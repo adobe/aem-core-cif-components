@@ -34,13 +34,13 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 @Component(service = InvalidateCacheSupport.class, immediate = true)
 public class InvalidateCacheSupport {
 
-    public static final String INVALIDATE_WORKING_AREA = "/var/cif";
+    public static final String INVALIDATE_WORKING_AREA = "/var/cif/cacheInvalidation";
     public static final String NODE_NAME_BASE = "invalidate_entry";
-    public static final String SERVICE_USER = "cif-flush";
+    public static final String SERVICE_USER = "cif-cache-service";
     public static final String PROPERTIES_GRAPHQL_CLIENT_ID = "cq:catalogIdentifier";
     public static final String PROPERTIES_STORE_VIEW = "magentoStore";
     public static final String PROPERTIES_STORE_PATH = "storePath";
-    public static final String PROPERTIES_LIST_OF_CACHE_TO_SEARCH = "listOfCacheToSearch";
+    public static final String PROPERTIES_CACHE_NAME = "cacheNames";
     public static final String PROPERTIES_PRODUCT_SKUS = "productSkus";
     public static final String PROPERTIES_CATEGORY_UIDS = "categoryUids";
     public static final String PROPERTIES_REGEX_PATTERNS = "regexPatterns";
