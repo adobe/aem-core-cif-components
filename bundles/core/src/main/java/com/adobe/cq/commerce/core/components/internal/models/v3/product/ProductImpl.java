@@ -56,7 +56,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     protected String cachedJsonLD;
 
-    public static final String PN_ENABLE_JSONLD_SCRIPT = "enableJson";
+    public static final String PN_ENABLE_JSONLD_SCRIPT = "enableJsonLd";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(
         com.adobe.cq.commerce.core.components.internal.models.v3.product.ProductImpl.class);
@@ -82,7 +82,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     private Set<String> visibleSectionsSet;
 
-    public boolean enableJson;
+    public boolean enableJsonLd;
 
     @PostConstruct
     protected void initModel() {
@@ -102,7 +102,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             visibleSections = currentStyle.get(PN_VISIBLE_SECTIONS, VISIBLE_SECTIONS_DEFAULT);
         }
         visibleSectionsSet = Collections.unmodifiableSet(Arrays.stream(visibleSections).map(SECTIONS_MAP::get).collect(Collectors.toSet()));
-        enableJson = configProperties != null ? configProperties.get(PN_ENABLE_JSONLD_SCRIPT, Boolean.FALSE) : Boolean.FALSE;
+        enableJsonLd = configProperties != null ? configProperties.get(PN_ENABLE_JSONLD_SCRIPT, Boolean.FALSE) : Boolean.FALSE;
 
     }
 
@@ -232,13 +232,13 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         return jsonArray;
     }
 
-    public boolean isEnableJson() {
-        return enableJson;
+    public boolean isEnableJsonLd() {
+        return enableJsonLd;
     }
 
     @Override
     public String generateProductJsonLDString() {
-        if (!isEnableJson()) {
+        if (!isEnableJsonLd()) {
             return null;
         }
 

@@ -226,8 +226,8 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode productJson = mapper.createObjectNode();
 
-        // Test with enableJson true
-        doReturn(true).when(product).isEnableJson();
+        // Test with enableJsonLd true
+        doReturn(true).when(product).isEnableJsonLd();
         doReturn(productJson).when(product).createBasicProductJson(any(ObjectMapper.class));
         doNothing().when(product).addOffersToJson(any(ObjectNode.class), any(ObjectMapper.class));
 
@@ -244,8 +244,8 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         assertNotNull(jsonLD);
         assertEquals("{\"@context\":\"http://schema.org\",\"@type\":\"Product\"}", jsonLD);
 
-        // Test with enableJson false
-        doReturn(false).when(product).isEnableJson();
+        // Test with enableJsonLd false
+        doReturn(false).when(product).isEnableJsonLd();
         jsonLD = product.generateProductJsonLDString();
         assertNull(jsonLD);
 

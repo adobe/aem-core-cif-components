@@ -66,18 +66,18 @@ describe('Checkbox Uncheck Test', () => {
         });
 
         // Step 5: Locate the "Enable JSON" checkbox by its name attribute using WebDriverIO's $() function
-        const enableJsonCheckbox = await $('coral-checkbox[name="./enableJson"]');
-        await enableJsonCheckbox.waitForDisplayed({ timeout: 5000 });
+        const enableJsonLdCheckbox = await $('coral-checkbox[name="./enableJsonLd"]');
+        await enableJsonLdCheckbox.waitForDisplayed({ timeout: 5000 });
 
         // Step 6: Check if the checkbox is disabled (aria-disabled="true" or has the class "is-disabled")
-        const isDisabled = await enableJsonCheckbox.getAttribute('aria-disabled');
-        let classList = await enableJsonCheckbox.getAttribute('class');
+        const isDisabled = await enableJsonLdCheckbox.getAttribute('aria-disabled');
+        let classList = await enableJsonLdCheckbox.getAttribute('class');
         classList = classList || ''; // Ensure classList is not null
 
         const hasDisabledClass = classList.includes('is-disabled');
 
         // Step 7: Check if the checkbox is selected
-        const isChecked = await enableJsonCheckbox.isSelected();
+        const isChecked = await enableJsonLdCheckbox.isSelected();
 
         // Step 8: If checkbox is checked, skip the action and save & close
         if (!isChecked) {
@@ -86,17 +86,17 @@ describe('Checkbox Uncheck Test', () => {
                 // Use browser.execute to remove the 'aria-disabled' attribute (using JavaScript in the browser context)
                 await browser.execute(checkbox => {
                     checkbox.setAttribute('aria-disabled', 'false'); // Remove aria-disabled attribute
-                }, enableJsonCheckbox);
+                }, enableJsonLdCheckbox);
 
                 // Enable the checkbox input by removing the disabled attribute from the input element
-                const inputCheckbox = await enableJsonCheckbox.$('input[type="checkbox"]');
+                const inputCheckbox = await enableJsonLdCheckbox.$('input[type="checkbox"]');
                 await browser.execute(checkboxInput => {
                     checkboxInput.removeAttribute('disabled'); // Remove the disabled attribute from the checkbox input
                 }, inputCheckbox);
             }
 
             // Step 10: Now, check the checkbox (whether it was previously locked or not)
-            const inputCheckbox = await enableJsonCheckbox.$('input[type="checkbox"]');
+            const inputCheckbox = await enableJsonLdCheckbox.$('input[type="checkbox"]');
 
             // Ensure the checkbox is checked, without unchecking it if already checked
             const isInputChecked = await inputCheckbox.isSelected();
@@ -168,11 +168,11 @@ describe('Checkbox Uncheck Test', () => {
         });
 
         // Step 5: Locate the "Enable JSON" checkbox by its name attribute using WebDriverIO's $() function
-        const enableJsonCheckbox = await $('coral-checkbox[name="./enableJson"]');
-        await enableJsonCheckbox.waitForDisplayed({ timeout: 5000 });
+        const enableJsonLdCheckbox = await $('coral-checkbox[name="./enableJsonLd"]');
+        await enableJsonLdCheckbox.waitForDisplayed({ timeout: 5000 });
 
         // Step 6: Check the actual checked state of the checkbox
-        const inputCheckbox = await enableJsonCheckbox.$('input[type="checkbox"]');
+        const inputCheckbox = await enableJsonLdCheckbox.$('input[type="checkbox"]');
         const isCheckedBefore = await inputCheckbox.isSelected();
 
         // **Case 1:** If the checkbox is selected (checked), uncheck it
