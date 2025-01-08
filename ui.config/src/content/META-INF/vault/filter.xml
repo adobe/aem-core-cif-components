@@ -2,7 +2,4 @@
 <workspaceFilter version="1.0">
     <filter root="/apps/core/cif/config"/>
     <filter root="/apps/core/cif/config.author"/>
-
-    <!-- Index for Cif cache -->
-<!--    <filter root="/oak:index/cifCacheIndex" />-->
 </workspaceFilter>

@@ -434,9 +434,8 @@ public class InvalidateDispatcherCacheImpl {
         QueryManager queryManager = session.getWorkspace().getQueryManager();
 
         String sql2Query = "SELECT content.[jcr:path] " +
-            "FROM [cq:Page] AS page " +
-            "INNER JOIN [nt:unstructured] AS content ON ISDESCENDANTNODE(content, page) " +
-            "WHERE ISDESCENDANTNODE(page, '" + storePath + "') " +
+            "FROM [nt:unstructured] AS content " +
+            "WHERE ISDESCENDANTNODE(content, '" + storePath + "') " +
             "AND ( " +
             "    (content.[product] IN (" + skuListString + ") AND content.[productType] = 'combinedSku') " +
             "    OR (content.[selection] IN (" + skuListString + ") AND content.[selectionType] IN ('combinedSku', 'sku')) " +
@@ -449,26 +448,13 @@ public class InvalidateDispatcherCacheImpl {
         QueryManager queryManager = session.getWorkspace().getQueryManager();
 
         String sql2Query = "SELECT content.[jcr:path] " +
-            "FROM [cq:Page] AS page " +
-            "INNER JOIN [nt:unstructured] AS content ON ISDESCENDANTNODE(content, page) " +
-            "WHERE ISDESCENDANTNODE(page,'" + storePath + "' ) " +
+            "FROM [nt:unstructured] AS content " +
+            "WHERE ISDESCENDANTNODE(content,'" + storePath + "' ) " +
             "AND (" +
             "(content.[categoryId] in (" + categoryList + ") AND content.[categoryIdType] in ('uid')) " +
             "OR (content.[category] in (" + categoryList + ") AND content.[categoryType] in ('uid'))" +
             ")";
         return queryManager.createQuery(sql2Query, Query.JCR_SQL2);
-    }
-
-    private String[] getCorrespondingProductsPageBasedOnSku(Session session, String storePath, String[] invalidCacheEntries)
-        throws Exception {
-        String skuList = formatList(invalidCacheEntries, ", ", "'%s'");
-        return getQueryResult(getSkuBasedSql2Query(session, storePath, skuList));
-    }
-
-    private String[] getCorrespondingCategoryPageBasedOnUid(Session session, String storePath, String[] invalidCacheEntries)
-        throws Exception {
-        String categoryList = formatList(invalidCacheEntries, ", ", "'%s'");
-        return getQueryResult(getCategoryBasedSql2Query(session, storePath, categoryList));
     }
 
     private String[] getQueryResult(Query query)

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:oak="http://jackrabbit.apache.org/oak/ns/1.0"
+          xmlns:dam="http://www.day.com/dam/1.0"
+          xmlns:jcr="http://www.jcp.org/jcr/1.0"
+          xmlns:nt="http://www.jcp.org/jcr/nt/1.0"
+          jcr:primaryType="oak:QueryIndexDefinition"
+          async="[async,nrt]"
+          compatVersion="{Long}2"
+          evaluatePathRestrictions="{Boolean}true"
+          fullTextEnabled="{Boolean}false"
+          includedPaths="[/content]"
+          priority="{Long}100"
+          queryPaths="[/content]"
+          reindex="{Boolean}false"
+          type="lucene">
+    <indexRules jcr:primaryType="nt:unstructured">
+        <nt:unstructured jcr:primaryType="nt:unstructured">
+            <properties jcr:primaryType="nt:unstructured">
+                <product
+                        jcr:primaryType="nt:unstructured"
+                        name="product"
+                        propertyIndex="{Boolean}true"
+                        type="String"/>
+                <selectionType
+                        jcr:primaryType="nt:unstructured"
+                        name="selectionType"
+                        propertyIndex="{Boolean}true"
+                        type="String"/>
+                <selection
+                        jcr:primaryType="nt:unstructured"
+                        name="selection"
+                        propertyIndex="{Boolean}true"
+                        type="String"/>
+                <productType
+                        jcr:primaryType="nt:unstructured"
+                        name="productType"
+                        propertyIndex="{Boolean}true"
+                        type="String"/>
+            </properties>
+        </nt:unstructured>
+    </indexRules>
+</jcr:root>
