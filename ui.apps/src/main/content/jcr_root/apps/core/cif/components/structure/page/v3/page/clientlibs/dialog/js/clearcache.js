@@ -13,11 +13,11 @@
  ******************************************************************************/
 
 (function(document, $) {
-    "use strict";
+    'use strict';
 
     $(document).ready(function() {
         // Select the button by class
-        $(".clear-cache-button").click(function(e) {
+        $('.clear-cache-button').click(function(e) {
             e.preventDefault();
 
             // Show confirmation dialog
@@ -26,7 +26,7 @@
 
         function showConfirmationDialog() {
             let dialog = new Coral.Dialog().set({
-                id: "confirm-clear-cache-dialog",
+                id: 'confirm-clear-cache-dialog',
                 header: {
                     innerHTML: Granite.I18n.get('Confirm Clear Cache')
                 },
@@ -35,15 +35,19 @@
                 },
                 footer: {
                     innerHTML:
-                        '<button is="coral-button" variant="primary" coral-close id="confirm-clear-cache-yes">' + Granite.I18n.get('Yes') + '</button>' +
-                        '<button is="coral-button" variant="default" coral-close>' + Granite.I18n.get('No') + '</button>'
+                        '<button is="coral-button" variant="primary" coral-close id="confirm-clear-cache-yes">' +
+                        Granite.I18n.get('Yes') +
+                        '</button>' +
+                        '<button is="coral-button" variant="default" coral-close>' +
+                        Granite.I18n.get('No') +
+                        '</button>'
                 }
             });
             document.body.appendChild(dialog);
             dialog.show();
 
             // Handle confirmation
-            $("#confirm-clear-cache-yes").click(function() {
+            $('#confirm-clear-cache-yes').click(function() {
                 clearCache();
             });
         }
@@ -51,10 +55,10 @@
         function clearCache() {
             // Get the action and method from data attributes
             // Get the action and method from data attributes
-            let actionUrl = $(this).data("action");
-            let method = $(this).data("method");
+            let actionUrl = $(this).data('action');
+            let method = $(this).data('method');
             // Get the value of storePath from the input field
-            let storePath = $($(this).data("storepath")).val();
+            let storePath = $($(this).data('storepath')).val();
 
             // Perform an AJAX call using jQuery
             $.ajax({
@@ -74,7 +78,7 @@
 
         function showDialog(message) {
             let dialog = new Coral.Dialog().set({
-                id: "clear-cache-dialog",
+                id: 'clear-cache-dialog',
                 header: {
                     innerHTML: Granite.I18n.get('Clear Cache')
                 },
@@ -83,7 +87,9 @@
                 },
                 footer: {
                     innerHTML:
-                        '<button is="coral-button" variant="primary" coral-close>' + Granite.I18n.get('OK') + '</button>'
+                        '<button is="coral-button" variant="primary" coral-close>' +
+                        Granite.I18n.get('OK') +
+                        '</button>'
                 }
             });
             document.body.appendChild(dialog);
