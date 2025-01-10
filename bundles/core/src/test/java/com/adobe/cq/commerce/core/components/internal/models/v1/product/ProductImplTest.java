@@ -136,7 +136,12 @@ public class ProductImplTest {
         product = rootQuery.getProducts().getItems().get(0);
 
         graphqlClient = spy(new GraphqlClientImpl());
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+
+        // Activate the GraphqlClientImpl with configuration
+        context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
+            .put("httpMethod", "POST")
+            .put("url", "https://localhost")
+            .build());
 
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200, "{products(filter:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, 200, "{products(filter:{sku");

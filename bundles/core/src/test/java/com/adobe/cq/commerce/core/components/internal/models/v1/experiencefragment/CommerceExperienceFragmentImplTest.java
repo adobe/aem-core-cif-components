@@ -104,7 +104,11 @@ public class CommerceExperienceFragmentImplTest {
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
         GraphqlClient graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        // Activate the GraphqlClientImpl with configuration
+        context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
+            .put("httpMethod", "POST")
+            .put("url", "https://localhost")
+            .build());
 
         Utils.setupHttpResponse("graphql/magento-graphql-xf1-category.json", httpClient, HttpStatus.SC_OK, "1\"}}){uid}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf1-product.json", httpClient, HttpStatus.SC_OK,

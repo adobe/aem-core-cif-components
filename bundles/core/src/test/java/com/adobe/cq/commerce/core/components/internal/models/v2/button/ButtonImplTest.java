@@ -66,7 +66,11 @@ public class ButtonImplTest {
             "{products(filter:{sku:{eq:\"MJ01\"}}");
 
         GraphqlClient graphqlClient = spy(new GraphqlClientImpl());
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        // Activate the GraphqlClientImpl with configuration
+        context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
+            .put("httpMethod", "POST")
+            .put("url", "https://localhost")
+            .build());
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 

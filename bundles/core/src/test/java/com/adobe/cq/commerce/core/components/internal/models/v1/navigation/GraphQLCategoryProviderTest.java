@@ -84,7 +84,11 @@ public class GraphQLCategoryProviderTest {
     @Before
     public void setup() throws IOException {
         graphqlClient = new GraphqlClientImpl();
-        context.registerInjectActivateService(graphqlClient);
+        // Activate the GraphqlClientImpl with configuration
+        context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
+            .put("httpMethod", "POST")
+            .put("url", "https://localhost")
+            .build());
         Utils.addHttpResponseFrom(
             graphqlClient,
             "graphql/magento-graphql-navigation-result.json",

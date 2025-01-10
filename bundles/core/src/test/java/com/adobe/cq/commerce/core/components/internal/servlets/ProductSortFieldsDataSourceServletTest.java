@@ -81,7 +81,11 @@ public class ProductSortFieldsDataSourceServletTest {
         context.currentResource(PAGE);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
         graphqlClient = new GraphqlClientImpl();
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        // Activate the GraphqlClientImpl with configuration
+        context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
+            .put("httpMethod", "POST")
+            .put("url", "https://localhost")
+            .build());
         Utils.setupHttpResponse("graphql/magento-graphql-sortkeys-result.json", httpClient, HttpStatus.SC_OK, "{products");
         context.registerAdapter(Resource.class, ComponentsConfiguration.class,
             (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
