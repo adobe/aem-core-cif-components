@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.teaser;
 
 import java.util.List;
 
+import org.apache.http.client.HttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
@@ -76,6 +77,10 @@ public class CommerceTeaserImplTest {
     public void setup() throws Exception {
         GraphqlClient graphqlClient = new GraphqlClientImpl();
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
+
+        // Mock and set the protected 'client' field
+        Utils.setClientField(graphqlClient, mock(HttpClient.class));
+
         // Activate the GraphqlClientImpl with configuration
         context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
             .put("httpMethod", "POST")

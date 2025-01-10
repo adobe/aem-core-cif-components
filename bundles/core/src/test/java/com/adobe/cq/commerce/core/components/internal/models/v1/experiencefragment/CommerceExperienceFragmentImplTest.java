@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Collections;
 
 import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
@@ -91,7 +92,7 @@ public class CommerceExperienceFragmentImplTest {
         })
         .build();
 
-    private void setup(String pagePath, String resourcePath) throws IOException {
+    private void setup(String pagePath, String resourcePath) throws IOException, NoSuchFieldException, IllegalAccessException {
         Page page = spy(context.currentPage(pagePath));
         Resource xfResource = context.resourceResolver().getResource(pagePath + resourcePath);
         context.currentResource(xfResource);
@@ -104,6 +105,10 @@ public class CommerceExperienceFragmentImplTest {
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
         GraphqlClient graphqlClient = Mockito.spy(new GraphqlClientImpl());
+
+        // Mock and set the protected 'client' field
+        Utils.setClientField(graphqlClient, mock(HttpClient.class));
+
         // Activate the GraphqlClientImpl with configuration
         context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
             .put("httpMethod", "POST")
@@ -133,7 +138,7 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     @Test
-    public void testFragmentOnProductPageWithoutLocationProperty() throws IOException {
+    public void testFragmentOnProductPageWithoutLocationProperty() throws IOException, NoSuchFieldException, IllegalAccessException {
         setup(PRODUCT_PAGE, RESOURCE_XF1);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -144,7 +149,7 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     @Test
-    public void testFragmentOnProductPageWithLocationProperty() throws IOException {
+    public void testFragmentOnProductPageWithLocationProperty() throws IOException, NoSuchFieldException, IllegalAccessException {
         setup(PRODUCT_PAGE, RESOURCE_XF2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -155,7 +160,7 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     @Test
-    public void testFragmentOnProductPageWithoutMatchingSkus() throws IOException {
+    public void testFragmentOnProductPageWithoutMatchingSkus() throws IOException, NoSuchFieldException, IllegalAccessException {
         setup(PRODUCT_PAGE, RESOURCE_XF2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -165,7 +170,7 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     @Test
-    public void testFragmentOnProductPageWhenProductNotFound() throws IOException {
+    public void testFragmentOnProductPageWhenProductNotFound() throws IOException, NoSuchFieldException, IllegalAccessException {
         setup(PRODUCT_PAGE, RESOURCE_XF1);
 
         CommerceExperienceFragmentImpl cxf = context.request().adaptTo(CommerceExperienceFragmentImpl.class);
@@ -174,7 +179,7 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     @Test
-    public void testFragmentOnNonProductOrCategoryPage() throws IOException {
+    public void testFragmentOnNonProductOrCategoryPage() throws IOException, NoSuchFieldException, IllegalAccessException {
         setup(ANOTHER_PAGE, RESOURCE_XF1);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -184,7 +189,7 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     @Test
-    public void testFragmentOnCategoryPageWithoutLocationProperty() throws IOException {
+    public void testFragmentOnCategoryPageWithoutLocationProperty() throws IOException, NoSuchFieldException, IllegalAccessException {
         setup(CATEGORY_PAGE, RESOURCE_XF1);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -195,7 +200,7 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     @Test
-    public void testFragmentOnCategoryPageWithLocationProperty() throws IOException {
+    public void testFragmentOnCategoryPageWithLocationProperty() throws IOException, NoSuchFieldException, IllegalAccessException {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -206,7 +211,7 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     @Test
-    public void testFragmentOnCategoryPageWithoutMatchingUids() throws IOException {
+    public void testFragmentOnCategoryPageWithoutMatchingUids() throws IOException, NoSuchFieldException, IllegalAccessException {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
@@ -216,14 +221,14 @@ public class CommerceExperienceFragmentImplTest {
     }
 
     @Test
-    public void testFragmentOnCategoryPageWithInvalidUid() throws IOException {
+    public void testFragmentOnCategoryPageWithInvalidUid() throws IOException, NoSuchFieldException, IllegalAccessException {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
 
         verifyFragmentResourceIsNull(null, null, null);
     }
 
     @Test
-    public void testUIDSupportWithURLPathSelector() throws IOException {
+    public void testUIDSupportWithURLPathSelector() throws IOException, NoSuchFieldException, IllegalAccessException {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
 
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();

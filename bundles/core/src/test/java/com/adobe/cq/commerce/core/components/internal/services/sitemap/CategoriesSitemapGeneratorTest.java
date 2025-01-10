@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.apache.http.client.HttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -50,9 +51,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class CategoriesSitemapGeneratorTest {
 
@@ -76,7 +75,7 @@ public class CategoriesSitemapGeneratorTest {
     private ValueMap configuration = new ValueMapDecorator(new HashMap<>());
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws IOException, NoSuchFieldException, IllegalAccessException {
         MockitoAnnotations.initMocks(this);
 
         configuration.put(CategoriesSitemapGenerator.PN_MAGENTO_ROOT_CATEGORY_ID, "UID2");
@@ -90,6 +89,10 @@ public class CategoriesSitemapGeneratorTest {
         categoryPage = aemContext.create().page(homePage.getPath() + "/category-page");
 
         aemContext.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
+
+        // Mock and set the protected 'client' field
+        Utils.setClientField(graphqlClient, mock(HttpClient.class));
+
         // Activate the GraphqlClientImpl with configuration
         aemContext.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
             .put("httpMethod", "POST")

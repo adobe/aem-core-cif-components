@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.servlets;
 import java.util.Iterator;
 
 import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
@@ -48,6 +49,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProductSortFieldsDataSourceServletTest {
@@ -81,6 +83,10 @@ public class ProductSortFieldsDataSourceServletTest {
         context.currentResource(PAGE);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
         graphqlClient = new GraphqlClientImpl();
+
+        // Mock and set the protected 'client' field
+        Utils.setClientField(graphqlClient, mock(HttpClient.class));
+
         // Activate the GraphqlClientImpl with configuration
         context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
             .put("httpMethod", "POST")

@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
@@ -115,6 +116,10 @@ public class SearchResultsImplTest {
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
+
+        // Mock and set the protected 'client' field
+        Utils.setClientField(graphqlClient, mock(HttpClient.class));
+
         // Activate the GraphqlClientImpl with configuration
         context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
             .put("httpMethod", "POST")

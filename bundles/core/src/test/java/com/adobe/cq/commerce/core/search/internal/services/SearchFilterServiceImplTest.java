@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -53,7 +54,6 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -86,11 +86,18 @@ public class SearchFilterServiceImplTest {
     GraphqlClient graphqlClient;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws NoSuchFieldException, IllegalAccessException, IOException {
         searchFilterServiceUnderTest = context.registerInjectActivateService(new SearchFilterServiceImpl());
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         graphqlClient = new GraphqlClientImpl();
+
+        // Mock and set the protected 'client' field
+        Utils.setClientField(graphqlClient, mock(HttpClient.class));
+
+        // Mock and set the protected 'client' field
+        Utils.setClientField(graphqlClient, mock(HttpClient.class));
+
         // Activate the GraphqlClientImpl with configuration
         context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
             .put("httpMethod", "GET")

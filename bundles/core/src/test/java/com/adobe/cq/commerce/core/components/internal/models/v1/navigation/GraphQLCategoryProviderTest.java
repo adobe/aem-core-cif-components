@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.HttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -82,8 +83,12 @@ public class GraphQLCategoryProviderTest {
     private GraphqlClient graphqlClient;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() throws IOException, NoSuchFieldException, IllegalAccessException {
         graphqlClient = new GraphqlClientImpl();
+
+        // Mock and set the protected 'client' field
+        Utils.setClientField(graphqlClient, mock(HttpClient.class));
+
         // Activate the GraphqlClientImpl with configuration
         context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
             .put("httpMethod", "POST")

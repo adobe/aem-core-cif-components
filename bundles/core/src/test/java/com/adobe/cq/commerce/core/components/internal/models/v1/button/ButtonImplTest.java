@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.button;
 
+import org.apache.http.client.HttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -38,8 +39,7 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ButtonImplTest {
 
@@ -57,6 +57,9 @@ public class ButtonImplTest {
     public void setUp() throws Exception {
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
         GraphqlClient graphqlClient = new GraphqlClientImpl();
+
+        // Mock and set the protected 'client' field
+        Utils.setClientField(graphqlClient, mock(HttpClient.class));
 
         // Activate the GraphqlClientImpl with configuration
         context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()

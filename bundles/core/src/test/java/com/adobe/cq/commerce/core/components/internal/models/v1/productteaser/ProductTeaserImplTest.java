@@ -20,6 +20,7 @@ import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
+import org.apache.http.client.HttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -126,6 +127,10 @@ public class ProductTeaserImplTest {
         product = rootQuery.getProducts().getItems().get(0);
 
         GraphqlClient graphqlClient = new GraphqlClientImpl();
+
+        // Mock and set the protected 'client' field
+        Utils.setClientField(graphqlClient, mock(HttpClient.class));
+
         // Activate the GraphqlClientImpl with configuration
         context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
             .put("httpMethod", "POST")
@@ -247,13 +252,17 @@ public class ProductTeaserImplTest {
     }
 
     @Test
-    public void testVirtualProduct() throws IOException {
+    public void testVirtualProduct() throws IOException, NoSuchFieldException, IllegalAccessException {
         Page page = spy(context.currentPage(PAGE));
         context.currentResource(PRODUCTTEASER_VIRTUAL);
         Resource teaserResource = spy(context.resourceResolver().getResource(PRODUCTTEASER_VIRTUAL));
         when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         GraphqlClient graphqlClient = new GraphqlClientImpl();
+
+        // Mock and set the protected 'client' field
+        Utils.setClientField(graphqlClient, mock(HttpClient.class));
+
         // Activate the GraphqlClientImpl with configuration
         context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
             .put("httpMethod", "POST")
