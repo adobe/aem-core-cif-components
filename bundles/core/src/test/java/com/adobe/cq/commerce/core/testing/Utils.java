@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 
@@ -31,7 +30,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -44,7 +42,6 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
@@ -252,16 +249,4 @@ public class Utils {
         IOUtils.closeQuietly(is);
     }
 
-    /**
-     * Set client field of the GraphqlClient instance
-     * Use reflection to set the protected 'client' field of the GraphqlClientImpl class.
-     * 
-     * @param graphqlClient The GraphqlClient instance
-     * @param client The HttpClient instance
-     */
-    public static void setClientField(GraphqlClient graphqlClient, HttpClient client) throws NoSuchFieldException, IllegalAccessException {
-        Field clientField = GraphqlClientImpl.class.getDeclaredField("client");
-        clientField.setAccessible(true);
-        clientField.set(graphqlClient, client);
-    }
 }

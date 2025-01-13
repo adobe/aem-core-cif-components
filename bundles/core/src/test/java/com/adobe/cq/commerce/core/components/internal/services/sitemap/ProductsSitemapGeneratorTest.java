@@ -18,7 +18,6 @@ package com.adobe.cq.commerce.core.components.internal.services.sitemap;
 import java.io.IOException;
 import java.util.Set;
 
-import org.apache.http.client.HttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.sitemap.SitemapException;
@@ -49,7 +48,9 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ProductsSitemapGeneratorTest {
 
@@ -71,7 +72,7 @@ public class ProductsSitemapGeneratorTest {
     private Page productPage;
 
     @Before
-    public void setup() throws IOException, NoSuchFieldException, IllegalAccessException {
+    public void setup() throws IOException {
         MockitoAnnotations.initMocks(this);
 
         homePage = aemContext.create().page(
@@ -85,10 +86,6 @@ public class ProductsSitemapGeneratorTest {
         aemContext.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
         aemContext.registerService(SitemapLinkExternalizer.class, externalizer);
         aemContext.registerInjectActivateService(new SitemapLinkExternalizerProvider());
-
-        // Mock and set the protected 'client' field
-        Utils.setClientField(graphqlClient, mock(HttpClient.class));
-
         aemContext.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
             .put("httpMethod", "POST")
             .put("url", "https://localhost")

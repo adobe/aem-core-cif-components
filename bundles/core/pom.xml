@@ -582,7 +582,7 @@
         <dependency>
             <groupId>com.adobe.aem</groupId>
             <artifactId>aem-cif-sdk-api</artifactId>
-            <version>2023.11.23.00</version>
+            <version>2022.08.02.00</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -596,12 +596,6 @@
             <artifactId>magento-graphql</artifactId>
             <version>${magento.graphql.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.4.16</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 

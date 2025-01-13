@@ -23,7 +23,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
@@ -80,7 +79,7 @@ public class CatalogPageNotFoundFilterTest {
     private ContentPolicy contentPolicy;
 
     @Before
-    public void setup() throws IOException, NoSuchFieldException, IllegalAccessException {
+    public void setup() throws IOException {
         MockitoAnnotations.initMocks(this);
         request = aemContext.request();
         response = aemContext.response();
@@ -102,10 +101,6 @@ public class CatalogPageNotFoundFilterTest {
         aemContext.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         GraphqlClient graphqlClient = spy(new GraphqlClientImpl());
-
-        // Mock and set the protected 'client' field
-        Utils.setClientField(graphqlClient, mock(HttpClient.class));
-
         // Activate the GraphqlClientImpl with configuration
         aemContext.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
             .put("httpMethod", "POST")
