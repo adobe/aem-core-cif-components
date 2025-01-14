@@ -61,9 +61,6 @@ public class ButtonImplTest {
     public void setUp() throws Exception {
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
-        Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK);
-        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
-            "{products(filter:{sku:{eq:\"MJ01\"}}");
 
         GraphqlClient graphqlClient = spy(new GraphqlClientImpl());
         // Activate the GraphqlClientImpl with configuration
@@ -73,6 +70,10 @@ public class ButtonImplTest {
             .build());
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK, "{categoryList");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
+            "{products(filter:{sku:{eq:\"MJ01\"}}");
 
         Page page = spy(context.currentPage(PAGE));
 

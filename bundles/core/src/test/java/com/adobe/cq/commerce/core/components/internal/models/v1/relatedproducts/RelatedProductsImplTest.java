@@ -190,6 +190,8 @@ public class RelatedProductsImplTest {
     @Test
     public void testIsNotConfigured() throws Exception {
         setUp(RelationType.CROSS_SELL_PRODUCTS, "graphql/magento-graphql-crosssellproducts-result.json", false);
+        Utils.setupHttpResponse(null, httpClient, HttpStatus.SC_NOT_FOUND,
+            "{products(filter:{sku:{}");
         Assert.assertTrue(relatedProducts.getProducts().isEmpty());
     }
 

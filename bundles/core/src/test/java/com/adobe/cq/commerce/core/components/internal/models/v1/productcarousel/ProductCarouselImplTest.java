@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Currency;
@@ -97,7 +98,7 @@ public class ProductCarouselImplTest {
             .put("httpMethod", "POST")
             .put("url", "https://localhost")
             .build());
-        Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-productcarousel-result.json");
+
         Mockito.when(carouselResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient") != null ? graphqlClient : null);
@@ -120,8 +121,9 @@ public class ProductCarouselImplTest {
     }
 
     @Test
-    public void getProducts() {
+    public void getProducts() throws IOException {
         productCarousel = context.request().adaptTo(ProductCarouselImpl.class);
+        Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-productcarousel-result.json");
 
         Assert.assertEquals("h2", productCarousel.getTitleType());
         Assert.assertFalse(productCarousel.isAddToCartEnabled());

@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -150,8 +151,8 @@ public class SearchFilterServiceImplTest {
 
         assertThat(filterAttributeMetadata).hasSize(29);
 
-        verify(httpClient).execute(argThat(new GraphqlQueryMatcher("{__type", "get")));
-        verify(httpClient).execute(argThat(new GraphqlQueryMatcher("{customAttributeMetadata", "post")));
+        verify(httpClient).execute(argThat(new GraphqlQueryMatcher("{__type", "GET")), any(ResponseHandler.class));
+        verify(httpClient).execute(argThat(new GraphqlQueryMatcher("{customAttributeMetadata", "post")), any(ResponseHandler.class));
     }
 
     @Test

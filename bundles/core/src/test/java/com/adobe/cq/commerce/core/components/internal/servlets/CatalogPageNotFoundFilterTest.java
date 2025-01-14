@@ -121,7 +121,7 @@ public class CatalogPageNotFoundFilterTest {
             "{products(filter:{url_key:{eq:\"beaumont-summit-kit\"}}");
         Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{url_path:{eq:\"men/tops-men/jackets-men\"}}");
-        Utils.setupHttpResponse(null, httpClient, HttpStatus.SC_NOT_FOUND, "url_key:{eq:\"does-not-exist\"}}");
+        Utils.setupHttpResponse(null, httpClient, HttpStatus.SC_NOT_FOUND, "{eq:\"does-not-exist\"}}");
     }
 
     @Test

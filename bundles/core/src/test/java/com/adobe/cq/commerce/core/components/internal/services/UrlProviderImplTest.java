@@ -135,6 +135,8 @@ public class UrlProviderImplTest {
         // from url_path does/not/exist
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK,
             "categoryList(filters:{url_key:{eq:\"exist\"}");
+        Utils.setupHttpResponse(null, httpClient, HttpStatus.SC_NOT_FOUND,
+            "categoryList(filters:{url_path:{eq:\"does/not/exist\"}");
 
         context.registerInjectActivateService(urlProvider);
     }
