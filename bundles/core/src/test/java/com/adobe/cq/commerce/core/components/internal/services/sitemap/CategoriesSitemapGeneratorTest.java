@@ -90,11 +90,8 @@ public class CategoriesSitemapGeneratorTest {
         categoryPage = aemContext.create().page(homePage.getPath() + "/category-page");
 
         aemContext.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
-        // Activate the GraphqlClientImpl with configuration
-        aemContext.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
-            .put("httpMethod", "POST")
-            .put("url", "https://localhost")
-            .build());
+        Utils.activateGraphqlClient(aemContext, graphqlClient, null);
+
         aemContext.registerService(SitemapCategoryFilter.class, categoryFilter);
         aemContext.registerService(SitemapLinkExternalizer.class, externalizer);
         aemContext.registerInjectActivateService(new SitemapLinkExternalizerProvider());

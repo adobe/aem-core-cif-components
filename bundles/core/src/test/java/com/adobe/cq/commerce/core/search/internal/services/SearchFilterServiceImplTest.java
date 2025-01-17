@@ -17,7 +17,9 @@ package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
@@ -54,10 +56,8 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -92,11 +92,11 @@ public class SearchFilterServiceImplTest {
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         graphqlClient = new GraphqlClientImpl();
-        // Activate the GraphqlClientImpl with configuration
-        context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
-            .put("httpMethod", "GET")
-            .put("url", "https://localhost")
-            .build());
+
+        // Create additionalConfig map
+        Map<String, Object> additionalConfig = new HashMap<>();
+        additionalConfig.put("httpMethod", "GET");
+        Utils.activateGraphqlClient(context, graphqlClient, additionalConfig);
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");

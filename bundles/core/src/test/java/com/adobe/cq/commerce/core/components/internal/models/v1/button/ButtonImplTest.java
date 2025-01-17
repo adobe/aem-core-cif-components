@@ -58,11 +58,7 @@ public class ButtonImplTest {
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
         GraphqlClient graphqlClient = new GraphqlClientImpl();
 
-        // Activate the GraphqlClientImpl with configuration
-        context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
-            .put("httpMethod", "POST")
-            .put("url", "https://localhost")
-            .build());
+        Utils.activateGraphqlClient(context, graphqlClient, null);
 
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);

@@ -76,11 +76,7 @@ public class CommerceTeaserImplTest {
     public void setup() throws Exception {
         GraphqlClient graphqlClient = new GraphqlClientImpl();
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
-        // Activate the GraphqlClientImpl with configuration
-        context.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
-            .put("httpMethod", "POST")
-            .put("url", "https://localhost")
-            .build());
+        Utils.activateGraphqlClient(context, graphqlClient, null);
         Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-category-list-result.json");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);

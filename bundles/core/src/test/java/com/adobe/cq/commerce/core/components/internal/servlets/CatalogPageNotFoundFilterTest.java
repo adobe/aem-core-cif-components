@@ -51,7 +51,6 @@ import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.day.cq.wcm.api.policies.ContentPolicy;
 import com.day.cq.wcm.api.policies.ContentPolicyManager;
-import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.junit.Assert.assertEquals;
@@ -101,11 +100,7 @@ public class CatalogPageNotFoundFilterTest {
         aemContext.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         GraphqlClient graphqlClient = spy(new GraphqlClientImpl());
-        // Activate the GraphqlClientImpl with configuration
-        aemContext.registerInjectActivateService(graphqlClient, ImmutableMap.<String, Object>builder()
-            .put("httpMethod", "POST")
-            .put("url", "https://localhost")
-            .build());
+        Utils.activateGraphqlClient(aemContext, graphqlClient, null);
         aemContext.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
 
         aemContext.registerService(BindingsValuesProvider.class, bindings -> bindings.put("wcmmode", wcmMode));

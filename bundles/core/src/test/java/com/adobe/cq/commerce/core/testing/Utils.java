@@ -22,6 +22,9 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.json.Json;
 import javax.json.JsonReader;
@@ -52,6 +55,7 @@ import com.adobe.cq.wcm.core.components.internal.jackson.PageModuleProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.reflect.TypeToken;
+import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -270,4 +274,20 @@ public class Utils {
         IOUtils.closeQuietly(is);
     }
 
+    /**
+     * Triggers the activate method of GraphqlClient service.
+     * 
+     * @param context The AEM context.
+     * @param graphqlClient The GraphqlClient service.
+     */
+    public static void activateGraphqlClient(AemContext context, GraphqlClient graphqlClient, Map<String, Object> additionalConfig) {
+        if (additionalConfig == null) {
+            additionalConfig = Collections.emptyMap();
+        }
+        Map<String, Object> config = new HashMap<>();
+        config.put("httpMethod", "POST");
+        config.put("url", "https://localhost");
+        config.putAll(additionalConfig);
+        context.registerInjectActivateService(graphqlClient, config);
+    }
 }
