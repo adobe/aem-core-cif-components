@@ -100,7 +100,7 @@ public class CatalogPageNotFoundFilterTest {
         aemContext.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         GraphqlClient graphqlClient = spy(new GraphqlClientImpl());
-        Utils.activateGraphqlClient(aemContext, graphqlClient, null);
+        Utils.registerGraphqlClient(aemContext, graphqlClient, null);
         aemContext.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
 
         aemContext.registerService(BindingsValuesProvider.class, bindings -> bindings.put("wcmmode", wcmMode));

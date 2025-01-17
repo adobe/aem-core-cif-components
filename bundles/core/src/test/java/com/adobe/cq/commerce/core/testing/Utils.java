@@ -280,7 +280,7 @@ public class Utils {
      * @param context The AEM context.
      * @param graphqlClient The GraphqlClient service.
      */
-    public static void activateGraphqlClient(AemContext context, GraphqlClient graphqlClient, Map<String, Object> additionalConfig) {
+    public static void registerGraphqlClient(AemContext context, GraphqlClient graphqlClient, Map<String, Object> additionalConfig) {
         if (additionalConfig == null) {
             additionalConfig = Collections.emptyMap();
         }

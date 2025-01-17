@@ -111,7 +111,7 @@ public class RelatedProductsImplTest {
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        Utils.activateGraphqlClient(context, graphqlClient, null);
+        Utils.registerGraphqlClient(context, graphqlClient, null);
 
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         Style style = mock(Style.class);

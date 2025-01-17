@@ -106,7 +106,7 @@ public class UrlProviderImplTest {
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         graphqlClient = spy(new GraphqlClientImpl());
-        Utils.activateGraphqlClient(context, graphqlClient, null);
+        Utils.registerGraphqlClient(context, graphqlClient, null);
         context.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
         context.registerAdapter(Resource.class, ComponentsConfiguration.class,
             (Function<Resource, ComponentsConfiguration>) r -> caConfigSupplier.apply(r));

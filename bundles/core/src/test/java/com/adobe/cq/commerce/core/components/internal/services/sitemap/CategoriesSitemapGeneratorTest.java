@@ -90,7 +90,7 @@ public class CategoriesSitemapGeneratorTest {
         categoryPage = aemContext.create().page(homePage.getPath() + "/category-page");
 
         aemContext.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
-        Utils.activateGraphqlClient(aemContext, graphqlClient, null);
+        Utils.registerGraphqlClient(aemContext, graphqlClient, null);
 
         aemContext.registerService(SitemapCategoryFilter.class, categoryFilter);
         aemContext.registerService(SitemapLinkExternalizer.class, externalizer);

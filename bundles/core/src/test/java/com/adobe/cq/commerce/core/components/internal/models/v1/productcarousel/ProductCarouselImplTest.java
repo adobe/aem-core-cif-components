@@ -93,7 +93,7 @@ public class ProductCarouselImplTest {
 
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
         graphqlClient = new GraphqlClientImpl();
-        Utils.activateGraphqlClient(context, graphqlClient, null);
+        Utils.registerGraphqlClient(context, graphqlClient, null);
 
         Mockito.when(carouselResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
