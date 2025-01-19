@@ -19,10 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.sling.api.resource.LoginException;
-import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceResolver;
-import org.apache.sling.api.resource.ResourceResolverFactory;
+import org.apache.sling.api.resource.*;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -74,7 +71,7 @@ public class InvalidateCacheSupport {
         clients.add(new ClientHolder(graphqlClient, properties));
     }
 
-    void unbindGraphqlClient(GraphqlClient graphqlClient, Map<?, ?> properties) {
+    void unbindGraphqlClient(GraphqlClient graphqlClient) {
         clients.removeIf(holder -> holder.graphqlClient.equals(graphqlClient));
     }
 
@@ -97,7 +94,7 @@ public class InvalidateCacheSupport {
         try {
             return resourceResolver.getResource(path);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ResourceNotFoundException("Failed to get resource at path: " + path, e);
         }
     }
 
