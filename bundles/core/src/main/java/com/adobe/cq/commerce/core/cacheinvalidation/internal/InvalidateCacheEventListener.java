@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 @Component(service = EventListener.class, immediate = true)
 public class InvalidateCacheEventListener implements EventListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheEventListener.class);
+    private static   Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheEventListener.class);
 
     @Reference
     private InvalidateCacheImpl invalidateCacheImpl;
@@ -40,6 +40,8 @@ public class InvalidateCacheEventListener implements EventListener {
 
     @Reference
     private SlingRepository repository;
+
+    String pathDelimiter = "/";
 
     @Activate
     protected void activate() {
@@ -67,7 +69,7 @@ public class InvalidateCacheEventListener implements EventListener {
             Event event = events.nextEvent();
             try {
                 String path = event.getPath();
-                String actualPath = InvalidateCacheSupport.INVALIDATE_WORKING_AREA + "/" + InvalidateCacheSupport.NODE_NAME_BASE;
+                String actualPath = InvalidateCacheSupport.INVALIDATE_WORKING_AREA + pathDelimiter + InvalidateCacheSupport.NODE_NAME_BASE;
                 if (path.startsWith(actualPath)) {
                     LOGGER.debug("Cache invalidation event detected: {} and {}", path, event.getType());
                     invalidateCacheImpl.invalidateCache(path);
