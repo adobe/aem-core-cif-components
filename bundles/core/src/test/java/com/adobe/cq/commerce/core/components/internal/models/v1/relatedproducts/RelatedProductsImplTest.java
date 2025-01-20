@@ -111,7 +111,7 @@ public class RelatedProductsImplTest {
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        Utils.registerGraphqlClient(context, graphqlClient, null);
 
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
         Style style = mock(Style.class);
@@ -186,6 +186,8 @@ public class RelatedProductsImplTest {
     @Test
     public void testIsNotConfigured() throws Exception {
         setUp(RelationType.CROSS_SELL_PRODUCTS, "graphql/magento-graphql-crosssellproducts-result.json", false);
+        Utils.setupHttpResponse(null, httpClient, HttpStatus.SC_NOT_FOUND,
+            "{products(filter:{sku:{}");
         Assert.assertTrue(relatedProducts.getProducts().isEmpty());
     }
 

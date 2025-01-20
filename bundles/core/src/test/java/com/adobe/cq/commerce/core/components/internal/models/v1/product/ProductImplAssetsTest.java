@@ -107,7 +107,7 @@ public class ProductImplAssetsTest {
         Resource productResource = Mockito.spy(context.resourceResolver().getResource(PRODUCT));
 
         GraphqlClient graphqlClient = new GraphqlClientImpl();
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        Utils.registerGraphqlClient(context, graphqlClient, null);
 
         Utils.setupHttpResponse(graphqlResponse, httpClient, 200, "{products(filter:{url_key");
         Utils.setupHttpResponse(graphqlResponse, httpClient, 200, "{products(filter:{sku");
