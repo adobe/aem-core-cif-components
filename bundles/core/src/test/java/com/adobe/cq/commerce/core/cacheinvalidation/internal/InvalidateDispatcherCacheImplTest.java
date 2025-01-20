@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2024 Adobe. All rights reserved.
+ *    Copyright 2025 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,7 +13,29 @@
  ******************************************************************************/
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.*;
+
+import javax.jcr.Session;
 import javax.jcr.Workspace;
+import javax.jcr.query.*;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.settings.SlingSettingsService;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.*;
+import org.slf4j.Logger;
+
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
@@ -21,31 +43,6 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.day.cq.wcm.api.Page;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceResolver;
-import org.apache.sling.api.resource.ValueMap;
-
-import org.apache.commons.httpclient.methods.PostMethod;
-
-import org.apache.sling.settings.SlingSettingsService;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.*;
-import org.slf4j.Logger;
-
-
-import javax.jcr.Session;
-import javax.jcr.query.*;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -59,7 +56,6 @@ public class InvalidateDispatcherCacheImplTest {
     private UrlProviderImpl urlProvider;
     @Mock
     private PostMethod postMethod;
-
 
     @Mock
     private SlingSettingsService slingSettingsService;
@@ -75,7 +71,6 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Mock
     private ValueMap valueMap;
-
 
     @Mock
     private HttpClient httpClient;
@@ -98,21 +93,16 @@ public class InvalidateDispatcherCacheImplTest {
     @Mock
     private RowIterator rowIterator;
 
-
     @Mock
     private Logger logger;
 
-
-    private ComponentsConfiguration componentsConfiguration,commerceProperties;
+    private ComponentsConfiguration componentsConfiguration, commerceProperties;
 
     @Mock
     private GraphqlClient graphqlClient;
 
-
     @Mock
     private Row row;
-
-
 
     @Mock
     private Map<String, Object> properties;
@@ -137,8 +127,6 @@ public class InvalidateDispatcherCacheImplTest {
 
         when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
     }
-
-
 
     @Test(expected = RuntimeException.class)
     public void testFlushCache_IOException1() throws Exception {
@@ -169,7 +157,6 @@ public class InvalidateDispatcherCacheImplTest {
         verify(logger, never()).error(anyString());
     }
 
-
     @Test
     public void testInvalidateCache_ResourceNotFound1() {
         when(slingSettingsService.getRunModes()).thenReturn(Set.of("author"));
@@ -181,10 +168,9 @@ public class InvalidateDispatcherCacheImplTest {
         verify(resourceResolver).close();
     }
 
-
     @Test
     public void testGenerateQuery() throws Exception {
-        String[] entries = new String[]{"entry1", "entry2"};
+        String[] entries = new String[] { "entry1", "entry2" };
         String key = "productSkus";
 
         Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("generateQuery", String[].class, String.class);
@@ -212,7 +198,7 @@ public class InvalidateDispatcherCacheImplTest {
         Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getQueryResult", Query.class);
         method.setAccessible(true);
 
-        String[] expectedPaths = new String[]{"/content/path.html"};
+        String[] expectedPaths = new String[] { "/content/path.html" };
         String[] result = (String[]) method.invoke(invalidateDispatcherCacheImpl, query);
 
         assertArrayEquals(expectedPaths, result);
@@ -223,30 +209,30 @@ public class InvalidateDispatcherCacheImplTest {
         String storePath = "/store/path";
         Map<String, Object> data = new HashMap<>();
         data.put("products", Map.of("items", List.of(
-                Map.of("sku", "sku1", "url_key", "url1", "url_rewrites", List.of(Map.of("url", "/path1"))),
-                Map.of("sku", "sku2", "url_key", "url2", "url_rewrites", List.of(Map.of("url", "/path2")))
-        )));
+            Map.of("sku", "sku1", "url_key", "url1", "url_rewrites", List.of(Map.of("url", "/path1"))),
+            Map.of("sku", "sku2", "url_key", "url2", "url_rewrites", List.of(Map.of("url", "/path2"))))));
 
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getSkuBasedInvalidPaths", ResourceResolver.class, Map.class, String.class);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getSkuBasedInvalidPaths", ResourceResolver.class, Map.class,
+            String.class);
         method.setAccessible(true);
 
         when(urlProvider.toProductUrl(any(SlingHttpServletRequest.class), any(Page.class), any(ProductUrlFormat.Params.class)))
-                .thenReturn("/path1")
-                .thenReturn("/path2");
+            .thenReturn("/path1")
+            .thenReturn("/path2");
 
         String[] result = (String[]) method.invoke(invalidateDispatcherCacheImpl, resourceResolver, data, storePath);
 
-        String[] expectedPaths = new String[]{"/path1", "/path2"};
+        String[] expectedPaths = new String[] { "/path1", "/path2" };
         Arrays.sort(result);
         Arrays.sort(expectedPaths);
         assertArrayEquals(expectedPaths, result);
     }
 
-
     @Test
     public void testExceptionMessage() {
         String message = "Test message";
-        InvalidateDispatcherCacheImpl.CacheInvalidationException exception = new InvalidateDispatcherCacheImpl.CacheInvalidationException(message);
+        InvalidateDispatcherCacheImpl.CacheInvalidationException exception = new InvalidateDispatcherCacheImpl.CacheInvalidationException(
+            message);
         assertEquals(message, exception.getMessage());
     }
 
@@ -254,31 +240,32 @@ public class InvalidateDispatcherCacheImplTest {
     public void testExceptionMessageAndCause() {
         String message = "Test message";
         Throwable cause = new Throwable("Cause message");
-        InvalidateDispatcherCacheImpl.CacheInvalidationException exception = new InvalidateDispatcherCacheImpl.CacheInvalidationException(message, cause);
+        InvalidateDispatcherCacheImpl.CacheInvalidationException exception = new InvalidateDispatcherCacheImpl.CacheInvalidationException(
+            message, cause);
         assertEquals(message, exception.getMessage());
         assertEquals(cause, exception.getCause());
     }
-
 
     @Test
     public void testGetAllInvalidPaths() throws Exception {
         String storePath = "/store/path";
         Map<String, String[]> dynamicProperties = new HashMap<>();
-        dynamicProperties.put("productSkus", new String[]{"sku1", "sku2"});
-        dynamicProperties.put("categoryUids", new String[]{"uid1", "uid2"});
+        dynamicProperties.put("productSkus", new String[] { "sku1", "sku2" });
+        dynamicProperties.put("categoryUids", new String[] { "uid1", "uid2" });
 
         setUpMocksForQuery();
         setUpMocksForGraphqlClient();
 
-        String[] expectedPaths = new String[]{"/content/path"};
+        String[] expectedPaths = new String[] { "/content/path" };
 
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getAllInvalidPaths", Session.class, ResourceResolver.class, GraphqlClient.class, String.class, Map.class);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getAllInvalidPaths", Session.class, ResourceResolver.class,
+            GraphqlClient.class, String.class, Map.class);
         method.setAccessible(true);
 
-        String[] result = (String[]) method.invoke(invalidateDispatcherCacheImpl, session, resourceResolver, graphqlClient, storePath, dynamicProperties);
+        String[] result = (String[]) method.invoke(invalidateDispatcherCacheImpl, session, resourceResolver, graphqlClient, storePath,
+            dynamicProperties);
 
         assertNotNull(result);
-
 
     }
 
@@ -298,20 +285,19 @@ public class InvalidateDispatcherCacheImplTest {
         // Mock GraphqlClient response for productSkus
         GraphqlResponse<Map<String, Object>, Map<String, Object>> graphqlResponseProducts = mock(GraphqlResponse.class);
         when(graphqlResponseProducts.getData()).thenReturn(Map.of("products", Map.of("items", List.of(
-                Map.of("sku", "sku1", "url_key", "url1", "url_rewrites", List.of(Map.of("url", "/path1"))),
-                Map.of("sku", "sku2", "url_key", "url2", "url_rewrites", List.of(Map.of("url", "/path2")))
-        ))));
-        doAnswer(invocation -> graphqlResponseProducts).when(graphqlClient).execute(any(GraphqlRequest.class), any(Type.class), any(Type.class));
+            Map.of("sku", "sku1", "url_key", "url1", "url_rewrites", List.of(Map.of("url", "/path1"))),
+            Map.of("sku", "sku2", "url_key", "url2", "url_rewrites", List.of(Map.of("url", "/path2")))))));
+        doAnswer(invocation -> graphqlResponseProducts).when(graphqlClient).execute(any(GraphqlRequest.class), any(Type.class), any(
+            Type.class));
 
         // Mock GraphqlClient response for categoryUids
         GraphqlResponse<Map<String, Object>, Map<String, Object>> graphqlResponseCategories = mock(GraphqlResponse.class);
         when(graphqlResponseCategories.getData()).thenReturn(Map.of("categoryList", List.of(
-                Map.of("uid", "uid1", "url_key", "category1", "url_path", "/category1"),
-                Map.of("uid", "uid2", "url_key", "category2", "url_path", "/category2")
-        )));
-        doAnswer(invocation -> graphqlResponseCategories).when(graphqlClient).execute(any(GraphqlRequest.class), any(Type.class), any(Type.class));
+            Map.of("uid", "uid1", "url_key", "category1", "url_path", "/category1"),
+            Map.of("uid", "uid2", "url_key", "category2", "url_path", "/category2"))));
+        doAnswer(invocation -> graphqlResponseCategories).when(graphqlClient).execute(any(GraphqlRequest.class), any(Type.class), any(
+            Type.class));
     }
-
 
     @Test
     public void testGetSession() throws Exception {
@@ -328,12 +314,10 @@ public class InvalidateDispatcherCacheImplTest {
         assertNull(result);
     }
 
-
-
-
     @Test
     public void testGetSkuBasedSql2Query() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getSkuBasedSql2Query", Session.class, String.class, String.class);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getSkuBasedSql2Query", Session.class, String.class,
+            String.class);
         method.setAccessible(true);
 
         when(session.getWorkspace()).thenReturn(workspace);
@@ -347,7 +331,8 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Test
     public void testGetCategoryBasedSql2Query() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getCategoryBasedSql2Query", Session.class, String.class, String.class);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getCategoryBasedSql2Query", Session.class, String.class,
+            String.class);
         method.setAccessible(true);
 
         when(session.getWorkspace()).thenReturn(workspace);
@@ -361,10 +346,11 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Test
     public void testGetCorrespondingPageBasedOnEntries() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getCorrespondingPageBasedOnEntries", Session.class, String.class, String[].class, String.class);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getCorrespondingPageBasedOnEntries", Session.class,
+            String.class, String[].class, String.class);
         method.setAccessible(true);
 
-        String[] entries = {"entry1", "entry2"};
+        String[] entries = { "entry1", "entry2" };
         when(session.getWorkspace()).thenReturn(workspace);
         when(workspace.getQueryManager()).thenReturn(queryManager);
         when(queryManager.createQuery(anyString(), eq(Query.JCR_SQL2))).thenReturn(query);
@@ -382,12 +368,13 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Test
     public void testGetAllInvalidPaths1() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getAllInvalidPaths", Session.class, ResourceResolver.class, GraphqlClient.class, String.class, Map.class);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getAllInvalidPaths", Session.class, ResourceResolver.class,
+            GraphqlClient.class, String.class, Map.class);
         method.setAccessible(true);
 
         Map<String, String[]> dynamicProperties = new HashMap<>();
-        dynamicProperties.put("productSkus", new String[]{"sku1", "sku2"});
-        dynamicProperties.put("categoryUids", new String[]{"uid1", "uid2"});
+        dynamicProperties.put("productSkus", new String[] { "sku1", "sku2" });
+        dynamicProperties.put("categoryUids", new String[] { "uid1", "uid2" });
 
         when(session.getWorkspace()).thenReturn(workspace);
         when(workspace.getQueryManager()).thenReturn(queryManager);
@@ -401,9 +388,11 @@ public class InvalidateDispatcherCacheImplTest {
         // Mock GraphqlClient and its response
         GraphqlResponse<Map<String, Object>, Map<String, Object>> graphqlResponse = mock(GraphqlResponse.class);
         when(graphqlResponse.getData()).thenReturn(new HashMap<>());
-        when(graphqlClient.execute(any(GraphqlRequest.class), any(Type.class), any(Type.class))).thenReturn((GraphqlResponse) graphqlResponse);
+        when(graphqlClient.execute(any(GraphqlRequest.class), any(Type.class), any(Type.class))).thenReturn(
+            (GraphqlResponse) graphqlResponse);
 
-        String[] result = (String[]) method.invoke(invalidateDispatcherCacheImpl, session, resourceResolver, graphqlClient, "/storePath", dynamicProperties);
+        String[] result = (String[]) method.invoke(invalidateDispatcherCacheImpl, session, resourceResolver, graphqlClient, "/storePath",
+            dynamicProperties);
         assertNotNull(result);
         assertEquals(1, result.length);
         assertEquals("/content/path.html", result[0]);
@@ -411,7 +400,8 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Test
     public void testRemoveUpToDelimiter() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("removeUpToDelimiter", String.class, String.class, boolean.class);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("removeUpToDelimiter", String.class, String.class,
+            boolean.class);
         method.setAccessible(true);
 
         String input = "example/path/to/resource";
@@ -430,10 +420,9 @@ public class InvalidateDispatcherCacheImplTest {
         method.setAccessible(true);
 
         Map<String, Object> item = Map.of(
-                "uid", "uid1",
-                "url_key", "urlKey1",
-                "url_path", "urlPath1"
-        );
+            "uid", "uid1",
+            "url_key", "urlKey1",
+            "url_path", "urlPath1");
 
         ProductUrlFormat.Params params = (ProductUrlFormat.Params) method.invoke(invalidateDispatcherCacheImpl, item);
 
@@ -450,20 +439,18 @@ public class InvalidateDispatcherCacheImplTest {
 
         Set<String> uniquePagePaths = new HashSet<>();
         Map<String, Object> item = Map.of(
-                "uid", "uid1",
-                "url_key", "urlKey1",
-                "url_path", "urlPath1"
-        );
+            "uid", "uid1",
+            "url_key", "urlKey1",
+            "url_path", "urlPath1");
 
         Page page = mock(Page.class);
         when(urlProvider.toProductUrl(any(), eq(page), any(ProductUrlFormat.Params.class)))
-                .thenReturn("/path1/product-page.html");
+            .thenReturn("/path1/product-page.html");
 
         method.invoke(invalidateDispatcherCacheImpl, uniquePagePaths, item, page);
 
         assertTrue(uniquePagePaths.contains("/path1"));
     }
-
 
     @Test(expected = RuntimeException.class)
     public void testFlushCache_IOException() throws Exception {
@@ -479,8 +466,6 @@ public class InvalidateDispatcherCacheImplTest {
         }
     }
 
-
-
     @Test
     public void testInvalidateCache_ResourceNotFound4() throws Exception {
         when(slingSettingsService.getRunModes()).thenReturn(Set.of("author"));
@@ -491,9 +476,6 @@ public class InvalidateDispatcherCacheImplTest {
 
         verify(resourceResolver).close();
     }
-
-
-
 
     @Test
     public void testInvalidateCache_SessionNotFound() throws Exception {
@@ -509,6 +491,5 @@ public class InvalidateDispatcherCacheImplTest {
 
         verify(invalidateCacheSupport, never()).getCommerceProperties(any(), any());
     }
-
 
 }

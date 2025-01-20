@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2024 Adobe. All rights reserved.
+ *    Copyright 2025 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -108,8 +108,10 @@ public class InvalidateDispatcherCacheImpl {
 
             String graphqlClientId = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, (String) null);
             Map<String, String[]> dynamicProperties = new HashMap<>();
-            dynamicProperties.put(InvalidateCacheSupport.PROPERTIES_PRODUCT_SKUS, properties.get(InvalidateCacheSupport.PROPERTIES_PRODUCT_SKUS, String[].class));
-            dynamicProperties.put(InvalidateCacheSupport.PROPERTIES_CATEGORY_UIDS, properties.get(InvalidateCacheSupport.PROPERTIES_CATEGORY_UIDS, String[].class));
+            dynamicProperties.put(InvalidateCacheSupport.PROPERTIES_PRODUCT_SKUS, properties.get(
+                InvalidateCacheSupport.PROPERTIES_PRODUCT_SKUS, String[].class));
+            dynamicProperties.put(InvalidateCacheSupport.PROPERTIES_CATEGORY_UIDS, properties.get(
+                InvalidateCacheSupport.PROPERTIES_CATEGORY_UIDS, String[].class));
 
             GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
 
@@ -125,7 +127,8 @@ public class InvalidateDispatcherCacheImpl {
                 boolean isSubPath = invalidateCachePaths.stream().anyMatch(topPath -> urlPath.startsWith(topPath + pathDelimiter));
                 if (!isSubPath) {
                     invalidateCachePaths.add(urlPath);
-                }}
+                }
+            }
 
             invalidateCachePaths.forEach(this::flushCache);
         } catch (Exception e) {
@@ -146,7 +149,7 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     private String[] getAllInvalidPaths(Session session, ResourceResolver resourceResolver, GraphqlClient client,
-                                        String storePath, Map<String, String[]> dynamicProperties) throws CacheInvalidationException {
+        String storePath, Map<String, String[]> dynamicProperties) throws CacheInvalidationException {
         String[] invalidateDispatcherPagePaths = new String[0];
         String[] correspondingPaths = new String[0];
 
@@ -157,15 +160,15 @@ public class InvalidateDispatcherCacheImpl {
             if (values != null && values.length > 0) {
                 try {
                     String[] paths = getCorrespondingPageBasedOnEntries(session, storePath, values, key);
-                     String query = generateQuery(values, key);
+                    String query = generateQuery(values, key);
                     Map<String, Object> data = getGraphqlResponseData(client, query);
                     if (data != null) {
                         String[] invalidPaths = getInvalidPaths(resourceResolver, data, storePath, key);
-                         correspondingPaths = Stream.concat(Arrays.stream(correspondingPaths), Arrays.stream(invalidPaths))
-                                .toArray(String[]::new);
+                        correspondingPaths = Stream.concat(Arrays.stream(correspondingPaths), Arrays.stream(invalidPaths))
+                            .toArray(String[]::new);
                     }
                     invalidateDispatcherPagePaths = Stream.concat(Arrays.stream(invalidateDispatcherPagePaths), Arrays.stream(paths))
-                            .toArray(String[]::new);
+                        .toArray(String[]::new);
                 } catch (Exception e) {
                     throw new CacheInvalidationException("Error getting invalid paths for key: " + key, e);
                 }
@@ -173,11 +176,11 @@ public class InvalidateDispatcherCacheImpl {
         }
 
         return Stream.concat(Arrays.stream(invalidateDispatcherPagePaths), Arrays.stream(correspondingPaths))
-                .toArray(String[]::new);
+            .toArray(String[]::new);
     }
 
     private String[] getCorrespondingPageBasedOnEntries(Session session, String storePath, String[] entries, String key)
-            throws CacheInvalidationException {
+        throws CacheInvalidationException {
         String entryList = formatList(entries, ", ", "'%s'");
         try {
             if (PRODUCT_SKUS.equals(key)) {
@@ -201,7 +204,7 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     private String[] getInvalidPaths(ResourceResolver resourceResolver, Map<String, Object> data,
-                                     String storePath, String key) {
+        String storePath, String key) {
         if (PRODUCT_SKUS.equals(key)) {
             return getSkuBasedInvalidPaths(resourceResolver, data, storePath);
         } else if (CATEGORY_UIDS.equals(key)) {
@@ -299,8 +302,8 @@ public class InvalidateDispatcherCacheImpl {
         ProductUrlFormat.Params productParams = new ProductUrlFormat.Params();
         productParams.setUrlKey(PRODUCT_SAMPLE_URL);
         List<UrlRewrite> urlRewrites = Arrays.asList(
-                new UrlRewrite().setUrl((String) item.get(URL_PATH) + "/" + PRODUCT_SAMPLE_URL),
-                new UrlRewrite().setUrl((String) item.get(URL_KEY) + "/" + PRODUCT_SAMPLE_URL));
+            new UrlRewrite().setUrl((String) item.get(URL_PATH) + "/" + PRODUCT_SAMPLE_URL),
+            new UrlRewrite().setUrl((String) item.get(URL_KEY) + "/" + PRODUCT_SAMPLE_URL));
         productParams.setUrlRewrites(urlRewrites);
 
         productParams.getCategoryUrlParams().setUid((String) item.get("uid"));
@@ -386,17 +389,17 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     private static Map<String, Map<String, Object>> createJsonData(ResourceResolver resourceResolver,
-                                                                   String actualStorePath) {
+        String actualStorePath) {
         Map<String, Map<String, Object>> jsonData = new HashMap<>();
 
         jsonData.put(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, createProperty(false, String.class));
         jsonData.put(InvalidateCacheSupport.PROPERTIES_STORE_PATH, createProperty(false, String.class));
         jsonData.put("categoryPath", createFunctionProperty("getCorrespondingPageProperties", new Class<?>[] { ResourceResolver.class,
-                        String.class, String.class },
-                new Object[] { resourceResolver, actualStorePath, SiteStructureImpl.PN_CIF_CATEGORY_PAGE }));
+            String.class, String.class },
+            new Object[] { resourceResolver, actualStorePath, SiteStructureImpl.PN_CIF_CATEGORY_PAGE }));
         jsonData.put("productPath", createFunctionProperty("getCorrespondingPageProperties", new Class<?>[] { ResourceResolver.class,
-                        String.class, String.class },
-                new Object[] { resourceResolver, actualStorePath, SiteStructureImpl.PN_CIF_PRODUCT_PAGE }));
+            String.class, String.class },
+            new Object[] { resourceResolver, actualStorePath, SiteStructureImpl.PN_CIF_PRODUCT_PAGE }));
 
         return jsonData;
     }
@@ -436,11 +439,11 @@ public class InvalidateDispatcherCacheImpl {
         QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
 
         ProductsQueryDefinition queryArgs = q -> q.items(item -> item.sku()
-                .urlKey()
-                .urlRewrites(uq -> uq.url())
-                .categories(c -> c.uid().urlKey().urlPath()));
+            .urlKey()
+            .urlRewrites(uq -> uq.url())
+            .categories(c -> c.uid().urlKey().urlPath()));
         return Operations.query(query -> query
-                .products(searchArgs, queryArgs)).toString();
+            .products(searchArgs, queryArgs)).toString();
     }
 
     private static String generateCategoryQuery(String[] uids) {
@@ -452,13 +455,13 @@ public class InvalidateDispatcherCacheImpl {
         CategoryTreeQueryDefinition queryArgs = q -> q.uid().name().urlKey().urlPath();
 
         return Operations.query(query -> query
-                .categoryList(searchArgs, queryArgs)).toString();
+            .categoryList(searchArgs, queryArgs)).toString();
     }
 
     private static String formatList(String[] invalidCacheEntries, String delimiter, String pattern) {
         return Arrays.stream(invalidCacheEntries)
-                .map(item -> String.format(pattern, item))
-                .collect(Collectors.joining(delimiter));
+            .map(item -> String.format(pattern, item))
+            .collect(Collectors.joining(delimiter));
     }
 
     private Query getSkuBasedSql2Query(Session session, String storePath, String skuListString) throws CacheInvalidationException {
@@ -469,12 +472,12 @@ public class InvalidateDispatcherCacheImpl {
             QueryManager queryManager = session.getWorkspace().getQueryManager();
 
             String sql2Query = "SELECT content.[jcr:path] " +
-                    "FROM [nt:unstructured] AS content " +
-                    "WHERE ISDESCENDANTNODE(content, '" + storePath + "') " +
-                    "AND ( " +
-                    "    (content.[product] IN (" + skuListString + ") AND content.[productType] = 'combinedSku') " +
-                    "    OR (content.[selection] IN (" + skuListString + ") AND content.[selectionType] IN ('combinedSku', 'sku')) " +
-                    ")";
+                "FROM [nt:unstructured] AS content " +
+                "WHERE ISDESCENDANTNODE(content, '" + storePath + "') " +
+                "AND ( " +
+                "    (content.[product] IN (" + skuListString + ") AND content.[productType] = 'combinedSku') " +
+                "    OR (content.[selection] IN (" + skuListString + ") AND content.[selectionType] IN ('combinedSku', 'sku')) " +
+                ")";
 
             return queryManager.createQuery(sql2Query, Query.JCR_SQL2);
         } catch (Exception e) {
@@ -486,12 +489,12 @@ public class InvalidateDispatcherCacheImpl {
         QueryManager queryManager = session.getWorkspace().getQueryManager();
 
         String sql2Query = "SELECT content.[jcr:path] " +
-                "FROM [nt:unstructured] AS content " +
-                "WHERE ISDESCENDANTNODE(content,'" + storePath + "' ) " +
-                "AND (" +
-                "(content.[categoryId] in (" + categoryList + ") AND content.[categoryIdType] in ('uid')) " +
-                "OR (content.[category] in (" + categoryList + ") AND content.[categoryType] in ('uid'))" +
-                ")";
+            "FROM [nt:unstructured] AS content " +
+            "WHERE ISDESCENDANTNODE(content,'" + storePath + "' ) " +
+            "AND (" +
+            "(content.[categoryId] in (" + categoryList + ") AND content.[categoryIdType] in ('uid')) " +
+            "OR (content.[category] in (" + categoryList + ") AND content.[categoryType] in ('uid'))" +
+            ")";
         return queryManager.createQuery(sql2Query, Query.JCR_SQL2);
     }
 

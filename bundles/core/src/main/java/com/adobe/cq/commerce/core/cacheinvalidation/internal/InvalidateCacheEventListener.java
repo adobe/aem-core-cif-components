@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2024 Adobe. All rights reserved.
+ *    Copyright 2025 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 @Component(service = EventListener.class, immediate = true)
 public class InvalidateCacheEventListener implements EventListener {
 
-    private static   Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheEventListener.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheEventListener.class);
 
     @Reference
     private InvalidateCacheImpl invalidateCacheImpl;
