@@ -2,6 +2,4 @@
 <workspaceFilter version="1.0">
     <filter root="/apps/core/cif/components"/>
     <filter root="/apps/core/cif/clientlibs" />
-    <!-- Index for cif cache -->
-    <filter root="/oak:index/cif.commerce-cache-custom-1" />
 </workspaceFilter>
