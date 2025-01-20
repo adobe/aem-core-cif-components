@@ -1,5 +1,5 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ Copyright 2019 Adobe
+ ~ Copyright 2025 Adobe
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
+
+import java.lang.reflect.Field;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -30,8 +32,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
-
-import java.lang.reflect.Field;
 
 import static org.mockito.Mockito.*;
 
@@ -76,7 +76,7 @@ public class InvalidateCacheEventListenerTest {
         listener.activate();
 
         verify(observationManager).addEventListener((EventListener) eq(listener), eq(Event.NODE_ADDED), anyString(), eq(true),
-                (String[]) isNull(), (String[]) isNull(), eq(false));
+            (String[]) isNull(), (String[]) isNull(), eq(false));
     }
 
     @Test
@@ -99,7 +99,8 @@ public class InvalidateCacheEventListenerTest {
 
         listener.activate();
 
-        verify(logger).error(eq("Error registering JCR event listener: {}"), eq("Test RepositoryException"), any(RepositoryException.class));
+        verify(logger).error(eq("Error registering JCR event listener: {}"), eq("Test RepositoryException"), any(
+            RepositoryException.class));
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ Copyright 2019 Adobe
+ ~ Copyright 2025 Adobe
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -32,6 +31,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 
 import static org.junit.Assert.*;
@@ -50,9 +50,6 @@ public class InvalidateCacheSupportTest {
 
     @Mock
     private GraphqlClient graphqlClient;
-
-
-
 
     @Before
     public void setUp() {
@@ -154,9 +151,6 @@ public class InvalidateCacheSupportTest {
         invalidateCacheSupport.getClient("nonExistentClientId");
     }
 
-
-
-
     @Test
     public void testUnbindGraphqlClient() throws Exception {
         GraphqlClient graphqlClient = mock(GraphqlClient.class);
@@ -181,7 +175,6 @@ public class InvalidateCacheSupportTest {
         assertEquals(0, clients.size());
     }
 
-
     @Test
     public void testGetCommercePropertiesResourceNotFound() {
         when(resourceResolver.getResource("/store/path")).thenReturn(null);
@@ -190,6 +183,5 @@ public class InvalidateCacheSupportTest {
 
         assertNull(result);
     }
-
 
 }
