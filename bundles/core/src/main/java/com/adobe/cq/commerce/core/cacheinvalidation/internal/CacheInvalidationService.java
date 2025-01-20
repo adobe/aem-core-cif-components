@@ -37,6 +37,7 @@ public class CacheInvalidationService {
         LOGGER.info("Cache Invalidation enabled: {}", enableCacheInvalidation);
     }
 
+
     public boolean isCacheInvalidationEnabled() {
         return enableCacheInvalidation;
     }
