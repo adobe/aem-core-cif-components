@@ -432,6 +432,16 @@ public class InvalidateDispatcherCacheImpl {
         return null;
     }
 
+    private static String getCorrespondingPageProperties(ResourceResolver resourceResolver, String storePath, String propertyName)
+        throws RepositoryException {
+        Page page = getPage(resourceResolver, storePath);
+        if (page != null) {
+            ValueMap properties = page.getProperties();
+            return properties.get(propertyName, String.class);
+        }
+        return null;
+    }
+
     private static String generateSkuQuery(String[] skus) {
         ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
         FilterEqualTypeInput skuFilter = new FilterEqualTypeInput().setIn(Arrays.asList(skus));
