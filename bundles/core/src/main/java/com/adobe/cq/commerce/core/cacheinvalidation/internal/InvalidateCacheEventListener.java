@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2024 Adobe. All rights reserved.
+ *    Copyright 2025 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -13,6 +13,10 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
+import java.io.IOException;
+import java.util.Dictionary;
+
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
@@ -21,6 +25,8 @@ import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
 import org.apache.sling.jcr.api.SlingRepository;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -30,7 +36,7 @@ import org.slf4j.LoggerFactory;
 @Component(service = EventListener.class, immediate = true)
 public class InvalidateCacheEventListener implements EventListener {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheEventListener.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheEventListener.class);
 
     @Reference
     private InvalidateCacheImpl invalidateCacheImpl;
@@ -41,21 +47,31 @@ public class InvalidateCacheEventListener implements EventListener {
     @Reference
     private SlingRepository repository;
 
+    @Reference
+    private ConfigurationAdmin configAdmin;
+
+    String pathDelimiter = "/";
+
     @Activate
     protected void activate() {
         try {
             LOGGER.info("Activating AuthorInvalidateCacheEventListener...");
             Session session = repository.loginService(InvalidateCacheSupport.SERVICE_USER, null);
-            ObservationManager observationManager = session.getWorkspace().getObservationManager();
-            observationManager.addEventListener(
-                this,
-                Event.NODE_ADDED,
-                InvalidateCacheSupport.INVALIDATE_WORKING_AREA,
-                true,
-                null,
-                null,
-                false);
-            LOGGER.info("Event listener registered for path: {}", InvalidateCacheSupport.INVALIDATE_WORKING_AREA);
+            Node workingAreaNode = session.getNode(InvalidateCacheSupport.INVALIDATE_WORKING_AREA);
+            if (workingAreaNode.hasProperty("active") && workingAreaNode.getProperty("active").getBoolean()) {
+                ObservationManager observationManager = session.getWorkspace().getObservationManager();
+                observationManager.addEventListener(
+                    this,
+                    Event.NODE_ADDED,
+                    InvalidateCacheSupport.INVALIDATE_WORKING_AREA,
+                    true,
+                    null,
+                    null,
+                    false);
+                LOGGER.info("Event listener registered for path: {}", InvalidateCacheSupport.INVALIDATE_WORKING_AREA);
+            } else {
+                LOGGER.info("Event listener not been registered for path: {}", InvalidateCacheSupport.INVALIDATE_WORKING_AREA);
+            }
         } catch (RepositoryException e) {
             LOGGER.error("Error registering JCR event listener: {}", e.getMessage(), e);
         }
@@ -67,14 +83,20 @@ public class InvalidateCacheEventListener implements EventListener {
             Event event = events.nextEvent();
             try {
                 String path = event.getPath();
-                String actualPath = InvalidateCacheSupport.INVALIDATE_WORKING_AREA + "/" + InvalidateCacheSupport.NODE_NAME_BASE;
+                String actualPath = InvalidateCacheSupport.INVALIDATE_WORKING_AREA + pathDelimiter + InvalidateCacheSupport.NODE_NAME_BASE;
                 if (path.startsWith(actualPath)) {
                     LOGGER.debug("Cache invalidation event detected: {} and {}", path, event.getType());
                     invalidateCacheImpl.invalidateCache(path);
-                    invalidateDispatcherCacheImpl.invalidateCache(path);
+                    Configuration config = configAdmin.getConfiguration(InvalidateCacheSupport.DISPATCHER_CONFIG_PID);
+                    Dictionary<String, Object> properties = config.getProperties();
+                    if (properties != null && Boolean.TRUE.equals(properties.get("configured"))) {
+                        invalidateDispatcherCacheImpl.invalidateCache(path);
+                    }
                 }
             } catch (RepositoryException e) {
                 LOGGER.error("Error processing JCR event: {}", e.getMessage(), e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }

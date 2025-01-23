@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *    Copyright 2019 Adobe. All rights reserved.
+ *    Copyright 2025 Adobe. All rights reserved.
  *    This file is licensed to you under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License. You may obtain a copy
  *    of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -19,10 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.sling.api.resource.LoginException;
-import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceResolver;
-import org.apache.sling.api.resource.ResourceResolverFactory;
+import org.apache.sling.api.resource.*;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
@@ -44,6 +41,7 @@ public class InvalidateCacheSupport {
     public static final String PROPERTIES_PRODUCT_SKUS = "productSkus";
     public static final String PROPERTIES_CATEGORY_UIDS = "categoryUids";
     public static final String PROPERTIES_REGEX_PATTERNS = "regexPatterns";
+    public static final String DISPATCHER_CONFIG_PID = "com.adobe.cq.commerce.core.cacheinvalidation.internal.InvalidateDispatcherCacheImpl";
 
     @Reference
     private ResourceResolverFactory resourceResolverFactory;
@@ -74,7 +72,7 @@ public class InvalidateCacheSupport {
         clients.add(new ClientHolder(graphqlClient, properties));
     }
 
-    void unbindGraphqlClient(GraphqlClient graphqlClient, Map<?, ?> properties) {
+    void unbindGraphqlClient(GraphqlClient graphqlClient) {
         clients.removeIf(holder -> holder.graphqlClient.equals(graphqlClient));
     }
 
@@ -97,7 +95,7 @@ public class InvalidateCacheSupport {
         try {
             return resourceResolver.getResource(path);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new ResourceNotFoundException("Failed to get resource at path: " + path, e);
         }
     }
 
