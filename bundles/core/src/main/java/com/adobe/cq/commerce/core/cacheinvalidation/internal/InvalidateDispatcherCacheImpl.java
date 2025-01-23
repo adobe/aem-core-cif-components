@@ -100,11 +100,6 @@ public class InvalidateDispatcherCacheImpl {
                 return;
             }
             Session session = getSession(resourceResolver);
-            if (session == null) {
-                LOGGER.error("Session not found for resource resolver");
-
-                return;
-            }
 
             ValueMap properties = resource.getValueMap();
             String storePath = properties.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class);
@@ -148,10 +143,11 @@ public class InvalidateDispatcherCacheImpl {
         }
     }
 
-    private Session getSession(ResourceResolver resourceResolver) {
+    private Session getSession(ResourceResolver resourceResolver) throws Exception {
         Session session = resourceResolver.adaptTo(Session.class);
         if (session == null) {
             LOGGER.error("Session not found for resource resolver");
+            throw new Exception("Session not found for resource resolver");
         }
         return session;
     }
