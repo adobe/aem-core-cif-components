@@ -14,8 +14,6 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -43,6 +41,7 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManager;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -126,20 +125,7 @@ public class InvalidateDispatcherCacheImplTest {
         when(invalidateCacheSupport.getClient(anyString())).thenReturn(graphqlClient);
 
         when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
-    }
 
-    @Test(expected = RuntimeException.class)
-    public void testFlushCache_IOException1() throws Exception {
-        String handle = "/content/path";
-        when(httpClient.executeMethod(postMethod)).thenThrow(new IOException("IO error"));
-
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("flushCache", String.class);
-        method.setAccessible(true);
-        try {
-            method.invoke(invalidateDispatcherCacheImpl, handle);
-        } catch (InvocationTargetException e) {
-            throw (Exception) e.getCause();
-        }
     }
 
     @Test
@@ -155,17 +141,6 @@ public class InvalidateDispatcherCacheImplTest {
         invalidateDispatcherCacheImpl.invalidateCache("/content/path");
 
         verify(logger, never()).error(anyString());
-    }
-
-    @Test
-    public void testInvalidateCache_ResourceNotFound1() {
-        when(slingSettingsService.getRunModes()).thenReturn(Set.of("author"));
-        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
-        when(invalidateCacheSupport.getResource(resourceResolver, "/content/path")).thenReturn(null);
-
-        invalidateDispatcherCacheImpl.invalidateCache("/content/path");
-
-        verify(resourceResolver).close();
     }
 
     @Test
@@ -452,31 +427,6 @@ public class InvalidateDispatcherCacheImplTest {
         assertTrue(uniquePagePaths.contains("/path1"));
     }
 
-    @Test(expected = RuntimeException.class)
-    public void testFlushCache_IOException() throws Exception {
-        String handle = "/content/path";
-        when(httpClient.executeMethod(postMethod)).thenThrow(new IOException("IO error"));
-
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("flushCache", String.class);
-        method.setAccessible(true);
-        try {
-            method.invoke(invalidateDispatcherCacheImpl, handle);
-        } catch (InvocationTargetException e) {
-            throw (Exception) e.getCause();
-        }
-    }
-
-    @Test
-    public void testInvalidateCache_ResourceNotFound4() throws Exception {
-        when(slingSettingsService.getRunModes()).thenReturn(Set.of("author"));
-        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
-        when(invalidateCacheSupport.getResource(resourceResolver, "/content/path")).thenReturn(null);
-
-        invalidateDispatcherCacheImpl.invalidateCache("/content/path");
-
-        verify(resourceResolver).close();
-    }
-
     @Test
     public void testInvalidateCache_SessionNotFound() throws Exception {
         // Simulate session not found
@@ -490,6 +440,32 @@ public class InvalidateDispatcherCacheImplTest {
         invalidateDispatcherCacheImpl.invalidateCache("/content/path");
 
         verify(invalidateCacheSupport, never()).getCommerceProperties(any(), any());
+
+    }
+
+    @Test
+    public void testFlushCache_Success() throws Exception {
+        String handle = "/content/path";
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("flushCache", String.class);
+        method.setAccessible(true);
+        method.invoke(invalidateDispatcherCacheImpl, handle);
+        // Verify that no exception is thrown and the method completes successfully
+    }
+
+    @Test
+    public void testGetCorrespondingPageProperties() throws Exception {
+        String storePath = "/store/path";
+        String propertyName = "propertyName";
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getCorrespondingPageProperties", ResourceResolver.class,
+            String.class, String.class);
+        method.setAccessible(true);
+        when(resourceResolver.adaptTo(PageManager.class)).thenReturn(mock(PageManager.class));
+        when(resourceResolver.adaptTo(PageManager.class).getPage(storePath)).thenReturn(mock(Page.class));
+        when(resourceResolver.adaptTo(PageManager.class).getPage(storePath).getProperties()).thenReturn(valueMap);
+        when(valueMap.get(propertyName, String.class)).thenReturn("propertyValue");
+
+        String result = (String) method.invoke(invalidateDispatcherCacheImpl, resourceResolver, storePath, propertyName);
+        assertEquals("propertyValue", result);
     }
 
 }

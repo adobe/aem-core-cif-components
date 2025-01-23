@@ -26,8 +26,11 @@ import javax.jcr.Session;
 import javax.jcr.query.*;
 import javax.jcr.query.Query;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
@@ -93,12 +96,15 @@ public class InvalidateDispatcherCacheImpl {
         }
         try (ResourceResolver resourceResolver = invalidateCacheSupport.getServiceUserResourceResolver()) {
             Resource resource = invalidateCacheSupport.getResource(resourceResolver, path);
-            if (resource == null)
+            if (resource == null) {
                 return;
-
+            }
             Session session = getSession(resourceResolver);
-            if (session == null)
+            if (session == null) {
+                LOGGER.error("Session not found for resource resolver");
+
                 return;
+            }
 
             ValueMap properties = resource.getValueMap();
             String storePath = properties.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class);
@@ -130,7 +136,13 @@ public class InvalidateDispatcherCacheImpl {
                 }
             }
 
-            invalidateCachePaths.forEach(this::flushCache);
+            invalidateCachePaths.forEach(invalidatePath -> {
+                try {
+                    flushCache(invalidatePath);
+                } catch (CacheInvalidationException e) {
+                    LOGGER.error("Error flushing cache for path {}: {}", path, e.getMessage());
+                }
+            });
         } catch (Exception e) {
             LOGGER.error("Error invalidating cache: {}", e.getMessage(), e);
         }
@@ -535,23 +547,23 @@ public class InvalidateDispatcherCacheImpl {
         return jcrContentIndex != -1 ? fullPath.substring(0, jcrContentIndex) : fullPath;
     }
 
-    private void flushCache(String handle) {
-        try {
-            String server = "localhost:80";
-            String uri = "/dispatcher/invalidate.cache";
+    private void flushCache(String handle) throws CacheInvalidationException {
+        String server = "localhost:80";
+        String uri = "/dispatcher/invalidate.cache";
+        String url = "http://" + server + uri;
 
-            HttpClient client = new HttpClient();
-            PostMethod post = new PostMethod("http://" + server + uri);
-            post.setRequestHeader("CQ-Action", "Delete");
-            post.setRequestHeader("CQ-Handle", handle);
-            post.setRequestHeader("CQ-Action-Scope", "ResourceOnly");
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpPost post = new HttpPost(url);
+            post.setHeader("CQ-Action", "Delete");
+            post.setHeader("CQ-Handle", handle);
+            post.setHeader("CQ-Action-Scope", "ResourceOnly");
 
-            client.executeMethod(post);
-            post.releaseConnection();
-            // log the results
-            LOGGER.info("result: {}", post.getResponseBodyAsString());
+            try (CloseableHttpResponse response = client.execute(post)) {
+                String result = EntityUtils.toString(response.getEntity());
+                LOGGER.info("result: {}", result);
+            }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new CacheInvalidationException("IO error", e);
         } catch (Exception e) {
             LOGGER.error("Flushcache servlet exception: {}", e.getMessage());
         }
