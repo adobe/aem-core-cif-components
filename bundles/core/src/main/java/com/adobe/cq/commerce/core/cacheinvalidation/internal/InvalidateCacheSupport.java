@@ -41,6 +41,7 @@ public class InvalidateCacheSupport {
     public static final String PROPERTIES_PRODUCT_SKUS = "productSkus";
     public static final String PROPERTIES_CATEGORY_UIDS = "categoryUids";
     public static final String PROPERTIES_REGEX_PATTERNS = "regexPatterns";
+    public static final String DISPATCHER_CONFIG_PID = "com.adobe.cq.commerce.core.cacheinvalidation.internal.InvalidateDispatcherCacheImpl";
 
     @Reference
     private ResourceResolverFactory resourceResolverFactory;

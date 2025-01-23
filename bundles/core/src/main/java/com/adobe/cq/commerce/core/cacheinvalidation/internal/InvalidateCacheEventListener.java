@@ -13,6 +13,9 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
+import java.io.IOException;
+import java.util.Dictionary;
+
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -22,6 +25,8 @@ import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
 import org.apache.sling.jcr.api.SlingRepository;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -41,6 +46,9 @@ public class InvalidateCacheEventListener implements EventListener {
 
     @Reference
     private SlingRepository repository;
+
+    @Reference
+    private ConfigurationAdmin configAdmin;
 
     String pathDelimiter = "/";
 
@@ -79,10 +87,16 @@ public class InvalidateCacheEventListener implements EventListener {
                 if (path.startsWith(actualPath)) {
                     LOGGER.debug("Cache invalidation event detected: {} and {}", path, event.getType());
                     invalidateCacheImpl.invalidateCache(path);
-                    invalidateDispatcherCacheImpl.invalidateCache(path);
+                    Configuration config = configAdmin.getConfiguration(InvalidateCacheSupport.DISPATCHER_CONFIG_PID);
+                    Dictionary<String, Object> properties = config.getProperties();
+                    if (properties != null && Boolean.TRUE.equals(properties.get("configured"))) {
+                        invalidateDispatcherCacheImpl.invalidateCache(path);
+                    }
                 }
             } catch (RepositoryException e) {
                 LOGGER.error("Error processing JCR event: {}", e.getMessage(), e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }

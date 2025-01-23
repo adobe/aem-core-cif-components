@@ -36,6 +36,7 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.settings.SlingSettingsService;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,10 @@ import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.google.gson.reflect.TypeToken;
 
-@Component(service = InvalidateDispatcherCacheImpl.class, immediate = true)
+@Component(
+    service = InvalidateDispatcherCacheImpl.class,
+    immediate = true,
+    configurationPolicy = ConfigurationPolicy.OPTIONAL)
 public class InvalidateDispatcherCacheImpl {
 
     private static final String HTML_SUFFIX = ".html";
