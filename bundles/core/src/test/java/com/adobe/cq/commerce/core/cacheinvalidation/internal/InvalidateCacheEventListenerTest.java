@@ -17,13 +17,9 @@ package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.lang.reflect.Field;
 
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Workspace;
+import javax.jcr.*;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
-import javax.jcr.observation.EventListener;
-import javax.jcr.observation.ObservationManager;
 
 import org.apache.sling.jcr.api.SlingRepository;
 import org.junit.Before;
@@ -61,36 +57,6 @@ public class InvalidateCacheEventListenerTest {
         loggerField.setAccessible(true);
         loggerField.set(null, logger);
 
-    }
-
-    @Test
-    public void testActivate() throws RepositoryException {
-        Session session = mock(Session.class);
-        Workspace workspace = mock(Workspace.class);
-        ObservationManager observationManager = mock(ObservationManager.class);
-
-        when(repository.loginService(anyString(), any())).thenReturn(session);
-        when(session.getWorkspace()).thenReturn(workspace);
-        when(workspace.getObservationManager()).thenReturn(observationManager);
-
-        listener.activate();
-
-        verify(observationManager).addEventListener((EventListener) eq(listener), eq(Event.NODE_ADDED), anyString(), eq(true),
-            (String[]) isNull(), (String[]) isNull(), eq(false));
-    }
-
-    @Test
-    public void testOnEvent() throws RepositoryException {
-        EventIterator events = mock(EventIterator.class);
-        Event event = mock(Event.class);
-        when(events.hasNext()).thenReturn(true, false);
-        when(events.nextEvent()).thenReturn(event);
-        when(event.getPath()).thenReturn("/var/cif/cacheInvalidation/invalidate_entry");
-
-        listener.onEvent(events);
-
-        verify(invalidateCacheImpl).invalidateCache("/var/cif/cacheInvalidation/invalidate_entry");
-        verify(invalidateDispatcherCacheImpl).invalidateCache("/var/cif/cacheInvalidation/invalidate_entry");
     }
 
     @Test

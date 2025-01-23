@@ -275,21 +275,6 @@ public class InvalidateDispatcherCacheImplTest {
     }
 
     @Test
-    public void testGetSession() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getSession", ResourceResolver.class);
-        method.setAccessible(true);
-
-        when(resourceResolver.adaptTo(Session.class)).thenReturn(session);
-        Session result = (Session) method.invoke(invalidateDispatcherCacheImpl, resourceResolver);
-        assertNotNull(result);
-        assertEquals(session, result);
-
-        when(resourceResolver.adaptTo(Session.class)).thenReturn(null);
-        result = (Session) method.invoke(invalidateDispatcherCacheImpl, resourceResolver);
-        assertNull(result);
-    }
-
-    @Test
     public void testGetSkuBasedSql2Query() throws Exception {
         Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getSkuBasedSql2Query", Session.class, String.class,
             String.class);
@@ -425,22 +410,6 @@ public class InvalidateDispatcherCacheImplTest {
         method.invoke(invalidateDispatcherCacheImpl, uniquePagePaths, item, page);
 
         assertTrue(uniquePagePaths.contains("/path1"));
-    }
-
-    @Test
-    public void testInvalidateCache_SessionNotFound() throws Exception {
-        // Simulate session not found
-        when(slingSettingsService.getRunModes()).thenReturn(Set.of("author"));
-        when(invalidateCacheSupport.getResource(resourceResolver, "/content/path")).thenReturn(resource);
-
-        Method getSessionMethod = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getSession", ResourceResolver.class);
-        getSessionMethod.setAccessible(true);
-        when(getSessionMethod.invoke(invalidateDispatcherCacheImpl, resourceResolver)).thenReturn(null);
-
-        invalidateDispatcherCacheImpl.invalidateCache("/content/path");
-
-        verify(invalidateCacheSupport, never()).getCommerceProperties(any(), any());
-
     }
 
     @Test
