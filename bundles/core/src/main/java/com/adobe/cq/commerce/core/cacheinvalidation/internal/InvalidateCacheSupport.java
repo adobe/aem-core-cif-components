@@ -20,15 +20,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.sling.api.resource.*;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.*;
 
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 
-@Component(service = InvalidateCacheSupport.class, immediate = true)
+@Component(
+    service = InvalidateCacheSupport.class,
+    configurationPolicy = ConfigurationPolicy.REQUIRE,
+    immediate = true)
 public class InvalidateCacheSupport {
 
     public static final String INVALIDATE_WORKING_AREA = "/var/cif/cacheInvalidation";
@@ -41,7 +41,6 @@ public class InvalidateCacheSupport {
     public static final String PROPERTIES_PRODUCT_SKUS = "productSkus";
     public static final String PROPERTIES_CATEGORY_UIDS = "categoryUids";
     public static final String PROPERTIES_REGEX_PATTERNS = "regexPatterns";
-    public static final String DISPATCHER_CONFIG_PID = "com.adobe.cq.commerce.core.cacheinvalidation.internal.InvalidateDispatcherCacheImpl";
 
     @Reference
     private ResourceResolverFactory resourceResolverFactory;
