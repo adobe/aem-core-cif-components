@@ -28,6 +28,7 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
 @Component(service = EventListener.class, immediate = true)
 public class InvalidateCacheEventListener implements EventListener {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheEventListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheEventListener.class);
 
     @Reference
     private InvalidateCacheImpl invalidateCacheImpl;
@@ -55,10 +56,11 @@ public class InvalidateCacheEventListener implements EventListener {
 
     @Activate
     protected void activate() {
+        Session session = null;
         try {
             LOGGER.info("Activating AuthorInvalidateCacheEventListener...");
             getDispatcherCacheStatus();
-            Session session = repository.loginService(InvalidateCacheSupport.SERVICE_USER, null);
+            session = repository.loginService(InvalidateCacheSupport.SERVICE_USER, null);
             ObservationManager observationManager = session.getWorkspace().getObservationManager();
             observationManager.addEventListener(
                 this,
@@ -69,9 +71,31 @@ public class InvalidateCacheEventListener implements EventListener {
                 null,
                 false);
             LOGGER.info("Event listener registered for path: {}", InvalidateCacheSupport.INVALIDATE_WORKING_AREA);
-
+            session.logout();
         } catch (RepositoryException e) {
             LOGGER.error("Error registering JCR event listener: {}", e.getMessage(), e);
+        } finally {
+            if (session != null) {
+                session.logout();
+            }
+        }
+    }
+
+    @Deactivate
+    protected void deactivate() {
+        Session session = null;
+        try {
+            session = repository.loginService(InvalidateCacheSupport.SERVICE_USER, null);
+            ObservationManager observationManager = session.getWorkspace().getObservationManager();
+            observationManager.removeEventListener(this);
+            session.logout();
+            LOGGER.info("Event listener unregistered and session logged out.");
+        } catch (RepositoryException e) {
+            LOGGER.error("Error unregistering JCR event listener: {}", e.getMessage(), e);
+        } finally {
+            if (session != null) {
+                session.logout();
+            }
         }
     }
 
@@ -97,7 +121,7 @@ public class InvalidateCacheEventListener implements EventListener {
                 if (path.startsWith(actualPath)) {
                     LOGGER.debug("Cache invalidation event detected: {} and {}", path, event.getType());
                     invalidateCacheImpl.invalidateCache(path);
-                    if (isDispatcherConfigured) {
+                    if (Boolean.TRUE.equals(isDispatcherConfigured)) {
                         invalidateDispatcherCacheImpl.invalidateCache(path);
                     }
                 }
