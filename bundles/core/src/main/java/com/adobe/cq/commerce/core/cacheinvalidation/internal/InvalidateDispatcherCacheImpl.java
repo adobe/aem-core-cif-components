@@ -41,11 +41,10 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.cacheinvalidation.services.InvalidateCache;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
-import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -61,7 +60,6 @@ import com.google.gson.reflect.TypeToken;
 public class InvalidateDispatcherCacheImpl {
 
     private static final String HTML_SUFFIX = ".html";
-    private static final String PRODUCT_SAMPLE_URL = "XXXXXX";
 
     @Reference
     private UrlProviderImpl urlProvider;
@@ -76,11 +74,10 @@ public class InvalidateDispatcherCacheImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateDispatcherCacheImpl.class);
 
-    private static final String URL_KEY = "url_key";
-    private static final String URL_PATH = "url_path";
     private static final String IS_FUNCTION = "isFunction";
-    private static final String PRODUCT_SKUS = "productSkus";
-    private static final String CATEGORY_UIDS = "categoryUids";
+
+    @Reference
+    private InvalidateCacheRegistry invalidateCacheRegistry;
 
     public static class CacheInvalidationException extends Exception {
         public CacheInvalidationException(String message) {
@@ -112,11 +109,8 @@ public class InvalidateDispatcherCacheImpl {
                 return;
 
             String graphqlClientId = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, (String) null);
-            Map<String, String[]> dynamicProperties = new HashMap<>();
-            dynamicProperties.put(InvalidateCacheSupport.PROPERTIES_PRODUCT_SKUS, properties.get(
-                InvalidateCacheSupport.PROPERTIES_PRODUCT_SKUS, String[].class));
-            dynamicProperties.put(InvalidateCacheSupport.PROPERTIES_CATEGORY_UIDS, properties.get(
-                InvalidateCacheSupport.PROPERTIES_CATEGORY_UIDS, String[].class));
+            // Store dynamic properties in a map
+            Map<String, String[]> dynamicProperties = getDynamicProperties(properties);
 
             GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
 
@@ -147,6 +141,20 @@ public class InvalidateDispatcherCacheImpl {
         }
     }
 
+    private Map<String, String[]> getDynamicProperties(ValueMap properties) {
+        Map<String, String[]> dynamicProperties = new HashMap<>();
+        for (String attribute : invalidateCacheRegistry.getAttributes()) {
+            InvalidateCache invalidateCache = invalidateCacheRegistry.get(attribute);
+            if (invalidateCache != null && invalidateCache.canDoDispatcherCacheInvalidation()) {
+                String[] values = properties.get(attribute, String[].class);
+                if (values != null) {
+                    dynamicProperties.put(attribute, values);
+                }
+            }
+        }
+        return dynamicProperties;
+    }
+
     private Session getSession(ResourceResolver resourceResolver) throws Exception {
         Session session = resourceResolver.adaptTo(Session.class);
         if (session == null) {
@@ -172,7 +180,7 @@ public class InvalidateDispatcherCacheImpl {
             if (values != null && values.length > 0) {
                 try {
                     String[] paths = getCorrespondingPageBasedOnEntries(session, storePath, values, key);
-                    String query = generateQuery(values, key);
+                    String query = invalidateCacheRegistry.getGraphqlQuery(key, values);
                     Map<String, Object> data = getGraphqlResponseData(client, query);
                     if (data != null) {
                         String[] invalidPaths = getInvalidPaths(resourceResolver, data, storePath, key);
@@ -195,10 +203,9 @@ public class InvalidateDispatcherCacheImpl {
         throws CacheInvalidationException {
         String entryList = formatList(entries, ", ", "'%s'");
         try {
-            if (PRODUCT_SKUS.equals(key)) {
-                return getQueryResult(getSkuBasedSql2Query(session, storePath, entryList));
-            } else if (CATEGORY_UIDS.equals(key)) {
-                return getQueryResult(getCategoryBasedSql2Query(session, storePath, entryList));
+            String sqlQuery = invalidateCacheRegistry.getQuery(key, storePath, entryList);
+            if (sqlQuery != null) {
+                return getQueryResult(getSqlQuery(session, sqlQuery));
             }
         } catch (Exception e) {
             throw new CacheInvalidationException("Error getting corresponding page based on entries", e);
@@ -206,133 +213,10 @@ public class InvalidateDispatcherCacheImpl {
         return new String[0];
     }
 
-    private String generateQuery(String[] entries, String key) {
-        if (PRODUCT_SKUS.equals(key)) {
-            return generateSkuQuery(entries);
-        } else if (CATEGORY_UIDS.equals(key)) {
-            return generateCategoryQuery(entries);
-        }
-        return "";
-    }
-
     private String[] getInvalidPaths(ResourceResolver resourceResolver, Map<String, Object> data,
         String storePath, String key) {
-        if (PRODUCT_SKUS.equals(key)) {
-            return getSkuBasedInvalidPaths(resourceResolver, data, storePath);
-        } else if (CATEGORY_UIDS.equals(key)) {
-            return getCategoryBasedInvalidPaths(resourceResolver, data, storePath);
-        }
-        return new String[0];
-    }
-
-    private String[] getSkuBasedInvalidPaths(ResourceResolver resourceResolver, Map<String, Object> data, String storePath) {
         Page page = getPage(resourceResolver, storePath);
-        Set<String> uniquePagePaths = new HashSet<>();
-
-        Map<String, Object> productsData = (Map<String, Object>) data.get("products");
-        if (productsData != null) {
-            List<Map<String, Object>> items = (List<Map<String, Object>>) productsData.get("items");
-            if (items != null) {
-                for (Map<String, Object> item : items) {
-                    if (item != null) {
-                        addProductPaths(uniquePagePaths, item, page);
-                        List<Map<String, Object>> categories = (List<Map<String, Object>>) item.get("categories");
-                        if (categories != null) {
-                            addCategoryPaths(uniquePagePaths, categories, page);
-                        }
-                    }
-                }
-            }
-        }
-        return uniquePagePaths.toArray(new String[0]);
-    }
-
-    private void addProductPaths(Set<String> uniquePagePaths, Map<String, Object> item, Page page) {
-        ProductUrlFormat.Params productParams = new ProductUrlFormat.Params();
-        productParams.setSku((String) item.get("sku"));
-        productParams.setUrlKey((String) item.get(URL_KEY));
-
-        List<Map<String, String>> urlRewrites = (List<Map<String, String>>) item.get("url_rewrites");
-        if (urlRewrites != null) {
-            for (Map<String, String> urlRewrite : urlRewrites) {
-                productParams.setUrlRewrites(Collections.singletonList(new UrlRewrite().setUrl(urlRewrite.get("url"))));
-                String productUrlPath = urlProvider.toProductUrl(null, page, productParams);
-                uniquePagePaths.add(productUrlPath);
-            }
-        }
-    }
-
-    private void addCategoryPaths(Set<String> uniquePagePaths, List<Map<String, Object>> categories, Page page) {
-        CategoryUrlFormat.Params categoryParams = new CategoryUrlFormat.Params();
-        if (categories != null) {
-            for (Map<String, Object> category : categories) {
-                categoryParams.setUid((String) category.get("uid"));
-                categoryParams.setUrlKey((String) category.get(URL_KEY));
-                categoryParams.setUrlPath((String) category.get(URL_PATH));
-                String categoryUrlPath = urlProvider.toCategoryUrl(null, page, categoryParams);
-                categoryUrlPath = removeUpToDelimiter(categoryUrlPath, HTML_SUFFIX, true);
-                uniquePagePaths.add(categoryUrlPath);
-            }
-        }
-    }
-
-    private String[] getCategoryBasedInvalidPaths(ResourceResolver resourceResolver, Map<String, Object> data, String storePath) {
-        Page page = getPage(resourceResolver, storePath);
-        Set<String> uniquePagePaths = new HashSet<>();
-
-        List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("categoryList");
-        if (items != null) {
-            addCategoryPaths(uniquePagePaths, items, page);
-            processItems(uniquePagePaths, items, page);
-        }
-        return uniquePagePaths.toArray(new String[0]);
-    }
-
-    private void processItems(Set<String> uniquePagePaths, List<Map<String, Object>> items, Page page) {
-        for (Map<String, Object> item : items) {
-            if (item != null) {
-                processItem(uniquePagePaths, item, page);
-            }
-        }
-    }
-
-    private void processItem(Set<String> uniquePagePaths, Map<String, Object> item, Page page) {
-        ProductUrlFormat.Params productParams = createProductParams(item);
-        String productUrlPath = urlProvider.toProductUrl(null, page, productParams);
-        if (productUrlPath != null) {
-            productUrlPath = removeUpToDelimiter(productUrlPath, PRODUCT_SAMPLE_URL, false);
-            if (productUrlPath != null) {
-                productUrlPath = removeUpToDelimiter(productUrlPath, "/", true);
-                if (!productUrlPath.endsWith("product-page.html")) {
-                    uniquePagePaths.add(productUrlPath);
-                }
-            }
-        }
-    }
-
-    private ProductUrlFormat.Params createProductParams(Map<String, Object> item) {
-        ProductUrlFormat.Params productParams = new ProductUrlFormat.Params();
-        productParams.setUrlKey(PRODUCT_SAMPLE_URL);
-        List<UrlRewrite> urlRewrites = Arrays.asList(
-            new UrlRewrite().setUrl((String) item.get(URL_PATH) + "/" + PRODUCT_SAMPLE_URL),
-            new UrlRewrite().setUrl((String) item.get(URL_KEY) + "/" + PRODUCT_SAMPLE_URL));
-        productParams.setUrlRewrites(urlRewrites);
-
-        productParams.getCategoryUrlParams().setUid((String) item.get("uid"));
-        productParams.getCategoryUrlParams().setUrlKey((String) item.get(URL_KEY));
-        productParams.getCategoryUrlParams().setUrlPath((String) item.get(URL_PATH));
-        return productParams;
-    }
-
-    private String removeUpToDelimiter(String input, String delimiter, boolean useLastIndex) {
-        if (input == null || delimiter == null) {
-            return input;
-        }
-        int index = useLastIndex ? input.lastIndexOf(delimiter) : input.indexOf(delimiter);
-        if (index != -1) {
-            input = input.substring(0, index);
-        }
-        return input;
+        return invalidateCacheRegistry.getInvalidPaths(key, page, resourceResolver, data, storePath);
     }
 
     private static Map<String, Object> getGraphqlResponseData(GraphqlClient client, String query) {
@@ -454,70 +338,19 @@ public class InvalidateDispatcherCacheImpl {
         return null;
     }
 
-    private static String generateSkuQuery(String[] skus) {
-        ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
-        FilterEqualTypeInput skuFilter = new FilterEqualTypeInput().setIn(Arrays.asList(skus));
-        filter.setSku(skuFilter);
-        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
-
-        ProductsQueryDefinition queryArgs = q -> q.items(item -> item.sku()
-            .urlKey()
-            .urlRewrites(uq -> uq.url())
-            .categories(c -> c.uid().urlKey().urlPath()));
-        return Operations.query(query -> query
-            .products(searchArgs, queryArgs)).toString();
-    }
-
-    private static String generateCategoryQuery(String[] uids) {
-        CategoryFilterInput filter = new CategoryFilterInput();
-        FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setIn(Arrays.asList(uids));
-        filter.setCategoryUid(identifiersFilter);
-        QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
-
-        CategoryTreeQueryDefinition queryArgs = q -> q.uid().name().urlKey().urlPath();
-
-        return Operations.query(query -> query
-            .categoryList(searchArgs, queryArgs)).toString();
-    }
-
     private static String formatList(String[] invalidCacheEntries, String delimiter, String pattern) {
         return Arrays.stream(invalidCacheEntries)
             .map(item -> String.format(pattern, item))
             .collect(Collectors.joining(delimiter));
     }
 
-    private Query getSkuBasedSql2Query(Session session, String storePath, String skuListString) throws CacheInvalidationException {
-        if (session == null) {
-            throw new CacheInvalidationException("Session is null");
-        }
+    private Query getSqlQuery(Session session, String sql2Query) throws CacheInvalidationException {
         try {
             QueryManager queryManager = session.getWorkspace().getQueryManager();
-
-            String sql2Query = "SELECT content.[jcr:path] " +
-                "FROM [nt:unstructured] AS content " +
-                "WHERE ISDESCENDANTNODE(content, '" + storePath + "') " +
-                "AND ( " +
-                "    (content.[product] IN (" + skuListString + ") AND content.[productType] = 'combinedSku') " +
-                "    OR (content.[selection] IN (" + skuListString + ") AND content.[selectionType] IN ('combinedSku', 'sku')) " +
-                ")";
-
             return queryManager.createQuery(sql2Query, Query.JCR_SQL2);
         } catch (Exception e) {
             throw new CacheInvalidationException("Error creating SKU-based SQL2 query", e);
         }
-    }
-
-    private static Query getCategoryBasedSql2Query(Session session, String storePath, String categoryList) throws RepositoryException {
-        QueryManager queryManager = session.getWorkspace().getQueryManager();
-
-        String sql2Query = "SELECT content.[jcr:path] " +
-            "FROM [nt:unstructured] AS content " +
-            "WHERE ISDESCENDANTNODE(content,'" + storePath + "' ) " +
-            "AND (" +
-            "(content.[categoryId] in (" + categoryList + ") AND content.[categoryIdType] in ('uid')) " +
-            "OR (content.[category] in (" + categoryList + ") AND content.[categoryType] in ('uid'))" +
-            ")";
-        return queryManager.createQuery(sql2Query, Query.JCR_SQL2);
     }
 
     private String[] getQueryResult(Query query) throws CacheInvalidationException {

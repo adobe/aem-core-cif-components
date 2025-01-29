@@ -50,13 +50,14 @@ public class InvalidateCacheEventListener implements EventListener {
     @Reference
     private ConfigurationAdmin configAdmin;
 
+    private Session session;
+
     private Boolean isDispatcherConfigured = false;
 
     String pathDelimiter = "/";
 
     @Activate
     protected void activate() {
-        Session session = null;
         try {
             LOGGER.info("Activating AuthorInvalidateCacheEventListener...");
             getDispatcherCacheStatus();
@@ -71,31 +72,22 @@ public class InvalidateCacheEventListener implements EventListener {
                 null,
                 false);
             LOGGER.info("Event listener registered for path: {}", InvalidateCacheSupport.INVALIDATE_WORKING_AREA);
-            session.logout();
         } catch (RepositoryException e) {
             LOGGER.error("Error registering JCR event listener: {}", e.getMessage(), e);
-        } finally {
-            if (session != null) {
-                session.logout();
-            }
         }
     }
 
     @Deactivate
     protected void deactivate() {
-        Session session = null;
         try {
-            session = repository.loginService(InvalidateCacheSupport.SERVICE_USER, null);
-            ObservationManager observationManager = session.getWorkspace().getObservationManager();
-            observationManager.removeEventListener(this);
-            session.logout();
-            LOGGER.info("Event listener unregistered and session logged out.");
+            if (session != null) {
+                ObservationManager observationManager = session.getWorkspace().getObservationManager();
+                observationManager.removeEventListener(this);
+                session.logout();
+                LOGGER.info("Event listener unregistered and session logged out.");
+            }
         } catch (RepositoryException e) {
             LOGGER.error("Error unregistering JCR event listener: {}", e.getMessage(), e);
-        } finally {
-            if (session != null) {
-                session.logout();
-            }
         }
     }
 

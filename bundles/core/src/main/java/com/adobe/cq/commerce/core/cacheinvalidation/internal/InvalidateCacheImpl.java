@@ -36,6 +36,9 @@ public class InvalidateCacheImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheImpl.class);
 
+    @Reference
+    private InvalidateCacheRegistry invalidateCacheRegistry;
+
     public void invalidateCache(String path) {
         try (ResourceResolver resourceResolver = invalidateCacheSupport.getServiceUserResourceResolver()) {
             Resource resource = resourceResolver.getResource(path);
@@ -68,12 +71,15 @@ public class InvalidateCacheImpl {
 
         String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAME,
             String[].class);
+
         // Store dynamic properties in a map
         Map<String, String[]> dynamicProperties = new HashMap<>();
-        dynamicProperties.put("productSkus", properties.get(InvalidateCacheSupport.PROPERTIES_PRODUCT_SKUS, String[].class));
-        dynamicProperties.put("categoryUids", properties.get(InvalidateCacheSupport.PROPERTIES_CATEGORY_UIDS, String[].class));
-        dynamicProperties.put("regexPatterns", properties.get(InvalidateCacheSupport.PROPERTIES_REGEX_PATTERNS, String[].class));
-
+        for (String attribute : invalidateCacheRegistry.getAttributes()) {
+            String[] values = properties.get(attribute, String[].class);
+            if (values != null) {
+                dynamicProperties.put(attribute, values);
+            }
+        }
         invalidateCacheByType(client, storeView, listOfCacheToSearch, dynamicProperties);
     }
 
@@ -84,30 +90,18 @@ public class InvalidateCacheImpl {
             String[] values = entry.getValue();
 
             if (values != null && values.length > 0) {
-                String[] cachePatterns;
-                if ("regexPatterns".equals(key)) {
-                    cachePatterns = values;
-                } else {
-                    cachePatterns = getAttributePatterns(values, key);
-                }
+                String[] cachePatterns = getAttributePatterns(values, key);
                 client.invalidateCache(storeView, listOfCacheToSearch, cachePatterns);
             }
         }
     }
 
-    private static String getRegexBasedOnAttribute(String attribute) {
-        switch (attribute) {
-            case "categoryUids":
-                return "\"uid\"\\s*:\\s*\\{\"id\"\\s*:\\s*\"";
-            case "productSkus":
-                return "\"sku\":\\s*\"";
-            default:
-                return "\"" + attribute + "\":\\s*\"";
+    private String[] getAttributePatterns(String[] patterns, String attribute) {
+        String pattern = invalidateCacheRegistry.getPattern(attribute);
+        if (pattern == null) {
+            return patterns;
         }
-    }
-
-    private static String[] getAttributePatterns(String[] patterns, String attribute) {
         String attributeString = String.join("|", patterns);
-        return new String[] { getRegexBasedOnAttribute(attribute) + "(" + attributeString + ")\"" };
+        return new String[] { pattern + "(" + attributeString + ")\"" };
     }
 }
