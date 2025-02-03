@@ -12,9 +12,11 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.cacheinvalidation.services;
+package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import org.osgi.service.component.annotations.Component;
+
+import com.adobe.cq.commerce.core.cacheinvalidation.services.InvalidateCache;
 
 @Component(service = InvalidateCache.class, property = { "attribute=regexPatterns" })
 public class RegexPatternsInvalidateCache implements InvalidateCache {
@@ -22,10 +24,5 @@ public class RegexPatternsInvalidateCache implements InvalidateCache {
     @Override
     public String getPattern() {
         return null;
-    }
-
-    @Override
-    public boolean canDoDispatcherCacheInvalidation() {
-        return false;
     }
 }

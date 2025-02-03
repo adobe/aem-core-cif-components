@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.cacheinvalidation.services;
+package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.*;
 
@@ -20,13 +20,13 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.internal.InvalidateDispatcherCacheBase;
+import com.adobe.cq.commerce.core.cacheinvalidation.services.InvalidateDispatcherCache;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.api.Page;
 
-@Component(service = InvalidateCache.class, property = { "attribute=categoryUids" })
-public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase implements InvalidateCache {
+@Component(service = InvalidateDispatcherCache.class, property = { "attribute=categoryUids" })
+public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase implements InvalidateDispatcherCache {
 
     @Reference
     private UrlProviderImpl urlProvider;
@@ -34,11 +34,6 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
     @Override
     public String getPattern() {
         return "\"uid\"\\s*:\\s*\\{\"id\"\\s*:\\s*\"";
-    }
-
-    @Override
-    public boolean canDoDispatcherCacheInvalidation() {
-        return true;
     }
 
     @Override
@@ -66,7 +61,7 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
     }
 
     @Override
-    public String[] getInvalidPaths(Page page, ResourceResolver resourceResolver, Map<String, Object> data, String storePath) {
+    public String[] getPathsToInvalidate(Page page, ResourceResolver resourceResolver, Map<String, Object> data, String storePath) {
         Set<String> uniquePagePaths = new HashSet<>();
 
         List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("categoryList");

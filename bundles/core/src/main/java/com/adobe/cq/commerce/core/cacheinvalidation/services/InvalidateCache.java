@@ -14,28 +14,9 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.services;
 
-import java.util.Map;
+import org.osgi.annotation.versioning.ConsumerType;
 
-import org.apache.sling.api.resource.ResourceResolver;
-import org.osgi.annotation.versioning.ProviderType;
-
-import com.day.cq.wcm.api.Page;
-
-@ProviderType
+@ConsumerType
 public interface InvalidateCache {
     String getPattern();
-
-    boolean canDoDispatcherCacheInvalidation();
-
-    default String getQuery(String storePath, String dataList) {
-        return null;
-    }
-
-    default String getGraphqlQuery(String[] data) {
-        return null;
-    }
-
-    default String[] getInvalidPaths(Page page, ResourceResolver resourceResolver, Map<String, Object> data, String storePath) {
-        return new String[0];
-    }
 }

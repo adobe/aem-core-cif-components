@@ -26,6 +26,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 import com.adobe.cq.commerce.core.cacheinvalidation.services.InvalidateCache;
+import com.adobe.cq.commerce.core.cacheinvalidation.services.InvalidateDispatcherCache;
 import com.day.cq.wcm.api.Page;
 
 @Component(service = InvalidateCacheRegistry.class, immediate = true)
@@ -50,30 +51,51 @@ public class InvalidateCacheRegistry {
         invalidateCacheList.remove(attribute);
     }
 
+    @Reference(
+        service = InvalidateDispatcherCache.class,
+        bind = "bindInvalidateDispatcherCache",
+        unbind = "unbindInvalidateDispatcherCache",
+        cardinality = ReferenceCardinality.MULTIPLE,
+        policy = ReferencePolicy.DYNAMIC,
+        policyOption = ReferencePolicyOption.GREEDY)
+    void bindInvalidateDispatcherCache(InvalidateDispatcherCache invalidateDispatcherCache, Map<String, Object> properties) {
+        String attribute = (String) properties.get("attribute");
+        invalidateCacheList.put(attribute, invalidateDispatcherCache);
+    }
+
+    void unbindInvalidateDispatcherCache(Map<String, Object> properties) {
+        String attribute = (String) properties.get("attribute");
+        invalidateCacheList.remove(attribute);
+    }
+
     public String getPattern(String attribute) {
         InvalidateCache invalidateCache = invalidateCacheList.get(attribute);
         return invalidateCache != null ? invalidateCache.getPattern() : null;
     }
 
-    public boolean canDoDispatcherCacheInvalidation(String attribute) {
-        InvalidateCache invalidateCache = invalidateCacheList.get(attribute);
-        return invalidateCache != null && invalidateCache.canDoDispatcherCacheInvalidation();
-    }
-
     public String getQuery(String attribute, String storePath, String dataList) {
         InvalidateCache invalidateCache = invalidateCacheList.get(attribute);
-        return invalidateCache != null ? invalidateCache.getQuery(storePath, dataList) : null;
+        if (invalidateCache instanceof InvalidateDispatcherCache) {
+            return ((InvalidateDispatcherCache) invalidateCache).getQuery(storePath, dataList);
+        }
+        return null;
     }
 
     public String getGraphqlQuery(String attribute, String[] data) {
         InvalidateCache invalidateCache = invalidateCacheList.get(attribute);
-        return invalidateCache != null ? invalidateCache.getGraphqlQuery(data) : null;
+        if (invalidateCache instanceof InvalidateDispatcherCache) {
+            return ((InvalidateDispatcherCache) invalidateCache).getGraphqlQuery(data);
+        }
+        return null;
     }
 
-    public String[] getInvalidPaths(String attribute, Page page, ResourceResolver resourceResolver, Map<String, Object> data,
+    public String[] getPathsToInvalidate(String attribute, Page page, ResourceResolver resourceResolver, Map<String, Object> data,
         String storePath) {
         InvalidateCache invalidateCache = invalidateCacheList.get(attribute);
-        return invalidateCache != null ? invalidateCache.getInvalidPaths(page, resourceResolver, data, storePath) : new String[0];
+        if (invalidateCache instanceof InvalidateDispatcherCache) {
+            return ((InvalidateDispatcherCache) invalidateCache).getPathsToInvalidate(page, resourceResolver, data, storePath);
+        }
+        return new String[0];
     }
 
     public InvalidateCache get(String attribute) {

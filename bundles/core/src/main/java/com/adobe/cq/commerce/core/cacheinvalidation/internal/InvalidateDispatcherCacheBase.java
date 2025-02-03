@@ -22,7 +22,7 @@ import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.day.cq.wcm.api.Page;
 
-public class InvalidateDispatcherCacheBase extends InvalidateCacheBase {
+public class InvalidateDispatcherCacheBase {
 
     protected static final String URL_KEY = "url_key";
     protected static final String URL_PATH = "url_path";
@@ -32,7 +32,7 @@ public class InvalidateDispatcherCacheBase extends InvalidateCacheBase {
     protected void addProductPaths(Page page, UrlProviderImpl urlProvider, Set<String> uniquePagePaths, Map<String, Object> item) {
         ProductUrlFormat.Params productParams = new ProductUrlFormat.Params();
         productParams.setSku((String) item.get("sku"));
-        productParams.setUrlKey((String) item.get("url_key"));
+        productParams.setUrlKey((String) item.get(URL_KEY));
 
         List<Map<String, String>> urlRewrites = (List<Map<String, String>>) item.get("url_rewrites");
         if (urlRewrites != null) {
@@ -50,10 +50,10 @@ public class InvalidateDispatcherCacheBase extends InvalidateCacheBase {
         if (categories != null) {
             for (Map<String, Object> category : categories) {
                 categoryParams.setUid((String) category.get("uid"));
-                categoryParams.setUrlKey((String) category.get("url_key"));
-                categoryParams.setUrlPath((String) category.get("url_path"));
+                categoryParams.setUrlKey((String) category.get(URL_KEY));
+                categoryParams.setUrlPath((String) category.get(URL_PATH));
                 String categoryUrlPath = urlProvider.toCategoryUrl(null, page, categoryParams);
-                categoryUrlPath = removeUpToDelimiter(categoryUrlPath, ".html", true);
+                categoryUrlPath = removeUpToDelimiter(categoryUrlPath, HTML_SUFFIX, true);
                 uniquePagePaths.add(categoryUrlPath);
             }
         }

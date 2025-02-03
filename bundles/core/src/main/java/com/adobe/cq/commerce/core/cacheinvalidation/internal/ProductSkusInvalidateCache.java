@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.cacheinvalidation.services;
+package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.*;
 
@@ -20,13 +20,13 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.internal.InvalidateDispatcherCacheBase;
+import com.adobe.cq.commerce.core.cacheinvalidation.services.InvalidateDispatcherCache;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.api.Page;
 
-@Component(service = InvalidateCache.class, property = { "attribute=productSkus" })
-public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase implements InvalidateCache {
+@Component(service = InvalidateDispatcherCache.class, property = { "attribute=productSkus" })
+public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase implements InvalidateDispatcherCache {
 
     @Reference
     private UrlProviderImpl urlProvider;
@@ -34,11 +34,6 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
     @Override
     public String getPattern() {
         return "\"sku\":\\s*\"";
-    }
-
-    @Override
-    public boolean canDoDispatcherCacheInvalidation() {
-        return true;
     }
 
     @Override
@@ -68,7 +63,7 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
     }
 
     @Override
-    public String[] getInvalidPaths(Page page, ResourceResolver resourceResolver, Map<String, Object> data, String storePath) {
+    public String[] getPathsToInvalidate(Page page, ResourceResolver resourceResolver, Map<String, Object> data, String storePath) {
         Set<String> uniquePagePaths = new HashSet<>();
         Map<String, Object> productsData = (Map<String, Object>) data.get("products");
         if (productsData != null) {

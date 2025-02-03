@@ -42,13 +42,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.cacheinvalidation.services.InvalidateCache;
+import com.adobe.cq.commerce.core.cacheinvalidation.services.InvalidateDispatcherCache;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
-import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.google.gson.reflect.TypeToken;
@@ -60,6 +60,7 @@ import com.google.gson.reflect.TypeToken;
 public class InvalidateDispatcherCacheImpl {
 
     private static final String HTML_SUFFIX = ".html";
+    private static final String DISPATCHER_URL = "http://localhost:80/dispatcher/invalidate.cache";
 
     @Reference
     private UrlProviderImpl urlProvider;
@@ -91,7 +92,7 @@ public class InvalidateDispatcherCacheImpl {
 
     public void invalidateCache(String path) {
         // To Do: Change this to for non-author run modes
-        if (slingSettingsService.getRunModes().contains("author")) {
+        if (!slingSettingsService.getRunModes().contains("author")) {
             LOGGER.error("Operation is only supported for author");
             return;
         }
@@ -145,7 +146,7 @@ public class InvalidateDispatcherCacheImpl {
         Map<String, String[]> dynamicProperties = new HashMap<>();
         for (String attribute : invalidateCacheRegistry.getAttributes()) {
             InvalidateCache invalidateCache = invalidateCacheRegistry.get(attribute);
-            if (invalidateCache != null && invalidateCache.canDoDispatcherCacheInvalidation()) {
+            if (invalidateCache instanceof InvalidateDispatcherCache) {
                 String[] values = properties.get(attribute, String[].class);
                 if (values != null) {
                     dynamicProperties.put(attribute, values);
@@ -183,7 +184,7 @@ public class InvalidateDispatcherCacheImpl {
                     String query = invalidateCacheRegistry.getGraphqlQuery(key, values);
                     Map<String, Object> data = getGraphqlResponseData(client, query);
                     if (data != null) {
-                        String[] invalidPaths = getInvalidPaths(resourceResolver, data, storePath, key);
+                        String[] invalidPaths = getPathsToInvalidate(resourceResolver, data, storePath, key);
                         correspondingPaths = Stream.concat(Arrays.stream(correspondingPaths), Arrays.stream(invalidPaths))
                             .toArray(String[]::new);
                     }
@@ -213,10 +214,10 @@ public class InvalidateDispatcherCacheImpl {
         return new String[0];
     }
 
-    private String[] getInvalidPaths(ResourceResolver resourceResolver, Map<String, Object> data,
+    private String[] getPathsToInvalidate(ResourceResolver resourceResolver, Map<String, Object> data,
         String storePath, String key) {
         Page page = getPage(resourceResolver, storePath);
-        return invalidateCacheRegistry.getInvalidPaths(key, page, resourceResolver, data, storePath);
+        return invalidateCacheRegistry.getPathsToInvalidate(key, page, resourceResolver, data, storePath);
     }
 
     private static Map<String, Object> getGraphqlResponseData(GraphqlClient client, String query) {
@@ -226,11 +227,8 @@ public class InvalidateDispatcherCacheImpl {
         GraphqlResponse<Map<String, Object>, Map<String, Object>> response = client.execute(request, typeOfT, typeOfU);
         if (response.getErrors() != null && !response.getErrors().isEmpty()) {
             LOGGER.error("Error executing GraphQL query: {}", response.getErrors());
-        } else {
-            return response.getData();
         }
         return response.getData() != null ? response.getData() : Collections.emptyMap();
-
     }
 
     private static boolean isValid(ValueMap valueMap, ResourceResolver resourceResolver, String storePath) {
@@ -328,6 +326,7 @@ public class InvalidateDispatcherCacheImpl {
         return null;
     }
 
+    @SuppressWarnings("unused")
     private static String getCorrespondingPageProperties(ResourceResolver resourceResolver, String storePath, String propertyName)
         throws RepositoryException {
         Page page = getPage(resourceResolver, storePath);
@@ -381,12 +380,9 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     private void flushCache(String handle) throws CacheInvalidationException {
-        String server = "localhost:80";
-        String uri = "/dispatcher/invalidate.cache";
-        String url = "http://" + server + uri;
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpPost post = new HttpPost(url);
+            HttpPost post = new HttpPost(DISPATCHER_URL);
             post.setHeader("CQ-Action", "Delete");
             post.setHeader("CQ-Handle", handle);
             post.setHeader("CQ-Action-Scope", "ResourceOnly");
