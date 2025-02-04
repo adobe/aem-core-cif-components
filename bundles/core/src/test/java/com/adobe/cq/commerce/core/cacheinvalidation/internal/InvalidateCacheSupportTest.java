@@ -63,7 +63,7 @@ public class InvalidateCacheSupportTest {
 
         // Mock the behavior of the getServiceResourceResolver method
         Map<String, Object> params = new HashMap<>();
-        params.put(ResourceResolverFactory.SUBSERVICE, "cif-cache-service");
+        params.put(ResourceResolverFactory.SUBSERVICE, "cif-cache-invalidation-service");
         when(resourceResolverFactory.getServiceResourceResolver(params)).thenReturn(mockResolver);
 
         // Test the method
