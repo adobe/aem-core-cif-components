@@ -12,21 +12,11 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.cacheinvalidation.services;
+package com.adobe.cq.commerce.core.cacheinvalidation.spi;
 
-import java.util.Map;
-
-import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.annotation.versioning.ConsumerType;
 
-import com.day.cq.wcm.api.Page;
-
 @ConsumerType
-public interface InvalidateDispatcherCache extends InvalidateCache {
-
-    String getQuery(String storePath, String dataList);
-
-    String getGraphqlQuery(String[] data);
-
-    String[] getPathsToInvalidate(Page page, ResourceResolver resourceResolver, Map<String, Object> data, String storePath);
+public interface InvalidateCache {
+    String getPattern();
 }

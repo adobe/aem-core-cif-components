@@ -25,8 +25,8 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.services.InvalidateCache;
-import com.adobe.cq.commerce.core.cacheinvalidation.services.InvalidateDispatcherCache;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.InvalidateCache;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.InvalidateDispatcherCache;
 import com.day.cq.wcm.api.Page;
 
 @Component(service = InvalidateCacheRegistry.class, immediate = true)

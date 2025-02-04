@@ -41,8 +41,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.services.InvalidateCache;
-import com.adobe.cq.commerce.core.cacheinvalidation.services.InvalidateDispatcherCache;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.InvalidateCache;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.InvalidateDispatcherCache;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;

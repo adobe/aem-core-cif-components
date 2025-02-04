@@ -20,7 +20,7 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.services.InvalidateDispatcherCache;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.InvalidateDispatcherCache;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.api.Page;
