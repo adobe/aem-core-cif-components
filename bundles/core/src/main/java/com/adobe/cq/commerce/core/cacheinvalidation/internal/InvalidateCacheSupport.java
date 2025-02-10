@@ -32,7 +32,7 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 public class InvalidateCacheSupport {
 
     public static final String INVALIDATE_WORKING_AREA = "/var/cif/cacheInvalidation";
-    public static final String NODE_NAME_BASE = "invalidate_entry";
+    public static final String NODE_NAME_BASE = "cmd";
     public static final String SERVICE_USER = "cif-cache-invalidation-service";
     public static final String PROPERTIES_GRAPHQL_CLIENT_ID = "cq:graphqlClient";
     public static final String PROPERTIES_STORE_VIEW = "magentoStore";
