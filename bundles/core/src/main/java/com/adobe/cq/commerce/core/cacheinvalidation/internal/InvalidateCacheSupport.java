@@ -41,6 +41,23 @@ public class InvalidateCacheSupport {
     public static final String PROPERTIES_PRODUCT_SKUS = "productSkus";
     public static final String PROPERTIES_CATEGORY_UIDS = "categoryUids";
     public static final String PROPERTIES_REGEX_PATTERNS = "regexPatterns";
+    public static final String PROPERTY_INVALIDATE_REQUEST_PARAMETER = "invalidateRequestParameter";
+
+    private Boolean enableDispatcherCacheInvalidation;
+
+    @Activate
+    protected void activate(Map<String, Object> properties) {
+        this.enableDispatcherCacheInvalidation = (Boolean) properties.get("enableDispatcherCacheInvalidation");
+    }
+
+    @Deactivate
+    protected void deactivate() {
+        this.enableDispatcherCacheInvalidation = false;
+    }
+
+    public Boolean getEnableDispatcherCacheInvalidation() {
+        return enableDispatcherCacheInvalidation;
+    }
 
     @Reference
     private ResourceResolverFactory resourceResolverFactory;

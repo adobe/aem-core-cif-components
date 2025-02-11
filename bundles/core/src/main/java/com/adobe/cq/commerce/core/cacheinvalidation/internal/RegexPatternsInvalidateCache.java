@@ -18,7 +18,9 @@ import org.osgi.service.component.annotations.Component;
 
 import com.adobe.cq.commerce.core.cacheinvalidation.spi.InvalidateCache;
 
-@Component(service = InvalidateCache.class, property = { "attribute=regexPatterns" })
+@Component(
+    service = InvalidateCache.class,
+    property = { InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER + "=regexPatterns" })
 public class RegexPatternsInvalidateCache implements InvalidateCache {
 
     @Override

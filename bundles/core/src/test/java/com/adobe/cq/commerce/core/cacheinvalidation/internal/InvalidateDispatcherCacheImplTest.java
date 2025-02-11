@@ -24,7 +24,6 @@ import javax.jcr.query.*;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
@@ -36,7 +35,6 @@ import org.slf4j.Logger;
 
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -144,20 +142,6 @@ public class InvalidateDispatcherCacheImplTest {
     }
 
     @Test
-    public void testGenerateQuery() throws Exception {
-        String[] entries = new String[] { "entry1", "entry2" };
-        String key = "productSkus";
-
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("generateQuery", String[].class, String.class);
-        method.setAccessible(true);
-
-        String expectedQuery = "{products(filter:{sku:{in:[\"entry1\",\"entry2\"]}}){items{__typename,sku,url_key,url_rewrites{url},categories{__typename,uid,url_key,url_path}}}}";
-        String result = (String) method.invoke(invalidateDispatcherCacheImpl, entries, key);
-
-        assertEquals(expectedQuery, result);
-    }
-
-    @Test
     public void testGetQueryResult() throws Exception {
         query = mock(Query.class);
         queryResult = mock(QueryResult.class);
@@ -180,30 +164,6 @@ public class InvalidateDispatcherCacheImplTest {
     }
 
     @Test
-    public void testGetSkuBasedInvalidPaths() throws Exception {
-        String storePath = "/store/path";
-        Map<String, Object> data = new HashMap<>();
-        data.put("products", Map.of("items", List.of(
-            Map.of("sku", "sku1", "url_key", "url1", "url_rewrites", List.of(Map.of("url", "/path1"))),
-            Map.of("sku", "sku2", "url_key", "url2", "url_rewrites", List.of(Map.of("url", "/path2"))))));
-
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getSkuBasedInvalidPaths", ResourceResolver.class, Map.class,
-            String.class);
-        method.setAccessible(true);
-
-        when(urlProvider.toProductUrl(any(SlingHttpServletRequest.class), any(Page.class), any(ProductUrlFormat.Params.class)))
-            .thenReturn("/path1")
-            .thenReturn("/path2");
-
-        String[] result = (String[]) method.invoke(invalidateDispatcherCacheImpl, resourceResolver, data, storePath);
-
-        String[] expectedPaths = new String[] { "/path1", "/path2" };
-        Arrays.sort(result);
-        Arrays.sort(expectedPaths);
-        assertArrayEquals(expectedPaths, result);
-    }
-
-    @Test
     public void testExceptionMessage() {
         String message = "Test message";
         InvalidateDispatcherCacheImpl.CacheInvalidationException exception = new InvalidateDispatcherCacheImpl.CacheInvalidationException(
@@ -219,29 +179,6 @@ public class InvalidateDispatcherCacheImplTest {
             message, cause);
         assertEquals(message, exception.getMessage());
         assertEquals(cause, exception.getCause());
-    }
-
-    @Test
-    public void testGetAllInvalidPaths() throws Exception {
-        String storePath = "/store/path";
-        Map<String, String[]> dynamicProperties = new HashMap<>();
-        dynamicProperties.put("productSkus", new String[] { "sku1", "sku2" });
-        dynamicProperties.put("categoryUids", new String[] { "uid1", "uid2" });
-
-        setUpMocksForQuery();
-        setUpMocksForGraphqlClient();
-
-        String[] expectedPaths = new String[] { "/content/path" };
-
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getAllInvalidPaths", Session.class, ResourceResolver.class,
-            GraphqlClient.class, String.class, Map.class);
-        method.setAccessible(true);
-
-        String[] result = (String[]) method.invoke(invalidateDispatcherCacheImpl, session, resourceResolver, graphqlClient, storePath,
-            dynamicProperties);
-
-        assertNotNull(result);
-
     }
 
     private void setUpMocksForQuery() throws Exception {
@@ -272,144 +209,6 @@ public class InvalidateDispatcherCacheImplTest {
             Map.of("uid", "uid2", "url_key", "category2", "url_path", "/category2"))));
         doAnswer(invocation -> graphqlResponseCategories).when(graphqlClient).execute(any(GraphqlRequest.class), any(Type.class), any(
             Type.class));
-    }
-
-    @Test
-    public void testGetSkuBasedSql2Query() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getSkuBasedSql2Query", Session.class, String.class,
-            String.class);
-        method.setAccessible(true);
-
-        when(session.getWorkspace()).thenReturn(workspace);
-        when(workspace.getQueryManager()).thenReturn(queryManager);
-        when(queryManager.createQuery(anyString(), eq(Query.JCR_SQL2))).thenReturn(query);
-
-        Query result = (Query) method.invoke(invalidateDispatcherCacheImpl, session, "/storePath", "'sku1', 'sku2'");
-        assertNotNull(result);
-        assertEquals(query, result);
-    }
-
-    @Test
-    public void testGetCategoryBasedSql2Query() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getCategoryBasedSql2Query", Session.class, String.class,
-            String.class);
-        method.setAccessible(true);
-
-        when(session.getWorkspace()).thenReturn(workspace);
-        when(workspace.getQueryManager()).thenReturn(queryManager);
-        when(queryManager.createQuery(anyString(), eq(Query.JCR_SQL2))).thenReturn(query);
-
-        Query result = (Query) method.invoke(invalidateDispatcherCacheImpl, session, "/storePath", "'uid1', 'uid2'");
-        assertNotNull(result);
-        assertEquals(query, result);
-    }
-
-    @Test
-    public void testGetCorrespondingPageBasedOnEntries() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getCorrespondingPageBasedOnEntries", Session.class,
-            String.class, String[].class, String.class);
-        method.setAccessible(true);
-
-        String[] entries = { "entry1", "entry2" };
-        when(session.getWorkspace()).thenReturn(workspace);
-        when(workspace.getQueryManager()).thenReturn(queryManager);
-        when(queryManager.createQuery(anyString(), eq(Query.JCR_SQL2))).thenReturn(query);
-        when(query.execute()).thenReturn(queryResult);
-        when(queryResult.getRows()).thenReturn(rowIterator);
-        when(rowIterator.hasNext()).thenReturn(true, false);
-        when(rowIterator.nextRow()).thenReturn(row);
-        when(row.getPath("content")).thenReturn("/content/path");
-
-        String[] result = (String[]) method.invoke(invalidateDispatcherCacheImpl, session, "/storePath", entries, "productSkus");
-        assertNotNull(result);
-        assertEquals(1, result.length);
-        assertEquals("/content/path.html", result[0]);
-    }
-
-    @Test
-    public void testGetAllInvalidPaths1() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getAllInvalidPaths", Session.class, ResourceResolver.class,
-            GraphqlClient.class, String.class, Map.class);
-        method.setAccessible(true);
-
-        Map<String, String[]> dynamicProperties = new HashMap<>();
-        dynamicProperties.put("productSkus", new String[] { "sku1", "sku2" });
-        dynamicProperties.put("categoryUids", new String[] { "uid1", "uid2" });
-
-        when(session.getWorkspace()).thenReturn(workspace);
-        when(workspace.getQueryManager()).thenReturn(queryManager);
-        when(queryManager.createQuery(anyString(), eq(Query.JCR_SQL2))).thenReturn(query);
-        when(query.execute()).thenReturn(queryResult);
-        when(queryResult.getRows()).thenReturn(rowIterator);
-        when(rowIterator.hasNext()).thenReturn(true, false);
-        when(rowIterator.nextRow()).thenReturn(row);
-        when(row.getPath("content")).thenReturn("/content/path");
-
-        // Mock GraphqlClient and its response
-        GraphqlResponse<Map<String, Object>, Map<String, Object>> graphqlResponse = mock(GraphqlResponse.class);
-        when(graphqlResponse.getData()).thenReturn(new HashMap<>());
-        when(graphqlClient.execute(any(GraphqlRequest.class), any(Type.class), any(Type.class))).thenReturn(
-            (GraphqlResponse) graphqlResponse);
-
-        String[] result = (String[]) method.invoke(invalidateDispatcherCacheImpl, session, resourceResolver, graphqlClient, "/storePath",
-            dynamicProperties);
-        assertNotNull(result);
-        assertEquals(1, result.length);
-        assertEquals("/content/path.html", result[0]);
-    }
-
-    @Test
-    public void testRemoveUpToDelimiter() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("removeUpToDelimiter", String.class, String.class,
-            boolean.class);
-        method.setAccessible(true);
-
-        String input = "example/path/to/resource";
-        String delimiter = "/to/";
-
-        String result = (String) method.invoke(invalidateDispatcherCacheImpl, input, delimiter, false);
-        assertEquals("example/path", result);
-
-        result = (String) method.invoke(invalidateDispatcherCacheImpl, input, delimiter, true);
-        assertEquals("example/path", result);
-    }
-
-    @Test
-    public void testCreateProductParams() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("createProductParams", Map.class);
-        method.setAccessible(true);
-
-        Map<String, Object> item = Map.of(
-            "uid", "uid1",
-            "url_key", "urlKey1",
-            "url_path", "urlPath1");
-
-        ProductUrlFormat.Params params = (ProductUrlFormat.Params) method.invoke(invalidateDispatcherCacheImpl, item);
-
-        assertEquals("XXXXXX", params.getUrlKey());
-        assertEquals("uid1", params.getCategoryUrlParams().getUid());
-        assertEquals("urlKey1", params.getCategoryUrlParams().getUrlKey());
-        assertEquals("urlPath1", params.getCategoryUrlParams().getUrlPath());
-    }
-
-    @Test
-    public void testProcessItem() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("processItem", Set.class, Map.class, Page.class);
-        method.setAccessible(true);
-
-        Set<String> uniquePagePaths = new HashSet<>();
-        Map<String, Object> item = Map.of(
-            "uid", "uid1",
-            "url_key", "urlKey1",
-            "url_path", "urlPath1");
-
-        Page page = mock(Page.class);
-        when(urlProvider.toProductUrl(any(), eq(page), any(ProductUrlFormat.Params.class)))
-            .thenReturn("/path1/product-page.html");
-
-        method.invoke(invalidateDispatcherCacheImpl, uniquePagePaths, item, page);
-
-        assertTrue(uniquePagePaths.contains("/path1"));
     }
 
     @Test

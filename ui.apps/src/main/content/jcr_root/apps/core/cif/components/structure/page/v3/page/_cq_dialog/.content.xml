@@ -141,11 +141,9 @@
                                                     sling:resourceType="core/cif/components/renderconditions/pagetype"
                                                     pageType="landing"/>
                                             </myAccountPage>
-                                            <label
+                                            <clearCache
                                                     jcr:primaryType="nt:unstructured"
-                                                    sling:resourceType="granite/ui/components/coral/foundation/text"
-                                                    granite:class="clear-cache-label"
-                                                    text="Click the button below to clear the cache">
+                                                    sling:resourceType="granite/ui/components/coral/foundation/container">
                                                 <granite:rendercondition
                                                         jcr:primaryType="nt:unstructured"
                                                         sling:resourceType="core/cif/components/renderconditions/pagetype"
@@ -154,26 +152,26 @@
                                                         jcr:primaryType="nt:unstructured"
                                                         sling:resourceType="core/cif/components/renderconditions/dispatcherConfigCondition"
                                                 />
-                                            </label>
-                                            <clearCache
-                                                    jcr:primaryType="nt:unstructured"
-                                                    sling:resourceType="granite/ui/components/coral/foundation/button"
-                                                    text="Clear Cache"
-                                                    variant="primary"
-                                                    granite:class="clear-cache-button">
-                                                <granite:data
-                                                        jcr:primaryType="nt:unstructured"
-                                                        action="/bin/cif/invalidate-cache"
-                                                        method="POST"
-                                                        storepath=".js-cq-sites-PermissionsProperties-pagePath"/>
-                                                <granite:rendercondition
-                                                        jcr:primaryType="nt:unstructured"
-                                                        sling:resourceType="core/cif/components/renderconditions/pagetype"
-                                                        pageType="landing"/>
-                                                <granite:rendercondition
-                                                        jcr:primaryType="nt:unstructured"
-                                                        sling:resourceType="core/cif/components/renderconditions/dispatcherConfigCondition"
-                                                        />
+                                                <items jcr:primaryType="nt:unstructured">
+                                                    <label
+                                                            jcr:primaryType="nt:unstructured"
+                                                            sling:resourceType="granite/ui/components/coral/foundation/text"
+                                                            granite:class="cif-clear-cache-label"
+                                                            text="Click the button to clear the full cache of the corresponding site">
+                                                    </label>
+                                                    <button
+                                                            jcr:primaryType="nt:unstructured"
+                                                            sling:resourceType="granite/ui/components/coral/foundation/button"
+                                                            text="Clear Cache"
+                                                            variant="primary"
+                                                            granite:class="cif-clear-cache-button">
+                                                        <granite:data
+                                                                jcr:primaryType="nt:unstructured"
+                                                                action="/bin/cif/invalidate-cache"
+                                                                method="POST"
+                                                                storepath=".js-cq-sites-PermissionsProperties-pagePath"/>
+                                                    </button>
+                                                </items>
                                             </clearCache>
                                         </items>
                                     </pagesSection>

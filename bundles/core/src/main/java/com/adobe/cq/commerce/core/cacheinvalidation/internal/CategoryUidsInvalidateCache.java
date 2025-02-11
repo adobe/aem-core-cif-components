@@ -25,7 +25,9 @@ import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.api.Page;
 
-@Component(service = InvalidateDispatcherCache.class, property = { "attribute=categoryUids" })
+@Component(
+    service = InvalidateDispatcherCache.class,
+    property = { InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER + "=categoryUids" })
 public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase implements InvalidateDispatcherCache {
 
     @Reference

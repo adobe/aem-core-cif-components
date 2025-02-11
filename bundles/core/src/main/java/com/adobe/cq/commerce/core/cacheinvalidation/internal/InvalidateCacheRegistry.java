@@ -59,7 +59,7 @@ public class InvalidateCacheRegistry {
         policy = ReferencePolicy.DYNAMIC,
         policyOption = ReferencePolicyOption.GREEDY)
     void bindInvalidateDispatcherCache(InvalidateDispatcherCache invalidateDispatcherCache, Map<String, Object> properties) {
-        String attribute = (String) properties.get("attribute");
+        String attribute = (String) properties.get(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER);
         invalidateCacheList.put(attribute, invalidateDispatcherCache);
     }
 

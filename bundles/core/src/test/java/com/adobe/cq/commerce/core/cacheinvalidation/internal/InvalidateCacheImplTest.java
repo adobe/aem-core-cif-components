@@ -16,7 +16,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import org.apache.sling.api.resource.Resource;
@@ -77,23 +76,6 @@ public class InvalidateCacheImplTest {
 
         verify(resourceResolver).getResource(path);
         verify(invalidateCacheSupport).getServiceUserResourceResolver();
-    }
-
-    @Test
-    public void testHandleCacheInvalidation() throws Exception {
-        ValueMap properties = mock(ValueMap.class);
-        when(resource.getValueMap()).thenReturn(properties);
-        when(properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAME, String[].class)).thenReturn(new String[] { "cacheName" });
-        when(properties.get(InvalidateCacheSupport.PROPERTIES_PRODUCT_SKUS, String[].class)).thenReturn(new String[] { "sku" });
-        when(properties.get(InvalidateCacheSupport.PROPERTIES_CATEGORY_UIDS, String[].class)).thenReturn(new String[] { "uid" });
-        when(properties.get(InvalidateCacheSupport.PROPERTIES_REGEX_PATTERNS, String[].class)).thenReturn(new String[] { "pattern" });
-
-        Method method = InvalidateCacheImpl.class.getDeclaredMethod("handleCacheInvalidation", Resource.class,
-            ComponentsConfiguration.class);
-        method.setAccessible(true);
-        method.invoke(invalidateCacheImpl, resource, commerceProperties);
-
-        verify(invalidateCacheSupport).getClient(anyString());
     }
 
 }

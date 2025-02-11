@@ -13,9 +13,6 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.io.IOException;
-import java.util.Dictionary;
-
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
@@ -24,12 +21,7 @@ import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
 import org.apache.sling.jcr.api.SlingRepository;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,14 +37,12 @@ public class InvalidateCacheEventListener implements EventListener {
     private InvalidateDispatcherCacheImpl invalidateDispatcherCacheImpl;
 
     @Reference
-    private SlingRepository repository;
+    private InvalidateCacheSupport invalidateCacheSupport;
 
     @Reference
-    private ConfigurationAdmin configAdmin;
+    private SlingRepository repository;
 
     private Session session;
-
-    private Boolean isDispatcherConfigured = false;
 
     String pathDelimiter = "/";
 
@@ -60,7 +50,6 @@ public class InvalidateCacheEventListener implements EventListener {
     protected void activate() {
         try {
             LOGGER.info("Activating AuthorInvalidateCacheEventListener...");
-            getDispatcherCacheStatus();
             session = repository.loginService(InvalidateCacheSupport.SERVICE_USER, null);
             ObservationManager observationManager = session.getWorkspace().getObservationManager();
             observationManager.addEventListener(
@@ -91,18 +80,6 @@ public class InvalidateCacheEventListener implements EventListener {
         }
     }
 
-    private void getDispatcherCacheStatus() {
-        try {
-            Configuration config = configAdmin.getConfiguration(InvalidateCacheSupport.class.getName());
-            Dictionary<String, Object> properties = config.getProperties();
-            if (properties != null && Boolean.TRUE.equals(properties.get("enableDispatcherCacheInvalidation"))) {
-                isDispatcherConfigured = true;
-            }
-        } catch (IOException e) {
-            LOGGER.error("Error setting dispatcher cache: {}", e.getMessage(), e);
-        }
-    }
-
     @Override
     public void onEvent(EventIterator events) {
         while (events.hasNext()) {
@@ -113,7 +90,7 @@ public class InvalidateCacheEventListener implements EventListener {
                 if (path.startsWith(actualPath)) {
                     LOGGER.debug("Cache invalidation event detected: {} and {}", path, event.getType());
                     invalidateCacheImpl.invalidateCache(path);
-                    if (Boolean.TRUE.equals(isDispatcherConfigured)) {
+                    if (Boolean.TRUE.equals(invalidateCacheSupport.getEnableDispatcherCacheInvalidation())) {
                         invalidateDispatcherCacheImpl.invalidateCache(path);
                     }
                 }
