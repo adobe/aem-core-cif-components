@@ -54,9 +54,11 @@
             dialog.show();
 
             // Handle confirmation
-            $("#" + CLEAR_CACHE_INPUT_SELECTOR).off('click').on('click', function() {
-                clearCache(button);
-            });
+            $('#' + CLEAR_CACHE_INPUT_SELECTOR)
+                .off('click')
+                .on('click', function() {
+                    clearCache(button);
+                });
         }
 
         function clearCache(button) {
