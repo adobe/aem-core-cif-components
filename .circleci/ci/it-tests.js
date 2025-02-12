@@ -32,6 +32,7 @@ try {
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
     let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
 
+
     ci.dir(qpPath, () => {
         // Connect to QP
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
@@ -66,6 +67,25 @@ try {
             ${ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])} \
             --vm-options \\\"-Xmx1536m -XX:MaxPermSize=256m -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
     });
+
+
+    // Temporary fix for integration & selenium test
+    const formData = {
+        apply: true,
+        factoryPid: 'com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl',
+        action: 'ajaxConfigManager',
+        url: "http://localhost:4502/apps/cif-components-examples/graphql",
+        httpMethod: 'GET',
+        propertylist: 'url,httpMethod'
+    };
+
+    ci.sh(`curl 'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~examples' \
+        -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+        -H 'Origin: http://localhost:4502' \
+        -u 'admin:admin' \
+        --data-raw '${Object.entries(formData)
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join('&')}'`);
 
 
 
