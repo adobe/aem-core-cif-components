@@ -14,10 +14,9 @@
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 
-<sly data-sly-use.product="com.adobe.cq.commerce.core.components.models.product.Product">
-    <sly data-sly-test="${product.generateProductJsonLDString != null}">
-        <script type="application/ld+json">
-            ${product.generateProductJsonLDString @ context='unsafe'}
-        </script>
-    </sly>
+<sly data-sly-template.productJsonld="${@ product}">
+           <script type="application/ld+json">
+                ${product.getJsonLd @ context='unsafe'}
+            </script>
+
 </sly>

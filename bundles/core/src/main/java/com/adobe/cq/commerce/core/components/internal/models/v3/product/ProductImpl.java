@@ -25,9 +25,6 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
 import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,54 +174,55 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         return visibleSectionsSet;
     }
 
-    public JSONArray fetchVariantsAsJsonArray() throws JSONException {
+    public ArrayNode fetchVariantsAsJsonArray() throws JsonProcessingException {
         List<Variant> variants = getVariants();
-        JSONArray jsonArray = new JSONArray();
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode jsonArray = mapper.createArrayNode();
 
         if (variants == null || variants.isEmpty()) {
             return jsonArray;
         }
 
         for (Variant variant : variants) {
-            LinkedHashMap<String, Object> variantMap = new LinkedHashMap<>();
-            LinkedHashMap<String, Object> variantMapWithNoSpecialPrice = new LinkedHashMap<>();
-            JSONArray assets = new JSONArray();
+            ObjectNode variantMap = mapper.createObjectNode();
+            ObjectNode variantMapWithNoSpecialPrice = mapper.createObjectNode();
+            ArrayNode assets = mapper.createArrayNode();
 
             for (Asset asset : variant.getAssets()) {
-                JSONObject jsonAsset = new JSONObject();
+                ObjectNode jsonAsset = mapper.createObjectNode();
                 jsonAsset.put("path", asset.getPath());
-                assets.put(jsonAsset);
+                assets.add(jsonAsset);
             }
 
             Price priceRange = variant.getPriceRange();
             variantMap.put("@type", "Offer");
             variantMap.put("sku", variant.getSku());
             variantMap.put("url", getCanonicalUrl());
-            variantMap.put("image", assets.length() > 0 ? assets.getJSONObject(0).getString("path") : "");
+            variantMap.put("image", assets.size() > 0 ? assets.get(0).get("path").asText() : "");
             variantMap.put("priceCurrency", priceRange != null ? priceRange.getCurrency() : "");
 
             if (variant instanceof VariantImpl) {
                 VariantImpl variantImpl = (VariantImpl) variant;
                 if (variantImpl.getSpecialPrice() == null && variantImpl.getSpecialToDate() == null) {
-                    variantMapWithNoSpecialPrice.putAll(variantMap);
+                    variantMapWithNoSpecialPrice.setAll(variantMap);
                     variantMapWithNoSpecialPrice.put("price", priceRange != null ? priceRange.getRegularPrice() : 0);
-                    jsonArray.put(new JSONObject(variantMapWithNoSpecialPrice));
+                    jsonArray.add(variantMapWithNoSpecialPrice);
                 } else {
                     variantMap.put("availability", variant.getInStock() ? "InStock" : "OutOfStock");
 
-                    JSONObject priceSpecification = new JSONObject();
+                    ObjectNode priceSpecification = mapper.createObjectNode();
                     priceSpecification.put("@type", "UnitPriceSpecification");
                     priceSpecification.put("priceType", "https://schema.org/ListPrice");
                     if (priceRange != null) {
                         priceSpecification.put("price", priceRange.getRegularPrice());
                         priceSpecification.put("priceCurrency", priceRange.getCurrency());
                     }
-                    variantMap.put("priceSpecification", priceSpecification);
+                    variantMap.set("priceSpecification", priceSpecification);
 
                     variantMap.put("price", variantImpl.getSpecialPrice());
                     variantMap.put("SpecialPricedates", variantImpl.getSpecialToDate());
 
-                    jsonArray.put(new JSONObject(variantMap));
+                    jsonArray.add(variantMap);
                 }
             }
         }
@@ -237,7 +235,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     }
 
     @Override
-    public String generateProductJsonLDString() {
+    public String getJsonLd() {
         if (!isEnableJsonLd()) {
             return null;
         }
@@ -252,10 +250,10 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
             addOffersToJson(productJson, mapper);
 
-            cachedJsonLD = mapper.writeValueAsString(productJson);
+            cachedJsonLD = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(productJson);
             return cachedJsonLD;
 
-        } catch (JsonProcessingException | JSONException e) {
+        } catch (JsonProcessingException e) {
             LOGGER.warn("Failed to serialize product JSON-LD", e);
             return null;
         }
@@ -276,17 +274,16 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         return productJson;
     }
 
-    protected void addOffersToJson(ObjectNode productJson, ObjectMapper mapper) throws JSONException, JsonProcessingException {
+    protected void addOffersToJson(ObjectNode productJson, ObjectMapper mapper) throws JsonProcessingException {
         ArrayNode offersArray = mapper.createArrayNode();
-        JSONArray offers = fetchVariantsAsJsonArray();
+        ArrayNode offers = fetchVariantsAsJsonArray();
 
         if (offers != null) {
-            for (int i = 0; i < offers.length(); i++) {
-                offersArray.add(mapper.readTree(offers.get(i).toString()));
+            for (int i = 0; i < offers.size(); i++) {
+                offersArray.add(offers.get(i));
             }
         }
 
         productJson.set("offers", offersArray);
     }
-
 }

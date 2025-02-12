@@ -86,7 +86,7 @@ public interface Product extends Component, PageMetadata {
 
     String getVariantsJson();
 
-    default String generateProductJsonLDString() {
+    default String getJsonLd() {
         return null;
     }
 

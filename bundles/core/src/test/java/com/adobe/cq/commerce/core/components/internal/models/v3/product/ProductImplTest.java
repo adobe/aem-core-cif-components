@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,6 +34,7 @@ import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -147,7 +147,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
     }
 
     @Test
-    public void testFetchVariantsAsJsonArray() throws JSONException {
+    public void testFetchVariantsAsJsonArray() throws JsonProcessingException {
         ProductImpl product = spy(new ProductImpl());
         List<Variant> variants = new ArrayList<>();
 
@@ -160,42 +160,42 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         doReturn(variants).when(product).getVariants();
         doReturn("http://example.com/product").when(product).getCanonicalUrl();
 
-        JSONArray result = product.fetchVariantsAsJsonArray();
+        ArrayNode result = product.fetchVariantsAsJsonArray();
 
         assertNotNull(result);
-        assertEquals(2, result.length());
+        assertEquals(2, result.size());
 
-        JSONObject variantJson1 = result.getJSONObject(0);
-        assertEquals("Offer", variantJson1.getString("@type"));
-        assertEquals("SKU789", variantJson1.getString("sku"));
-        assertEquals("http://example.com/product", variantJson1.getString("url"));
-        assertEquals("http://example.com/image1.jpg", variantJson1.getString("image"));
-        assertEquals("USD", variantJson1.getString("priceCurrency"));
-        assertEquals(100.0, variantJson1.getDouble("price"), 0.001);
-        assertEquals("InStock", variantJson1.getString("availability"));
-        assertEquals("2023-12-31", variantJson1.getString("SpecialPricedates"));
+        ObjectNode variantJson1 = (ObjectNode) result.get(0);
+        assertEquals("Offer", variantJson1.get("@type").asText());
+        assertEquals("SKU789", variantJson1.get("sku").asText());
+        assertEquals("http://example.com/product", variantJson1.get("url").asText());
+        assertEquals("http://example.com/image1.jpg", variantJson1.get("image").asText());
+        assertEquals("USD", variantJson1.get("priceCurrency").asText());
+        assertEquals(100.0, variantJson1.get("price").asDouble(), 0.001);
+        assertEquals("InStock", variantJson1.get("availability").asText());
+        assertEquals("2023-12-31", variantJson1.get("SpecialPricedates").asText());
 
-        JSONObject priceSpecification1 = variantJson1.getJSONObject("priceSpecification");
-        assertEquals("UnitPriceSpecification", priceSpecification1.getString("@type"));
-        assertEquals("https://schema.org/ListPrice", priceSpecification1.getString("priceType"));
-        assertEquals(120.0, priceSpecification1.getDouble("price"), 0.001);
-        assertEquals("USD", priceSpecification1.getString("priceCurrency"));
+        ObjectNode priceSpecification1 = (ObjectNode) variantJson1.get("priceSpecification");
+        assertEquals("UnitPriceSpecification", priceSpecification1.get("@type").asText());
+        assertEquals("https://schema.org/ListPrice", priceSpecification1.get("priceType").asText());
+        assertEquals(120.0, priceSpecification1.get("price").asDouble(), 0.001);
+        assertEquals("USD", priceSpecification1.get("priceCurrency").asText());
 
-        JSONObject variantJson2 = result.getJSONObject(1);
-        assertEquals("Offer", variantJson2.getString("@type"));
-        assertEquals("SKU790", variantJson2.getString("sku"));
-        assertEquals("http://example.com/product", variantJson2.getString("url"));
-        assertEquals("http://example.com/image2.jpg", variantJson2.getString("image"));
-        assertEquals("USD", variantJson2.getString("priceCurrency"));
-        assertEquals(130.0, variantJson2.getDouble("price"), 0.001);
-        assertEquals("OutOfStock", variantJson2.getString("availability"));
-        assertEquals("2023-12-31", variantJson2.getString("SpecialPricedates"));
+        ObjectNode variantJson2 = (ObjectNode) result.get(1);
+        assertEquals("Offer", variantJson2.get("@type").asText());
+        assertEquals("SKU790", variantJson2.get("sku").asText());
+        assertEquals("http://example.com/product", variantJson2.get("url").asText());
+        assertEquals("http://example.com/image2.jpg", variantJson2.get("image").asText());
+        assertEquals("USD", variantJson2.get("priceCurrency").asText());
+        assertEquals(130.0, variantJson2.get("price").asDouble(), 0.001);
+        assertEquals("OutOfStock", variantJson2.get("availability").asText());
+        assertEquals("2023-12-31", variantJson2.get("SpecialPricedates").asText());
 
-        JSONObject priceSpecification2 = variantJson2.getJSONObject("priceSpecification");
-        assertEquals("UnitPriceSpecification", priceSpecification2.getString("@type"));
-        assertEquals("https://schema.org/ListPrice", priceSpecification2.getString("priceType"));
-        assertEquals(150.0, priceSpecification2.getDouble("price"), 0.001);
-        assertEquals("USD", priceSpecification2.getString("priceCurrency"));
+        ObjectNode priceSpecification2 = (ObjectNode) variantJson2.get("priceSpecification");
+        assertEquals("UnitPriceSpecification", priceSpecification2.get("@type").asText());
+        assertEquals("https://schema.org/ListPrice", priceSpecification2.get("priceType").asText());
+        assertEquals(150.0, priceSpecification2.get("price").asDouble(), 0.001);
+        assertEquals("USD", priceSpecification2.get("priceCurrency").asText());
     }
 
     private VariantImpl createMockVariant(String sku, boolean inStock, String imagePath, double regularPrice, String currency,
@@ -231,27 +231,27 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         doReturn(productJson).when(product).createBasicProductJson(any(ObjectMapper.class));
         doNothing().when(product).addOffersToJson(any(ObjectNode.class), any(ObjectMapper.class));
 
-        String jsonLD = product.generateProductJsonLDString();
+        String jsonLD = product.getJsonLd();
         assertNotNull(jsonLD);
-        assertEquals(productJson.toString(), jsonLD);
+        assertEquals(mapper.readTree(productJson.toString()), mapper.readTree(jsonLD));
 
         // Test with cached data
         Field cachedJsonLDField = ProductImpl.class.getDeclaredField("cachedJsonLD");
         cachedJsonLDField.setAccessible(true);
         cachedJsonLDField.set(product, "{\"@context\":\"http://schema.org\",\"@type\":\"Product\"}");
 
-        jsonLD = product.generateProductJsonLDString();
+        jsonLD = product.getJsonLd();
         assertNotNull(jsonLD);
-        assertEquals("{\"@context\":\"http://schema.org\",\"@type\":\"Product\"}", jsonLD);
+        assertEquals(mapper.readTree("{\"@context\":\"http://schema.org\",\"@type\":\"Product\"}"), mapper.readTree(jsonLD));
 
         // Test with enableJsonLd false
         doReturn(false).when(product).isEnableJsonLd();
-        jsonLD = product.generateProductJsonLDString();
+        jsonLD = product.getJsonLd();
         assertNull(jsonLD);
 
         // Test with exception handling
         doThrow(new RuntimeException("Test Exception")).when(product).createBasicProductJson(any(ObjectMapper.class));
-        jsonLD = product.generateProductJsonLDString();
+        jsonLD = product.getJsonLd();
         assertNull(jsonLD);
     }
 
@@ -284,10 +284,10 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         ProductImpl product = spy(new ProductImpl());
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode productJson = mapper.createObjectNode();
-        JSONArray offers = new JSONArray();
-        JSONObject offer = new JSONObject();
+        ArrayNode offers = mapper.createArrayNode();
+        ObjectNode offer = mapper.createObjectNode();
         offer.put("sku", "test-sku");
-        offers.put(offer);
+        offers.add(offer);
         doReturn(offers).when(product).fetchVariantsAsJsonArray();
 
         product.addOffersToJson(productJson, mapper);
@@ -310,12 +310,13 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
     }
 
     @Test
-    public void testFetchVariantsAsJsonArrayWithEmptyVariantsList() throws JSONException {
+    public void testFetchVariantsAsJsonArrayWithEmptyVariantsList() throws JsonProcessingException {
         ProductImpl product = createSpyProductWithVariants(Collections.emptyList());
 
-        JSONArray result = product.fetchVariantsAsJsonArray();
+        ArrayNode result = product.fetchVariantsAsJsonArray();
 
-        assertJsonArray(result, 0);
+        assertNotNull(result);
+        assertEquals(0, result.size());
     }
 
     @Test
@@ -332,20 +333,22 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
     }
 
     @Test
-    public void testFetchVariantsAsJsonArrayWithNullOrEmptyVariants() throws JSONException {
+    public void testFetchVariantsAsJsonArrayWithNullOrEmptyVariants() throws JsonProcessingException {
         // Test with null variants
         ProductImpl product = createSpyProductWithVariants(null);
-        JSONArray result = product.fetchVariantsAsJsonArray();
-        assertJsonArray(result, 0);
+        ArrayNode result = product.fetchVariantsAsJsonArray();
+        assertNotNull(result);
+        assertEquals(0, result.size());
 
         // Test with empty variants
         product = createSpyProductWithVariants(Collections.emptyList());
         result = product.fetchVariantsAsJsonArray();
-        assertJsonArray(result, 0);
+        assertNotNull(result);
+        assertEquals(0, result.size());
     }
 
     @Test
-    public void testFetchVariantsAsJsonArrayWithSpecialPriceAndDate() throws JSONException {
+    public void testFetchVariantsAsJsonArrayWithSpecialPriceAndDate() throws JsonProcessingException {
         List<Variant> variants = new ArrayList<>();
         VariantImpl variant = createMockVariant("SKU789", true, "http://example.com/image1.jpg", 120.0, "USD", null, null);
         variants.add(variant);
@@ -353,16 +356,28 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         ProductImpl product = createSpyProductWithVariants(variants);
         doReturn("http://example.com/product").when(product).getCanonicalUrl();
 
-        JSONArray result = product.fetchVariantsAsJsonArray();
+        ArrayNode result = product.fetchVariantsAsJsonArray();
 
-        assertJsonArray(result, 1);
+        assertEquals(1, result.size());
 
-        JSONObject variantJson = result.getJSONObject(0);
-        assertEquals("Offer", variantJson.getString("@type"));
-        assertEquals("SKU789", variantJson.getString("sku"));
-        assertEquals("http://example.com/product", variantJson.getString("url"));
-        assertEquals("http://example.com/image1.jpg", variantJson.getString("image"));
-        assertEquals("USD", variantJson.getString("priceCurrency"));
-        assertEquals(120.0, variantJson.getDouble("price"), 0.001);
+        ObjectNode variantJson = (ObjectNode) result.get(0);
+        assertEquals("Offer", variantJson.get("@type").asText());
+        assertEquals("SKU789", variantJson.get("sku").asText());
+        assertEquals("http://example.com/product", variantJson.get("url").asText());
+        assertEquals("http://example.com/image1.jpg", variantJson.get("image").asText());
+        assertEquals("USD", variantJson.get("priceCurrency").asText());
+        assertEquals(120.0, variantJson.get("price").asDouble(), 0.001);
     }
+
+    @Test
+    public void testIsEnableJsonLd() {
+        ProductImpl product = spy(new ProductImpl());
+        product.enableJsonLd = true;
+        assertTrue(product.isEnableJsonLd());
+
+        // Test when enableJsonLd is false
+        product.enableJsonLd = false;
+        assertFalse(product.isEnableJsonLd());
+    }
+
 }
