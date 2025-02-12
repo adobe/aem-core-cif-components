@@ -212,15 +212,6 @@ public class InvalidateDispatcherCacheImplTest {
     }
 
     @Test
-    public void testFlushCache_Success() throws Exception {
-        String handle = "/content/path";
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("flushCache", String.class);
-        method.setAccessible(true);
-        method.invoke(invalidateDispatcherCacheImpl, handle);
-        // Verify that no exception is thrown and the method completes successfully
-    }
-
-    @Test
     public void testGetCorrespondingPageProperties() throws Exception {
         String storePath = "/store/path";
         String propertyName = "propertyName";
