@@ -17,6 +17,6 @@ package com.adobe.cq.commerce.core.cacheinvalidation.spi;
 import org.osgi.annotation.versioning.ConsumerType;
 
 @ConsumerType
-public interface InvalidateCache {
+public interface CacheInvalidationStrategy {
     String getPattern();
 }

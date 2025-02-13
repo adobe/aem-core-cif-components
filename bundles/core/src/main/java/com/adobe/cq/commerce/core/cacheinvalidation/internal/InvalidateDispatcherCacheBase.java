@@ -26,7 +26,6 @@ public class InvalidateDispatcherCacheBase {
 
     protected static final String URL_KEY = "url_key";
     protected static final String URL_PATH = "url_path";
-    protected static final String HTML_SUFFIX = ".html";
     protected static final String PRODUCT_SAMPLE_URL = "XXXXXX";
 
     protected void addProductPaths(Page page, UrlProviderImpl urlProvider, Set<String> uniquePagePaths, Map<String, Object> item) {
@@ -53,7 +52,7 @@ public class InvalidateDispatcherCacheBase {
                 categoryParams.setUrlKey((String) category.get(URL_KEY));
                 categoryParams.setUrlPath((String) category.get(URL_PATH));
                 String categoryUrlPath = urlProvider.toCategoryUrl(null, page, categoryParams);
-                categoryUrlPath = removeUpToDelimiter(categoryUrlPath, HTML_SUFFIX, true);
+                categoryUrlPath = removeUpToDelimiter(categoryUrlPath, InvalidateCacheSupport.HTML_SUFFIX, true);
                 uniquePagePaths.add(categoryUrlPath);
             }
         }

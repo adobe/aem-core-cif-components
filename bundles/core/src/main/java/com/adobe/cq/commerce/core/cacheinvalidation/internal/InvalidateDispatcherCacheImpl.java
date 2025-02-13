@@ -36,13 +36,12 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.settings.SlingSettingsService;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.InvalidateCache;
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.InvalidateDispatcherCache;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationStrategy;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -55,11 +54,9 @@ import com.google.gson.reflect.TypeToken;
 
 @Component(
     service = InvalidateDispatcherCacheImpl.class,
-    immediate = true,
-    configurationPolicy = ConfigurationPolicy.OPTIONAL)
+    immediate = true)
 public class InvalidateDispatcherCacheImpl {
 
-    private static final String HTML_SUFFIX = ".html";
     private static final String DISPATCHER_URL = "http://localhost:80/dispatcher/invalidate.cache";
 
     @Reference
@@ -145,8 +142,8 @@ public class InvalidateDispatcherCacheImpl {
     private Map<String, String[]> getDynamicProperties(ValueMap properties) {
         Map<String, String[]> dynamicProperties = new HashMap<>();
         for (String attribute : invalidateCacheRegistry.getAttributes()) {
-            InvalidateCache invalidateCache = invalidateCacheRegistry.get(attribute);
-            if (invalidateCache instanceof InvalidateDispatcherCache) {
+            CacheInvalidationStrategy invalidateCache = invalidateCacheRegistry.get(attribute);
+            if (invalidateCache instanceof DispatcherCacheInvalidationStrategy) {
                 String[] values = properties.get(attribute, String[].class);
                 if (values != null) {
                     dynamicProperties.put(attribute, values);
@@ -363,7 +360,7 @@ public class InvalidateDispatcherCacheImpl {
                     Row row = rows.nextRow();
                     String fullPath = row.getPath("content");
                     if (fullPath != null) {
-                        String pagePath = extractPagePath(fullPath) + HTML_SUFFIX;
+                        String pagePath = extractPagePath(fullPath) + InvalidateCacheSupport.HTML_SUFFIX;
                         uniquePagePaths.add(pagePath);
                     }
                 }

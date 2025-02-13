@@ -20,13 +20,15 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.InvalidateDispatcherCache;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.api.Page;
 
-@Component(service = InvalidateDispatcherCache.class, property = { "attribute=productSkus" })
-public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase implements InvalidateDispatcherCache {
+@Component(
+    service = DispatcherCacheInvalidationStrategy.class,
+    property = { InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER + "=productSkus" })
+public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase implements DispatcherCacheInvalidationStrategy {
 
     @Reference
     private UrlProviderImpl urlProvider;

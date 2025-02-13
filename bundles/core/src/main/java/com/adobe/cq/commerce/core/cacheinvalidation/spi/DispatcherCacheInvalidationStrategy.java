@@ -22,7 +22,7 @@ import org.osgi.annotation.versioning.ConsumerType;
 import com.day.cq.wcm.api.Page;
 
 @ConsumerType
-public interface InvalidateDispatcherCache extends InvalidateCache {
+public interface DispatcherCacheInvalidationStrategy extends CacheInvalidationStrategy {
 
     String getQuery(String storePath, String dataList);
 

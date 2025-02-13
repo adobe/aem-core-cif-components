@@ -157,7 +157,7 @@
                                                             jcr:primaryType="nt:unstructured"
                                                             sling:resourceType="granite/ui/components/coral/foundation/text"
                                                             granite:class="cif-clear-cache-label"
-                                                            text="Click the button to clear the full cache of the corresponding site">
+                                                            text="Clear the full cache of the corresponding site">
                                                     </label>
                                                     <button
                                                             jcr:primaryType="nt:unstructured"

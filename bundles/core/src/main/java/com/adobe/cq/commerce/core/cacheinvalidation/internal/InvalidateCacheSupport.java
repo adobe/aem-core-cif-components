@@ -38,10 +38,8 @@ public class InvalidateCacheSupport {
     public static final String PROPERTIES_STORE_VIEW = "magentoStore";
     public static final String PROPERTIES_STORE_PATH = "storePath";
     public static final String PROPERTIES_CACHE_NAME = "cacheNames";
-    public static final String PROPERTIES_PRODUCT_SKUS = "productSkus";
-    public static final String PROPERTIES_CATEGORY_UIDS = "categoryUids";
-    public static final String PROPERTIES_REGEX_PATTERNS = "regexPatterns";
     public static final String PROPERTY_INVALIDATE_REQUEST_PARAMETER = "invalidateRequestParameter";
+    public static final String HTML_SUFFIX = ".html";
 
     private Boolean enableDispatcherCacheInvalidation;
 

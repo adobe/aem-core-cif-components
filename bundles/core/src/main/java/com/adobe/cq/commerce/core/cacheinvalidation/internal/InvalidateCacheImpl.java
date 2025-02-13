@@ -31,10 +31,11 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 @Component(service = InvalidateCacheImpl.class, immediate = true)
 public class InvalidateCacheImpl {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheImpl.class);
+    private static final String DEFAULT_STORE_VIEW = "default";
+
     @Reference
     private InvalidateCacheSupport invalidateCacheSupport;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheImpl.class);
 
     @Reference
     private InvalidateCacheRegistry invalidateCacheRegistry;
@@ -64,15 +65,18 @@ public class InvalidateCacheImpl {
 
     private void handleCacheInvalidation(Resource resource, ComponentsConfiguration commerceProperties) {
         String graphqlClientId = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, String.class);
-        String storeView = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_STORE_VIEW, "default");
+        String storeView = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_STORE_VIEW, DEFAULT_STORE_VIEW);
 
         GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
         ValueMap properties = resource.getValueMap();
 
-        String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAME,
-            String[].class);
+        String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAME, String[].class);
 
-        // Store dynamic properties in a map
+        Map<String, String[]> dynamicProperties = getDynamicProperties(properties);
+        invalidateCacheByType(client, storeView, listOfCacheToSearch, dynamicProperties);
+    }
+
+    private Map<String, String[]> getDynamicProperties(ValueMap properties) {
         Map<String, String[]> dynamicProperties = new HashMap<>();
         for (String attribute : invalidateCacheRegistry.getAttributes()) {
             String[] values = properties.get(attribute, String[].class);
@@ -80,7 +84,7 @@ public class InvalidateCacheImpl {
                 dynamicProperties.put(attribute, values);
             }
         }
-        invalidateCacheByType(client, storeView, listOfCacheToSearch, dynamicProperties);
+        return dynamicProperties;
     }
 
     private void invalidateCacheByType(GraphqlClient client, String storeView, String[] listOfCacheToSearch,
@@ -102,6 +106,6 @@ public class InvalidateCacheImpl {
             return patterns;
         }
         String attributeString = String.join("|", patterns);
-        return new String[] { pattern + "(" + attributeString + ")\"" };
+        return new String[] { pattern + "(" + attributeString + ")" };
     }
 }

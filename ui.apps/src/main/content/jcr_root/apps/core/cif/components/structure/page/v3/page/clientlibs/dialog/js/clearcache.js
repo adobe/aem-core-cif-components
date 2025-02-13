@@ -19,90 +19,81 @@
     const CLEAR_CACHE_INPUT_SELECTOR = 'cif-clear-cache-input';
 
     $(document).ready(function() {
-        // Select the button by class
-        $(CLEAR_CACHE_BUTTON_SELECTOR).click(function(e) {
+        $(document).on('click', CLEAR_CACHE_BUTTON_SELECTOR, function(e) {
             e.preventDefault();
-
-            // Show confirmation dialog
             showConfirmationDialog($(this));
         });
-
-        function showConfirmationDialog(button) {
-            // Check if the dialog already exists
-            let dialog = document.getElementById(DIALOG_ID);
-            if (!dialog) {
-                dialog = new Coral.Dialog().set({
-                    id: DIALOG_ID,
-                    header: {
-                        innerHTML: Granite.I18n.get('Confirm Clear Cache')
-                    },
-                    content: {
-                        innerHTML: `<p>${Granite.I18n.get('Are you sure you want to clear the commerce cache?')}</p>`
-                    },
-                    footer: {
-                        innerHTML:
-                            `<button is="coral-button" variant="primary" coral-close id="${CLEAR_CACHE_INPUT_SELECTOR}">` +
-                            Granite.I18n.get('Yes') +
-                            '</button>' +
-                            '<button is="coral-button" variant="default" coral-close>' +
-                            Granite.I18n.get('No') +
-                            '</button>'
-                    }
-                });
-                document.body.appendChild(dialog);
-            }
-            dialog.show();
-
-            // Handle confirmation
-            $('#' + CLEAR_CACHE_INPUT_SELECTOR)
-                .off('click')
-                .on('click', function() {
-                    clearCache(button);
-                });
-        }
-
-        function clearCache(button) {
-            // Get the action and method from data attributes
-            let actionUrl = button.data('action');
-            let method = button.data('method');
-            // Get the value of storePath from the input field
-            let storePath = $(button.data('storepath')).val();
-
-            // Perform an AJAX call using jQuery
-            $.ajax({
-                type: method,
-                url: actionUrl,
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    storePath: storePath
-                }),
-                success: function(response) {
-                    showDialog(Granite.I18n.get('Cache cleared successfully!'));
-                },
-                error: function() {
-                    showDialog(Granite.I18n.get('Failed to clear cache!'));
-                }
-            });
-        }
-
-        function showDialog(message) {
-            let dialog = new Coral.Dialog().set({
-                id: 'clear-cache-dialog',
-                header: {
-                    innerHTML: Granite.I18n.get('Clear Cache')
-                },
-                content: {
-                    innerHTML: `<p>${message}</p>`
-                },
-                footer: {
-                    innerHTML:
-                        '<button is="coral-button" variant="primary" coral-close>' +
-                        Granite.I18n.get('OK') +
-                        '</button>'
-                }
-            });
-            document.body.appendChild(dialog);
-            dialog.show();
-        }
     });
+
+    function showConfirmationDialog(button) {
+        let dialog = document.getElementById(DIALOG_ID);
+        if (!dialog) {
+            dialog = createDialog();
+            document.body.appendChild(dialog);
+        }
+        dialog.show();
+        $('#' + CLEAR_CACHE_INPUT_SELECTOR)
+            .off('click')
+            .on('click', function() {
+                clearCache(button);
+            });
+    }
+
+    function createDialog() {
+        return new Coral.Dialog().set({
+            id: DIALOG_ID,
+            header: {
+                innerHTML: Granite.I18n.get('Confirm Clear Cache')
+            },
+            content: {
+                innerHTML: `<p>${Granite.I18n.get('Are you sure you want to clear the commerce cache?')}</p>`
+            },
+            footer: {
+                innerHTML:
+                    `<button is="coral-button" variant="primary" coral-close id="${CLEAR_CACHE_INPUT_SELECTOR}">` +
+                    Granite.I18n.get('Yes') +
+                    '</button>' +
+                    '<button is="coral-button" variant="default" coral-close>' +
+                    Granite.I18n.get('No') +
+                    '</button>'
+            }
+        });
+    }
+
+    function clearCache(button) {
+        let actionUrl = button.data('action');
+        let method = button.data('method');
+        let storePath = $(button.data('storepath')).val();
+
+        $.ajax({
+            type: method,
+            url: actionUrl,
+            contentType: 'application/json',
+            data: JSON.stringify({ storePath: storePath }),
+            success: function() {
+                showDialog(Granite.I18n.get('Cache cleared successfully!'));
+            },
+            error: function() {
+                showDialog(Granite.I18n.get('Failed to clear cache!'));
+            }
+        });
+    }
+
+    function showDialog(message) {
+        let dialog = new Coral.Dialog().set({
+            id: 'clear-cache-dialog',
+            header: {
+                innerHTML: Granite.I18n.get('Clear Cache')
+            },
+            content: {
+                innerHTML: `<p>${message}</p>`
+            },
+            footer: {
+                innerHTML:
+                    '<button is="coral-button" variant="primary" coral-close>' + Granite.I18n.get('OK') + '</button>'
+            }
+        });
+        document.body.appendChild(dialog);
+        dialog.show();
+    }
 })(document, Granite.$);
