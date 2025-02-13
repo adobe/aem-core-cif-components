@@ -145,7 +145,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
-    public Page currentPage;
+    protected Page currentPage;
     @OSGiService
     private UrlProvider urlProvider;
     @ScriptVariable(name = WCMBindingsConstants.NAME_CURRENT_STYLE, injectionStrategy = InjectionStrategy.OPTIONAL)
@@ -225,7 +225,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         }
     }
 
-    protected ProductInterface fetchProduct() {
+    private ProductInterface fetchProduct() {
         ProductInterface product = null;
 
         // we never return a product when no graphql client is available

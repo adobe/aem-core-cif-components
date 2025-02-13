@@ -47,16 +47,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.models.v2.product.ProductImpl
     implements Product {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProductImpl.class);
+
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v3/product";
 
     protected static final String PN_VISIBLE_SECTIONS = "visibleSections";
 
-    protected String cachedJsonLD;
+    private String cachedJsonLd;
 
     public static final String PN_ENABLE_JSONLD_SCRIPT = "enableJsonLd";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(
-        com.adobe.cq.commerce.core.components.internal.models.v3.product.ProductImpl.class);
 
     protected static final Map<String, String> SECTIONS_MAP = Collections.unmodifiableMap(new HashMap<String, String>() {
         {
@@ -174,7 +173,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         return visibleSectionsSet;
     }
 
-    public ArrayNode fetchVariantsAsJsonArray() throws JsonProcessingException {
+    private ArrayNode fetchVariantsAsJsonArray() throws JsonProcessingException {
         List<Variant> variants = getVariants();
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode jsonArray = mapper.createArrayNode();
@@ -230,7 +229,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         return jsonArray;
     }
 
-    public boolean isEnableJsonLd() {
+    private boolean isEnableJsonLd() {
         return enableJsonLd;
     }
 
@@ -240,8 +239,8 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             return null;
         }
 
-        if (cachedJsonLD != null) {
-            return cachedJsonLD;
+        if (cachedJsonLd != null) {
+            return cachedJsonLd;
         }
 
         try {
@@ -250,8 +249,8 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
             addOffersToJson(productJson, mapper);
 
-            cachedJsonLD = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(productJson);
-            return cachedJsonLD;
+            cachedJsonLd = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(productJson);
+            return cachedJsonLd;
 
         } catch (JsonProcessingException e) {
             LOGGER.warn("Failed to serialize product JSON-LD", e);
@@ -259,7 +258,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         }
     }
 
-    protected ObjectNode createBasicProductJson(ObjectMapper mapper) {
+    private ObjectNode createBasicProductJson(ObjectMapper mapper) {
         ObjectNode productJson = mapper.createObjectNode();
 
         // Set basic product attributes
@@ -274,7 +273,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         return productJson;
     }
 
-    protected void addOffersToJson(ObjectNode productJson, ObjectMapper mapper) throws JsonProcessingException {
+    private void addOffersToJson(ObjectNode productJson, ObjectMapper mapper) throws JsonProcessingException {
         ArrayNode offersArray = mapper.createArrayNode();
         ArrayNode offers = fetchVariantsAsJsonArray();
 
