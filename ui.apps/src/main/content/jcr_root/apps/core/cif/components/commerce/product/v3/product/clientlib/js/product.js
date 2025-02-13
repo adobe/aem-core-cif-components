@@ -142,10 +142,10 @@ class Product {
 
             if (priceUpdated) {
                 jsonLdScript.innerHTML = JSON.stringify(jsonLdData, null, 2)
-                              .replace(/},\s*{/g, '},\n{')
-                              .replace(/\[\s*{/g, '[\n{')
-                              .replace(/}\s*\]/g, '}\n]');
-                      }
+                    .replace(/},\s*{/g, '},\n{')
+                    .replace(/\[\s*{/g, '[\n{')
+                    .replace(/}\s*\]/g, '}\n]');
+            }
         }
     }
 }
