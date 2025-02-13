@@ -21,7 +21,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.query.*;
 import javax.jcr.query.Query;
@@ -76,16 +75,6 @@ public class InvalidateDispatcherCacheImpl {
 
     @Reference
     private InvalidateCacheRegistry invalidateCacheRegistry;
-
-    public static class CacheInvalidationException extends Exception {
-        public CacheInvalidationException(String message) {
-            super(message);
-        }
-
-        public CacheInvalidationException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
 
     public void invalidateCache(String path) {
         // To Do: Change this to for non-author run modes
@@ -153,11 +142,11 @@ public class InvalidateDispatcherCacheImpl {
         return dynamicProperties;
     }
 
-    private Session getSession(ResourceResolver resourceResolver) throws Exception {
+    private Session getSession(ResourceResolver resourceResolver) throws CacheInvalidationException {
         Session session = resourceResolver.adaptTo(Session.class);
         if (session == null) {
             LOGGER.error("Session not found for resource resolver");
-            throw new Exception("Session not found for resource resolver");
+            throw new CacheInvalidationException("Session not found for resource resolver");
         }
         return session;
     }
@@ -324,8 +313,7 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     @SuppressWarnings("unused")
-    private static String getCorrespondingPageProperties(ResourceResolver resourceResolver, String storePath, String propertyName)
-        throws RepositoryException {
+    private static String getCorrespondingPageProperties(ResourceResolver resourceResolver, String storePath, String propertyName) {
         Page page = getPage(resourceResolver, storePath);
         if (page != null) {
             ValueMap properties = page.getProperties();
