@@ -47,8 +47,7 @@ public class InvalidateCacheRegistry {
     }
 
     void unbindInvalidateCache(Map<String, Object> properties) {
-        String attribute = (String) properties.get(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER);
-        invalidateCacheList.remove(attribute);
+        unbindCache(properties);
     }
 
     @Reference(
@@ -64,6 +63,10 @@ public class InvalidateCacheRegistry {
     }
 
     void unbindInvalidateDispatcherCache(Map<String, Object> properties) {
+        unbindCache(properties);
+    }
+
+    private void unbindCache(Map<String, Object> properties) {
         String attribute = (String) properties.get(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER);
         invalidateCacheList.remove(attribute);
     }

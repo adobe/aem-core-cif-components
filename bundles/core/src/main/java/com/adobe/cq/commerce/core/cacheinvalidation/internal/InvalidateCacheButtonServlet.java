@@ -43,7 +43,7 @@ public class InvalidateCacheButtonServlet extends SlingSafeMethodsServlet {
     private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheButtonServlet.class);
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
-    private InvalidateCacheSupport invalidateCacheSupport;
+    private transient InvalidateCacheSupport invalidateCacheSupport;
 
     @Override
     protected void doGet(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response) {
