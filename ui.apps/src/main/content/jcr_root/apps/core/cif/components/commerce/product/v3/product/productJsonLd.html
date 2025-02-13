@@ -15,8 +15,7 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 
 <sly data-sly-template.productJsonld="${@ product}">
-           <script type="application/ld+json">
-                ${product.getJsonLd @ context='unsafe'}
-            </script>
-
+    <script type="application/ld+json">
+        ${ product.getJsonLd  @ context= 'unsafe'}
+    </script>
 </sly>

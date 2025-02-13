@@ -16,7 +16,6 @@
 package com.adobe.cq.commerce.core.components.internal.models.v3.product;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -337,7 +336,6 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         product.enableJsonLd = false;
         assertFalse((Boolean) isEnableJsonLd.invoke(product));
     }
-
 
     @Test
     public void testAddOffersToJson() throws Exception {
