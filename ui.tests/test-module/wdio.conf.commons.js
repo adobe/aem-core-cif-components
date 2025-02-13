@@ -29,8 +29,6 @@ exports.config = {
     // Tests
     specs: ['./specs/**/*.js'],
 
-    exclude: ['./specs/cif-components-library/product-jsonld.js'],
-
     logLevel: 'debug',
 
     bail: 0,
