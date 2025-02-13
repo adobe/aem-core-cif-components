@@ -85,9 +85,9 @@ public interface Product extends Component, PageMetadata {
     }
 
     /**
-     * Returns a JSON representation of the product variants.
+     * Returns a JSON-Ld representation of the product variants.
      *
-     * @return A JSON string containing the product variants.
+     * @return A JSON-Ld string containing the product variants.
      */
     String getVariantsJson();
 
