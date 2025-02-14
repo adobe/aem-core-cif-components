@@ -15,8 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import static org.mockito.Mockito.*;
-
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.junit.Before;
@@ -26,6 +24,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.adobe.granite.ui.components.rendercondition.RenderCondition;
+
+import static org.mockito.Mockito.*;
 
 public class InvalidateCacheButtonServletTest {
 

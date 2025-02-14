@@ -15,12 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import java.util.*;
 
-import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +25,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.day.cq.wcm.api.Page;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class ProductSkusInvalidateCacheTest {
 
@@ -61,19 +61,19 @@ public class ProductSkusInvalidateCacheTest {
         String storePath = "/content/store";
         String dataList = "'sku1', 'sku2'";
         String expectedQuery = "SELECT content.[jcr:path] " +
-                "FROM [nt:unstructured] AS content " +
-                "WHERE ISDESCENDANTNODE(content, '" + storePath + "') " +
-                "AND ( " +
-                "    (content.[product] IN (" + dataList + ") AND content.[productType] = 'combinedSku') " +
-                "    OR (content.[selection] IN (" + dataList + ") AND content.[selectionType] IN ('combinedSku', 'sku')) " +
-                ")";
+            "FROM [nt:unstructured] AS content " +
+            "WHERE ISDESCENDANTNODE(content, '" + storePath + "') " +
+            "AND ( " +
+            "    (content.[product] IN (" + dataList + ") AND content.[productType] = 'combinedSku') " +
+            "    OR (content.[selection] IN (" + dataList + ") AND content.[selectionType] IN ('combinedSku', 'sku')) " +
+            ")";
         String query = productSkusInvalidateCache.getQuery(storePath, dataList);
         assertEquals(expectedQuery, query);
     }
 
     @Test
     public void testGetGraphqlQuery() {
-        String[] data = {"sku1", "sku2"};
+        String[] data = { "sku1", "sku2" };
         String graphqlQuery = productSkusInvalidateCache.getGraphqlQuery(data);
         assertTrue(graphqlQuery.contains("sku"));
         assertTrue(graphqlQuery.contains("url_key"));
@@ -87,15 +87,15 @@ public class ProductSkusInvalidateCacheTest {
         Set<String> expectedPaths = createExpectedPaths();
 
         when(urlProvider.toProductUrl(eq(null), eq(page), any(ProductUrlFormat.Params.class)))
-                .thenAnswer(invocation -> {
-                    ProductUrlFormat.Params params = invocation.getArgumentAt(2, ProductUrlFormat.Params.class);
-                    if ("sku1".equals(params.getSku())) {
-                        return "/content/page/path1";
-                    } else if ("sku2".equals(params.getSku())) {
-                        return "/content/page/path2";
-                    }
-                    return null;
-                });
+            .thenAnswer(invocation -> {
+                ProductUrlFormat.Params params = invocation.getArgumentAt(2, ProductUrlFormat.Params.class);
+                if ("sku1".equals(params.getSku())) {
+                    return "/content/page/path1";
+                } else if ("sku2".equals(params.getSku())) {
+                    return "/content/page/path2";
+                }
+                return null;
+            });
 
         String[] paths = productSkusInvalidateCache.getPathsToInvalidate(page, resourceResolver, data, "/content/store");
         assertArrayEquals(expectedPaths.toArray(new String[0]), paths);

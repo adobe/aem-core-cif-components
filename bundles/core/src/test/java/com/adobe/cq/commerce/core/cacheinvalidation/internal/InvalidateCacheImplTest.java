@@ -15,8 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import static org.mockito.Mockito.*;
-
 import java.util.Collections;
 
 import org.apache.sling.api.resource.Resource;
@@ -32,6 +30,8 @@ import org.slf4j.Logger;
 
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+
+import static org.mockito.Mockito.*;
 
 public class InvalidateCacheImplTest {
 
@@ -77,8 +77,8 @@ public class InvalidateCacheImplTest {
 
         ValueMap valueMap = resource.getValueMap();
         when(valueMap.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class)).thenReturn(null);
-        when(valueMap.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAME, String[].class)).thenReturn(new String[]{"cache1"});
-        when(valueMap.get("attribute1", String[].class)).thenReturn(new String[]{"value1"});
+        when(valueMap.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAME, String[].class)).thenReturn(new String[] { "cache1" });
+        when(valueMap.get("attribute1", String[].class)).thenReturn(new String[] { "value1" });
 
         invalidateCacheImpl.invalidateCache(path);
 

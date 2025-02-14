@@ -15,8 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import static org.mockito.Mockito.*;
-
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
@@ -29,6 +27,8 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
+import static org.mockito.Mockito.*;
 
 public class InvalidateCacheEventListenerTest {
 
@@ -71,14 +71,13 @@ public class InvalidateCacheEventListenerTest {
     public void testActivate() throws RepositoryException {
         eventListener.activate();
         verify(observationManager).addEventListener(
-                eq(eventListener),
-                eq(Event.NODE_ADDED),
-                eq(InvalidateCacheSupport.INVALIDATE_WORKING_AREA),
-                eq(true),
-                isNull(String[].class),
-                isNull(String[].class),
-                eq(false)
-        );
+            eq(eventListener),
+            eq(Event.NODE_ADDED),
+            eq(InvalidateCacheSupport.INVALIDATE_WORKING_AREA),
+            eq(true),
+            isNull(String[].class),
+            isNull(String[].class),
+            eq(false));
     }
 
     @Test
@@ -94,7 +93,7 @@ public class InvalidateCacheEventListenerTest {
         when(eventIterator.hasNext()).thenReturn(true, false);
         when(eventIterator.nextEvent()).thenReturn(event);
         when(event.getPath()).thenReturn(
-                InvalidateCacheSupport.INVALIDATE_WORKING_AREA + "/" + InvalidateCacheSupport.NODE_NAME_BASE);
+            InvalidateCacheSupport.INVALIDATE_WORKING_AREA + "/" + InvalidateCacheSupport.NODE_NAME_BASE);
 
         eventListener.onEvent(eventIterator);
 

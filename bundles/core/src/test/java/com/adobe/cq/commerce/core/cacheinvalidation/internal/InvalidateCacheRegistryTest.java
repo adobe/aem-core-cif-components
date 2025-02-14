@@ -15,9 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +29,9 @@ import org.mockito.MockitoAnnotations;
 import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationStrategy;
 import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 import com.day.cq.wcm.api.Page;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class InvalidateCacheRegistryTest {
 
@@ -114,10 +114,10 @@ public class InvalidateCacheRegistryTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER, "attribute2");
 
-        when(dispatcherCacheInvalidationStrategy.getGraphqlQuery(new String[]{"data"})).thenReturn("graphqlQuery");
+        when(dispatcherCacheInvalidationStrategy.getGraphqlQuery(new String[] { "data" })).thenReturn("graphqlQuery");
         invalidateCacheRegistry.bindInvalidateDispatcherCache(dispatcherCacheInvalidationStrategy, properties);
 
-        assertEquals("graphqlQuery", invalidateCacheRegistry.getGraphqlQuery("attribute2", new String[]{"data"}));
+        assertEquals("graphqlQuery", invalidateCacheRegistry.getGraphqlQuery("attribute2", new String[] { "data" }));
     }
 
     @Test
@@ -128,7 +128,7 @@ public class InvalidateCacheRegistryTest {
         Page page = mock(Page.class);
         ResourceResolver resourceResolver = mock(ResourceResolver.class);
         Map<String, Object> data = new HashMap<>();
-        String[] paths = new String[]{"path1", "path2"};
+        String[] paths = new String[] { "path1", "path2" };
 
         when(dispatcherCacheInvalidationStrategy.getPathsToInvalidate(page, resourceResolver, data, "storePath")).thenReturn(paths);
         invalidateCacheRegistry.bindInvalidateDispatcherCache(dispatcherCacheInvalidationStrategy, properties);

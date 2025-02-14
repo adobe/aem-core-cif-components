@@ -15,18 +15,15 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.api.resource.LoginException;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceNotFoundException;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceResolverFactory;
-import org.apache.sling.api.resource.ResourceNotFoundException;
-import org.apache.sling.api.resource.LoginException;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -35,6 +32,9 @@ import org.mockito.MockitoAnnotations;
 
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class InvalidateCacheSupportTest {
 

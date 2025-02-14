@@ -15,12 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
-
 import java.util.*;
 
-import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +25,11 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.day.cq.wcm.api.Page;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 public class CategoryUidsInvalidateCacheTest {
 
@@ -65,19 +65,19 @@ public class CategoryUidsInvalidateCacheTest {
         String storePath = "/content/store";
         String dataList = "'123','456'";
         String expectedQuery = "SELECT content.[jcr:path] " +
-                "FROM [nt:unstructured] AS content " +
-                "WHERE ISDESCENDANTNODE(content,'" + storePath + "' ) " +
-                "AND (" +
-                "(content.[categoryId] in (" + dataList + ") AND content.[categoryIdType] in ('uid')) " +
-                "OR (content.[category] in (" + dataList + ") AND content.[categoryType] in ('uid'))" +
-                ")";
+            "FROM [nt:unstructured] AS content " +
+            "WHERE ISDESCENDANTNODE(content,'" + storePath + "' ) " +
+            "AND (" +
+            "(content.[categoryId] in (" + dataList + ") AND content.[categoryIdType] in ('uid')) " +
+            "OR (content.[category] in (" + dataList + ") AND content.[categoryType] in ('uid'))" +
+            ")";
         String actualQuery = categoryUidsInvalidateCache.getQuery(storePath, dataList);
         assertEquals(expectedQuery, actualQuery);
     }
 
     @Test
     public void testGetGraphqlQuery() {
-        String[] data = {"123", "456"};
+        String[] data = { "123", "456" };
         String expectedGraphqlQuery = "{categoryList(filters:{category_uid:{in:[\"123\",\"456\"]}}){uid,name,url_key,url_path}}";
         String actualGraphqlQuery = categoryUidsInvalidateCache.getGraphqlQuery(data);
         assertEquals(expectedGraphqlQuery, actualGraphqlQuery);
@@ -93,10 +93,10 @@ public class CategoryUidsInvalidateCacheTest {
         data.put("categoryList", categoryList);
 
         String storePath = "/content/store";
-        String[] expectedPaths = {"/content/store/category/123"};
+        String[] expectedPaths = { "/content/store/category/123" };
 
         when(urlProvider.toCategoryUrl(eq(null), eq(page), any(CategoryUrlFormat.Params.class)))
-                .thenReturn("/content/store/category/123");
+            .thenReturn("/content/store/category/123");
         doAnswer(invocation -> {
             Set<String> paths = invocation.getArgumentAt(2, Set.class);
             paths.add("/content/store/category/123");

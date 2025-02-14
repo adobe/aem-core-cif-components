@@ -15,8 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.PageManager;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
@@ -26,12 +31,8 @@ import org.junit.Test;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManager;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -95,12 +96,13 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Test
     public void testCreateFunctionProperty() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("createFunctionProperty", String.class, Class[].class, Object[].class);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("createFunctionProperty", String.class, Class[].class,
+            Object[].class);
         method.setAccessible(true);
 
         String methodName = "testMethod";
-        Class<?>[] parameterTypes = {String.class};
-        Object[] args = {"testArg"};
+        Class<?>[] parameterTypes = { String.class };
+        Object[] args = { "testArg" };
 
         Map<String, Object> result = (Map<String, Object>) method.invoke(invalidateDispatcherCacheImpl, methodName, parameterTypes, args);
 
@@ -113,7 +115,8 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Test
     public void testGetPropertiesValue() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getPropertiesValue", ValueMap.class, String.class, Class.class);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getPropertiesValue", ValueMap.class, String.class,
+            Class.class);
         method.setAccessible(true);
 
         ValueMap properties = new ValueMapDecorator(new HashMap<>());
@@ -143,7 +146,8 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Test
     public void testGetCorrespondingPageProperties() throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getCorrespondingPageProperties", ResourceResolver.class, String.class, String.class);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("getCorrespondingPageProperties", ResourceResolver.class,
+            String.class, String.class);
         method.setAccessible(true);
 
         ResourceResolver resourceResolver = mock(ResourceResolver.class);
@@ -165,7 +169,7 @@ public class InvalidateDispatcherCacheImplTest {
         Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("formatList", String[].class, String.class, String.class);
         method.setAccessible(true);
 
-        String[] invalidCacheEntries = {"entry1", "entry2"};
+        String[] invalidCacheEntries = { "entry1", "entry2" };
         String delimiter = ",";
         String pattern = "[%s]";
 
