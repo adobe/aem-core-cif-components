@@ -14,19 +14,30 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 
 import javax.jcr.Session;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
+import javax.jcr.query.Row;
+import javax.jcr.query.RowIterator;
 
+import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.DispatcherCacheInvalidationStrategy;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
+import com.adobe.cq.commerce.graphql.client.RequestOptions;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.settings.SlingSettingsService;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
 import org.slf4j.Logger;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -39,27 +50,48 @@ import static org.mockito.Mockito.*;
 
 public class InvalidateDispatcherCacheImplTest {
 
-    private InvalidateDispatcherCacheImpl invalidateDispatcherCacheImpl;
+    @Mock
     private SlingSettingsService slingSettingsService;
+
+    @Mock
     private InvalidateCacheSupport invalidateCacheSupport;
+
+    @Mock
     private InvalidateCacheRegistry invalidateCacheRegistry;
+
+    @Mock
     private ResourceResolver resourceResolver;
+
+    @Mock
+    private Resource resource;
+
+    @Mock
+    private GraphqlClient graphqlClient;
+
+    @Mock
     private Logger logger;
 
-    @Before
-    public void setUp() throws NoSuchFieldException, IllegalAccessException {
-        MockitoAnnotations.initMocks(this);
-        invalidateDispatcherCacheImpl = new InvalidateDispatcherCacheImpl();
-        slingSettingsService = mock(SlingSettingsService.class);
-        invalidateCacheSupport = mock(InvalidateCacheSupport.class);
-        invalidateCacheRegistry = mock(InvalidateCacheRegistry.class);
-        resourceResolver = mock(ResourceResolver.class);
-        logger = mock(Logger.class);
+    @Mock
+    private Session mockSession;
 
-        // Set the invalidateCacheRegistry field
-        Field invalidateCacheRegistryField = InvalidateDispatcherCacheImpl.class.getDeclaredField("invalidateCacheRegistry");
-        invalidateCacheRegistryField.setAccessible(true);
-        invalidateCacheRegistryField.set(invalidateDispatcherCacheImpl, invalidateCacheRegistry);
+    @InjectMocks
+    private InvalidateDispatcherCacheImpl invalidateDispatcherCacheImpl;
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        setLoggerField();
+    }
+
+    private void setLoggerField() throws Exception {
+        Field loggerField = InvalidateDispatcherCacheImpl.class.getDeclaredField("LOGGER");
+        loggerField.setAccessible(true);
+
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(loggerField, loggerField.getModifiers() & ~Modifier.FINAL);
+
+        loggerField.set(null, logger);
     }
 
     private Object invokePrivateMethod(String methodName, Class<?>[] parameterTypes, Object... args) throws Exception {
@@ -69,25 +101,37 @@ public class InvalidateDispatcherCacheImplTest {
     }
 
     @Test
-    public void testInvalidateCacheOnAuthor() throws NoSuchFieldException, IllegalAccessException {
-        Field slingSettingsServiceField = InvalidateDispatcherCacheImpl.class.getDeclaredField("slingSettingsService");
-        slingSettingsServiceField.setAccessible(true);
-        slingSettingsServiceField.set(invalidateDispatcherCacheImpl, slingSettingsService);
+    public void testInvalidateCache_AuthorMode_ShouldExitEarly() {
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("author"));
+        invalidateDispatcherCacheImpl.invalidateCache("/content/path");
+        verify(invalidateCacheSupport, never()).getServiceUserResourceResolver();
+        verify(logger).error("Operation is only supported for author");
+    }
 
-        Field invalidateCacheSupportField = InvalidateDispatcherCacheImpl.class.getDeclaredField("invalidateCacheSupport");
-        invalidateCacheSupportField.setAccessible(true);
-        invalidateCacheSupportField.set(invalidateDispatcherCacheImpl, invalidateCacheSupport);
+    @Test
+    public void testInvalidateCache_ResourceResolverThrowsException_ShouldExitEarly() {
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
+        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenThrow(new RuntimeException("Test exception"));
 
-        Field invalidateCacheRegistryField = InvalidateDispatcherCacheImpl.class.getDeclaredField("invalidateCacheRegistry");
-        invalidateCacheRegistryField.setAccessible(true);
-        invalidateCacheRegistryField.set(invalidateDispatcherCacheImpl, invalidateCacheRegistry);
+        invalidateDispatcherCacheImpl.invalidateCache("/content/path");
 
-        when(slingSettingsService.getRunModes()).thenReturn(new HashSet<>(Arrays.asList("author")));
+        verify(invalidateCacheSupport).getServiceUserResourceResolver();
+        verify(invalidateCacheSupport, never()).getResource(any(), anyString());
+        verify(logger).error(eq("Error invalidating cache: {}"), eq("Test exception"), any(RuntimeException.class));
+    }
 
-        invalidateDispatcherCacheImpl.invalidateCache("path");
+    @Test
+    public void testInvalidateCache_ResourceIsNull_ShouldExitEarly() throws NoSuchMethodException {
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
+        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
+        when(invalidateCacheSupport.getResource(resourceResolver, "/content/path")).thenReturn(null);
 
-        verify(slingSettingsService).getRunModes();
-        verifyNoMoreInteractions(invalidateCacheSupport, invalidateCacheRegistry, resourceResolver);
+        invalidateDispatcherCacheImpl.invalidateCache("/content/path");
+
+        verify(invalidateCacheSupport).getServiceUserResourceResolver();
+        verify(invalidateCacheSupport).getResource(resourceResolver, "/content/path");
+        verify(resource, never()).getValueMap();
+
     }
 
     @Test
@@ -211,17 +255,60 @@ public class InvalidateDispatcherCacheImplTest {
         assertNotNull(result);
     }
 
-    // Corrected testGetPage
     @Test
-    public void testGetPage() throws Exception {
-        // Ensure all mocks are correctly stubbed
-        PageManager pageManager = mock(PageManager.class);
-        when(resourceResolver.adaptTo(PageManager.class)).thenReturn(pageManager);
-        when(pageManager.getPage(anyString())).thenReturn(mock(Page.class));
+    public void testInvalidateCacheWithFlushCacheException() throws Exception {
+        InvalidateDispatcherCacheImpl spyInvalidateDispatcherCacheImpl = spy(new InvalidateDispatcherCacheImpl());
 
-        // Invoke the method and assert the result
-        Page result = (Page) invokePrivateMethod("getPage", new Class<?>[] { ResourceResolver.class, String.class }, resourceResolver,
-            "path");
+        Method flushCacheMethod = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("flushCache", String.class);
+        flushCacheMethod.setAccessible(true);
+
+        try {
+            flushCacheMethod.invoke(spyInvalidateDispatcherCacheImpl, "/content/test");
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            assertTrue(cause instanceof CacheInvalidationException);
+            assertEquals("Flush cache error", cause.getMessage());
+        }
+    }
+
+    @Test
+    public void testInvalidateCacheWithException() throws Exception {
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
+        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenThrow(new RuntimeException("Test exception"));
+
+        invalidateDispatcherCacheImpl.invalidateCache("/content/test");
+
+        verify(logger).error(eq("Error invalidating cache: {}"), eq("Test exception"), any(RuntimeException.class));
+    }
+
+    @Test
+    public void testGetQueryResult() throws Exception {
+        // Mock dependencies
+        Query mockQuery = mock(Query.class);
+        QueryResult mockQueryResult = mock(QueryResult.class);
+        RowIterator mockRowIterator = mock(RowIterator.class);
+        Row mockRow1 = mock(Row.class);
+        Row mockRow2 = mock(Row.class);
+
+        // Set up the expected results
+        String[] expectedResult = new String[] {
+                "/content/page1" + InvalidateCacheSupport.HTML_SUFFIX,
+                "/content/page2" + InvalidateCacheSupport.HTML_SUFFIX
+        };
+
+        // Set up behavior for mocks
+        when(mockQuery.execute()).thenReturn(mockQueryResult);
+        when(mockQueryResult.getRows()).thenReturn(mockRowIterator);
+        when(mockRowIterator.hasNext()).thenReturn(true, true, false);
+        when(mockRowIterator.nextRow()).thenReturn(mockRow1, mockRow2);
+        when(mockRow1.getPath("content")).thenReturn("/content/page1/jcr:content");
+        when(mockRow2.getPath("content")).thenReturn("/content/page2/jcr:content");
+
+        // Use reflection to access the private method
+        String[] result = (String[]) invokePrivateMethod("getQueryResult", new Class<?>[] { Query.class }, mockQuery);
+
+        // Verify the expected results
         assertNotNull(result);
+        assertArrayEquals(expectedResult, result);
     }
 }

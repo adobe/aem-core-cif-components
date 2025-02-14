@@ -39,8 +39,8 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationStrategy;
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
+import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.CacheInvalidationStrategy;
+import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.DispatcherCacheInvalidationStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -206,7 +206,7 @@ public class InvalidateDispatcherCacheImpl {
         return invalidateCacheRegistry.getPathsToInvalidate(key, page, resourceResolver, data, storePath);
     }
 
-    private static Map<String, Object> getGraphqlResponseData(GraphqlClient client, String query) {
+    private Map<String, Object> getGraphqlResponseData(GraphqlClient client, String query) {
         GraphqlRequest request = new GraphqlRequest(query);
         Type typeOfT = new TypeToken<Map<String, Object>>() {}.getType();
         Type typeOfU = new TypeToken<Map<String, Object>>() {}.getType();
@@ -217,7 +217,7 @@ public class InvalidateDispatcherCacheImpl {
         return response.getData() != null ? response.getData() : Collections.emptyMap();
     }
 
-    private static boolean isValid(ValueMap valueMap, ResourceResolver resourceResolver, String storePath) {
+    private boolean isValid(ValueMap valueMap, ResourceResolver resourceResolver, String storePath) {
         Map<String, Map<String, Object>> jsonData = createJsonData(resourceResolver, storePath);
         for (Map.Entry<String, Map<String, Object>> entry : jsonData.entrySet()) {
             Map<String, Object> properties = entry.getValue();
@@ -236,7 +236,7 @@ public class InvalidateDispatcherCacheImpl {
         return true;
     }
 
-    private static boolean invokeFunction(Map<String, Object> properties) {
+    private boolean invokeFunction(Map<String, Object> properties) {
         String methodName = (String) properties.get("method");
         try {
             Method method;
@@ -256,7 +256,7 @@ public class InvalidateDispatcherCacheImpl {
         }
     }
 
-    private static boolean checkProperty(ValueMap valueMap, String key, Map<String, Object> properties) {
+    private boolean checkProperty(ValueMap valueMap, String key, Map<String, Object> properties) {
         boolean isFlag = true;
         Class<?> clazz = (Class<?>) properties.get("class");
         Object value = getPropertiesValue(valueMap, key, clazz);
@@ -268,7 +268,7 @@ public class InvalidateDispatcherCacheImpl {
         return isFlag;
     }
 
-    private static Map<String, Map<String, Object>> createJsonData(ResourceResolver resourceResolver,
+    private Map<String, Map<String, Object>> createJsonData(ResourceResolver resourceResolver,
         String actualStorePath) {
         Map<String, Map<String, Object>> jsonData = new HashMap<>();
 
@@ -284,14 +284,14 @@ public class InvalidateDispatcherCacheImpl {
         return jsonData;
     }
 
-    private static Map<String, Object> createProperty(boolean isFunction, Class<?> clazz) {
+    private Map<String, Object> createProperty(boolean isFunction, Class<?> clazz) {
         Map<String, Object> property = new HashMap<>();
         property.put(IS_FUNCTION, isFunction);
         property.put("class", clazz);
         return property;
     }
 
-    private static Map<String, Object> createFunctionProperty(String method, Class<?>[] parameterTypes, Object[] args) {
+    private Map<String, Object> createFunctionProperty(String method, Class<?>[] parameterTypes, Object[] args) {
         Map<String, Object> property = new HashMap<>();
         property.put(IS_FUNCTION, true);
         property.put("method", method);
@@ -300,11 +300,11 @@ public class InvalidateDispatcherCacheImpl {
         return property;
     }
 
-    private static <T> T getPropertiesValue(ValueMap properties, String key, Class<T> clazz) {
+    private <T> T getPropertiesValue(ValueMap properties, String key, Class<T> clazz) {
         return properties.get(key, clazz);
     }
 
-    private static Page getPage(ResourceResolver resourceResolver, String storePath) {
+    private Page getPage(ResourceResolver resourceResolver, String storePath) {
         PageManager pageManager = resourceResolver.adaptTo(PageManager.class);
         if (pageManager != null) {
             return pageManager.getPage(storePath);
@@ -313,7 +313,7 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     @SuppressWarnings("unused")
-    private static String getCorrespondingPageProperties(ResourceResolver resourceResolver, String storePath, String propertyName) {
+    private String getCorrespondingPageProperties(ResourceResolver resourceResolver, String storePath, String propertyName) {
         Page page = getPage(resourceResolver, storePath);
         if (page != null) {
             ValueMap properties = page.getProperties();
@@ -322,7 +322,7 @@ public class InvalidateDispatcherCacheImpl {
         return null;
     }
 
-    private static String formatList(String[] invalidCacheEntries, String delimiter, String pattern) {
+    private String formatList(String[] invalidCacheEntries, String delimiter, String pattern) {
         return Arrays.stream(invalidCacheEntries)
             .map(item -> String.format(pattern, item))
             .collect(Collectors.joining(delimiter));

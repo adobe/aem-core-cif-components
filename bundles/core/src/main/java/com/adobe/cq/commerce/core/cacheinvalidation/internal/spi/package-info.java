@@ -15,6 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 @Version("1.0.0")
-package com.adobe.cq.commerce.core.cacheinvalidation.spi;
+package com.adobe.cq.commerce.core.cacheinvalidation.internal.spi;
 
 import org.osgi.annotation.versioning.Version;

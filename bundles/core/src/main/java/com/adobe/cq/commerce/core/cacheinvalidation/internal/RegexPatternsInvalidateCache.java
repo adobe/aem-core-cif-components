@@ -16,7 +16,7 @@ package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import org.osgi.service.component.annotations.Component;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationStrategy;
+import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.CacheInvalidationStrategy;
 
 @Component(
     service = CacheInvalidationStrategy.class,

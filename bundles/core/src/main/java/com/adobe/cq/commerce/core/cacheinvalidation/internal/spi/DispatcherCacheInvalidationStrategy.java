@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.cacheinvalidation.spi;
+package com.adobe.cq.commerce.core.cacheinvalidation.internal.spi;
 
 import java.util.Map;
 
