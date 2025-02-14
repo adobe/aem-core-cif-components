@@ -32,6 +32,7 @@ import junit.category.IgnoreOn65;
 import junit.category.IgnoreOnCloud;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ProductComponentIT extends CommerceTestBase {
 
@@ -150,4 +151,42 @@ public class ProductComponentIT extends CommerceTestBase {
         response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/unknown-product.html?wcmmode=disabled");
         assertEquals(404, response.getStatusLine().getStatusCode());
     }
+
+    @Test
+    public void testProductPageWithJsonLdData() throws Exception {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html",
+            200);
+        Document doc = Jsoup.parse(response.getContent());
+        Elements scriptElements = doc.select("script[type=application/ld+json]");
+
+        String jsonLdContent = scriptElements.first().html();
+        JsonNode jsonLdNode = OBJECT_MAPPER.readTree(jsonLdContent);
+
+        assertEquals("http://schema.org", jsonLdNode.get("@context").asText());
+        assertEquals("Product", jsonLdNode.get("@type").asText());
+        assertEquals("MH01", jsonLdNode.get("sku").asText());
+        assertEquals("Chaz Kangeroo Hoodie", jsonLdNode.get("name").asText());
+
+        JsonNode offers = jsonLdNode.get("offers");
+        assertTrue(offers.isArray());
+        boolean foundOffer1 = false, foundOffer2 = false, foundOffer3 = false;
+        for (JsonNode offer : offers) {
+            if (offer.get("priceCurrency").asText().equals("USD") && offer.get("sku").asText().equals("MH01-XS-Black") && offer.get("@type")
+                .asText().equals("Offer") && offer.get("price").asInt() == 52) {
+                foundOffer1 = true;
+            }
+            if (offer.get("priceCurrency").asText().equals("USD") && offer.get("sku").asText().equals("MH01-XS-Gray") && offer.get("@type")
+                .asText().equals("Offer") && offer.get("price").asInt() == 52) {
+                foundOffer2 = true;
+            }
+            if (offer.get("priceCurrency").asText().equals("USD") && offer.get("sku").asText().equals("MH01-XS-Orange") && offer.get(
+                "@type").asText().equals("Offer") && offer.get("price").asInt() == 52) {
+                foundOffer3 = true;
+            }
+        }
+        assertTrue(foundOffer1);
+        assertTrue(foundOffer2);
+        assertTrue(foundOffer3);
+    }
+
 }

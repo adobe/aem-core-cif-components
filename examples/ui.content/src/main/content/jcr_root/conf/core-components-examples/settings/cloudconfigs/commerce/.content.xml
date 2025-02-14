@@ -17,5 +17,6 @@
         magentoRootCategoryId="Mg=="
         magentoStore="default"
         enableUIDSupport="true"
+        enableJsonLd="true"
         enableWishLists="true"/>
 </jcr:root>
