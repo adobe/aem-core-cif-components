@@ -22,6 +22,7 @@ import java.util.Map;
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.Asset;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class VariantImpl implements Variant {
     private String id;
@@ -43,6 +44,10 @@ public class VariantImpl implements Variant {
     private Map<String, String> variantAttributesUid = new HashMap<>();
 
     private Price priceRange;
+
+    private Double specialPrice;
+
+    private String specialToDate;
 
     @Override
     public String getId() {
@@ -124,5 +129,23 @@ public class VariantImpl implements Variant {
 
     public void setAssets(List<Asset> assets) {
         this.assets = assets;
+    }
+
+    @JsonIgnore
+    public String getSpecialToDate() {
+        return specialToDate;
+    }
+
+    public void setSpecialToDate(String specialToDate) {
+        this.specialToDate = specialToDate;
+    }
+
+    @JsonIgnore
+    public Double getSpecialPrice() {
+        return specialPrice;
+    }
+
+    public void setSpecialPrice(Double specialPrice) {
+        this.specialPrice = specialPrice;
     }
 }

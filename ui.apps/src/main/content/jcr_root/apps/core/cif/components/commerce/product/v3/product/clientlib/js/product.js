@@ -63,7 +63,9 @@ class Product {
                         this._updatePrice(this._state.prices[key], key);
                     }
                 } else {
+                    // Update base product price
                     this._updatePrice(this._state.prices[this._state.sku]);
+                    this._updateJsonLdPrice(this._state.prices);
                 }
             })
             .catch(err => {
@@ -117,8 +119,38 @@ class Product {
         const priceEl = this._element.querySelector(Product.selectors.price + `[data-product-sku="${sku}"]`);
         if (priceEl) priceEl.innerHTML = innerHTML;
     }
-}
 
+    _updateJsonLdPrice(prices) {
+        if (!window.CIF.enableClientSidePriceLoading || !document.querySelector('script[type="application/ld+json"]')) {
+            return;
+        }
+
+        const jsonLdScript = document.querySelector('script[type="application/ld+json"]');
+        const jsonLdData = JSON.parse(jsonLdScript.innerHTML.trim());
+
+        if (Array.isArray(jsonLdData.offers)) {
+            let priceUpdated = false;
+
+            jsonLdData.offers.forEach(offer => {
+                const convertedPrice = prices[offer.sku];
+                if (convertedPrice) {
+                    offer.price = convertedPrice.finalPrice;
+                    if (offer.priceSpecification) {
+                        offer.priceSpecification.price = convertedPrice.regularPrice;
+                    }
+                    priceUpdated = true;
+                }
+            });
+
+            if (priceUpdated) {
+                jsonLdScript.innerHTML = JSON.stringify(jsonLdData, null, 2)
+                    .replace(/},\s*{/g, '},\n{')
+                    .replace(/\[\s*{/g, '[\n{')
+                    .replace(/}\s*\]/g, '}\n]');
+            }
+        }
+    }
+}
 Product.selectors = {
     self: '[data-cmp-is=product]',
     sku: '.productFullDetail__sku [role=sku]',

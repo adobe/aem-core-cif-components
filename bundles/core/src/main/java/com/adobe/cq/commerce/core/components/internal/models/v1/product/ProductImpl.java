@@ -18,13 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -151,7 +145,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
-    private Page currentPage;
+    protected Page currentPage;
     @OSGiService
     private UrlProvider urlProvider;
     @ScriptVariable(name = WCMBindingsConstants.NAME_CURRENT_STYLE, injectionStrategy = InjectionStrategy.OPTIONAL)
