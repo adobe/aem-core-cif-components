@@ -46,7 +46,7 @@
                 innerHTML: Granite.I18n.get('Confirm Clear Cache')
             },
             content: {
-                innerHTML: `<p>${Granite.I18n.get('Are you sure you want to clear the commerce cache?')}</p>`
+                innerHTML: `<p>${Granite.I18n.get('Are you sure you want to clear the CIF cache?')}</p>`
             },
             footer: {
                 innerHTML:
@@ -71,17 +71,18 @@
             contentType: 'application/json',
             data: JSON.stringify({ storePath: storePath }),
             success: function() {
-                showDialog(Granite.I18n.get('Cache cleared successfully!'));
+                showDialog(Granite.I18n.get('Cache cleared successfully!'), "success");
             },
             error: function() {
-                showDialog(Granite.I18n.get('Failed to clear cache!'));
+                showDialog(Granite.I18n.get('Failed to clear cache!'), "error");
             }
         });
     }
 
-    function showDialog(message) {
+    function showDialog(message, variant = "default") {
         let dialog = new Coral.Dialog().set({
             id: 'clear-cache-dialog',
+            variant: variant,
             header: {
                 innerHTML: Granite.I18n.get('Clear Cache')
             },
@@ -90,7 +91,7 @@
             },
             footer: {
                 innerHTML:
-                    '<button is="coral-button" variant="primary" coral-close>' + Granite.I18n.get('OK') + '</button>'
+                    '<button is="coral-button" variant="primary" coral-close>' + Granite.I18n.get('Close') + '</button>'
             }
         });
         document.body.appendChild(dialog);

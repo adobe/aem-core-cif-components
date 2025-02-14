@@ -32,25 +32,21 @@ import com.adobe.granite.ui.components.rendercondition.SimpleRenderCondition;
 @Component(
     service = { Servlet.class },
     property = {
-        "sling.servlet.resourceTypes=" + InvalidateCacheButtonServlet.RESOURCE_TYPE,
+        "sling.servlet.resourceTypes=" + ClearCacheButtonRenderConditionServlet.RESOURCE_TYPE,
         "sling.servlet.methods=GET",
         "sling.servlet.extensions=html"
     })
-public class InvalidateCacheButtonServlet extends SlingSafeMethodsServlet {
+public class ClearCacheButtonRenderConditionServlet extends SlingSafeMethodsServlet {
 
-    public static final String RESOURCE_TYPE = "core/cif/components/renderconditions/dispatcherConfigCondition";
+    public static final String RESOURCE_TYPE = "core/cif/components/renderconditions/clearcachebutton";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateCacheButtonServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClearCacheButtonRenderConditionServlet.class);
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
     private transient InvalidateCacheSupport invalidateCacheSupport;
 
     @Override
     protected void doGet(@Nonnull SlingHttpServletRequest request, @Nonnull SlingHttpServletResponse response) {
-        boolean conditionMet = invalidateCacheSupport != null;
-        if (!conditionMet) {
-            LOGGER.error("InvalidateCacheSupport service is not available");
-        }
-        request.setAttribute(RenderCondition.class.getName(), new SimpleRenderCondition(conditionMet));
+        request.setAttribute(RenderCondition.class.getName(), new SimpleRenderCondition(invalidateCacheSupport != null));
     }
 }

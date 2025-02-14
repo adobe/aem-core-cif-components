@@ -39,7 +39,7 @@ public class InvalidateCacheButtonServletTest {
     private SlingHttpServletResponse response;
 
     @InjectMocks
-    private InvalidateCacheButtonServlet servlet;
+    private ClearCacheButtonRenderConditionServlet servlet;
 
     @Before
     public void setUp() {

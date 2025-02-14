@@ -21,12 +21,37 @@ import org.osgi.annotation.versioning.ConsumerType;
 
 import com.day.cq.wcm.api.Page;
 
+/**
+ * The DispatcherCacheInvalidationStrategy interface defines the methods used to invalidate the dispatcher cache.
+ */
 @ConsumerType
 public interface DispatcherCacheInvalidationStrategy extends CacheInvalidationStrategy {
 
+    /**
+     * Returns the query used for cache invalidation based on the store path and data list.
+     *
+     * @param storePath the store path
+     * @param dataList the data list containing the data to be invalidated
+     * @return the cache invalidation query
+     */
     String getQuery(String storePath, String dataList);
 
+    /**
+     * Returns the GraphQL query used for cache invalidation based on the provided data.
+     *
+     * @param data the data array contains the data to be invalidated
+     * @return the GraphQL query based on the data array
+     */
     String getGraphqlQuery(String[] data);
 
+    /**
+     * Returns the paths to invalidate based on the provided page, resource resolver, data, and store path.
+     *
+     * @param page the page
+     * @param resourceResolver the resource resolver
+     * @param data based on the data it will get the invalidation paths
+     * @param storePath the store path
+     * @return the array of paths to invalidate
+     */
     String[] getPathsToInvalidate(Page page, ResourceResolver resourceResolver, Map<String, Object> data, String storePath);
 }
