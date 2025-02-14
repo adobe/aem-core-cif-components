@@ -71,15 +71,15 @@
             contentType: 'application/json',
             data: JSON.stringify({ storePath: storePath }),
             success: function() {
-                showDialog(Granite.I18n.get('Cache cleared successfully!'), "success");
+                showDialog(Granite.I18n.get('Cache cleared successfully!'), 'success');
             },
             error: function() {
-                showDialog(Granite.I18n.get('Failed to clear cache!'), "error");
+                showDialog(Granite.I18n.get('Failed to clear cache!'), 'error');
             }
         });
     }
 
-    function showDialog(message, variant = "default") {
+    function showDialog(message, variant = 'default') {
         let dialog = new Coral.Dialog().set({
             id: 'clear-cache-dialog',
             variant: variant,
