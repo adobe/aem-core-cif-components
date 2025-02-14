@@ -27,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.product.VariantImpl;
 import com.adobe.cq.commerce.core.components.models.common.Price;
@@ -328,19 +329,6 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
     }
 
     @Test
-    public void testIsEnableJsonLd() throws Exception {
-        ProductImpl product = spy(new ProductImpl());
-        product.enableJsonLd = true;
-
-        Method isEnableJsonLd = ProductImpl.class.getDeclaredMethod("isEnableJsonLd");
-        isEnableJsonLd.setAccessible(true);
-        assertTrue((Boolean) isEnableJsonLd.invoke(product));
-
-        product.enableJsonLd = false;
-        assertFalse((Boolean) isEnableJsonLd.invoke(product));
-    }
-
-    @Test
     public void testAddOffersToJson() throws Exception {
         ProductImpl product = spy(new ProductImpl());
         ObjectMapper mapper = new ObjectMapper();
@@ -375,21 +363,15 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         bindings.put("currentPage", page);
         context.request().setAttribute(SlingBindings.class.getName(), bindings);
 
-        // Use reflection to access the private isEnableJsonLd method
-        Method isEnableJsonLdMethod = ProductImpl.class.getDeclaredMethod("isEnableJsonLd");
-        isEnableJsonLdMethod.setAccessible(true);
-
         // Mock the necessary methods
         doReturn("test-sku").when(product).getSku();
         doReturn("Test Product").when(product).getName();
         doReturn("Test Description").when(product).getDescription();
         doReturn("test-id").when(product).getId();
         doReturn(Collections.emptyList()).when(product).getAssets();
-        product.enableJsonLd = true; // Set the enableJsonLd field directly
 
-        // Call the private method using reflection
-        boolean isEnableJsonLd = (boolean) isEnableJsonLdMethod.invoke(product);
-        assertTrue(isEnableJsonLd);
+        // Set the enableJsonLd field directly
+        Whitebox.setInternalState(product, "enableJsonLd", true);
 
         // Call the method
         String jsonLd = product.getJsonLd();
@@ -421,10 +403,6 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         bindings.put("currentPage", page);
         context.request().setAttribute(SlingBindings.class.getName(), bindings);
 
-        // Use reflection to access the private isEnableJsonLd method
-        Method isEnableJsonLdMethod = ProductImpl.class.getDeclaredMethod("isEnableJsonLd");
-        isEnableJsonLdMethod.setAccessible(true);
-
         // Mock the necessary methods
         doReturn("test-sku").when(product).getSku();
         doReturn("Test Product").when(product).getName();
@@ -433,7 +411,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         doReturn(Collections.emptyList()).when(product).getAssets();
 
         // Call the private method using reflection
-        boolean isEnableJsonLd = (boolean) isEnableJsonLdMethod.invoke(product);
+        boolean isEnableJsonLd = (boolean) Whitebox.getInternalState(product, "enableJsonLd");
         assertFalse(isEnableJsonLd);
 
         // Call the method

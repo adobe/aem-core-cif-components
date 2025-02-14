@@ -78,7 +78,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     private Set<String> visibleSectionsSet;
 
-    public boolean enableJsonLd;
+    private boolean enableJsonLd;
 
     @PostConstruct
     protected void initModel() {
@@ -229,13 +229,9 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         return jsonArray;
     }
 
-    private boolean isEnableJsonLd() {
-        return enableJsonLd;
-    }
-
     @Override
     public String getJsonLd() {
-        if (!isEnableJsonLd()) {
+        if (!enableJsonLd) {
             return null;
         }
 

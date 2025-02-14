@@ -27,7 +27,9 @@ exports.config = {
     runner: 'local',
 
     // Tests
-    specs: ['./specs/**/*.js'],
+    specs: [
+        './specs/**/*.js'
+    ],
 
     logLevel: 'debug',
 

@@ -63,7 +63,8 @@ class Product {
                         this._updatePrice(this._state.prices[key], key);
                     }
                 } else {
-                    this._updatePrice(this._state.prices[this._state.sku]); // Update base product price
+                    // Update base product price
+                    this._updatePrice(this._state.prices[this._state.sku]);
                     this._updateJsonLdPrice(this._state.prices);
                 }
             })
@@ -106,6 +107,7 @@ class Product {
      * Update price in the DOM.
      */
     _updatePrice(price, optionalSku) {
+        // Only update if prices are not null
         if (!price || !price.regularPrice || !price.finalPrice) {
             return;
         }
