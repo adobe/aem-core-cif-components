@@ -99,4 +99,73 @@ public class InvalidateCacheEventListenerTest {
 
         verify(invalidateCacheImpl).invalidateCache(anyString());
     }
+
+    @Test
+    public void testOnEventWithInvalidPath() throws RepositoryException {
+        when(eventIterator.hasNext()).thenReturn(true, false);
+        when(eventIterator.nextEvent()).thenReturn(event);
+        when(event.getPath()).thenReturn("/invalid/path");
+
+        eventListener.onEvent(eventIterator);
+
+        verify(invalidateCacheImpl, never()).invalidateCache(anyString());
+        verify(invalidateDispatcherCacheImpl, never()).invalidateCache(anyString());
+    }
+
+    @Test
+    public void testOnEventWithException() throws RepositoryException {
+        when(eventIterator.hasNext()).thenReturn(true, false);
+        when(eventIterator.nextEvent()).thenReturn(event);
+        when(event.getPath()).thenReturn(
+            InvalidateCacheSupport.INVALIDATE_WORKING_AREA + "/" + InvalidateCacheSupport.NODE_NAME_BASE);
+        doThrow(new RepositoryException("Test exception")).when(event).getPath();
+
+        eventListener.onEvent(eventIterator);
+
+        verify(invalidateCacheImpl, never()).invalidateCache(anyString());
+        verify(invalidateDispatcherCacheImpl, never()).invalidateCache(anyString());
+    }
+
+    @Test
+    public void testOnEventWithDispatcherCacheInvalidationEnabled() throws RepositoryException {
+        when(eventIterator.hasNext()).thenReturn(true, false);
+        when(eventIterator.nextEvent()).thenReturn(event);
+        when(event.getPath()).thenReturn(
+            InvalidateCacheSupport.INVALIDATE_WORKING_AREA + "/" + InvalidateCacheSupport.NODE_NAME_BASE);
+        when(invalidateCacheSupport.getEnableDispatcherCacheInvalidation()).thenReturn(true);
+
+        eventListener.onEvent(eventIterator);
+
+        verify(invalidateCacheImpl).invalidateCache(anyString());
+        verify(invalidateDispatcherCacheImpl).invalidateCache(anyString());
+    }
+
+    @Test
+    public void testOnEventWithDispatcherCacheInvalidationDisabled() throws RepositoryException {
+        when(eventIterator.hasNext()).thenReturn(true, false);
+        when(eventIterator.nextEvent()).thenReturn(event);
+        when(event.getPath()).thenReturn(
+            InvalidateCacheSupport.INVALIDATE_WORKING_AREA + "/" + InvalidateCacheSupport.NODE_NAME_BASE);
+        when(invalidateCacheSupport.getEnableDispatcherCacheInvalidation()).thenReturn(false);
+
+        eventListener.onEvent(eventIterator);
+
+        verify(invalidateCacheImpl).invalidateCache(anyString());
+        verify(invalidateDispatcherCacheImpl, never()).invalidateCache(anyString());
+    }
+
+    @Test
+    public void testOnEventWithDispatcherCacheException() throws RepositoryException {
+        when(eventIterator.hasNext()).thenReturn(true, false);
+        when(eventIterator.nextEvent()).thenReturn(event);
+        when(event.getPath()).thenReturn(
+            InvalidateCacheSupport.INVALIDATE_WORKING_AREA + "/" + InvalidateCacheSupport.NODE_NAME_BASE);
+        when(invalidateCacheSupport.getEnableDispatcherCacheInvalidation()).thenReturn(true);
+        doThrow(new RuntimeException("Test exception")).when(invalidateDispatcherCacheImpl).invalidateCache(anyString());
+
+        eventListener.onEvent(eventIterator);
+
+        verify(invalidateCacheImpl).invalidateCache(anyString());
+        verify(invalidateDispatcherCacheImpl).invalidateCache(anyString());
+    }
 }

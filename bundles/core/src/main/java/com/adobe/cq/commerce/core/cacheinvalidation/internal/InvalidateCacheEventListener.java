@@ -96,6 +96,8 @@ public class InvalidateCacheEventListener implements EventListener {
                 }
             } catch (RepositoryException e) {
                 LOGGER.error("Error processing JCR event: {}", e.getMessage(), e);
+            } catch (Exception e) {
+                LOGGER.error("Unexpected error processing JCR event: {}", e.getMessage(), e);
             }
         }
     }

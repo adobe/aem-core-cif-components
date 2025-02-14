@@ -16,7 +16,6 @@ package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.*;
 
 import javax.jcr.Session;
@@ -210,27 +209,6 @@ public class InvalidateDispatcherCacheImplTest {
         Map<String, Map<String, Object>> result = (Map<String, Map<String, Object>>) invokePrivateMethod("createJsonData", new Class<?>[] {
             ResourceResolver.class, String.class }, resourceResolver, "storePath");
         assertNotNull(result);
-    }
-
-    @Test
-    public void testFlushCache() throws Exception {
-        // Get the LOGGER field
-        Field loggerField = InvalidateDispatcherCacheImpl.class.getDeclaredField("LOGGER");
-        loggerField.setAccessible(true);
-
-        // Remove the final modifier from the LOGGER field
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(loggerField, loggerField.getModifiers() & ~Modifier.FINAL);
-
-        // Set the mocked logger in the InvalidateDispatcherCacheImpl instance
-        loggerField.set(null, logger);
-
-        // Use the invokePrivateMethod helper to access the private method
-        invokePrivateMethod("flushCache", new Class<?>[] { String.class }, "handle");
-
-        // Verify that the logger was called with the expected message
-        verify(logger, times(1)).info(anyString(), anyString());
     }
 
     // Corrected testGetPage

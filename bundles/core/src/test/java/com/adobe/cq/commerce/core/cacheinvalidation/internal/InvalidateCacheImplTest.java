@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 
 import org.apache.sling.api.resource.Resource;
@@ -59,10 +61,22 @@ public class InvalidateCacheImplTest {
     private InvalidateCacheImpl invalidateCacheImpl;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         ValueMap valueMap = new ValueMapDecorator(Collections.singletonMap("attribute1", "value1"));
         commerceProperties = new ComponentsConfiguration(valueMap);
+        setLoggerField();
+    }
+
+    private void setLoggerField() throws Exception {
+        Field loggerField = InvalidateCacheImpl.class.getDeclaredField("LOGGER");
+        loggerField.setAccessible(true);
+
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(loggerField, loggerField.getModifiers() & ~Modifier.FINAL);
+
+        loggerField.set(null, logger);
     }
 
     @Test
@@ -83,5 +97,57 @@ public class InvalidateCacheImplTest {
         invalidateCacheImpl.invalidateCache(path);
 
         verify(graphqlClient).invalidateCache(anyString(), any(String[].class), any(String[].class));
+    }
+
+    @Test
+    public void testInvalidateCacheWithNullResource() throws Exception {
+        String path = "/content/test";
+        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
+        when(resourceResolver.getResource(path)).thenReturn(null);
+
+        invalidateCacheImpl.invalidateCache(path);
+
+        verify(logger).debug("Resource not found at path: {}", path);
+        verifyZeroInteractions(graphqlClient);
+    }
+
+    @Test
+    public void testInvalidateCacheWithNullCommerceProperties() throws Exception {
+        String path = "/content/test";
+        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
+        when(resourceResolver.getResource(path)).thenReturn(resource);
+        when(resource.getValueMap()).thenReturn(mock(ValueMap.class));
+        when(invalidateCacheSupport.getCommerceProperties(resourceResolver, null)).thenReturn(null);
+
+        invalidateCacheImpl.invalidateCache(path);
+
+        verify(logger).debug("Commerce data not found at path: {}", resource.getPath());
+        verifyZeroInteractions(graphqlClient);
+    }
+
+    @Test
+    public void testInvalidateCacheWithException() throws Exception {
+        String path = "/content/test";
+        RuntimeException exception = new RuntimeException("Test exception");
+        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenThrow(exception);
+
+        invalidateCacheImpl.invalidateCache(path);
+
+        verify(logger).error("Error processing JCR event: {}", "Test exception", exception);
+        verifyZeroInteractions(graphqlClient);
+    }
+
+    @Test
+    public void testInvalidateCacheWithNullGraphqlClient() throws Exception {
+        String path = "/content/test";
+        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
+        when(resourceResolver.getResource(path)).thenReturn(resource);
+        when(resource.getValueMap()).thenReturn(mock(ValueMap.class));
+        when(invalidateCacheSupport.getCommerceProperties(resourceResolver, null)).thenReturn(commerceProperties);
+        when(invalidateCacheSupport.getClient(anyString())).thenReturn(null);
+
+        invalidateCacheImpl.invalidateCache(path);
+
+        verifyZeroInteractions(graphqlClient);
     }
 }
