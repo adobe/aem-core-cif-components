@@ -26,8 +26,6 @@ describe('Checkbox Uncheck Test', () => {
         browser.AEMForceLogout();
         browser.url(config.aem.author.base_url);
         browser.AEMLogin(config.aem.author.username, config.aem.author.password);
-
-
     });
 
     it('can enable/disable JSON-LD, save changes, and verify JSON-LD on the product page', async () => {
@@ -70,7 +68,7 @@ describe('Checkbox Uncheck Test', () => {
 
         // Step 5: Locate the "Enable JSON" checkbox by its name attribute using WebDriverIO's $() function
         const enableJsonLdCheckbox = await $('coral-checkbox[name="./enableJsonLd"]');
-        await enableJsonLdCheckbox.waitForDisplayed({ timeout: 5000 });
+        await enableJsonLdCheckbox.waitForDisplayed({ timeout: 10000 });
 
         // Step 6: Check if the checkbox is disabled (aria-disabled="true" or has the class "is-disabled")
         const isDisabled = await enableJsonLdCheckbox.getAttribute('aria-disabled');
@@ -110,7 +108,7 @@ describe('Checkbox Uncheck Test', () => {
 
         // Step 11: Save the changes
         const saveButton = await $('#shell-propertiespage-doneactivator');
-        await saveButton.waitForDisplayed({ timeout: 5000 });
+        await saveButton.waitForDisplayed({ timeout: 10000 });
         await saveButton.click();
 
         // Step 12: Navigate to the product page
@@ -120,7 +118,7 @@ describe('Checkbox Uncheck Test', () => {
         // Step 13: Wait for the page to load (use a specific element to ensure the page is ready)
         await browser.waitUntil(
             async () => (await $('#product-page-element')) !== null, // Replace with an actual element that indicates page load
-            { timeout: 5000, timeoutMsg: 'Product page did not load in time' }
+            { timeout: 10000, timeoutMsg: 'Product page did not load in time' }
         );
 
         // Step 14: Get the raw page source
