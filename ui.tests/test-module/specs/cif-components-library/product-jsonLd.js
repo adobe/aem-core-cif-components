@@ -33,7 +33,7 @@ describe('Checkbox Uncheck Test', () => {
     it('can enable/disable JSON-LD, save changes, and verify JSON-LD on the product page', async () => {
         // Step 1: Navigate to the Properties page for the Commerce item
         await browser.url(
-            `${config.aem.author.base_url}/mnt/overlay/cif/shell/content/configuration/properties.html?item=%2Fconf%2Fvenia%2Fsettings%2Fcloudconfigs%2Fcommerce`
+            `${config.aem.author.base_url}/mnt/overlay/cif/shell/content/configuration/properties.html?item=%2Fconf%2Fcore-components-examples%2Fsettings%2Fcloudconfigs%2Fcommerce`
         );
 
         // Step 2: Wait for all tabs to be visible
@@ -114,7 +114,7 @@ describe('Checkbox Uncheck Test', () => {
         await saveButton.click();
 
         // Step 12: Navigate to the product page
-        const productPageUrl = `${config.aem.author.base_url}/content/venia/us/en/products/product-page.html?wcmmode=disabled`;
+        const productPageUrl = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/chaz-kangeroo-hoodie.html?wcmmode=disabled`;
         await browser.url(productPageUrl);
 
         // Step 13: Wait for the page to load (use a specific element to ensure the page is ready)
