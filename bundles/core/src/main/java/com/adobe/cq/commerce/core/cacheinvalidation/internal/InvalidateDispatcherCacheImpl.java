@@ -128,7 +128,7 @@ public class InvalidateDispatcherCacheImpl {
         }
     }
 
-    private Map<String, String[]> getDynamicProperties(ValueMap properties) {
+    protected Map<String, String[]> getDynamicProperties(ValueMap properties) {
         Map<String, String[]> dynamicProperties = new HashMap<>();
         for (String attribute : invalidateCacheRegistry.getAttributes()) {
             CacheInvalidationStrategy invalidateCache = invalidateCacheRegistry.get(attribute);
@@ -142,7 +142,7 @@ public class InvalidateDispatcherCacheImpl {
         return dynamicProperties;
     }
 
-    private Session getSession(ResourceResolver resourceResolver) throws CacheInvalidationException {
+    protected Session getSession(ResourceResolver resourceResolver) throws CacheInvalidationException {
         Session session = resourceResolver.adaptTo(Session.class);
         if (session == null) {
             LOGGER.error("Session not found for resource resolver");
@@ -151,11 +151,11 @@ public class InvalidateDispatcherCacheImpl {
         return session;
     }
 
-    private ComponentsConfiguration getCommerceProperties(ResourceResolver resourceResolver, String storePath) {
+    protected ComponentsConfiguration getCommerceProperties(ResourceResolver resourceResolver, String storePath) {
         return invalidateCacheSupport.getCommerceProperties(resourceResolver, storePath);
     }
 
-    private String[] getAllInvalidPaths(Session session, ResourceResolver resourceResolver, GraphqlClient client,
+    protected String[] getAllInvalidPaths(Session session, ResourceResolver resourceResolver, GraphqlClient client,
         String storePath, Map<String, String[]> dynamicProperties) throws CacheInvalidationException {
         String[] invalidateDispatcherPagePaths = new String[0];
         String[] correspondingPaths = new String[0];
@@ -186,7 +186,7 @@ public class InvalidateDispatcherCacheImpl {
             .toArray(String[]::new);
     }
 
-    private String[] getCorrespondingPageBasedOnEntries(Session session, String storePath, String[] entries, String key)
+    protected String[] getCorrespondingPageBasedOnEntries(Session session, String storePath, String[] entries, String key)
         throws CacheInvalidationException {
         String entryList = formatList(entries, ", ", "'%s'");
         try {
@@ -200,13 +200,13 @@ public class InvalidateDispatcherCacheImpl {
         return new String[0];
     }
 
-    private String[] getPathsToInvalidate(ResourceResolver resourceResolver, Map<String, Object> data,
+    protected String[] getPathsToInvalidate(ResourceResolver resourceResolver, Map<String, Object> data,
         String storePath, String key) {
         Page page = getPage(resourceResolver, storePath);
         return invalidateCacheRegistry.getPathsToInvalidate(key, page, resourceResolver, data, storePath);
     }
 
-    private Map<String, Object> getGraphqlResponseData(GraphqlClient client, String query) {
+    protected Map<String, Object> getGraphqlResponseData(GraphqlClient client, String query) {
         GraphqlRequest request = new GraphqlRequest(query);
         Type typeOfT = new TypeToken<Map<String, Object>>() {}.getType();
         Type typeOfU = new TypeToken<Map<String, Object>>() {}.getType();
@@ -217,7 +217,7 @@ public class InvalidateDispatcherCacheImpl {
         return response.getData() != null ? response.getData() : Collections.emptyMap();
     }
 
-    private boolean isValid(ValueMap valueMap, ResourceResolver resourceResolver, String storePath) {
+    protected boolean isValid(ValueMap valueMap, ResourceResolver resourceResolver, String storePath) {
         Map<String, Map<String, Object>> jsonData = createJsonData(resourceResolver, storePath);
         for (Map.Entry<String, Map<String, Object>> entry : jsonData.entrySet()) {
             Map<String, Object> properties = entry.getValue();
@@ -236,7 +236,7 @@ public class InvalidateDispatcherCacheImpl {
         return true;
     }
 
-    private boolean invokeFunction(Map<String, Object> properties) {
+    protected boolean invokeFunction(Map<String, Object> properties) {
         String methodName = (String) properties.get("method");
         try {
             Method method;
@@ -256,7 +256,7 @@ public class InvalidateDispatcherCacheImpl {
         }
     }
 
-    private boolean checkProperty(ValueMap valueMap, String key, Map<String, Object> properties) {
+    protected boolean checkProperty(ValueMap valueMap, String key, Map<String, Object> properties) {
         boolean isFlag = true;
         Class<?> clazz = (Class<?>) properties.get("class");
         Object value = getPropertiesValue(valueMap, key, clazz);
@@ -268,7 +268,7 @@ public class InvalidateDispatcherCacheImpl {
         return isFlag;
     }
 
-    private Map<String, Map<String, Object>> createJsonData(ResourceResolver resourceResolver,
+    protected Map<String, Map<String, Object>> createJsonData(ResourceResolver resourceResolver,
         String actualStorePath) {
         Map<String, Map<String, Object>> jsonData = new HashMap<>();
 
@@ -284,14 +284,14 @@ public class InvalidateDispatcherCacheImpl {
         return jsonData;
     }
 
-    private Map<String, Object> createProperty(boolean isFunction, Class<?> clazz) {
+    protected Map<String, Object> createProperty(boolean isFunction, Class<?> clazz) {
         Map<String, Object> property = new HashMap<>();
         property.put(IS_FUNCTION, isFunction);
         property.put("class", clazz);
         return property;
     }
 
-    private Map<String, Object> createFunctionProperty(String method, Class<?>[] parameterTypes, Object[] args) {
+    protected Map<String, Object> createFunctionProperty(String method, Class<?>[] parameterTypes, Object[] args) {
         Map<String, Object> property = new HashMap<>();
         property.put(IS_FUNCTION, true);
         property.put("method", method);
@@ -300,11 +300,11 @@ public class InvalidateDispatcherCacheImpl {
         return property;
     }
 
-    private <T> T getPropertiesValue(ValueMap properties, String key, Class<T> clazz) {
+    protected <T> T getPropertiesValue(ValueMap properties, String key, Class<T> clazz) {
         return properties.get(key, clazz);
     }
 
-    private Page getPage(ResourceResolver resourceResolver, String storePath) {
+    protected Page getPage(ResourceResolver resourceResolver, String storePath) {
         PageManager pageManager = resourceResolver.adaptTo(PageManager.class);
         if (pageManager != null) {
             return pageManager.getPage(storePath);
@@ -313,7 +313,7 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     @SuppressWarnings("unused")
-    private String getCorrespondingPageProperties(ResourceResolver resourceResolver, String storePath, String propertyName) {
+    protected String getCorrespondingPageProperties(ResourceResolver resourceResolver, String storePath, String propertyName) {
         Page page = getPage(resourceResolver, storePath);
         if (page != null) {
             ValueMap properties = page.getProperties();
@@ -322,13 +322,13 @@ public class InvalidateDispatcherCacheImpl {
         return null;
     }
 
-    private String formatList(String[] invalidCacheEntries, String delimiter, String pattern) {
+    protected String formatList(String[] invalidCacheEntries, String delimiter, String pattern) {
         return Arrays.stream(invalidCacheEntries)
             .map(item -> String.format(pattern, item))
             .collect(Collectors.joining(delimiter));
     }
 
-    private Query getSqlQuery(Session session, String sql2Query) throws CacheInvalidationException {
+    protected Query getSqlQuery(Session session, String sql2Query) throws CacheInvalidationException {
         try {
             QueryManager queryManager = session.getWorkspace().getQueryManager();
             return queryManager.createQuery(sql2Query, Query.JCR_SQL2);
@@ -337,7 +337,7 @@ public class InvalidateDispatcherCacheImpl {
         }
     }
 
-    private String[] getQueryResult(Query query) throws CacheInvalidationException {
+    protected String[] getQueryResult(Query query) throws CacheInvalidationException {
         try {
             Set<String> uniquePagePaths = new HashSet<>();
 
@@ -359,13 +359,12 @@ public class InvalidateDispatcherCacheImpl {
         }
     }
 
-    private String extractPagePath(String fullPath) {
+    protected String extractPagePath(String fullPath) {
         int jcrContentIndex = fullPath.indexOf("/jcr:content");
         return jcrContentIndex != -1 ? fullPath.substring(0, jcrContentIndex) : fullPath;
     }
 
-    private void flushCache(String handle) throws CacheInvalidationException {
-
+    protected void flushCache(String handle) throws CacheInvalidationException {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpPost post = new HttpPost(DISPATCHER_URL);
             post.setHeader("CQ-Action", "Delete");

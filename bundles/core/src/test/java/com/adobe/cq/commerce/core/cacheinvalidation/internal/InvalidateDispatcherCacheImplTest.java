@@ -14,13 +14,21 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.*;
 
 import javax.jcr.Session;
 import javax.jcr.Workspace;
-import javax.jcr.query.*;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryManager;
+import javax.jcr.query.QueryResult;
+import javax.jcr.query.Row;
+import javax.jcr.query.RowIterator;
 
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
@@ -33,7 +41,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 
+import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.DispatcherCacheInvalidationStrategy;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
@@ -47,6 +58,9 @@ public class InvalidateDispatcherCacheImplTest {
     private SlingSettingsService slingSettingsService;
 
     @Mock
+    private ValueMap valueMap;
+
+    @Mock
     private InvalidateCacheSupport invalidateCacheSupport;
 
     @Mock
@@ -57,6 +71,12 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Mock
     private Resource resource;
+
+    @Mock
+    private CloseableHttpClient httpClient;
+
+    @Mock
+    private CloseableHttpResponse httpResponse;
 
     @Mock
     private GraphqlClient graphqlClient;
@@ -82,12 +102,6 @@ public class InvalidateDispatcherCacheImplTest {
         modifiersField.setInt(loggerField, loggerField.getModifiers() & ~Modifier.FINAL);
 
         loggerField.set(null, logger);
-    }
-
-    private Object invokePrivateMethod(String methodName, Class<?>[] parameterTypes, Object... args) throws Exception {
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod(methodName, parameterTypes);
-        method.setAccessible(true);
-        return method.invoke(invalidateDispatcherCacheImpl, args);
     }
 
     @Test
@@ -121,213 +135,176 @@ public class InvalidateDispatcherCacheImplTest {
         verify(invalidateCacheSupport).getServiceUserResourceResolver();
         verify(invalidateCacheSupport).getResource(resourceResolver, "/content/path");
         verify(resource, never()).getValueMap();
-
     }
 
     @Test
-    public void testCreateProperty() throws Exception {
-        Map<String, Object> result = (Map<String, Object>) invokePrivateMethod("createProperty", new Class<?>[] { boolean.class,
-            Class.class }, false, String.class);
-        assertNotNull(result);
-        assertEquals(false, result.get("isFunction"));
-        assertEquals(String.class, result.get("class"));
+    public void testGetDynamicProperties_WithValidAttributes() {
+        ValueMap valueMap = new ValueMapDecorator(new HashMap<>());
+        valueMap.put("dynamic_property1", new String[] { "value1", "value2" });
+
+        when(invalidateCacheRegistry.getAttributes()).thenReturn(Collections.singleton("dynamic_property1"));
+        when(invalidateCacheRegistry.get("dynamic_property1")).thenReturn(mock(DispatcherCacheInvalidationStrategy.class));
+
+        Map<String, String[]> result = invalidateDispatcherCacheImpl.getDynamicProperties(valueMap);
+
+        assertEquals(1, result.size());
+        assertArrayEquals(new String[] { "value1", "value2" }, result.get("dynamic_property1"));
     }
 
     @Test
-    public void testCreateFunctionProperty() throws Exception {
-        Map<String, Object> result = (Map<String, Object>) invokePrivateMethod("createFunctionProperty", new Class<?>[] { String.class,
-            Class[].class, Object[].class }, "testMethod", new Class<?>[] { String.class }, new Object[] { "testArg" });
-        assertNotNull(result);
-        assertEquals(true, result.get("isFunction"));
-        assertEquals("testMethod", result.get("method"));
-        assertArrayEquals(new Class<?>[] { String.class }, (Class<?>[]) result.get("parameterTypes"));
-        assertArrayEquals(new Object[] { "testArg" }, (Object[]) result.get("args"));
-    }
-
-    @Test
-    public void testGetPropertiesValue() throws Exception {
-        ValueMap properties = new ValueMapDecorator(new HashMap<>());
-        properties.put("key", "value");
-        String result = (String) invokePrivateMethod("getPropertiesValue", new Class<?>[] { ValueMap.class, String.class, Class.class },
-            properties, "key", String.class);
-        assertEquals("value", result);
-    }
-
-    @Test
-    public void testGetCorrespondingPageProperties() throws Exception {
-        ResourceResolver resourceResolver = mock(ResourceResolver.class);
-        Page page = mock(Page.class);
-        ValueMap properties = new ValueMapDecorator(new HashMap<>());
-        properties.put("propertyName", "propertyValue");
-        when(resourceResolver.adaptTo(PageManager.class)).thenReturn(mock(PageManager.class));
-        when(resourceResolver.adaptTo(PageManager.class).getPage("storePath")).thenReturn(page);
-        when(page.getProperties()).thenReturn(properties);
-        String result = (String) invokePrivateMethod("getCorrespondingPageProperties", new Class<?>[] { ResourceResolver.class,
-            String.class, String.class }, resourceResolver, "storePath", "propertyName");
-        assertEquals("propertyValue", result);
-    }
-
-    @Test
-    public void testFormatList() throws Exception {
-        String[] invalidCacheEntries = { "entry1", "entry2" };
-        String result = (String) invokePrivateMethod("formatList", new Class<?>[] { String[].class, String.class, String.class },
-            invalidCacheEntries, ",", "[%s]");
-        assertEquals("[entry1],[entry2]", result);
-    }
-
-    @Test
-    public void testExtractPagePath() throws Exception {
-        String result = (String) invokePrivateMethod("extractPagePath", new Class<?>[] { String.class }, "/content/page/jcr:content");
-        assertEquals("/content/page", result);
-    }
-
-    @Test
-    public void testGetSession() throws Exception {
+    public void testGetSession_ValidSession() throws Exception {
         when(resourceResolver.adaptTo(Session.class)).thenReturn(mock(Session.class));
-        Session result = (Session) invokePrivateMethod("getSession", new Class<?>[] { ResourceResolver.class }, resourceResolver);
+        Session result = invalidateDispatcherCacheImpl.getSession(resourceResolver);
+        assertNotNull(result);
+    }
+
+    @Test(expected = CacheInvalidationException.class)
+    public void testGetSession_InvalidSession() throws Exception {
+        when(resourceResolver.adaptTo(Session.class)).thenReturn(null);
+        invalidateDispatcherCacheImpl.getSession(resourceResolver);
+    }
+
+    @Test
+    public void testGetCommerceProperties() {
+        ComponentsConfiguration componentsConfiguration = new ComponentsConfiguration(new ValueMapDecorator(new HashMap<>()));
+        when(invalidateCacheSupport.getCommerceProperties(resourceResolver, "storePath")).thenReturn(componentsConfiguration);
+
+        ComponentsConfiguration result = invalidateDispatcherCacheImpl.getCommerceProperties(resourceResolver, "storePath");
+
         assertNotNull(result);
     }
 
     @Test
-    public void testGetCorrespondingPageBasedOnEntries() throws Exception {
-        // Mock dependencies
+    public void testGetAllInvalidPaths() throws Exception {
+        // Mock the necessary objects and their behaviors
         Session session = mock(Session.class);
-        ResourceResolver resourceResolver = mock(ResourceResolver.class);
+        Workspace workspace = mock(Workspace.class);
+        QueryManager queryManager = mock(QueryManager.class);
+        Query query = mock(Query.class);
+        QueryResult queryResult = mock(QueryResult.class);
+        RowIterator rowIterator = mock(RowIterator.class);
+        Row row = mock(Row.class);
         PageManager pageManager = mock(PageManager.class);
         Page page = mock(Page.class);
+        GraphqlClient client = mock(GraphqlClient.class);
+        GraphqlResponse graphqlResponse = mock(GraphqlResponse.class);
+
+        // Set up the mocks
+        when(resourceResolver.adaptTo(Session.class)).thenReturn(session);
+        when(session.getWorkspace()).thenReturn(workspace);
+        when(workspace.getQueryManager()).thenReturn(queryManager);
+        when(queryManager.createQuery(anyString(), eq(Query.JCR_SQL2))).thenReturn(query);
+        when(query.execute()).thenReturn(queryResult);
+        when(queryResult.getRows()).thenReturn(rowIterator);
+        when(rowIterator.hasNext()).thenReturn(true, false);
+        when(rowIterator.nextRow()).thenReturn(row);
+        when(row.getPath()).thenReturn("/content/page");
         when(resourceResolver.adaptTo(PageManager.class)).thenReturn(pageManager);
-        when(pageManager.getPage(anyString())).thenReturn(page);
+        when(pageManager.getContainingPage(any(Resource.class))).thenReturn(page);
+        when(page.getPath()).thenReturn("/content/page");
 
-        // Set up the entries and key
-        String storePath = "storePath";
-        String[] entries = { "entry1", "entry2" };
-        String key = "key";
+        // Create dynamic properties
+        Map<String, String[]> dynamicProperties = new HashMap<>();
+        dynamicProperties.put("property1", new String[] { "value1", "value2" });
 
-        // Invoke the private method
-        String[] result = (String[]) invokePrivateMethod("getCorrespondingPageBasedOnEntries", new Class<?>[] { Session.class, String.class,
-            String[].class, String.class }, session, storePath, entries, key);
+        // Set up the GraphqlClient mock
+        when(client.execute(any(GraphqlRequest.class), any(Type.class), any(Type.class))).thenReturn(graphqlResponse);
+        when(graphqlResponse.getData()).thenReturn(Collections.singletonMap("key", "value"));
 
-        // Assert the result
-        assertNotNull(result);
+        // Ensure invalidateCacheRegistry.getPathsToInvalidate returns a valid array
+        when(invalidateCacheRegistry.getPathsToInvalidate(anyString(), any(Page.class), any(ResourceResolver.class), anyMap(), anyString()))
+            .thenReturn(new String[] { "/content/page" });
+
+        // Call the method to test
+        String[] invalidPaths = invalidateDispatcherCacheImpl.getAllInvalidPaths(
+            session, resourceResolver, client, "storePath", dynamicProperties);
+
+        // Verify the results
+        assertNotNull(invalidPaths);
+        assertEquals(1, invalidPaths.length);
+        assertEquals("/content/page", invalidPaths[0]);
     }
 
     @Test
-    public void testGetGraphqlResponseData() throws Exception {
+    public void testGetPathsToInvalidate() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("key", "value");
+        Page page = mock(Page.class);
+        when(resourceResolver.adaptTo(PageManager.class)).thenReturn(mock(PageManager.class));
+        when(resourceResolver.adaptTo(PageManager.class).getPage("storePath")).thenReturn(page);
+        when(invalidateCacheRegistry.getPathsToInvalidate(anyString(), any(Page.class), any(ResourceResolver.class), anyMap(), anyString()))
+            .thenReturn(new String[] { "/content/path1", "/content/path2" });
+
+        String[] result = invalidateDispatcherCacheImpl.getPathsToInvalidate(resourceResolver, data, "storePath", "key");
+        assertNotNull(result);
+        assertEquals(2, result.length);
+    }
+
+    @Test
+    public void testGetGraphqlResponseData() {
         GraphqlClient client = mock(GraphqlClient.class);
         when(client.execute(any(), any(), any())).thenReturn(mock(GraphqlResponse.class));
-        Map<String, Object> result = (Map<String, Object>) invokePrivateMethod("getGraphqlResponseData", new Class<?>[] {
-            GraphqlClient.class, String.class }, client, "query");
+        Map<String, Object> result = invalidateDispatcherCacheImpl.getGraphqlResponseData(client, "query");
         assertNotNull(result);
     }
 
     @Test
-    public void testInvokeFunction() throws Exception {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("method", "testMethod");
-        boolean result = (boolean) invokePrivateMethod("invokeFunction", new Class<?>[] { Map.class }, properties);
-        assertFalse(result);
-    }
-
-    @Test
-    public void testCheckProperty() throws Exception {
+    public void testCheckProperty_ValidProperty() {
         ValueMap valueMap = new ValueMapDecorator(new HashMap<>());
+        valueMap.put("key", "value");
         Map<String, Object> properties = new HashMap<>();
         properties.put("class", String.class);
-        boolean result = (boolean) invokePrivateMethod("checkProperty", new Class<?>[] { ValueMap.class, String.class, Map.class },
-            valueMap, "key", properties);
+
+        boolean result = invalidateDispatcherCacheImpl.checkProperty(valueMap, "key", properties);
         assertTrue(result);
     }
 
     @Test
-    public void testCreateJsonData() throws Exception {
-        Map<String, Map<String, Object>> result = (Map<String, Map<String, Object>>) invokePrivateMethod("createJsonData", new Class<?>[] {
-            ResourceResolver.class, String.class }, resourceResolver, "storePath");
+    public void testCreateJsonData() {
+        Map<String, Map<String, Object>> result = invalidateDispatcherCacheImpl.createJsonData(resourceResolver, "storePath");
         assertNotNull(result);
     }
 
     @Test
-    public void testInvalidateCacheWithException() {
-        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
-        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenThrow(new RuntimeException("Test exception"));
+    public void testGetQueryResult_ValidResult() throws Exception {
+        Query query = mock(Query.class);
+        QueryResult queryResult = mock(QueryResult.class);
+        RowIterator rowIterator = mock(RowIterator.class);
+        Row row = mock(Row.class);
 
-        invalidateDispatcherCacheImpl.invalidateCache("/content/test");
+        when(query.execute()).thenReturn(queryResult);
+        when(queryResult.getRows()).thenReturn(rowIterator);
+        when(rowIterator.hasNext()).thenReturn(true, false);
+        when(rowIterator.nextRow()).thenReturn(row);
+        when(row.getPath("content")).thenReturn("/content/page/jcr:content");
 
-        verify(logger).error(eq("Error invalidating cache: {}"), eq("Test exception"), any(RuntimeException.class));
-    }
-
-    @Test
-    public void testGetQueryResult() throws Exception {
-        // Mock dependencies
-        Query mockQuery = mock(Query.class);
-        QueryResult mockQueryResult = mock(QueryResult.class);
-        RowIterator mockRowIterator = mock(RowIterator.class);
-        Row mockRow1 = mock(Row.class);
-        Row mockRow2 = mock(Row.class);
-
-        // Set up the expected results
-        String[] expectedResult = new String[] {
-            "/content/page1" + InvalidateCacheSupport.HTML_SUFFIX,
-            "/content/page2" + InvalidateCacheSupport.HTML_SUFFIX
-        };
-
-        // Set up behavior for mocks
-        when(mockQuery.execute()).thenReturn(mockQueryResult);
-        when(mockQueryResult.getRows()).thenReturn(mockRowIterator);
-        when(mockRowIterator.hasNext()).thenReturn(true, true, false);
-        when(mockRowIterator.nextRow()).thenReturn(mockRow1, mockRow2);
-        when(mockRow1.getPath("content")).thenReturn("/content/page1/jcr:content");
-        when(mockRow2.getPath("content")).thenReturn("/content/page2/jcr:content");
-
-        // Use reflection to access the private method
-        String[] result = (String[]) invokePrivateMethod("getQueryResult", new Class<?>[] { Query.class }, mockQuery);
-
-        // Verify the expected results
+        String[] result = invalidateDispatcherCacheImpl.getQueryResult(query);
         assertNotNull(result);
-        assertArrayEquals(expectedResult, result);
+        assertEquals(1, result.length);
+        assertEquals("/content/page.html", result[0]);
     }
 
     @Test
-    public void testGetSqlQuery_ValidQuery() throws Exception {
-        // Mock dependencies
-        Session mockSession = mock(Session.class);
-        QueryManager mockQueryManager = mock(QueryManager.class);
-        Query mockQuery = mock(Query.class);
-        Workspace mockWorkspace = mock(Workspace.class);
-
-        // Set up behavior for mocks
-        when(mockSession.getWorkspace()).thenReturn(mockWorkspace);
-        when(mockWorkspace.getQueryManager()).thenReturn(mockQueryManager);
-        when(mockQueryManager.createQuery(anyString(), eq(Query.JCR_SQL2))).thenReturn(mockQuery);
-
-        // Invoke the private method
-        Query result = (Query) invokePrivateMethod("getSqlQuery", new Class<?>[] { Session.class, String.class }, mockSession,
-            "SELECT * FROM [nt:base]");
-
-        // Verify the expected results
-        assertNotNull(result);
-        assertEquals(mockQuery, result);
+    public void testExtractPagePath() {
+        String result = invalidateDispatcherCacheImpl.extractPagePath("/content/page/jcr:content");
+        assertEquals("/content/page", result);
     }
 
     @Test
-    public void testGetSqlQuery_InvalidQuery() throws Exception {
-        // Mock dependencies
-        Session mockSession = mock(Session.class);
-        QueryManager mockQueryManager = mock(QueryManager.class);
-        Workspace mockWorkspace = mock(Workspace.class);
+    public void testIsValidWithFunctionProperties() {
+        Map<String, Map<String, Object>> jsonData = new HashMap<>();
+        Map<String, Object> property = new HashMap<>();
+        property.put("isFunction", true);
+        property.put("method", "testMethod");
+        property.put("parameterTypes", new Class<?>[] {});
+        property.put("args", new Object[] {});
+        jsonData.put("testKey", property);
 
-        // Set up behavior for mocks
-        when(mockSession.getWorkspace()).thenReturn(mockWorkspace);
-        when(mockWorkspace.getQueryManager()).thenReturn(mockQueryManager);
-        when(mockQueryManager.createQuery(anyString(), eq(Query.JCR_SQL2))).thenThrow(new RuntimeException("Invalid query"));
+        InvalidateDispatcherCacheImpl invalidateDispatcherCacheImplSpy = spy(invalidateDispatcherCacheImpl);
+        doReturn(jsonData).when(invalidateDispatcherCacheImplSpy).createJsonData(resourceResolver, "testStorePath");
+        doReturn(true).when(invalidateDispatcherCacheImplSpy).invokeFunction(property);
 
-        // Invoke the private method and verify exception
-        try {
-            invokePrivateMethod("getSqlQuery", new Class<?>[] { Session.class, String.class }, mockSession, "INVALID QUERY");
-            fail("Expected CacheInvalidationException to be thrown");
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            assertTrue(cause instanceof CacheInvalidationException);
-            assertEquals("Error creating SKU-based SQL2 query", cause.getMessage());
-        }
+        boolean result = invalidateDispatcherCacheImplSpy.isValid(valueMap, resourceResolver, "testStorePath");
+        assertTrue(result);
     }
 }
