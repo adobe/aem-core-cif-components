@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,6 +34,8 @@ import com.adobe.cq.commerce.core.components.models.product.*;
 import com.adobe.cq.commerce.core.components.models.product.Variant;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.magento.graphql.*;
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -357,4 +360,87 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         assertTrue(productJson.get("offers").isArray());
         assertEquals(0, productJson.get("offers").size());
     }
+
+    @Test
+    public void testGetJsonLd() throws Exception {
+        // Initialize and configure the ProductImpl object
+        ProductImpl product = spy(new ProductImpl());
+        SlingBindings bindings = new SlingBindings();
+
+        // Create a resource and adapt it to a Page object
+        Resource resource = context.create().resource("/content/page");
+        PageManager pageManager = resource.getResourceResolver().adaptTo(PageManager.class);
+        Page page = pageManager.getContainingPage(resource);
+
+        bindings.put("currentPage", page);
+        context.request().setAttribute(SlingBindings.class.getName(), bindings);
+
+        // Use reflection to access the private isEnableJsonLd method
+        Method isEnableJsonLdMethod = ProductImpl.class.getDeclaredMethod("isEnableJsonLd");
+        isEnableJsonLdMethod.setAccessible(true);
+
+        // Mock the necessary methods
+        doReturn("test-sku").when(product).getSku();
+        doReturn("Test Product").when(product).getName();
+        doReturn("Test Description").when(product).getDescription();
+        doReturn("test-id").when(product).getId();
+        doReturn(Collections.emptyList()).when(product).getAssets();
+        product.enableJsonLd = true; // Set the enableJsonLd field directly
+
+        // Call the private method using reflection
+        boolean isEnableJsonLd = (boolean) isEnableJsonLdMethod.invoke(product);
+        assertTrue(isEnableJsonLd);
+
+        // Call the method
+        String jsonLd = product.getJsonLd();
+
+        // Verify the result
+        assertNotNull(jsonLd);
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode productJson = (ObjectNode) mapper.readTree(jsonLd);
+        assertEquals("http://schema.org", productJson.get("@context").asText());
+        assertEquals("Product", productJson.get("@type").asText());
+        assertEquals("test-sku", productJson.get("sku").asText());
+        assertEquals("Test Product", productJson.get("name").asText());
+        assertEquals("Test Description", productJson.get("description").asText());
+        assertEquals("test-id", productJson.get("@id").asText());
+        assertTrue(productJson.has("offers"));
+    }
+
+    @Test
+    public void testGetJsonLdDisabled() throws Exception {
+        // Initialize and configure the ProductImpl object
+        ProductImpl product = spy(new ProductImpl());
+        SlingBindings bindings = new SlingBindings();
+
+        // Create a resource and adapt it to a Page object
+        Resource resource = context.create().resource("/content/page");
+        PageManager pageManager = resource.getResourceResolver().adaptTo(PageManager.class);
+        Page page = pageManager.getContainingPage(resource);
+
+        bindings.put("currentPage", page);
+        context.request().setAttribute(SlingBindings.class.getName(), bindings);
+
+        // Use reflection to access the private isEnableJsonLd method
+        Method isEnableJsonLdMethod = ProductImpl.class.getDeclaredMethod("isEnableJsonLd");
+        isEnableJsonLdMethod.setAccessible(true);
+
+        // Mock the necessary methods
+        doReturn("test-sku").when(product).getSku();
+        doReturn("Test Product").when(product).getName();
+        doReturn("Test Description").when(product).getDescription();
+        doReturn("test-id").when(product).getId();
+        doReturn(Collections.emptyList()).when(product).getAssets();
+
+        // Call the private method using reflection
+        boolean isEnableJsonLd = (boolean) isEnableJsonLdMethod.invoke(product);
+        assertFalse(isEnableJsonLd);
+
+        // Call the method
+        String jsonLd = product.getJsonLd();
+
+        // Verify the result
+        assertNull(jsonLd);
+    }
+
 }
