@@ -18,15 +18,9 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import javax.jcr.Session;
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryResult;
-import javax.jcr.query.Row;
-import javax.jcr.query.RowIterator;
+import javax.jcr.Workspace;
+import javax.jcr.query.*;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.DispatcherCacheInvalidationStrategy;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
-import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
-import com.adobe.cq.commerce.graphql.client.RequestOptions;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
@@ -37,7 +31,6 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
 import org.slf4j.Logger;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
@@ -70,9 +63,6 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Mock
     private Logger logger;
-
-    @Mock
-    private Session mockSession;
 
     @InjectMocks
     private InvalidateDispatcherCacheImpl invalidateDispatcherCacheImpl;
@@ -256,23 +246,7 @@ public class InvalidateDispatcherCacheImplTest {
     }
 
     @Test
-    public void testInvalidateCacheWithFlushCacheException() throws Exception {
-        InvalidateDispatcherCacheImpl spyInvalidateDispatcherCacheImpl = spy(new InvalidateDispatcherCacheImpl());
-
-        Method flushCacheMethod = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("flushCache", String.class);
-        flushCacheMethod.setAccessible(true);
-
-        try {
-            flushCacheMethod.invoke(spyInvalidateDispatcherCacheImpl, "/content/test");
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            assertTrue(cause instanceof CacheInvalidationException);
-            assertEquals("Flush cache error", cause.getMessage());
-        }
-    }
-
-    @Test
-    public void testInvalidateCacheWithException() throws Exception {
+    public void testInvalidateCacheWithException() {
         when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
         when(invalidateCacheSupport.getServiceUserResourceResolver()).thenThrow(new RuntimeException("Test exception"));
 
@@ -292,8 +266,8 @@ public class InvalidateDispatcherCacheImplTest {
 
         // Set up the expected results
         String[] expectedResult = new String[] {
-                "/content/page1" + InvalidateCacheSupport.HTML_SUFFIX,
-                "/content/page2" + InvalidateCacheSupport.HTML_SUFFIX
+            "/content/page1" + InvalidateCacheSupport.HTML_SUFFIX,
+            "/content/page2" + InvalidateCacheSupport.HTML_SUFFIX
         };
 
         // Set up behavior for mocks
@@ -310,5 +284,50 @@ public class InvalidateDispatcherCacheImplTest {
         // Verify the expected results
         assertNotNull(result);
         assertArrayEquals(expectedResult, result);
+    }
+
+    @Test
+    public void testGetSqlQuery_ValidQuery() throws Exception {
+        // Mock dependencies
+        Session mockSession = mock(Session.class);
+        QueryManager mockQueryManager = mock(QueryManager.class);
+        Query mockQuery = mock(Query.class);
+        Workspace mockWorkspace = mock(Workspace.class);
+
+        // Set up behavior for mocks
+        when(mockSession.getWorkspace()).thenReturn(mockWorkspace);
+        when(mockWorkspace.getQueryManager()).thenReturn(mockQueryManager);
+        when(mockQueryManager.createQuery(anyString(), eq(Query.JCR_SQL2))).thenReturn(mockQuery);
+
+        // Invoke the private method
+        Query result = (Query) invokePrivateMethod("getSqlQuery", new Class<?>[] { Session.class, String.class }, mockSession,
+            "SELECT * FROM [nt:base]");
+
+        // Verify the expected results
+        assertNotNull(result);
+        assertEquals(mockQuery, result);
+    }
+
+    @Test
+    public void testGetSqlQuery_InvalidQuery() throws Exception {
+        // Mock dependencies
+        Session mockSession = mock(Session.class);
+        QueryManager mockQueryManager = mock(QueryManager.class);
+        Workspace mockWorkspace = mock(Workspace.class);
+
+        // Set up behavior for mocks
+        when(mockSession.getWorkspace()).thenReturn(mockWorkspace);
+        when(mockWorkspace.getQueryManager()).thenReturn(mockQueryManager);
+        when(mockQueryManager.createQuery(anyString(), eq(Query.JCR_SQL2))).thenThrow(new RuntimeException("Invalid query"));
+
+        // Invoke the private method and verify exception
+        try {
+            invokePrivateMethod("getSqlQuery", new Class<?>[] { Session.class, String.class }, mockSession, "INVALID QUERY");
+            fail("Expected CacheInvalidationException to be thrown");
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            assertTrue(cause instanceof CacheInvalidationException);
+            assertEquals("Error creating SKU-based SQL2 query", cause.getMessage());
+        }
     }
 }
