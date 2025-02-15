@@ -246,7 +246,7 @@ public class InvalidateDispatcherCacheImpl {
 
             if (parameterTypes != null && args != null) {
                 method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod(methodName, parameterTypes);
-                result = method.invoke(null, args);
+                result = method.invoke(this, args);
             } else {
                 throw new IllegalArgumentException("Invalid method parameters for: " + methodName);
             }

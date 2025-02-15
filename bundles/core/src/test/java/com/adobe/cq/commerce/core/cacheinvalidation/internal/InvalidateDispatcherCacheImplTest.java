@@ -84,12 +84,48 @@ public class InvalidateDispatcherCacheImplTest {
     @Mock
     private Logger logger;
 
+    @Mock
+    private Session session;
+
+    @Mock
+    private Workspace workspace;
+
+    @Mock
+    private QueryManager queryManager;
+
+    @Mock
+    private Query query;
+
+    @Mock
+    private QueryResult queryResult;
+
+    @Mock
+    private RowIterator rowIterator;
+
+    @Mock
+    private Row row;
+
+    @Mock
+    private PageManager pageManager;
+
+    @Mock
+    private Page page;
+
+    @Mock
+    private GraphqlClient client;
+
+    @Mock
+    private GraphqlResponse graphqlResponse;
+
+    private ComponentsConfiguration componentsConfiguration;
+
     @InjectMocks
     private InvalidateDispatcherCacheImpl invalidateDispatcherCacheImpl;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        componentsConfiguration = new ComponentsConfiguration(new ValueMapDecorator(new HashMap<>()));
         setLoggerField();
     }
 
@@ -125,7 +161,7 @@ public class InvalidateDispatcherCacheImplTest {
     }
 
     @Test
-    public void testInvalidateCache_ResourceIsNull_ShouldExitEarly() throws NoSuchMethodException {
+    public void testInvalidateCache_ResourceIsNull_ShouldExitEarly() {
         when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
         when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
         when(invalidateCacheSupport.getResource(resourceResolver, "/content/path")).thenReturn(null);
@@ -135,6 +171,157 @@ public class InvalidateDispatcherCacheImplTest {
         verify(invalidateCacheSupport).getServiceUserResourceResolver();
         verify(invalidateCacheSupport).getResource(resourceResolver, "/content/path");
         verify(resource, never()).getValueMap();
+    }
+
+    @Test
+    public void testInvalidateCache_GetAllInvalidPathsReturnsEmptyArray_ShouldExitEarly() throws Exception {
+        Map<String, String[]> dynamicProperties = new HashMap<>();
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
+        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
+        when(invalidateCacheSupport.getResource(resourceResolver, "/content/path")).thenReturn(resource);
+
+        when(resource.getValueMap()).thenReturn(valueMap);
+        when(valueMap.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class)).thenReturn("storePath");
+
+        InvalidateDispatcherCacheImpl invalidateDispatcherCacheImplSpy = spy(invalidateDispatcherCacheImpl);
+        doReturn(session).when(invalidateDispatcherCacheImplSpy).getSession(resourceResolver);
+        doReturn(true).when(invalidateDispatcherCacheImplSpy).isValid(valueMap, resourceResolver, "storePath");
+        doReturn(new String[0]).when(invalidateDispatcherCacheImplSpy).getAllInvalidPaths(any(), any(), any(), anyString(), anyMap());
+        doReturn(componentsConfiguration).when(invalidateDispatcherCacheImplSpy).getCommerceProperties(resourceResolver, "storePath");
+
+        invalidateDispatcherCacheImplSpy.invalidateCache("/content/path");
+
+        verify(invalidateCacheSupport).getServiceUserResourceResolver();
+        verify(invalidateCacheSupport).getResource(resourceResolver, "/content/path");
+        verify(resource).getValueMap();
+        verify(invalidateDispatcherCacheImplSpy).isValid(valueMap, resourceResolver, "storePath");
+        verify(invalidateDispatcherCacheImplSpy).getAllInvalidPaths(any(), any(), any(), anyString(), anyMap());
+    }
+
+    @Test
+    public void testInvalidateCache_FlushCacheCalledForEachPath() throws Exception {
+        Map<String, String[]> dynamicProperties = new HashMap<>();
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
+        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
+        when(invalidateCacheSupport.getResource(resourceResolver, "/content/path")).thenReturn(resource);
+        when(resource.getValueMap()).thenReturn(valueMap);
+        when(valueMap.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class)).thenReturn("storePath");
+
+        InvalidateDispatcherCacheImpl invalidateDispatcherCacheImplSpy = spy(invalidateDispatcherCacheImpl);
+        doReturn(session).when(invalidateDispatcherCacheImplSpy).getSession(resourceResolver);
+        doReturn(true).when(invalidateDispatcherCacheImplSpy).isValid(valueMap, resourceResolver, "storePath");
+        doReturn(new String[] { "/content/page1", "/content/page2" }).when(invalidateDispatcherCacheImplSpy)
+            .getAllInvalidPaths(any(), any(), any(), anyString(), anyMap());
+        doReturn(componentsConfiguration).when(invalidateDispatcherCacheImplSpy).getCommerceProperties(resourceResolver, "storePath");
+        // Mock the flushCache method to do nothing
+        doNothing().when(invalidateDispatcherCacheImplSpy).flushCache(anyString());
+
+        invalidateDispatcherCacheImplSpy.invalidateCache("/content/path");
+
+        verify(invalidateCacheSupport).getServiceUserResourceResolver();
+        verify(invalidateCacheSupport).getResource(resourceResolver, "/content/path");
+        verify(resource).getValueMap();
+        verify(invalidateDispatcherCacheImplSpy).isValid(valueMap, resourceResolver, "storePath");
+        verify(invalidateDispatcherCacheImplSpy).getAllInvalidPaths(any(), any(), any(), anyString(), anyMap());
+        verify(invalidateDispatcherCacheImplSpy).flushCache("/content/page1");
+        verify(invalidateDispatcherCacheImplSpy).flushCache("/content/page2");
+    }
+
+    @Test
+    public void testInvalidateCache_IsValidReturnsFalse_ShouldExitEarly() throws Exception {
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
+        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
+        when(invalidateCacheSupport.getResource(resourceResolver, "/content/path")).thenReturn(resource);
+        when(resource.getValueMap()).thenReturn(valueMap);
+        when(valueMap.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class)).thenReturn("storePath");
+
+        InvalidateDispatcherCacheImpl invalidateDispatcherCacheImplSpy = spy(invalidateDispatcherCacheImpl);
+        doReturn(session).when(invalidateDispatcherCacheImplSpy).getSession(resourceResolver);
+        doReturn(false).when(invalidateDispatcherCacheImplSpy).isValid(valueMap, resourceResolver, "storePath");
+
+        invalidateDispatcherCacheImplSpy.invalidateCache("/content/path");
+
+        verify(invalidateCacheSupport).getServiceUserResourceResolver();
+        verify(invalidateCacheSupport).getResource(resourceResolver, "/content/path");
+        verify(resource).getValueMap();
+        verify(invalidateDispatcherCacheImplSpy).isValid(valueMap, resourceResolver, "storePath");
+        verify(invalidateDispatcherCacheImplSpy, never()).getAllInvalidPaths(any(), any(), any(), anyString(), anyMap());
+    }
+
+    @Test
+    public void testInvalidateCache_GetCommercePropertiesReturnsNull_ShouldExitEarly() throws Exception {
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
+        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
+        when(invalidateCacheSupport.getResource(resourceResolver, "/content/path")).thenReturn(resource);
+        when(resource.getValueMap()).thenReturn(valueMap);
+        when(valueMap.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class)).thenReturn("storePath");
+
+        InvalidateDispatcherCacheImpl invalidateDispatcherCacheImplSpy = spy(invalidateDispatcherCacheImpl);
+        doReturn(session).when(invalidateDispatcherCacheImplSpy).getSession(resourceResolver);
+        doReturn(true).when(invalidateDispatcherCacheImplSpy).isValid(valueMap, resourceResolver, "storePath");
+        doReturn(null).when(invalidateDispatcherCacheImplSpy).getCommerceProperties(resourceResolver, "storePath");
+
+        invalidateDispatcherCacheImplSpy.invalidateCache("/content/path");
+
+        verify(invalidateCacheSupport).getServiceUserResourceResolver();
+        verify(invalidateCacheSupport).getResource(resourceResolver, "/content/path");
+        verify(resource).getValueMap();
+        verify(invalidateDispatcherCacheImplSpy).isValid(valueMap, resourceResolver, "storePath");
+        verify(invalidateDispatcherCacheImplSpy).getCommerceProperties(resourceResolver, "storePath");
+        verify(invalidateDispatcherCacheImplSpy, never()).getAllInvalidPaths(any(), any(), any(), anyString(), anyMap());
+    }
+
+    @Test
+    public void testInvalidateCache_GetAllInvalidPathsThrowsException_ShouldLogError() throws Exception {
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
+        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
+        when(invalidateCacheSupport.getResource(resourceResolver, "/content/path")).thenReturn(resource);
+        when(resource.getValueMap()).thenReturn(valueMap);
+        when(valueMap.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class)).thenReturn("storePath");
+
+        InvalidateDispatcherCacheImpl invalidateDispatcherCacheImplSpy = spy(invalidateDispatcherCacheImpl);
+        doReturn(session).when(invalidateDispatcherCacheImplSpy).getSession(resourceResolver);
+        doReturn(true).when(invalidateDispatcherCacheImplSpy).isValid(valueMap, resourceResolver, "storePath");
+        doReturn(componentsConfiguration).when(invalidateDispatcherCacheImplSpy).getCommerceProperties(resourceResolver, "storePath");
+        doThrow(new CacheInvalidationException("Test exception")).when(invalidateDispatcherCacheImplSpy)
+            .getAllInvalidPaths(any(), any(), any(), anyString(), anyMap());
+
+        invalidateDispatcherCacheImplSpy.invalidateCache("/content/path");
+
+        verify(invalidateCacheSupport).getServiceUserResourceResolver();
+        verify(invalidateCacheSupport).getResource(resourceResolver, "/content/path");
+        verify(resource).getValueMap();
+        verify(invalidateDispatcherCacheImplSpy).isValid(valueMap, resourceResolver, "storePath");
+        verify(invalidateDispatcherCacheImplSpy).getCommerceProperties(resourceResolver, "storePath");
+        verify(logger).error(eq("Error invalidating cache: {}"), eq("Test exception"), any(CacheInvalidationException.class));
+    }
+
+    @Test
+    public void testInvalidateCache_FlushCacheThrowsException_ShouldLogError() throws Exception {
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
+        when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
+        when(invalidateCacheSupport.getResource(resourceResolver, "/content/path")).thenReturn(resource);
+        when(resource.getValueMap()).thenReturn(valueMap);
+        when(valueMap.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class)).thenReturn("storePath");
+
+        InvalidateDispatcherCacheImpl invalidateDispatcherCacheImplSpy = spy(invalidateDispatcherCacheImpl);
+        doReturn(session).when(invalidateDispatcherCacheImplSpy).getSession(resourceResolver);
+        doReturn(true).when(invalidateDispatcherCacheImplSpy).isValid(valueMap, resourceResolver, "storePath");
+        doReturn(new String[] { "/content/page1", "/content/page2" }).when(invalidateDispatcherCacheImplSpy)
+            .getAllInvalidPaths(any(), any(), any(), anyString(), anyMap());
+        doReturn(componentsConfiguration).when(invalidateDispatcherCacheImplSpy).getCommerceProperties(resourceResolver, "storePath");
+        doThrow(new CacheInvalidationException("Test exception")).when(invalidateDispatcherCacheImplSpy).flushCache(anyString());
+
+        invalidateDispatcherCacheImplSpy.invalidateCache("/content/path");
+
+        verify(invalidateCacheSupport).getServiceUserResourceResolver();
+        verify(invalidateCacheSupport).getResource(resourceResolver, "/content/path");
+        verify(resource).getValueMap();
+        verify(invalidateDispatcherCacheImplSpy).isValid(valueMap, resourceResolver, "storePath");
+        verify(invalidateDispatcherCacheImplSpy).getAllInvalidPaths(any(), any(), any(), anyString(), anyMap());
+        verify(invalidateDispatcherCacheImplSpy).flushCache("/content/page1");
+        verify(invalidateDispatcherCacheImplSpy).flushCache("/content/page2");
+        verify(logger, times(2)).error(eq("Error flushing cache for path {}: {}"), anyString(), eq("Test exception"));
     }
 
     @Test
@@ -153,7 +340,7 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Test
     public void testGetSession_ValidSession() throws Exception {
-        when(resourceResolver.adaptTo(Session.class)).thenReturn(mock(Session.class));
+        when(resourceResolver.adaptTo(Session.class)).thenReturn(session);
         Session result = invalidateDispatcherCacheImpl.getSession(resourceResolver);
         assertNotNull(result);
     }
@@ -166,7 +353,6 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Test
     public void testGetCommerceProperties() {
-        ComponentsConfiguration componentsConfiguration = new ComponentsConfiguration(new ValueMapDecorator(new HashMap<>()));
         when(invalidateCacheSupport.getCommerceProperties(resourceResolver, "storePath")).thenReturn(componentsConfiguration);
 
         ComponentsConfiguration result = invalidateDispatcherCacheImpl.getCommerceProperties(resourceResolver, "storePath");
@@ -176,19 +362,6 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Test
     public void testGetAllInvalidPaths() throws Exception {
-        // Mock the necessary objects and their behaviors
-        Session session = mock(Session.class);
-        Workspace workspace = mock(Workspace.class);
-        QueryManager queryManager = mock(QueryManager.class);
-        Query query = mock(Query.class);
-        QueryResult queryResult = mock(QueryResult.class);
-        RowIterator rowIterator = mock(RowIterator.class);
-        Row row = mock(Row.class);
-        PageManager pageManager = mock(PageManager.class);
-        Page page = mock(Page.class);
-        GraphqlClient client = mock(GraphqlClient.class);
-        GraphqlResponse graphqlResponse = mock(GraphqlResponse.class);
-
         // Set up the mocks
         when(resourceResolver.adaptTo(Session.class)).thenReturn(session);
         when(session.getWorkspace()).thenReturn(workspace);
@@ -242,8 +415,8 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Test
     public void testGetGraphqlResponseData() {
-        GraphqlClient client = mock(GraphqlClient.class);
-        when(client.execute(any(), any(), any())).thenReturn(mock(GraphqlResponse.class));
+        GraphqlClient client = graphqlClient;
+        when(client.execute(any(), any(), any())).thenReturn(graphqlResponse);
         Map<String, Object> result = invalidateDispatcherCacheImpl.getGraphqlResponseData(client, "query");
         assertNotNull(result);
     }
@@ -267,10 +440,6 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Test
     public void testGetQueryResult_ValidResult() throws Exception {
-        Query query = mock(Query.class);
-        QueryResult queryResult = mock(QueryResult.class);
-        RowIterator rowIterator = mock(RowIterator.class);
-        Row row = mock(Row.class);
 
         when(query.execute()).thenReturn(queryResult);
         when(queryResult.getRows()).thenReturn(rowIterator);
@@ -306,5 +475,55 @@ public class InvalidateDispatcherCacheImplTest {
 
         boolean result = invalidateDispatcherCacheImplSpy.isValid(valueMap, resourceResolver, "testStorePath");
         assertTrue(result);
+    }
+
+    @Test
+    public void testGetCorrespondingPageProperties() {
+        String storePath = "/content/store";
+        String propertyName = "propertyName";
+
+        when(resourceResolver.adaptTo(PageManager.class)).thenReturn(pageManager);
+        when(pageManager.getPage(storePath)).thenReturn(page);
+        when(page.getProperties()).thenReturn(valueMap);
+        when(valueMap.get(propertyName, String.class)).thenReturn("propertyValue");
+
+        String result = invalidateDispatcherCacheImpl.getCorrespondingPageProperties(resourceResolver, storePath, propertyName);
+        assertEquals("propertyValue", result);
+    }
+
+    @Test
+    public void testGetSqlQuery() throws Exception {
+        String sql2Query = "SELECT * FROM [cq:Page] WHERE ISDESCENDANTNODE('/content')";
+
+        // Ensure session is properly mocked
+        when(session.getWorkspace()).thenReturn(workspace);
+        when(workspace.getQueryManager()).thenReturn(queryManager);
+        when(queryManager.createQuery(sql2Query, Query.JCR_SQL2)).thenReturn(query);
+
+        Query result = invalidateDispatcherCacheImpl.getSqlQuery(session, sql2Query);
+        assertEquals(query, result);
+    }
+
+    @Test
+    public void testInvokeFunction() throws Exception {
+        // Create a map to represent the properties
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("method", "getCorrespondingPageProperties");
+        properties.put("parameterTypes", new Class<?>[] { ResourceResolver.class, String.class, String.class });
+        properties.put("args", new Object[] { resourceResolver, "/content/store", "propertyName" });
+
+        // Create a spy of the InvalidateDispatcherCacheImpl class
+        InvalidateDispatcherCacheImpl invalidateDispatcherCacheImplSpy = spy(invalidateDispatcherCacheImpl);
+
+        // Mock the getCorrespondingPageProperties method to return a value
+        doReturn("propertyValue").when(invalidateDispatcherCacheImplSpy).getCorrespondingPageProperties(any(ResourceResolver.class),
+            anyString(), anyString());
+
+        // Call the invokeFunction method
+        boolean result = invalidateDispatcherCacheImplSpy.invokeFunction(properties);
+
+        // Verify the result
+        assertTrue(result);
+        verify(invalidateDispatcherCacheImplSpy).getCorrespondingPageProperties(resourceResolver, "/content/store", "propertyName");
     }
 }
