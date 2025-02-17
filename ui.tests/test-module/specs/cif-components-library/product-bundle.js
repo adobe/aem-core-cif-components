@@ -16,8 +16,6 @@
 
 const config = require('../../lib/config');
 const commons = require('../../lib/commons');
-const fs = require('fs');
-const path = require('path');
 
 describe('Product bundle in CIF components library', () => {
 
@@ -32,12 +30,6 @@ describe('Product bundle in CIF components library', () => {
 
         // Setup GraphQL client
         commons.configureExamplesGraphqlClient(browser);
-
-        // Create screenshots directory if it doesn't exist
-        const screenshotsDir = path.resolve(__dirname, '../../screenshots');
-        if (!fs.existsSync(screenshotsDir)) {
-            fs.mkdirSync(screensDir, { recursive: true });
-        }
     });
 
     beforeEach(() => {
@@ -48,21 +40,18 @@ describe('Product bundle in CIF components library', () => {
     it('can customize a bundle product', () => {
         // Go to the product page
         browser.url(product_page);
-        browser.saveScreenshot(path.resolve(__dirname, '../../screenshots/bundle_product_page.png'));
 
         // Check that the customize button is displayed
         const customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
         expect(customizeButton).toBeDisplayed();
-        browser.saveScreenshot(path.resolve(__dirname, '../../screenshots/customize_button_displayed.png'));
 
         customizeButton.click();
+
         browser.pause(2000);
-        browser.saveScreenshot(path.resolve(__dirname, '../../screenshots/customize_button_clicked.png'));
 
         // Verify that we get 5 "options" fields
         const options = $$(`${product_selector} .productFullDetail__bundleProduct`);
         expect(options.length).toBe(5);
-        browser.saveScreenshot(path.resolve(__dirname, '../../screenshots/options_fields.png'));
     });
 
 });
