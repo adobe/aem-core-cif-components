@@ -44,6 +44,12 @@ public class InvalidateCacheRegistryTest {
     @InjectMocks
     private InvalidateCacheRegistry invalidateCacheRegistry;
 
+    @Mock
+    private Page page;
+
+    @Mock
+    private ResourceResolver resourceResolver;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -125,8 +131,6 @@ public class InvalidateCacheRegistryTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER, "attribute2");
 
-        Page page = mock(Page.class);
-        ResourceResolver resourceResolver = mock(ResourceResolver.class);
         Map<String, Object> data = new HashMap<>();
         String[] paths = new String[] { "path1", "path2" };
 
@@ -150,5 +154,23 @@ public class InvalidateCacheRegistryTest {
         Set<String> attributes = invalidateCacheRegistry.getAttributes();
         assertTrue(attributes.contains("attribute1"));
         assertTrue(attributes.contains("attribute2"));
+    }
+
+    @Test
+    public void testGetQuery_NonDispatcherCacheInvalidationStrategy() {
+        String result = invalidateCacheRegistry.getQuery("attribute1", "storePath", "dataList");
+        assertNull(result);
+    }
+
+    @Test
+    public void testGetGraphqlQuery_NonDispatcherCacheInvalidationStrategy() {
+        String result = invalidateCacheRegistry.getGraphqlQuery("attribute1", new String[] { "data" });
+        assertNull(result);
+    }
+
+    @Test
+    public void testGetPathsToInvalidate_NonDispatcherCacheInvalidationStrategy() {
+        String[] result = invalidateCacheRegistry.getPathsToInvalidate("attribute1", page, resourceResolver, new HashMap<>(), "storePath");
+        assertArrayEquals(new String[0], result);
     }
 }

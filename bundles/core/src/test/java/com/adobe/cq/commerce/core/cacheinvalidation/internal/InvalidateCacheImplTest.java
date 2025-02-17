@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
 
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class InvalidateCacheImplTest {
@@ -149,5 +151,33 @@ public class InvalidateCacheImplTest {
         invalidateCacheImpl.invalidateCache(path);
 
         verifyZeroInteractions(graphqlClient);
+    }
+
+    private String[] invokeGetAttributePatterns(String[] patterns, String attribute) throws Exception {
+        Method method = InvalidateCacheImpl.class.getDeclaredMethod("getAttributePatterns", String[].class, String.class);
+        method.setAccessible(true);
+        return (String[]) method.invoke(invalidateCacheImpl, patterns, attribute);
+    }
+
+    @Test
+    public void testGetAttributePatterns_WithPattern() throws Exception {
+        String[] patterns = { "pattern1", "pattern2" };
+        String attribute = "attribute";
+        String expectedPattern = "expectedPattern";
+        when(invalidateCacheRegistry.getPattern(attribute)).thenReturn(expectedPattern);
+        String[] result = invokeGetAttributePatterns(patterns, attribute);
+        assertNotNull(result);
+        assertEquals(1, result.length);
+        assertEquals("expectedPattern(pattern1|pattern2)", result[0]);
+    }
+
+    @Test
+    public void testGetAttributePatterns_WithoutPattern() throws Exception {
+        String[] patterns = { "pattern1", "pattern2" };
+        String attribute = "attribute";
+        when(invalidateCacheRegistry.getPattern(attribute)).thenReturn(null);
+        String[] result = invokeGetAttributePatterns(patterns, attribute);
+        assertNotNull(result);
+        assertArrayEquals(patterns, result);
     }
 }

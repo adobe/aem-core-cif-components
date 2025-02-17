@@ -27,7 +27,7 @@ import com.adobe.granite.ui.components.rendercondition.RenderCondition;
 
 import static org.mockito.Mockito.*;
 
-public class InvalidateCacheButtonServletTest {
+public class ClearCacheButtonRenderConditionServletTest {
 
     @Mock
     private InvalidateCacheSupport invalidateCacheSupport;

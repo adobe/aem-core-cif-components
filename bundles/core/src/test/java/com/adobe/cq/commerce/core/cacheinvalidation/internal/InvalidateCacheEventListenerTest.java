@@ -141,6 +141,21 @@ public class InvalidateCacheEventListenerTest {
     }
 
     @Test
+    public void testActivateWithRepositoryException() throws RepositoryException {
+        when(repository.loginService(anyString(), isNull(String.class))).thenThrow(new RepositoryException("Test exception"));
+        eventListener.activate();
+        verify(repository).loginService(anyString(), isNull(String.class));
+    }
+
+    @Test
+    public void testDeactivateWithRepositoryException() throws RepositoryException {
+        eventListener.activate();
+        doThrow(new RepositoryException("Test exception")).when(observationManager).removeEventListener(eventListener);
+        eventListener.deactivate();
+        verify(observationManager).removeEventListener(eventListener);
+    }
+
+    @Test
     public void testOnEventWithDispatcherCacheInvalidationDisabled() throws RepositoryException {
         when(eventIterator.hasNext()).thenReturn(true, false);
         when(eventIterator.nextEvent()).thenReturn(event);
