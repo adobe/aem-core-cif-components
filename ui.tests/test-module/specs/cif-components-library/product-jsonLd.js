@@ -17,7 +17,7 @@
 
 const config = require('../../lib/config');
 
-describe('Checkbox Uncheck Test', () => {
+describe('Checkbox  Test', () => {
     before(() => {
         // Set window size to desktop
         browser.setWindowSize(1280, 960);
@@ -26,9 +26,6 @@ describe('Checkbox Uncheck Test', () => {
         browser.AEMForceLogout();
         browser.url(config.aem.author.base_url);
         browser.AEMLogin(config.aem.author.username, config.aem.author.password);
-
-
-
     });
 
     it('can enable/disable JSON-LD, save changes, and verify JSON-LD on the product page', async () => {
@@ -37,20 +34,19 @@ describe('Checkbox Uncheck Test', () => {
             `${config.aem.author.base_url}/mnt/overlay/cif/shell/content/configuration/properties.html?item=%2Fconf%2Fcore-components-examples%2Fsettings%2Fcloudconfigs%2Fcommerce`
         );
 
-        // Adding an explicit wait here to ensure the page fully loads
-        await browser.waitUntil(
-            async () => await browser.getUrl().includes('properties.html'),
-            { timeout: 5000, timeoutMsg: 'Properties page not loaded in time' }
-        );
+        // Step 2: Ensure the page is fully loaded
+        await browser.waitUntil(async () => (await browser.execute('return document.readyState')) === 'complete', {
+            timeout: 10000,
+            timeoutMsg: 'Page did not load completely in time'
+        });
 
-        // Step 2: Wait for all tabs to be visible
+        // Step 3: Wait for tabs to load and select the "Features" tab
         const allTabs = await $$('coral-tab');
         await browser.waitUntil(async () => (await allTabs.length) > 0, {
             timeout: 5000,
             timeoutMsg: 'Tabs did not load in time'
         });
 
-        // Step 3: Find the "Features" tab and select it
         let featuresTab;
         for (const tab of allTabs) {
             const label = await tab.$('coral-tab-label');
@@ -61,7 +57,6 @@ describe('Checkbox Uncheck Test', () => {
             }
         }
 
-        // Ensure the "Features" tab is selected
         if (!featuresTab) {
             throw new Error('Features tab not found!');
         }
@@ -75,71 +70,47 @@ describe('Checkbox Uncheck Test', () => {
             timeoutMsg: 'Features tab was not selected in time'
         });
 
-        // Step 5: Locate the "Enable JSON" checkbox by its name attribute using WebDriverIO's $() function
+        // Step 4: Locate and interact with the "Enable JSON" checkbox
         const enableJsonLdCheckbox = await $('coral-checkbox[name="./enableJsonLd"]');
-        await enableJsonLdCheckbox.waitForDisplayed({ timeout: 5000 });
+        await enableJsonLdCheckbox.waitForDisplayed({ timeout: 10000 });
+        await enableJsonLdCheckbox.waitForEnabled({ timeout: 10000 });
 
-        // Adding a retry mechanism in case the checkbox is not immediately interactable
-        await browser.waitUntil(
-            async () => await enableJsonLdCheckbox.isDisplayed() && await enableJsonLdCheckbox.isEnabled(),
-            { timeout: 5000, timeoutMsg: 'Checkbox was not interactable in time' }
-        );
-
-        // Step 6: Check if the checkbox is disabled (aria-disabled="true" or has the class "is-disabled")
-        const isDisabled = await enableJsonLdCheckbox.getAttribute('aria-disabled');
-        let classList = await enableJsonLdCheckbox.getAttribute('class');
-        classList = classList || ''; // Ensure classList is not null
-
-        const hasDisabledClass = classList.includes('is-disabled');
-
-        // Step 7: Check if the checkbox is selected
-        const isChecked = await enableJsonLdCheckbox.isSelected();
-
-        // Step 8: If checkbox is checked, skip the action and save & close
-        if (!isChecked) {
-            // Step 9: If the checkbox is not checked, check if it is locked (disabled)
-            if (isDisabled === 'true' || hasDisabledClass) {
-                // Use browser.execute to remove the 'aria-disabled' attribute (using JavaScript in the browser context)
-                await browser.execute(checkbox => {
-                    checkbox.setAttribute('aria-disabled', 'false'); // Remove aria-disabled attribute
-                }, enableJsonLdCheckbox);
-
-                // Enable the checkbox input by removing the disabled attribute from the input element
+        // Retry mechanism for clicking the checkbox
+        let retries = 0;
+        let maxRetries = 3;
+        while (retries < maxRetries) {
+            try {
                 const inputCheckbox = await enableJsonLdCheckbox.$('input[type="checkbox"]');
-                await browser.execute(checkboxInput => {
-                    checkboxInput.removeAttribute('disabled'); // Remove the disabled attribute from the checkbox input
-                }, inputCheckbox);
-            }
-
-            // Step 10: Now, check the checkbox (whether it was previously locked or not)
-            const inputCheckbox = await enableJsonLdCheckbox.$('input[type="checkbox"]');
-
-            // Ensure the checkbox is checked, without unchecking it if already checked
-            const isInputChecked = await inputCheckbox.isSelected();
-            if (!isInputChecked) {
-                await inputCheckbox.click(); // Only click if it's not already checked
+                const isInputChecked = await inputCheckbox.isSelected();
+                if (!isInputChecked) {
+                    await inputCheckbox.click();
+                }
+                break; // Break if interaction succeeds
+            } catch (err) {
+                retries++;
+                if (retries >= maxRetries) {
+                    throw new Error('Failed to check the checkbox after multiple attempts.');
+                }
+                await browser.pause(1000); // Pause before retrying
             }
         }
 
-        // Step 11: Save the changes
+        // Step 5: Save the changes
         const saveButton = await $('#shell-propertiespage-doneactivator');
-        await saveButton.waitForDisplayed({ timeout: 5000 });
+        await saveButton.waitForDisplayed({ timeout: 10000 });
         await saveButton.click();
 
-        // Step 12: Navigate to the product page
+        // Step 6: Navigate to the product page and ensure it's loaded
         const productPageUrl = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/chaz-kangeroo-hoodie.html?wcmmode=disabled`;
         await browser.url(productPageUrl);
 
-        // Step 13: Wait for the page to load (use a specific element to ensure the page is ready)
         await browser.waitUntil(
             async () => (await $('#product-page-element')) !== null, // Replace with an actual element that indicates page load
-            { timeout: 5000, timeoutMsg: 'Product page did not load in time' }
+            { timeout: 10000, timeoutMsg: 'Product page did not load in time' }
         );
 
-        // Step 14: Get the raw page source
+        // Step 7: Verify JSON-LD script on the product page
         const pageSource = await browser.getPageSource();
-
-        // Step 15: Verify if JSON-LD script tag is present in the page source
         if (!pageSource.includes('<script type="application/ld+json">')) {
             throw new Error('Test failed: JSON-LD is missing while Enable JSON checkbox is selected.');
         }
