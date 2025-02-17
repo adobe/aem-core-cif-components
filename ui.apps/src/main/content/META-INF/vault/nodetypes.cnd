@@ -1,0 +1,16 @@
+<'cq'='http://www.day.com/jcr/cq/1.0'>
+<'nt'='http://www.jcp.org/jcr/nt/1.0'>
+
+[cq:EditConfig] > nt:unstructured
+  - cq:dialogMode (string) < 'auto', 'floating', 'inline'
+  - cq:layout (string) < 'editbar', 'rollover', 'auto'
+  - cq:inherit (boolean)
+  + cq:listeners (cq:EditListenersConfig)
+
+[cq:EditListenersConfig] > nt:unstructured
+  - afteredit (string)
+  - aftermove (string)
+  - afterremove (string)
+  - afterinsert (string)
+  - afterdelete (string)
+  - aftercreate (string)
