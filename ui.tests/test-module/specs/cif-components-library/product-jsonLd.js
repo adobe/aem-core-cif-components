@@ -115,7 +115,7 @@ describe('Checkbox Uncheck Test', () => {
         const productPageUrl = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/chaz-crocodile-hoodie.html?wcmmode=disabled`;
         await browser.url(productPageUrl);
 
-        // Step 13: Wait for the page to load (use a specific element to ensure the page is ready)
+        // Step 13: Waits for the page to load (use a specific element to ensure the page is ready)
         await browser.waitUntil(
             async () => (await $('#product-page-element')) !== null, // Replace with an actual element that indicates page load
             { timeout: 10000, timeoutMsg: 'Product page did not load in time' }
