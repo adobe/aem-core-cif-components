@@ -112,7 +112,7 @@ describe('Checkbox Uncheck Test', () => {
         await saveButton.click();
 
         // Step 12: Navigate to the product page
-        const productPageUrl = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/chaz-kangeroo-hoodie.html?wcmmode=disabled`;
+        const productPageUrl = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/chaz-crocodile-hoodie.html?wcmmode=disabled`;
         await browser.url(productPageUrl);
 
         // Step 13: Wait for the page to load (use a specific element to ensure the page is ready)
