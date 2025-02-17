@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
@@ -261,9 +262,9 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         productJson.put("@context", "http://schema.org");
         productJson.put("@type", "Product");
         productJson.put("sku", Optional.ofNullable(getSku()).orElse(""));
-        productJson.put("name", Optional.ofNullable(getName()).orElse(""));
+        productJson.put("name", Optional.ofNullable(getName()).map(StringEscapeUtils::escapeHtml4).orElse(""));
         productJson.put("image", getAssets().stream().findFirst().map(Asset::getPath).orElse(""));
-        productJson.put("description", Optional.ofNullable(getDescription()).orElse(""));
+        productJson.put("description", Optional.ofNullable(getDescription()).map(StringEscapeUtils::escapeHtml4).orElse(""));
         productJson.put("@id", Optional.ofNullable(getId()).orElse(""));
 
         return productJson;
