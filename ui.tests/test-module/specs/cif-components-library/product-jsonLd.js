@@ -40,6 +40,7 @@ describe('Checkbox Uncheck Test', () => {
         await browser.url(
             `${config.aem.author.base_url}/mnt/overlay/cif/shell/content/configuration/properties.html?item=%2Fconf%2Fcore-components-examples%2Fsettings%2Fcloudconfigs%2Fcommerce`
         );
+        await browser.saveScreenshot(path.resolve(__dirname, '../../screenshots/step1_properties_page.png'));
 
         // Step 2: Wait for all tabs to be visible
         const allTabs = await $$('coral-tab');
@@ -121,10 +122,12 @@ describe('Checkbox Uncheck Test', () => {
         const saveButton = await $('#shell-propertiespage-doneactivator');
         await saveButton.waitForDisplayed({ timeout: 5000 });
         await saveButton.click();
+        await browser.saveScreenshot(path.resolve(__dirname, '../../screenshots/step11_changes_saved.png'));
 
         // Step 12: Navigate to the product page
         const productPageUrl = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/chaz-kangeroo-hoodie.html?wcmmode=disabled`;
         await browser.url(productPageUrl);
+        await browser.saveScreenshot(path.resolve(__dirname, '../../screenshots/step12_product_page.png'));
 
         // Step 13: Wait for the page to load (use a specific element to ensure the page is ready)
         await browser.waitUntil(
@@ -141,5 +144,6 @@ describe('Checkbox Uncheck Test', () => {
             await browser.saveScreenshot(path.resolve(__dirname, '../../screenshots/step15_jsonld_missing.png'));
             throw new Error('Test failed: JSON-LD is missing while Enable JSON checkbox is selected.');
         }
+        await browser.saveScreenshot(path.resolve(__dirname, '../../screenshots/step15_jsonld_present.png'));
     });
 });
