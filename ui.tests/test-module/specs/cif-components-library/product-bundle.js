@@ -18,49 +18,40 @@ const config = require('../../lib/config');
 const commons = require('../../lib/commons');
 
 describe('Product bundle in CIF components library', () => {
+
     const product_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/sprite-yoga-companion-kit.html`;
     const product_selector = '.cmp-examples-demo__top .product';
 
     before(() => {
-        console.log('Logging into AEM...');
+        // AEM Login
         browser.AEMForceLogout();
         browser.url(config.aem.author.base_url);
         browser.AEMLogin(config.aem.author.username, config.aem.author.password);
-        console.log('Login successful.');
 
         // Setup GraphQL client
         commons.configureExamplesGraphqlClient(browser);
     });
 
     beforeEach(() => {
+        // Set window size to desktop
         browser.setWindowSize(1280, 960);
     });
 
     it('can customize a bundle product', () => {
-        console.log('Navigating to product page...');
+        // Go to the product page
         browser.url(product_page);
 
-        // Ensure the customize button is visible before interacting
-        console.log('Waiting for the Customize button...');
+        // Check that the customize button is displayed
         const customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
-        customizeButton.waitForDisplayed({ timeout: 10000, timeoutMsg: 'Customize button did not appear in time' });
+        expect(customizeButton).toBeDisplayed();
 
-        // Ensure button is in view and clickable
-        customizeButton.scrollIntoView();
-        customizeButton.waitForClickable({ timeout: 5000, timeoutMsg: 'Customize button is not clickable' });
-
-        console.log('Clicking Customize button...');
         customizeButton.click();
 
-        // Wait for 5 product options to load
-        console.log('Waiting for product options to load...');
-        browser.waitUntil(() => $$(`${product_selector} .productFullDetail__bundleProduct`).length === 5, {
-            timeout: 10000,
-            timeoutMsg: 'Not all 5 options loaded in time'
-        });
+        browser.pause(2000);
 
+        // Verify that we get 5 "options" fields
         const options = $$(`${product_selector} .productFullDetail__bundleProduct`);
         expect(options.length).toBe(5);
-        console.log('Bundle customization options loaded successfully.');
     });
+
 });
