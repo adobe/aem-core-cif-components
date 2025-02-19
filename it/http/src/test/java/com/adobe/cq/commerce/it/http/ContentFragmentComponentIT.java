@@ -16,7 +16,6 @@
 package com.adobe.cq.commerce.it.http;
 
 import org.apache.sling.testing.clients.ClientException;
-import org.apache.sling.testing.clients.SlingHttpResponse;
 import org.codehaus.jackson.JsonNode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -46,15 +45,15 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
             Document doc = Jsoup.parse(adminAuthor.doGet(url, 200).getContent());
 
             Elements elements = doc.select(CONTENT_FRAGMENT_SELECTOR
-                    + " .cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
+                + " .cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
 
-            if (elements.size() == 1) return; // Exit test if condition is met
+            if (elements.size() == 1)
+                return; // Exit test if condition is met
 
             Thread.sleep(2000); // Wait before retrying
         }
 
         Assert.fail("Expected exactly 1 content fragment but found a different count after retries");
     }
-
 
 }
