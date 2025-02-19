@@ -14,72 +14,36 @@
  *  limitations under the License.
  */
 
-const config = require('../../lib/config');
-const commons = require('../../lib/commons');
+it('can customize a bundle product', async () => {
+    console.log('Navigating to:', product_page);
+    await browser.url(product_page);
 
-describe('Product bundle in CIF components library', () => {
-    const product_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/sprite-yoga-companion-kit.html`;
-    const product_selector = '.cmp-examples-demo__top .product';
+    // Debug current URL after navigation
+    await browser.pause(2000); // Small delay to allow URL to update
+    console.log('Current URL after navigation:', await browser.getUrl());
 
-    before(() => {
-        // AEM Login
-        browser.AEMForceLogout();
-        browser.url(config.aem.author.base_url);
-        browser.AEMLogin(config.aem.author.username, config.aem.author.password);
-
-        // Setup GraphQL client
-        commons.configureExamplesGraphqlClient(browser);
+    // Increase timeout for page load
+    await browser.waitUntil(async () => (await browser.getUrl()) === product_page, {
+        timeout: 20000,
+        timeoutMsg: 'Product page did not load in time'
     });
 
-    beforeEach(() => {
-        // Set window size to desktop
-        browser.setWindowSize(1280, 960);
+    console.log('Product page loaded successfully.');
+
+    // Wait for the customize button
+    const customizeButton = await $(`${product_selector} .productFullDetail__customizeBundle button`);
+    await customizeButton.waitForDisplayed({ timeout: 10000 });
+
+    // Click the button
+    expect(customizeButton).toBeDisplayed();
+    await customizeButton.click();
+
+    // Verify bundle options appear
+    const options = await $$(`${product_selector} .productFullDetail__bundleProduct`);
+    await browser.waitUntil(() => options.length === 5, {
+        timeout: 10000,
+        timeoutMsg: 'Options did not load properly'
     });
 
-    it('can customize a bundle product', () => {
-        // Go to the product page
-        console.log('Navigating to:', product_page);
-        browser.url(product_page);
-
-        // Ensure the product container is visible before proceeding
-        const productContainer = $(product_selector);
-        productContainer.waitForDisplayed({
-            timeout: 10000,
-            timeoutMsg: 'Product page did not load in time'
-        });
-
-        // Wait for the customize button
-        const customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
-        customizeButton.waitForDisplayed({
-            timeout: 10000,
-            timeoutMsg: 'Customize button did not appear'
-        });
-
-        console.log('Customize button found. Clicking...');
-        expect(customizeButton).toBeDisplayed();
-        customizeButton.click();
-
-        // Wait until the bundle options appear
-        browser.waitUntil(
-            () => {
-                const options = $$(`${product_selector} .productFullDetail__bundleProduct`);
-                return options.length === 5;
-            },
-            {
-                timeout: 10000,
-                timeoutMsg: 'Options did not load properly'
-            }
-        );
-
-        // Get the options after waiting
-        const options = $$(`${product_selector} .productFullDetail__bundleProduct`);
-
-        // Ensure 5 options are present and visible
-        expect(options.length).toBe(5);
-        options.forEach(option => {
-            expect(option.isDisplayed()).toBe(true);
-        });
-
-        console.log('Test passed: 5 bundle options are visible');
-    });
+    expect(options.length).toBe(5);
 });

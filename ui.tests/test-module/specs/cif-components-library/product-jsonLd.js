@@ -17,7 +17,7 @@
 
 const config = require('../../lib/config');
 
-describe('Checkbox Uncheck Test', () => {
+describe('Enable JSON-LD and Verify on Product Page', () => {
     before(() => {
         browser.setWindowSize(1280, 960);
 
@@ -26,7 +26,7 @@ describe('Checkbox Uncheck Test', () => {
         browser.AEMLogin(config.aem.author.username, config.aem.author.password);
     });
 
-    it('can enable/disable JSON-LD, save changes, and verify JSON-LD on the product page', async () => {
+    it('should enable JSON-LD in AEM settings, save changes, and verify its presence on the product page', async () => {
         await browser.url(
             `${config.aem.author.base_url}/mnt/overlay/cif/shell/content/configuration/properties.html?item=%2Fconf%2Fcore-components-examples%2Fsettings%2Fcloudconfigs%2Fcommerce`
         );
