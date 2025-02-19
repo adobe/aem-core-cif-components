@@ -14,8 +14,7 @@
  * is strictly forbidden unless prior written permission is obtained
  * from Adobe.
  ***************************************************************************/
-const fs = require('fs');
-const path = require('path');
+
 const config = require('../../lib/config');
 
 describe('Checkbox Uncheck Test', () => {
