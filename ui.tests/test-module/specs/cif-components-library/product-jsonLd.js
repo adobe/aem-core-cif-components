@@ -72,11 +72,9 @@ describe('Checkbox Uncheck Test', () => {
             timeout: 5000,
             timeoutMsg: 'Features tab was not selected in time'
         });
-         // Step 5: Locate the "Enable JSON" checkbox by its name attribute using WebDriverIO's $() function
+        // Step 5: Locate the "Enable JSON" checkbox by its name attribute using WebDriverIO's $() function
         const enableJsonLdCheckbox = await $('coral-checkbox[name="./enableJsonLd"]');
         await enableJsonLdCheckbox.waitForDisplayed({ timeout: 5000 });
-
-
 
         // Step 6: Check if the checkbox is disabled (aria-disabled="true" or has the class "is-disabled")
         const isDisabled = await enableJsonLdCheckbox.getAttribute('aria-disabled');
@@ -124,30 +122,27 @@ describe('Checkbox Uncheck Test', () => {
         await browser.url(productPageUrl);
 
         // Step 13: Wait for the page to load (use a specific element to ensure the page is ready)
-       await browser.waitUntil(
-           async () => (await $('#product-page-element')) !== null, // Replace with an actual element that indicates page load
-           { timeout: 5000, timeoutMsg: 'Product page did not load in time' }
-       );
+        await browser.waitUntil(
+            async () => (await $('#product-page-element')) !== null, // Replace with an actual element that indicates page load
+            { timeout: 5000, timeoutMsg: 'Product page did not load in time' }
+        );
 
-       // Ensure the page is fully loaded
-       await browser.waitUntil(
-           async () => (await browser.execute(() => document.readyState)) === 'complete',
-           { timeout: 5000, timeoutMsg: 'Page did not load completely in time' }
-       );
+        // Ensure the page is fully loaded
+        await browser.waitUntil(async () => (await browser.execute(() => document.readyState)) === 'complete', {
+            timeout: 5000,
+            timeoutMsg: 'Page did not load completely in time'
+        });
 
         await browser.saveScreenshot(path.resolve(__dirname, '../../screenshots/step15_jsonld_present.png'));
 
-
-       // Optionally save a screenshot
+        // Optionally save a screenshot
 
         // Step 14: Get the raw page source
         const pageSource = await browser.getPageSource();
 
         // Step 15: Verify if JSON-LD script tag is present in the page source
         if (!pageSource.includes('<script type="application/ld+json">')) {
-
             throw new Error('Test failed: JSON-LD is missing while Enable JSON checkbox is selected.');
         }
-
     });
 });
