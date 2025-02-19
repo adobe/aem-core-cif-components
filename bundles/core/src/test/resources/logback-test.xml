@@ -30,7 +30,7 @@
     </filter>
 
     <!-- Custom filter to get unique queries -->
-    <filter class="com.adobe.cq.commerce.core.testing.UniqueMessageLogBackFilter" />
+    <filter class="com.adobe.cq.commerce.core.testing.GraphqlUniqueMessageLogBackFilter" />
 
     <!-- We remove the text added by the logger in GraphqlClientImpl -->
     <encoder>
