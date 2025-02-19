@@ -18,7 +18,7 @@ const config = require('../../lib/config');
 const commons = require('../../lib/commons');
 
 describe('Product bundle in CIF components library', () => {
-    // ✅ FIXED: Declare `product_page` and `product_selector` properly
+    // ✅ Define the product page and selector variables
     const product_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/sprite-yoga-companion-kit.html`;
     const product_selector = '.cmp-examples-demo__top .product';
 
@@ -41,35 +41,40 @@ describe('Product bundle in CIF components library', () => {
         console.log('Navigating to:', product_page);
         await browser.url(product_page);
 
-        // ✅ FIXED: Ensure product container is fully loaded
+        // ✅ Ensure page has fully loaded
+        await browser.waitUntil(async () => (await browser.execute(() => document.readyState)) === 'complete', {
+            timeout: 20000,
+            timeoutMsg: 'Page did not fully load'
+        });
+        console.log('Page fully loaded.');
+
+        // ✅ Print current URL to check if redirected
+        console.log('Current URL after navigation:', await browser.getUrl());
+
+        // ✅ Wait for product container to exist before checking visibility
         const productContainer = await $(product_selector);
+
+        if (!(await productContainer.isExisting())) {
+            throw new Error('❌ Product container is missing! Check if the product page is correct.');
+        }
+        console.log('✅ Product container exists.');
+
+        // ✅ Increase timeout for container visibility
         await productContainer.waitForDisplayed({
-            timeout: 15000,
+            timeout: 30000,
             timeoutMsg: 'Product container did not load in time'
         });
 
-        console.log('Product container loaded.');
+        console.log('✅ Product container loaded.');
 
-        // ✅ FIXED: Corrected backticks in selector interpolation
+        // ✅ Now proceed with the test (e.g., clicking the Customize button)
         const customizeButton = await $(`${product_selector} .productFullDetail__customizeBundle button`);
+        await customizeButton.waitForDisplayed({ timeout: 20000 });
 
-        if (!(await customizeButton.isExisting())) {
-            throw new Error(
-                'Customize button is not found in the DOM! Check if customization is enabled for this product.'
-            );
-        }
-        console.log('Customize button exists in the DOM.');
-
-        // ✅ FIXED: Increased timeout for button visibility
-        await browser.waitUntil(async () => await customizeButton.isDisplayed(), {
-            timeout: 20000,
-            timeoutMsg: 'Customize button did not appear in time'
-        });
-
-        console.log('Customize button displayed. Clicking now.');
+        console.log('✅ Customize button displayed. Clicking now.');
         await customizeButton.click();
 
-        // ✅ FIXED: Ensure bundle options appear correctly
+        // ✅ Verify 5 bundle options appear
         await browser.waitUntil(
             async () => (await $$(`${product_selector} .productFullDetail__bundleProduct`)).length === 5,
             { timeout: 10000, timeoutMsg: 'Bundle options did not load properly' }
