@@ -127,12 +127,6 @@ describe('Checkbox Uncheck Test', () => {
             { timeout: 5000, timeoutMsg: 'Product page did not load in time' }
         );
 
-        // Ensure the page is fully loaded
-        await browser.waitUntil(async () => (await browser.execute(() => document.readyState)) === 'complete', {
-            timeout: 5000,
-            timeoutMsg: 'Page did not load completely in time'
-        });
-
         await browser.saveScreenshot(path.resolve(__dirname, '../../screenshots/step15_jsonld_present.png'));
 
         // Optionally save a screenshot
