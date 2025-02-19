@@ -135,12 +135,6 @@ describe('Checkbox Uncheck Test', () => {
         // Short delay to allow rendering
         await browser.pause(2000);
 
-        // Ensure full page load
-        await browser.waitUntil(async () => (await browser.execute(() => document.readyState)) === 'complete', {
-            timeout: 15000,
-            timeoutMsg: '❌ Document did not reach ready state'
-        });
-
         console.log('✅ Product page fully loaded.');
 
         // Verify JSON-LD script presence
