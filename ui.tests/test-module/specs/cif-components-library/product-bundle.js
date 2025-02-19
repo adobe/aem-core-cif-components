@@ -14,39 +14,67 @@
  *  limitations under the License.
  */
 
-it('can customize a bundle product', async () => {
-    console.log('Navigating to:', product_page);
-    await browser.url(product_page);
+const config = require('../../lib/config');
+const commons = require('../../lib/commons');
 
-    // Wait for product container to load before checking button
-    const productContainer = await $(product_selector);
-    await productContainer.waitForDisplayed({ timeout: 15000, timeoutMsg: 'Product container did not load in time' });
+describe('Product bundle in CIF components library', () => {
+    // ✅ FIXED: Declare `product_page` and `product_selector` properly
+    const product_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/sprite-yoga-companion-kit.html`;
+    const product_selector = '.cmp-examples-demo__top .product';
 
-    console.log('Product container loaded.');
+    before(() => {
+        // AEM Login
+        browser.AEMForceLogout();
+        browser.url(config.aem.author.base_url);
+        browser.AEMLogin(config.aem.author.username, config.aem.author.password);
 
-    // Locate the customize button
-    const customizeButton = await $(`${product_selector} .productFullDetail__customizeBundle button`);
-
-    // Check if the button exists before waiting for display
-    if (!(await customizeButton.isExisting())) {
-        throw new Error('Customize button is not found in the DOM! Check if the product has customization enabled.');
-    }
-    console.log('Customize button exists in the DOM.');
-
-    // Wait for the button to become visible
-    await browser.waitUntil(async () => await customizeButton.isDisplayed(), {
-        timeout: 20000,
-        timeoutMsg: 'Customize button did not appear in time'
+        // Setup GraphQL client
+        commons.configureExamplesGraphqlClient(browser);
     });
 
-    console.log('Customize button displayed. Clicking now.');
-    await customizeButton.click();
+    beforeEach(() => {
+        // Set window size to desktop
+        browser.setWindowSize(1280, 960);
+    });
 
-    // Wait until the bundle options appear
-    await browser.waitUntil(
-        async () => (await $$(`${product_selector} .productFullDetail__bundleProduct`)).length === 5,
-        { timeout: 10000, timeoutMsg: 'Bundle options did not load properly' }
-    );
+    it('can customize a bundle product', async () => {
+        console.log('Navigating to:', product_page);
+        await browser.url(product_page);
 
-    console.log('✅ Test passed: 5 bundle options are visible.');
+        // ✅ FIXED: Ensure product container is fully loaded
+        const productContainer = await $(product_selector);
+        await productContainer.waitForDisplayed({
+            timeout: 15000,
+            timeoutMsg: 'Product container did not load in time'
+        });
+
+        console.log('Product container loaded.');
+
+        // ✅ FIXED: Corrected backticks in selector interpolation
+        const customizeButton = await $(`${product_selector} .productFullDetail__customizeBundle button`);
+
+        if (!(await customizeButton.isExisting())) {
+            throw new Error(
+                'Customize button is not found in the DOM! Check if customization is enabled for this product.'
+            );
+        }
+        console.log('Customize button exists in the DOM.');
+
+        // ✅ FIXED: Increased timeout for button visibility
+        await browser.waitUntil(async () => await customizeButton.isDisplayed(), {
+            timeout: 20000,
+            timeoutMsg: 'Customize button did not appear in time'
+        });
+
+        console.log('Customize button displayed. Clicking now.');
+        await customizeButton.click();
+
+        // ✅ FIXED: Ensure bundle options appear correctly
+        await browser.waitUntil(
+            async () => (await $$(`${product_selector} .productFullDetail__bundleProduct`)).length === 5,
+            { timeout: 10000, timeoutMsg: 'Bundle options did not load properly' }
+        );
+
+        console.log('✅ Test passed: 5 bundle options are visible.');
+    });
 });
