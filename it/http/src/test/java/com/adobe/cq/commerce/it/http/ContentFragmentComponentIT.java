@@ -41,12 +41,12 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
     @Test
     public void testContentFragmenWithSampleData() throws ClientException {
         SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html",
-                200);
+            200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Check the number of content fragment elements in the content fragment component
         Elements elements = doc.select(CONTENT_FRAGMENT_SELECTOR
-                + ".cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
+            + ".cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
         Assert.assertEquals(1, elements.size());
     }
 }
