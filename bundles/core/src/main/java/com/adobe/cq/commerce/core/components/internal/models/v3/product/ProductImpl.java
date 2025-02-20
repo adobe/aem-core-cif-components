@@ -190,14 +190,14 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
             for (Asset asset : variant.getAssets()) {
                 ObjectNode jsonAsset = mapper.createObjectNode();
-                jsonAsset.put("path", asset.getPath());
+                jsonAsset.put("path", StringEscapeUtils.escapeHtml4(asset.getPath()));
                 assets.add(jsonAsset);
             }
 
             Price priceRange = variant.getPriceRange();
             variantMap.put("@type", "Offer");
-            variantMap.put("sku", variant.getSku());
-            variantMap.put("url", getCanonicalUrl());
+            variantMap.put("sku", StringEscapeUtils.escapeHtml4(variant.getSku()));
+            variantMap.put("url", StringEscapeUtils.escapeHtml4(getCanonicalUrl()));
             variantMap.put("image", assets.size() > 0 ? assets.get(0).get("path").asText() : "");
             variantMap.put("priceCurrency", priceRange != null ? priceRange.getCurrency() : "");
 
@@ -220,7 +220,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
                     variantMap.set("priceSpecification", priceSpecification);
 
                     variantMap.put("price", variantImpl.getSpecialPrice());
-                    variantMap.put("SpecialPricedates", variantImpl.getSpecialToDate());
+                    variantMap.put("SpecialPricedates", StringEscapeUtils.escapeHtml4(variantImpl.getSpecialToDate()));
 
                     jsonArray.add(variantMap);
                 }
@@ -261,11 +261,11 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         // Set basic product attributes
         productJson.put("@context", "http://schema.org");
         productJson.put("@type", "Product");
-        productJson.put("sku", Optional.ofNullable(getSku()).orElse(""));
-        productJson.put("name", Optional.ofNullable(getName()).map(StringEscapeUtils::escapeHtml4).orElse(""));
-        productJson.put("image", getAssets().stream().findFirst().map(Asset::getPath).orElse(""));
-        productJson.put("description", Optional.ofNullable(getDescription()).map(StringEscapeUtils::escapeHtml4).orElse(""));
-        productJson.put("@id", Optional.ofNullable(getId()).orElse(""));
+        productJson.put("sku", StringEscapeUtils.escapeHtml4(Optional.ofNullable(getSku()).orElse("")));
+        productJson.put("name", StringEscapeUtils.escapeHtml4(Optional.ofNullable(getName()).orElse("")));
+        productJson.put("image", StringEscapeUtils.escapeHtml4(getAssets().stream().findFirst().map(Asset::getPath).orElse("")));
+        productJson.put("description", StringEscapeUtils.escapeHtml4(Optional.ofNullable(getDescription()).orElse("")));
+        productJson.put("@id", StringEscapeUtils.escapeHtml4(Optional.ofNullable(getId()).orElse("")));
 
         return productJson;
     }
