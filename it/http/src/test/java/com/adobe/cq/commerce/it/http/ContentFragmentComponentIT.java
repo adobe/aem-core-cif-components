@@ -39,25 +39,14 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
     }
 
     @Test
-    public void testContentFragmentWithSampleData() throws ClientException, InterruptedException {
-        final String url = COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html";
+    public void testContentFragmenWithSampleData() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html",
+                200);
+        Document doc = Jsoup.parse(response.getContent());
 
-        for (int i = 0; i < 3; i++) {  // Retry up to 3 times
-            SlingHttpResponse response = adminAuthor.doGet(url, 200);
-
-            if (response.getStatusLine().getStatusCode() == 200) {
-                Document doc = Jsoup.parse(response.getContent());
-                Elements elements = doc.select(CONTENT_FRAGMENT_SELECTOR + " .cmp-contentfragment__element");
-
-                if (elements.size() == 1) {
-                    return;  // Test passes if the condition is met
-                }
-            }
-
-            Thread.sleep(2000); // Wait before retrying
-        }
-
-        Assert.fail("Expected exactly 1 content fragment but found a different count after retries");
+        // Check the number of content fragment elements in the content fragment component
+        Elements elements = doc.select(CONTENT_FRAGMENT_SELECTOR
+                + ".cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
+        Assert.assertEquals(1, elements.size());
     }
-
 }
