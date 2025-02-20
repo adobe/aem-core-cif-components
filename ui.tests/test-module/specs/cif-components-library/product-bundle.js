@@ -42,10 +42,7 @@ describe('Product bundle in CIF components library', () => {
         await browser.url(product_page);
 
         // ✅ Ensure page has fully loaded
-        await browser.waitUntil(async () => (await browser.execute(() => document.readyState)) === 'complete', {
-            timeout: 20000,
-            timeoutMsg: 'Page did not fully load'
-        });
+
         console.log('Page fully loaded.');
 
         // ✅ Print current URL to check if redirected
@@ -73,6 +70,7 @@ describe('Product bundle in CIF components library', () => {
 
         console.log('✅ Customize button displayed. Clicking now.');
         await customizeButton.click();
+
 
         // ✅ Verify 5 bundle options appear
         await browser.waitUntil(

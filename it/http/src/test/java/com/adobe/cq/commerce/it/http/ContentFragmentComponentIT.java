@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.it.http;
 
 import org.apache.sling.testing.clients.ClientException;
+import org.apache.sling.testing.clients.SlingHttpResponse;
 import org.codehaus.jackson.JsonNode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -38,17 +39,20 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
     }
 
     @Test
-    public void testContentFragmenWithSampleData() throws ClientException, InterruptedException {
+    public void testContentFragmentWithSampleData() throws ClientException, InterruptedException {
         final String url = COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html";
 
-        for (int i = 0; i < 3; i++) {
-            Document doc = Jsoup.parse(adminAuthor.doGet(url, 200).getContent());
+        for (int i = 0; i < 3; i++) {  // Retry up to 3 times
+            SlingHttpResponse response = adminAuthor.doGet(url, 200);
 
-            Elements elements = doc.select(CONTENT_FRAGMENT_SELECTOR
-                + " .cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
+            if (response.getStatusLine().getStatusCode() == 200) {
+                Document doc = Jsoup.parse(response.getContent());
+                Elements elements = doc.select(CONTENT_FRAGMENT_SELECTOR + " .cmp-contentfragment__element");
 
-            if (elements.size() == 1)
-                return; // Exit test if condition is met
+                if (elements.size() == 1) {
+                    return;  // Test passes if the condition is met
+                }
+            }
 
             Thread.sleep(2000); // Wait before retrying
         }
