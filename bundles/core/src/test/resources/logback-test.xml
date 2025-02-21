@@ -1,30 +1,25 @@
 <configuration>
 
-  <!-- Remove duplicate log messages -->
-  <turboFilter class="ch.qos.logback.classic.turbo.DuplicateMessageFilter">
-    <allowedRepetitions>0</allowedRepetitions>
-  </turboFilter>
-
   <!-- The default console -->
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
-  
+
   <!-- Captures all GraphQL queries -->
   <appender name="GRAPHQL" class="ch.qos.logback.core.FileAppender">
-    
+
     <file>src/test/resources/test-queries/graphql-requests.log</file>
     <append>false</append>
-    
+
     <!-- We only want DEBUG messages -->
     <filter class="ch.qos.logback.classic.filter.LevelFilter">
       <level>DEBUG</level>
       <onMatch>NEUTRAL</onMatch>
       <onMismatch>DENY</onMismatch>
     </filter>
-    
+
     <!-- We remove the dummy test queries -->
     <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
       <evaluator>
@@ -33,10 +28,13 @@
       <OnMismatch>NEUTRAL</OnMismatch>
       <OnMatch>DENY</OnMatch>
     </filter>
-    
+
+    <!-- Custom filter to get unique queries -->
+    <filter class="com.adobe.cq.commerce.core.testing.GraphqlUniqueMessageLogBackFilter" />
+
     <!-- We remove the text added by the logger in GraphqlClientImpl -->
     <encoder>
-      <pattern>%replace(%msg){'Executing GraphQL query: ', ''}%n%n</pattern>
+      <pattern>%replace(%msg){"Executing GraphQL query on endpoint '.*?': ", ''}%n%n</pattern>
     </encoder>
   </appender>
 
@@ -52,8 +50,8 @@
   <logger name="com.adobe.cq.commerce.core.components.internal.models.v1.productcarousel" level="OFF"/>
   <logger name="com.adobe.cq.commerce.core.search.internal.converters" level="ERROR"/>
 
-  <root level="INFO">          
+  <root level="INFO">
     <appender-ref ref="STDOUT" />
-  </root>  
-  
+  </root>
+
 </configuration>
