@@ -64,10 +64,10 @@ common:
 executors:
   cif_executor:
     docker:
-      - image: cimg/openjdk:11.0.16-browsers
+      - image: cimg/openjdk:11.0.16-browsers@sha256:d41abcf26cb4714c8c451f87560ae3dc88767c84e0c03754286df1f301c00a51
   cif_executor_java8:
     docker:
-      - image: cimg/openjdk:8.0-browsers
+      - image: cimg/openjdk:8.0-browsers@sha256:7ab8600615a643a38b642e8dbb4067e23e0984b6c08ba98ab95732c7d55d2139
   test_executor_cloudready:
     docker:
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
