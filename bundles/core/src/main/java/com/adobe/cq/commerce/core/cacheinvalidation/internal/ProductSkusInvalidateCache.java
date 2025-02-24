@@ -16,6 +16,8 @@ package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.*;
 
+import javax.jcr.Session;
+
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -33,13 +35,21 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
     @Reference
     private UrlProviderImpl urlProvider;
 
+    @Reference
+    private InvalidateCacheSupport invalidateCacheSupport;
+
     @Override
     public String getPattern() {
         return "\"sku\":\\s*\"";
     }
 
     @Override
-    public String getQuery(String storePath, String dataList) {
+    public String[] getCorrespondingPagePaths(Session session, String storePath, String dataList) throws CacheInvalidationException {
+        String sqlQuery = getQuery(storePath, dataList);
+        return getQueryResult(invalidateCacheSupport, getSqlQuery(session, sqlQuery), storePath);
+    }
+
+    private String getQuery(String storePath, String dataList) {
         return "SELECT content.[jcr:path] " +
             "FROM [nt:unstructured] AS content " +
             "WHERE ISDESCENDANTNODE(content, '" + storePath + "') " +
@@ -71,13 +81,20 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
         if (productsData != null) {
             List<Map<String, Object>> items = (List<Map<String, Object>>) productsData.get("items");
             if (items != null) {
+                Map<String, String> productPatternAndMatch = getPatternAndMatch(invalidateCacheSupport, storePath,
+                    DISPATCHER_PRODUCT_URL_PATH);
+                Map<String, String> categoryPatternAndMatch = getPatternAndMatch(invalidateCacheSupport, storePath,
+                    DISPATCHER_CATEGORY_URL_PATH);
                 for (Map<String, Object> item : items) {
                     if (item != null) {
-                        addProductPaths(page, urlProvider, uniquePagePaths, item);
+                        Set<String> productPaths = getProductPaths(page, invalidateCacheSupport, urlProvider, item, productPatternAndMatch);
                         List<Map<String, Object>> categories = (List<Map<String, Object>>) item.get("categories");
                         if (categories != null) {
-                            addCategoryPaths(page, urlProvider, uniquePagePaths, categories);
+                            Set<String> categoryPaths = getCategoryPaths(page, invalidateCacheSupport, urlProvider, categories,
+                                categoryPatternAndMatch);
+                            uniquePagePaths.addAll(categoryPaths);
                         }
+                        uniquePagePaths.addAll(productPaths);
                     }
                 }
             }
