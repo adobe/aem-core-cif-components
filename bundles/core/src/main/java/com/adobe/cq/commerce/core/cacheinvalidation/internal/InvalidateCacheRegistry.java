@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jcr.Session;
+
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -76,12 +78,13 @@ public class InvalidateCacheRegistry {
         return invalidateCache != null ? invalidateCache.getPattern() : null;
     }
 
-    public String getQuery(String attribute, String storePath, String dataList) {
+    public String[] getCorrespondingPagePaths(String attribute, Session session, String storePath, String dataList)
+        throws CacheInvalidationException {
         CacheInvalidationStrategy invalidateCache = invalidateCacheList.get(attribute);
         if (invalidateCache instanceof DispatcherCacheInvalidationStrategy) {
-            return ((DispatcherCacheInvalidationStrategy) invalidateCache).getQuery(storePath, dataList);
+            return ((DispatcherCacheInvalidationStrategy) invalidateCache).getCorrespondingPagePaths(session, storePath, dataList);
         }
-        return null;
+        return new String[0];
     }
 
     public String getGraphqlQuery(String attribute, String[] data) {

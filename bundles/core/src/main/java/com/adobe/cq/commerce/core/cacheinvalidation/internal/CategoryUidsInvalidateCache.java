@@ -16,6 +16,8 @@ package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.*;
 
+import javax.jcr.Session;
+
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -33,13 +35,21 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
     @Reference
     private UrlProviderImpl urlProvider;
 
+    @Reference
+    private InvalidateCacheSupport invalidateCacheSupport;
+
     @Override
     public String getPattern() {
         return "\"uid\"\\s*:\\s*\\{\"id\"\\s*:\\s*\"";
     }
 
     @Override
-    public String getQuery(String storePath, String dataList) {
+    public String[] getCorrespondingPagePaths(Session session, String storePath, String dataList) throws CacheInvalidationException {
+        String sqlQuery = getQuery(storePath, dataList);
+        return getQueryResult(invalidateCacheSupport, getSqlQuery(session, sqlQuery), storePath);
+    }
+
+    private String getQuery(String storePath, String dataList) {
         return "SELECT content.[jcr:path] " +
             "FROM [nt:unstructured] AS content " +
             "WHERE ISDESCENDANTNODE(content,'" + storePath + "' ) " +
@@ -65,11 +75,15 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
     @Override
     public String[] getPathsToInvalidate(Page page, ResourceResolver resourceResolver, Map<String, Object> data, String storePath) {
         Set<String> uniquePagePaths = new HashSet<>();
-
         List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("categoryList");
         if (items != null) {
-            addCategoryPaths(page, urlProvider, uniquePagePaths, items);
-            processItems(page, urlProvider, uniquePagePaths, items);
+            Map<String, String> categoryPatternAndMatch = getPatternAndMatch(invalidateCacheSupport, storePath,
+                DISPATCHER_CATEGORY_URL_PATH);
+            Map<String, String> productPatternAndMatch = getPatternAndMatch(invalidateCacheSupport, storePath, DISPATCHER_PRODUCT_URL_PATH);
+            Set<String> categoryPaths = getCategoryPaths(page, invalidateCacheSupport, urlProvider, items, categoryPatternAndMatch);
+            Set<String> productPaths = processItems(page, invalidateCacheSupport, urlProvider, items, productPatternAndMatch);
+            uniquePagePaths.addAll(categoryPaths);
+            uniquePagePaths.addAll(productPaths);
         }
         return uniquePagePaths.toArray(new String[0]);
     }

@@ -16,9 +16,12 @@ package com.adobe.cq.commerce.core.cacheinvalidation.internal.spi;
 
 import java.util.Map;
 
+import javax.jcr.Session;
+
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.annotation.versioning.ConsumerType;
 
+import com.adobe.cq.commerce.core.cacheinvalidation.internal.CacheInvalidationException;
 import com.day.cq.wcm.api.Page;
 
 /**
@@ -28,13 +31,14 @@ import com.day.cq.wcm.api.Page;
 public interface DispatcherCacheInvalidationStrategy extends CacheInvalidationStrategy {
 
     /**
-     * Returns the query used for cache invalidation based on the store path and data list.
+     * Returns the corresponding page paths based on the provided store path and data list.
      *
      * @param storePath the store path
      * @param dataList the data list containing the data to be invalidated
-     * @return the cache invalidation query
+     * @return the array of corresponding page paths
+     * @throws CacheInvalidationException if an error occurs while getting the corresponding page paths
      */
-    String getQuery(String storePath, String dataList);
+    String[] getCorrespondingPagePaths(Session session, String storePath, String dataList) throws CacheInvalidationException;
 
     /**
      * Returns the GraphQL query used for cache invalidation based on the provided data.

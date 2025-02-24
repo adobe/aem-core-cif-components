@@ -14,10 +14,9 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.sling.api.resource.*;
 import org.osgi.service.component.annotations.*;
@@ -31,7 +30,7 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
     immediate = true)
 public class InvalidateCacheSupport {
 
-    public static final String INVALIDATE_WORKING_AREA = "/var/cif/cacheInvalidation";
+    public static final String INVALIDATE_WORKING_AREA = "/var/cif/cacheinvalidation";
     public static final String NODE_NAME_BASE = "cmd";
     public static final String SERVICE_USER = "cif-cache-invalidation-service";
     public static final String PROPERTIES_GRAPHQL_CLIENT_ID = "cq:graphqlClient";
@@ -40,21 +39,62 @@ public class InvalidateCacheSupport {
     public static final String PROPERTIES_CACHE_NAME = "cacheNames";
     public static final String PROPERTY_INVALIDATE_REQUEST_PARAMETER = "invalidateRequestParameter";
     public static final String HTML_SUFFIX = ".html";
+    public static final String DISPATCHER_URL_PATTERN = "pattern";
+    public static final String DISPATCHER_URL_MATCH = "match";
 
     private Boolean enableDispatcherCacheInvalidation;
 
+    private String dispatcherBaseUrl;
+
+    private Map<String, Map<String, Map<String, String>>> dispatcherUrlConfiguration;
+
     @Activate
     protected void activate(Map<String, Object> properties) {
-        this.enableDispatcherCacheInvalidation = (Boolean) properties.get("enableDispatcherCacheInvalidation");
+        this.enableDispatcherCacheInvalidation = Optional.ofNullable((Boolean) properties.get("enableDispatcherCacheInvalidation")).orElse(
+            false);
+        this.dispatcherBaseUrl = (String) properties.get("dispatcherBaseUrl");
+        this.dispatcherUrlConfiguration = Optional.ofNullable((String[]) properties.get("dispatcherUrlConfiguration"))
+            .map(this::getDispatcherUrlConfiguration)
+            .orElse(new HashMap<>());
     }
 
     @Deactivate
     protected void deactivate() {
         this.enableDispatcherCacheInvalidation = false;
+        this.dispatcherBaseUrl = null;
+        this.dispatcherUrlConfiguration = null;
     }
 
     public Boolean getEnableDispatcherCacheInvalidation() {
         return enableDispatcherCacheInvalidation;
+    }
+
+    public String getDispatcherBaseUrl() {
+        return dispatcherBaseUrl;
+    }
+
+    public Map<String, Map<String, String>> getDispatcherUrlConfigurationBasedOnStorePath(String storePath) {
+        return dispatcherUrlConfiguration.getOrDefault(storePath, null);
+    }
+
+    private Map<String, Map<String, Map<String, String>>> getDispatcherUrlConfiguration(String[] configurations) {
+        Map<String, Map<String, Map<String, String>>> result = new HashMap<>();
+
+        for (String config : configurations) {
+            String[] parts = config.split(":");
+            if (parts.length == 4) {
+                String storePath = parts[0];
+                String urlPathType = parts[1];
+                String matchPattern = parts[2];
+                String convertPattern = parts[3];
+
+                result.computeIfAbsent(storePath, k -> new HashMap<>())
+                    .computeIfAbsent(urlPathType, k -> new HashMap<>())
+                    .put(DISPATCHER_URL_PATTERN, matchPattern);
+                result.get(storePath).get(urlPathType).put(DISPATCHER_URL_MATCH, convertPattern);
+            }
+        }
+        return result;
     }
 
     @Reference
@@ -126,5 +166,21 @@ public class InvalidateCacheSupport {
         }
 
         return resourceResolver;
+    }
+
+    public String convertUrlPath(String pattern, String match, String urlPath) {
+        if (pattern != null && match != null) {
+            Pattern patternObj = Pattern.compile(pattern);
+            Matcher matcher = patternObj.matcher(urlPath);
+            if (matcher.matches()) {
+                urlPath = matcher.replaceAll(match);
+            }
+        }
+        return urlPath;
+    }
+
+    public String extractPagePath(String fullPath) {
+        int jcrContentIndex = fullPath.indexOf("/jcr:content");
+        return jcrContentIndex != -1 ? fullPath.substring(0, jcrContentIndex) : fullPath;
     }
 }

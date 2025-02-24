@@ -105,17 +105,6 @@ public class InvalidateCacheRegistryTest {
     }
 
     @Test
-    public void testGetQuery() {
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER, "attribute2");
-
-        when(dispatcherCacheInvalidationStrategy.getQuery("storePath", "dataList")).thenReturn("query");
-        invalidateCacheRegistry.bindInvalidateDispatcherCache(dispatcherCacheInvalidationStrategy, properties);
-
-        assertEquals("query", invalidateCacheRegistry.getQuery("attribute2", "storePath", "dataList"));
-    }
-
-    @Test
     public void testGetGraphqlQuery() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER, "attribute2");
@@ -154,12 +143,6 @@ public class InvalidateCacheRegistryTest {
         Set<String> attributes = invalidateCacheRegistry.getAttributes();
         assertTrue(attributes.contains("attribute1"));
         assertTrue(attributes.contains("attribute2"));
-    }
-
-    @Test
-    public void testGetQuery_NonDispatcherCacheInvalidationStrategy() {
-        String result = invalidateCacheRegistry.getQuery("attribute1", "storePath", "dataList");
-        assertNull(result);
     }
 
     @Test

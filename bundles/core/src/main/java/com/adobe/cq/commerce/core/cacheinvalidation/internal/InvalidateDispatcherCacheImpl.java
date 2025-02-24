@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 
 import javax.jcr.Session;
 import javax.jcr.query.*;
-import javax.jcr.query.Query;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -56,7 +55,9 @@ import com.google.gson.reflect.TypeToken;
     immediate = true)
 public class InvalidateDispatcherCacheImpl {
 
-    private static final String DISPATCHER_URL = "http://localhost:80/dispatcher/invalidate.cache";
+    private static final String DISPATCHER_BASE_URL = "http://localhost:80";
+
+    private static final String DISPATCHER_INVALIDATE_PATH = "/dispatcher/invalidate.cache";
 
     @Reference
     private UrlProviderImpl urlProvider;
@@ -77,7 +78,7 @@ public class InvalidateDispatcherCacheImpl {
     private InvalidateCacheRegistry invalidateCacheRegistry;
 
     public void invalidateCache(String path) {
-        if (slingSettingsService.getRunModes().contains("author")) {
+        if (!slingSettingsService.getRunModes().contains("author")) {
             LOGGER.error("Operation is only supported for author");
             return;
         }
@@ -115,9 +116,13 @@ public class InvalidateDispatcherCacheImpl {
                 }
             }
 
+            String dispatcherUrl = invalidateCacheSupport.getDispatcherBaseUrl() != null
+                ? invalidateCacheSupport.getDispatcherBaseUrl()
+                : DISPATCHER_BASE_URL;
+
             invalidateCachePaths.forEach(invalidatePath -> {
                 try {
-                    flushCache(invalidatePath);
+                    flushCache(invalidatePath, dispatcherUrl);
                 } catch (CacheInvalidationException e) {
                     LOGGER.error("Error flushing cache for path {}: {}", path, e.getMessage());
                 }
@@ -189,14 +194,10 @@ public class InvalidateDispatcherCacheImpl {
         throws CacheInvalidationException {
         String entryList = formatList(entries, ", ", "'%s'");
         try {
-            String sqlQuery = invalidateCacheRegistry.getQuery(key, storePath, entryList);
-            if (sqlQuery != null) {
-                return getQueryResult(getSqlQuery(session, sqlQuery));
-            }
+            return invalidateCacheRegistry.getCorrespondingPagePaths(key, session, storePath, entryList);
         } catch (Exception e) {
             throw new CacheInvalidationException("Error getting corresponding page based on entries", e);
         }
-        return new String[0];
     }
 
     protected String[] getPathsToInvalidate(ResourceResolver resourceResolver, Map<String, Object> data,
@@ -327,45 +328,9 @@ public class InvalidateDispatcherCacheImpl {
             .collect(Collectors.joining(delimiter));
     }
 
-    protected Query getSqlQuery(Session session, String sql2Query) throws CacheInvalidationException {
-        try {
-            QueryManager queryManager = session.getWorkspace().getQueryManager();
-            return queryManager.createQuery(sql2Query, Query.JCR_SQL2);
-        } catch (Exception e) {
-            throw new CacheInvalidationException("Error creating SKU-based SQL2 query", e);
-        }
-    }
-
-    protected String[] getQueryResult(Query query) throws CacheInvalidationException {
-        try {
-            Set<String> uniquePagePaths = new HashSet<>();
-
-            QueryResult result = query.execute();
-            if (result != null) {
-                RowIterator rows = result.getRows();
-                while (rows.hasNext()) {
-                    Row row = rows.nextRow();
-                    String fullPath = row.getPath("content");
-                    if (fullPath != null) {
-                        String pagePath = extractPagePath(fullPath) + InvalidateCacheSupport.HTML_SUFFIX;
-                        uniquePagePaths.add(pagePath);
-                    }
-                }
-            }
-            return uniquePagePaths.toArray(new String[0]);
-        } catch (Exception e) {
-            throw new CacheInvalidationException("Error getting query result", e);
-        }
-    }
-
-    protected String extractPagePath(String fullPath) {
-        int jcrContentIndex = fullPath.indexOf("/jcr:content");
-        return jcrContentIndex != -1 ? fullPath.substring(0, jcrContentIndex) : fullPath;
-    }
-
-    protected void flushCache(String handle) throws CacheInvalidationException {
+    protected void flushCache(String handle, String dispatcherUrl) throws CacheInvalidationException {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpPost post = new HttpPost(DISPATCHER_URL);
+            HttpPost post = new HttpPost(dispatcherUrl + DISPATCHER_INVALIDATE_PATH);
             post.setHeader("CQ-Action", "Delete");
             post.setHeader("CQ-Handle", handle);
             post.setHeader("CQ-Action-Scope", "ResourceOnly");
