@@ -55,6 +55,12 @@ import static org.mockito.Mockito.*;
 public class InvalidateDispatcherCacheImplTest {
 
     @Mock
+    private HttpClientProvider httpClientProvider;
+
+    @Mock
+    private CloseableHttpClient httpClient;
+
+    @Mock
     private SlingSettingsService slingSettingsService;
 
     @Mock
@@ -71,9 +77,6 @@ public class InvalidateDispatcherCacheImplTest {
 
     @Mock
     private Resource resource;
-
-    @Mock
-    private CloseableHttpClient httpClient;
 
     @Mock
     private CloseableHttpResponse httpResponse;
@@ -527,4 +530,18 @@ public class InvalidateDispatcherCacheImplTest {
         assertTrue(result);
         verify(invalidateDispatcherCacheImplSpy).getCorrespondingPageProperties(resourceResolver, "/content/store", "propertyName");
     }
+
+    @Test
+    public void testFlushCache() throws Exception {
+        when(httpClientProvider.createHttpClient()).thenReturn(httpClient);
+        when(httpClient.execute(any())).thenReturn(httpResponse);
+        when(httpResponse.getEntity()).thenReturn(null);
+
+        // Create a spy of the InvalidateDispatcherCacheImpl class
+        InvalidateDispatcherCacheImpl invalidateDispatcherCacheImplSpy = spy(invalidateDispatcherCacheImpl);
+
+        invalidateDispatcherCacheImplSpy.flushCache("handle", "http://dispatcher");
+        verify(httpClient).execute(any());
+    }
+
 }

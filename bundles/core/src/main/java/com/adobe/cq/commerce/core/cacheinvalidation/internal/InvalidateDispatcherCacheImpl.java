@@ -27,7 +27,6 @@ import javax.jcr.query.*;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -70,6 +69,8 @@ public class InvalidateDispatcherCacheImpl {
     @Reference
     private InvalidateCacheSupport invalidateCacheSupport;
 
+    private HttpClientProvider httpClientProvider = new HttpClientProvider();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateDispatcherCacheImpl.class);
 
     private static final String IS_FUNCTION = "isFunction";
@@ -78,7 +79,7 @@ public class InvalidateDispatcherCacheImpl {
     private InvalidateCacheRegistry invalidateCacheRegistry;
 
     public void invalidateCache(String path) {
-        if (!slingSettingsService.getRunModes().contains("author")) {
+        if (slingSettingsService.getRunModes().contains("author")) {
             LOGGER.error("Operation is only supported for author");
             return;
         }
@@ -329,7 +330,7 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     protected void flushCache(String handle, String dispatcherUrl) throws CacheInvalidationException {
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
+        try (CloseableHttpClient client = httpClientProvider.createHttpClient()) {
             HttpPost post = new HttpPost(dispatcherUrl + DISPATCHER_INVALIDATE_PATH);
             post.setHeader("CQ-Action", "Delete");
             post.setHeader("CQ-Handle", handle);
