@@ -78,7 +78,7 @@ public class InvalidateDispatcherCacheImpl {
     private InvalidateCacheRegistry invalidateCacheRegistry;
 
     public void invalidateCache(String path) {
-        if (!slingSettingsService.getRunModes().contains("author")) {
+        if (slingSettingsService.getRunModes().contains("author")) {
             LOGGER.error("Operation is only supported for author");
             return;
         }
