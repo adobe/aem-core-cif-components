@@ -38,7 +38,7 @@ public interface DispatcherCacheInvalidationStrategy extends CacheInvalidationSt
      * @return the array of corresponding page paths
      * @throws CacheInvalidationException if an error occurs while getting the corresponding page paths
      */
-    String[] getCorrespondingPagePaths(Session session, String storePath, String dataList) throws CacheInvalidationException;
+    String[] getCorrespondingPagePaths(Session session, String storePath, String dataList);
 
     /**
      * Returns the GraphQL query used for cache invalidation based on the provided data.

@@ -77,11 +77,11 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
         Set<String> uniquePagePaths = new HashSet<>();
         List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("categoryList");
         if (items != null) {
-            Map<String, String> categoryPatternAndMatch = getPatternAndMatch(invalidateCacheSupport, storePath,
+            List<PatternConfig> categoryPatternsConfig = getPatternAndMatch(invalidateCacheSupport, storePath,
                 DISPATCHER_CATEGORY_URL_PATH);
-            Map<String, String> productPatternAndMatch = getPatternAndMatch(invalidateCacheSupport, storePath, DISPATCHER_PRODUCT_URL_PATH);
-            Set<String> categoryPaths = getCategoryPaths(page, invalidateCacheSupport, urlProvider, items, categoryPatternAndMatch);
-            Set<String> productPaths = processItems(page, invalidateCacheSupport, urlProvider, items, productPatternAndMatch);
+            List<PatternConfig> productPatternsConfig = getPatternAndMatch(invalidateCacheSupport, storePath, DISPATCHER_PRODUCT_URL_PATH);
+            Set<String> categoryPaths = getCategoryPaths(page, urlProvider, items, categoryPatternsConfig);
+            Set<String> productPaths = processItems(page, urlProvider, items, productPatternsConfig);
             uniquePagePaths.addAll(categoryPaths);
             uniquePagePaths.addAll(productPaths);
         }

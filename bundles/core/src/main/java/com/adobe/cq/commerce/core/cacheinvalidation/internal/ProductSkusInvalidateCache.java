@@ -81,17 +81,18 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
         if (productsData != null) {
             List<Map<String, Object>> items = (List<Map<String, Object>>) productsData.get("items");
             if (items != null) {
-                Map<String, String> productPatternAndMatch = getPatternAndMatch(invalidateCacheSupport, storePath,
-                    DISPATCHER_PRODUCT_URL_PATH);
-                Map<String, String> categoryPatternAndMatch = getPatternAndMatch(invalidateCacheSupport, storePath,
+                List<PatternConfig> categoryPatternsConfig = getPatternAndMatch(invalidateCacheSupport, storePath,
                     DISPATCHER_CATEGORY_URL_PATH);
+                List<PatternConfig> productPatternsConfig = getPatternAndMatch(invalidateCacheSupport, storePath,
+                    DISPATCHER_PRODUCT_URL_PATH);
+
                 for (Map<String, Object> item : items) {
                     if (item != null) {
-                        Set<String> productPaths = getProductPaths(page, invalidateCacheSupport, urlProvider, item, productPatternAndMatch);
+                        Set<String> productPaths = getProductPaths(page, urlProvider, item, productPatternsConfig);
                         List<Map<String, Object>> categories = (List<Map<String, Object>>) item.get("categories");
                         if (categories != null) {
-                            Set<String> categoryPaths = getCategoryPaths(page, invalidateCacheSupport, urlProvider, categories,
-                                categoryPatternAndMatch);
+                            Set<String> categoryPaths = getCategoryPaths(page, urlProvider, categories,
+                                categoryPatternsConfig);
                             uniquePagePaths.addAll(categoryPaths);
                         }
                         uniquePagePaths.addAll(productPaths);

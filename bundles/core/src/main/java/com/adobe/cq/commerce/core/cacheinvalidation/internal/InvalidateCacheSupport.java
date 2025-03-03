@@ -15,8 +15,6 @@
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.sling.api.resource.*;
 import org.osgi.service.component.annotations.*;
@@ -46,23 +44,28 @@ public class InvalidateCacheSupport {
 
     private String dispatcherBaseUrl;
 
-    private Map<String, Map<String, Map<String, String>>> dispatcherUrlConfiguration;
+    private DispatcherUrlConfigurationList dispatcherUrlConfigurationList;
+
+    @Reference
+    private ResourceResolverFactory resourceResolverFactory;
+
+    private final Collection<ClientHolder> clients = new ArrayList<>();
 
     @Activate
     protected void activate(Map<String, Object> properties) {
         this.enableDispatcherCacheInvalidation = Optional.ofNullable((Boolean) properties.get("enableDispatcherCacheInvalidation")).orElse(
             false);
         this.dispatcherBaseUrl = (String) properties.get("dispatcherBaseUrl");
-        this.dispatcherUrlConfiguration = Optional.ofNullable((String[]) properties.get("dispatcherUrlConfiguration"))
-            .map(this::getDispatcherUrlConfiguration)
-            .orElse(new HashMap<>());
+        this.dispatcherUrlConfigurationList = Optional.ofNullable((String[]) properties.get("dispatcherUrlConfiguration"))
+            .map(DispatcherUrlConfigurationList::parseConfigurations)
+            .orElse(new DispatcherUrlConfigurationList(new HashMap<>()));
     }
 
     @Deactivate
     protected void deactivate() {
         this.enableDispatcherCacheInvalidation = false;
         this.dispatcherBaseUrl = null;
-        this.dispatcherUrlConfiguration = null;
+        this.dispatcherUrlConfigurationList = null;
     }
 
     public Boolean getEnableDispatcherCacheInvalidation() {
@@ -73,34 +76,17 @@ public class InvalidateCacheSupport {
         return dispatcherBaseUrl;
     }
 
-    public Map<String, Map<String, String>> getDispatcherUrlConfigurationBasedOnStorePath(String storePath) {
-        return dispatcherUrlConfiguration.getOrDefault(storePath, null);
+    public DispatcherUrlConfig getDispatcherUrlConfigurationBasedOnStorePath(String storePath) {
+        return dispatcherUrlConfigurationList.getConfigurations().getOrDefault(storePath, null);
     }
 
-    private Map<String, Map<String, Map<String, String>>> getDispatcherUrlConfiguration(String[] configurations) {
-        Map<String, Map<String, Map<String, String>>> result = new HashMap<>();
-
-        for (String config : configurations) {
-            String[] parts = config.split(":");
-            if (parts.length == 4) {
-                String storePath = parts[0];
-                String urlPathType = parts[1];
-                String matchPattern = parts[2];
-                String convertPattern = parts[3];
-
-                result.computeIfAbsent(storePath, k -> new HashMap<>())
-                    .computeIfAbsent(urlPathType, k -> new HashMap<>())
-                    .put(DISPATCHER_URL_PATTERN, matchPattern);
-                result.get(storePath).get(urlPathType).put(DISPATCHER_URL_MATCH, convertPattern);
-            }
+    public List<PatternConfig> getDispatcherUrlConfigurationBasedOnStorePathAndType(String storePath, String urlPathType) {
+        DispatcherUrlConfig dispatcherUrlConfig = getDispatcherUrlConfigurationBasedOnStorePath(storePath);
+        if (dispatcherUrlConfig != null) {
+            return dispatcherUrlConfig.getPatternConfigs().get(urlPathType);
         }
-        return result;
+        return Collections.emptyList();
     }
-
-    @Reference
-    private ResourceResolverFactory resourceResolverFactory;
-
-    private final Collection<ClientHolder> clients = new ArrayList<>();
 
     public GraphqlClient getClient(String graphqlClientId) {
         if (graphqlClientId != null && !graphqlClientId.isEmpty()) {
@@ -166,17 +152,6 @@ public class InvalidateCacheSupport {
         }
 
         return resourceResolver;
-    }
-
-    public String convertUrlPath(String pattern, String match, String urlPath) {
-        if (pattern != null && match != null) {
-            Pattern patternObj = Pattern.compile(pattern);
-            Matcher matcher = patternObj.matcher(urlPath);
-            if (matcher.matches()) {
-                urlPath = matcher.replaceAll(match);
-            }
-        }
-        return urlPath;
     }
 
     public String extractPagePath(String fullPath) {

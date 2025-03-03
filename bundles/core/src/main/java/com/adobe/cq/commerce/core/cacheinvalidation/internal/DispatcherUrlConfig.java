@@ -11,15 +11,25 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-public class CacheInvalidationException extends RuntimeException {
-    public CacheInvalidationException(String message) {
-        super(message);
+import java.util.List;
+import java.util.Map;
+
+public class DispatcherUrlConfig {
+    private final String storePath;
+    private final Map<String, List<PatternConfig>> patternConfigs;
+
+    public DispatcherUrlConfig(String storePath, Map<String, List<PatternConfig>> patternConfigs) {
+        this.storePath = storePath;
+        this.patternConfigs = patternConfigs;
     }
 
-    public CacheInvalidationException(String message, Throwable cause) {
-        super(message, cause);
+    public String getStorePath() {
+        return storePath;
+    }
+
+    public Map<String, List<PatternConfig>> getPatternConfigs() {
+        return patternConfigs;
     }
 }

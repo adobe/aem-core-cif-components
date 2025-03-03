@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.jcr.Session;
-import javax.jcr.query.*;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -79,7 +78,7 @@ public class InvalidateDispatcherCacheImpl {
     private InvalidateCacheRegistry invalidateCacheRegistry;
 
     public void invalidateCache(String path) {
-        if (slingSettingsService.getRunModes().contains("author")) {
+        if (!slingSettingsService.getRunModes().contains("author")) {
             LOGGER.error("Operation is only supported for author");
             return;
         }

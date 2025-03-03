@@ -15,6 +15,8 @@
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.jcr.Session;
 import javax.jcr.query.*;
@@ -36,8 +38,8 @@ public class InvalidateDispatcherCacheBase {
     public static final String DISPATCHER_PRODUCT_URL_PATH = "productUrlPath";
     public static final String DISPATCHER_PAGE_URL_PATH = "pageUrlPath";
 
-    protected Set<String> getProductPaths(Page page, InvalidateCacheSupport invalidateCacheSupport, UrlProviderImpl urlProvider,
-        Map<String, Object> item, Map<String, String> patternAndMatch) {
+    protected Set<String> getProductPaths(Page page, UrlProviderImpl urlProvider,
+        Map<String, Object> item, List<PatternConfig> patternsConfig) {
         Set<String> uniquePagePaths = new HashSet<>();
         ProductUrlFormat.Params productParams = new ProductUrlFormat.Params();
         productParams.setSku((String) item.get(SKU));
@@ -45,61 +47,30 @@ public class InvalidateDispatcherCacheBase {
 
         List<Map<String, String>> urlRewrites = (List<Map<String, String>>) item.get("url_rewrites");
         if (urlRewrites != null) {
-            String pattern = patternAndMatch.get(InvalidateCacheSupport.DISPATCHER_URL_PATTERN);
-            String match = patternAndMatch.get(InvalidateCacheSupport.DISPATCHER_URL_MATCH);
             for (Map<String, String> urlRewrite : urlRewrites) {
                 productParams.setUrlRewrites(Collections.singletonList(new UrlRewrite().setUrl(urlRewrite.get("url"))));
                 String productUrlPath = urlProvider.toProductUrl(null, page, productParams);
-                uniquePagePaths.add(invalidateCacheSupport.convertUrlPath(pattern, match, productUrlPath));
+                uniquePagePaths.add(convertUrlPath(patternsConfig, productUrlPath));
             }
         }
         return uniquePagePaths;
     }
 
-    protected Set<String> getCategoryPaths(Page page, InvalidateCacheSupport invalidateCacheSupport, UrlProviderImpl urlProvider,
-        List<Map<String, Object>> categories, Map<String, String> patternAndMatch) {
+    protected Set<String> getCategoryPaths(Page page, UrlProviderImpl urlProvider,
+        List<Map<String, Object>> categories, List<PatternConfig> patternsConfig) {
         Set<String> uniquePagePaths = new HashSet<>();
         CategoryUrlFormat.Params categoryParams = new CategoryUrlFormat.Params();
         if (categories != null) {
-            String pattern = patternAndMatch.get(InvalidateCacheSupport.DISPATCHER_URL_PATTERN);
-            String match = patternAndMatch.get(InvalidateCacheSupport.DISPATCHER_URL_MATCH);
             for (Map<String, Object> category : categories) {
                 categoryParams.setUid((String) category.get(UID));
                 categoryParams.setUrlKey((String) category.get(URL_KEY));
                 categoryParams.setUrlPath((String) category.get(URL_PATH));
                 String categoryUrlPath = urlProvider.toCategoryUrl(null, page, categoryParams);
                 categoryUrlPath = removeUpToDelimiter(categoryUrlPath, InvalidateCacheSupport.HTML_SUFFIX, true);
-                uniquePagePaths.add(invalidateCacheSupport.convertUrlPath(pattern, match, categoryUrlPath));
+                uniquePagePaths.add(convertUrlPath(patternsConfig, categoryUrlPath));
             }
         }
         return uniquePagePaths;
-    }
-
-    public Map<String, Map<String, String>> getDispatcherUrls(InvalidateCacheSupport invalidateCacheSupport, String storePath) {
-        Map<String, Map<String, String>> dispatcherUrls = new HashMap<>();
-        Map<String, Map<String, String>> localDispatcherUrlConfiguration = invalidateCacheSupport
-            .getDispatcherUrlConfigurationBasedOnStorePath(storePath);
-        if (localDispatcherUrlConfiguration != null) {
-            dispatcherUrls.put(DISPATCHER_CATEGORY_URL_PATH, localDispatcherUrlConfiguration.getOrDefault(DISPATCHER_CATEGORY_URL_PATH,
-                null));
-            dispatcherUrls.put(DISPATCHER_PRODUCT_URL_PATH, localDispatcherUrlConfiguration.getOrDefault(DISPATCHER_PRODUCT_URL_PATH,
-                null));
-            dispatcherUrls.put(DISPATCHER_PAGE_URL_PATH, localDispatcherUrlConfiguration.getOrDefault(DISPATCHER_PAGE_URL_PATH, null));
-        }
-        return dispatcherUrls;
-    }
-
-    private Map<String, String> extractPatternAndConvert(Map<String, String> dispatcherUrl) {
-        Map<String, String> result = new HashMap<>();
-        result.put(
-            InvalidateCacheSupport.DISPATCHER_URL_PATTERN,
-            dispatcherUrl != null ? dispatcherUrl.getOrDefault(InvalidateCacheSupport.DISPATCHER_URL_PATTERN, null)
-                : null);
-        result.put(
-            InvalidateCacheSupport.DISPATCHER_URL_MATCH, dispatcherUrl != null ? dispatcherUrl.getOrDefault(
-                InvalidateCacheSupport.DISPATCHER_URL_MATCH, null)
-                : null);
-        return result;
     }
 
     protected String removeUpToDelimiter(String input, String delimiter, boolean useLastIndex) {
@@ -113,26 +84,24 @@ public class InvalidateDispatcherCacheBase {
         return input;
     }
 
-    protected Set<String> processItems(Page page, InvalidateCacheSupport invalidateCacheSupport, UrlProviderImpl urlProvider,
-        List<Map<String, Object>> items, Map<String, String> patternAndMatch) {
+    protected Set<String> processItems(Page page, UrlProviderImpl urlProvider,
+        List<Map<String, Object>> items, List<PatternConfig> patternsConfig) {
         Set<String> uniquePagePaths = new HashSet<>();
-        String pattern = patternAndMatch.get(InvalidateCacheSupport.DISPATCHER_URL_PATTERN);
-        String match = patternAndMatch.get(InvalidateCacheSupport.DISPATCHER_URL_MATCH);
         for (Map<String, Object> item : items) {
             if (item != null) {
                 String productUrlPath = processItem(page, urlProvider, item);
                 if (productUrlPath != null) {
-                    uniquePagePaths.add(invalidateCacheSupport.convertUrlPath(pattern, match, productUrlPath));
+                    uniquePagePaths.add(convertUrlPath(patternsConfig, productUrlPath));
                 }
             }
         }
         return uniquePagePaths;
     }
 
-    protected Map<String, String> getPatternAndMatch(InvalidateCacheSupport invalidateCacheSupport, String storePath, String urlPathType) {
-        Map<String, Map<String, String>> dispatcherUrls = getDispatcherUrls(invalidateCacheSupport, storePath);
-        Map<String, String> dispatcherUrlData = dispatcherUrls.get(urlPathType);
-        return extractPatternAndConvert(dispatcherUrlData);
+    protected List<PatternConfig> getPatternAndMatch(InvalidateCacheSupport invalidateCacheSupport, String storePath, String urlPathType) {
+        List<PatternConfig> dispatcherUrlData = invalidateCacheSupport.getDispatcherUrlConfigurationBasedOnStorePathAndType(storePath,
+            urlPathType);
+        return dispatcherUrlData != null ? dispatcherUrlData : new ArrayList<>();
     }
 
     protected String processItem(Page page, UrlProviderImpl urlProvider, Map<String, Object> item) {
@@ -170,16 +139,14 @@ public class InvalidateDispatcherCacheBase {
             Set<String> uniquePagePaths = new HashSet<>();
             QueryResult result = query.execute();
             if (result != null) {
-                Map<String, String> patternAndMatch = getPatternAndMatch(invalidateCacheSupport, storePath, DISPATCHER_PAGE_URL_PATH);
-                String pattern = patternAndMatch.get(InvalidateCacheSupport.DISPATCHER_URL_PATTERN);
-                String match = patternAndMatch.get(InvalidateCacheSupport.DISPATCHER_URL_MATCH);
+                List<PatternConfig> patternsConfig = getPatternAndMatch(invalidateCacheSupport, storePath, DISPATCHER_PAGE_URL_PATH);
                 RowIterator rows = result.getRows();
                 while (rows.hasNext()) {
                     Row row = rows.nextRow();
                     String fullPath = row.getPath("content");
                     if (fullPath != null) {
                         String pagePath = invalidateCacheSupport.extractPagePath(fullPath) + InvalidateCacheSupport.HTML_SUFFIX;
-                        uniquePagePaths.add(invalidateCacheSupport.convertUrlPath(pattern, match, pagePath));
+                        uniquePagePaths.add(convertUrlPath(patternsConfig, pagePath));
                     }
                 }
             }
@@ -196,5 +163,23 @@ public class InvalidateDispatcherCacheBase {
         } catch (Exception e) {
             throw new CacheInvalidationException("Error creating SKU-based SQL2 query", e);
         }
+    }
+
+    protected String convertUrlPath(List<PatternConfig> patternsConfig, String urlPath) {
+        if (patternsConfig != null) {
+            for (PatternConfig patternConfig : patternsConfig) {
+                String pattern = patternConfig.getPattern();
+                String match = patternConfig.getMatch();
+                if (pattern != null && match != null) {
+                    Pattern patternObj = Pattern.compile(pattern);
+                    Matcher matcher = patternObj.matcher(urlPath);
+                    if (matcher.matches()) {
+                        urlPath = matcher.replaceAll(match);
+                        break;
+                    }
+                }
+            }
+        }
+        return urlPath;
     }
 }
