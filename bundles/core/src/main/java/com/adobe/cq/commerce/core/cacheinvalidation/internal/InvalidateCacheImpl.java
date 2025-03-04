@@ -14,8 +14,11 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -64,27 +67,54 @@ public class InvalidateCacheImpl {
     }
 
     private void handleCacheInvalidation(Resource resource, ComponentsConfiguration commerceProperties) {
+        if (resource == null || commerceProperties == null) {
+            LOGGER.debug("Resource or commerce properties are null");
+            return;
+        }
+
         String graphqlClientId = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, String.class);
+        if (graphqlClientId == null) {
+            LOGGER.debug("GraphQL client ID not found in commerce properties");
+            return;
+        }
+
         String storeView = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_STORE_VIEW, DEFAULT_STORE_VIEW);
-
         GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
-        ValueMap properties = resource.getValueMap();
+        if (client == null) {
+            LOGGER.debug("GraphQL client not found for ID: {}", graphqlClientId);
+            return;
+        }
 
+        ValueMap properties = resource.getValueMap();
         String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAME, String[].class);
 
         Map<String, String[]> dynamicProperties = getDynamicProperties(properties);
-        invalidateCacheByType(client, storeView, listOfCacheToSearch, dynamicProperties);
+        if (!dynamicProperties.isEmpty()) {
+            invalidateCacheByType(client, storeView, listOfCacheToSearch, dynamicProperties);
+        } else {
+            LOGGER.debug("No dynamic properties found for cache invalidation");
+        }
     }
 
     private Map<String, String[]> getDynamicProperties(ValueMap properties) {
+        if (properties == null) {
+            return Collections.emptyMap();
+        }
+
         Map<String, String[]> dynamicProperties = new HashMap<>();
-        for (String attribute : invalidateCacheRegistry.getAttributes()) {
+        Set<String> attributes = invalidateCacheRegistry.getAttributes();
+
+        if (attributes.isEmpty()) {
+            return dynamicProperties;
+        }
+
+        for (String attribute : attributes) {
             String[] values = properties.get(attribute, String[].class);
-            if (values != null) {
+            if (values != null && values.length > 0) {
                 dynamicProperties.put(attribute, values);
             }
         }
-        return dynamicProperties;
+        return Collections.unmodifiableMap(dynamicProperties);
     }
 
     private void invalidateCacheByType(GraphqlClient client, String storeView, String[] listOfCacheToSearch,
@@ -94,18 +124,35 @@ public class InvalidateCacheImpl {
             String[] values = entry.getValue();
 
             if (values != null && values.length > 0) {
-                String[] cachePatterns = getAttributePatterns(values, key);
-                client.invalidateCache(storeView, listOfCacheToSearch, cachePatterns);
+                try {
+                    String[] cachePatterns = getAttributePatterns(values, key);
+                    if (cachePatterns.length > 0) {
+                        client.invalidateCache(storeView, listOfCacheToSearch, cachePatterns);
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Error invalidating cache for attribute {}: {}", key, e.getMessage(), e);
+                }
             }
         }
     }
 
     private String[] getAttributePatterns(String[] patterns, String attribute) {
-        String pattern = invalidateCacheRegistry.getPattern(attribute);
-        if (pattern == null) {
-            return patterns;
+        if (patterns == null || patterns.length == 0 || attribute == null) {
+            return new String[0];
         }
-        String attributeString = String.join("|", patterns);
-        return new String[] { pattern + "(" + attributeString + ")" };
+
+        Set<String> resultPatterns = new HashSet<>();
+        InvalidateCacheRegistry.AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(attribute);
+
+        if (strategies != null) {
+            for (InvalidateCacheRegistry.StrategyInfo strategyInfo : strategies.getStrategies(false)) {
+                String pattern = strategyInfo.getStrategy().getPattern();
+                if (pattern != null) {
+                    String attributeString = String.join("|", patterns);
+                    resultPatterns.add(pattern + "(" + attributeString + ")");
+                }
+            }
+        }
+        return resultPatterns.toArray(new String[0]);
     }
 }

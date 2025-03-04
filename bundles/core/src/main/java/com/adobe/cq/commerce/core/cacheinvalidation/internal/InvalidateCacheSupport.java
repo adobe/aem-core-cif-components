@@ -37,8 +37,6 @@ public class InvalidateCacheSupport {
     public static final String PROPERTIES_CACHE_NAME = "cacheNames";
     public static final String PROPERTY_INVALIDATE_REQUEST_PARAMETER = "invalidateRequestParameter";
     public static final String HTML_SUFFIX = ".html";
-    public static final String DISPATCHER_URL_PATTERN = "pattern";
-    public static final String DISPATCHER_URL_MATCH = "match";
 
     private Boolean enableDispatcherCacheInvalidation;
 
