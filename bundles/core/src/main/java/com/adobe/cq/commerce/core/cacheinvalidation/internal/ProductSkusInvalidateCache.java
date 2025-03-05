@@ -67,7 +67,6 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
             String sqlQuery = getQuery(storePath, dataList);
             return getQueryResult(invalidateCacheSupport, getSqlQuery(session, sqlQuery), storePath);
         } catch (Exception e) {
-            LOGGER.error("Error getting corresponding page paths for storePath={}, dataList={}", storePath, dataList, e);
             throw new CacheInvalidationException("Failed to get corresponding page paths", e);
         }
     }
@@ -116,14 +115,14 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
         }
 
         try {
-            return processProductsData(page, resourceResolver, data, storePath);
+            return processProductsData(page, data, storePath);
         } catch (Exception e) {
             LOGGER.error("Error getting paths to invalidate for storePath={}", storePath, e);
             return new String[0];
         }
     }
 
-    private String[] processProductsData(Page page, ResourceResolver resourceResolver, Map<String, Object> data, String storePath) {
+    private String[] processProductsData(Page page, Map<String, Object> data, String storePath) {
         Set<String> uniquePagePaths = new HashSet<>();
         Map<String, Object> productsData = (Map<String, Object>) data.get("products");
         if (productsData == null) {

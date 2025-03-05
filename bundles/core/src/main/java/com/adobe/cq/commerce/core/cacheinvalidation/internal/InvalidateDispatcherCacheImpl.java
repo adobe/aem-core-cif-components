@@ -60,7 +60,6 @@ public class InvalidateDispatcherCacheImpl {
     private static final String CQ_ACTION_SCOPE_HEADER = "CQ-Action-Scope";
     private static final String DELETE_ACTION = "Delete";
     private static final String RESOURCE_ONLY_SCOPE = "ResourceOnly";
-    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     @Reference
     private UrlProviderImpl urlProvider;
@@ -150,30 +149,17 @@ public class InvalidateDispatcherCacheImpl {
         Map<String, String[]> dynamicProperties = new HashMap<>();
         Set<String> attributes = invalidateCacheRegistry.getAttributes();
 
-        // Early return if no attributes
         if (attributes.isEmpty()) {
             return dynamicProperties;
         }
 
-        // Process each attribute only once
         for (String attribute : attributes) {
             String[] values = properties.get(attribute, String[].class);
-            if (values == null || values.length == 0) {
-                continue;
-            }
-
             InvalidateCacheRegistry.AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(attribute);
-            if (strategies == null) {
-                continue;
-            }
 
-            // Get all strategies at once and filter for DispatcherCacheInvalidationStrategy
-            List<InvalidateCacheRegistry.StrategyInfo> dispatcherStrategies = strategies.getStrategies(false).stream()
-                .filter(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy)
-                .collect(Collectors.toList());
-
-            // If we found any dispatcher strategies, add the values
-            if (!dispatcherStrategies.isEmpty()) {
+            if (values != null && values.length > 0 && strategies != null &&
+                strategies.getStrategies(false).stream()
+                    .anyMatch(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy)) {
                 dynamicProperties.put(attribute, values);
             }
         }
@@ -203,82 +189,139 @@ public class InvalidateDispatcherCacheImpl {
 
     protected String[] getAllInvalidPaths(Session session, ResourceResolver resourceResolver, GraphqlClient client,
         String storePath, Map<String, String[]> dynamicProperties) throws CacheInvalidationException {
+        if (!validateParameters(session, resourceResolver, client, storePath, dynamicProperties)) {
+            return new String[0];
+        }
+
+        Set<String> allPaths = processInvalidPaths(session, resourceResolver, client, storePath, dynamicProperties);
+        LOGGER.debug("Found {} unique paths to invalidate", allPaths.size());
+        return allPaths.toArray(new String[0]);
+    }
+
+    private boolean validateParameters(Session session, ResourceResolver resourceResolver, GraphqlClient client,
+        String storePath, Map<String, String[]> dynamicProperties) {
         if (session == null || resourceResolver == null || client == null || storePath == null || dynamicProperties == null) {
             LOGGER.debug(
                 "Invalid parameters for getAllInvalidPaths: session={}, resourceResolver={}, client={}, storePath={}, dynamicProperties={}",
                 session != null, resourceResolver != null, client != null, storePath, dynamicProperties != null);
-            return EMPTY_STRING_ARRAY;
+            return false;
         }
+        return true;
+    }
 
-        Set<String> invalidateDispatcherPagePaths = new HashSet<>();
-        Set<String> correspondingPaths = new HashSet<>();
+    private Set<String> processInvalidPaths(Session session, ResourceResolver resourceResolver, GraphqlClient client,
+        String storePath, Map<String, String[]> dynamicProperties) throws CacheInvalidationException {
 
-        for (Map.Entry<String, String[]> entry : dynamicProperties.entrySet()) {
-            String key = entry.getKey();
-            String[] values = entry.getValue();
+        Set<String> invalidateDispatcherPagePaths = processPageInvalidationPaths(session, storePath, dynamicProperties);
+        Set<String> correspondingPaths = processCorrespondingPaths(resourceResolver, client, storePath, dynamicProperties);
 
-            if (values == null || values.length == 0) {
-                LOGGER.debug("Skipping empty values for key: {}", key);
-                continue;
-            }
-
-            try {
-                // Get all strategies for this key
-                InvalidateCacheRegistry.AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(key);
-                if (strategies == null) {
-                    LOGGER.debug("No strategies found for key: {}", key);
-                    continue;
-                }
-
-                // Process each dispatcher strategy
-                List<InvalidateCacheRegistry.StrategyInfo> dispatcherStrategies = strategies.getStrategies(false).stream()
-                    .filter(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy)
-                    .collect(Collectors.toList());
-
-                if (dispatcherStrategies.isEmpty()) {
-                    LOGGER.debug("No dispatcher strategies found for key: {}", key);
-                    continue;
-                }
-
-                // Get paths for each strategy
-                for (InvalidateCacheRegistry.StrategyInfo info : dispatcherStrategies) {
-                    DispatcherCacheInvalidationStrategy strategy = (DispatcherCacheInvalidationStrategy) info.getStrategy();
-
-                    // Get corresponding page paths
-                    String[] paths = getCorrespondingPageBasedOnEntries(session, storePath, values, key);
-                    if (paths != null && paths.length > 0) {
-                        invalidateDispatcherPagePaths.addAll(Arrays.asList(paths));
-                    }
-
-                    // Get GraphQL data and invalid paths
-                    String query = strategy.getGraphqlQuery(values);
-                    if (query != null) {
-                        Map<String, Object> data = getGraphqlResponseData(client, query);
-                        if (data != null) {
-                            String[] invalidPaths = strategy.getPathsToInvalidate(
-                                getPage(resourceResolver, storePath),
-                                resourceResolver,
-                                data,
-                                storePath);
-                            if (invalidPaths != null && invalidPaths.length > 0) {
-                                correspondingPaths.addAll(Arrays.asList(invalidPaths));
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                LOGGER.error("Error processing invalid paths for key: {} with values: {}", key, Arrays.toString(values), e);
-                throw new CacheInvalidationException("Error processing invalid paths for key: " + key, e);
-            }
-        }
-
-        // Combine and deduplicate paths
         Set<String> allPaths = new HashSet<>();
         allPaths.addAll(invalidateDispatcherPagePaths);
         allPaths.addAll(correspondingPaths);
+        return allPaths;
+    }
 
-        LOGGER.debug("Found {} unique paths to invalidate", allPaths.size());
-        return allPaths.toArray(new String[0]);
+    private boolean isValidEntry(Map.Entry<String, String[]> entry) {
+        if (entry == null) {
+            LOGGER.debug("Invalid entry: null entry");
+            return false;
+        }
+
+        String key = entry.getKey();
+        String[] values = entry.getValue();
+
+        if (values == null || values.length == 0) {
+            LOGGER.debug("Invalid entry: empty values for key: {}", key);
+            return false;
+        }
+
+        return true;
+    }
+
+    private Set<String> processPageInvalidationPaths(Session session, String storePath,
+        Map<String, String[]> dynamicProperties) throws CacheInvalidationException {
+        Set<String> invalidateDispatcherPagePaths = new HashSet<>();
+
+        for (Map.Entry<String, String[]> entry : dynamicProperties.entrySet()) {
+            if (isValidEntry(entry)) {
+                try {
+                    String[] paths = getCorrespondingPageBasedOnEntries(session, storePath, entry.getValue(), entry.getKey());
+                    if (paths != null && paths.length > 0) {
+                        Collections.addAll(invalidateDispatcherPagePaths, paths);
+                    }
+                } catch (Exception e) {
+                    throw new CacheInvalidationException(
+                        String.format("Error processing page paths for key: %s", entry.getKey()), e);
+                }
+            }
+        }
+
+        return invalidateDispatcherPagePaths;
+    }
+
+    private Set<String> processCorrespondingPaths(ResourceResolver resourceResolver, GraphqlClient client,
+        String storePath, Map<String, String[]> dynamicProperties) throws CacheInvalidationException {
+        Set<String> correspondingPaths = new HashSet<>();
+
+        for (Map.Entry<String, String[]> entry : dynamicProperties.entrySet()) {
+            if (isValidEntry(entry)) {
+                try {
+                    processStrategyPaths(resourceResolver, client, storePath, entry.getKey(), entry.getValue(), correspondingPaths);
+                } catch (Exception e) {
+                    throw new CacheInvalidationException(
+                        String.format("Error processing corresponding paths for key: %s", entry.getKey()), e);
+                }
+            }
+        }
+
+        return correspondingPaths;
+    }
+
+    private void processStrategyPaths(ResourceResolver resourceResolver, GraphqlClient client,
+        String storePath, String key, String[] values, Set<String> correspondingPaths)
+        throws CacheInvalidationException {
+        InvalidateCacheRegistry.AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(key);
+        if (strategies == null) {
+            LOGGER.debug("No strategies found for key: {}", key);
+            return;
+        }
+
+        List<InvalidateCacheRegistry.StrategyInfo> dispatcherStrategies = getDispatcherStrategies(strategies);
+        if (dispatcherStrategies.isEmpty()) {
+            LOGGER.debug("No dispatcher strategies found for key: {}", key);
+            return;
+        }
+
+        for (InvalidateCacheRegistry.StrategyInfo info : dispatcherStrategies) {
+            processGraphQLStrategy(resourceResolver, client, storePath, values, info, correspondingPaths);
+        }
+    }
+
+    private void processGraphQLStrategy(ResourceResolver resourceResolver, GraphqlClient client,
+        String storePath, String[] values, InvalidateCacheRegistry.StrategyInfo info,
+        Set<String> correspondingPaths) throws CacheInvalidationException {
+        DispatcherCacheInvalidationStrategy strategy = (DispatcherCacheInvalidationStrategy) info.getStrategy();
+
+        try {
+            String query = strategy.getGraphqlQuery(values);
+            if (query != null) {
+                Map<String, Object> data = getGraphqlResponseData(client, query);
+                if (data != null) {
+                    String[] invalidPaths = strategy.getPathsToInvalidate(
+                        getPage(resourceResolver, storePath),
+                        resourceResolver,
+                        data,
+                        storePath);
+
+                    if (invalidPaths != null && invalidPaths.length > 0) {
+                        Collections.addAll(correspondingPaths, invalidPaths);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new CacheInvalidationException(
+                String.format("Failed to process GraphQL paths: %s", e.getMessage()), e);
+        }
     }
 
     protected String[] getCorrespondingPageBasedOnEntries(Session session, String storePath, String[] entries, String key)
@@ -286,15 +329,15 @@ public class InvalidateDispatcherCacheImpl {
         if (session == null || storePath == null || entries == null || entries.length == 0 || key == null) {
             LOGGER.debug("Invalid parameters for getCorrespondingPageBasedOnEntries: session={}, storePath={}, entries={}, key={}",
                 session != null, storePath, entries != null ? entries.length : 0, key);
-            return EMPTY_STRING_ARRAY;
+            return new String[0];
         }
 
         try {
             String entryList = formatList(entries, ", ", "'%s'");
             return invalidateCacheRegistry.getCorrespondingPagePaths(key, session, storePath, entryList);
         } catch (Exception e) {
-            LOGGER.error("Error getting corresponding page paths for key: {} with entries: {}", key, Arrays.toString(entries), e);
-            throw new CacheInvalidationException("Error getting corresponding page paths", e);
+            throw new CacheInvalidationException(
+                String.format("Error getting corresponding page paths for key: %s", key), e);
         }
     }
 
@@ -310,13 +353,25 @@ public class InvalidateDispatcherCacheImpl {
             Type typeOfU = new TypeToken<Map<String, Object>>() {}.getType();
             GraphqlResponse<Map<String, Object>, Map<String, Object>> response = client.execute(request, typeOfT, typeOfU);
 
-            if (response.getErrors() != null && !response.getErrors().isEmpty()) {
-                LOGGER.error("GraphQL query errors: {}", response.getErrors());
+            if (response == null) {
+                LOGGER.error("GraphQL response is null for query: {}", query);
+                return Collections.emptyMap();
             }
 
-            return response.getData() != null ? response.getData() : Collections.emptyMap();
-        } catch (Exception e) {
-            LOGGER.error("Error executing GraphQL query: {}", query, e);
+            if (response.getErrors() != null && !response.getErrors().isEmpty()) {
+                LOGGER.error("GraphQL query errors for query {}: {}", query, response.getErrors());
+                return Collections.emptyMap();
+            }
+
+            Map<String, Object> data = response.getData();
+            if (data == null) {
+                LOGGER.warn("No data returned for GraphQL query: {}", query);
+                return Collections.emptyMap();
+            }
+
+            return data;
+        } catch (RuntimeException e) {
+            LOGGER.error("Failed to execute GraphQL query: {}. Error: {}", query, e.getMessage(), e);
             return Collections.emptyMap();
         }
     }
@@ -351,11 +406,15 @@ public class InvalidateDispatcherCacheImpl {
             if (parameterTypes != null && args != null) {
                 method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod(methodName, parameterTypes);
                 result = method.invoke(this, args);
-            } else {
-                throw new IllegalArgumentException("Invalid method parameters for: " + methodName);
+                return result != null;
             }
-            return result != null;
-        } catch (Exception e) {
+            LOGGER.error("Invalid method parameters for method: {}", methodName);
+            return false;
+        } catch (ReflectiveOperationException e) {
+            LOGGER.error("Failed to invoke method {}: {}", methodName, e.getMessage(), e);
+            return false;
+        } catch (RuntimeException e) {
+            LOGGER.error("Unexpected error invoking method {}: {}", methodName, e.getMessage(), e);
             return false;
         }
     }
@@ -449,13 +508,17 @@ public class InvalidateDispatcherCacheImpl {
                 LOGGER.debug("Cache invalidation result for path {}: {}", handle, result);
             }
         } catch (IOException e) {
-            String errorMsg = String.format("IO error while flushing cache for path %s: %s", handle, e.getMessage());
-            LOGGER.error(errorMsg, e);
-            throw new CacheInvalidationException(errorMsg, e);
+            throw new CacheInvalidationException(
+                String.format("IO error while flushing cache for path %s", handle), e);
         } catch (Exception e) {
-            String errorMsg = String.format("Unexpected error while flushing cache for path %s: %s", handle, e.getMessage());
-            LOGGER.error(errorMsg, e);
-            throw new CacheInvalidationException(errorMsg, e);
+            throw new CacheInvalidationException(
+                String.format("Unexpected error while flushing cache for path %s", handle), e);
         }
+    }
+
+    private List<InvalidateCacheRegistry.StrategyInfo> getDispatcherStrategies(InvalidateCacheRegistry.AttributeStrategies strategies) {
+        return strategies.getStrategies(false).stream()
+            .filter(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy)
+            .collect(Collectors.toList());
     }
 }
