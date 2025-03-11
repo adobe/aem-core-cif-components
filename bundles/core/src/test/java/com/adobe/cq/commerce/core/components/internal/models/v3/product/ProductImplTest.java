@@ -153,9 +153,8 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
 
     private void setupXssApi(ProductImpl product) throws Exception {
         XSSAPI xssAPI = mock(XSSAPI.class);
-        when(xssAPI.encodeForHTML(anyString())).thenAnswer(invocation -> invocation.getArguments()[0]); // Return input as is
+        when(xssAPI.encodeForHTML(anyString())).thenAnswer(invocation -> invocation.getArguments()[0]);
 
-        // Use reflection to find and inject xssApi field
         Field xssApiField = null;
         Class<?> clazz = product.getClass();
         while (clazz != null) {
@@ -165,13 +164,10 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
                 xssApiField.set(product, xssAPI);
                 break;
             } catch (NoSuchFieldException e) {
-                clazz = clazz.getSuperclass(); // Traverse up in hierarchy
+                clazz = clazz.getSuperclass();
             }
         }
 
-        if (xssApiField == null) {
-            throw new NoSuchFieldException("xssApi field not found in class hierarchy");
-        }
     }
 
     @Test
@@ -201,7 +197,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
 
         ObjectNode variantJson1 = (ObjectNode) result.get(0);
         assertEquals("Offer", variantJson1.get("@type").asText());
-        assertEquals("SKU789", variantJson1.get("sku").asText().trim()); // Trim to avoid whitespace mismatches
+        assertEquals("SKU789", variantJson1.get("sku").asText());
         assertEquals("http://example.com/product", variantJson1.get("url").asText());
         assertEquals("http://example.com/image1.jpg", variantJson1.get("image").asText());
         assertEquals("USD", variantJson1.get("priceCurrency").asText());
@@ -217,7 +213,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
 
         ObjectNode variantJson2 = (ObjectNode) result.get(1);
         assertEquals("Offer", variantJson2.get("@type").asText());
-        assertEquals("SKU790", variantJson2.get("sku").asText().trim());
+        assertEquals("SKU790", variantJson2.get("sku").asText());
         assertEquals("http://example.com/product", variantJson2.get("url").asText());
         assertEquals("http://example.com/image2.jpg", variantJson2.get("image").asText());
         assertEquals("USD", variantJson2.get("priceCurrency").asText());
@@ -259,7 +255,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         ProductImpl product = spy(new ProductImpl());
         ObjectMapper mapper = new ObjectMapper();
         doReturn("test-sku").when(product).getSku();
-        doReturn("Test name").when(product).getName();
+        doReturn("Test Product").when(product).getName();
         doReturn("Test Description").when(product).getDescription();
         doReturn("test-id").when(product).getId();
         Asset asset = mock(Asset.class);
@@ -277,7 +273,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         assertEquals("http://schema.org", productJson.get("@context").asText());
         assertEquals("Product", productJson.get("@type").asText());
         assertEquals("test-sku", productJson.get("sku").asText());
-        assertEquals("Test name", productJson.get("name").asText());
+        assertEquals("Test Product", productJson.get("name").asText());
         assertEquals("Test Description", productJson.get("description").asText());
         assertEquals("test-id", productJson.get("@id").asText());
         assertEquals("http://example.com/image.jpg", productJson.get("image").asText());
@@ -405,6 +401,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         doReturn(Collections.emptyList()).when(product).getAssets();
 
         setupXssApi(product);
+        // Set the enableJsonLd field directly
 
         Whitebox.setInternalState(product, "enableJsonLd", true);
 
