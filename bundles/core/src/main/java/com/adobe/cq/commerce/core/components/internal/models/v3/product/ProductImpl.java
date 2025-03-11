@@ -187,43 +187,46 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             ObjectNode variantMap = mapper.createObjectNode();
             ObjectNode variantMapWithNoSpecialPrice = mapper.createObjectNode();
             ArrayNode assets = mapper.createArrayNode();
+            if (xssApi != null) {
+                for (Asset asset : variant.getAssets()) {
+                    ObjectNode jsonAsset = mapper.createObjectNode();
+                    jsonAsset.put("path", xssApi.encodeForHTML(Optional.ofNullable(asset.getPath()).orElse("")));
+                    assets.add(jsonAsset);
+                }
 
-            for (Asset asset : variant.getAssets()) {
-                ObjectNode jsonAsset = mapper.createObjectNode();
-                jsonAsset.put("path", xssApi != null ? xssApi.encodeForHTML(asset.getPath()) : "");
-                assets.add(jsonAsset);
-            }
+                Price priceRange = variant.getPriceRange();
 
-            Price priceRange = variant.getPriceRange();
+                variantMap.put("@type", "Offer");
+                variantMap.put("sku", xssApi.encodeForHTML(Optional.ofNullable(variant.getSku()).orElse("")));
+                variantMap.put("url", getCanonicalUrl());
+                variantMap.put("image", assets.size() > 0 ? assets.get(0).get("path").asText() : "");
+                variantMap.put("priceCurrency", Optional.ofNullable(priceRange.getCurrency()).orElse(""));
 
-            variantMap.put("@type", "Offer");
-            variantMap.put("sku", xssApi != null ? xssApi.encodeForHTML(variant.getSku()) : "");
-            variantMap.put("url", getCanonicalUrl());
-            variantMap.put("image", assets.size() > 0 ? assets.get(0).get("path").asText() : "");
-            variantMap.put("priceCurrency", priceRange != null ? priceRange.getCurrency() : "");
+                if (variant instanceof VariantImpl) {
+                    VariantImpl variantImpl = (VariantImpl) variant;
+                    if (variantImpl.getSpecialPrice() == null && variantImpl.getSpecialToDate() == null) {
+                        variantMapWithNoSpecialPrice.setAll(variantMap);
+                        variantMapWithNoSpecialPrice.put("price", priceRange != null ? priceRange.getRegularPrice() : 0);
+                        jsonArray.add(variantMapWithNoSpecialPrice);
+                    } else {
+                        variantMap.put("availability", variant.getInStock() ? "InStock" : "OutOfStock");
 
-            if (variant instanceof VariantImpl) {
-                VariantImpl variantImpl = (VariantImpl) variant;
-                if (variantImpl.getSpecialPrice() == null && variantImpl.getSpecialToDate() == null) {
-                    variantMapWithNoSpecialPrice.setAll(variantMap);
-                    variantMapWithNoSpecialPrice.put("price", priceRange != null ? priceRange.getRegularPrice() : 0);
-                    jsonArray.add(variantMapWithNoSpecialPrice);
-                } else {
-                    variantMap.put("availability", variant.getInStock() ? "InStock" : "OutOfStock");
+                        ObjectNode priceSpecification = mapper.createObjectNode();
+                        priceSpecification.put("@type", "UnitPriceSpecification");
+                        priceSpecification.put("priceType", "https://schema.org/ListPrice");
+                        if (priceRange != null) {
+                            priceSpecification.put("price", priceRange.getRegularPrice());
+                            priceSpecification.put("priceCurrency", priceRange.getCurrency());
+                        }
+                        variantMap.set("priceSpecification", priceSpecification);
 
-                    ObjectNode priceSpecification = mapper.createObjectNode();
-                    priceSpecification.put("@type", "UnitPriceSpecification");
-                    priceSpecification.put("priceType", "https://schema.org/ListPrice");
-                    if (priceRange != null) {
-                        priceSpecification.put("price", priceRange.getRegularPrice());
-                        priceSpecification.put("priceCurrency", priceRange.getCurrency());
+                        variantMap.put("price", variantImpl.getSpecialPrice());
+
+                        variantMap.put("SpecialPricedates", xssApi.encodeForHTML(Optional.ofNullable(variantImpl.getSpecialToDate()).orElse(
+                            "")));
+
+                        jsonArray.add(variantMap);
                     }
-                    variantMap.set("priceSpecification", priceSpecification);
-
-                    variantMap.put("price", variantImpl.getSpecialPrice());
-                    variantMap.put("SpecialPricedates", xssApi != null ? xssApi.encodeForHTML(variantImpl.getSpecialToDate()) : "");
-
-                    jsonArray.add(variantMap);
                 }
             }
         }
