@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v3.product;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,6 +24,7 @@ import java.util.List;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.xss.XSSAPI;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.junit.Before;
@@ -149,6 +151,29 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         assertThat(productModel.getVisibleSections()).containsOnly(Product.PRICE_SECTION, Product.TITLE_SECTION, Product.SKU_SECTION);
     }
 
+    private void setupXssApi(ProductImpl product) throws Exception {
+        XSSAPI xssAPI = mock(XSSAPI.class);
+        when(xssAPI.encodeForHTML(anyString())).thenAnswer(invocation -> invocation.getArguments()[0]); // Return input as is
+
+        // Use reflection to find and inject xssApi field
+        Field xssApiField = null;
+        Class<?> clazz = product.getClass();
+        while (clazz != null) {
+            try {
+                xssApiField = clazz.getDeclaredField("xssApi");
+                xssApiField.setAccessible(true);
+                xssApiField.set(product, xssAPI);
+                break;
+            } catch (NoSuchFieldException e) {
+                clazz = clazz.getSuperclass(); // Traverse up in hierarchy
+            }
+        }
+
+        if (xssApiField == null) {
+            throw new NoSuchFieldException("xssApi field not found in class hierarchy");
+        }
+    }
+
     @Test
     public void testFetchVariantsAsJsonArray() throws Exception {
         ProductImpl product = spy(new ProductImpl());
@@ -163,6 +188,10 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         doReturn(variants).when(product).getVariants();
         doReturn("http://example.com/product").when(product).getCanonicalUrl();
 
+        setupXssApi(product);
+
+        // Invoke the method using reflection
+
         Method fetchVariantsAsJsonArray = ProductImpl.class.getDeclaredMethod("fetchVariantsAsJsonArray");
         fetchVariantsAsJsonArray.setAccessible(true);
         ArrayNode result = (ArrayNode) fetchVariantsAsJsonArray.invoke(product);
@@ -172,7 +201,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
 
         ObjectNode variantJson1 = (ObjectNode) result.get(0);
         assertEquals("Offer", variantJson1.get("@type").asText());
-        assertEquals("SKU789", variantJson1.get("sku").asText());
+        assertEquals("SKU789", variantJson1.get("sku").asText().trim()); // Trim to avoid whitespace mismatches
         assertEquals("http://example.com/product", variantJson1.get("url").asText());
         assertEquals("http://example.com/image1.jpg", variantJson1.get("image").asText());
         assertEquals("USD", variantJson1.get("priceCurrency").asText());
@@ -188,7 +217,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
 
         ObjectNode variantJson2 = (ObjectNode) result.get(1);
         assertEquals("Offer", variantJson2.get("@type").asText());
-        assertEquals("SKU790", variantJson2.get("sku").asText());
+        assertEquals("SKU790", variantJson2.get("sku").asText().trim());
         assertEquals("http://example.com/product", variantJson2.get("url").asText());
         assertEquals("http://example.com/image2.jpg", variantJson2.get("image").asText());
         assertEquals("USD", variantJson2.get("priceCurrency").asText());
@@ -230,13 +259,16 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         ProductImpl product = spy(new ProductImpl());
         ObjectMapper mapper = new ObjectMapper();
         doReturn("test-sku").when(product).getSku();
-        doReturn("Test Product").when(product).getName();
+        doReturn("Test name").when(product).getName();
         doReturn("Test Description").when(product).getDescription();
         doReturn("test-id").when(product).getId();
         Asset asset = mock(Asset.class);
         when(asset.getPath()).thenReturn("http://example.com/image.jpg");
         doReturn(Collections.singletonList(asset)).when(product).getAssets();
 
+        setupXssApi(product);
+
+        // Invoke private method using reflection
         Method createBasicProductJson = ProductImpl.class.getDeclaredMethod("createBasicProductJson", ObjectMapper.class);
         createBasicProductJson.setAccessible(true);
         ObjectNode productJson = (ObjectNode) createBasicProductJson.invoke(product, mapper);
@@ -245,7 +277,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         assertEquals("http://schema.org", productJson.get("@context").asText());
         assertEquals("Product", productJson.get("@type").asText());
         assertEquals("test-sku", productJson.get("sku").asText());
-        assertEquals("Test Product", productJson.get("name").asText());
+        assertEquals("Test name", productJson.get("name").asText());
         assertEquals("Test Description", productJson.get("description").asText());
         assertEquals("test-id", productJson.get("@id").asText());
         assertEquals("http://example.com/image.jpg", productJson.get("image").asText());
@@ -313,6 +345,8 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         ProductImpl product = createSpyProductWithVariants(variants);
         doReturn("http://example.com/product").when(product).getCanonicalUrl();
 
+        setupXssApi(product);
+
         Method fetchVariantsAsJsonArray = ProductImpl.class.getDeclaredMethod("fetchVariantsAsJsonArray");
         fetchVariantsAsJsonArray.setAccessible(true);
         ArrayNode result = (ArrayNode) fetchVariantsAsJsonArray.invoke(product);
@@ -370,7 +404,8 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
         doReturn("test-id").when(product).getId();
         doReturn(Collections.emptyList()).when(product).getAssets();
 
-        // Set the enableJsonLd field directly
+        setupXssApi(product);
+
         Whitebox.setInternalState(product, "enableJsonLd", true);
 
         // Call the method

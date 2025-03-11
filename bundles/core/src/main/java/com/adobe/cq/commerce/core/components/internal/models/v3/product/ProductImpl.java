@@ -195,9 +195,10 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             }
 
             Price priceRange = variant.getPriceRange();
+
             variantMap.put("@type", "Offer");
-            variantMap.put("sku", StringEscapeUtils.escapeHtml4(variant.getSku()));
-            variantMap.put("url", StringEscapeUtils.escapeHtml4(getCanonicalUrl()));
+            variantMap.put("sku", xssApi != null ? xssApi.encodeForHTML(variant.getSku()) : "");
+            variantMap.put("url", getCanonicalUrl());
             variantMap.put("image", assets.size() > 0 ? assets.get(0).get("path").asText() : "");
             variantMap.put("priceCurrency", priceRange != null ? priceRange.getCurrency() : "");
 
@@ -220,7 +221,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
                     variantMap.set("priceSpecification", priceSpecification);
 
                     variantMap.put("price", variantImpl.getSpecialPrice());
-                    variantMap.put("SpecialPricedates", StringEscapeUtils.escapeHtml4(variantImpl.getSpecialToDate()));
+                    variantMap.put("SpecialPricedates", xssApi != null ? xssApi.encodeForHTML(variantImpl.getSpecialToDate()) : "");
 
                     jsonArray.add(variantMap);
                 }
@@ -261,12 +262,15 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         // Set basic product attributes
         productJson.put("@context", "http://schema.org");
         productJson.put("@type", "Product");
-        productJson.put("sku", StringEscapeUtils.escapeHtml4(Optional.ofNullable(getSku()).orElse("")));
-        productJson.put("name", StringEscapeUtils.escapeHtml4(Optional.ofNullable(getName()).orElse("")));
-        productJson.put("image", StringEscapeUtils.escapeHtml4(getAssets().stream().findFirst().map(Asset::getPath).orElse("")));
-        productJson.put("description", StringEscapeUtils.escapeHtml4(Optional.ofNullable(getDescription()).orElse("")));
-        productJson.put("@id", StringEscapeUtils.escapeHtml4(Optional.ofNullable(getId()).orElse("")));
-
+        if (xssApi != null) {
+            productJson.put("sku", xssApi.encodeForHTML(Optional.ofNullable(getSku()).orElse("")));
+            productJson.put("name", xssApi.encodeForHTML(Optional.ofNullable(getName()).orElse("")));
+            productJson.put("image", xssApi.encodeForHTML(getAssets().stream().findFirst().map(Asset::getPath).orElse("")));
+            productJson.put("description", xssApi.encodeForHTML(StringEscapeUtils.unescapeHtml4(Optional.ofNullable(getDescription())
+                .orElse("")
+                .replaceAll("<[^>]*>", ""))));
+            productJson.put("@id", xssApi.encodeForHTML(Optional.ofNullable(getId()).orElse("")));
+        }
         return productJson;
     }
 

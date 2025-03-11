@@ -155,7 +155,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @SlingObject
     private SlingScriptHelper sling;
     @OSGiService
-    private XSSAPI xssApi;
+    protected XSSAPI xssApi;
     @OSGiService
     private PageManagerFactory pageManagerFactory;
     @OSGiService
