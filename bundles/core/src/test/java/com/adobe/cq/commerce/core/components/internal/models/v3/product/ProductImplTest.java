@@ -167,6 +167,9 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
                 clazz = clazz.getSuperclass();
             }
         }
+        if (xssApiField == null) {
+            throw new NoSuchFieldException("Field 'xssApi' not found in class hierarchy.");
+        }
 
     }
 
@@ -451,6 +454,30 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
 
         // Verify the result
         assertNull(jsonLd);
+    }
+
+    @Test
+    public void testVariantMapImageAndPriceCurrency() throws Exception {
+        ProductImpl product = spy(new ProductImpl());
+        setupXssApi(product);
+
+        List<Variant> variants = new ArrayList<>();
+        VariantImpl variant = createMockVariant("SKU789", true, "http://example.com/image1.jpg", 120.0, "USD", null, null);
+        variants.add(variant);
+
+        doReturn(variants).when(product).getVariants();
+        doReturn("http://example.com/product").when(product).getCanonicalUrl();
+
+        Method fetchVariantsAsJsonArray = ProductImpl.class.getDeclaredMethod("fetchVariantsAsJsonArray");
+        fetchVariantsAsJsonArray.setAccessible(true);
+        ArrayNode result = (ArrayNode) fetchVariantsAsJsonArray.invoke(product);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        ObjectNode variantJson = (ObjectNode) result.get(0);
+        assertEquals("http://example.com/image1.jpg", variantJson.get("image").asText());
+        assertEquals("USD", variantJson.get("priceCurrency").asText());
     }
 
 }
