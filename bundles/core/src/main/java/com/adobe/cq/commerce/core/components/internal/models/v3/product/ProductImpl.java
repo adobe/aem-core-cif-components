@@ -190,7 +190,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
             for (Asset asset : variant.getAssets()) {
                 ObjectNode jsonAsset = mapper.createObjectNode();
-                jsonAsset.put("path", StringEscapeUtils.escapeHtml4(asset.getPath()));
+                jsonAsset.put("path", xssApi != null ? xssApi.encodeForHTML(asset.getPath()) : "");
                 assets.add(jsonAsset);
             }
 
