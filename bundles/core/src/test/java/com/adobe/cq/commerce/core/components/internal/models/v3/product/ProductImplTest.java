@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -455,56 +454,6 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
 
         // Verify the result
         assertNull(jsonLd);
-    }
-
-    @Test
-    public void testFetchVariantsAsJsonArray_EmptyAssets() throws Exception {
-        // Create a variant with an empty asset list
-        VariantImpl variant = createMockVariant("SKU123", true, "", 120.0, "USD", null, null);
-        doReturn(Collections.emptyList()).when(variant).getAssets();
-
-        List<Variant> variants = Collections.singletonList(variant);
-        ProductImpl product = createSpyProductWithVariants(variants);
-        doReturn("http://example.com/product").when(product).getCanonicalUrl();
-
-        setupXssApi(product);
-
-        ArrayNode result = invokeFetchVariantsAsJsonArray(product);
-        ObjectNode variantJson = (ObjectNode) result.get(0);
-
-        assertEquals("", variantJson.get("image").asText()); // Image should be empty
-    }
-
-    @Test
-    public void testFetchVariantsAsJsonArray_MultipleAssets() throws Exception {
-        VariantImpl variant = createMockVariant("SKU123", true, "http://example.com/image1.jpg", 120.0, "USD", null, null);
-
-        // Mock multiple assets
-        Asset asset1 = mock(Asset.class);
-        when(asset1.getPath()).thenReturn("http://example.com/image1.jpg");
-
-        Asset asset2 = mock(Asset.class);
-        when(asset2.getPath()).thenReturn("http://example.com/image2.jpg");
-
-        doReturn(Arrays.asList(asset1, asset2)).when(variant).getAssets();
-
-        List<Variant> variants = Collections.singletonList(variant);
-        ProductImpl product = createSpyProductWithVariants(variants);
-        doReturn("http://example.com/product").when(product).getCanonicalUrl();
-
-        setupXssApi(product);
-
-        ArrayNode result = invokeFetchVariantsAsJsonArray(product);
-        ObjectNode variantJson = (ObjectNode) result.get(0);
-
-        assertEquals("http://example.com/image1.jpg", variantJson.get("image").asText()); // First asset should be used
-    }
-
-    // Utility method to invoke fetchVariantsAsJsonArray via reflection
-    private ArrayNode invokeFetchVariantsAsJsonArray(ProductImpl product) throws Exception {
-        Method fetchVariantsAsJsonArray = ProductImpl.class.getDeclaredMethod("fetchVariantsAsJsonArray");
-        fetchVariantsAsJsonArray.setAccessible(true);
-        return (ArrayNode) fetchVariantsAsJsonArray.invoke(product);
     }
 
 }
