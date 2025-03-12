@@ -88,42 +88,31 @@ public class InvalidateDispatcherCacheImpl {
         }
 
         try (ResourceResolver resourceResolver = invalidateCacheSupport.getServiceUserResourceResolver()) {
-            // Get and validate resource
             Resource resource = invalidateCacheSupport.getResource(resourceResolver, path);
             if (resource == null) {
                 LOGGER.debug("Resource not found at path: {}", path);
                 return;
             }
 
-            // Get and validate session
             Session session = getSession(resourceResolver);
-
-            // Get required properties
             ValueMap properties = resource.getValueMap();
             String storePath = properties.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class);
 
-            // Get and validate commerce properties
             ComponentsConfiguration commerceProperties = getCommerceProperties(resourceResolver, storePath);
             if (!isValid(properties, resourceResolver, storePath)) {
                 LOGGER.debug("Invalid properties for cache invalidation at path: {}", path);
                 return;
             }
 
-            // Get client and dynamic properties
             String graphqlClientId = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, (String) null);
             Map<String, String[]> dynamicProperties = getDynamicProperties(properties);
             GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
 
-            // Process paths for invalidation
             String[] allPaths = getAllInvalidPaths(session, resourceResolver, client, storePath, dynamicProperties);
-
-            // Filter and sort paths
             allPaths = filterAndSortPaths(allPaths);
 
-            // Get dispatcher URL and flush cache
-            String dispatcherUrl = invalidateCacheSupport.getDispatcherBaseUrl() != null
-                ? invalidateCacheSupport.getDispatcherBaseUrl()
-                : DISPATCHER_BASE_URL;
+            String dispatcherUrl = Optional.ofNullable(invalidateCacheSupport.getDispatcherBaseUrl())
+                .orElse(DISPATCHER_BASE_URL);
 
             flushCacheForPaths(allPaths, dispatcherUrl, path);
 
@@ -134,8 +123,9 @@ public class InvalidateDispatcherCacheImpl {
 
     private String[] filterAndSortPaths(String[] paths) {
         return Arrays.stream(paths)
-            .filter(urlPath -> urlPath != null && !urlPath.trim().isEmpty())
-            .sorted(Comparator.comparingInt(urlPath -> urlPath.split(PATH_DELIMITER).length))
+            .filter(Objects::nonNull)
+            .filter(path -> !path.trim().isEmpty())
+            .sorted(Comparator.comparingInt(path -> path.split(PATH_DELIMITER).length))
             .collect(Collectors.collectingAndThen(
                 Collectors.toList(),
                 filteredPaths -> {
@@ -171,16 +161,15 @@ public class InvalidateDispatcherCacheImpl {
             return dynamicProperties;
         }
 
-        for (String attribute : attributes) {
-            String[] values = properties.get(attribute, String[].class);
-            InvalidateCacheRegistry.AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(attribute);
-
-            if (values != null && values.length > 0 && strategies != null &&
-                strategies.getStrategies(false).stream()
-                    .anyMatch(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy)) {
-                dynamicProperties.put(attribute, values);
-            }
-        }
+        attributes.stream()
+            .filter(attribute -> {
+                String[] values = properties.get(attribute, String[].class);
+                InvalidateCacheRegistry.AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(attribute);
+                return values != null && values.length > 0 && strategies != null &&
+                    strategies.getStrategies(false).stream()
+                        .anyMatch(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy);
+            })
+            .forEach(attribute -> dynamicProperties.put(attribute, properties.get(attribute, String[].class)));
 
         return Collections.unmodifiableMap(dynamicProperties);
     }
@@ -286,8 +275,9 @@ public class InvalidateDispatcherCacheImpl {
         Map<String, String[]> dynamicProperties) throws CacheInvalidationException {
         Set<String> invalidateDispatcherPagePaths = new HashSet<>();
 
-        for (Map.Entry<String, String[]> entry : dynamicProperties.entrySet()) {
-            if (isValidEntry(entry)) {
+        dynamicProperties.entrySet().stream()
+            .filter(this::isValidEntry)
+            .forEach(entry -> {
                 try {
                     String[] paths = getCorrespondingPageBasedOnEntries(session, storePath, entry.getValue(), entry.getKey());
                     if (paths != null && paths.length > 0) {
@@ -297,8 +287,7 @@ public class InvalidateDispatcherCacheImpl {
                     throw new CacheInvalidationException(
                         String.format("Error processing page paths for key: %s", entry.getKey()), e);
                 }
-            }
-        }
+            });
 
         return invalidateDispatcherPagePaths;
     }
@@ -307,16 +296,16 @@ public class InvalidateDispatcherCacheImpl {
         String storePath, Map<String, String[]> dynamicProperties) throws CacheInvalidationException {
         Set<String> correspondingPaths = new HashSet<>();
 
-        for (Map.Entry<String, String[]> entry : dynamicProperties.entrySet()) {
-            if (isValidEntry(entry)) {
+        dynamicProperties.entrySet().stream()
+            .filter(this::isValidEntry)
+            .forEach(entry -> {
                 try {
                     processStrategyPaths(resourceResolver, client, storePath, entry.getKey(), entry.getValue(), correspondingPaths);
                 } catch (Exception e) {
                     throw new CacheInvalidationException(
                         String.format("Error processing corresponding paths for key: %s", entry.getKey()), e);
                 }
-            }
-        }
+            });
 
         return correspondingPaths;
     }
@@ -336,9 +325,13 @@ public class InvalidateDispatcherCacheImpl {
             return;
         }
 
-        for (InvalidateCacheRegistry.StrategyInfo info : dispatcherStrategies) {
-            processGraphQLStrategy(resourceResolver, client, storePath, values, info, correspondingPaths);
-        }
+        dispatcherStrategies.forEach(info -> {
+            try {
+                processGraphQLStrategy(resourceResolver, client, storePath, values, info, correspondingPaths);
+            } catch (Exception e) {
+                LOGGER.error("Error processing GraphQL strategy for key: {}", key, e);
+            }
+        });
     }
 
     private void processGraphQLStrategy(ResourceResolver resourceResolver, GraphqlClient client,
@@ -422,21 +415,13 @@ public class InvalidateDispatcherCacheImpl {
 
     protected boolean isValid(ValueMap valueMap, ResourceResolver resourceResolver, String storePath) {
         Map<String, Map<String, Object>> jsonData = createJsonData(resourceResolver, storePath);
-        for (Map.Entry<String, Map<String, Object>> entry : jsonData.entrySet()) {
-            Map<String, Object> properties = entry.getValue();
-            String key = entry.getKey();
-            boolean isFunction = (boolean) properties.get(IS_FUNCTION);
-            if (isFunction) {
-                if (!invokeFunction(properties)) {
-                    return false;
-                }
-            } else {
-                if (!checkProperty(valueMap, key, properties)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return jsonData.entrySet().stream()
+            .allMatch(entry -> {
+                Map<String, Object> properties = entry.getValue();
+                String key = entry.getKey();
+                boolean isFunction = (boolean) properties.get(IS_FUNCTION);
+                return isFunction ? invokeFunction(properties) : checkProperty(valueMap, key, properties);
+            });
     }
 
     protected boolean invokeFunction(Map<String, Object> properties) {
@@ -464,15 +449,14 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     protected boolean checkProperty(ValueMap valueMap, String key, Map<String, Object> properties) {
-        boolean isFlag = true;
         Class<?> clazz = (Class<?>) properties.get("class");
         Object value = getPropertiesValue(valueMap, key, clazz);
         if (value instanceof String) {
-            isFlag = !((String) value).isEmpty();
+            return !((String) value).isEmpty();
         } else if (value instanceof Object[]) {
-            isFlag = ((Object[]) value).length != 0;
+            return ((Object[]) value).length != 0;
         }
-        return isFlag;
+        return true;
     }
 
     protected Map<String, Map<String, Object>> createJsonData(ResourceResolver resourceResolver,
@@ -481,11 +465,11 @@ public class InvalidateDispatcherCacheImpl {
 
         jsonData.put(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, createProperty(false, String.class));
         jsonData.put(InvalidateCacheSupport.PROPERTIES_STORE_PATH, createProperty(false, String.class));
-        jsonData.put("categoryPath", createFunctionProperty("getCorrespondingPageProperties", new Class<?>[] { ResourceResolver.class,
-            String.class, String.class },
+        jsonData.put("categoryPath", createFunctionProperty("getCorrespondingPageProperties",
+            new Class<?>[] { ResourceResolver.class, String.class, String.class },
             new Object[] { resourceResolver, actualStorePath, SiteStructureImpl.PN_CIF_CATEGORY_PAGE }));
-        jsonData.put("productPath", createFunctionProperty("getCorrespondingPageProperties", new Class<?>[] { ResourceResolver.class,
-            String.class, String.class },
+        jsonData.put("productPath", createFunctionProperty("getCorrespondingPageProperties",
+            new Class<?>[] { ResourceResolver.class, String.class, String.class },
             new Object[] { resourceResolver, actualStorePath, SiteStructureImpl.PN_CIF_PRODUCT_PAGE }));
 
         return jsonData;
@@ -513,20 +497,13 @@ public class InvalidateDispatcherCacheImpl {
 
     protected Page getPage(ResourceResolver resourceResolver, String storePath) {
         PageManager pageManager = resourceResolver.adaptTo(PageManager.class);
-        if (pageManager != null) {
-            return pageManager.getPage(storePath);
-        }
-        return null;
+        return pageManager != null ? pageManager.getPage(storePath) : null;
     }
 
     @SuppressWarnings("unused")
     protected String getCorrespondingPageProperties(ResourceResolver resourceResolver, String storePath, String propertyName) {
         Page page = getPage(resourceResolver, storePath);
-        if (page != null) {
-            ValueMap properties = page.getProperties();
-            return properties.get(propertyName, String.class);
-        }
-        return null;
+        return page != null ? page.getProperties().get(propertyName, String.class) : null;
     }
 
     protected String formatList(String[] invalidCacheEntries, String delimiter, String pattern) {

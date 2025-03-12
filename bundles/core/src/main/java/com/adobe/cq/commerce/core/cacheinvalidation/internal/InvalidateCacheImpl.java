@@ -63,11 +63,6 @@ public class InvalidateCacheImpl {
     }
 
     private void handleCacheInvalidation(Resource resource, ComponentsConfiguration commerceProperties) {
-        if (resource == null || commerceProperties == null) {
-            LOGGER.debug("Resource or commerce properties are null");
-            return;
-        }
-
         String graphqlClientId = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, String.class);
         if (graphqlClientId == null) {
             LOGGER.debug("GraphQL client ID not found in commerce properties");
@@ -100,10 +95,6 @@ public class InvalidateCacheImpl {
         Map<String, String[]> dynamicProperties = new HashMap<>();
         Set<String> attributes = invalidateCacheRegistry.getAttributes();
 
-        if (attributes.isEmpty()) {
-            return dynamicProperties;
-        }
-
         for (String attribute : attributes) {
             String[] values = properties.get(attribute, String[].class);
             if (values != null && values.length > 0) {
@@ -119,21 +110,19 @@ public class InvalidateCacheImpl {
             String key = entry.getKey();
             String[] values = entry.getValue();
 
-            if (values != null && values.length > 0) {
-                try {
-                    String[] cachePatterns = getAttributePatterns(values, key);
-                    if (cachePatterns.length > 0) {
-                        client.invalidateCache(storeView, listOfCacheToSearch, cachePatterns);
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("Error invalidating cache for attribute {}: {}", key, e.getMessage(), e);
+            try {
+                String[] cachePatterns = getAttributePatterns(values, key);
+                if (cachePatterns.length > 0) {
+                    client.invalidateCache(storeView, listOfCacheToSearch, cachePatterns);
                 }
+            } catch (Exception e) {
+                LOGGER.error("Error invalidating cache for attribute {}: {}", key, e.getMessage(), e);
             }
         }
     }
 
     private String[] getAttributePatterns(String[] patterns, String attribute) {
-        if (patterns == null || patterns.length == 0 || attribute == null) {
+        if (attribute == null || patterns == null || patterns.length == 0) {
             return new String[0];
         }
 
