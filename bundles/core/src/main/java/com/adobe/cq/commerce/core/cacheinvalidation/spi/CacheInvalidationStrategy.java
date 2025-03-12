@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.cacheinvalidation.internal.spi;
+package com.adobe.cq.commerce.core.cacheinvalidation.spi;
 
 import org.osgi.annotation.versioning.ConsumerType;
 

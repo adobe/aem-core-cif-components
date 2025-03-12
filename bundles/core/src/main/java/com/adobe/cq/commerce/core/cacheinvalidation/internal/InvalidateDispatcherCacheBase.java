@@ -98,9 +98,8 @@ public class InvalidateDispatcherCacheBase {
         return uniquePagePaths;
     }
 
-    protected List<PatternConfig> getPatternAndMatch(InvalidateCacheSupport invalidateCacheSupport, String storePath, String urlPathType) {
-        List<PatternConfig> dispatcherUrlData = invalidateCacheSupport.getDispatcherUrlConfigurationBasedOnStorePathAndType(storePath,
-            urlPathType);
+    protected List<PatternConfig> getPatternAndMatch(InvalidateCacheSupport invalidateCacheSupport, String urlPathType) {
+        List<PatternConfig> dispatcherUrlData = invalidateCacheSupport.getDispatcherUrlConfigurationBasedOnType(urlPathType);
         return dispatcherUrlData != null ? dispatcherUrlData : new ArrayList<>();
     }
 
@@ -133,13 +132,13 @@ public class InvalidateDispatcherCacheBase {
         return productParams;
     }
 
-    protected String[] getQueryResult(InvalidateCacheSupport invalidateCacheSupport, Query query, String storePath)
+    protected String[] getQueryResult(InvalidateCacheSupport invalidateCacheSupport, Query query)
         throws CacheInvalidationException {
         try {
             Set<String> uniquePagePaths = new HashSet<>();
             QueryResult result = query.execute();
             if (result != null) {
-                List<PatternConfig> patternsConfig = getPatternAndMatch(invalidateCacheSupport, storePath, DISPATCHER_PAGE_URL_PATH);
+                List<PatternConfig> patternsConfig = getPatternAndMatch(invalidateCacheSupport, DISPATCHER_PAGE_URL_PATH);
                 RowIterator rows = result.getRows();
                 while (rows.hasNext()) {
                     Row row = rows.nextRow();

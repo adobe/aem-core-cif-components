@@ -71,7 +71,7 @@
                 <artifactId>filevault-package-maven-plugin</artifactId>
                 <configuration>
                     <group>cif-components-library</group>
-                    <packageType>mixed</packageType>
+                    <packageType>container</packageType>
                     <allowIndexDefinitions>true</allowIndexDefinitions>
                     <embeddedTarget>/apps/core/cif/install</embeddedTarget>
                     <embeddeds>

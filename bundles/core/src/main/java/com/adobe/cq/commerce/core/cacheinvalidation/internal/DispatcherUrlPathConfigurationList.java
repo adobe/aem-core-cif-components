@@ -15,41 +15,43 @@ package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class DispatcherUrlConfigurationList {
-    private final Map<String, DispatcherUrlConfig> configurations;
+public class DispatcherUrlPathConfigurationList {
+    private final Map<String, List<PatternConfig>> configurations;
 
-    public DispatcherUrlConfigurationList(Map<String, DispatcherUrlConfig> configurations) {
+    public DispatcherUrlPathConfigurationList(Map<String, List<PatternConfig>> configurations) {
         this.configurations = configurations;
     }
 
-    public Map<String, DispatcherUrlConfig> getConfigurations() {
+    public Map<String, List<PatternConfig>> getConfigurations() {
         return configurations;
     }
 
-    public static DispatcherUrlConfigurationList parseConfigurations(String[] configurations) {
-        Map<String, DispatcherUrlConfig> dispatcherUrlConfigsMap = new HashMap<>();
+    public static DispatcherUrlPathConfigurationList parseConfigurations(String[] configurations) {
+        Map<String, List<PatternConfig>> configMap = new HashMap<>();
+
         for (String config : configurations) {
             String[] parts = config.split(":");
-            if (parts.length == 4) {
-                String storePath = parts[0];
-                String urlPathType = normalizeUrlPathType(parts[1]);
-                String matchPattern = parts[2];
-                String convertPattern = parts[3];
+            if (parts.length == 3) {
+                String urlPathType = normalizeUrlPathType(parts[0]);
+                String pattern = parts[1];
+                String match = parts[2];
 
-                PatternConfig patternConfig = new PatternConfig(matchPattern, convertPattern);
-                DispatcherUrlConfig dispatcherUrlConfig = dispatcherUrlConfigsMap
-                    .computeIfAbsent(storePath, k -> new DispatcherUrlConfig(storePath, new HashMap<>()));
-                dispatcherUrlConfig.getPatternConfigs()
-                    .computeIfAbsent(urlPathType, k -> new ArrayList<>())
+                PatternConfig patternConfig = new PatternConfig(pattern, match);
+                configMap.computeIfAbsent(urlPathType, k -> new ArrayList<>())
                     .add(patternConfig);
             }
         }
-        return new DispatcherUrlConfigurationList(dispatcherUrlConfigsMap);
+        return new DispatcherUrlPathConfigurationList(configMap);
     }
 
     private static String normalizeUrlPathType(String urlPathType) {
         return urlPathType.replaceAll("-\\d+$", "");
+    }
+
+    public List<PatternConfig> getPatternConfigsForType(String urlPathType) {
+        return configurations.getOrDefault(urlPathType, new ArrayList<>());
     }
 }

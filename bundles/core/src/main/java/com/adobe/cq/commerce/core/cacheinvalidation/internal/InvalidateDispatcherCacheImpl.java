@@ -35,7 +35,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.DispatcherCacheInvalidationStrategy;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -88,57 +88,75 @@ public class InvalidateDispatcherCacheImpl {
         }
 
         try (ResourceResolver resourceResolver = invalidateCacheSupport.getServiceUserResourceResolver()) {
+            // Get and validate resource
             Resource resource = invalidateCacheSupport.getResource(resourceResolver, path);
             if (resource == null) {
                 LOGGER.debug("Resource not found at path: {}", path);
                 return;
             }
 
+            // Get and validate session
             Session session = getSession(resourceResolver);
+
+            // Get required properties
             ValueMap properties = resource.getValueMap();
             String storePath = properties.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class);
 
+            // Get and validate commerce properties
             ComponentsConfiguration commerceProperties = getCommerceProperties(resourceResolver, storePath);
             if (!isValid(properties, resourceResolver, storePath)) {
                 LOGGER.debug("Invalid properties for cache invalidation at path: {}", path);
                 return;
             }
 
+            // Get client and dynamic properties
             String graphqlClientId = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, (String) null);
             Map<String, String[]> dynamicProperties = getDynamicProperties(properties);
-
             GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
+
+            // Process paths for invalidation
             String[] allPaths = getAllInvalidPaths(session, resourceResolver, client, storePath, dynamicProperties);
 
-            // Remove null or empty values and sort paths
-            allPaths = Arrays.stream(allPaths)
-                .filter(urlPath -> urlPath != null && !urlPath.trim().isEmpty())
-                .sorted(Comparator.comparingInt(urlPath -> urlPath.split(PATH_DELIMITER).length))
-                .toArray(String[]::new);
+            // Filter and sort paths
+            allPaths = filterAndSortPaths(allPaths);
 
-            Set<String> invalidateCachePaths = new HashSet<>();
-            for (String urlPath : allPaths) {
-                boolean isSubPath = invalidateCachePaths.stream()
-                    .anyMatch(topPath -> urlPath.startsWith(topPath + PATH_DELIMITER));
-                if (!isSubPath) {
-                    invalidateCachePaths.add(urlPath);
-                }
-            }
-
+            // Get dispatcher URL and flush cache
             String dispatcherUrl = invalidateCacheSupport.getDispatcherBaseUrl() != null
                 ? invalidateCacheSupport.getDispatcherBaseUrl()
                 : DISPATCHER_BASE_URL;
 
-            invalidateCachePaths.forEach(invalidatePath -> {
-                try {
-                    flushCache(invalidatePath, dispatcherUrl);
-                } catch (CacheInvalidationException e) {
-                    LOGGER.error("Error flushing cache for path {}: {}", path, e.getMessage());
-                }
-            });
+            flushCacheForPaths(allPaths, dispatcherUrl, path);
+
         } catch (Exception e) {
             LOGGER.error("Error invalidating cache: {}", e.getMessage(), e);
         }
+    }
+
+    private String[] filterAndSortPaths(String[] paths) {
+        return Arrays.stream(paths)
+            .filter(urlPath -> urlPath != null && !urlPath.trim().isEmpty())
+            .sorted(Comparator.comparingInt(urlPath -> urlPath.split(PATH_DELIMITER).length))
+            .collect(Collectors.collectingAndThen(
+                Collectors.toList(),
+                filteredPaths -> {
+                    List<String> result = new ArrayList<>();
+                    for (String currentPath : filteredPaths) {
+                        if (result.stream().noneMatch(existingPath -> currentPath.startsWith(existingPath + PATH_DELIMITER))) {
+                            result.add(currentPath);
+                        }
+                    }
+                    return result.toArray(new String[0]);
+                }));
+    }
+
+    private void flushCacheForPaths(String[] paths, String dispatcherUrl, String originalPath) {
+        Arrays.stream(paths).forEach(invalidatePath -> {
+            try {
+                flushCache(invalidatePath, dispatcherUrl);
+            } catch (CacheInvalidationException e) {
+                LOGGER.error("Error flushing cache for path {}: {}", originalPath, e.getMessage());
+            }
+        });
     }
 
     protected Map<String, String[]> getDynamicProperties(ValueMap properties) {
@@ -212,12 +230,38 @@ public class InvalidateDispatcherCacheImpl {
     private Set<String> processInvalidPaths(Session session, ResourceResolver resourceResolver, GraphqlClient client,
         String storePath, Map<String, String[]> dynamicProperties) throws CacheInvalidationException {
 
-        Set<String> invalidateDispatcherPagePaths = processPageInvalidationPaths(session, storePath, dynamicProperties);
-        Set<String> correspondingPaths = processCorrespondingPaths(resourceResolver, client, storePath, dynamicProperties);
-
         Set<String> allPaths = new HashSet<>();
+
+        // Get dispatcher base path once
+        String dispatcherBasePath = invalidateCacheSupport.getDispatcherBasePathForStorePath(storePath);
+        if (dispatcherBasePath == null || dispatcherBasePath.trim().isEmpty()) {
+            LOGGER.debug("No valid dispatcher base path found for store path: {}", storePath);
+            return allPaths;
+        }
+
+        // Check for full cache clear conditions
+        if (dynamicProperties.isEmpty()) {
+            LOGGER.debug("Empty dynamic properties, performing full cache clear for path: {}", dispatcherBasePath);
+            allPaths.add(dispatcherBasePath);
+            return allPaths;
+        }
+
+        // Process corresponding paths first as they might trigger full cache clear
+        Set<String> correspondingPaths = processCorrespondingPaths(resourceResolver, client, storePath, dynamicProperties);
+        if (correspondingPaths.contains(dispatcherBasePath)) {
+            LOGGER.debug("Corresponding paths contain base path, performing full cache clear for path: {}", dispatcherBasePath);
+            allPaths.add(dispatcherBasePath);
+            return allPaths;
+        }
+
+        // Process individual page paths only if we haven't returned for full cache clear
+        Set<String> invalidateDispatcherPagePaths = processPageInvalidationPaths(session, storePath, dynamicProperties);
+
+        // Combine all paths if no full cache clear was needed
         allPaths.addAll(invalidateDispatcherPagePaths);
         allPaths.addAll(correspondingPaths);
+
+        LOGGER.debug("Processed {} paths for invalidation", allPaths.size());
         return allPaths;
     }
 

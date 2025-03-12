@@ -47,22 +47,18 @@ public class InvalidateCacheImpl {
         try (ResourceResolver resourceResolver = invalidateCacheSupport.getServiceUserResourceResolver()) {
             Resource resource = resourceResolver.getResource(path);
             if (resource != null) {
-                processResource(resourceResolver, resource);
+                String storePath = resource.getValueMap().get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class);
+                ComponentsConfiguration commerceProperties = invalidateCacheSupport.getCommerceProperties(resourceResolver, storePath);
+                if (commerceProperties != null) {
+                    handleCacheInvalidation(resource, commerceProperties);
+                } else {
+                    LOGGER.debug("Commerce data not found at path: {}", resource.getPath());
+                }
             } else {
                 LOGGER.debug("Resource not found at path: {}", path);
             }
         } catch (Exception e) {
             LOGGER.error("Error processing JCR event: {}", e.getMessage(), e);
-        }
-    }
-
-    private void processResource(ResourceResolver resourceResolver, Resource resource) {
-        String storePath = resource.getValueMap().get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class);
-        ComponentsConfiguration commerceProperties = invalidateCacheSupport.getCommerceProperties(resourceResolver, storePath);
-        if (commerceProperties != null) {
-            handleCacheInvalidation(resource, commerceProperties);
-        } else {
-            LOGGER.debug("Commerce data not found at path: {}", resource.getPath());
         }
     }
 

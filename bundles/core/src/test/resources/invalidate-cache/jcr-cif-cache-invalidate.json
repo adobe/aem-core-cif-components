@@ -1,0 +1,10 @@
+{
+    "jcr:primaryType": "nt:unstructured",
+    "productSkus": [
+      "VP02",
+      "VSW01",
+      "VP03"
+    ],
+    "invalidateDate": "Tue Mar 04 2025 19:20:36 GMT+0530",
+    "storePath": "/content/venia/us/en"
+}

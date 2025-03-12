@@ -22,7 +22,7 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.DispatcherCacheInvalidationStrategy;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.api.Page;
@@ -46,7 +46,7 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
     @Override
     public String[] getCorrespondingPagePaths(Session session, String storePath, String dataList) throws CacheInvalidationException {
         String sqlQuery = getQuery(storePath, dataList);
-        return getQueryResult(invalidateCacheSupport, getSqlQuery(session, sqlQuery), storePath);
+        return getQueryResult(invalidateCacheSupport, getSqlQuery(session, sqlQuery));
     }
 
     private String getQuery(String storePath, String dataList) {
@@ -77,9 +77,8 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
         Set<String> uniquePagePaths = new HashSet<>();
         List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("categoryList");
         if (items != null) {
-            List<PatternConfig> categoryPatternsConfig = getPatternAndMatch(invalidateCacheSupport, storePath,
-                DISPATCHER_CATEGORY_URL_PATH);
-            List<PatternConfig> productPatternsConfig = getPatternAndMatch(invalidateCacheSupport, storePath, DISPATCHER_PRODUCT_URL_PATH);
+            List<PatternConfig> categoryPatternsConfig = getPatternAndMatch(invalidateCacheSupport, DISPATCHER_CATEGORY_URL_PATH);
+            List<PatternConfig> productPatternsConfig = getPatternAndMatch(invalidateCacheSupport, DISPATCHER_PRODUCT_URL_PATH);
             Set<String> categoryPaths = getCategoryPaths(page, urlProvider, items, categoryPatternsConfig);
             Set<String> productPaths = processItems(page, urlProvider, items, productPatternsConfig);
             uniquePagePaths.addAll(categoryPaths);

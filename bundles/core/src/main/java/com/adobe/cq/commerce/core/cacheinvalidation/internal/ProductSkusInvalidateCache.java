@@ -24,7 +24,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.DispatcherCacheInvalidationStrategy;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.api.Page;
@@ -65,7 +65,7 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
 
         try {
             String sqlQuery = getQuery(storePath, dataList);
-            return getQueryResult(invalidateCacheSupport, getSqlQuery(session, sqlQuery), storePath);
+            return getQueryResult(invalidateCacheSupport, getSqlQuery(session, sqlQuery));
         } catch (Exception e) {
             throw new CacheInvalidationException("Failed to get corresponding page paths", e);
         }
@@ -115,14 +115,14 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
         }
 
         try {
-            return processProductsData(page, data, storePath);
+            return processProductsData(page, data);
         } catch (Exception e) {
             LOGGER.error("Error getting paths to invalidate for storePath={}", storePath, e);
             return new String[0];
         }
     }
 
-    private String[] processProductsData(Page page, Map<String, Object> data, String storePath) {
+    private String[] processProductsData(Page page, Map<String, Object> data) {
         Set<String> uniquePagePaths = new HashSet<>();
         Map<String, Object> productsData = (Map<String, Object>) data.get("products");
         if (productsData == null) {
@@ -134,10 +134,8 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
             return new String[0];
         }
 
-        List<PatternConfig> categoryPatternsConfig = getPatternAndMatch(invalidateCacheSupport, storePath,
-            DISPATCHER_CATEGORY_URL_PATH);
-        List<PatternConfig> productPatternsConfig = getPatternAndMatch(invalidateCacheSupport, storePath,
-            DISPATCHER_PRODUCT_URL_PATH);
+        List<PatternConfig> categoryPatternsConfig = getPatternAndMatch(invalidateCacheSupport, DISPATCHER_CATEGORY_URL_PATH);
+        List<PatternConfig> productPatternsConfig = getPatternAndMatch(invalidateCacheSupport, DISPATCHER_PRODUCT_URL_PATH);
 
         for (Map<String, Object> item : items) {
             if (item != null) {
