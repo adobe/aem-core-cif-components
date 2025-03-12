@@ -187,47 +187,47 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
             ObjectNode variantMap = mapper.createObjectNode();
             ObjectNode variantMapWithNoSpecialPrice = mapper.createObjectNode();
             ArrayNode assets = mapper.createArrayNode();
-            if (xssApi != null) {
-                for (Asset asset : variant.getAssets()) {
-                    ObjectNode jsonAsset = mapper.createObjectNode();
-                    jsonAsset.put("path", xssApi.encodeForHTML(Optional.ofNullable(asset.getPath()).orElse("")));
-                    assets.add(jsonAsset);
-                }
 
-                Price priceRange = variant.getPriceRange();
+            for (Asset asset : variant.getAssets()) {
+                ObjectNode jsonAsset = mapper.createObjectNode();
+                jsonAsset.put("path", xssApi.encodeForHTML(Optional.ofNullable(asset.getPath()).orElse("")));
+                assets.add(jsonAsset);
+            }
 
-                variantMap.put("@type", "Offer");
-                variantMap.put("sku", xssApi.encodeForHTML(Optional.ofNullable(variant.getSku()).orElse("")));
-                variantMap.put("url", getCanonicalUrl());
-                variantMap.put("image", assets.size() > 0 ? assets.get(0).get("path").asText() : "");
-                variantMap.put("priceCurrency", Optional.ofNullable(priceRange.getCurrency()).orElse(""));
+            Price priceRange = variant.getPriceRange();
 
-                if (variant instanceof VariantImpl) {
-                    VariantImpl variantImpl = (VariantImpl) variant;
-                    if (variantImpl.getSpecialPrice() == null && variantImpl.getSpecialToDate() == null) {
-                        variantMapWithNoSpecialPrice.setAll(variantMap);
-                        variantMapWithNoSpecialPrice.put("price", priceRange != null ? priceRange.getRegularPrice() : 0);
-                        jsonArray.add(variantMapWithNoSpecialPrice);
-                    } else {
-                        variantMap.put("availability", variant.getInStock() ? "InStock" : "OutOfStock");
+            variantMap.put("@type", "Offer");
+            variantMap.put("sku", xssApi.encodeForHTML(Optional.ofNullable(variant.getSku()).orElse("")));
+            variantMap.put("url", getCanonicalUrl());
+            variantMap.put("image", assets.size() > 0 ? assets.get(0).get("path").asText() : "");
+            variantMap.put("priceCurrency", Optional.ofNullable(priceRange.getCurrency()).orElse(""));
 
-                        ObjectNode priceSpecification = mapper.createObjectNode();
-                        priceSpecification.put("@type", "UnitPriceSpecification");
-                        priceSpecification.put("priceType", "https://schema.org/ListPrice");
-                        if (priceRange != null) {
-                            priceSpecification.put("price", priceRange.getRegularPrice());
-                            priceSpecification.put("priceCurrency", priceRange.getCurrency());
-                        }
-                        variantMap.set("priceSpecification", priceSpecification);
+            if (variant instanceof VariantImpl) {
+                VariantImpl variantImpl = (VariantImpl) variant;
+                if (variantImpl.getSpecialPrice() == null && variantImpl.getSpecialToDate() == null) {
+                    variantMapWithNoSpecialPrice.setAll(variantMap);
+                    variantMapWithNoSpecialPrice.put("price", priceRange != null ? priceRange.getRegularPrice() : 0);
+                    jsonArray.add(variantMapWithNoSpecialPrice);
+                } else {
+                    variantMap.put("availability", variant.getInStock() ? "InStock" : "OutOfStock");
 
-                        variantMap.put("price", variantImpl.getSpecialPrice());
-
-                        variantMap.put("SpecialPricedates", xssApi.encodeForHTML(Optional.ofNullable(variantImpl.getSpecialToDate()).orElse(
-                            "")));
-
-                        jsonArray.add(variantMap);
+                    ObjectNode priceSpecification = mapper.createObjectNode();
+                    priceSpecification.put("@type", "UnitPriceSpecification");
+                    priceSpecification.put("priceType", "https://schema.org/ListPrice");
+                    if (priceRange != null) {
+                        priceSpecification.put("price", priceRange.getRegularPrice());
+                        priceSpecification.put("priceCurrency", priceRange.getCurrency());
                     }
+                    variantMap.set("priceSpecification", priceSpecification);
+
+                    variantMap.put("price", variantImpl.getSpecialPrice());
+
+                    variantMap.put("SpecialPricedates", xssApi.encodeForHTML(Optional.ofNullable(variantImpl.getSpecialToDate()).orElse(
+                        "")));
+
+                    jsonArray.add(variantMap);
                 }
+
             }
         }
 
@@ -265,15 +265,15 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         // Set basic product attributes
         productJson.put("@context", "http://schema.org");
         productJson.put("@type", "Product");
-        if (xssApi != null) {
-            productJson.put("sku", xssApi.encodeForHTML(Optional.ofNullable(getSku()).orElse("")));
-            productJson.put("name", xssApi.encodeForHTML(Optional.ofNullable(getName()).orElse("")));
-            productJson.put("image", xssApi.encodeForHTML(getAssets().stream().findFirst().map(Asset::getPath).orElse("")));
-            productJson.put("description", xssApi.encodeForHTML(StringEscapeUtils.unescapeHtml4(Optional.ofNullable(getDescription())
-                .orElse("")
-                .replaceAll("<[^>]*>", ""))));
-            productJson.put("@id", xssApi.encodeForHTML(Optional.ofNullable(getId()).orElse("")));
-        }
+
+        productJson.put("sku", xssApi.encodeForHTML(Optional.ofNullable(getSku()).orElse("")));
+        productJson.put("name", xssApi.encodeForHTML(Optional.ofNullable(getName()).orElse("")));
+        productJson.put("image", xssApi.encodeForHTML(getAssets().stream().findFirst().map(Asset::getPath).orElse("")));
+        productJson.put("description", xssApi.encodeForHTML(StringEscapeUtils.unescapeHtml4(Optional.ofNullable(getDescription())
+            .orElse("")
+            .replaceAll("<[^>]*>", ""))));
+        productJson.put("@id", xssApi.encodeForHTML(Optional.ofNullable(getId()).orElse("")));
+
         return productJson;
     }
 
