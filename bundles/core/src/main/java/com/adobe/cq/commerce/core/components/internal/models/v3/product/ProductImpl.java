@@ -189,16 +189,17 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
             for (Asset asset : variant.getAssets()) {
                 ObjectNode jsonAsset = mapper.createObjectNode();
-                jsonAsset.put("path", asset.getPath());
+                jsonAsset.put("path", xssApi.encodeForHTML(Optional.ofNullable(asset.getPath()).orElse("")));
                 assets.add(jsonAsset);
             }
 
             Price priceRange = variant.getPriceRange();
+
             variantMap.put("@type", "Offer");
-            variantMap.put("sku", variant.getSku());
+            variantMap.put("sku", xssApi.encodeForHTML(Optional.ofNullable(variant.getSku()).orElse("")));
             variantMap.put("url", getCanonicalUrl());
             variantMap.put("image", assets.size() > 0 ? assets.get(0).get("path").asText() : "");
-            variantMap.put("priceCurrency", priceRange != null ? priceRange.getCurrency() : "");
+            variantMap.put("priceCurrency", Optional.ofNullable(priceRange.getCurrency()).orElse(""));
 
             if (variant instanceof VariantImpl) {
                 VariantImpl variantImpl = (VariantImpl) variant;
@@ -219,10 +220,13 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
                     variantMap.set("priceSpecification", priceSpecification);
 
                     variantMap.put("price", variantImpl.getSpecialPrice());
-                    variantMap.put("SpecialPricedates", variantImpl.getSpecialToDate());
+
+                    variantMap.put("SpecialPricedates", xssApi.encodeForHTML(Optional.ofNullable(variantImpl.getSpecialToDate()).orElse(
+                        "")));
 
                     jsonArray.add(variantMap);
                 }
+
             }
         }
 
@@ -260,11 +264,12 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
         // Set basic product attributes
         productJson.put("@context", "http://schema.org");
         productJson.put("@type", "Product");
-        productJson.put("sku", Optional.ofNullable(getSku()).orElse(""));
-        productJson.put("name", Optional.ofNullable(getName()).orElse(""));
-        productJson.put("image", getAssets().stream().findFirst().map(Asset::getPath).orElse(""));
-        productJson.put("description", Optional.ofNullable(getDescription()).orElse(""));
-        productJson.put("@id", Optional.ofNullable(getId()).orElse(""));
+
+        productJson.put("sku", xssApi.encodeForHTML(Optional.ofNullable(getSku()).orElse("")));
+        productJson.put("name", xssApi.encodeForHTML(Optional.ofNullable(getName()).orElse("")));
+        productJson.put("image", xssApi.encodeForHTML(getAssets().stream().findFirst().map(Asset::getPath).orElse("")));
+        productJson.put("description", xssApi.filterHTML(Optional.ofNullable(getDescription()).orElse("")));
+        productJson.put("@id", xssApi.encodeForHTML(Optional.ofNullable(getId()).orElse("")));
 
         return productJson;
     }
