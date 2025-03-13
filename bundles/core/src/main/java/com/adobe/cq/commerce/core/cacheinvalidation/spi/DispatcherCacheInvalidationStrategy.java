@@ -14,48 +14,18 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.spi;
 
-import java.util.Map;
-
-import javax.jcr.Session;
-
-import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.annotation.versioning.ConsumerType;
-
-import com.adobe.cq.commerce.core.cacheinvalidation.internal.CacheInvalidationException;
-import com.day.cq.wcm.api.Page;
 
 /**
  * The DispatcherCacheInvalidationStrategy interface defines the methods used to invalidate the dispatcher cache.
  */
 @ConsumerType
 public interface DispatcherCacheInvalidationStrategy extends CacheInvalidationStrategy {
-
     /**
-     * Returns the corresponding page paths based on the provided store path and data list.
+     * Returns the paths to invalidate based on the provided context.
      *
-     * @param storePath the store path
-     * @param dataList the data list containing the data to be invalidated
-     * @return the array of corresponding page paths
-     * @throws CacheInvalidationException if an error occurs while getting the corresponding page paths
+     * @param context the context containing all necessary information for cache invalidation
+     * @return an array of paths to invalidate
      */
-    String[] getCorrespondingPagePaths(Session session, String storePath, String dataList);
-
-    /**
-     * Returns the GraphQL query used for cache invalidation based on the provided data.
-     *
-     * @param data the data array contains the data to be invalidated
-     * @return the GraphQL query based on the data array
-     */
-    String getGraphqlQuery(String[] data);
-
-    /**
-     * Returns the paths to invalidate based on the provided page, resource resolver, data, and store path.
-     *
-     * @param page the page
-     * @param resourceResolver the resource resolver
-     * @param data based on the data it will get the invalidation paths
-     * @param storePath the store path
-     * @return the array of paths to invalidate
-     */
-    String[] getPathsToInvalidate(Page page, ResourceResolver resourceResolver, Map<String, Object> data, String storePath);
+    String[] getPathsToInvalidate(DispatcherCacheInvalidationContext context);
 }

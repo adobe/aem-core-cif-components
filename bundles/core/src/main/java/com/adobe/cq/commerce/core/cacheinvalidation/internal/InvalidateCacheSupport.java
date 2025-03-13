@@ -15,6 +15,8 @@
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.sling.api.resource.*;
 import org.osgi.service.component.annotations.*;
@@ -244,8 +246,26 @@ public class InvalidateCacheSupport {
         return resourceResolver;
     }
 
-    public String extractPagePath(String fullPath) {
-        int jcrContentIndex = fullPath.indexOf("/jcr:content");
-        return jcrContentIndex != -1 ? fullPath.substring(0, jcrContentIndex) : fullPath;
+    public String convertUrlPath(String urlPath) {
+        if (urlPath == null) {
+            return urlPath;
+        }
+
+        // Check all patterns from dispatcherUrlPathConfigurationList
+        for (Map.Entry<String, List<PatternConfig>> entry : dispatcherUrlPathConfigurationList.getConfigurations().entrySet()) {
+            List<PatternConfig> typePatterns = entry.getValue();
+            for (PatternConfig patternConfig : typePatterns) {
+                String pattern = patternConfig.getPattern();
+                String match = patternConfig.getMatch();
+                if (pattern != null && match != null) {
+                    Pattern patternObj = Pattern.compile(pattern);
+                    Matcher matcher = patternObj.matcher(urlPath);
+                    if (matcher.matches()) {
+                        return matcher.replaceAll(match);
+                    }
+                }
+            }
+        }
+        return urlPath;
     }
 }

@@ -18,10 +18,12 @@ import java.util.*;
 
 import javax.jcr.Session;
 
-import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationContext;
 import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.magento.graphql.*;
@@ -31,6 +33,8 @@ import com.day.cq.wcm.api.Page;
     service = DispatcherCacheInvalidationStrategy.class,
     property = { InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER + "=categoryUids" })
 public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase implements DispatcherCacheInvalidationStrategy {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CategoryUidsInvalidateCache.class);
 
     @Reference
     private UrlProviderImpl urlProvider;
@@ -44,23 +48,67 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
     }
 
     @Override
-    public String[] getCorrespondingPagePaths(Session session, String storePath, String dataList) throws CacheInvalidationException {
-        String sqlQuery = getQuery(storePath, dataList);
-        return getQueryResult(invalidateCacheSupport, getSqlQuery(session, sqlQuery));
+    public String[] getPathsToInvalidate(DispatcherCacheInvalidationContext context) {
+        try {
+            String[] categoryUids = extractCategoryUidsFromContext(context);
+            if (!isValidCategoryUids(categoryUids)) {
+                return new String[0];
+            }
+
+            List<Map<String, Object>> categories = fetchCategories(context, categoryUids);
+            if (categories.isEmpty()) {
+                return new String[0];
+            }
+
+            Set<String> allPaths = new HashSet<>();
+
+            // Add paths from JCR query
+            addJcrPaths(context, categoryUids, allPaths);
+
+            // Add paths from GraphQL response
+            addGraphqlPaths(context, categories, allPaths);
+
+            return allPaths.toArray(new String[0]);
+
+        } catch (Exception e) {
+            LOGGER.error("Error getting paths to invalidate for storePath={}", context.getStorePath(), e);
+            return new String[0];
+        }
     }
 
-    private String getQuery(String storePath, String dataList) {
-        return "SELECT content.[jcr:path] " +
-            "FROM [nt:unstructured] AS content " +
-            "WHERE ISDESCENDANTNODE(content,'" + storePath + "' ) " +
-            "AND (" +
-            "(content.[categoryId] in (" + dataList + ") AND content.[categoryIdType] in ('uid')) " +
-            "OR (content.[category] in (" + dataList + ") AND content.[categoryType] in ('uid'))" +
-            ")";
+    private String[] extractCategoryUidsFromContext(DispatcherCacheInvalidationContext context) {
+        Map.Entry<String, String[]> attributeData = context.getAttributeData();
+        return attributeData != null ? attributeData.getValue() : new String[0];
     }
 
-    @Override
-    public String getGraphqlQuery(String[] data) {
+    private boolean isValidCategoryUids(String[] categoryUids) {
+        if (categoryUids == null || categoryUids.length == 0) {
+            LOGGER.warn("No category UIDs provided for cache invalidation");
+            return false;
+        }
+        return true;
+    }
+
+    private List<Map<String, Object>> fetchCategories(DispatcherCacheInvalidationContext context, String[] categoryUids) {
+        String query = getGraphqlQuery(categoryUids);
+        if (query == null) {
+            return Collections.emptyList();
+        }
+
+        Map<String, Object> data = getGraphqlResponseData(context.getGraphqlClient(), query);
+        List<Map<String, Object>> items = Optional.ofNullable(data)
+            .map(cd -> (List<Map<String, Object>>) cd.get("categoryList"))
+            .filter(list -> list != null && !list.isEmpty())
+            .orElse(Collections.emptyList());
+        if (items.isEmpty()) {
+            LOGGER.debug("No categories found for UIDs: {}", (Object) categoryUids);
+            return Collections.emptyList();
+        }
+
+        return items;
+    }
+
+    private String getGraphqlQuery(String[] data) {
         CategoryFilterInput filter = new CategoryFilterInput();
         FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setIn(Arrays.asList(data));
         filter.setCategoryUid(identifiersFilter);
@@ -72,18 +120,48 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
             .categoryList(searchArgs, queryArgs)).toString();
     }
 
-    @Override
-    public String[] getPathsToInvalidate(Page page, ResourceResolver resourceResolver, Map<String, Object> data, String storePath) {
-        Set<String> uniquePagePaths = new HashSet<>();
-        List<Map<String, Object>> items = (List<Map<String, Object>>) data.get("categoryList");
-        if (items != null) {
-            List<PatternConfig> categoryPatternsConfig = getPatternAndMatch(invalidateCacheSupport, DISPATCHER_CATEGORY_URL_PATH);
-            List<PatternConfig> productPatternsConfig = getPatternAndMatch(invalidateCacheSupport, DISPATCHER_PRODUCT_URL_PATH);
-            Set<String> categoryPaths = getCategoryPaths(page, urlProvider, items, categoryPatternsConfig);
-            Set<String> productPaths = processItems(page, urlProvider, items, productPatternsConfig);
-            uniquePagePaths.addAll(categoryPaths);
-            uniquePagePaths.addAll(productPaths);
+    private void addJcrPaths(DispatcherCacheInvalidationContext context, String[] categoryUids, Set<String> allPaths) {
+        Session session = context.getResourceResolver().adaptTo(Session.class);
+        if (session == null) {
+            LOGGER.error("Failed to adapt ResourceResolver to Session");
+            return;
         }
-        return uniquePagePaths.toArray(new String[0]);
+
+        try {
+            String dataList = formatList(categoryUids, ", ", "'%s'");
+            String[] correspondingPaths = getCorrespondingPagePaths(session, context.getStorePath(), dataList);
+            if (correspondingPaths != null) {
+                allPaths.addAll(Arrays.asList(correspondingPaths));
+            }
+        } catch (CacheInvalidationException e) {
+            LOGGER.error("Failed to get corresponding paths for category UIDs: {}", Arrays.toString(categoryUids), e);
+        }
+    }
+
+    private void addGraphqlPaths(DispatcherCacheInvalidationContext context, List<Map<String, Object>> categories, Set<String> allPaths) {
+        Page page = context.getPage();
+        categories.stream()
+            .filter(Objects::nonNull)
+            .forEach(category -> {
+                Set<String> categoryPaths = getCategoryPaths(page, urlProvider, Collections.singletonList(category));
+                if (!categoryPaths.isEmpty()) {
+                    allPaths.addAll(categoryPaths);
+                }
+            });
+    }
+
+    private String[] getCorrespondingPagePaths(Session session, String storePath, String dataList) throws CacheInvalidationException {
+        String sqlQuery = getQuery(storePath, dataList);
+        return getQueryResult(getSqlQuery(session, sqlQuery));
+    }
+
+    private String getQuery(String storePath, String dataList) {
+        return "SELECT content.[jcr:path] " +
+            "FROM [nt:unstructured] AS content " +
+            "WHERE ISDESCENDANTNODE(content,'" + storePath + "' ) " +
+            "AND (" +
+            "(content.[categoryId] in (" + dataList + ") AND content.[categoryIdType] in ('uid')) " +
+            "OR (content.[category] in (" + dataList + ") AND content.[categoryType] in ('uid'))" +
+            ")";
     }
 }

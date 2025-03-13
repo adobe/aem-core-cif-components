@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -127,14 +128,16 @@ public class InvalidateCacheImpl {
         }
 
         Set<String> resultPatterns = new HashSet<>();
-        InvalidateCacheRegistry.AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(attribute);
+        AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(attribute);
 
         if (strategies != null) {
-            for (InvalidateCacheRegistry.StrategyInfo strategyInfo : strategies.getStrategies(false)) {
+            for (StrategyInfo strategyInfo : strategies.getStrategies(false)) {
                 String pattern = strategyInfo.getStrategy().getPattern();
                 if (pattern != null) {
                     String attributeString = String.join("|", patterns);
                     resultPatterns.add(pattern + "(" + attributeString + ")");
+                } else if ("regexPatterns".equals(attribute)) {
+                    resultPatterns.addAll(Arrays.asList(patterns));
                 }
             }
         }
