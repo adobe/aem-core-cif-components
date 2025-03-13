@@ -154,6 +154,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
     private void setupXssApi(ProductImpl product) throws Exception {
         XSSAPI xssAPI = mock(XSSAPI.class);
         when(xssAPI.encodeForHTML(anyString())).thenAnswer(invocation -> invocation.getArguments()[0]);
+        when(xssAPI.filterHTML(anyString())).thenAnswer(invocation -> invocation.getArguments()[0]);
 
         Field xssApiField = null;
         Class<?> clazz = product.getClass();
