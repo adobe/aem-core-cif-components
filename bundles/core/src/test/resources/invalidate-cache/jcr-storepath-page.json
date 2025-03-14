@@ -1,0 +1,57 @@
+{
+  "jcr:primaryType": "cq:Page",
+  "jcr:createdBy": "admin",
+  "jcr:content": {
+    "jcr:primaryType": "cq:PageContent",
+    "jcr:createdBy": "admin",
+    "jcr:title": "Venia Demo Store",
+    "sling:configRef": "/conf/venia",
+    "cq:conf": "/conf/venia"
+  },
+  "us": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:createdBy": "admin",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "jcr:createdBy": "admin",
+      "jcr:title": "Venia Demo Store",
+      "cq:template": "/conf/venia/settings/wcm/templates/page-content",
+      "cq:redirectTarget": "/content/venia/us/en",
+      "sling:resourceType": "foundation/components/redirect",
+      "cq:allowedTemplates": "/conf/venia/settings/wcm/templates/landing-page",
+      "cq:lastModifiedBy": "admin"
+    },
+    "en": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:createdBy": "admin",
+      "jcr:created": "Mon Feb 24 2025 14:46:08 GMT+0530",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "jcr:mixinTypes": [
+          "cq:LiveRelationship",
+          "cq:LiveSync",
+          "cq:PropertyLiveSyncCancelled"
+        ],
+        "jcr:createdBy": "admin",
+        "jcr:title": "Venia Demo Store - Home",
+        "cq:cifSearchResultsPage": "/content/venia/us/en/search",
+        "cq:propertyInheritanceCancelled": [
+          "jcr:language"
+        ],
+        "cq:template": "/conf/venia/settings/wcm/templates/landing-page",
+        "cq:contextHubSegmentsPath": "/etc/segmentation/contexthub",
+        "pageTitle": "Home",
+        "sling:resourceType": "venia/components/page",
+        "cq:contextHubPath": "/etc/cloudsettings/default/contexthub",
+        "cq:cifCategoryPage": "/content/venia/us/en/products/category-page",
+        "cq:allowedTemplates": [
+          "/conf/venia/settings/wcm/templates/page-content",
+          "/conf/venia/settings/wcm/templates/catalog-page"
+        ],
+        "cq:cifProductPage": "/content/venia/us/en/products/product-page",
+        "navRoot": true,
+        "sling:sitemapRoot": true
+      }
+    }
+  }
+}

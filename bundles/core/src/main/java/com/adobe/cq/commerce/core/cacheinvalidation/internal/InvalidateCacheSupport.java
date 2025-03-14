@@ -14,10 +14,9 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.sling.api.resource.*;
 import org.osgi.service.component.annotations.*;
@@ -31,7 +30,7 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
     immediate = true)
 public class InvalidateCacheSupport {
 
-    public static final String INVALIDATE_WORKING_AREA = "/var/cif/cacheInvalidation";
+    public static final String INVALIDATE_WORKING_AREA = "/var/cif/cacheinvalidation";
     public static final String NODE_NAME_BASE = "cmd";
     public static final String SERVICE_USER = "cif-cache-invalidation-service";
     public static final String PROPERTIES_GRAPHQL_CLIENT_ID = "cq:graphqlClient";
@@ -40,27 +39,111 @@ public class InvalidateCacheSupport {
     public static final String PROPERTIES_CACHE_NAME = "cacheNames";
     public static final String PROPERTY_INVALIDATE_REQUEST_PARAMETER = "invalidateRequestParameter";
     public static final String HTML_SUFFIX = ".html";
+    public static final String DISPATCHER_BASE_URL = "dispatcherBaseUrl";
+    public static final String DISPATCHER_BASE_PATH_CONFIG = "dispatcherBasePathConfiguration";
+    public static final String DISPATCHER_URL_PATH_CONFIG = "dispatcherUrlPathConfiguration";
 
     private Boolean enableDispatcherCacheInvalidation;
+    private String dispatcherBaseUrl;
+    private DispatcherUrlPathConfigurationList dispatcherUrlPathConfigurationList;
+    private DispatcherBasePathConfiguration dispatcherBasePathConfiguration;
+
+    @Reference
+    private ResourceResolverFactory resourceResolverFactory;
+
+    private final Collection<ClientHolder> clients = new ArrayList<>();
 
     @Activate
     protected void activate(Map<String, Object> properties) {
-        this.enableDispatcherCacheInvalidation = (Boolean) properties.get("enableDispatcherCacheInvalidation");
+        initializeDispatcherConfig(properties);
+        initializeUrlPathConfigurations(properties);
+    }
+
+    private void initializeDispatcherConfig(Map<String, Object> properties) {
+        this.enableDispatcherCacheInvalidation = Optional.ofNullable((Boolean) properties.get("enableDispatcherCacheInvalidation"))
+            .orElse(false);
+        this.dispatcherBaseUrl = (String) properties.get(DISPATCHER_BASE_URL);
+        this.dispatcherBasePathConfiguration = parseBasePathConfig(properties);
+    }
+
+    private DispatcherBasePathConfiguration parseBasePathConfig(Map<String, Object> properties) {
+        return Optional.ofNullable((String) properties.get(DISPATCHER_BASE_PATH_CONFIG))
+            .map(config -> config.split(":"))
+            .filter(parts -> parts.length == 2)
+            .map(parts -> new DispatcherBasePathConfiguration(parts[0], parts[1]))
+            .orElseGet(DispatcherBasePathConfiguration::createDefault);
+    }
+
+    private void initializeUrlPathConfigurations(Map<String, Object> properties) {
+        this.dispatcherUrlPathConfigurationList = Optional.ofNullable((String[]) properties.get(DISPATCHER_URL_PATH_CONFIG))
+            .map(configs -> parseUrlPathConfigurations(configs, new String[] {
+                dispatcherBasePathConfiguration.getPattern(),
+                dispatcherBasePathConfiguration.getMatch()
+            }))
+            .orElseGet(() -> new DispatcherUrlPathConfigurationList(new HashMap<>()));
+    }
+
+    private DispatcherUrlPathConfigurationList parseUrlPathConfigurations(String[] configs, String[] basePathParts) {
+        Map<String, List<PatternConfig>> configMap = new HashMap<>();
+
+        for (String config : configs) {
+            String[] parts = config.split(":");
+            if (parts.length == 3) {
+                String urlPathType = parts[0].replaceAll("-\\d+$", "");
+                String pattern = basePathParts[0] + parts[1];
+
+                // Count capture groups in base path pattern
+                int baseGroupCount = countCaptureGroups(basePathParts[0]);
+                // Adjust the match replacement indices
+                String match = basePathParts[1] + adjustCaptureGroupReferences(parts[2], baseGroupCount);
+
+                PatternConfig patternConfig = new PatternConfig(pattern, match);
+                configMap.computeIfAbsent(urlPathType, k -> new ArrayList<>())
+                    .add(patternConfig);
+            }
+        }
+        return new DispatcherUrlPathConfigurationList(configMap);
     }
 
     @Deactivate
     protected void deactivate() {
         this.enableDispatcherCacheInvalidation = false;
+        this.dispatcherBaseUrl = null;
+        this.dispatcherUrlPathConfigurationList = null;
+        this.dispatcherBasePathConfiguration = null;
+    }
+
+    public List<PatternConfig> getDispatcherUrlConfigurationForType(String urlPathType) {
+        return dispatcherUrlPathConfigurationList.getPatternConfigsForType(urlPathType);
     }
 
     public Boolean getEnableDispatcherCacheInvalidation() {
         return enableDispatcherCacheInvalidation;
     }
 
-    @Reference
-    private ResourceResolverFactory resourceResolverFactory;
+    public String getDispatcherBaseUrl() {
+        return dispatcherBaseUrl;
+    }
 
-    private final Collection<ClientHolder> clients = new ArrayList<>();
+    public String getDispatcherBasePathForStorePath(String storePath) {
+        String pattern = dispatcherBasePathConfiguration.getPattern();
+        if (pattern.isEmpty()) {
+            return storePath;
+        }
+
+        if (storePath.matches(pattern)) {
+            return storePath.replaceAll(pattern, dispatcherBasePathConfiguration.getMatch());
+        }
+
+        return storePath;
+    }
+
+    public List<PatternConfig> getDispatcherUrlConfigurationBasedOnType(String urlPathType) {
+        if (urlPathType == null || urlPathType.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return dispatcherUrlPathConfigurationList.getPatternConfigsForType(urlPathType);
+    }
 
     public GraphqlClient getClient(String graphqlClientId) {
         if (graphqlClientId != null && !graphqlClientId.isEmpty()) {
@@ -74,6 +157,41 @@ public class InvalidateCacheSupport {
             }
         }
         throw new IllegalStateException("GraphqlClient with ID '" + graphqlClientId + "' not found");
+    }
+
+    private int countCaptureGroups(String pattern) {
+        int count = 0;
+        int pos = 0;
+        while ((pos = pattern.indexOf("(", pos)) != -1) {
+            if (pos == 0 || pattern.charAt(pos - 1) != '\\') {
+                count++;
+            }
+            pos++;
+        }
+        return count;
+    }
+
+    private String adjustCaptureGroupReferences(String match, int baseGroupCount) {
+        StringBuilder result = new StringBuilder();
+        int pos = 0;
+        while (pos < match.length()) {
+            int dollarPos = match.indexOf("$", pos);
+            if (dollarPos == -1) {
+                result.append(match.substring(pos));
+                break;
+            }
+
+            result.append(match.substring(pos, dollarPos));
+            if (dollarPos + 1 < match.length() && Character.isDigit(match.charAt(dollarPos + 1))) {
+                int num = Character.getNumericValue(match.charAt(dollarPos + 1));
+                result.append("$").append(num + baseGroupCount);
+                pos = dollarPos + 2;
+            } else {
+                result.append("$");
+                pos = dollarPos + 1;
+            }
+        }
+        return result.toString();
     }
 
     @Reference(
@@ -126,5 +244,28 @@ public class InvalidateCacheSupport {
         }
 
         return resourceResolver;
+    }
+
+    public String convertUrlPath(String urlPath) {
+        if (urlPath == null) {
+            return urlPath;
+        }
+
+        // Check all patterns from dispatcherUrlPathConfigurationList
+        for (Map.Entry<String, List<PatternConfig>> entry : dispatcherUrlPathConfigurationList.getConfigurations().entrySet()) {
+            List<PatternConfig> typePatterns = entry.getValue();
+            for (PatternConfig patternConfig : typePatterns) {
+                String pattern = patternConfig.getPattern();
+                String match = patternConfig.getMatch();
+                if (pattern != null && match != null) {
+                    Pattern patternObj = Pattern.compile(pattern);
+                    Matcher matcher = patternObj.matcher(urlPath);
+                    if (matcher.matches()) {
+                        return matcher.replaceAll(match);
+                    }
+                }
+            }
+        }
+        return urlPath;
     }
 }

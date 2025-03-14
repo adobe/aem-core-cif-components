@@ -14,48 +14,92 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
+import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import javax.jcr.Session;
+import javax.jcr.query.*;
 
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
+import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
+import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.day.cq.wcm.api.Page;
+import com.google.gson.reflect.TypeToken;
 
 public class InvalidateDispatcherCacheBase {
+    public static final String URL_KEY = "url_key";
+    public static final String URL_PATH = "url_path";
+    public static final String SKU = "sku";
+    public static final String UID = "uid";
+    public static final String PRODUCT_SAMPLE_URL = "XXXXXX";
 
-    protected static final String URL_KEY = "url_key";
-    protected static final String URL_PATH = "url_path";
-    protected static final String PRODUCT_SAMPLE_URL = "XXXXXX";
+    protected Set<String> getProductPaths(Page page, UrlProviderImpl urlProvider,
+        Map<String, Object> item) {
+        if (item == null || page == null || urlProvider == null) {
+            return Collections.emptySet();
+        }
 
-    protected void addProductPaths(Page page, UrlProviderImpl urlProvider, Set<String> uniquePagePaths, Map<String, Object> item) {
+        Set<String> uniquePagePaths = new HashSet<>();
+        String sku = (String) item.get(SKU);
+        String urlKey = (String) item.get(URL_KEY);
+
+        if (sku == null || urlKey == null) {
+            return uniquePagePaths;
+        }
+
         ProductUrlFormat.Params productParams = new ProductUrlFormat.Params();
-        productParams.setSku((String) item.get("sku"));
-        productParams.setUrlKey((String) item.get(URL_KEY));
+        productParams.setSku(sku);
+        productParams.setUrlKey(urlKey);
 
         List<Map<String, String>> urlRewrites = (List<Map<String, String>>) item.get("url_rewrites");
-        if (urlRewrites != null) {
+        if (urlRewrites != null && !urlRewrites.isEmpty()) {
             for (Map<String, String> urlRewrite : urlRewrites) {
-                productParams.setUrlRewrites(Collections.singletonList(new UrlRewrite().setUrl(urlRewrite.get("url"))));
-                String productUrlPath = urlProvider.toProductUrl(null, page, productParams);
-                uniquePagePaths.add(productUrlPath);
+                String url = urlRewrite.get("url");
+                if (url != null) {
+                    productParams.setUrlRewrites(Collections.singletonList(new UrlRewrite().setUrl(url)));
+                    String productUrl = urlProvider.toProductUrl(null, page, productParams);
+                    if (productUrl != null) {
+                        uniquePagePaths.add(productUrl);
+                    }
+                }
             }
         }
+        return uniquePagePaths;
     }
 
-    protected void addCategoryPaths(Page page, UrlProviderImpl urlProvider, Set<String> uniquePagePaths,
+    protected Set<String> getCategoryPaths(Page page, UrlProviderImpl urlProvider,
         List<Map<String, Object>> categories) {
+        if (categories == null || categories.isEmpty() || page == null || urlProvider == null) {
+            return Collections.emptySet();
+        }
+
+        Set<String> uniquePagePaths = new HashSet<>();
         CategoryUrlFormat.Params categoryParams = new CategoryUrlFormat.Params();
-        if (categories != null) {
-            for (Map<String, Object> category : categories) {
-                categoryParams.setUid((String) category.get("uid"));
-                categoryParams.setUrlKey((String) category.get(URL_KEY));
-                categoryParams.setUrlPath((String) category.get(URL_PATH));
-                String categoryUrlPath = urlProvider.toCategoryUrl(null, page, categoryParams);
-                categoryUrlPath = removeUpToDelimiter(categoryUrlPath, InvalidateCacheSupport.HTML_SUFFIX, true);
-                uniquePagePaths.add(categoryUrlPath);
+
+        for (Map<String, Object> category : categories) {
+            if (category != null) {
+                String uid = (String) category.get(UID);
+                String urlKey = (String) category.get(URL_KEY);
+                String urlPath = (String) category.get(URL_PATH);
+
+                if (uid != null && urlKey != null && urlPath != null) {
+                    categoryParams.setUid(uid);
+                    categoryParams.setUrlKey(urlKey);
+                    categoryParams.setUrlPath(urlPath);
+
+                    String categoryUrlPath = urlProvider.toCategoryUrl(null, page, categoryParams);
+                    if (categoryUrlPath != null) {
+                        uniquePagePaths.add(removeUpToDelimiter(categoryUrlPath, InvalidateCacheSupport.HTML_SUFFIX, true));
+                    }
+                }
             }
         }
+        return uniquePagePaths;
     }
 
     protected String removeUpToDelimiter(String input, String delimiter, boolean useLastIndex) {
@@ -69,15 +113,21 @@ public class InvalidateDispatcherCacheBase {
         return input;
     }
 
-    protected void processItems(Page page, UrlProviderImpl urlProvider, Set<String> uniquePagePaths, List<Map<String, Object>> items) {
+    protected Set<String> processItems(Page page, UrlProviderImpl urlProvider,
+        List<Map<String, Object>> items) {
+        Set<String> uniquePagePaths = new HashSet<>();
         for (Map<String, Object> item : items) {
             if (item != null) {
-                processItem(page, urlProvider, uniquePagePaths, item);
+                String productUrlPath = processItem(page, urlProvider, item);
+                if (productUrlPath != null) {
+                    uniquePagePaths.add(productUrlPath);
+                }
             }
         }
+        return uniquePagePaths;
     }
 
-    protected void processItem(Page page, UrlProviderImpl urlProvider, Set<String> uniquePagePaths, Map<String, Object> item) {
+    protected String processItem(Page page, UrlProviderImpl urlProvider, Map<String, Object> item) {
         ProductUrlFormat.Params productParams = createProductParams(item);
         String productUrlPath = urlProvider.toProductUrl(null, page, productParams);
         if (productUrlPath != null) {
@@ -85,24 +135,101 @@ public class InvalidateDispatcherCacheBase {
             if (productUrlPath != null) {
                 productUrlPath = removeUpToDelimiter(productUrlPath, "/", true);
                 if (!productUrlPath.endsWith("product-page.html")) {
-                    uniquePagePaths.add(productUrlPath);
+                    return productUrlPath;
                 }
             }
         }
+        return null;
     }
 
     protected ProductUrlFormat.Params createProductParams(Map<String, Object> item) {
+        if (item == null) {
+            return null;
+        }
+
         ProductUrlFormat.Params productParams = new ProductUrlFormat.Params();
         productParams.setUrlKey(PRODUCT_SAMPLE_URL);
-        List<UrlRewrite> urlRewrites = Arrays.asList(
-            new UrlRewrite().setUrl((String) item.get(URL_PATH) + "/" + PRODUCT_SAMPLE_URL),
-            new UrlRewrite().setUrl((String) item.get(URL_KEY) + "/" + PRODUCT_SAMPLE_URL));
-        productParams.setUrlRewrites(urlRewrites);
 
-        productParams.getCategoryUrlParams().setUid((String) item.get("uid"));
-        productParams.getCategoryUrlParams().setUrlKey((String) item.get(URL_KEY));
-        productParams.getCategoryUrlParams().setUrlPath((String) item.get(URL_PATH));
+        String urlPath = (String) item.get(URL_PATH);
+        String urlKey = (String) item.get(URL_KEY);
+        String uid = (String) item.get(UID);
+
+        if (urlPath != null || urlKey != null) {
+            List<UrlRewrite> urlRewrites = new ArrayList<>(2);
+            if (urlPath != null) {
+                urlRewrites.add(new UrlRewrite().setUrl(urlPath + "/" + PRODUCT_SAMPLE_URL));
+            }
+            if (urlKey != null) {
+                urlRewrites.add(new UrlRewrite().setUrl(urlKey + "/" + PRODUCT_SAMPLE_URL));
+            }
+            productParams.setUrlRewrites(urlRewrites);
+        }
+
+        if (uid != null || urlKey != null || urlPath != null) {
+            CategoryUrlFormat.Params categoryParams = productParams.getCategoryUrlParams();
+            categoryParams.setUid(uid);
+            categoryParams.setUrlKey(urlKey);
+            categoryParams.setUrlPath(urlPath);
+        }
+
         return productParams;
     }
 
+    protected String[] getQueryResult(Query query)
+        throws CacheInvalidationException {
+        try {
+            Set<String> uniquePagePaths = new HashSet<>();
+            QueryResult result = query.execute();
+            if (result != null) {
+                RowIterator rows = result.getRows();
+                while (rows.hasNext()) {
+                    Row row = rows.nextRow();
+                    String fullPath = row.getPath("content");
+                    if (fullPath != null) {
+                        uniquePagePaths.add(extractPagePath(fullPath) + InvalidateCacheSupport.HTML_SUFFIX);
+                    }
+                }
+            }
+            return uniquePagePaths.toArray(new String[0]);
+        } catch (Exception e) {
+            throw new CacheInvalidationException("Error getting query result", e);
+        }
+    }
+
+    protected Query getSqlQuery(Session session, String sql2Query) throws CacheInvalidationException {
+        try {
+            QueryManager queryManager = session.getWorkspace().getQueryManager();
+            return queryManager.createQuery(sql2Query, Query.JCR_SQL2);
+        } catch (Exception e) {
+            throw new CacheInvalidationException("Error creating SKU-based SQL2 query", e);
+        }
+    }
+
+    protected Map<String, Object> getGraphqlResponseData(GraphqlClient client, String query) {
+        if (client == null || query == null) {
+            return Collections.emptyMap();
+        }
+
+        GraphqlRequest request = new GraphqlRequest(query);
+        Type typeOfT = new TypeToken<Map<String, Object>>() {}.getType();
+        Type typeOfU = new TypeToken<Map<String, Object>>() {}.getType();
+        GraphqlResponse<Map<String, Object>, Map<String, Object>> response = client.execute(request, typeOfT, typeOfU);
+
+        if (response == null || (response.getErrors() != null && !response.getErrors().isEmpty()) || response.getData() == null) {
+            return Collections.emptyMap();
+        }
+
+        return response.getData();
+    }
+
+    protected String extractPagePath(String fullPath) {
+        int jcrContentIndex = fullPath.indexOf("/jcr:content");
+        return jcrContentIndex != -1 ? fullPath.substring(0, jcrContentIndex) : fullPath;
+    }
+
+    protected String formatList(String[] invalidCacheEntries, String delimiter, String pattern) {
+        return Arrays.stream(invalidCacheEntries)
+            .map(item -> String.format(pattern, item))
+            .collect(Collectors.joining(delimiter));
+    }
 }

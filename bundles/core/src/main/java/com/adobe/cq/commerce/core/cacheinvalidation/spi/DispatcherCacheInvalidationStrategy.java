@@ -12,14 +12,20 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.cacheinvalidation.internal;
+package com.adobe.cq.commerce.core.cacheinvalidation.spi;
 
-public class CacheInvalidationException extends RuntimeException {
-    public CacheInvalidationException(String message) {
-        super(message);
-    }
+import org.osgi.annotation.versioning.ConsumerType;
 
-    public CacheInvalidationException(String message, Throwable cause) {
-        super(message, cause);
-    }
+/**
+ * The DispatcherCacheInvalidationStrategy interface defines the methods used to invalidate the dispatcher cache.
+ */
+@ConsumerType
+public interface DispatcherCacheInvalidationStrategy extends CacheInvalidationStrategy {
+    /**
+     * Returns the paths to invalidate based on the provided context.
+     *
+     * @param context the context containing all necessary information for cache invalidation
+     * @return an array of paths to invalidate
+     */
+    String[] getPathsToInvalidate(DispatcherCacheInvalidationContext context);
 }

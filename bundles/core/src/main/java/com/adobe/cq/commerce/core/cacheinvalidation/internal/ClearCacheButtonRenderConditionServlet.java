@@ -23,8 +23,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.adobe.granite.ui.components.rendercondition.RenderCondition;
 import com.adobe.granite.ui.components.rendercondition.SimpleRenderCondition;
@@ -39,8 +37,6 @@ import com.adobe.granite.ui.components.rendercondition.SimpleRenderCondition;
 public class ClearCacheButtonRenderConditionServlet extends SlingSafeMethodsServlet {
 
     public static final String RESOURCE_TYPE = "core/cif/components/renderconditions/clearcachebutton";
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClearCacheButtonRenderConditionServlet.class);
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL, policyOption = ReferencePolicyOption.GREEDY)
     private transient InvalidateCacheSupport invalidateCacheSupport;

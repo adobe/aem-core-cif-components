@@ -11,20 +11,13 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
+package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-package com.adobe.cq.commerce.core.cacheinvalidation.internal.spi;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 
-import org.osgi.annotation.versioning.ConsumerType;
-
-/**
- * The CacheInvalidationStrategy interface defines the methods used to invalidate the cache.
- */
-@ConsumerType
-public interface CacheInvalidationStrategy {
-    /**
-     * Returns the pattern used for cache invalidation.
-     *
-     * @return the cache invalidation pattern
-     */
-    String getPattern();
+public class HttpClientProvider {
+    public CloseableHttpClient createHttpClient() {
+        return HttpClients.createDefault();
+    }
 }

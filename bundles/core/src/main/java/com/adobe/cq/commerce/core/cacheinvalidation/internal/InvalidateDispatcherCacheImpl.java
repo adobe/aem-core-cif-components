@@ -16,19 +16,14 @@ package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.jcr.Session;
-import javax.jcr.query.*;
-import javax.jcr.query.Query;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -39,29 +34,32 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.CacheInvalidationStrategy;
-import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.DispatcherCacheInvalidationStrategy;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationContext;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
-import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
-import com.google.gson.reflect.TypeToken;
 
 @Component(
     service = InvalidateDispatcherCacheImpl.class,
     immediate = true)
 public class InvalidateDispatcherCacheImpl {
 
-    private static final String DISPATCHER_URL = "http://localhost:80/dispatcher/invalidate.cache";
+    private static final String DISPATCHER_BASE_URL = "http://localhost:80";
+    private static final String DISPATCHER_INVALIDATE_PATH = "/dispatcher/invalidate.cache";
+    private static final String PATH_DELIMITER = "/";
+    private static final String IS_FUNCTION = "isFunction";
+    private static final String CQ_ACTION_HEADER = "CQ-Action";
+    private static final String CQ_HANDLE_HEADER = "CQ-Handle";
+    private static final String CQ_ACTION_SCOPE_HEADER = "CQ-Action-Scope";
+    private static final String DELETE_ACTION = "Delete";
+    private static final String RESOURCE_ONLY_SCOPE = "ResourceOnly";
 
     @Reference
     private UrlProviderImpl urlProvider;
-
-    String pathDelimiter = "/";
 
     @Reference
     private SlingSettingsService slingSettingsService;
@@ -69,79 +67,114 @@ public class InvalidateDispatcherCacheImpl {
     @Reference
     private InvalidateCacheSupport invalidateCacheSupport;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateDispatcherCacheImpl.class);
-
-    private static final String IS_FUNCTION = "isFunction";
-
     @Reference
     private InvalidateCacheRegistry invalidateCacheRegistry;
 
+    private final HttpClientProvider httpClientProvider = new HttpClientProvider();
+    private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateDispatcherCacheImpl.class);
+
     public void invalidateCache(String path) {
-        if (slingSettingsService.getRunModes().contains("author")) {
+        if (path == null || path.trim().isEmpty()) {
+            LOGGER.warn("Invalid path provided for cache invalidation");
+            return;
+        }
+
+        if (!slingSettingsService.getRunModes().contains("author")) {
             LOGGER.error("Operation is only supported for author");
             return;
         }
+
         try (ResourceResolver resourceResolver = invalidateCacheSupport.getServiceUserResourceResolver()) {
             Resource resource = invalidateCacheSupport.getResource(resourceResolver, path);
             if (resource == null) {
+                LOGGER.debug("Resource not found at path: {}", path);
                 return;
             }
-            Session session = getSession(resourceResolver);
-
             ValueMap properties = resource.getValueMap();
             String storePath = properties.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class);
+
             ComponentsConfiguration commerceProperties = getCommerceProperties(resourceResolver, storePath);
-            if (!isValid(properties, resourceResolver, storePath))
+            if (!isValid(properties, resourceResolver, storePath)) {
+                LOGGER.debug("Invalid properties for cache invalidation at path: {}", path);
                 return;
-
-            String graphqlClientId = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, (String) null);
-            // Store dynamic properties in a map
-            Map<String, String[]> dynamicProperties = getDynamicProperties(properties);
-
-            GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
-
-            String[] allPaths = getAllInvalidPaths(session, resourceResolver, client, storePath, dynamicProperties);
-            // Remove null or empty values
-            allPaths = Arrays.stream(allPaths).filter(urlPath -> urlPath != null && !urlPath.isEmpty()).toArray(String[]::new);
-
-            // Sort paths based on the number of '/' characters in increasing order
-            Arrays.sort(allPaths, Comparator.comparingInt(urlPath -> urlPath.split("/").length));
-
-            Set<String> invalidateCachePaths = new HashSet<>();
-            for (String urlPath : allPaths) {
-                boolean isSubPath = invalidateCachePaths.stream().anyMatch(topPath -> urlPath.startsWith(topPath + pathDelimiter));
-                if (!isSubPath) {
-                    invalidateCachePaths.add(urlPath);
-                }
             }
 
-            invalidateCachePaths.forEach(invalidatePath -> {
-                try {
-                    flushCache(invalidatePath);
-                } catch (CacheInvalidationException e) {
-                    LOGGER.error("Error flushing cache for path {}: {}", path, e.getMessage());
-                }
-            });
+            String graphqlClientId = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, (String) null);
+            Map<String, String[]> dynamicProperties = getDynamicProperties(properties);
+            GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
+
+            String[] allPaths = getAllInvalidPaths(resourceResolver, client, storePath, dynamicProperties);
+            allPaths = processAndConvertPaths(allPaths);
+
+            String dispatcherUrl = Optional.ofNullable(invalidateCacheSupport.getDispatcherBaseUrl())
+                .orElse(DISPATCHER_BASE_URL);
+
+            flushCacheForPaths(allPaths, dispatcherUrl, path);
+
         } catch (Exception e) {
             LOGGER.error("Error invalidating cache: {}", e.getMessage(), e);
         }
     }
 
-    protected Map<String, String[]> getDynamicProperties(ValueMap properties) {
-        Map<String, String[]> dynamicProperties = new HashMap<>();
-        for (String attribute : invalidateCacheRegistry.getAttributes()) {
-            CacheInvalidationStrategy invalidateCache = invalidateCacheRegistry.get(attribute);
-            if (invalidateCache instanceof DispatcherCacheInvalidationStrategy) {
-                String[] values = properties.get(attribute, String[].class);
-                if (values != null) {
-                    dynamicProperties.put(attribute, values);
-                }
+    private String[] processAndConvertPaths(String[] paths) {
+        return Arrays.stream(paths)
+            .filter(Objects::nonNull)
+            .filter(path -> !path.trim().isEmpty())
+            .map(urlPath -> invalidateCacheSupport.convertUrlPath(urlPath))
+            .sorted(Comparator.comparingInt(path -> path.split(PATH_DELIMITER).length))
+            .collect(Collectors.collectingAndThen(
+                Collectors.toList(),
+                filteredPaths -> {
+                    List<String> result = new ArrayList<>();
+                    for (String currentPath : filteredPaths) {
+                        if (result.stream().noneMatch(existingPath -> currentPath.startsWith(existingPath + PATH_DELIMITER))) {
+                            result.add(currentPath);
+                        }
+                    }
+                    return result.toArray(new String[0]);
+                }));
+    }
+
+    private void flushCacheForPaths(String[] paths, String dispatcherUrl, String originalPath) {
+        Arrays.stream(paths).forEach(invalidatePath -> {
+            try {
+                flushCache(invalidatePath, dispatcherUrl);
+            } catch (CacheInvalidationException e) {
+                LOGGER.error("Error flushing cache for path {}: {}", originalPath, e.getMessage());
             }
+        });
+    }
+
+    protected Map<String, String[]> getDynamicProperties(ValueMap properties) {
+        if (properties == null) {
+            return Collections.emptyMap();
         }
-        return dynamicProperties;
+
+        Map<String, String[]> dynamicProperties = new HashMap<>();
+        Set<String> attributes = invalidateCacheRegistry.getAttributes();
+
+        if (attributes.isEmpty()) {
+            return dynamicProperties;
+        }
+
+        attributes.stream()
+            .filter(attribute -> {
+                String[] values = properties.get(attribute, String[].class);
+                AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(attribute);
+                return values != null && values.length > 0 && strategies != null &&
+                    strategies.getStrategies(false).stream()
+                        .anyMatch(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy);
+            })
+            .forEach(attribute -> dynamicProperties.put(attribute, properties.get(attribute, String[].class)));
+
+        return Collections.unmodifiableMap(dynamicProperties);
     }
 
     protected Session getSession(ResourceResolver resourceResolver) throws CacheInvalidationException {
+        if (resourceResolver == null) {
+            throw new CacheInvalidationException("ResourceResolver cannot be null");
+        }
+
         Session session = resourceResolver.adaptTo(Session.class);
         if (session == null) {
             LOGGER.error("Session not found for resource resolver");
@@ -151,88 +184,129 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     protected ComponentsConfiguration getCommerceProperties(ResourceResolver resourceResolver, String storePath) {
+        if (resourceResolver == null || storePath == null) {
+            return null;
+        }
         return invalidateCacheSupport.getCommerceProperties(resourceResolver, storePath);
     }
 
-    protected String[] getAllInvalidPaths(Session session, ResourceResolver resourceResolver, GraphqlClient client,
+    private boolean validateParameters(ResourceResolver resourceResolver, GraphqlClient client,
+        String storePath, Map<String, String[]> dynamicProperties) {
+        if (resourceResolver == null || client == null || storePath == null || dynamicProperties == null) {
+            LOGGER.debug(
+                "Invalid parameters for getAllInvalidPaths: resourceResolver={}, client={}, storePath={}, dynamicProperties={}",
+                resourceResolver != null, client != null, storePath, dynamicProperties != null);
+            return false;
+        }
+        return true;
+    }
+
+    protected String[] getAllInvalidPaths(ResourceResolver resourceResolver, GraphqlClient client,
         String storePath, Map<String, String[]> dynamicProperties) throws CacheInvalidationException {
-        String[] invalidateDispatcherPagePaths = new String[0];
-        String[] correspondingPaths = new String[0];
+        if (!validateParameters(resourceResolver, client, storePath, dynamicProperties)) {
+            return new String[0];
+        }
+
+        Set<String> allPaths = processInvalidPaths(resourceResolver, client, storePath, dynamicProperties);
+        LOGGER.debug("Found {} unique paths to invalidate", allPaths.size());
+        return allPaths.toArray(new String[0]);
+    }
+
+    private Set<String> processInvalidPaths(ResourceResolver resourceResolver, GraphqlClient client,
+        String storePath, Map<String, String[]> dynamicProperties) throws CacheInvalidationException {
+
+        Set<String> allPaths = new HashSet<>();
+        String dispatcherBasePath = invalidateCacheSupport.getDispatcherBasePathForStorePath(storePath);
+
+        // Check for full cache clear conditions
+        if (dynamicProperties.isEmpty()) {
+            LOGGER.debug("Empty dynamic properties, performing full cache clear for path: {}", dispatcherBasePath);
+            allPaths.add(dispatcherBasePath);
+            return allPaths;
+        }
+
+        Set<String> correspondingPaths = new HashSet<>();
+        Page page = getPage(resourceResolver, storePath);
 
         for (Map.Entry<String, String[]> entry : dynamicProperties.entrySet()) {
-            String key = entry.getKey();
-            String[] values = entry.getValue();
+            if (!isValidEntry(entry)) {
+                continue;
+            }
 
-            if (values != null && values.length > 0) {
-                try {
-                    String[] paths = getCorrespondingPageBasedOnEntries(session, storePath, values, key);
-                    String query = invalidateCacheRegistry.getGraphqlQuery(key, values);
-                    Map<String, Object> data = getGraphqlResponseData(client, query);
-                    if (data != null) {
-                        String[] invalidPaths = getPathsToInvalidate(resourceResolver, data, storePath, key);
-                        correspondingPaths = Stream.concat(Arrays.stream(correspondingPaths), Arrays.stream(invalidPaths))
-                            .toArray(String[]::new);
-                    }
-                    invalidateDispatcherPagePaths = Stream.concat(Arrays.stream(invalidateDispatcherPagePaths), Arrays.stream(paths))
-                        .toArray(String[]::new);
-                } catch (Exception e) {
-                    throw new CacheInvalidationException("Error getting invalid paths for key: " + key, e);
+            try {
+                processAttributeStrategies(entry, page, resourceResolver, storePath, client, correspondingPaths);
+            } catch (Exception e) {
+                LOGGER.error("Error processing strategies for key: {}", entry.getKey(), e);
+            }
+        }
+
+        if (correspondingPaths.contains(dispatcherBasePath)) {
+            LOGGER.debug("Corresponding paths contain base path, performing full cache clear for path: {}", dispatcherBasePath);
+            allPaths.add(dispatcherBasePath);
+            return allPaths;
+        }
+
+        allPaths.addAll(correspondingPaths);
+        LOGGER.debug("Processed {} paths for invalidation", allPaths.size());
+        return allPaths;
+    }
+
+    private void processAttributeStrategies(Map.Entry<String, String[]> entry, Page page,
+        ResourceResolver resourceResolver, String storePath, GraphqlClient client, Set<String> correspondingPaths) {
+
+        AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(entry.getKey());
+        List<StrategyInfo> dispatcherStrategies = getDispatcherStrategies(strategies);
+
+        for (StrategyInfo info : dispatcherStrategies) {
+            try {
+                DispatcherCacheInvalidationStrategy strategy = (DispatcherCacheInvalidationStrategy) info.getStrategy();
+                DispatcherCacheInvalidationContext context = new DispatcherCacheInvalidationContext(
+                    page,
+                    resourceResolver,
+                    entry,
+                    storePath,
+                    client);
+
+                String[] invalidPaths = strategy.getPathsToInvalidate(context);
+
+                if (invalidPaths != null && invalidPaths.length > 0) {
+                    Arrays.stream(invalidPaths)
+                        .filter(Objects::nonNull)
+                        .filter(path -> !path.trim().isEmpty())
+                        .forEach(correspondingPaths::add);
                 }
+            } catch (Exception e) {
+                LOGGER.error("Error processing GraphQL strategy for key: {}", entry.getKey(), e);
             }
         }
-
-        return Stream.concat(Arrays.stream(invalidateDispatcherPagePaths), Arrays.stream(correspondingPaths))
-            .toArray(String[]::new);
     }
 
-    protected String[] getCorrespondingPageBasedOnEntries(Session session, String storePath, String[] entries, String key)
-        throws CacheInvalidationException {
-        String entryList = formatList(entries, ", ", "'%s'");
-        try {
-            String sqlQuery = invalidateCacheRegistry.getQuery(key, storePath, entryList);
-            if (sqlQuery != null) {
-                return getQueryResult(getSqlQuery(session, sqlQuery));
-            }
-        } catch (Exception e) {
-            throw new CacheInvalidationException("Error getting corresponding page based on entries", e);
+    private boolean isValidEntry(Map.Entry<String, String[]> entry) {
+        if (entry == null) {
+            LOGGER.debug("Invalid entry: null entry");
+            return false;
         }
-        return new String[0];
-    }
 
-    protected String[] getPathsToInvalidate(ResourceResolver resourceResolver, Map<String, Object> data,
-        String storePath, String key) {
-        Page page = getPage(resourceResolver, storePath);
-        return invalidateCacheRegistry.getPathsToInvalidate(key, page, resourceResolver, data, storePath);
-    }
+        String key = entry.getKey();
+        String[] values = entry.getValue();
 
-    protected Map<String, Object> getGraphqlResponseData(GraphqlClient client, String query) {
-        GraphqlRequest request = new GraphqlRequest(query);
-        Type typeOfT = new TypeToken<Map<String, Object>>() {}.getType();
-        Type typeOfU = new TypeToken<Map<String, Object>>() {}.getType();
-        GraphqlResponse<Map<String, Object>, Map<String, Object>> response = client.execute(request, typeOfT, typeOfU);
-        if (response.getErrors() != null && !response.getErrors().isEmpty()) {
-            LOGGER.error("Error executing GraphQL query: {}", response.getErrors());
+        if (values == null || values.length == 0) {
+            LOGGER.debug("Invalid entry: empty values for key: {}", key);
+            return false;
         }
-        return response.getData() != null ? response.getData() : Collections.emptyMap();
+
+        return true;
     }
 
     protected boolean isValid(ValueMap valueMap, ResourceResolver resourceResolver, String storePath) {
         Map<String, Map<String, Object>> jsonData = createJsonData(resourceResolver, storePath);
-        for (Map.Entry<String, Map<String, Object>> entry : jsonData.entrySet()) {
-            Map<String, Object> properties = entry.getValue();
-            String key = entry.getKey();
-            boolean isFunction = (boolean) properties.get(IS_FUNCTION);
-            if (isFunction) {
-                if (!invokeFunction(properties)) {
-                    return false;
-                }
-            } else {
-                if (!checkProperty(valueMap, key, properties)) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return jsonData.entrySet().stream()
+            .allMatch(entry -> {
+                Map<String, Object> properties = entry.getValue();
+                String key = entry.getKey();
+                boolean isFunction = (boolean) properties.get(IS_FUNCTION);
+                return isFunction ? invokeFunction(properties) : checkProperty(valueMap, key, properties);
+            });
     }
 
     protected boolean invokeFunction(Map<String, Object> properties) {
@@ -246,25 +320,28 @@ public class InvalidateDispatcherCacheImpl {
             if (parameterTypes != null && args != null) {
                 method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod(methodName, parameterTypes);
                 result = method.invoke(this, args);
-            } else {
-                throw new IllegalArgumentException("Invalid method parameters for: " + methodName);
+                return result != null;
             }
-            return result != null;
-        } catch (Exception e) {
+            LOGGER.error("Invalid method parameters for method: {}", methodName);
+            return false;
+        } catch (ReflectiveOperationException e) {
+            LOGGER.error("Failed to invoke method {}: {}", methodName, e.getMessage(), e);
+            return false;
+        } catch (RuntimeException e) {
+            LOGGER.error("Unexpected error invoking method {}: {}", methodName, e.getMessage(), e);
             return false;
         }
     }
 
     protected boolean checkProperty(ValueMap valueMap, String key, Map<String, Object> properties) {
-        boolean isFlag = true;
         Class<?> clazz = (Class<?>) properties.get("class");
         Object value = getPropertiesValue(valueMap, key, clazz);
         if (value instanceof String) {
-            isFlag = !((String) value).isEmpty();
+            return !((String) value).isEmpty();
         } else if (value instanceof Object[]) {
-            isFlag = ((Object[]) value).length != 0;
+            return ((Object[]) value).length != 0;
         }
-        return isFlag;
+        return true;
     }
 
     protected Map<String, Map<String, Object>> createJsonData(ResourceResolver resourceResolver,
@@ -273,11 +350,11 @@ public class InvalidateDispatcherCacheImpl {
 
         jsonData.put(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, createProperty(false, String.class));
         jsonData.put(InvalidateCacheSupport.PROPERTIES_STORE_PATH, createProperty(false, String.class));
-        jsonData.put("categoryPath", createFunctionProperty("getCorrespondingPageProperties", new Class<?>[] { ResourceResolver.class,
-            String.class, String.class },
+        jsonData.put("categoryPath", createFunctionProperty("getCorrespondingPageProperties",
+            new Class<?>[] { ResourceResolver.class, String.class, String.class },
             new Object[] { resourceResolver, actualStorePath, SiteStructureImpl.PN_CIF_CATEGORY_PAGE }));
-        jsonData.put("productPath", createFunctionProperty("getCorrespondingPageProperties", new Class<?>[] { ResourceResolver.class,
-            String.class, String.class },
+        jsonData.put("productPath", createFunctionProperty("getCorrespondingPageProperties",
+            new Class<?>[] { ResourceResolver.class, String.class, String.class },
             new Object[] { resourceResolver, actualStorePath, SiteStructureImpl.PN_CIF_PRODUCT_PAGE }));
 
         return jsonData;
@@ -305,20 +382,13 @@ public class InvalidateDispatcherCacheImpl {
 
     protected Page getPage(ResourceResolver resourceResolver, String storePath) {
         PageManager pageManager = resourceResolver.adaptTo(PageManager.class);
-        if (pageManager != null) {
-            return pageManager.getPage(storePath);
-        }
-        return null;
+        return pageManager != null ? pageManager.getPage(storePath) : null;
     }
 
     @SuppressWarnings("unused")
     protected String getCorrespondingPageProperties(ResourceResolver resourceResolver, String storePath, String propertyName) {
         Page page = getPage(resourceResolver, storePath);
-        if (page != null) {
-            ValueMap properties = page.getProperties();
-            return properties.get(propertyName, String.class);
-        }
-        return null;
+        return page != null ? page.getProperties().get(propertyName, String.class) : null;
     }
 
     protected String formatList(String[] invalidCacheEntries, String delimiter, String pattern) {
@@ -327,57 +397,34 @@ public class InvalidateDispatcherCacheImpl {
             .collect(Collectors.joining(delimiter));
     }
 
-    protected Query getSqlQuery(Session session, String sql2Query) throws CacheInvalidationException {
-        try {
-            QueryManager queryManager = session.getWorkspace().getQueryManager();
-            return queryManager.createQuery(sql2Query, Query.JCR_SQL2);
-        } catch (Exception e) {
-            throw new CacheInvalidationException("Error creating SKU-based SQL2 query", e);
+    protected void flushCache(String handle, String dispatcherUrl) throws CacheInvalidationException {
+        if (handle == null || handle.trim().isEmpty() || dispatcherUrl == null || dispatcherUrl.trim().isEmpty()) {
+            LOGGER.debug("Invalid parameters for flushCache: handle={}, dispatcherUrl={}", handle, dispatcherUrl);
+            throw new CacheInvalidationException("Invalid handle or dispatcher URL");
         }
-    }
 
-    protected String[] getQueryResult(Query query) throws CacheInvalidationException {
-        try {
-            Set<String> uniquePagePaths = new HashSet<>();
-
-            QueryResult result = query.execute();
-            if (result != null) {
-                RowIterator rows = result.getRows();
-                while (rows.hasNext()) {
-                    Row row = rows.nextRow();
-                    String fullPath = row.getPath("content");
-                    if (fullPath != null) {
-                        String pagePath = extractPagePath(fullPath) + InvalidateCacheSupport.HTML_SUFFIX;
-                        uniquePagePaths.add(pagePath);
-                    }
-                }
-            }
-            return uniquePagePaths.toArray(new String[0]);
-        } catch (Exception e) {
-            throw new CacheInvalidationException("Error getting query result", e);
-        }
-    }
-
-    protected String extractPagePath(String fullPath) {
-        int jcrContentIndex = fullPath.indexOf("/jcr:content");
-        return jcrContentIndex != -1 ? fullPath.substring(0, jcrContentIndex) : fullPath;
-    }
-
-    protected void flushCache(String handle) throws CacheInvalidationException {
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpPost post = new HttpPost(DISPATCHER_URL);
-            post.setHeader("CQ-Action", "Delete");
-            post.setHeader("CQ-Handle", handle);
-            post.setHeader("CQ-Action-Scope", "ResourceOnly");
+        try (CloseableHttpClient client = httpClientProvider.createHttpClient()) {
+            HttpPost post = new HttpPost(dispatcherUrl + DISPATCHER_INVALIDATE_PATH);
+            post.setHeader(CQ_ACTION_HEADER, DELETE_ACTION);
+            post.setHeader(CQ_HANDLE_HEADER, handle);
+            post.setHeader(CQ_ACTION_SCOPE_HEADER, RESOURCE_ONLY_SCOPE);
 
             try (CloseableHttpResponse response = client.execute(post)) {
                 String result = EntityUtils.toString(response.getEntity());
-                LOGGER.info("result: {}", result);
+                LOGGER.debug("Cache invalidation result for path {}: {}", handle, result);
             }
         } catch (IOException e) {
-            throw new CacheInvalidationException("IO error", e);
+            throw new CacheInvalidationException(
+                String.format("IO error while flushing cache for path %s", handle), e);
         } catch (Exception e) {
-            LOGGER.error("Flushcache servlet exception: {}", e.getMessage());
+            throw new CacheInvalidationException(
+                String.format("Unexpected error while flushing cache for path %s", handle), e);
         }
+    }
+
+    private List<StrategyInfo> getDispatcherStrategies(AttributeStrategies strategies) {
+        return strategies.getStrategies(false).stream()
+            .filter(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy)
+            .collect(Collectors.toList());
     }
 }

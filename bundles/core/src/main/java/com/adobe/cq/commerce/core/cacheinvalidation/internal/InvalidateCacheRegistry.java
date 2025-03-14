@@ -14,25 +14,29 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 import org.osgi.service.component.annotations.ReferencePolicyOption;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.CacheInvalidationStrategy;
-import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.DispatcherCacheInvalidationStrategy;
-import com.day.cq.wcm.api.Page;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationStrategy;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationContext;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 
 @Component(service = InvalidateCacheRegistry.class, immediate = true)
 public class InvalidateCacheRegistry {
 
-    private final Map<String, CacheInvalidationStrategy> invalidateCacheList = new HashMap<>();
+    private static final String INTERNAL_PACKAGE_PREFIX = "com.adobe.cq.commerce.core.cacheinvalidation.internal";
+
+    private final Map<String, AttributeStrategies> invalidateCacheList = new HashMap<>();
 
     @Reference(
         service = CacheInvalidationStrategy.class,
@@ -43,7 +47,11 @@ public class InvalidateCacheRegistry {
         policyOption = ReferencePolicyOption.GREEDY)
     void bindInvalidateCache(CacheInvalidationStrategy invalidateCache, Map<String, Object> properties) {
         String attribute = (String) properties.get(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER);
-        invalidateCacheList.put(attribute, invalidateCache);
+        if (attribute != null) {
+            boolean isInternal = isInternalStrategy(invalidateCache);
+            AttributeStrategies strategies = invalidateCacheList.computeIfAbsent(attribute, k -> new AttributeStrategies());
+            strategies.addStrategy(new StrategyInfo(invalidateCache, properties, isInternal));
+        }
     }
 
     void unbindInvalidateCache(Map<String, Object> properties) {
@@ -59,53 +67,67 @@ public class InvalidateCacheRegistry {
         policyOption = ReferencePolicyOption.GREEDY)
     void bindInvalidateDispatcherCache(DispatcherCacheInvalidationStrategy invalidateDispatcherCache, Map<String, Object> properties) {
         String attribute = (String) properties.get(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER);
-        invalidateCacheList.put(attribute, invalidateDispatcherCache);
+        if (attribute != null) {
+            boolean isInternal = isInternalStrategy(invalidateDispatcherCache);
+            AttributeStrategies strategies = invalidateCacheList.computeIfAbsent(attribute, k -> new AttributeStrategies());
+            strategies.addStrategy(new StrategyInfo(invalidateDispatcherCache, properties, isInternal));
+        }
     }
 
     void unbindInvalidateDispatcherCache(Map<String, Object> properties) {
         unbindCache(properties);
     }
 
+    private boolean isInternalStrategy(CacheInvalidationStrategy strategy) {
+        return strategy.getClass().getPackage().getName().startsWith(INTERNAL_PACKAGE_PREFIX);
+    }
+
     private void unbindCache(Map<String, Object> properties) {
         String attribute = (String) properties.get(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER);
-        invalidateCacheList.remove(attribute);
-    }
-
-    public String getPattern(String attribute) {
-        CacheInvalidationStrategy invalidateCache = invalidateCacheList.get(attribute);
-        return invalidateCache != null ? invalidateCache.getPattern() : null;
-    }
-
-    public String getQuery(String attribute, String storePath, String dataList) {
-        CacheInvalidationStrategy invalidateCache = invalidateCacheList.get(attribute);
-        if (invalidateCache instanceof DispatcherCacheInvalidationStrategy) {
-            return ((DispatcherCacheInvalidationStrategy) invalidateCache).getQuery(storePath, dataList);
+        if (attribute != null) {
+            AttributeStrategies strategies = invalidateCacheList.get(attribute);
+            if (strategies != null) {
+                String componentName = (String) properties.get("component.name");
+                if (componentName != null) {
+                    strategies.removeStrategy(componentName);
+                }
+            }
         }
-        return null;
     }
 
-    public String getGraphqlQuery(String attribute, String[] data) {
-        CacheInvalidationStrategy invalidateCache = invalidateCacheList.get(attribute);
-        if (invalidateCache instanceof DispatcherCacheInvalidationStrategy) {
-            return ((DispatcherCacheInvalidationStrategy) invalidateCache).getGraphqlQuery(data);
+    public Set<String> getPattern(String attribute) {
+        AttributeStrategies strategies = invalidateCacheList.get(attribute);
+        if (strategies == null) {
+            return Collections.emptySet();
         }
-        return null;
+
+        return strategies.getStrategies(false).stream()
+            .map(info -> info.getStrategy().getPattern())
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
     }
 
-    public String[] getPathsToInvalidate(String attribute, Page page, ResourceResolver resourceResolver, Map<String, Object> data,
-        String storePath) {
-        CacheInvalidationStrategy invalidateCache = invalidateCacheList.get(attribute);
-        if (invalidateCache instanceof DispatcherCacheInvalidationStrategy) {
-            return ((DispatcherCacheInvalidationStrategy) invalidateCache).getPathsToInvalidate(page, resourceResolver, data, storePath);
+    public String[] getPathsToInvalidate(DispatcherCacheInvalidationContext dispatcherCacheInvalidationContext) {
+        Map.Entry<String, String[]> attributeData = dispatcherCacheInvalidationContext.getAttributeData();
+        AttributeStrategies strategies = invalidateCacheList.get(attributeData.getKey());
+        if (strategies == null) {
+            return new String[0];
         }
-        return new String[0];
-    }
 
-    public CacheInvalidationStrategy get(String attribute) {
-        return invalidateCacheList.get(attribute);
+        return strategies.getStrategies(false).stream()
+            .filter(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy)
+            .map(info -> ((DispatcherCacheInvalidationStrategy) info.getStrategy()))
+            .map(strategy -> strategy.getPathsToInvalidate(dispatcherCacheInvalidationContext))
+            .filter(paths -> paths != null && paths.length > 0)
+            .findFirst()
+            .orElse(new String[0]);
     }
 
     public Set<String> getAttributes() {
-        return invalidateCacheList.keySet();
+        return Collections.unmodifiableSet(invalidateCacheList.keySet());
+    }
+
+    public AttributeStrategies getAttributeStrategies(String attribute) {
+        return invalidateCacheList.get(attribute);
     }
 }
