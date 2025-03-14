@@ -8,27 +8,15 @@
     "sling:configRef": "/conf/venia",
     "cq:conf": "/conf/venia"
   },
-  "pageH": {
-    "jcr:primaryType": "cq:Page",
-    "jcr:content": {
-      "jcr:primaryType": "cq:PageContent",
-      "cq:conf": "/conf/testing",
-      "sling:resourceType": "core/cif/components/structure/page/v1/page"
-    }
-  },
   "us": {
     "jcr:primaryType": "cq:Page",
     "jcr:createdBy": "admin",
-    "jcr:created": "Mon Feb 24 2025 14:46:08 GMT+0530",
     "jcr:content": {
       "jcr:primaryType": "cq:PageContent",
       "jcr:createdBy": "admin",
       "jcr:title": "Venia Demo Store",
       "cq:template": "/conf/venia/settings/wcm/templates/page-content",
       "cq:redirectTarget": "/content/venia/us/en",
-      "jcr:created": "Mon Feb 24 2025 14:46:08 GMT+0530",
-      "cq:lastModified": "Fri Feb 28 2025 14:57:54 GMT+0530",
-      "cq:conf": "/conf/venia",
       "sling:resourceType": "foundation/components/redirect",
       "cq:allowedTemplates": "/conf/venia/settings/wcm/templates/landing-page",
       "cq:lastModifiedBy": "admin"
@@ -38,7 +26,6 @@
       "jcr:createdBy": "admin",
       "jcr:created": "Mon Feb 24 2025 14:46:08 GMT+0530",
       "jcr:content": {
-        "cq:conf": "/conf/venia",
         "jcr:primaryType": "cq:PageContent",
         "jcr:mixinTypes": [
           "cq:LiveRelationship",
@@ -53,7 +40,6 @@
         ],
         "cq:template": "/conf/venia/settings/wcm/templates/landing-page",
         "cq:contextHubSegmentsPath": "/etc/segmentation/contexthub",
-        "jcr:created": "Mon Feb 24 2025 14:46:08 GMT+0530",
         "pageTitle": "Home",
         "sling:resourceType": "venia/components/page",
         "cq:contextHubPath": "/etc/cloudsettings/default/contexthub",

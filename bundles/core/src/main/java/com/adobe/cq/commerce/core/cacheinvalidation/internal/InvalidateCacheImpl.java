@@ -70,7 +70,6 @@ public class InvalidateCacheImpl {
             return;
         }
 
-        String storeView = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_STORE_VIEW, DEFAULT_STORE_VIEW);
         GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
         if (client == null) {
             LOGGER.debug("GraphQL client not found for ID: {}", graphqlClientId);
@@ -78,21 +77,17 @@ public class InvalidateCacheImpl {
         }
 
         ValueMap properties = resource.getValueMap();
-        String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAME, String[].class);
-
         Map<String, String[]> dynamicProperties = getDynamicProperties(properties);
-        if (!dynamicProperties.isEmpty()) {
-            invalidateCacheByType(client, storeView, listOfCacheToSearch, dynamicProperties);
-        } else {
+        if (dynamicProperties.isEmpty()) {
             LOGGER.debug("No dynamic properties found for cache invalidation");
         }
+
+        String storeView = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_STORE_VIEW, DEFAULT_STORE_VIEW);
+        String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAME, String[].class);
+        invalidateCacheByType(client, storeView, listOfCacheToSearch, dynamicProperties);
     }
 
     private Map<String, String[]> getDynamicProperties(ValueMap properties) {
-        if (properties == null) {
-            return Collections.emptyMap();
-        }
-
         Map<String, String[]> dynamicProperties = new HashMap<>();
         Set<String> attributes = invalidateCacheRegistry.getAttributes();
 

@@ -14,23 +14,6 @@
                 "jcr:createdBy": "admin",
                 "jcr:created": "Thu Jan 16 2020 12:20:34 GMT+0200"
             }
-        },
-        "cloudconfigs": {
-            "jcr:primaryType": "sling:Folder",
-            "commerce": {
-                "jcr:primaryType": "cq:Page",
-                "jcr:mixinTypes": [
-                    "rep:AccessControllable"
-                ],
-                "jcr:content": {
-                    "jcr:primaryType": "cq:Page",
-                    "magentoRootCategoryId": "Mg==",
-                    "cq:graphqlClient": "default",
-                    "magentoStore": "default",
-                    "enableClientSidePriceLoading": true,
-                    "enableUIDSupport": "true"
-                }
-            }
         }
     }
 }

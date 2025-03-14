@@ -1,10 +1,29 @@
 {
+  "jcr:primaryType": "sling:Folder",
+  "jcr:createdBy": "admin",
+  "testWithValidData": {
     "jcr:primaryType": "nt:unstructured",
     "productSkus": [
-      "VP02",
-      "VSW01",
-      "VP03"
+      "VP01",
+      "VT10"
     ],
-    "invalidateDate": "Tue Mar 04 2025 19:20:36 GMT+0530",
+    "categoryUids": [
+      "Mjk="
+    ],
+    "regexPatterns":[
+      "\"uid\"\\s*:\\s*\\{\"id\"\\s*:\\s*\"(Mjk=)\"",
+      "\"sku\":\\s*\"(VP02|VP03)\""
+    ],
+    "cacheNames": [
+      "categoryCache",
+      "productCache"
+    ],
+    "invalidateDate": "Thu Mar 13 2025 20:47:32 GMT+0530",
     "storePath": "/content/venia/us/en"
+  },
+  "testWithNoDynamicProperties": {
+    "jcr:primaryType": "nt:unstructured",
+    "invalidateDate": "Thu Mar 13 2025 20:47:32 GMT+0530",
+    "storePath": "/content/venia/us/en"
+  }
 }
