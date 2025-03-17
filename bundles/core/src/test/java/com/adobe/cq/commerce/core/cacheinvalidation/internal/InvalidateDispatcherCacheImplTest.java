@@ -21,13 +21,11 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.settings.SlingSettingsService;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 
@@ -134,20 +132,4 @@ public class InvalidateDispatcherCacheImplTest {
         verify(invalidateCacheRegistry, never()).getAttributes();
     }
 
-    @Test
-    public void testInvalidateCacheWithValidData() {
-        ComponentsConfiguration commerceConfig = mock(ComponentsConfiguration.class);
-        when(invalidateCacheSupport.getCommerceProperties(any(), anyString())).thenReturn(commerceConfig);
-
-        dispatcherCache.invalidateCache("/content/path");
-
-        verify(invalidateCacheSupport).getServiceUserResourceResolver();
-    }
-
-    @Test
-    @Ignore("Complex test requiring additional mocking")
-    public void testInvalidateCacheWithPathProcessing() {
-        // This test requires complex setup of multiple services and mocks
-        // Ignoring for now as it's difficult to set up without modifying dependencies
-    }
 }

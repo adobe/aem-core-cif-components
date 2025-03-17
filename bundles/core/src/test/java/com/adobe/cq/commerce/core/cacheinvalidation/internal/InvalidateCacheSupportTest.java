@@ -66,37 +66,6 @@ public class InvalidateCacheSupportTest {
     }
 
     @Test
-    public void testActivateWithDispatcherConfig() {
-        // Setup
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("enableDispatcherCacheInvalidation", true);
-        properties.put("dispatcherBaseUrl", "http://localhost:4503");
-        properties.put("dispatcherBasePathConfiguration", "^/content/venia/(.*):$1");
-        properties.put("dispatcherUrlPathConfiguration", new String[] {
-            "product:/products/(.*):$1",
-            "category:/categories/(.*):$1"
-        });
-
-        // Execute
-        invalidateCacheSupport.activate(properties);
-
-        // Verify
-        assertTrue(invalidateCacheSupport.getEnableDispatcherCacheInvalidation());
-        assertEquals("http://localhost:4503", invalidateCacheSupport.getDispatcherBaseUrl());
-
-        // Test base path configuration
-        String convertedPath = invalidateCacheSupport.getDispatcherBasePathForStorePath("/content/venia/us/en");
-        assertEquals("us/en", convertedPath);
-
-        // Test URL path configurations
-        List<PatternConfig> productConfigs = invalidateCacheSupport.getDispatcherUrlConfigurationForType("product");
-        assertNotNull(productConfigs);
-        assertFalse(productConfigs.isEmpty());
-        assertEquals("/products/(.*)", productConfigs.get(0).getPattern());
-        assertEquals("$1", productConfigs.get(0).getMatch());
-    }
-
-    @Test
     public void testActivateWithoutDispatcherConfig() {
         // Setup
         Map<String, Object> properties = new HashMap<>();

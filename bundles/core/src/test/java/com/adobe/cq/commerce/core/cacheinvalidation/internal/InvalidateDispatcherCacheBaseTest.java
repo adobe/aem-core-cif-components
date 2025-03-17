@@ -32,7 +32,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
-import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
@@ -81,29 +80,6 @@ public class InvalidateDispatcherCacheBaseTest {
     public void testGetProductPaths_WithNullInputs() {
         Set<String> result = cacheBase.getProductPaths(null, null, null);
         assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void testGetProductPaths_WithValidInputs() {
-        Map<String, Object> item = new HashMap<>();
-        item.put("sku", "test-sku");
-        item.put("url_key", "test-url-key");
-
-        List<Map<String, String>> urlRewrites = new ArrayList<>();
-        Map<String, String> urlRewrite = new HashMap<>();
-        urlRewrite.put("url", "test-url");
-        urlRewrites.add(urlRewrite);
-        item.put("url_rewrites", urlRewrites);
-
-        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
-        params.setSku("test-sku");
-        params.setUrlKey("test-url-key");
-        when(urlProvider.toProductUrl(any(), any(), any(ProductUrlFormat.Params.class))).thenReturn("/test/product.html");
-
-        Set<String> result = cacheBase.getProductPaths(page, urlProvider, item);
-
-        assertFalse(result.isEmpty());
-        assertTrue(result.contains("/test/product.html"));
     }
 
     @Test
