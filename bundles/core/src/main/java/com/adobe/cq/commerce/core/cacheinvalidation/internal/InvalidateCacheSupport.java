@@ -36,6 +36,7 @@ public class InvalidateCacheSupport {
     public static final String PROPERTIES_GRAPHQL_CLIENT_ID = "cq:graphqlClient";
     public static final String PROPERTIES_STORE_VIEW = "magentoStore";
     public static final String PROPERTIES_STORE_PATH = "storePath";
+    public static final String PROPERTIES_INVALIDATE_ALL = "invalidateAll";
     public static final String PROPERTIES_CACHE_NAME = "cacheNames";
     public static final String PROPERTY_INVALIDATE_REQUEST_PARAMETER = "invalidateRequestParameter";
     public static final String HTML_SUFFIX = ".html";
@@ -67,11 +68,14 @@ public class InvalidateCacheSupport {
     }
 
     private DispatcherBasePathConfiguration parseBasePathConfig(Map<String, Object> properties) {
-        return Optional.ofNullable((String) properties.get(DISPATCHER_BASE_PATH_CONFIG))
-            .map(config -> config.split(":"))
-            .filter(parts -> parts.length == 2)
-            .map(parts -> new DispatcherBasePathConfiguration(parts[0], parts[1]))
-            .orElseGet(DispatcherBasePathConfiguration::createDefault);
+        String config = (String) properties.get(DISPATCHER_BASE_PATH_CONFIG);
+        if (config != null && !config.trim().isEmpty()) {
+            String[] parts = config.split(":");
+            if (parts.length == 2) {
+                return new DispatcherBasePathConfiguration(parts[0], parts[1]);
+            }
+        }
+        return DispatcherBasePathConfiguration.createDefault();
     }
 
     private void initializeUrlPathConfigurations(Map<String, Object> properties) {
@@ -146,14 +150,16 @@ public class InvalidateCacheSupport {
     }
 
     public GraphqlClient getClient(String graphqlClientId) {
-        if (graphqlClientId != null && !graphqlClientId.isEmpty()) {
-            for (ClientHolder clientHolder : clients) {
-                GraphqlClient graphqlClient = clientHolder.graphqlClient;
-                Map<String, Object> properties = clientHolder.properties;
-                String identifier = (String) properties.get("identifier");
-                if (identifier.equals(graphqlClientId)) {
-                    return graphqlClient;
-                }
+        if (graphqlClientId == null || graphqlClientId.trim().isEmpty()) {
+            throw new IllegalStateException("GraphqlClient ID cannot be null or empty");
+        }
+
+        for (ClientHolder clientHolder : clients) {
+            GraphqlClient graphqlClient = clientHolder.graphqlClient;
+            Map<String, Object> properties = clientHolder.properties;
+            String identifier = (String) properties.get("identifier");
+            if (graphqlClientId.equals(identifier)) {
+                return graphqlClient;
             }
         }
         throw new IllegalStateException("GraphqlClient with ID '" + graphqlClientId + "' not found");
@@ -240,7 +246,7 @@ public class InvalidateCacheSupport {
             // Get the service user ResourceResolver
             resourceResolver = resourceResolverFactory.getServiceResourceResolver(param);
         } catch (LoginException e) {
-            throw new IllegalStateException("Successfully obtained ResourceResolver for service user: " + SERVICE_USER + e);
+            throw new IllegalStateException("Failed to obtain ResourceResolver for service user: " + SERVICE_USER, e);
         }
 
         return resourceResolver;

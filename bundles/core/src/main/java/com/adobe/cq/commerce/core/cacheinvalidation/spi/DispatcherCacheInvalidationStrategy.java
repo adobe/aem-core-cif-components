@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.spi;
 
+import java.util.List;
+
 import org.osgi.annotation.versioning.ConsumerType;
 
 /**
@@ -25,7 +27,7 @@ public interface DispatcherCacheInvalidationStrategy extends CacheInvalidationSt
      * Returns the paths to invalidate based on the provided context.
      *
      * @param context the context containing all necessary information for cache invalidation
-     * @return an array of paths to invalidate
+     * @return a {@code List<String>} of paths to invalidate
      */
-    String[] getPathsToInvalidate(DispatcherCacheInvalidationContext context);
+    List<String> getPathsToInvalidate(DispatcherCacheInvalidationContext context);
 }

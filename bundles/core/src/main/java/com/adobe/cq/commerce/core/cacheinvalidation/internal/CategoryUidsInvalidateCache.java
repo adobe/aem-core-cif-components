@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.jcr.Session;
 
@@ -30,8 +31,7 @@ import com.adobe.cq.commerce.magento.graphql.*;
 import com.day.cq.wcm.api.Page;
 
 @Component(
-    service = DispatcherCacheInvalidationStrategy.class,
-    property = { InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER + "=categoryUids" })
+    service = DispatcherCacheInvalidationStrategy.class)
 public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase implements DispatcherCacheInvalidationStrategy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoryUidsInvalidateCache.class);
@@ -48,41 +48,46 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
     }
 
     @Override
-    public String[] getPathsToInvalidate(DispatcherCacheInvalidationContext context) {
+    public String getInvalidationRequestType() {
+        return "categoryUids";
+    }
+
+    @Override
+    public List<String> getPathsToInvalidate(DispatcherCacheInvalidationContext context) {
         try {
-            String[] categoryUids = extractCategoryUidsFromContext(context);
+            List<String> categoryUids = extractCategoryUidsFromContext(context);
             if (!isValidCategoryUids(categoryUids)) {
-                return new String[0];
+                return Collections.emptyList();
             }
 
-            List<Map<String, Object>> categories = fetchCategories(context, categoryUids);
+            List<Map<String, Object>> categories = fetchCategories(context, categoryUids.toArray(new String[0]));
             if (categories.isEmpty()) {
-                return new String[0];
+                return Collections.emptyList();
             }
 
             Set<String> allPaths = new HashSet<>();
 
             // Add paths from JCR query
-            addJcrPaths(context, categoryUids, allPaths);
+            addJcrPaths(context, categoryUids.toArray(new String[0]), allPaths);
 
             // Add paths from GraphQL response
             addGraphqlPaths(context, categories, allPaths);
 
-            return allPaths.toArray(new String[0]);
+            return new ArrayList<>(allPaths);
 
         } catch (Exception e) {
             LOGGER.error("Error getting paths to invalidate for storePath={}", context.getStorePath(), e);
-            return new String[0];
+            return Collections.emptyList();
         }
     }
 
-    private String[] extractCategoryUidsFromContext(DispatcherCacheInvalidationContext context) {
-        Map.Entry<String, String[]> attributeData = context.getAttributeData();
-        return attributeData != null ? attributeData.getValue() : new String[0];
+    private List<String> extractCategoryUidsFromContext(DispatcherCacheInvalidationContext context) {
+        List<String> attributeData = context.getAttributeData();
+        return attributeData != null ? attributeData : Collections.emptyList();
     }
 
-    private boolean isValidCategoryUids(String[] categoryUids) {
-        if (categoryUids == null || categoryUids.length == 0) {
+    private boolean isValidCategoryUids(List<String> categoryUids) {
+        if (categoryUids == null || categoryUids.isEmpty()) {
             LOGGER.warn("No category UIDs provided for cache invalidation");
             return false;
         }
@@ -95,17 +100,26 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
             return Collections.emptyList();
         }
 
-        Map<String, Object> data = getGraphqlResponseData(context.getGraphqlClient(), query);
-        List<Map<String, Object>> items = Optional.ofNullable(data)
-            .map(cd -> (List<Map<String, Object>>) cd.get("categoryList"))
-            .filter(list -> list != null && !list.isEmpty())
-            .orElse(Collections.emptyList());
-        if (items.isEmpty()) {
+        Query data = getGraphqlResponseData(context.getGraphqlClient(), query);
+        if (data == null) {
+            return Collections.emptyList();
+        }
+
+        List<CategoryTree> categories = data.getCategoryList();
+        if (categories == null || categories.isEmpty()) {
             LOGGER.debug("No categories found for UIDs: {}", (Object) categoryUids);
             return Collections.emptyList();
         }
 
-        return items;
+        return categories.stream()
+            .map(category -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("uid", category.getUid());
+                map.put("urlKey", category.getUrlKey());
+                map.put("urlPath", category.getUrlPath());
+                return map;
+            })
+            .collect(Collectors.toList());
     }
 
     private String getGraphqlQuery(String[] data) {

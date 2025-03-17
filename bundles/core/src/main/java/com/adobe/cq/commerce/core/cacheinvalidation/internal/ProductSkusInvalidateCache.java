@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.jcr.Session;
 
@@ -35,8 +36,7 @@ import com.day.cq.wcm.api.Page;
  * and their associated category pages when product SKUs are modified.
  */
 @Component(
-    service = DispatcherCacheInvalidationStrategy.class,
-    property = { InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER + "=productSkus" })
+    service = DispatcherCacheInvalidationStrategy.class)
 public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase implements DispatcherCacheInvalidationStrategy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductSkusInvalidateCache.class);
@@ -66,31 +66,38 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
     }
 
     @Override
-    public String[] getPathsToInvalidate(DispatcherCacheInvalidationContext context) {
+    public String getInvalidationRequestType() {
+        return "productSkus";
+    }
+
+    @Override
+    public List<String> getPathsToInvalidate(DispatcherCacheInvalidationContext context) {
         try {
-            String[] skus = extractSkusFromContext(context);
+            List<String> skus = extractSkusFromContext(context);
             if (!isValidSkus(skus)) {
-                return new String[0];
+                return Collections.emptyList();
             }
 
-            List<Map<String, Object>> products = fetchProducts(context, skus);
+            String[] skusArray = skus.toArray(new String[0]);
+
+            List<Map<String, Object>> products = fetchProducts(context, skusArray);
             if (products.isEmpty()) {
-                return new String[0];
+                return Collections.emptyList();
             }
 
             Set<String> allPaths = new HashSet<>();
 
             // Add paths from JCR query
-            addJcrPaths(context, skus, allPaths);
+            addJcrPaths(context, skusArray, allPaths);
 
             // Add paths from GraphQL response
             addGraphqlPaths(context, products, allPaths);
 
-            return allPaths.toArray(new String[0]);
+            return new ArrayList<>(allPaths);
 
         } catch (Exception e) {
             LOGGER.error("Error getting paths to invalidate for storePath={}", context.getStorePath(), e);
-            return new String[0];
+            return Collections.emptyList();
         }
     }
 
@@ -157,21 +164,21 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
      * Extracts SKUs from the context's attribute data.
      *
      * @param context The cache invalidation context
-     * @return Array of SKUs
+     * @return a {@code List<String>} of SKUs
      */
-    private String[] extractSkusFromContext(DispatcherCacheInvalidationContext context) {
-        Map.Entry<String, String[]> attributeData = context.getAttributeData();
-        return attributeData != null ? attributeData.getValue() : new String[0];
+    private List<String> extractSkusFromContext(DispatcherCacheInvalidationContext context) {
+        List<String> attributeData = context.getAttributeData();
+        return attributeData != null ? attributeData : Collections.emptyList();
     }
 
     /**
-     * Validates if the provided SKUs array is valid for processing.
+     * Validates if the provided SKUs list is valid for processing.
      *
-     * @param skus Array of SKUs to validate
+     * @param skus List of SKUs to validate
      * @return true if SKUs are valid, false otherwise
      */
-    private boolean isValidSkus(String[] skus) {
-        if (skus == null || skus.length == 0) {
+    private boolean isValidSkus(List<String> skus) {
+        if (skus == null || skus.isEmpty()) {
             LOGGER.warn("No SKUs provided for cache invalidation");
             return false;
         }
@@ -191,18 +198,22 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
             return Collections.emptyList();
         }
 
-        Map<String, Object> data = getGraphqlResponseData(context.getGraphqlClient(), query);
-        Map<String, Object> productsData = (Map<String, Object>) data.get("products");
-        List<Map<String, Object>> items = Optional.ofNullable(productsData)
-            .map(pd -> (List<Map<String, Object>>) pd.get("items"))
-            .filter(list -> list != null && !list.isEmpty())
-            .orElse(Collections.emptyList());
-
-        if (items.isEmpty()) {
+        Query data = getGraphqlResponseData(context.getGraphqlClient(), query);
+        if (data == null || data.getProducts() == null || data.getProducts().getItems() == null) {
             LOGGER.debug("No products found for SKUs: {}", (Object) skus);
+            return Collections.emptyList();
         }
 
-        return items;
+        return data.getProducts().getItems().stream()
+            .map(item -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("sku", item.getSku());
+                map.put("urlKey", item.getUrlKey());
+                map.put("urlRewrites", item.getUrlRewrites());
+                map.put("categories", item.getCategories());
+                return map;
+            })
+            .collect(Collectors.toList());
     }
 
     /**
@@ -239,12 +250,49 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
      */
     private void addGraphqlPaths(DispatcherCacheInvalidationContext context, List<Map<String, Object>> products, Set<String> allPaths) {
         Page page = context.getPage();
-        products.stream()
-            .filter(Objects::nonNull)
-            .forEach(item -> {
-                allPaths.addAll(getProductPaths(page, urlProvider, item));
-                Optional.ofNullable((List<Map<String, Object>>) item.get("categories"))
-                    .ifPresent(categories -> allPaths.addAll(getCategoryPaths(page, urlProvider, categories)));
-            });
+        LOGGER.debug("Processing {} products for path invalidation", products.size());
+
+        for (Map<String, Object> item : products) {
+            if (item == null) {
+                continue;
+            }
+
+            LOGGER.debug("Processing product with SKU: {}", item.get("sku"));
+
+            // Add product paths
+            addProductPaths(page, item, allPaths);
+
+            // Add category paths
+            addCategoryPaths(page, item, allPaths);
+        }
+    }
+
+    private void addProductPaths(Page page, Map<String, Object> item, Set<String> allPaths) {
+        Set<String> productPaths = getProductPaths(page, urlProvider, item);
+        LOGGER.debug("Found product paths: {}", productPaths);
+        allPaths.addAll(productPaths);
+    }
+
+    private void addCategoryPaths(Page page, Map<String, Object> item, Set<String> allPaths) {
+        List<CategoryTree> categories = (List<CategoryTree>) item.get("categories");
+        if (categories != null) {
+            LOGGER.debug("Found {} categories for product", categories.size());
+            List<Map<String, Object>> transformedCategories = new ArrayList<>();
+
+            for (CategoryTree category : categories) {
+                LOGGER.debug("Category data: {}", category);
+                Map<String, Object> transformed = new HashMap<>();
+                transformed.put("uid", category.getUid());
+                transformed.put("urlKey", category.getName());
+                transformed.put("urlPath", category.getUrlPath());
+                transformedCategories.add(transformed);
+            }
+
+            Set<String> categoryPaths = getCategoryPaths(page, urlProvider, transformedCategories);
+            LOGGER.debug("Found category paths: {}", categoryPaths);
+            allPaths.addAll(categoryPaths);
+        } else {
+            LOGGER.debug("No categories found for product");
+        }
     }
 }

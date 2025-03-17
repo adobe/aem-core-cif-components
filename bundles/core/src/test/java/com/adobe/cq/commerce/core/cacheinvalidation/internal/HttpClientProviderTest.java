@@ -12,26 +12,24 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.cacheinvalidation.spi;
+package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import org.osgi.annotation.versioning.ConsumerType;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.junit.Test;
 
-/**
- * The CacheInvalidationStrategy interface defines the methods used to invalidate the cache.
- */
-@ConsumerType
-public interface CacheInvalidationStrategy {
-    /**
-     * Returns the pattern used for cache invalidation.
-     *
-     * @return the cache invalidation pattern
-     */
-    String getPattern();
+import static org.junit.Assert.assertNotNull;
 
-    /**
-     * Returns the type of cache invalidation request.
-     *
-     * @return the type of cache invalidation request
-     */
-    String getInvalidationRequestType();
+public class HttpClientProviderTest {
+
+    @Test
+    public void createHttpClient_ShouldReturnCloseableHttpClient() {
+        // Arrange
+        HttpClientProvider provider = new HttpClientProvider();
+
+        // Act
+        CloseableHttpClient client = provider.createHttpClient();
+
+        // Assert
+        assertNotNull("Created HttpClient should not be null", client);
+    }
 }

@@ -42,12 +42,4 @@ public class AttributeStrategies {
             .filter(strategy -> !internalOnly || strategy.isInternal())
             .collect(Collectors.toList());
     }
-
-    public List<StrategyInfo> getInternalStrategies() {
-        return getStrategies(true);
-    }
-
-    public List<StrategyInfo> getClientStrategies() {
-        return getStrategies(false);
-    }
 }

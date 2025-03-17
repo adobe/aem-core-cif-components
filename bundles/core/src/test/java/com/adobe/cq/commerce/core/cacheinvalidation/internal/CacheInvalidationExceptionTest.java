@@ -14,21 +14,28 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import org.osgi.service.component.annotations.Component;
+import org.junit.Test;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationStrategy;
+import static org.junit.Assert.*;
 
-@Component(
-    service = CacheInvalidationStrategy.class)
-public class RegexPatternsInvalidateCache implements CacheInvalidationStrategy {
+public class CacheInvalidationExceptionTest {
 
-    @Override
-    public String getPattern() {
-        return null;
+    @Test
+    public void testConstructorWithMessage() {
+        String errorMessage = "Cache invalidation failed";
+        CacheInvalidationException exception = new CacheInvalidationException(errorMessage);
+
+        assertEquals(errorMessage, exception.getMessage());
+        assertNull(exception.getCause());
     }
 
-    @Override
-    public String getInvalidationRequestType() {
-        return "regexPatterns";
+    @Test
+    public void testConstructorWithMessageAndCause() {
+        String errorMessage = "Cache invalidation failed";
+        IllegalStateException cause = new IllegalStateException("Original cause");
+        CacheInvalidationException exception = new CacheInvalidationException(errorMessage, cause);
+
+        assertEquals(errorMessage, exception.getMessage());
+        assertEquals(cause, exception.getCause());
     }
 }

@@ -77,14 +77,32 @@ public class InvalidateCacheImpl {
         }
 
         ValueMap properties = resource.getValueMap();
+        String storeView = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_STORE_VIEW, DEFAULT_STORE_VIEW);
+
+        // Check for InvalidateALL property
+        Boolean invalidateAll = properties.get(InvalidateCacheSupport.PROPERTIES_INVALIDATE_ALL, Boolean.class);
+        if (Boolean.TRUE.equals(invalidateAll)) {
+            LOGGER.debug("Performing full cache invalidation");
+            invalidateFullCache(client, storeView);
+            return;
+        }
+
         Map<String, String[]> dynamicProperties = getDynamicProperties(properties);
         if (dynamicProperties.isEmpty()) {
             LOGGER.debug("No dynamic properties found for cache invalidation");
         }
 
-        String storeView = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_STORE_VIEW, DEFAULT_STORE_VIEW);
         String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAME, String[].class);
         invalidateCacheByType(client, storeView, listOfCacheToSearch, dynamicProperties);
+    }
+
+    private void invalidateFullCache(GraphqlClient client, String storeView) {
+        try {
+            client.invalidateCache(storeView, new String[0], new String[0]);
+            LOGGER.debug("Successfully performed full cache invalidation for store view: {}", storeView);
+        } catch (Exception e) {
+            LOGGER.error("Error performing full cache invalidation: {}", e.getMessage(), e);
+        }
     }
 
     private Map<String, String[]> getDynamicProperties(ValueMap properties) {
@@ -109,7 +127,10 @@ public class InvalidateCacheImpl {
             try {
                 String[] cachePatterns = getAttributePatterns(values, key);
                 if (cachePatterns.length > 0) {
+                    LOGGER.debug("Invalidating cache for attribute: {}", key);
                     client.invalidateCache(storeView, listOfCacheToSearch, cachePatterns);
+                } else {
+                    LOGGER.debug("No cache patterns generated for attribute: {}", key);
                 }
             } catch (Exception e) {
                 LOGGER.error("Error invalidating cache for attribute {}: {}", key, e.getMessage(), e);

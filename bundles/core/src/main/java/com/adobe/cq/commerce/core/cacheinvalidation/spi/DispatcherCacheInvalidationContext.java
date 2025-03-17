@@ -14,73 +14,41 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.spi;
 
-import java.util.Map;
+import java.util.List;
 
 import org.apache.sling.api.resource.ResourceResolver;
+import org.osgi.annotation.versioning.ProviderType;
 
-import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.day.cq.wcm.api.Page;
 
 /**
  * Context object containing all parameters needed for dispatcher cache invalidation.
  */
-public class DispatcherCacheInvalidationContext {
-    private final Page page;
-    private final ResourceResolver resourceResolver;
-    private final Map.Entry<String, String[]> attributeData;
-    private final String storePath;
-    private final GraphqlClient graphqlClient;
-
-    /**
-     * Creates a new DispatcherCacheInvalidationContext with the given parameters.
-     *
-     * @param page the page
-     * @param resourceResolver the resource resolver
-     * @param attributeData the attribute data entry
-     * @param storePath the store path
-     * @param graphqlClient the GraphQL client
-     */
-    public DispatcherCacheInvalidationContext(Page page, ResourceResolver resourceResolver, Map.Entry<String, String[]> attributeData,
-                                              String storePath, GraphqlClient graphqlClient) {
-        this.page = page;
-        this.resourceResolver = resourceResolver;
-        this.attributeData = attributeData;
-        this.storePath = storePath;
-        this.graphqlClient = graphqlClient;
-    }
-
+@ProviderType
+public interface DispatcherCacheInvalidationContext {
     /**
      * @return the page
      */
-    public Page getPage() {
-        return page;
-    }
+    Page getPage();
 
     /**
      * @return the resource resolver
      */
-    public ResourceResolver getResourceResolver() {
-        return resourceResolver;
-    }
+    ResourceResolver getResourceResolver();
 
     /**
-     * @return the attribute data entry
+     * @return {@code List<String>} attribute data
      */
-    public Map.Entry<String, String[]> getAttributeData() {
-        return attributeData;
-    }
+    List<String> getAttributeData();
 
     /**
      * @return the store path
      */
-    public String getStorePath() {
-        return storePath;
-    }
+    String getStorePath();
 
     /**
-     * @return the GraphQL client
+     * @return the Magento GraphQL client
      */
-    public GraphqlClient getGraphqlClient() {
-        return graphqlClient;
-    }
+    MagentoGraphqlClient getGraphqlClient();
 }
