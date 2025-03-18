@@ -27,14 +27,12 @@ public class StrategyInfo {
 
     private final CacheInvalidationStrategy strategy;
     private final Map<String, Object> properties;
-    private final String packageName;
     private final String componentName;
     private final boolean isInternal;
 
     public StrategyInfo(CacheInvalidationStrategy strategy, Map<String, Object> properties, boolean isInternal) {
         this.strategy = strategy;
         this.properties = properties;
-        this.packageName = strategy.getClass().getPackage().getName();
         this.componentName = (String) properties.get(COMPONENT_NAME_PROPERTY);
         this.isInternal = isInternal;
     }
@@ -45,10 +43,6 @@ public class StrategyInfo {
 
     public Map<String, Object> getProperties() {
         return Collections.unmodifiableMap(properties);
-    }
-
-    public String getPackageName() {
-        return packageName;
     }
 
     public String getComponentName() {

@@ -17,21 +17,27 @@ package com.adobe.cq.commerce.core.cacheinvalidation.spi;
 import org.osgi.annotation.versioning.ConsumerType;
 
 /**
- * The CacheInvalidationStrategy interface defines the methods used to invalidate the cache.
+ * The CacheInvalidationStrategy interface defines the contract for cache invalidation strategies
+ * in the Commerce Core components. This interface provides methods to determine how the cache entries
+ * should be invalidated based on specific patterns and request types.
+ * 
+ * Implementations of this interface can provide different strategies for cache invalidation,
+ * such as request-types based invalidation.
  */
 @ConsumerType
 public interface CacheInvalidationStrategy {
     /**
-     * Returns the pattern used for cache invalidation.
+     * Returns the pattern used for cache invalidation. This pattern defines which cache entries
+     * should be invalidated based on specific criteria.
      *
-     * @return the cache invalidation pattern
+     * @return the cache invalidation pattern that determines which cache entries to invalidate
      */
     String getPattern();
 
     /**
-     * Returns the type of cache invalidation request.
+     * Returns the type of cache invalidation request. This type specifies how the cache should be invalidated
      *
-     * @return the type of cache invalidation request
+     * @return the type of cache invalidation request that specifies how the cache should be invalidated
      */
     String getInvalidationRequestType();
 }

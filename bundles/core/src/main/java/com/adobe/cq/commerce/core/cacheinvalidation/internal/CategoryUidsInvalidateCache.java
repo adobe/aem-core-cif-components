@@ -55,8 +55,9 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
     @Override
     public List<String> getPathsToInvalidate(DispatcherCacheInvalidationContext context) {
         try {
-            List<String> categoryUids = extractCategoryUidsFromContext(context);
-            if (!isValidCategoryUids(categoryUids)) {
+            List<String> categoryUids = context.getAttributeData();
+
+            if (categoryUids == null) {
                 return Collections.emptyList();
             }
 
@@ -81,35 +82,15 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
         }
     }
 
-    private List<String> extractCategoryUidsFromContext(DispatcherCacheInvalidationContext context) {
-        List<String> attributeData = context.getAttributeData();
-        return attributeData != null ? attributeData : Collections.emptyList();
-    }
-
-    private boolean isValidCategoryUids(List<String> categoryUids) {
-        if (categoryUids == null || categoryUids.isEmpty()) {
-            LOGGER.warn("No category UIDs provided for cache invalidation");
-            return false;
-        }
-        return true;
-    }
-
     private List<Map<String, Object>> fetchCategories(DispatcherCacheInvalidationContext context, String[] categoryUids) {
         String query = getGraphqlQuery(categoryUids);
-        if (query == null) {
-            return Collections.emptyList();
-        }
-
         Query data = getGraphqlResponseData(context.getGraphqlClient(), query);
-        if (data == null) {
+        if (data == null || data.getCategoryList() == null) {
+            LOGGER.debug("No categories found for UIDs: {}", Arrays.toString(categoryUids));
             return Collections.emptyList();
         }
 
         List<CategoryTree> categories = data.getCategoryList();
-        if (categories == null || categories.isEmpty()) {
-            LOGGER.debug("No categories found for UIDs: {}", (Object) categoryUids);
-            return Collections.emptyList();
-        }
 
         return categories.stream()
             .map(category -> {
@@ -136,11 +117,6 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
 
     private void addJcrPaths(DispatcherCacheInvalidationContext context, String[] categoryUids, Set<String> allPaths) {
         Session session = context.getResourceResolver().adaptTo(Session.class);
-        if (session == null) {
-            LOGGER.error("Failed to adapt ResourceResolver to Session");
-            return;
-        }
-
         try {
             String dataList = formatList(categoryUids, ", ", "'%s'");
             String[] correspondingPaths = getCorrespondingPagePaths(session, context.getStorePath(), dataList);

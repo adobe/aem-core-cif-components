@@ -73,8 +73,8 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
     @Override
     public List<String> getPathsToInvalidate(DispatcherCacheInvalidationContext context) {
         try {
-            List<String> skus = extractSkusFromContext(context);
-            if (!isValidSkus(skus)) {
+            List<String> skus = context.getAttributeData();
+            if (skus == null) {
                 return Collections.emptyList();
             }
 
@@ -161,31 +161,6 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
     }
 
     /**
-     * Extracts SKUs from the context's attribute data.
-     *
-     * @param context The cache invalidation context
-     * @return a {@code List<String>} of SKUs
-     */
-    private List<String> extractSkusFromContext(DispatcherCacheInvalidationContext context) {
-        List<String> attributeData = context.getAttributeData();
-        return attributeData != null ? attributeData : Collections.emptyList();
-    }
-
-    /**
-     * Validates if the provided SKUs list is valid for processing.
-     *
-     * @param skus List of SKUs to validate
-     * @return true if SKUs are valid, false otherwise
-     */
-    private boolean isValidSkus(List<String> skus) {
-        if (skus == null || skus.isEmpty()) {
-            LOGGER.warn("No SKUs provided for cache invalidation");
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * Fetches product information using GraphQL query.
      *
      * @param context The cache invalidation context
@@ -225,11 +200,6 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
      */
     private void addJcrPaths(DispatcherCacheInvalidationContext context, String[] skus, Set<String> allPaths) {
         Session session = context.getResourceResolver().adaptTo(Session.class);
-        if (session == null) {
-            LOGGER.error("Failed to adapt ResourceResolver to Session");
-            return;
-        }
-
         try {
             String dataList = formatList(skus, ", ", "'%s'");
             String[] correspondingPaths = getCorrespondingPagePaths(session, context.getStorePath(), dataList);

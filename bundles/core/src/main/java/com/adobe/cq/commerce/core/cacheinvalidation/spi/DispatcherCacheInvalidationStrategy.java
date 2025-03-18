@@ -20,6 +20,21 @@ import org.osgi.annotation.versioning.ConsumerType;
 
 /**
  * The DispatcherCacheInvalidationStrategy interface defines the methods used to invalidate the dispatcher cache.
+ * This interface is part of the cache invalidation that allows customers to implement custom strategies
+ * for invalidating the AEM Dispatcher cache when commerce-related content changes.
+ * 
+ * <p>
+ * Customers can use this interface to:
+ * </p>
+ * <ul>
+ * <li>Define custom cache invalidation rules based on their specific business needs</li>
+ * <li>Control which pages or content paths should be invalidated when commerce data changes</li>
+ * <li>Implement granular cache invalidation to optimize performance and reduce unnecessary cache flushes</li>
+ * </ul>
+ * 
+ * <p>
+ * Implementations of this interface should be registered as OSGI services to be picked up by the framework.
+ * </p>
  */
 @ConsumerType
 public interface DispatcherCacheInvalidationStrategy extends CacheInvalidationStrategy {

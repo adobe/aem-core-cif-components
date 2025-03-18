@@ -12,7 +12,7 @@
  *
  ******************************************************************************/
 
-package com.adobe.cq.commerce.core.cacheinvalidation.spi.internal;
+package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.util.List;
 

@@ -38,17 +38,12 @@ public class InvalidateDispatcherCacheBase {
 
     protected Set<String> getProductPaths(Page page, UrlProviderImpl urlProvider,
         Map<String, Object> item) {
-        if (item == null || page == null || urlProvider == null) {
-            return Collections.emptySet();
-        }
-
         Set<String> uniquePagePaths = new HashSet<>();
 
         ProductUrlFormat.Params productParams = new ProductUrlFormat.Params();
         productParams.setSku((String) item.get(SKU));
         productParams.setUrlKey((String) item.get(URL_KEY));
 
-        @SuppressWarnings("unchecked")
         List<UrlRewrite> urlRewrites = (List<UrlRewrite>) item.get("urlRewrites");
         if (urlRewrites != null && !urlRewrites.isEmpty()) {
             for (UrlRewrite urlRewrite : urlRewrites) {
@@ -67,10 +62,6 @@ public class InvalidateDispatcherCacheBase {
 
     protected Set<String> getCategoryPaths(Page page, UrlProviderImpl urlProvider,
         List<Map<String, Object>> categories) {
-        if (categories == null || categories.isEmpty() || page == null || urlProvider == null) {
-            return Collections.emptySet();
-        }
-
         CategoryUrlFormat.Params categoryParams = new CategoryUrlFormat.Params();
 
         return categories.stream()

@@ -24,30 +24,49 @@ import com.day.cq.wcm.api.Page;
 
 /**
  * Context object containing all parameters needed for dispatcher cache invalidation.
+ * This interface provides access to various components required for managing dispatcher cache invalidation
+ * in the Commerce integration with AEM, including the page context, resource resolver,
+ * attribute data, store path, and GraphQL client.
  */
 @ProviderType
 public interface DispatcherCacheInvalidationContext {
     /**
-     * @return the page
+     * Returns the AEM page object associated with the cache invalidation context.
+     * This page object contains metadata and content structure information needed for cache management.
+     *
+     * @return the AEM page object
      */
     Page getPage();
 
     /**
-     * @return the resource resolver
+     * Returns the Sling resource resolver instance used for accessing and manipulating resources.
+     * This resolver is essential for performing resource-level operations during cache invalidation.
+     *
+     * @return the Sling resource resolver
      */
     ResourceResolver getResourceResolver();
 
     /**
-     * @return {@code List<String>} attribute data
+     * Returns a list of attribute data strings that contain additional information
+     * required for cache invalidation processing.
+     *
+     * @return a list of attribute data strings
      */
     List<String> getAttributeData();
 
     /**
-     * @return the store path
+     * Returns the store path associated with the cache invalidation context.
+     * This path typically represents the location of the store configuration in the AEM repository.
+     *
+     * @return the store path as a string
      */
     String getStorePath();
 
     /**
+     * Returns the Magento GraphQL client instance used for making GraphQL queries
+     * to the Commerce backend. This client is necessary for fetching data
+     * that may affect cache invalidation decisions.
+     *
      * @return the Magento GraphQL client
      */
     MagentoGraphqlClient getGraphqlClient();
