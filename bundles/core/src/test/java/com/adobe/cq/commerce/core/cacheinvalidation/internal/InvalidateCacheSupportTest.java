@@ -18,15 +18,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.sling.api.resource.LoginException;
-import org.apache.sling.api.resource.Resource;
-import org.apache.sling.api.resource.ResourceResolver;
-import org.apache.sling.api.resource.ResourceResolverFactory;
+import org.apache.sling.api.resource.*;
+import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 
 import static org.junit.Assert.*;
@@ -195,4 +194,58 @@ public class InvalidateCacheSupportTest {
             throw new RuntimeException(e);
         }
     }
+
+    @Test
+    public void testGetDispatcherBasePathForStorePath() {
+        // Setup
+        DispatcherBasePathConfiguration basePathConfig = new DispatcherBasePathConfiguration("pattern", "match");
+        setField(invalidateCacheSupport, "dispatcherBasePathConfiguration", basePathConfig);
+
+        // Test cases
+        String storePath = "/content/venia/us/en";
+        String pattern = "pattern";
+        String match = "match";
+
+        // Execute & Verify
+        assertEquals(storePath.replaceAll(pattern, match), invalidateCacheSupport.getDispatcherBasePathForStorePath(storePath));
+    }
+
+    @Test
+    public void testGetDispatcherUrlConfigurationBasedOnType() {
+        // Setup
+        DispatcherUrlPathConfigurationList configList = new DispatcherUrlPathConfigurationList(new HashMap<>());
+        setField(invalidateCacheSupport, "dispatcherUrlPathConfigurationList", configList);
+
+        // Execute & Verify
+        assertTrue(invalidateCacheSupport.getDispatcherUrlConfigurationBasedOnType("product").isEmpty());
+    }
+
+    @Test
+    public void testGetClient() {
+        // Setup
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("identifier", TEST_GRAPHQL_CLIENT);
+        invalidateCacheSupport.bindGraphqlClient(graphqlClient, properties);
+
+        // Execute & Verify
+        assertEquals(graphqlClient, invalidateCacheSupport.getClient(TEST_GRAPHQL_CLIENT));
+    }
+
+    @Test
+    public void testGetCommerceProperties() {
+        // Setup
+        Map<String, Object> map = new HashMap<>();
+        ValueMap valueMap = new ValueMapDecorator(map);
+        ComponentsConfiguration componentsConfiguration = new ComponentsConfiguration(valueMap);
+        when(resourceResolver.getResource(TEST_STORE_PATH)).thenReturn(resource);
+        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(componentsConfiguration);
+
+        // Execute
+        ComponentsConfiguration result = invalidateCacheSupport.getCommerceProperties(resourceResolver, TEST_STORE_PATH);
+
+        // Verify
+        assertNotNull(result);
+        assertEquals(componentsConfiguration, result);
+    }
+
 }

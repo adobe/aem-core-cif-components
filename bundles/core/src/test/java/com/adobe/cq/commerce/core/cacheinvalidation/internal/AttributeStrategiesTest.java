@@ -112,4 +112,5 @@ public class AttributeStrategiesTest {
         List<StrategyInfo> allStrategies = attributeStrategies.getStrategies(false);
         assertEquals(2, allStrategies.size());
     }
+
 }

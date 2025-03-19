@@ -120,6 +120,7 @@ public class InvalidateDispatcherCacheImpl {
 
     private boolean shouldPerformFullCacheClear(ValueMap properties, ResourceResolver resourceResolver, String storePath) {
         // Check for invalidateAll flag
+
         if (properties.get(InvalidateCacheSupport.PROPERTIES_INVALIDATE_ALL, false)) {
             LOGGER.debug("PROPERTIES_INVALIDATE_ALL is true");
             return true;

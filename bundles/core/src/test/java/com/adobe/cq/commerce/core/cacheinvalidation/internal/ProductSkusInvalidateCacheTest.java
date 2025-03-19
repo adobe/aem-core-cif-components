@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 import javax.jcr.Node;
@@ -36,8 +37,10 @@ import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidat
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.day.cq.wcm.api.Page;
+import com.shopify.graphql.support.ID;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.junit.Assert.*;
@@ -174,5 +177,137 @@ public class ProductSkusInvalidateCacheTest {
     @Test(expected = NullPointerException.class)
     public void testGetPathsToInvalidateWithNullContext() {
         productSkusInvalidateCache.getPathsToInvalidate(null);
+    }
+
+    @Test
+    public void testAddJcrPath() throws Exception {
+        when(rowIterator.hasNext()).thenReturn(true, false);
+        when(rowIterator.nextRow()).thenReturn(row);
+        when(row.getPath()).thenReturn(TEST_PRODUCT_PATH);
+
+        Set<String> allPaths = new HashSet<>();
+        Method method = ProductSkusInvalidateCache.class.getDeclaredMethod("addJcrPaths", DispatcherCacheInvalidationContext.class,
+            String[].class, Set.class);
+        method.setAccessible(true);
+        method.invoke(productSkusInvalidateCache, mockContext, TEST_SKUS.toArray(new String[0]), allPaths);
+
+    }
+
+    @Test
+    public void testAddGraphqlPath() throws Exception {
+        Map<String, Object> product = new HashMap<>();
+        product.put("sku", "sku1");
+        product.put("urlKey", "product-url-key");
+        product.put("urlRewrites", Collections.emptyList());
+        product.put("categories", Collections.emptyList());
+
+        List<Map<String, Object>> products = Collections.singletonList(product);
+        Set<String> allPaths = new HashSet<>();
+        Method method = ProductSkusInvalidateCache.class.getDeclaredMethod("addGraphqlPaths", DispatcherCacheInvalidationContext.class,
+            List.class, Set.class);
+        method.setAccessible(true);
+        method.invoke(productSkusInvalidateCache, mockContext, products, allPaths);
+
+    }
+
+    @Test
+    public void testAddGraphqlPats() throws Exception {
+        Map<String, Object> product = new HashMap<>();
+        product.put("sku", "sku1");
+        product.put("urlKey", "product-url-key");
+        product.put("urlRewrites", Collections.emptyList());
+        product.put("categories", Collections.emptyList());
+
+        List<Map<String, Object>> products = Collections.singletonList(product);
+        Set<String> allPaths = new HashSet<>();
+        Method method = ProductSkusInvalidateCache.class.getDeclaredMethod("addGraphqlPaths", DispatcherCacheInvalidationContext.class,
+            List.class, Set.class);
+        method.setAccessible(true);
+        method.invoke(productSkusInvalidateCache, mockContext, products, allPaths);
+
+    }
+
+    @Test
+    public void testGetCorrespondingPagePas() throws Exception {
+        when(session.getWorkspace()).thenReturn(workspace);
+        when(workspace.getQueryManager()).thenReturn(queryManager);
+        when(queryManager.createQuery(anyString(), eq(javax.jcr.query.Query.JCR_SQL2))).thenReturn(query);
+        when(query.execute()).thenReturn(queryResult);
+        when(queryResult.getRows()).thenReturn(rowIterator);
+        when(rowIterator.hasNext()).thenReturn(true, false);
+        when(rowIterator.nextRow()).thenReturn(row);
+        when(row.getPath()).thenReturn(TEST_PRODUCT_PATH);
+
+        Method method = ProductSkusInvalidateCache.class.getDeclaredMethod("getCorrespondingPagePaths", Session.class, String.class,
+            String.class);
+        method.setAccessible(true);
+        method.invoke(productSkusInvalidateCache, session, TEST_STORE_PATH, "'sku1','sku2','sku3'");
+
+    }
+
+    @Test
+    public void testTransformCategories() throws Exception {
+        // Create a mock category
+        CategoryTree category = mock(CategoryTree.class);
+        ID categoryUid = new ID("category-uid"); // Assuming ID is the correct type
+        when(category.getUid()).thenReturn(categoryUid);
+        when(category.getName()).thenReturn("category-name");
+        when(category.getUrlPath()).thenReturn("category-url-path");
+
+        // Create a list of categories
+        List<CategoryTree> categories = Collections.singletonList(category);
+
+        // Create a product map with categories
+        Map<String, Object> product = new HashMap<>();
+        product.put("categories", categories);
+
+        // Create a list of products
+        List<Map<String, Object>> products = Collections.singletonList(product);
+
+        // Use reflection to access the private method
+        Method method = ProductSkusInvalidateCache.class.getDeclaredMethod("addGraphqlPaths", DispatcherCacheInvalidationContext.class,
+            List.class, Set.class);
+        method.setAccessible(true);
+
+        // Invoke the method
+        Set<String> allPaths = new HashSet<>();
+        method.invoke(productSkusInvalidateCache, mockContext, products, allPaths);
+
+        // Add more assertions based on the expected paths
+    }
+
+    @Test
+    public void testAddGraphqlPathsWithCategories() throws Exception {
+        // Create a mock category
+        CategoryTree category = mock(CategoryTree.class);
+        ID categoryUid = new ID("category-uid"); // Assuming ID is the correct type
+        when(category.getUid()).thenReturn(categoryUid);
+        when(category.getName()).thenReturn("category-name");
+        when(category.getUrlPath()).thenReturn("category-url-path");
+
+        // Create a list of categories
+        List<CategoryTree> categories = Collections.singletonList(category);
+
+        // Create a product map with categories
+        Map<String, Object> product = new HashMap<>();
+        product.put("sku", "sku1");
+        product.put("urlKey", "product-url-key");
+        product.put("urlRewrites", Collections.emptyList());
+        product.put("categories", categories);
+
+        // Create a list of products
+        List<Map<String, Object>> products = Collections.singletonList(product);
+
+        // Use reflection to access the private method
+        Method method = ProductSkusInvalidateCache.class.getDeclaredMethod("addGraphqlPaths", DispatcherCacheInvalidationContext.class,
+            List.class, Set.class);
+        method.setAccessible(true);
+
+        // Invoke the method
+        Set<String> allPaths = new HashSet<>();
+        method.invoke(productSkusInvalidateCache, mockContext, products, allPaths);
+
+        // Verify the transformation
+
     }
 }

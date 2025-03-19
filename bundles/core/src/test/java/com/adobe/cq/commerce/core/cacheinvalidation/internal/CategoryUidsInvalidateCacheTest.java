@@ -14,6 +14,7 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 import javax.jcr.Node;
@@ -38,6 +39,7 @@ import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidat
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 
@@ -198,4 +200,67 @@ public class CategoryUidsInvalidateCacheTest {
         assertNotNull(paths);
         assertEquals(0, paths.size());
     }
+
+    @Test
+    public void testAddJcrPaths() throws Exception {
+        Set<String> allPaths = new HashSet<>();
+        String[] categoryUids = { TEST_CATEGORY_UID };
+
+        when(session.getWorkspace()).thenReturn(workspace);
+        when(workspace.getQueryManager()).thenReturn(queryManager);
+        when(queryManager.createQuery(anyString(), eq(Query.JCR_SQL2))).thenReturn(query);
+        when(query.execute()).thenReturn(queryResult);
+        when(queryResult.getNodes()).thenReturn(nodeIterator);
+        when(nodeIterator.hasNext()).thenReturn(true, false);
+        when(nodeIterator.nextNode()).thenReturn(node);
+        when(node.getPath()).thenReturn(TEST_CATEGORY_PATH);
+
+        Method method = CategoryUidsInvalidateCache.class.getDeclaredMethod("addJcrPaths", DispatcherCacheInvalidationContext.class,
+            String[].class, Set.class);
+        method.setAccessible(true);
+        method.invoke(categoryUidsInvalidateCache, mockContext, categoryUids, allPaths);
+
+    }
+
+    @Test
+    public void testAddGraphqlPaths() throws Exception {
+        Set<String> allPaths = new HashSet<>();
+        Map<String, Object> category = new HashMap<>();
+        category.put("uid", TEST_CATEGORY_UID);
+        category.put("urlKey", "category-url-key");
+        category.put("urlPath", "category-url-path");
+        List<Map<String, Object>> categories = Collections.singletonList(category);
+
+        when(mockContext.getPage()).thenReturn(page);
+        when(urlProvider.toCategoryUrl(any(), eq(page), anyString())).thenReturn(TEST_CATEGORY_PATH);
+
+        Method method = CategoryUidsInvalidateCache.class.getDeclaredMethod("addGraphqlPaths", DispatcherCacheInvalidationContext.class,
+            List.class, Set.class);
+        method.setAccessible(true);
+        method.invoke(categoryUidsInvalidateCache, mockContext, categories, allPaths);
+
+    }
+
+    @Test
+    public void testFetchCategories() throws Exception {
+        String[] categoryUids = { TEST_CATEGORY_UID };
+        com.adobe.cq.commerce.magento.graphql.Query queryData = mock(com.adobe.cq.commerce.magento.graphql.Query.class);
+        CategoryTree categoryTree = new CategoryTree();
+        categoryTree.setUid(new com.shopify.graphql.support.ID(TEST_CATEGORY_UID));
+        categoryTree.setUrlKey("category-url-key");
+        categoryTree.setUrlPath("category-url-path");
+        when(queryData.getCategoryList()).thenReturn(Collections.singletonList(categoryTree));
+        when(graphqlClient.execute(anyString())).thenReturn(graphqlResponse);
+        when(graphqlResponse.getData()).thenReturn(queryData);
+
+        Method method = CategoryUidsInvalidateCache.class.getDeclaredMethod("fetchCategories", DispatcherCacheInvalidationContext.class,
+            String[].class);
+        method.setAccessible(true);
+        List<Map<String, Object>> categories = (List<Map<String, Object>>) method.invoke(categoryUidsInvalidateCache, mockContext,
+            categoryUids);
+
+        assertNotNull(categories);
+        assertEquals(1, categories.size());
+    }
+
 }
