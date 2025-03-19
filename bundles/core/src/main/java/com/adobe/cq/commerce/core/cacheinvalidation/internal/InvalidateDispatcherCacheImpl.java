@@ -72,7 +72,7 @@ public class InvalidateDispatcherCacheImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateDispatcherCacheImpl.class);
 
     public void invalidateCache(String path) {
-        if (path == null || path.trim().isEmpty() || !slingSettingsService.getRunModes().contains("author")) {
+        if (path == null || path.trim().isEmpty() || slingSettingsService.getRunModes().contains("author")) {
             LOGGER.warn("Invalid path or operation not supported for author");
             return;
         }

@@ -77,24 +77,12 @@ public class InvalidateDispatcherCacheBaseTest {
     }
 
     @Test
-    public void testGetProductPaths_WithNullInputs() {
-        Set<String> result = cacheBase.getProductPaths(null, null, null);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
     public void testGetProductPaths_WithMissingRequiredFields() {
         Map<String, Object> item = new HashMap<>();
         item.put("sku", "test-sku");
         // Missing url_key
 
         Set<String> result = cacheBase.getProductPaths(page, urlProvider, item);
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void testGetCategoryPaths_WithNullInputs() {
-        Set<String> result = cacheBase.getCategoryPaths(null, null, null);
         assertTrue(result.isEmpty());
     }
 

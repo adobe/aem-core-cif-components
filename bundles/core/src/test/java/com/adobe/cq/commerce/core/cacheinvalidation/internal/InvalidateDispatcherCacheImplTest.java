@@ -110,9 +110,9 @@ public class InvalidateDispatcherCacheImplTest {
     }
 
     @Test
-    public void testInvalidateCacheNotOnAuthor() {
+    public void testInvalidateCacheOnAuthor() {
         // Change to publish mode
-        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("author"));
 
         dispatcherCache.invalidateCache("/content/path");
         verify(invalidateCacheSupport, never()).getServiceUserResourceResolver();
