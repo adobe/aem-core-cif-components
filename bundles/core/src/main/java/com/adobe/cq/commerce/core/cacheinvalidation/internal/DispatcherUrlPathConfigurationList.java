@@ -13,10 +13,8 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class DispatcherUrlPathConfigurationList {
     private final Map<String, List<PatternConfig>> configurations;
@@ -30,28 +28,18 @@ public class DispatcherUrlPathConfigurationList {
     }
 
     public static DispatcherUrlPathConfigurationList parseConfigurations(String[] configurations) {
-        Map<String, List<PatternConfig>> configMap = new HashMap<>();
-
-        for (String config : configurations) {
-            String[] parts = config.split(":");
-            if (parts.length == 3) {
-                String urlPathType = normalizeUrlPathType(parts[0]);
-                String pattern = parts[1];
-                String match = parts[2];
-
-                PatternConfig patternConfig = new PatternConfig(pattern, match);
-                configMap.computeIfAbsent(urlPathType, k -> new ArrayList<>())
-                    .add(patternConfig);
-            }
-        }
+        Map<String, List<PatternConfig>> configMap = Arrays.stream(configurations)
+            .map(config -> config.split(":"))
+            .filter(parts -> parts.length == 3)
+            .collect(Collectors.groupingBy(
+                parts -> parts[0].replaceAll("-\\d+$", ""),
+                Collectors.mapping(
+                    parts -> new PatternConfig(parts[1], parts[2]),
+                    Collectors.toList())));
         return new DispatcherUrlPathConfigurationList(configMap);
     }
 
-    private static String normalizeUrlPathType(String urlPathType) {
-        return urlPathType.replaceAll("-\\d+$", "");
-    }
-
     public List<PatternConfig> getPatternConfigsForType(String urlPathType) {
-        return configurations.getOrDefault(urlPathType, new ArrayList<>());
+        return configurations.getOrDefault(urlPathType, Collections.emptyList());
     }
 }

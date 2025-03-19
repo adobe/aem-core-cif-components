@@ -32,6 +32,12 @@ public class DispatcherCacheInvalidationContextImpl implements DispatcherCacheIn
     private final String storePath;
     private final MagentoGraphqlClient graphqlClient;
 
+    private static void requireNonNull(Object value, String paramName) {
+        if (value == null) {
+            throw new IllegalArgumentException(paramName + " parameter cannot be null");
+        }
+    }
+
     /**
      * Creates a new DispatcherCacheInvalidationContextImpl with the given parameters.
      *
@@ -43,6 +49,12 @@ public class DispatcherCacheInvalidationContextImpl implements DispatcherCacheIn
      */
     public DispatcherCacheInvalidationContextImpl(Page page, ResourceResolver resourceResolver, List<String> attributeData,
                                                   String storePath, MagentoGraphqlClient graphqlClient) {
+        requireNonNull(page, "Page");
+        requireNonNull(resourceResolver, "ResourceResolver");
+        requireNonNull(attributeData, "AttributeData");
+        requireNonNull(storePath, "StorePath");
+        requireNonNull(graphqlClient, "GraphqlClient");
+
         this.page = page;
         this.resourceResolver = resourceResolver;
         this.attributeData = attributeData;

@@ -79,22 +79,16 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
             }
 
             String[] skusArray = skus.toArray(new String[0]);
-
             List<Map<String, Object>> products = fetchProducts(context, skusArray);
             if (products.isEmpty()) {
                 return Collections.emptyList();
             }
 
             Set<String> allPaths = new HashSet<>();
-
-            // Add paths from JCR query
             addJcrPaths(context, skusArray, allPaths);
-
-            // Add paths from GraphQL response
             addGraphqlPaths(context, products, allPaths);
 
             return new ArrayList<>(allPaths);
-
         } catch (Exception e) {
             LOGGER.error("Error getting paths to invalidate for storePath={}", context.getStorePath(), e);
             return Collections.emptyList();
@@ -118,45 +112,11 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
         }
 
         try {
-            String sqlQuery = getQuery(storePath, dataList);
+            String sqlQuery = String.format(SQL_QUERY_TEMPLATE, storePath, dataList, PRODUCT_TYPE_COMBINED_SKU,
+                dataList, PRODUCT_TYPE_COMBINED_SKU, SELECTION_TYPE_SKU);
             return getQueryResult(getSqlQuery(session, sqlQuery));
         } catch (Exception e) {
             throw new CacheInvalidationException("Failed to get corresponding page paths", e);
-        }
-    }
-
-    private String getQuery(String storePath, String dataList) {
-        return String.format(SQL_QUERY_TEMPLATE,
-            storePath,
-            dataList,
-            PRODUCT_TYPE_COMBINED_SKU,
-            dataList,
-            PRODUCT_TYPE_COMBINED_SKU,
-            SELECTION_TYPE_SKU);
-    }
-
-    /**
-     * Generates a GraphQL query for fetching product information.
-     *
-     * @param data Array of SKUs to query
-     * @return GraphQL query string
-     */
-    private String getGraphqlQuery(String[] data) {
-        try {
-            ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
-            FilterEqualTypeInput skuFilter = new FilterEqualTypeInput().setIn(Arrays.asList(data));
-            filter.setSku(skuFilter);
-
-            QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
-            ProductsQueryDefinition queryArgs = q -> q.items(item -> item.sku()
-                .urlKey()
-                .urlRewrites(uq -> uq.url())
-                .categories(c -> c.uid().urlKey().urlPath()));
-
-            return Operations.query(query -> query.products(searchArgs, queryArgs)).toString();
-        } catch (Exception e) {
-            LOGGER.error("Error generating GraphQL query for data={}", Arrays.toString(data), e);
-            return null;
         }
     }
 
@@ -168,27 +128,39 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
      * @return List of product data maps
      */
     private List<Map<String, Object>> fetchProducts(DispatcherCacheInvalidationContext context, String[] skus) {
-        String query = getGraphqlQuery(skus);
-        if (query == null) {
+        try {
+            ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
+            FilterEqualTypeInput skuFilter = new FilterEqualTypeInput().setIn(Arrays.asList(skus));
+            filter.setSku(skuFilter);
+
+            QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+            ProductsQueryDefinition queryArgs = q -> q.items(item -> item.sku()
+                .urlKey()
+                .urlRewrites(uq -> uq.url())
+                .categories(c -> c.uid().urlKey().urlPath()));
+
+            String query = Operations.query(q -> q.products(searchArgs, queryArgs)).toString();
+            Query data = getGraphqlResponseData(context.getGraphqlClient(), query);
+
+            if (data == null || data.getProducts() == null || data.getProducts().getItems() == null) {
+                LOGGER.debug("No products found for SKUs: {}", (Object) skus);
+                return Collections.emptyList();
+            }
+
+            return data.getProducts().getItems().stream()
+                .map(item -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("sku", item.getSku());
+                    map.put("urlKey", item.getUrlKey());
+                    map.put("urlRewrites", item.getUrlRewrites());
+                    map.put("categories", item.getCategories());
+                    return map;
+                })
+                .collect(Collectors.toList());
+        } catch (Exception e) {
+            LOGGER.error("Error fetching products for SKUs: {}", Arrays.toString(skus), e);
             return Collections.emptyList();
         }
-
-        Query data = getGraphqlResponseData(context.getGraphqlClient(), query);
-        if (data == null || data.getProducts() == null || data.getProducts().getItems() == null) {
-            LOGGER.debug("No products found for SKUs: {}", (Object) skus);
-            return Collections.emptyList();
-        }
-
-        return data.getProducts().getItems().stream()
-            .map(item -> {
-                Map<String, Object> map = new HashMap<>();
-                map.put("sku", item.getSku());
-                map.put("urlKey", item.getUrlKey());
-                map.put("urlRewrites", item.getUrlRewrites());
-                map.put("categories", item.getCategories());
-                return map;
-            })
-            .collect(Collectors.toList());
     }
 
     /**
@@ -223,46 +195,27 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
         LOGGER.debug("Processing {} products for path invalidation", products.size());
 
         for (Map<String, Object> item : products) {
-            if (item == null) {
+            if (item == null)
                 continue;
+
+            Set<String> productPaths = getProductPaths(page, urlProvider, item);
+            allPaths.addAll(productPaths);
+
+            List<CategoryTree> categories = (List<CategoryTree>) item.get("categories");
+            if (categories != null) {
+                List<Map<String, Object>> transformedCategories = categories.stream()
+                    .map(category -> {
+                        Map<String, Object> transformed = new HashMap<>();
+                        transformed.put("uid", category.getUid());
+                        transformed.put("urlKey", category.getName());
+                        transformed.put("urlPath", category.getUrlPath());
+                        return transformed;
+                    })
+                    .collect(Collectors.toList());
+
+                Set<String> categoryPaths = getCategoryPaths(page, urlProvider, transformedCategories);
+                allPaths.addAll(categoryPaths);
             }
-
-            LOGGER.debug("Processing product with SKU: {}", item.get("sku"));
-
-            // Add product paths
-            addProductPaths(page, item, allPaths);
-
-            // Add category paths
-            addCategoryPaths(page, item, allPaths);
-        }
-    }
-
-    private void addProductPaths(Page page, Map<String, Object> item, Set<String> allPaths) {
-        Set<String> productPaths = getProductPaths(page, urlProvider, item);
-        LOGGER.debug("Found product paths: {}", productPaths);
-        allPaths.addAll(productPaths);
-    }
-
-    private void addCategoryPaths(Page page, Map<String, Object> item, Set<String> allPaths) {
-        List<CategoryTree> categories = (List<CategoryTree>) item.get("categories");
-        if (categories != null) {
-            LOGGER.debug("Found {} categories for product", categories.size());
-            List<Map<String, Object>> transformedCategories = new ArrayList<>();
-
-            for (CategoryTree category : categories) {
-                LOGGER.debug("Category data: {}", category);
-                Map<String, Object> transformed = new HashMap<>();
-                transformed.put("uid", category.getUid());
-                transformed.put("urlKey", category.getName());
-                transformed.put("urlPath", category.getUrlPath());
-                transformedCategories.add(transformed);
-            }
-
-            Set<String> categoryPaths = getCategoryPaths(page, urlProvider, transformedCategories);
-            LOGGER.debug("Found category paths: {}", categoryPaths);
-            allPaths.addAll(categoryPaths);
-        } else {
-            LOGGER.debug("No categories found for product");
         }
     }
 }

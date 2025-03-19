@@ -60,6 +60,14 @@ public class InvalidateCacheSupport {
         initializeUrlPathConfigurations(properties);
     }
 
+    @Deactivate
+    protected void deactivate() {
+        this.enableDispatcherCacheInvalidation = false;
+        this.dispatcherBaseUrl = null;
+        this.dispatcherUrlPathConfigurationList = null;
+        this.dispatcherBasePathConfiguration = null;
+    }
+
     private void initializeDispatcherConfig(Map<String, Object> properties) {
         this.enableDispatcherCacheInvalidation = Optional.ofNullable((Boolean) properties.get("enableDispatcherCacheInvalidation"))
             .orElse(false);
@@ -107,14 +115,6 @@ public class InvalidateCacheSupport {
             }
         }
         return new DispatcherUrlPathConfigurationList(configMap);
-    }
-
-    @Deactivate
-    protected void deactivate() {
-        this.enableDispatcherCacheInvalidation = false;
-        this.dispatcherBaseUrl = null;
-        this.dispatcherUrlPathConfigurationList = null;
-        this.dispatcherBasePathConfiguration = null;
     }
 
     public List<PatternConfig> getDispatcherUrlConfigurationForType(String urlPathType) {
@@ -166,38 +166,13 @@ public class InvalidateCacheSupport {
     }
 
     private int countCaptureGroups(String pattern) {
-        int count = 0;
-        int pos = 0;
-        while ((pos = pattern.indexOf("(", pos)) != -1) {
-            if (pos == 0 || pattern.charAt(pos - 1) != '\\') {
-                count++;
-            }
-            pos++;
-        }
-        return count;
+        return (int) pattern.chars()
+            .filter(c -> c == '(')
+            .count();
     }
 
     private String adjustCaptureGroupReferences(String match, int baseGroupCount) {
-        StringBuilder result = new StringBuilder();
-        int pos = 0;
-        while (pos < match.length()) {
-            int dollarPos = match.indexOf("$", pos);
-            if (dollarPos == -1) {
-                result.append(match.substring(pos));
-                break;
-            }
-
-            result.append(match.substring(pos, dollarPos));
-            if (dollarPos + 1 < match.length() && Character.isDigit(match.charAt(dollarPos + 1))) {
-                int num = Character.getNumericValue(match.charAt(dollarPos + 1));
-                result.append("$").append(num + baseGroupCount);
-                pos = dollarPos + 2;
-            } else {
-                result.append("$");
-                pos = dollarPos + 1;
-            }
-        }
-        return result.toString();
+        return match.replaceAll("\\$(\\d)", "\\$" + (baseGroupCount + 1));
     }
 
     @Reference(

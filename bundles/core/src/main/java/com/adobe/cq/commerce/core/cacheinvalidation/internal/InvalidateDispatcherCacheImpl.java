@@ -202,48 +202,41 @@ public class InvalidateDispatcherCacheImpl {
         ResourceResolver resourceResolver, String storePath, MagentoGraphqlClient client) {
         Set<String> paths = new HashSet<>();
         AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(entry.getKey());
-        List<StrategyInfo> dispatcherStrategies = getDispatcherStrategies(strategies);
 
-        for (StrategyInfo info : dispatcherStrategies) {
-            try {
-                DispatcherCacheInvalidationStrategy strategy = (DispatcherCacheInvalidationStrategy) info.getStrategy();
-                List<String> attributeData = new ArrayList<>(Arrays.asList(entry.getValue()));
+        strategies.getStrategies(false).stream()
+            .filter(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy)
+            .forEach(info -> {
+                try {
+                    DispatcherCacheInvalidationStrategy strategy = (DispatcherCacheInvalidationStrategy) info.getStrategy();
+                    List<String> attributeData = new ArrayList<>(Arrays.asList(entry.getValue()));
 
-                DispatcherCacheInvalidationContext context = new DispatcherCacheInvalidationContextImpl(
-                    page,
-                    resourceResolver,
-                    attributeData,
-                    storePath,
-                    client);
+                    DispatcherCacheInvalidationContext context = new DispatcherCacheInvalidationContextImpl(
+                        page,
+                        resourceResolver,
+                        attributeData,
+                        storePath,
+                        client);
 
-                List<String> invalidPaths = strategy.getPathsToInvalidate(context);
-                if (invalidPaths != null) {
-                    paths.addAll(invalidPaths.stream()
-                        .filter(Objects::nonNull)
-                        .filter(path -> !path.trim().isEmpty())
-                        .collect(Collectors.toSet()));
+                    List<String> invalidPaths = strategy.getPathsToInvalidate(context);
+                    if (invalidPaths != null) {
+                        paths.addAll(invalidPaths.stream()
+                            .filter(Objects::nonNull)
+                            .filter(path -> !path.trim().isEmpty())
+                            .collect(Collectors.toSet()));
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Error processing strategy for key: {}", entry.getKey(), e);
                 }
-            } catch (Exception e) {
-                LOGGER.error("Error processing strategy for key: {}", entry.getKey(), e);
-            }
-        }
+            });
+
         return paths;
     }
 
     private boolean isValidEntry(Map.Entry<String, String[]> entry) {
-        if (entry == null) {
-            LOGGER.debug("Invalid entry: null entry");
+        if (entry == null || entry.getValue() == null || entry.getValue().length == 0) {
+            LOGGER.debug("Invalid entry: {} entry", entry == null ? "null" : "empty values for key: " + entry.getKey());
             return false;
         }
-
-        String key = entry.getKey();
-        String[] values = entry.getValue();
-
-        if (values == null || values.length == 0) {
-            LOGGER.debug("Invalid entry: empty values for key: {}", key);
-            return false;
-        }
-
         return true;
     }
 
@@ -341,11 +334,6 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     protected void flushCache(String handle, String dispatcherUrl) throws CacheInvalidationException {
-        if (handle == null || handle.trim().isEmpty() || dispatcherUrl == null || dispatcherUrl.trim().isEmpty()) {
-            LOGGER.debug("Invalid parameters for flushCache: handle={}, dispatcherUrl={}", handle, dispatcherUrl);
-            throw new CacheInvalidationException("Invalid handle or dispatcher URL");
-        }
-
         try (CloseableHttpClient client = httpClientProvider.createHttpClient()) {
             HttpPost post = new HttpPost(dispatcherUrl + DISPATCHER_INVALIDATE_PATH);
             post.setHeader(CQ_ACTION_HEADER, DELETE_ACTION);
@@ -363,11 +351,5 @@ public class InvalidateDispatcherCacheImpl {
             throw new CacheInvalidationException(
                 String.format("Unexpected error while flushing cache for path %s", handle), e);
         }
-    }
-
-    private List<StrategyInfo> getDispatcherStrategies(AttributeStrategies strategies) {
-        return strategies.getStrategies(false).stream()
-            .filter(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy)
-            .collect(Collectors.toList());
     }
 }
