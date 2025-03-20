@@ -15,6 +15,7 @@
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
@@ -121,6 +122,9 @@ public class InvalidateCacheImplTest {
 
     @Mock
     private CacheInvalidationStrategy productSkusStrategy;
+
+    @Mock
+    private GraphqlClient client;
 
     @Mock
     private CacheInvalidationStrategy categoryUidsStrategy;
@@ -265,4 +269,29 @@ public class InvalidateCacheImplTest {
         verify(regexPatternsStrategyInfo).getStrategy();
         verify(regexPatternsStrategy).getPattern();
     }
+
+    @Test
+    public void testSuccessfulFullCacheInvalidation() throws Exception {
+        doNothing().when(client).invalidateCache(anyString(), any(String[].class), any(String[].class));
+
+        Method invalidateFullCache = InvalidateCacheImpl.class.getDeclaredMethod("invalidateFullCache", GraphqlClient.class, String.class);
+        invalidateFullCache.setAccessible(true);
+        invalidateFullCache.invoke(invalidateCache, client, "default");
+
+        verify(logger).debug("Successfully performed full cache invalidation for store view: {}", "default");
+    }
+
+    @Test
+    public void testNoCachePatternsGenerated() throws Exception {
+        Map<String, String[]> dynamicProperties = new HashMap<>();
+        dynamicProperties.put("test-attribute", new String[0]);
+
+        Method invalidateCacheByType = InvalidateCacheImpl.class.getDeclaredMethod("invalidateCacheByType", GraphqlClient.class,
+            String.class, String[].class, Map.class);
+        invalidateCacheByType.setAccessible(true);
+        invalidateCacheByType.invoke(invalidateCache, client, "default", new String[0], dynamicProperties);
+
+        verify(logger).debug("No cache patterns generated for attribute: {}", "test-attribute");
+    }
+
 }

@@ -32,7 +32,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 
@@ -70,10 +72,14 @@ public class InvalidateDispatcherCacheBaseTest {
 
     @Mock
     private Row row;
+    private ProductSkusInvalidateCache productSkusInvalidateCache;
 
     @Before
     public void setUp() {
         cacheBase = new InvalidateDispatcherCacheBase() {};
+
+        productSkusInvalidateCache = new ProductSkusInvalidateCache();
+
     }
 
     @Test
@@ -305,5 +311,74 @@ public class InvalidateDispatcherCacheBaseTest {
     public void testFormatList_WithNullArray() {
         String result = cacheBase.formatList(null, ",", "prefix-%s");
         assertEquals("", result);
+    }
+
+    @Test
+    public void testCreateCategoryParams_WithNullItem() {
+        CategoryUrlFormat.Params params = productSkusInvalidateCache.createCategoryParams(null);
+        assertNull(params);
+    }
+
+    @Test
+    public void testCreateCategoryParams_WithValidItem() {
+        Map<String, Object> item = new HashMap<>();
+        item.put("urlPath", "test-path");
+        item.put("urlKey", "test-key");
+        item.put("uid", "test-uid");
+
+        CategoryUrlFormat.Params params = productSkusInvalidateCache.createCategoryParams(item);
+
+        assertNotNull(params);
+        assertEquals("test-path", params.getUrlPath());
+        assertEquals("test-key", params.getUrlKey());
+        assertEquals("test-uid", params.getUid());
+    }
+
+    @Test(expected = CacheInvalidationException.class)
+    public void testGetSqlQuery_WithException() throws Exception {
+        Session session = mock(Session.class);
+        QueryManager queryManager = mock(QueryManager.class);
+        when(session.getWorkspace()).thenReturn(mock(org.apache.jackrabbit.api.JackrabbitWorkspace.class));
+        when(session.getWorkspace().getQueryManager()).thenReturn(queryManager);
+        when(queryManager.createQuery(anyString(), eq(javax.jcr.query.Query.JCR_SQL2)))
+            .thenThrow(new RuntimeException("Query creation error"));
+
+        productSkusInvalidateCache.getSqlQuery(session, "test-query");
+    }
+
+    @Test(expected = CacheInvalidationException.class)
+    public void testGetQueryResult_WithException() throws Exception {
+        javax.jcr.query.Query query = mock(javax.jcr.query.Query.class);
+        when(query.execute()).thenThrow(new RuntimeException("Query execution error"));
+
+        productSkusInvalidateCache.getQueryResult(query);
+    }
+
+    @Test
+    public void testGetProductPaths_WithUrlRewrites() {
+        Map<String, Object> item = new HashMap<>();
+        item.put("sku", "test-sku");
+        item.put("urlKey", "test-url-key");
+
+        UrlRewrite urlRewrite = new UrlRewrite();
+        urlRewrite.setUrl("/test/product.html");
+        List<UrlRewrite> urlRewrites = Collections.singletonList(urlRewrite);
+        item.put("urlRewrites", urlRewrites);
+
+        ProductUrlFormat.Params productParams = new ProductUrlFormat.Params();
+        productParams.setSku("test-sku");
+        productParams.setUrlKey("test-url-key");
+        productParams.setUrlRewrites(urlRewrites);
+
+        when(urlProvider.toProductUrl(any(), any(), any(ProductUrlFormat.Params.class))).thenReturn("/test/product.html");
+
+        Set<String> uniquePagePaths = cacheBase.getProductPaths(page, urlProvider, item);
+
+        // Debugging statements
+        System.out.println("urlRewrites: " + urlRewrites);
+        System.out.println("uniquePagePaths: " + uniquePagePaths);
+
+        assertFalse(uniquePagePaths.isEmpty());
+        assertTrue(uniquePagePaths.contains("/test/product.html"));
     }
 }

@@ -248,4 +248,19 @@ public class InvalidateCacheSupportTest {
         assertEquals(componentsConfiguration, result);
     }
 
+    @Test
+    public void testGetDispatcherUrlConfigurationBasedOnType_NullOrEmpty() {
+        List<PatternConfig> result = invalidateCacheSupport.getDispatcherUrlConfigurationBasedOnType(null);
+        assertTrue(result.isEmpty());
+
+        result = invalidateCacheSupport.getDispatcherUrlConfigurationBasedOnType("");
+        assertTrue(result.isEmpty());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testGetServiceUserResourceResolver_Exception() throws LoginException {
+        when(resourceResolverFactory.getServiceResourceResolver(anyMap())).thenThrow(new LoginException());
+        invalidateCacheSupport.getServiceUserResourceResolver();
+    }
+
 }

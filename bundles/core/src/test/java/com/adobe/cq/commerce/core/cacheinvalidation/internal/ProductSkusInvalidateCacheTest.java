@@ -17,10 +17,7 @@ package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.Session;
-import javax.jcr.Workspace;
+import javax.jcr.*;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 import javax.jcr.query.Row;
@@ -245,4 +242,35 @@ public class ProductSkusInvalidateCacheTest {
         invokePrivateMethod("addGraphqlPaths", new Class<?>[] { DispatcherCacheInvalidationContext.class, List.class, Set.class },
             mockContext, products, allPaths);
     }
+
+    @Test
+    public void testGetInvalidationRequestType() {
+        assertEquals("productSkus", productSkusInvalidateCache.getInvalidationRequestType());
+    }
+
+    @Test
+    public void testAddJcrPathsWithException() throws Exception {
+        when(session.getWorkspace()).thenReturn(workspace);
+        when(workspace.getQueryManager()).thenReturn(queryManager);
+        when(queryManager.createQuery(anyString(), eq(javax.jcr.query.Query.JCR_SQL2))).thenThrow(new RuntimeException("JCR Query Error"));
+
+        Set<String> allPaths = new HashSet<>();
+        invokePrivateMethod("addJcrPaths", new Class<?>[] { DispatcherCacheInvalidationContext.class, String[].class, Set.class },
+            mockContext, TEST_SKUS.toArray(new String[0]), allPaths);
+        assertTrue(allPaths.isEmpty());
+    }
+
+    private Object invokePrivateMethod(Object instance, String methodName, Class<?>[] parameterTypes, Object... args) throws Exception {
+        Method method = instance.getClass().getDeclaredMethod(methodName, parameterTypes);
+        method.setAccessible(true);
+        return method.invoke(instance, args);
+    }
+
+    @Test
+    public void testGetCorrespondingPagePathsWithInvalidParameters() throws Exception {
+        String[] result = (String[]) invokePrivateMethod(productSkusInvalidateCache, "getCorrespondingPagePaths",
+            new Class<?>[] { Session.class, String.class, String.class }, null, null, null);
+        assertEquals(0, result.length);
+    }
+
 }

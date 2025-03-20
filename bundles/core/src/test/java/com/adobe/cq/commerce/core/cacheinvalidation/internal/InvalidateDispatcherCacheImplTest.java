@@ -363,4 +363,51 @@ public class InvalidateDispatcherCacheImplTest {
         return property;
     }
 
+    @Test
+    public void testShouldPerformFullCacheClear() throws Exception {
+        ValueMap properties = mock(ValueMap.class);
+        when(properties.get(InvalidateCacheSupport.PROPERTIES_INVALIDATE_ALL, false)).thenReturn(true);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("shouldPerformFullCacheClear", ValueMap.class,
+            ResourceResolver.class, String.class);
+        method.setAccessible(true);
+        boolean result = (boolean) method.invoke(dispatcherCache, properties, mock(ResourceResolver.class), "some/path");
+        assertTrue(result);
+    }
+
+    @Test
+    public void testIsValid() throws Exception {
+        ValueMap properties = mock(ValueMap.class);
+        when(properties.get("key", String.class)).thenReturn(null);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("isValid", ValueMap.class, ResourceResolver.class,
+            String.class);
+        method.setAccessible(true);
+        boolean result = (boolean) method.invoke(dispatcherCache, properties, mock(ResourceResolver.class), "some/path");
+        assertFalse(result);
+    }
+
+    @Test
+    public void testMagentoGraphqlClientNull() {
+        when(invalidateCacheSupport.getResource(any(), anyString())).thenReturn(resource);
+        when(resource.adaptTo(MagentoGraphqlClient.class)).thenReturn(null);
+        dispatcherCache.invalidateCache("/content/path");
+        verify(invalidateCacheRegistry, never()).getAttributes();
+    }
+
+    @Test
+    public void testProcessAndConvertPath() throws Exception {
+        List<String> paths = Arrays.asList("/path1", "/path1/subpath", "/path2");
+        when(invalidateCacheSupport.convertUrlPath("/path1")).thenReturn("/path1");
+        when(invalidateCacheSupport.convertUrlPath("/path1/subpath")).thenReturn("/path1/subpath");
+        when(invalidateCacheSupport.convertUrlPath("/path2")).thenReturn("/path2");
+
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("processAndConvertPaths", List.class);
+        method.setAccessible(true);
+        List<String> result = (List<String>) method.invoke(dispatcherCache, paths);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.contains("/path1"));
+        assertTrue(result.contains("/path2"));
+    }
+
 }
