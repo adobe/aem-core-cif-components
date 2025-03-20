@@ -192,8 +192,8 @@ public class ProductSkusInvalidateCacheTest {
         when(row.getPath()).thenReturn(TEST_PRODUCT_PATH);
 
         Set<String> allPaths = new HashSet<>();
-        invokePrivateMethod("addJcrPaths", new Class<?>[]{DispatcherCacheInvalidationContext.class, String[].class, Set.class},
-                mockContext, TEST_SKUS.toArray(new String[0]), allPaths);
+        invokePrivateMethod("addJcrPaths", new Class<?>[] { DispatcherCacheInvalidationContext.class, String[].class, Set.class },
+            mockContext, TEST_SKUS.toArray(new String[0]), allPaths);
     }
 
     @Test
@@ -206,8 +206,8 @@ public class ProductSkusInvalidateCacheTest {
 
         List<Map<String, Object>> products = Collections.singletonList(product);
         Set<String> allPaths = new HashSet<>();
-        invokePrivateMethod("addGraphqlPaths", new Class<?>[]{DispatcherCacheInvalidationContext.class, List.class, Set.class},
-                mockContext, products, allPaths);
+        invokePrivateMethod("addGraphqlPaths", new Class<?>[] { DispatcherCacheInvalidationContext.class, List.class, Set.class },
+            mockContext, products, allPaths);
     }
 
     @Test
@@ -221,8 +221,8 @@ public class ProductSkusInvalidateCacheTest {
         when(rowIterator.nextRow()).thenReturn(row);
         when(row.getPath()).thenReturn(TEST_PRODUCT_PATH);
 
-        invokePrivateMethod("getCorrespondingPagePaths", new Class<?>[]{Session.class, String.class, String.class},
-                session, TEST_STORE_PATH, "'sku1','sku2','sku3'");
+        invokePrivateMethod("getCorrespondingPagePaths", new Class<?>[] { Session.class, String.class, String.class },
+            session, TEST_STORE_PATH, "'sku1','sku2','sku3'");
     }
 
     @Test
@@ -242,7 +242,7 @@ public class ProductSkusInvalidateCacheTest {
 
         List<Map<String, Object>> products = Collections.singletonList(product);
         Set<String> allPaths = new HashSet<>();
-        invokePrivateMethod("addGraphqlPaths", new Class<?>[]{DispatcherCacheInvalidationContext.class, List.class, Set.class},
-                mockContext, products, allPaths);
+        invokePrivateMethod("addGraphqlPaths", new Class<?>[] { DispatcherCacheInvalidationContext.class, List.class, Set.class },
+            mockContext, products, allPaths);
     }
 }

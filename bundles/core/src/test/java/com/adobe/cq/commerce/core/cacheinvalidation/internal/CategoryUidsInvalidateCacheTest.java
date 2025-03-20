@@ -201,7 +201,6 @@ public class CategoryUidsInvalidateCacheTest {
         assertEquals(0, paths.size());
     }
 
-
     private void invokePrivateMethod(Object target, String methodName, Class<?>[] parameterTypes, Object... args) throws Exception {
         Method method = target.getClass().getDeclaredMethod(methodName, parameterTypes);
         method.setAccessible(true);
@@ -213,8 +212,9 @@ public class CategoryUidsInvalidateCacheTest {
         Set<String> allPaths = new HashSet<>();
         String[] categoryUids = { TEST_CATEGORY_UID };
 
-        invokePrivateMethod(categoryUidsInvalidateCache, "addJcrPaths", new Class<?>[]{DispatcherCacheInvalidationContext.class, String[].class, Set.class},
-                mockContext, categoryUids, allPaths);
+        invokePrivateMethod(categoryUidsInvalidateCache, "addJcrPaths", new Class<?>[] { DispatcherCacheInvalidationContext.class,
+            String[].class, Set.class },
+            mockContext, categoryUids, allPaths);
     }
 
     @Test
@@ -229,8 +229,9 @@ public class CategoryUidsInvalidateCacheTest {
         when(mockContext.getPage()).thenReturn(page);
         when(urlProvider.toCategoryUrl(any(), eq(page), anyString())).thenReturn(TEST_CATEGORY_PATH);
 
-        invokePrivateMethod(categoryUidsInvalidateCache, "addGraphqlPaths", new Class<?>[]{DispatcherCacheInvalidationContext.class, List.class, Set.class},
-                mockContext, categories, allPaths);
+        invokePrivateMethod(categoryUidsInvalidateCache, "addGraphqlPaths", new Class<?>[] { DispatcherCacheInvalidationContext.class,
+            List.class, Set.class },
+            mockContext, categories, allPaths);
     }
 
     @Test
