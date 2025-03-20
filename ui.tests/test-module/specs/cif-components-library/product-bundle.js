@@ -18,7 +18,6 @@ const config = require('../../lib/config');
 const commons = require('../../lib/commons');
 
 describe('Product bundle in CIF components library', () => {
-
     const product_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/sprite-yoga-companion-kit.html`;
     const product_selector = '.cmp-examples-demo__top .product';
 
@@ -37,12 +36,15 @@ describe('Product bundle in CIF components library', () => {
         browser.setWindowSize(1280, 960);
     });
 
-    it('can customize a bundle product', () => {
+    it('can customize a bundle product', async () => {
         // Go to the product page
         browser.url(product_page);
 
-        // Check that the customize button is displayed
-        const customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
+        browser.pause(2000);
+        const customizeButton = await $(`${product_selector} .productFullDetail__customizeBundle button`);
+
+        customizeButton.waitForDisplayed({ timeout: 10000 });
+
         expect(customizeButton).toBeDisplayed();
 
         customizeButton.click();
@@ -53,5 +55,4 @@ describe('Product bundle in CIF components library', () => {
         const options = $$(`${product_selector} .productFullDetail__bundleProduct`);
         expect(options.length).toBe(5);
     });
-
 });
