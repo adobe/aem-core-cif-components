@@ -179,6 +179,12 @@ public class ProductSkusInvalidateCacheTest {
         productSkusInvalidateCache.getPathsToInvalidate(null);
     }
 
+    private void invokePrivateMethod(String methodName, Class<?>[] parameterTypes, Object... args) throws Exception {
+        Method method = ProductSkusInvalidateCache.class.getDeclaredMethod(methodName, parameterTypes);
+        method.setAccessible(true);
+        method.invoke(productSkusInvalidateCache, args);
+    }
+
     @Test
     public void testAddJcrPath() throws Exception {
         when(rowIterator.hasNext()).thenReturn(true, false);
@@ -186,11 +192,8 @@ public class ProductSkusInvalidateCacheTest {
         when(row.getPath()).thenReturn(TEST_PRODUCT_PATH);
 
         Set<String> allPaths = new HashSet<>();
-        Method method = ProductSkusInvalidateCache.class.getDeclaredMethod("addJcrPaths", DispatcherCacheInvalidationContext.class,
-            String[].class, Set.class);
-        method.setAccessible(true);
-        method.invoke(productSkusInvalidateCache, mockContext, TEST_SKUS.toArray(new String[0]), allPaths);
-
+        invokePrivateMethod("addJcrPaths", new Class<?>[]{DispatcherCacheInvalidationContext.class, String[].class, Set.class},
+                mockContext, TEST_SKUS.toArray(new String[0]), allPaths);
     }
 
     @Test
@@ -203,28 +206,8 @@ public class ProductSkusInvalidateCacheTest {
 
         List<Map<String, Object>> products = Collections.singletonList(product);
         Set<String> allPaths = new HashSet<>();
-        Method method = ProductSkusInvalidateCache.class.getDeclaredMethod("addGraphqlPaths", DispatcherCacheInvalidationContext.class,
-            List.class, Set.class);
-        method.setAccessible(true);
-        method.invoke(productSkusInvalidateCache, mockContext, products, allPaths);
-
-    }
-
-    @Test
-    public void testAddGraphqlPats() throws Exception {
-        Map<String, Object> product = new HashMap<>();
-        product.put("sku", "sku1");
-        product.put("urlKey", "product-url-key");
-        product.put("urlRewrites", Collections.emptyList());
-        product.put("categories", Collections.emptyList());
-
-        List<Map<String, Object>> products = Collections.singletonList(product);
-        Set<String> allPaths = new HashSet<>();
-        Method method = ProductSkusInvalidateCache.class.getDeclaredMethod("addGraphqlPaths", DispatcherCacheInvalidationContext.class,
-            List.class, Set.class);
-        method.setAccessible(true);
-        method.invoke(productSkusInvalidateCache, mockContext, products, allPaths);
-
+        invokePrivateMethod("addGraphqlPaths", new Class<?>[]{DispatcherCacheInvalidationContext.class, List.class, Set.class},
+                mockContext, products, allPaths);
     }
 
     @Test
@@ -238,76 +221,28 @@ public class ProductSkusInvalidateCacheTest {
         when(rowIterator.nextRow()).thenReturn(row);
         when(row.getPath()).thenReturn(TEST_PRODUCT_PATH);
 
-        Method method = ProductSkusInvalidateCache.class.getDeclaredMethod("getCorrespondingPagePaths", Session.class, String.class,
-            String.class);
-        method.setAccessible(true);
-        method.invoke(productSkusInvalidateCache, session, TEST_STORE_PATH, "'sku1','sku2','sku3'");
-
-    }
-
-    @Test
-    public void testTransformCategories() throws Exception {
-        // Create a mock category
-        CategoryTree category = mock(CategoryTree.class);
-        ID categoryUid = new ID("category-uid"); // Assuming ID is the correct type
-        when(category.getUid()).thenReturn(categoryUid);
-        when(category.getName()).thenReturn("category-name");
-        when(category.getUrlPath()).thenReturn("category-url-path");
-
-        // Create a list of categories
-        List<CategoryTree> categories = Collections.singletonList(category);
-
-        // Create a product map with categories
-        Map<String, Object> product = new HashMap<>();
-        product.put("categories", categories);
-
-        // Create a list of products
-        List<Map<String, Object>> products = Collections.singletonList(product);
-
-        // Use reflection to access the private method
-        Method method = ProductSkusInvalidateCache.class.getDeclaredMethod("addGraphqlPaths", DispatcherCacheInvalidationContext.class,
-            List.class, Set.class);
-        method.setAccessible(true);
-
-        // Invoke the method
-        Set<String> allPaths = new HashSet<>();
-        method.invoke(productSkusInvalidateCache, mockContext, products, allPaths);
-
-        // Add more assertions based on the expected paths
+        invokePrivateMethod("getCorrespondingPagePaths", new Class<?>[]{Session.class, String.class, String.class},
+                session, TEST_STORE_PATH, "'sku1','sku2','sku3'");
     }
 
     @Test
     public void testAddGraphqlPathsWithCategories() throws Exception {
-        // Create a mock category
         CategoryTree category = mock(CategoryTree.class);
-        ID categoryUid = new ID("category-uid"); // Assuming ID is the correct type
+        ID categoryUid = new ID("category-uid");
         when(category.getUid()).thenReturn(categoryUid);
         when(category.getName()).thenReturn("category-name");
         when(category.getUrlPath()).thenReturn("category-url-path");
 
-        // Create a list of categories
         List<CategoryTree> categories = Collections.singletonList(category);
-
-        // Create a product map with categories
         Map<String, Object> product = new HashMap<>();
         product.put("sku", "sku1");
         product.put("urlKey", "product-url-key");
         product.put("urlRewrites", Collections.emptyList());
         product.put("categories", categories);
 
-        // Create a list of products
         List<Map<String, Object>> products = Collections.singletonList(product);
-
-        // Use reflection to access the private method
-        Method method = ProductSkusInvalidateCache.class.getDeclaredMethod("addGraphqlPaths", DispatcherCacheInvalidationContext.class,
-            List.class, Set.class);
-        method.setAccessible(true);
-
-        // Invoke the method
         Set<String> allPaths = new HashSet<>();
-        method.invoke(productSkusInvalidateCache, mockContext, products, allPaths);
-
-        // Verify the transformation
-
+        invokePrivateMethod("addGraphqlPaths", new Class<?>[]{DispatcherCacheInvalidationContext.class, List.class, Set.class},
+                mockContext, products, allPaths);
     }
 }
