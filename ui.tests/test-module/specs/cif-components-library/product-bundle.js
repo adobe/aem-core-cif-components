@@ -14,8 +14,18 @@
  *  limitations under the License.
  */
 
+const fs = require('fs');
+const path = require('path');
 const config = require('../../lib/config');
 const commons = require('../../lib/commons');
+
+// Define the directory path for screenshots
+const screenshotsDir = path.join(__dirname, 'screenshots');
+
+// Check if the screenshots directory exists, if not, create it
+if (!fs.existsSync(screenshotsDir)) {
+    fs.mkdirSync(screenshotsDir, { recursive: true });
+}
 
 describe('Product bundle in CIF components library', () => {
     const product_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/sprite-yoga-companion-kit.html`;
@@ -43,7 +53,7 @@ describe('Product bundle in CIF components library', () => {
         browser.setWindowSize(newWidth, newHeight);
 
         // Take a screenshot after resizing the window
-        browser.saveScreenshot('./screenshots/resized_window.png');
+        browser.saveScreenshot(path.join(screenshotsDir, 'resized_window.png'));
     });
 
     it('can customize a bundle product', () => {
@@ -51,7 +61,7 @@ describe('Product bundle in CIF components library', () => {
         browser.url(product_page);
 
         // Take a screenshot before interacting with the page
-        browser.saveScreenshot('./screenshots/product_page_before.png');
+        browser.saveScreenshot(path.join(screenshotsDir, 'product_page_before.png'));
 
         // Increase the wait time to ensure elements are fully loaded
         const customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
@@ -70,7 +80,7 @@ describe('Product bundle in CIF components library', () => {
         customizeButton.click();
 
         // Take a screenshot after clicking the button (e.g., after opening the customization options)
-        browser.saveScreenshot('./screenshots/product_page_after_click.png');
+        browser.saveScreenshot(path.join(screenshotsDir, 'product_page_after_click.png'));
 
         // Pause to allow any post-click actions to complete
         browser.pause(2000);
@@ -82,6 +92,6 @@ describe('Product bundle in CIF components library', () => {
         expect(options.length).toBe(5);
 
         // Take a screenshot after verifying the options
-        browser.saveScreenshot('./screenshots/product_options_after_verification.png');
+        browser.saveScreenshot(path.join(screenshotsDir, 'product_options_after_verification.png'));
     });
 });
