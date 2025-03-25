@@ -20,7 +20,7 @@ const config = require('../../lib/config');
 const commons = require('../../lib/commons');
 
 // Define the directory path for screenshots
-const screenshotsDir = path.join(__dirname, 'screenshots');
+const screenshotsDir = path.resolve(__dirname, '../../screenshots');
 
 // Check if the screenshots directory exists, if not, create it
 if (!fs.existsSync(screenshotsDir)) {
@@ -58,8 +58,8 @@ describe('Product bundle in CIF components library', () => {
             }
         );
 
-        // Take a screenshot before interacting with the page
-        browser.saveScreenshot('./screenshots/product_page_before.png');
+        // Step 1: Take a screenshot before interacting with the page
+        browser.saveScreenshot(path.resolve(screenshotsDir, 'product_page_before.png'));
 
         // Scroll to the "Sprite Yoga Companion Kit" title
         const titleElement = $('h1=Sprite Yoga Companion Kit'); // Find the title by its exact text
@@ -68,38 +68,35 @@ describe('Product bundle in CIF components library', () => {
         // Wait for the title to be in view (for debugging purposes)
         browser.pause(1000);
 
-        // Take a screenshot after scrolling to the title
-        browser.saveScreenshot('./screenshots/title_scrolled_into_view.png');
+        // Step 2: Take a screenshot after scrolling to the title
+        browser.saveScreenshot(path.resolve(screenshotsDir, 'title_scrolled_into_view.png'));
 
         // Try finding the "Customize" button using the normal selector
         let customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
 
         // If the button is not found, try finding it by the button text
-
-        // Wait for the button to be displayed and ensure it's interactable
-        customizeButton.waitForDisplayed({ timeout: 20000 });
-
         if (!customizeButton.isExisting()) {
             customizeButton = $('button=Customize'); // Find the button by its text content
         }
 
-        // Take a screenshot after finding the button
-        browser.saveScreenshot('./screenshots/button_found.png');
+        // Step 3: Take a screenshot after finding the button
+        browser.saveScreenshot(path.resolve(screenshotsDir, 'button_found.png'));
 
+        // Ensure the button is displayed and interactable
         expect(customizeButton.isDisplayedInViewport()).toBe(true);
 
         // Scroll to the button if it's not in view
         customizeButton.scrollIntoView();
 
-        // Take a screenshot after scrolling to the button
-        browser.saveScreenshot('./screenshots/button_scrolled_into_view.png');
+        // Step 4: Take a screenshot after scrolling to the button
+        browser.saveScreenshot(path.resolve(screenshotsDir, 'button_scrolled_into_view.png'));
 
         // Ensure the button is clickable and click it
         customizeButton.waitForClickable({ timeout: 20000 });
         customizeButton.click();
 
-        // Take a screenshot after clicking the button
-        browser.saveScreenshot('./screenshots/product_page_after_click.png');
+        // Step 5: Take a screenshot after clicking the button
+        browser.saveScreenshot(path.resolve(screenshotsDir, 'product_page_after_click.png'));
 
         // Pause to allow any post-click actions to complete
         browser.pause(2000);
@@ -110,7 +107,7 @@ describe('Product bundle in CIF components library', () => {
         // Ensure there are exactly 5 options available
         expect(options.length).toBe(5);
 
-        // Take a screenshot after verifying the options
-        browser.saveScreenshot('./screenshots/product_options_after_verification.png');
+        // Step 6: Take a screenshot after verifying the options
+        browser.saveScreenshot(path.resolve(screenshotsDir, 'product_options_after_verification.png'));
     });
 });
