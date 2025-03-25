@@ -42,15 +42,7 @@ describe('Product bundle in CIF components library', () => {
     });
 
     beforeEach(() => {
-        // Get current screen size
-        const { width, height } = browser.getWindowSize();
-
-        // Reduce the screen size to 25% of the current width and height
-        const newWidth = width * 0.25;
-        const newHeight = height * 0.25;
-
-        // Set the new window size to 25% of the current dimensions
-        browser.setWindowSize(newWidth, newHeight);
+        browser.setWindowSize(1280, 960);
 
         // Take a screenshot after resizing the window
         browser.saveScreenshot(path.join(screenshotsDir, 'resized_window.png'));
@@ -62,6 +54,17 @@ describe('Product bundle in CIF components library', () => {
 
         // Take a screenshot before interacting with the page
         browser.saveScreenshot(path.join(screenshotsDir, 'product_page_before.png'));
+
+        const title = $('=Sprite Yoga Companion Kit'); // This selects the element with exact text
+
+        // Wait for the title to be visible (increase timeout if necessary)
+        title.waitForDisplayed({ timeout: 20000 });
+
+        // Scroll to the title to bring it into view
+        title.scrollIntoView();
+
+        // Take a screenshot after scrolling to the title
+        browser.saveScreenshot('./screenshots/title_scrolled_into_view.png');
 
         // Increase the wait time to ensure elements are fully loaded
         const customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
