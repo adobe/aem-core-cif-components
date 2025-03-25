@@ -32,8 +32,14 @@ describe('Product bundle in CIF components library', () => {
     });
 
     beforeEach(() => {
-        // Set window size to desktop
-        browser.setWindowSize(1280, 960);
+        const { width, height } = browser.getWindowSize();
+
+        // Calculate 25% of the width and height
+        const newWidth = width * 0.25;
+        const newHeight = height * 0.25;
+
+        // Set the window size to 25% of the current dimensions
+        browser.setWindowSize(newWidth, newHeight);
     });
 
     it('can customize a bundle product', () => {
