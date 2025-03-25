@@ -49,18 +49,11 @@ describe('Product bundle in CIF components library', () => {
 
         customizeButton.click();
 
-        await browser.waitUntil(
-            async () => {
-                const options = await $$(`${product_selector} .productFullDetail__bundleProduct`);
-                return options.length === 5;
-            },
-            {
-                timeout: 10000, // Wait up to 10 seconds
-                timeoutMsg: 'Expected 5 options to be displayed'
-            }
-        );
+        browser.pause(2000);
 
-        const options = await $$(`${product_selector} .productFullDetail__bundleProduct`);
+
+        const options = $$(`${product_selector} .productFullDetail__bundleProduct`);
         expect(options.length).toBe(5);
     });
+
 });
