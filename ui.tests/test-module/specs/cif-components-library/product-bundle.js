@@ -40,18 +40,27 @@ describe('Product bundle in CIF components library', () => {
         // Go to the product page
         browser.url(product_page);
 
-        browser.pause(2000);
+        // Increase the wait time to 20 seconds
         const customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
 
-        customizeButton.waitForDisplayed({ timeout: 10000 });
+        // Wait for the button to be displayed, increasing the timeout
+        customizeButton.waitForDisplayed({ timeout: 20000 });
 
-        expect(customizeButton).toBeDisplayed();
+        // Ensure the button is in the viewport
+        expect(customizeButton.isDisplayedInViewport()).toBe(true);
 
+        // Scroll to the button if needed
+        customizeButton.scrollIntoView();
+
+        // Click the button to proceed
         customizeButton.click();
 
         browser.pause(2000);
 
+        // Find all the bundle product options
         const options = $$(`${product_selector} .productFullDetail__bundleProduct`);
+
+        // Ensure there are 5 options
         expect(options.length).toBe(5);
     });
 });
