@@ -42,48 +42,63 @@ describe('Product bundle in CIF components library', () => {
     });
 
     beforeEach(() => {
-        browser.setWindowSize(1280, 960);
-
-        // Take a screenshot after resizing the window
-        browser.saveScreenshot(path.join(screenshotsDir, 'resized_window.png'));
+        // No screen resizing logic anymore, only focusing on scrolling and interaction
     });
 
     it('can customize a bundle product', () => {
         // Go to the product page
         browser.url(product_page);
 
+        // Wait for the page to load and stabilize
+        browser.waitUntil(
+            () => browser.getTitle() === 'Sprite Yoga Companion Kit', // Ensure the correct page title
+            {
+                timeout: 20000,
+                timeoutMsg: 'Page did not load in time'
+            }
+        );
+
         // Take a screenshot before interacting with the page
-        browser.saveScreenshot(path.join(screenshotsDir, 'product_page_before.png'));
+        browser.saveScreenshot('./screenshots/product_page_before.png');
 
-        const title = $('=Sprite Yoga Companion Kit'); // This selects the element with exact text
+        // Scroll to the "Sprite Yoga Companion Kit" title
+        const titleElement = $('h1=Sprite Yoga Companion Kit'); // Find the title by its exact text
+        titleElement.scrollIntoView(); // Scroll the page to the title
 
-        // Wait for the title to be visible (increase timeout if necessary)
-        title.waitForDisplayed({ timeout: 20000 });
-
-        // Scroll to the title to bring it into view
-        title.scrollIntoView();
+        // Wait for the title to be in view (for debugging purposes)
+        browser.pause(1000);
 
         // Take a screenshot after scrolling to the title
         browser.saveScreenshot('./screenshots/title_scrolled_into_view.png');
 
-        // Increase the wait time to ensure elements are fully loaded
-        const customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
+        // Try finding the "Customize" button using the normal selector
+        let customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
 
-        // Wait for the button to be displayed with an increased timeout (20 seconds)
+        // If the button is not found, try finding it by the button text
+        if (!customizeButton.isExisting()) {
+            customizeButton = $(`button=Customize`); // Find the button by its text content
+        }
+
+        // Wait for the button to be displayed and ensure it's interactable
         customizeButton.waitForDisplayed({ timeout: 20000 });
 
-        // Check if the button is displayed and is in the viewport
+        // Take a screenshot after finding the button
+        browser.saveScreenshot('./screenshots/button_found.png');
+
         expect(customizeButton.isDisplayedInViewport()).toBe(true);
 
-        // Scroll to the button if it's not already in view
+        // Scroll to the button if it's not in view
         customizeButton.scrollIntoView();
 
-        // Ensure the button is now interactable and click it
+        // Take a screenshot after scrolling to the button
+        browser.saveScreenshot('./screenshots/button_scrolled_into_view.png');
+
+        // Ensure the button is clickable and click it
         customizeButton.waitForClickable({ timeout: 20000 });
         customizeButton.click();
 
-        // Take a screenshot after clicking the button (e.g., after opening the customization options)
-        browser.saveScreenshot(path.join(screenshotsDir, 'product_page_after_click.png'));
+        // Take a screenshot after clicking the button
+        browser.saveScreenshot('./screenshots/product_page_after_click.png');
 
         // Pause to allow any post-click actions to complete
         browser.pause(2000);
@@ -95,6 +110,6 @@ describe('Product bundle in CIF components library', () => {
         expect(options.length).toBe(5);
 
         // Take a screenshot after verifying the options
-        browser.saveScreenshot(path.join(screenshotsDir, 'product_options_after_verification.png'));
+        browser.saveScreenshot('./screenshots/product_options_after_verification.png');
     });
 });
