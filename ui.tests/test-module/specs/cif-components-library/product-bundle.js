@@ -75,12 +75,13 @@ describe('Product bundle in CIF components library', () => {
         let customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
 
         // If the button is not found, try finding it by the button text
-        if (!customizeButton.isExisting()) {
-            customizeButton = $(`button=Customize`); // Find the button by its text content
-        }
 
         // Wait for the button to be displayed and ensure it's interactable
         customizeButton.waitForDisplayed({ timeout: 20000 });
+
+        if (!customizeButton.isExisting()) {
+            customizeButton = $('button=Customize'); // Find the button by its text content
+        }
 
         // Take a screenshot after finding the button
         browser.saveScreenshot('./screenshots/button_found.png');
