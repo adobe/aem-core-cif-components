@@ -36,12 +36,12 @@ describe('Product bundle in CIF components library', () => {
         browser.setWindowSize(1280, 960);
     });
 
-    it('can customize a bundle product', async () => {
+    it('can customize a bundle product', () => {
         // Go to the product page
         browser.url(product_page);
 
         browser.pause(2000);
-        const customizeButton = await $(`${product_selector} .productFullDetail__customizeBundle button`);
+        const customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
 
         customizeButton.waitForDisplayed({ timeout: 10000 });
 
@@ -51,9 +51,7 @@ describe('Product bundle in CIF components library', () => {
 
         browser.pause(2000);
 
-
         const options = $$(`${product_selector} .productFullDetail__bundleProduct`);
         expect(options.length).toBe(5);
     });
-
 });
