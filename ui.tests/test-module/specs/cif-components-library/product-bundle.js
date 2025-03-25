@@ -32,41 +32,56 @@ describe('Product bundle in CIF components library', () => {
     });
 
     beforeEach(() => {
+        // Get current screen size
         const { width, height } = browser.getWindowSize();
 
-        // Calculate 25% of the width and height
+        // Reduce the screen size to 25% of the current width and height
         const newWidth = width * 0.25;
         const newHeight = height * 0.25;
 
-        // Set the window size to 25% of the current dimensions
+        // Set the new window size to 25% of the current dimensions
         browser.setWindowSize(newWidth, newHeight);
+
+        // Take a screenshot after resizing the window
+        browser.saveScreenshot('./screenshots/resized_window.png');
     });
 
     it('can customize a bundle product', () => {
         // Go to the product page
         browser.url(product_page);
 
-        // Increase the wait time to 20 seconds
+        // Take a screenshot before interacting with the page
+        browser.saveScreenshot('./screenshots/product_page_before.png');
+
+        // Increase the wait time to ensure elements are fully loaded
         const customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
 
-        // Wait for the button to be displayed, increasing the timeout
+        // Wait for the button to be displayed with an increased timeout (20 seconds)
         customizeButton.waitForDisplayed({ timeout: 20000 });
 
-        // Ensure the button is in the viewport
+        // Check if the button is displayed and is in the viewport
         expect(customizeButton.isDisplayedInViewport()).toBe(true);
 
-        // Scroll to the button if needed
+        // Scroll to the button if it's not already in view
         customizeButton.scrollIntoView();
 
-        // Click the button to proceed
+        // Ensure the button is now interactable and click it
+        customizeButton.waitForClickable({ timeout: 20000 });
         customizeButton.click();
 
+        // Take a screenshot after clicking the button (e.g., after opening the customization options)
+        browser.saveScreenshot('./screenshots/product_page_after_click.png');
+
+        // Pause to allow any post-click actions to complete
         browser.pause(2000);
 
-        // Find all the bundle product options
+        // Check for bundle product options after clicking the button
         const options = $$(`${product_selector} .productFullDetail__bundleProduct`);
 
-        // Ensure there are 5 options
+        // Ensure there are exactly 5 options available
         expect(options.length).toBe(5);
+
+        // Take a screenshot after verifying the options
+        browser.saveScreenshot('./screenshots/product_options_after_verification.png');
     });
 });
