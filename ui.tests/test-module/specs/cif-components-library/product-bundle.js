@@ -53,7 +53,7 @@ describe('Product bundle in CIF components library', () => {
 
         browser.pause(1000);
 
-        browser.setWindowSize(800, 600);
+        browser.setWindowSize(400, 300);
 
         // Wait for the page to load and stabilize
         browser.waitUntil(
@@ -71,7 +71,7 @@ describe('Product bundle in CIF components library', () => {
         const titleElement = $('h1=Sprite Yoga Companion Kit'); // Find the title by its exact text
         titleElement.scrollIntoView(); // Scroll the page to the title
 
-        browser.execute('window.scrollBy(0, 100);'); // Wait for the title to be in view (for debugging purposes)
+        browser.execute('window.scrollBy(0, 500);'); // Wait for the title to be in view (for debugging purposes)
 
         browser.pause(1000);
 
