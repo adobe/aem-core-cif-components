@@ -21,6 +21,7 @@ import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
 
 import org.apache.sling.jcr.api.SlingRepository;
+import org.apache.sling.serviceusermapping.ServiceUserMapped;
 import org.osgi.service.component.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,9 @@ public class InvalidateCacheEventListener implements EventListener {
     private SlingRepository repository;
 
     private Session session;
+
+    @Reference(target = "(|(" + ServiceUserMapped.SUBSERVICENAME + "=" + InvalidateCacheSupport.SERVICE_USER + ")(!(subServiceName=*)))")
+    private ServiceUserMapped serviceUserMapped;
 
     String pathDelimiter = "/";
 
@@ -72,11 +76,15 @@ public class InvalidateCacheEventListener implements EventListener {
             if (session != null) {
                 ObservationManager observationManager = session.getWorkspace().getObservationManager();
                 observationManager.removeEventListener(this);
-                session.logout();
-                LOGGER.info("Event listener unregistered and session logged out.");
+                LOGGER.info("Event listener unregistered.");
             }
         } catch (RepositoryException e) {
             LOGGER.error("Error unregistering JCR event listener: {}", e.getMessage(), e);
+        } finally {
+            if (session != null) {
+                session.logout();
+                LOGGER.info("Session logged out.");
+            }
         }
     }
 
