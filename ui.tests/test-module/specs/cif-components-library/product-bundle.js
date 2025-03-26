@@ -46,57 +46,92 @@ describe('Product bundle in CIF components library', () => {
     });
 
     it('can customize a bundle product', () => {
-        // Go to the product page
-        browser.url(product_page);
+        // Max number of retries
+        let retries = 3;
+        let pageLoadedSuccessfully = false;
 
-        // Scroll to the "Sprite Yoga Companion Kit" title
-        const titleElement = $('h1=Sprite Yoga Companion Kit'); // Find the title by its exact text
-        titleElement.scrollIntoView(); // Scroll the page to the title
+        while (retries > 0 && !pageLoadedSuccessfully) {
+            try {
+                // Go to the product page
+                browser.url(product_page);
 
-        // Wait for the title to be in view (for debugging purposes)
+                // Scroll to the "Sprite Yoga Companion Kit" title
+                const titleElement = $('h1=Sprite Yoga Companion Kit'); // Find the title by its exact text
+                titleElement.scrollIntoView(); // Scroll the page to the title
 
-        browser.pause(1000);
+                // Wait for the title to be in view (for debugging purposes)
+                browser.pause(1000);
 
-        // Step 2: Take a screenshot after scrolling to the title
-        browser.saveScreenshot(path.resolve(screenshotsDir, 'title_scrolled_into_view.png'));
+                // Step 1: Take a screenshot after scrolling to the title
+                browser.saveScreenshot(path.resolve(screenshotsDir, 'title_scrolled_into_view.png'));
 
-        // Try finding the "Customize" button using the normal selector
-        let customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
+                // Try finding the "Customize" button using the normal selector
+                let customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
 
-        // If the button is not found, try finding it by the button text
-        if (!customizeButton.isExisting()) {
-            customizeButton = $('button=Customize'); // Find the button by its text content
+                // If the button is not found, try finding it by the button text
+                if (!customizeButton.isExisting()) {
+                    customizeButton = $('button=Customize'); // Find the button by its text content
+                }
+
+                // Step 2: Take a screenshot after finding the button
+                browser.saveScreenshot(path.resolve(screenshotsDir, 'button_found.png'));
+
+                // Ensure the button is displayed and interactable
+                if (customizeButton.isDisplayedInViewport()) {
+                    // Scroll to the button if it's not in view
+                    customizeButton.scrollIntoView();
+
+                    // Step 3: Take a screenshot after scrolling to the button
+                    browser.saveScreenshot(path.resolve(screenshotsDir, 'button_scrolled_into_view.png'));
+
+                    // Wait for the button to be clickable and click it
+                    customizeButton.waitForClickable({ timeout: 20000 });
+                    customizeButton.click();
+
+                    // Step 4: Take a screenshot after clicking the button
+                    browser.saveScreenshot(path.resolve(screenshotsDir, 'product_page_after_click.png'));
+
+                    // Pause to allow any post-click actions to complete
+                    browser.pause(2000);
+
+                    // Check for bundle product options after clicking the button
+                    const options = $$(`${product_selector} .productFullDetail__bundleProduct`);
+
+                    // Ensure there are exactly 5 options available
+                    expect(options.length).toBe(5);
+
+                    // Step 5: Take a screenshot after verifying the options
+                    browser.saveScreenshot(path.resolve(screenshotsDir, 'product_options_after_verification.png'));
+
+                    // If everything works, mark page as successfully loaded
+                    pageLoadedSuccessfully = true;
+                } else {
+                    throw new Error('Customize button is not visible in the viewport!');
+                }
+            } catch (error) {
+                console.log(`Error occurred: ${error.message}. Retries remaining: ${retries - 1}`);
+
+                // Take a screenshot on failure (for debugging)
+                browser.saveScreenshot(path.resolve(screenshotsDir, `error_retry_${retries}.png`));
+                console.log(`Screenshot saved for retry #${retries}.`);
+
+                retries--; // Decrease retry count
+
+                // If retries left, refresh the page and try again
+                if (retries > 0) {
+                    console.log('Refreshing the page and retrying...');
+                    browser.refresh();
+                    browser.pause(3000); // Wait for 3 seconds before retrying
+                }
+            }
         }
 
-        // Step 3: Take a screenshot after finding the button
-        browser.saveScreenshot(path.resolve(screenshotsDir, 'button_found.png'));
-
-        // Ensure the button is displayed and interactable
-        expect(customizeButton.isDisplayedInViewport()).toBe(true);
-
-        // Scroll to the button if it's not in view
-        customizeButton.scrollIntoView();
-
-        // Step 4: Take a screenshot after scrolling to the button
-        browser.saveScreenshot(path.resolve(screenshotsDir, 'button_scrolled_into_view.png'));
-
-        // Ensure the button is clickable and click it
-        customizeButton.waitForClickable({ timeout: 20000 });
-        customizeButton.click();
-
-        // Step 5: Take a screenshot after clicking the button
-        browser.saveScreenshot(path.resolve(screenshotsDir, 'product_page_after_click.png'));
-
-        // Pause to allow any post-click actions to complete
-        browser.pause(2000);
-
-        // Check for bundle product options after clicking the button
-        const options = $$(`${product_selector} .productFullDetail__bundleProduct`);
-
-        // Ensure there are exactly 5 options available
-        expect(options.length).toBe(5);
-
-        // Step 6: Take a screenshot after verifying the options
-        browser.saveScreenshot(path.resolve(screenshotsDir, 'product_options_after_verification.png'));
+        // Fail the test if the page is not loaded successfully after retries
+        if (!pageLoadedSuccessfully) {
+            // Take a final screenshot if all retries fail
+            browser.saveScreenshot(path.resolve(screenshotsDir, 'final_failure.png'));
+            console.log('Screenshot saved for final failure.');
+            throw new Error('Page could not be loaded successfully after 3 retries.');
+        }
     });
 });
