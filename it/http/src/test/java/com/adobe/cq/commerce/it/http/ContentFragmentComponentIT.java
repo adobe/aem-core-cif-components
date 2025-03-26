@@ -42,6 +42,13 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
     public void testContentFragmenWithSampleData() throws ClientException {
         SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html",
             200);
+
+        try {
+            Thread.sleep(3000); // Wait for 3 seconds (3000 milliseconds)
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         Document doc = Jsoup.parse(response.getContent());
 
         // Check the number of content fragment elements in the content fragment component
