@@ -40,8 +40,30 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
 
     @Test
     public void testContentFragmenWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html",
-            200);
+        int maxRetries = 3;
+        int retryCount = 0;
+        boolean success = false;
+        SlingHttpResponse response = null;
+
+        while (retryCount < maxRetries && !success) {
+            try {
+                response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html", 200);
+                success = true;
+            } catch (ClientException e) {
+                retryCount++;
+                if (retryCount == maxRetries) {
+                    throw e;
+                }
+                // Wait for a short period before retrying
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException(ie);
+                }
+            }
+        }
+
         Document doc = Jsoup.parse(response.getContent());
 
         // Check the number of content fragment elements in the content fragment component
