@@ -51,6 +51,10 @@ describe('Product bundle in CIF components library', () => {
         // Go to the product page
         browser.url(product_page);
 
+        browser.pause(1000);
+
+        browser.setWindowSize(800, 600);
+
         // Wait for the page to load and stabilize
         browser.waitUntil(
             () => browser.getTitle() === 'Sprite Yoga Companion Kit', // Ensure the correct page title
@@ -67,7 +71,8 @@ describe('Product bundle in CIF components library', () => {
         const titleElement = $('h1=Sprite Yoga Companion Kit'); // Find the title by its exact text
         titleElement.scrollIntoView(); // Scroll the page to the title
 
-        // Wait for the title to be in view (for debugging purposes)
+        browser.execute('window.scrollBy(0, 100);'); // Wait for the title to be in view (for debugging purposes)
+
         browser.pause(1000);
 
         // Step 2: Take a screenshot after scrolling to the title
