@@ -42,6 +42,8 @@ describe('Product bundle in CIF components library', () => {
     });
 
     beforeEach(() => {
+        browser.setWindowSize(800, 600); // Reducing the screen size to 800px by 600px
+
         // No screen resizing logic anymore, only focusing on scrolling and interaction
     });
 
