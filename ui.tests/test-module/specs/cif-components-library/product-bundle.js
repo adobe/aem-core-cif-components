@@ -42,30 +42,14 @@ describe('Product bundle in CIF components library', () => {
     });
 
     beforeEach(() => {
-        browser.setWindowSize(800, 600); // Reducing the screen size to 800px by 600px
-
-        // No screen resizing logic anymore, only focusing on scrolling and interaction
+        browser.setWindowSize(1280, 960);
     });
 
     it('can customize a bundle product', () => {
         // Go to the product page
         browser.url(product_page);
 
-        browser.pause(1000);
-
-        browser.setWindowSize(400, 300);
-
-        // Wait for the page to load and stabilize
-        browser.waitUntil(
-            () => browser.getTitle() === 'Sprite Yoga Companion Kit', // Ensure the correct page title
-            {
-                timeout: 20000,
-                timeoutMsg: 'Page did not load in time'
-            }
-        );
-
-        // Step 1: Take a screenshot before interacting with the page
-        browser.saveScreenshot(path.resolve(screenshotsDir, 'product_page_before.png'));
+        browser.pause(2000);
 
         // Scroll to the "Sprite Yoga Companion Kit" title
         const titleElement = $('h1=Sprite Yoga Companion Kit'); // Find the title by its exact text
