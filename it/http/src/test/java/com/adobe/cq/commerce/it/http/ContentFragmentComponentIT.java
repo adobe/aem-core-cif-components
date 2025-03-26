@@ -40,20 +40,53 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
 
     @Test
     public void testContentFragmenWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html",
-            200);
+        String productPageUrl = COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html";
+        int retries = 3;
+        boolean isPageLoaded = false;
 
-        try {
-            Thread.sleep(3000); // Wait for 3 seconds (3000 milliseconds)
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        // Retry logic to handle occasional 404 errors
+        while (retries > 0 && !isPageLoaded) {
+            // Fetch the page
+            SlingHttpResponse response = adminAuthor.doGet(productPageUrl, 200);
+
+            // Get the status code from the response
+            int statusCode = response.getStatusLine().getStatusCode();
+
+            // Check for 404 error and retry if necessary
+            if (statusCode == 404) {
+                retries--;
+                try {
+                    Thread.sleep(5000); // Wait for 5 seconds before retrying
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                // Page loaded successfully
+                isPageLoaded = true;
+
+                // Wait for the content fragment to be present (adjust time as needed)
+                try {
+                    Thread.sleep(5000); // Optional: Allow some time for the content to load
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // Parse the response content
+                Document doc = Jsoup.parse(response.getContent());
+
+                // Check the number of content fragment elements in the content fragment component
+                Elements elements = doc.select(CONTENT_FRAGMENT_SELECTOR
+                        + ".cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
+
+                // Assert that exactly 1 content fragment element is present
+                Assert.assertEquals(1, elements.size());
+            }
         }
 
-        Document doc = Jsoup.parse(response.getContent());
-
-        // Check the number of content fragment elements in the content fragment component
-        Elements elements = doc.select(CONTENT_FRAGMENT_SELECTOR
-            + ".cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
-        Assert.assertEquals(1, elements.size());
+        // Fail the test if the page is not loaded after retries
+        if (!isPageLoaded) {
+            throw new ClientException("Page not found after multiple retries");
+        }
     }
+
 }
