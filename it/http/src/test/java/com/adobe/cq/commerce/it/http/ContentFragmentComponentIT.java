@@ -40,6 +40,7 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
 
     @Test
     public void testContentFragmenWithSampleData() throws ClientException {
+
         String productPageUrl = COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html";
         int retries = 3;
         boolean isPageLoaded = false;
@@ -76,11 +77,12 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
 
                 // Check the number of content fragment elements in the content fragment component
                 Elements elements = doc.select(CONTENT_FRAGMENT_SELECTOR
-                        + ".cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
+                    + ".cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
 
                 // Assert that exactly 1 content fragment element is present
                 Assert.assertEquals(1, elements.size());
             }
+
         }
 
         // Fail the test if the page is not loaded after retries
