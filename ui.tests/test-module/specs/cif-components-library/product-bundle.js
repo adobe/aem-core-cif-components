@@ -55,7 +55,7 @@ describe('Product bundle in CIF components library', () => {
         const titleElement = $('h1=Sprite Yoga Companion Kit'); // Find the title by its exact text
         titleElement.scrollIntoView(); // Scroll the page to the title
 
-        browser.execute('window.scrollBy(0, 200);'); // Wait for the title to be in view (for debugging purposes)
+        // Wait for the title to be in view (for debugging purposes)
 
         browser.pause(1000);
 
