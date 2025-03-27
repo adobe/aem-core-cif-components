@@ -40,20 +40,16 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
 
     @Test
     public void testContentFragmenWithSampleData() throws ClientException {
-        int maxRetries = 3;
-        int retryCount = 0;
+        long startTime = System.currentTimeMillis();
+        long maxWaitTime = 30000; // 30 seconds
         boolean success = false;
         SlingHttpResponse response = null;
 
-        while (retryCount < maxRetries && !success) {
+        while (!success && (System.currentTimeMillis() - startTime) < maxWaitTime) {
             try {
                 response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html", 200);
                 success = true;
             } catch (ClientException e) {
-                retryCount++;
-                if (retryCount == maxRetries) {
-                    throw e;
-                }
                 // Wait for a short period before retrying
                 try {
                     Thread.sleep(2000);
@@ -62,6 +58,10 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
                     throw new RuntimeException(ie);
                 }
             }
+        }
+
+        if (!success) {
+            throw new ClientException("Failed to load the page within the maximum wait time.");
         }
 
         Document doc = Jsoup.parse(response.getContent());
