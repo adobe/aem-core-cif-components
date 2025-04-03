@@ -51,12 +51,12 @@ try {
         
         // Start CQ
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
+            ${extras} \
             --bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar \
             --bundle com.adobe.commerce.cif:magento-graphql:${magentoGraphqlVersion}:jar \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.config:${wcmVersion}:zip \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.apps:${wcmVersion}:zip \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.content:${wcmVersion}:zip \
-            ${extras} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-apps'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-config'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-core'])} \
