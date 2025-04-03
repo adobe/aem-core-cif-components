@@ -38,13 +38,15 @@ try {
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
         
         // Download latest add-on release from artifactory
-        let extras = ` --install-file ${buildPath}/addon.far`;
+        let extras = ``;
         if (AEM == 'classic') {
             // Download latest add-on release from artifactory
-            ci.sh(`mvn -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=commerce-addon-aem-650-all -Dversion=LATEST -Dtype=zip -DoutputDirectory=${buildPath} -DoutputFileName=addon.far`);
+            ci.sh(`mvn -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=commerce-addon-aem-650-all -Dversion=LATEST -Dtype=zip -DoutputDirectory=${buildPath} -DoutputFileName=addon.zip`);
+            extras += ` --install-file ${buildPath}/addon.zip`;
         	// The core components are already installed in the Cloud SDK
         	extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM == 'addon') {
+            extras += ` --install-file ${buildPath}/addon.far`;
             // Download latest add-on release from artifactory
             ci.sh(`mvn -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=cif-cloud-ready-feature-pkg -Dversion=LATEST -Dtype=far -Dclassifier=cq-commerce-addon-authorfar -DoutputDirectory=${buildPath} -DoutputFileName=addon.far`);
         }
