@@ -31,7 +31,7 @@ public class RegexPatternsInvalidateCache implements CacheInvalidationStrategy {
     }
 
     @Override
-    public String getInvalidationRequestType() {
+    public String getInvalidationType() {
         return "regexPatterns";
     }
 }

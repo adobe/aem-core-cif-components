@@ -68,7 +68,7 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
     }
 
     @Override
-    public String getInvalidationRequestType() {
+    public String getInvalidationType() {
         return "productSkus";
     }
 

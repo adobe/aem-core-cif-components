@@ -40,7 +40,7 @@ public class InvalidateCacheRegistry {
         policy = ReferencePolicy.DYNAMIC,
         policyOption = ReferencePolicyOption.GREEDY)
     void bindInvalidateCache(CacheInvalidationStrategy invalidateCache, Map<String, Object> properties) {
-        String invalidationType = invalidateCache.getInvalidationRequestType();
+        String invalidationType = invalidateCache.getInvalidationType();
         if (invalidationType != null) {
             boolean isInternal = isInternalStrategy(invalidateCache);
             InvalidationStrategies strategies = invalidateCacheList.computeIfAbsent(invalidationType, k -> new InvalidationStrategies());
@@ -49,7 +49,7 @@ public class InvalidateCacheRegistry {
     }
 
     void unbindInvalidateCache(CacheInvalidationStrategy invalidateCache, Map<String, Object> properties) {
-        String invalidationType = invalidateCache.getInvalidationRequestType();
+        String invalidationType = invalidateCache.getInvalidationType();
         if (invalidationType != null) {
             InvalidationStrategies strategies = invalidateCacheList.get(invalidationType);
             if (strategies != null) {
@@ -69,7 +69,7 @@ public class InvalidateCacheRegistry {
         policy = ReferencePolicy.DYNAMIC,
         policyOption = ReferencePolicyOption.GREEDY)
     void bindInvalidateDispatcherCache(DispatcherCacheInvalidationStrategy invalidateDispatcherCache, Map<String, Object> properties) {
-        String invalidationType = invalidateDispatcherCache.getInvalidationRequestType();
+        String invalidationType = invalidateDispatcherCache.getInvalidationType();
         if (invalidationType != null) {
             boolean isInternal = isInternalStrategy(invalidateDispatcherCache);
             InvalidationStrategies strategies = invalidateCacheList.computeIfAbsent(invalidationType, k -> new InvalidationStrategies());
@@ -78,7 +78,7 @@ public class InvalidateCacheRegistry {
     }
 
     void unbindInvalidateDispatcherCache(DispatcherCacheInvalidationStrategy invalidateDispatcherCache, Map<String, Object> properties) {
-        String invalidationType = invalidateDispatcherCache.getInvalidationRequestType();
+        String invalidationType = invalidateDispatcherCache.getInvalidationType();
         if (invalidationType != null) {
             InvalidationStrategies strategies = invalidateCacheList.get(invalidationType);
             if (strategies != null) {

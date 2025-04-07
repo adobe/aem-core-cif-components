@@ -42,6 +42,6 @@ public class RegexPatternsInvalidateCacheTest {
     @Test
     public void testGetInvalidationRequestType() {
         // Test that getInvalidationRequestType returns "regexPatterns"
-        assertEquals("regexPatterns", regexPatternsInvalidateCache.getInvalidationRequestType());
+        assertEquals("regexPatterns", regexPatternsInvalidateCache.getInvalidationType());
     }
 }

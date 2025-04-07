@@ -42,5 +42,5 @@ public interface CacheInvalidationStrategy {
      *
      * @return the type of cache invalidation request that specifies how the cache should be invalidated
      */
-    String getInvalidationRequestType();
+    String getInvalidationType();
 }

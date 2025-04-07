@@ -56,11 +56,11 @@ public class InvalidateCacheRegistryTest {
         // Setup
         Map<String, Object> properties1 = new HashMap<>();
         properties1.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_TYPE_PARAMETER, "attr1");
-        Mockito.when(mockStrategy.getInvalidationRequestType()).thenReturn("attr1");
+        Mockito.when(mockStrategy.getInvalidationType()).thenReturn("attr1");
 
         Map<String, Object> properties2 = new HashMap<>();
         properties2.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_TYPE_PARAMETER, "attr2");
-        Mockito.when(mockStrategy2.getInvalidationRequestType()).thenReturn("attr2");
+        Mockito.when(mockStrategy2.getInvalidationType()).thenReturn("attr2");
 
         // Test
         registry.bindInvalidateCache(mockStrategy, properties1);
@@ -78,7 +78,7 @@ public class InvalidateCacheRegistryTest {
         // Setup
         Map<String, Object> properties = new HashMap<>();
         properties.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_TYPE_PARAMETER, "invalidType");
-        Mockito.when(mockStrategy.getInvalidationRequestType()).thenReturn("invalidType");
+        Mockito.when(mockStrategy.getInvalidationType()).thenReturn("invalidType");
 
         // Test
         registry.bindInvalidateCache(mockStrategy, properties);

@@ -247,7 +247,7 @@ public class ProductSkusInvalidateCacheTest {
 
     @Test
     public void testGetInvalidationRequestType() {
-        assertEquals("productSkus", productSkusInvalidateCache.getInvalidationRequestType());
+        assertEquals("productSkus", productSkusInvalidateCache.getInvalidationType());
     }
 
     @Test

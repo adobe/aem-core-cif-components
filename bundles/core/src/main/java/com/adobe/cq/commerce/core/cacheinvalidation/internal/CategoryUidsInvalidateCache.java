@@ -50,7 +50,7 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
     }
 
     @Override
-    public String getInvalidationRequestType() {
+    public String getInvalidationType() {
         return "categoryUids";
     }
 
