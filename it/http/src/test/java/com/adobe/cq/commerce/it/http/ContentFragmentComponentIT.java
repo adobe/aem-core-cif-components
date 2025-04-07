@@ -40,8 +40,30 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
 
     @Test
     public void testContentFragmenWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html",
-            200);
+        long startTime = System.currentTimeMillis();
+        long maxWaitTime = 30000; // 30 seconds
+        boolean success = false;
+        SlingHttpResponse response = null;
+
+        while (!success && (System.currentTimeMillis() - startTime) < maxWaitTime) {
+            try {
+                response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html", 200);
+                success = true;
+            } catch (ClientException e) {
+                // Wait for a short period before retrying
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException(ie);
+                }
+            }
+        }
+
+        if (!success) {
+            throw new ClientException("Failed to load the page within the maximum wait time.");
+        }
+
         Document doc = Jsoup.parse(response.getContent());
 
         // Check the number of content fragment elements in the content fragment component
