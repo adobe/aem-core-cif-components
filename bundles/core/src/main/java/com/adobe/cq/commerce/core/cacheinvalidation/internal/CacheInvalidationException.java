@@ -14,7 +14,7 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-public class CacheInvalidationException extends Exception {
+public class CacheInvalidationException extends RuntimeException {
     public CacheInvalidationException(String message) {
         super(message);
     }

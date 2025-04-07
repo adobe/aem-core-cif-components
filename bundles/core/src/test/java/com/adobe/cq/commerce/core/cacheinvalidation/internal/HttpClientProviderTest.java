@@ -14,24 +14,22 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.util.Arrays;
-import java.util.List;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.junit.Test;
 
-import org.osgi.service.component.annotations.Component;
+import static org.junit.Assert.assertNotNull;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationStrategy;
+public class HttpClientProviderTest {
 
-@Component(
-    service = CacheInvalidationStrategy.class)
-public class RegexPatternsInvalidateCache implements CacheInvalidationStrategy {
+    @Test
+    public void createHttpClient_ShouldReturnCloseableHttpClient() {
+        // Arrange
+        HttpClientProvider provider = new HttpClientProvider();
 
-    @Override
-    public List<String> getPatterns(String[] invalidationParameters) {
-        return Arrays.asList(invalidationParameters);
-    }
+        // Act
+        CloseableHttpClient client = provider.createHttpClient();
 
-    @Override
-    public String getInvalidationType() {
-        return "regexPatterns";
+        // Assert
+        assertNotNull("Created HttpClient should not be null", client);
     }
 }

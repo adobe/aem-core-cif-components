@@ -11,27 +11,22 @@
  *    governing permissions and limitations under the License.
  *
  ******************************************************************************/
-
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.util.Arrays;
-import java.util.List;
+public class PatternConfig {
+    private final String pattern;
+    private final String match;
 
-import org.osgi.service.component.annotations.Component;
-
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationStrategy;
-
-@Component(
-    service = CacheInvalidationStrategy.class)
-public class RegexPatternsInvalidateCache implements CacheInvalidationStrategy {
-
-    @Override
-    public List<String> getPatterns(String[] invalidationParameters) {
-        return Arrays.asList(invalidationParameters);
+    public PatternConfig(String pattern, String match) {
+        this.pattern = pattern;
+        this.match = match;
     }
 
-    @Override
-    public String getInvalidationType() {
-        return "regexPatterns";
+    public String getPattern() {
+        return pattern;
+    }
+
+    public String getMatch() {
+        return match;
     }
 }

@@ -14,8 +14,7 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -44,7 +43,13 @@ public class InvalidateCacheImpl {
         try (ResourceResolver resourceResolver = invalidateCacheSupport.getServiceUserResourceResolver()) {
             Resource resource = resourceResolver.getResource(path);
             if (resource != null) {
-                processResource(resourceResolver, resource);
+                String storePath = resource.getValueMap().get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class);
+                ComponentsConfiguration commerceProperties = invalidateCacheSupport.getCommerceProperties(resourceResolver, storePath);
+                if (commerceProperties != null) {
+                    handleCacheInvalidation(resource, commerceProperties);
+                } else {
+                    LOGGER.debug("Commerce data not found at path: {}", resource.getPath());
+                }
             } else {
                 LOGGER.debug("Resource not found at path: {}", path);
             }
@@ -53,59 +58,101 @@ public class InvalidateCacheImpl {
         }
     }
 
-    private void processResource(ResourceResolver resourceResolver, Resource resource) {
-        String storePath = resource.getValueMap().get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class);
-        ComponentsConfiguration commerceProperties = invalidateCacheSupport.getCommerceProperties(resourceResolver, storePath);
-        if (commerceProperties != null) {
-            handleCacheInvalidation(resource, commerceProperties);
+    private void handleCacheInvalidation(Resource resource, ComponentsConfiguration commerceProperties) {
+        String graphqlClientId = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, String.class);
+        if (graphqlClientId == null) {
+            LOGGER.debug("GraphQL client ID not found in commerce properties");
+            return;
+        }
+
+        GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
+        if (client == null) {
+            LOGGER.debug("GraphQL client not found for ID: {}", graphqlClientId);
+            return;
+        }
+
+        ValueMap properties = resource.getValueMap();
+        String storeView = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_STORE_VIEW, DEFAULT_STORE_VIEW);
+
+        // Check for InvalidateALL property
+        Boolean invalidateAll = properties.get(InvalidateCacheSupport.PROPERTIES_INVALIDATE_ALL, Boolean.class);
+        if (Boolean.TRUE.equals(invalidateAll)) {
+            LOGGER.debug("Performing full cache invalidation");
+            invalidateFullCache(client, storeView);
+            return;
+        }
+
+        String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAMES, String[].class);
+        if (listOfCacheToSearch != null && listOfCacheToSearch.length != 0) {
+            LOGGER.debug("Cache invalidation based on cache names");
+            client.invalidateCache(storeView, listOfCacheToSearch, new String[0]);
+        }
+
+        Map<String, String[]> dynamicProperties = getDynamicProperties(properties);
+        if (dynamicProperties.isEmpty()) {
+            LOGGER.debug("No dynamic properties found for cache invalidation");
         } else {
-            LOGGER.debug("Commerce data not found at path: {}", resource.getPath());
+            LOGGER.debug("Cache invalidation based on dynamic properties");
+            invalidateCacheByType(client, storeView, dynamicProperties);
         }
     }
 
-    private void handleCacheInvalidation(Resource resource, ComponentsConfiguration commerceProperties) {
-        String graphqlClientId = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_GRAPHQL_CLIENT_ID, String.class);
-        String storeView = commerceProperties.get(InvalidateCacheSupport.PROPERTIES_STORE_VIEW, DEFAULT_STORE_VIEW);
-
-        GraphqlClient client = invalidateCacheSupport.getClient(graphqlClientId);
-        ValueMap properties = resource.getValueMap();
-
-        String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAME, String[].class);
-
-        Map<String, String[]> dynamicProperties = getDynamicProperties(properties);
-        invalidateCacheByType(client, storeView, listOfCacheToSearch, dynamicProperties);
+    private void invalidateFullCache(GraphqlClient client, String storeView) {
+        try {
+            client.invalidateCache(storeView, new String[0], new String[0]);
+            LOGGER.debug("Successfully performed full cache invalidation for store view: {}", storeView);
+        } catch (Exception e) {
+            LOGGER.error("Error performing full cache invalidation: {}", e.getMessage(), e);
+        }
     }
 
     private Map<String, String[]> getDynamicProperties(ValueMap properties) {
         Map<String, String[]> dynamicProperties = new HashMap<>();
-        for (String attribute : invalidateCacheRegistry.getAttributes()) {
-            String[] values = properties.get(attribute, String[].class);
-            if (values != null) {
-                dynamicProperties.put(attribute, values);
+        Set<String> invalidationTypes = invalidateCacheRegistry.getInvalidationTypes();
+
+        for (String invalidationType : invalidationTypes) {
+            String[] values = properties.get(invalidationType, String[].class);
+            if (values != null && values.length > 0) {
+                dynamicProperties.put(invalidationType, values);
             }
         }
-        return dynamicProperties;
+        return Collections.unmodifiableMap(dynamicProperties);
     }
 
-    private void invalidateCacheByType(GraphqlClient client, String storeView, String[] listOfCacheToSearch,
-        Map<String, String[]> dynamicProperties) {
+    private void invalidateCacheByType(GraphqlClient client, String storeView, Map<String, String[]> dynamicProperties) {
         for (Map.Entry<String, String[]> entry : dynamicProperties.entrySet()) {
             String key = entry.getKey();
             String[] values = entry.getValue();
 
-            if (values != null && values.length > 0) {
-                String[] cachePatterns = getAttributePatterns(values, key);
-                client.invalidateCache(storeView, listOfCacheToSearch, cachePatterns);
+            try {
+                String[] cachePatterns = getInvalidationPatterns(values, key);
+                if (cachePatterns.length > 0) {
+                    LOGGER.debug("Invalidating cache for invalidationType: {}", key);
+                    client.invalidateCache(storeView, new String[0], cachePatterns);
+                } else {
+                    LOGGER.debug("No cache patterns generated for invalidationType: {}", key);
+                }
+            } catch (Exception e) {
+                LOGGER.error("Error invalidating cache for invalidationType {}: {}", key, e.getMessage(), e);
             }
         }
     }
 
-    private String[] getAttributePatterns(String[] patterns, String attribute) {
-        String pattern = invalidateCacheRegistry.getPattern(attribute);
-        if (pattern == null) {
-            return patterns;
+    private String[] getInvalidationPatterns(String[] invalidationParameters, String invalidationType) {
+        if (invalidationType == null || invalidationParameters == null || invalidationParameters.length == 0) {
+            return new String[0];
         }
-        String attributeString = String.join("|", patterns);
-        return new String[] { pattern + "(" + attributeString + ")" };
+
+        InvalidationStrategies strategies = invalidateCacheRegistry.getInvalidationStrategies(invalidationType);
+        if (strategies == null) {
+            return new String[0];
+        }
+
+        return strategies.getStrategies(false).stream()
+            .map(strategyInfo -> strategyInfo.getStrategy().getPatterns(invalidationParameters))
+            .filter(Objects::nonNull)
+            .flatMap(Collection::stream)
+            .distinct()
+            .toArray(String[]::new);
     }
 }
