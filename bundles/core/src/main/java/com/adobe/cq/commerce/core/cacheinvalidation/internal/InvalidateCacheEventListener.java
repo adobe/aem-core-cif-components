@@ -106,7 +106,7 @@ public class InvalidateCacheEventListener implements EventListener {
                 if (path.startsWith(actualPath)) {
                     LOGGER.debug("Cache invalidation event detected: {} and {}", path, event.getType());
                     invalidateCacheImpl.invalidateCache(path);
-                    if (slingSettingsService.getRunModes().contains("author") && Boolean.TRUE.equals(invalidateCacheSupport
+                    if (!slingSettingsService.getRunModes().contains("author") && Boolean.TRUE.equals(invalidateCacheSupport
                         .getEnableDispatcherCacheInvalidation())) {
                         invalidateDispatcherCacheImpl.invalidateCache(path);
                     }
