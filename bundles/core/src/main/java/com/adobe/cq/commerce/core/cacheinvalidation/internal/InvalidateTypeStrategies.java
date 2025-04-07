@@ -19,9 +19,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Manages a collection of cache invalidation strategies for a specific attribute.
+ * Manages a collection of cache invalidation strategies for a specific invalidateType.
  */
-public class AttributeStrategies {
+public class InvalidateTypeStrategies {
     private final List<StrategyInfo> strategies = new ArrayList<>();
 
     public void addStrategy(StrategyInfo strategy) {

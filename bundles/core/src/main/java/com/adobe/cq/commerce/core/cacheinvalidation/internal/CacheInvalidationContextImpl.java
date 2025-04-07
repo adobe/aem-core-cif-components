@@ -18,17 +18,17 @@ import java.util.List;
 
 import org.apache.sling.api.resource.ResourceResolver;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationContext;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationContext;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.day.cq.wcm.api.Page;
 
 /**
- * Implementation of {@link DispatcherCacheInvalidationContext}.
+ * Implementation of {@link CacheInvalidationContext}.
  */
-public class DispatcherCacheInvalidationContextImpl implements DispatcherCacheInvalidationContext {
+public class CacheInvalidationContextImpl implements CacheInvalidationContext {
     private final Page page;
     private final ResourceResolver resourceResolver;
-    private final List<String> attributeData;
+    private final List<String> invalidateTypeData;
     private final String storePath;
     private final MagentoGraphqlClient graphqlClient;
 
@@ -39,25 +39,25 @@ public class DispatcherCacheInvalidationContextImpl implements DispatcherCacheIn
     }
 
     /**
-     * Creates a new DispatcherCacheInvalidationContextImpl with the given parameters.
+     * Creates a new CacheInvalidationContextImpl with the given parameters.
      *
      * @param page the page
      * @param resourceResolver the resource resolver
-     * @param attributeData the attribute data entry
+     * @param invalidateTypeData the invalidate type data entry
      * @param storePath the store path
      * @param graphqlClient the Magento GraphQL client
      */
-    public DispatcherCacheInvalidationContextImpl(Page page, ResourceResolver resourceResolver, List<String> attributeData,
-                                                  String storePath, MagentoGraphqlClient graphqlClient) {
+    public CacheInvalidationContextImpl(Page page, ResourceResolver resourceResolver, List<String> invalidateTypeData,
+                                        String storePath, MagentoGraphqlClient graphqlClient) {
         requireNonNull(page, "Page");
         requireNonNull(resourceResolver, "ResourceResolver");
-        requireNonNull(attributeData, "AttributeData");
+        requireNonNull(invalidateTypeData, "InvalidateTypeData");
         requireNonNull(storePath, "StorePath");
         requireNonNull(graphqlClient, "GraphqlClient");
 
         this.page = page;
         this.resourceResolver = resourceResolver;
-        this.attributeData = attributeData;
+        this.invalidateTypeData = invalidateTypeData;
         this.storePath = storePath;
         this.graphqlClient = graphqlClient;
     }
@@ -73,8 +73,8 @@ public class DispatcherCacheInvalidationContextImpl implements DispatcherCacheIn
     }
 
     @Override
-    public List<String> getAttributeData() {
-        return attributeData;
+    public List<String> getInvalidateTypeData() {
+        return invalidateTypeData;
     }
 
     @Override

@@ -30,20 +30,20 @@ public class DispatcherCacheInvalidationContextImplTest {
 
     private Page page;
     private ResourceResolver resourceResolver;
-    private List<String> attributeData;
+    private List<String> invalidateTypeData;
     private String storePath;
     private MagentoGraphqlClient graphqlClient;
-    private DispatcherCacheInvalidationContextImpl context;
+    private CacheInvalidationContextImpl context;
 
     @Before
     public void setUp() {
         page = mock(Page.class);
         resourceResolver = mock(ResourceResolver.class);
-        attributeData = Arrays.asList("attr1", "attr2");
+        invalidateTypeData = Arrays.asList("attr1", "attr2");
         storePath = "/content/store";
         graphqlClient = mock(MagentoGraphqlClient.class);
 
-        context = new DispatcherCacheInvalidationContextImpl(page, resourceResolver, attributeData, storePath, graphqlClient);
+        context = new CacheInvalidationContextImpl(page, resourceResolver, invalidateTypeData, storePath, graphqlClient);
     }
 
     @Test
@@ -57,8 +57,8 @@ public class DispatcherCacheInvalidationContextImplTest {
     }
 
     @Test
-    public void testGetAttributeData() {
-        assertEquals(attributeData, context.getAttributeData());
+    public void testGetInvalidateTypeData() {
+        assertEquals(invalidateTypeData, context.getInvalidateTypeData());
     }
 
     @Test
@@ -73,26 +73,26 @@ public class DispatcherCacheInvalidationContextImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullPage() {
-        new DispatcherCacheInvalidationContextImpl(null, resourceResolver, attributeData, storePath, graphqlClient);
+        new CacheInvalidationContextImpl(null, resourceResolver, invalidateTypeData, storePath, graphqlClient);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullResourceResolver() {
-        new DispatcherCacheInvalidationContextImpl(page, null, attributeData, storePath, graphqlClient);
+        new CacheInvalidationContextImpl(page, null, invalidateTypeData, storePath, graphqlClient);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testConstructorWithNullAttributeData() {
-        new DispatcherCacheInvalidationContextImpl(page, resourceResolver, null, storePath, graphqlClient);
+    public void testConstructorWithNullInvalidateTypeData() {
+        new CacheInvalidationContextImpl(page, resourceResolver, null, storePath, graphqlClient);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullStorePath() {
-        new DispatcherCacheInvalidationContextImpl(page, resourceResolver, attributeData, null, graphqlClient);
+        new CacheInvalidationContextImpl(page, resourceResolver, invalidateTypeData, null, graphqlClient);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testConstructorWithNullGraphqlClient() {
-        new DispatcherCacheInvalidationContextImpl(page, resourceResolver, attributeData, storePath, null);
+        new CacheInvalidationContextImpl(page, resourceResolver, invalidateTypeData, storePath, null);
     }
 }

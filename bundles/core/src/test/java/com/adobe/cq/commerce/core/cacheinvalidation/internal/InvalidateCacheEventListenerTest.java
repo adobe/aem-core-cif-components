@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
+import java.util.Collections;
+
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
@@ -22,6 +24,7 @@ import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.ObservationManager;
 
 import org.apache.sling.jcr.api.SlingRepository;
+import org.apache.sling.settings.SlingSettingsService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,6 +65,9 @@ public class InvalidateCacheEventListenerTest {
     private Event event;
 
     @Mock
+    private SlingSettingsService slingSettingsService;
+
+    @Mock
     private EventIterator eventIterator;
 
     @InjectMocks
@@ -74,6 +80,8 @@ public class InvalidateCacheEventListenerTest {
     public void setUp() throws RepositoryException {
         when(repository.loginService(eq(InvalidateCacheSupport.SERVICE_USER), any())).thenReturn(session);
         when(session.getWorkspace()).thenReturn(workspace);
+        // Setup SlingSettingsService
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
         when(workspace.getObservationManager()).thenReturn(observationManager);
     }
 
@@ -109,18 +117,38 @@ public class InvalidateCacheEventListenerTest {
 
     @Test
     public void testOnEventWithDispatcherEnabled() throws RepositoryException {
-        // Setup
-        when(eventIterator.hasNext()).thenReturn(true, false);
-        when(eventIterator.nextEvent()).thenReturn(event);
-        when(event.getPath()).thenReturn(TEST_PATH);
+        setupEventIterator(TEST_PATH, true);
         when(invalidateCacheSupport.getEnableDispatcherCacheInvalidation()).thenReturn(true);
 
-        // Execute
         listener.onEvent(eventIterator);
 
-        // Verify
-        verify(invalidateCacheImpl).invalidateCache(TEST_PATH);
-        verify(invalidateDispatcherCacheImpl).invalidateCache(TEST_PATH);
+        verifyCacheInvalidation(TEST_PATH, true);
+    }
+
+    @Test
+    public void testOnEventWithDispatcherDisabledOnAuthorMode() throws RepositoryException {
+        setupEventIterator(TEST_PATH, true);
+        when(invalidateCacheSupport.getEnableDispatcherCacheInvalidation()).thenReturn(true);
+        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("author"));
+
+        listener.onEvent(eventIterator);
+
+        verifyCacheInvalidation(TEST_PATH, false);
+    }
+
+    private void setupEventIterator(String path, boolean hasNext) throws RepositoryException {
+        when(eventIterator.hasNext()).thenReturn(hasNext, false);
+        when(eventIterator.nextEvent()).thenReturn(event);
+        when(event.getPath()).thenReturn(path);
+    }
+
+    private void verifyCacheInvalidation(String path, boolean dispatcherEnabled) {
+        verify(invalidateCacheImpl).invalidateCache(path);
+        if (dispatcherEnabled) {
+            verify(invalidateDispatcherCacheImpl).invalidateCache(path);
+        } else {
+            verify(invalidateDispatcherCacheImpl, never()).invalidateCache(anyString());
+        }
     }
 
     @Test

@@ -13,11 +13,12 @@
  ******************************************************************************/
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class RegexPatternsInvalidateCacheTest {
 
@@ -29,9 +30,13 @@ public class RegexPatternsInvalidateCacheTest {
     }
 
     @Test
-    public void testGetPattern() {
-        // Test that getPattern returns null
-        assertNull(regexPatternsInvalidateCache.getPattern());
+    public void testGetPatterns() {
+        // Test that getPatterns returns the input parameters as a list
+        String[] parameters = { "test1", "test2" };
+        List<String> patterns = regexPatternsInvalidateCache.getPatterns(parameters);
+        assertEquals(2, patterns.size());
+        assertEquals("test1", patterns.get(0));
+        assertEquals("test2", patterns.get(1));
     }
 
     @Test

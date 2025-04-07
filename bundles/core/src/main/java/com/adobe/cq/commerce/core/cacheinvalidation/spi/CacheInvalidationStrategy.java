@@ -14,6 +14,8 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.spi;
 
+import java.util.List;
+
 import org.osgi.annotation.versioning.ConsumerType;
 
 /**
@@ -27,12 +29,13 @@ import org.osgi.annotation.versioning.ConsumerType;
 @ConsumerType
 public interface CacheInvalidationStrategy {
     /**
-     * Returns the pattern used for cache invalidation. This pattern defines which cache entries
-     * should be invalidated based on specific criteria.
+     * Returns a list of patterns used for cache invalidation. These patterns define which cache entries
+     * should be invalidated based on the provided parameters.
      *
-     * @return the cache invalidation pattern that determines which cache entries to invalidate
+     * @param parameters an array of strings that are used to generate the cache invalidation patterns
+     * @return a list of cache invalidation patterns that determine which cache entries to invalidate
      */
-    String getPattern();
+    List<String> getPatterns(String[] parameters);
 
     /**
      * Returns the type of cache invalidation request. This type specifies how the cache should be invalidated

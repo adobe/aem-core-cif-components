@@ -44,5 +44,5 @@ public interface DispatcherCacheInvalidationStrategy extends CacheInvalidationSt
      * @param context the context containing all necessary information for cache invalidation
      * @return a {@code List<String>} of paths to invalidate
      */
-    List<String> getPathsToInvalidate(DispatcherCacheInvalidationContext context);
+    List<String> getPathsToInvalidate(CacheInvalidationContext context);
 }

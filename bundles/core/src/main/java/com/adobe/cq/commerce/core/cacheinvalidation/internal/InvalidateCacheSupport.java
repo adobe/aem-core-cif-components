@@ -37,8 +37,8 @@ public class InvalidateCacheSupport {
     public static final String PROPERTIES_STORE_VIEW = "magentoStore";
     public static final String PROPERTIES_STORE_PATH = "storePath";
     public static final String PROPERTIES_INVALIDATE_ALL = "invalidateAll";
-    public static final String PROPERTIES_CACHE_NAME = "cacheNames";
-    public static final String PROPERTY_INVALIDATE_REQUEST_PARAMETER = "invalidateRequestParameter";
+    public static final String PROPERTIES_CACHE_NAMES = "cacheNames";
+    public static final String PROPERTY_INVALIDATE_TYPE_PARAMETER = "invalidateRequestParameter";
     public static final String HTML_SUFFIX = ".html";
     public static final String DISPATCHER_BASE_URL = "dispatcherBaseUrl";
     public static final String DISPATCHER_BASE_PATH_CONFIG = "dispatcherBasePathConfiguration";

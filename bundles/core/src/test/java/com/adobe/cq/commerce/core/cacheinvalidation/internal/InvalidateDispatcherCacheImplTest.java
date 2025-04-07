@@ -14,7 +14,6 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -23,14 +22,13 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
-import org.apache.sling.settings.SlingSettingsService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationContext;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationContext;
 import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
@@ -78,9 +76,6 @@ public class InvalidateDispatcherCacheImplTest {
     private ResourceResolver resourceResolver;
 
     @Mock
-    private SlingSettingsService slingSettingsService;
-
-    @Mock
     private UrlProviderImpl urlProvider;
 
     @InjectMocks
@@ -89,7 +84,7 @@ public class InvalidateDispatcherCacheImplTest {
     private ValueMap properties;
 
     @Mock
-    private AttributeStrategies attributeStrategies;
+    private InvalidateTypeStrategies invalidateTypeStrategies;
 
     @Mock
     private StrategyInfo strategyInfo;
@@ -99,14 +94,10 @@ public class InvalidateDispatcherCacheImplTest {
         MockitoAnnotations.initMocks(this);
         invalidateDispatcherCache = new InvalidateDispatcherCacheImpl();
 
-        // Setup SlingSettingsService
-        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("author"));
-
         // Initialize the component
         dispatcherCache = new InvalidateDispatcherCacheImpl();
         setField(dispatcherCache, "invalidateCacheSupport", invalidateCacheSupport);
         setField(dispatcherCache, "invalidateCacheRegistry", invalidateCacheRegistry);
-        setField(dispatcherCache, "slingSettingsService", slingSettingsService);
         setField(dispatcherCache, "urlProvider", urlProvider);
 
         // Setup basic mocks
@@ -119,12 +110,12 @@ public class InvalidateDispatcherCacheImplTest {
         // Setup basic properties
         when(valueMap.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class)).thenReturn("/content/store");
         properties = mock(ValueMap.class);
-        when(attributeStrategies.getStrategies(false)).thenReturn(Collections.singletonList(strategyInfo));
+        when(invalidateTypeStrategies.getStrategies(false)).thenReturn(Collections.singletonList(strategyInfo));
         when(strategyInfo.getStrategy()).thenReturn(strategy);
 
         // Ensure invalidateCacheRegistry is not null
-        when(invalidateCacheRegistry.getAttributes()).thenReturn(Collections.singleton("attribute"));
-        when(invalidateCacheRegistry.getAttributeStrategies("attribute")).thenReturn(attributeStrategies);
+        when(invalidateCacheRegistry.getInvalidateTypes()).thenReturn(Collections.singleton("invalidType"));
+        when(invalidateCacheRegistry.getInvalidateTypeStrategies("invalidType")).thenReturn(invalidateTypeStrategies);
     }
 
     private void setField(Object target, String fieldName, Object value) {
@@ -138,43 +129,23 @@ public class InvalidateDispatcherCacheImplTest {
     }
 
     @Test
-    public void testInvalidateCacheWithNullPath() {
-        dispatcherCache.invalidateCache(null);
-        verify(invalidateCacheSupport, never()).getServiceUserResourceResolver();
-    }
-
-    @Test
-    public void testInvalidateCacheWithEmptyPath() {
-        dispatcherCache.invalidateCache("");
-        verify(invalidateCacheSupport, never()).getServiceUserResourceResolver();
-    }
-
-    @Test
-    public void testInvalidateCacheNotOnAuthor() {
-        // Change to publish mode
-        when(slingSettingsService.getRunModes()).thenReturn(Collections.singleton("publish"));
-
-        dispatcherCache.invalidateCache("/content/path");
-    }
-
-    @Test
     public void testInvalidateCacheResourceNotFound() {
         when(invalidateCacheSupport.getResource(any(), anyString())).thenReturn(null);
         dispatcherCache.invalidateCache("/content/path");
-        verify(invalidateCacheRegistry, never()).getAttributes();
+        verify(invalidateCacheRegistry, never()).getInvalidateTypes();
     }
 
     @Test
     public void testInvalidateCacheWithException() {
         when(invalidateCacheSupport.getServiceUserResourceResolver()).thenThrow(new RuntimeException("Test exception"));
         dispatcherCache.invalidateCache("/content/path");
-        verify(invalidateCacheRegistry, never()).getAttributes();
+        verify(invalidateCacheRegistry, never()).getInvalidateTypes();
     }
 
     @Test
     public void testGetAllInvalidPaths() throws Exception {
         Map<String, String[]> dynamicProperties = new HashMap<>();
-        dynamicProperties.put("attribute", new String[] { "value" });
+        dynamicProperties.put("invalidType", new String[] { "value" });
         String[] result = dispatcherCache.getAllInvalidPaths(mock(ResourceResolver.class), mock(MagentoGraphqlClient.class),
             "/content/store", dynamicProperties).toArray(new String[0]);
         assertNotNull(result);
@@ -228,22 +199,22 @@ public class InvalidateDispatcherCacheImplTest {
     }
 
     @Test
-    public void testGetDynamicPropertiesWithNoAttributes() {
+    public void testGetDynamicPropertiesWithNoInvalidType() {
         ValueMap properties = mock(ValueMap.class);
         InvalidateCacheRegistry invalidateCacheRegistry = mock(InvalidateCacheRegistry.class);
-        when(invalidateCacheRegistry.getAttributes()).thenReturn(Collections.emptySet());
+        when(invalidateCacheRegistry.getInvalidateTypes()).thenReturn(Collections.emptySet());
         Map<String, String[]> result = dispatcherCache.getDynamicProperties(properties);
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
 
     @Test
-    public void testGetDynamicPropertiesWithValidAttributes() {
+    public void testGetDynamicPropertiesWithValidInvalidType() {
         ValueMap properties = mock(ValueMap.class);
-        when(properties.get("attribute", String[].class)).thenReturn(new String[] { "value" });
+        when(properties.get("invalidType", String[].class)).thenReturn(new String[] { "value" });
         InvalidateCacheRegistry invalidateCacheRegistry = mock(InvalidateCacheRegistry.class);
-        when(invalidateCacheRegistry.getAttributes()).thenReturn(Collections.singleton("attribute"));
-        when(invalidateCacheRegistry.getAttributeStrategies("attribute")).thenReturn(mock(AttributeStrategies.class));
+        when(invalidateCacheRegistry.getInvalidateTypes()).thenReturn(Collections.singleton("invalidType"));
+        when(invalidateCacheRegistry.getInvalidateTypeStrategies("invalidType")).thenReturn(mock(InvalidateTypeStrategies.class));
         Map<String, String[]> result = dispatcherCache.getDynamicProperties(properties);
         assertNotNull(result);
     }
@@ -289,10 +260,9 @@ public class InvalidateDispatcherCacheImplTest {
     public void testShouldPerformFullCacheClear_withInvalidateAllFlag() throws Exception {
         ValueMap properties = mock(ValueMap.class);
         when(properties.get(InvalidateCacheSupport.PROPERTIES_INVALIDATE_ALL, false)).thenReturn(true);
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("shouldPerformFullCacheClear", ValueMap.class,
-            ResourceResolver.class, String.class);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("shouldPerformFullCacheClear", ValueMap.class);
         method.setAccessible(true);
-        boolean result = (boolean) method.invoke(dispatcherCache, properties, mock(ResourceResolver.class), "some/path");
+        boolean result = (boolean) method.invoke(dispatcherCache, properties);
         assertTrue(result);
     }
 
@@ -301,10 +271,9 @@ public class InvalidateDispatcherCacheImplTest {
         ValueMap properties = mock(ValueMap.class);
         when(properties.get(InvalidateCacheSupport.PROPERTIES_INVALIDATE_ALL, false)).thenReturn(true);
         when(dispatcherCache.isValid(properties, mock(ResourceResolver.class), "some/path")).thenReturn(false);
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("shouldPerformFullCacheClear", ValueMap.class,
-            ResourceResolver.class, String.class);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("shouldPerformFullCacheClear", ValueMap.class);
         method.setAccessible(true);
-        boolean result = (boolean) method.invoke(dispatcherCache, properties, mock(ResourceResolver.class), "some/path");
+        boolean result = (boolean) method.invoke(dispatcherCache, properties);
         assertTrue(result);
     }
 
@@ -326,23 +295,23 @@ public class InvalidateDispatcherCacheImplTest {
     }
 
     @Test
-    public void testProcessAttributeStrategy() throws Exception {
+    public void testProcessInvalidateTypeStrategy() throws Exception {
         Map.Entry<String, String[]> entry = mock(Map.Entry.class);
         when(entry.getKey()).thenReturn("testKey");
         when(entry.getValue()).thenReturn(new String[] { "value1", "value2" });
         MagentoGraphqlClient client = mock(MagentoGraphqlClient.class);
 
         List<String> invalidPaths = Arrays.asList("/path1", "/path2");
-        when(strategy.getPathsToInvalidate(any(DispatcherCacheInvalidationContext.class))).thenReturn(invalidPaths);
+        when(strategy.getPathsToInvalidate(any(CacheInvalidationContext.class))).thenReturn(invalidPaths);
 
-        // Ensure that getAttributeStrategies does not return null
-        when(invalidateCacheRegistry.getAttributeStrategies(anyString())).thenReturn(attributeStrategies);
-        when(attributeStrategies.getStrategies(false)).thenReturn(Collections.singletonList(new StrategyInfo(strategy, Collections
+        // Ensure that getInvalidateTypeStrategies does not return null
+        when(invalidateCacheRegistry.getInvalidateTypeStrategies(anyString())).thenReturn(invalidateTypeStrategies);
+        when(invalidateTypeStrategies.getStrategies(false)).thenReturn(Collections.singletonList(new StrategyInfo(strategy, Collections
             .emptyMap(), false)));
 
         // Use reflection to access the private method
         Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod(
-            "processAttributeStrategy", Map.Entry.class, Page.class, ResourceResolver.class, String.class, MagentoGraphqlClient.class);
+            "processInvalidateTypeStrategy", Map.Entry.class, Page.class, ResourceResolver.class, String.class, MagentoGraphqlClient.class);
         method.setAccessible(true);
 
         // Invoke the private method
@@ -367,10 +336,9 @@ public class InvalidateDispatcherCacheImplTest {
     public void testShouldPerformFullCacheClear() throws Exception {
         ValueMap properties = mock(ValueMap.class);
         when(properties.get(InvalidateCacheSupport.PROPERTIES_INVALIDATE_ALL, false)).thenReturn(true);
-        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("shouldPerformFullCacheClear", ValueMap.class,
-            ResourceResolver.class, String.class);
+        Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod("shouldPerformFullCacheClear", ValueMap.class);
         method.setAccessible(true);
-        boolean result = (boolean) method.invoke(dispatcherCache, properties, mock(ResourceResolver.class), "some/path");
+        boolean result = (boolean) method.invoke(dispatcherCache, properties);
         assertTrue(result);
     }
 
@@ -390,7 +358,7 @@ public class InvalidateDispatcherCacheImplTest {
         when(invalidateCacheSupport.getResource(any(), anyString())).thenReturn(resource);
         when(resource.adaptTo(MagentoGraphqlClient.class)).thenReturn(null);
         dispatcherCache.invalidateCache("/content/path");
-        verify(invalidateCacheRegistry, never()).getAttributes();
+        verify(invalidateCacheRegistry, never()).getInvalidateTypes();
     }
 
     @Test

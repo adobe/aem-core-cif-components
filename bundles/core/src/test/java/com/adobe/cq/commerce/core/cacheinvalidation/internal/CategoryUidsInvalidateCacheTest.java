@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationContext;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationContext;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -60,7 +60,7 @@ public class CategoryUidsInvalidateCacheTest {
     private InvalidateCacheSupport invalidateCacheSupport;
 
     @Mock
-    private DispatcherCacheInvalidationContext mockContext;
+    private CacheInvalidationContext mockContext;
 
     @Mock
     private ResourceResolver resourceResolver;
@@ -140,14 +140,16 @@ public class CategoryUidsInvalidateCacheTest {
     }
 
     @Test
-    public void testGetPattern() {
-        String pattern = categoryUidsInvalidateCache.getPattern();
-        assertEquals("\"uid\"\\s*:\\s*\\{\"id\"\\s*:\\s*\"", pattern);
+    public void testGetPatterns() {
+        String[] parameters = { "uid1", "uid2" };
+        List<String> patterns = categoryUidsInvalidateCache.getPatterns(parameters);
+        assertEquals(1, patterns.size());
+        assertEquals("\"uid\"\\s*:\\s*\\{\"id\"\\s*:\\s*\"(uid1|uid2)", patterns.get(0));
     }
 
     @Test
     public void testGetPathsToInvalidateWithEmptyCategoryUids() {
-        when(mockContext.getAttributeData()).thenReturn(Collections.emptyList());
+        when(mockContext.getInvalidateTypeData()).thenReturn(Collections.emptyList());
 
         List<String> paths = categoryUidsInvalidateCache.getPathsToInvalidate(mockContext);
 
@@ -156,8 +158,8 @@ public class CategoryUidsInvalidateCacheTest {
     }
 
     @Test
-    public void testGetPathsToInvalidateWithNullAttributeData() {
-        when(mockContext.getAttributeData()).thenReturn(null);
+    public void testGetPathsToInvalidateWithNullInvalidateTypeData() {
+        when(mockContext.getInvalidateTypeData()).thenReturn(null);
 
         List<String> paths = categoryUidsInvalidateCache.getPathsToInvalidate(mockContext);
 
@@ -167,7 +169,7 @@ public class CategoryUidsInvalidateCacheTest {
 
     @Test
     public void testGetPathsToInvalidateWithGraphQLError() throws Exception {
-        when(mockContext.getAttributeData()).thenReturn(Collections.singletonList(TEST_CATEGORY_UID));
+        when(mockContext.getInvalidateTypeData()).thenReturn(Collections.singletonList(TEST_CATEGORY_UID));
         when(mockContext.getGraphqlClient()).thenReturn(graphqlClient);
         when(graphqlClient.execute(anyString())).thenThrow(new RuntimeException("GraphQL Error"));
 
@@ -179,7 +181,7 @@ public class CategoryUidsInvalidateCacheTest {
 
     @Test
     public void testGetPathsToInvalidateWithJCRQueryError() throws Exception {
-        when(mockContext.getAttributeData()).thenReturn(Collections.singletonList(TEST_CATEGORY_UID));
+        when(mockContext.getInvalidateTypeData()).thenReturn(Collections.singletonList(TEST_CATEGORY_UID));
         when(queryManager.createQuery(anyString(), eq(Query.JCR_SQL2))).thenThrow(new RepositoryException("JCR Query Error"));
 
         List<String> paths = categoryUidsInvalidateCache.getPathsToInvalidate(mockContext);
@@ -190,7 +192,7 @@ public class CategoryUidsInvalidateCacheTest {
 
     @Test
     public void testGetPathsToInvalidateWithEmptyGraphQLResponse() throws Exception {
-        when(mockContext.getAttributeData()).thenReturn(Collections.singletonList(TEST_CATEGORY_UID));
+        when(mockContext.getInvalidateTypeData()).thenReturn(Collections.singletonList(TEST_CATEGORY_UID));
         when(mockContext.getGraphqlClient()).thenReturn(graphqlClient);
         when(graphqlClient.execute(anyString())).thenReturn(graphqlResponse);
         when(graphqlResponse.getData()).thenReturn(mock(com.adobe.cq.commerce.magento.graphql.Query.class));
@@ -212,7 +214,7 @@ public class CategoryUidsInvalidateCacheTest {
         Set<String> allPaths = new HashSet<>();
         String[] categoryUids = { TEST_CATEGORY_UID };
 
-        invokePrivateMethod(categoryUidsInvalidateCache, "addJcrPaths", new Class<?>[] { DispatcherCacheInvalidationContext.class,
+        invokePrivateMethod(categoryUidsInvalidateCache, "addJcrPaths", new Class<?>[] { CacheInvalidationContext.class,
             String[].class, Set.class },
             mockContext, categoryUids, allPaths);
     }
@@ -229,7 +231,7 @@ public class CategoryUidsInvalidateCacheTest {
         when(mockContext.getPage()).thenReturn(page);
         when(urlProvider.toCategoryUrl(any(), eq(page), anyString())).thenReturn(TEST_CATEGORY_PATH);
 
-        invokePrivateMethod(categoryUidsInvalidateCache, "addGraphqlPaths", new Class<?>[] { DispatcherCacheInvalidationContext.class,
+        invokePrivateMethod(categoryUidsInvalidateCache, "addGraphqlPaths", new Class<?>[] { CacheInvalidationContext.class,
             List.class, Set.class },
             mockContext, categories, allPaths);
     }
@@ -246,7 +248,7 @@ public class CategoryUidsInvalidateCacheTest {
         when(graphqlClient.execute(anyString())).thenReturn(graphqlResponse);
         when(graphqlResponse.getData()).thenReturn(queryData);
 
-        Method method = CategoryUidsInvalidateCache.class.getDeclaredMethod("fetchCategories", DispatcherCacheInvalidationContext.class,
+        Method method = CategoryUidsInvalidateCache.class.getDeclaredMethod("fetchCategories", CacheInvalidationContext.class,
             String[].class);
         method.setAccessible(true);
         List<Map<String, Object>> categories = (List<Map<String, Object>>) method.invoke(categoryUidsInvalidateCache, mockContext,

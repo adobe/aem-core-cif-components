@@ -14,6 +14,9 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.osgi.service.component.annotations.Component;
 
 import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationStrategy;
@@ -23,8 +26,8 @@ import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationStrateg
 public class RegexPatternsInvalidateCache implements CacheInvalidationStrategy {
 
     @Override
-    public String getPattern() {
-        return null;
+    public List<String> getPatterns(String[] parameters) {
+        return Arrays.asList(parameters);
     }
 
     @Override

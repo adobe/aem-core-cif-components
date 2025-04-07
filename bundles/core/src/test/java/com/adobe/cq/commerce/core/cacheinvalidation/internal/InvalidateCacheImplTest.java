@@ -55,8 +55,6 @@ public class InvalidateCacheImplTest {
 
     private static final String TEST_CONFIG_COMMERCE_PATH = "/conf/venia";
     private static final String TEST_GRAPHQL_CLIENT = "default";
-    private static final String TEST_STORE_VIEW = "default";
-    private static final String TEST_ATTRIBUTE = "test-attribute";
 
     @Rule
     public final AemContext context = new AemContextBuilder(ResourceResolverType.JCR_MOCK).plugin(ContextPlugins.CACONFIG)
@@ -94,7 +92,7 @@ public class InvalidateCacheImplTest {
     private Logger logger;
 
     @Mock
-    private AttributeStrategies attributeStrategies;
+    private InvalidateTypeStrategies invalidateTypeStrategies;
 
     @Mock
     private StrategyInfo strategyInfo;
@@ -103,13 +101,13 @@ public class InvalidateCacheImplTest {
     private CacheInvalidationStrategy mockStrategy;
 
     @Mock
-    private AttributeStrategies productSkusStrategies;
+    private InvalidateTypeStrategies productSkusStrategies;
 
     @Mock
-    private AttributeStrategies categoryUidsStrategies;
+    private InvalidateTypeStrategies categoryUidsStrategies;
 
     @Mock
-    private AttributeStrategies regexPatternsStrategies;
+    private InvalidateTypeStrategies regexPatternsStrategies;
 
     @Mock
     private StrategyInfo productSkusStrategyInfo;
@@ -154,27 +152,28 @@ public class InvalidateCacheImplTest {
         when(invalidateCacheSupport.getServiceUserResourceResolver()).thenReturn(resourceResolver);
         when(invalidateCacheSupport.getClient(any())).thenReturn(Mockito.mock(GraphqlClient.class));
 
-        // Mock the InvalidateCacheRegistry to return expected attributes
-        Set<String> attributes = new HashSet<>(Arrays.asList("productSkus", "categoryUids", "regexPatterns"));
-        when(invalidateCacheRegistry.getAttributes()).thenReturn(attributes);
+        // Mock the InvalidateCacheRegistry to return expected invalidateTypes
+        Set<String> invalidateTypes = new HashSet<>(Arrays.asList("productSkus", "categoryUids", "regexPatterns"));
+        when(invalidateCacheRegistry.getInvalidateTypes()).thenReturn(invalidateTypes);
 
         // Mock strategies for productSkus
-        when(invalidateCacheRegistry.getAttributeStrategies("productSkus")).thenReturn(productSkusStrategies);
+        when(invalidateCacheRegistry.getInvalidateTypeStrategies("productSkus")).thenReturn(productSkusStrategies);
         when(productSkusStrategies.getStrategies(false)).thenReturn(Collections.singletonList(productSkusStrategyInfo));
         when(productSkusStrategyInfo.getStrategy()).thenReturn(productSkusStrategy);
-        when(productSkusStrategy.getPattern()).thenReturn("\"sku\":\\s*\"");
+        when(productSkusStrategy.getPatterns(any(String[].class))).thenReturn(Collections.singletonList("\"sku\":\\s*\""));
 
         // Mock strategies for categoryUids
-        when(invalidateCacheRegistry.getAttributeStrategies("categoryUids")).thenReturn(categoryUidsStrategies);
+        when(invalidateCacheRegistry.getInvalidateTypeStrategies("categoryUids")).thenReturn(categoryUidsStrategies);
         when(categoryUidsStrategies.getStrategies(false)).thenReturn(Collections.singletonList(categoryUidsStrategyInfo));
         when(categoryUidsStrategyInfo.getStrategy()).thenReturn(categoryUidsStrategy);
-        when(categoryUidsStrategy.getPattern()).thenReturn("\"uid\"\\s*:\\s*\\{\"id\"\\s*:\\s*\"");
+        when(categoryUidsStrategy.getPatterns(any(String[].class))).thenReturn(Collections.singletonList(
+            "\"uid\"\\s*:\\s*\\{\"id\"\\s*:\\s*\""));
 
         // Mock strategies for regexPatterns
-        when(invalidateCacheRegistry.getAttributeStrategies("regexPatterns")).thenReturn(regexPatternsStrategies);
+        when(invalidateCacheRegistry.getInvalidateTypeStrategies("regexPatterns")).thenReturn(regexPatternsStrategies);
         when(regexPatternsStrategies.getStrategies(false)).thenReturn(Collections.singletonList(regexPatternsStrategyInfo));
         when(regexPatternsStrategyInfo.getStrategy()).thenReturn(regexPatternsStrategy);
-        when(regexPatternsStrategy.getPattern()).thenReturn(null);
+        when(regexPatternsStrategy.getPatterns(any(String[].class))).thenReturn(null);
 
         setLoggerField();
     }
@@ -252,22 +251,22 @@ public class InvalidateCacheImplTest {
         invalidateCache.invalidateCache(TEST_PATH_WITH_VALID_DATA);
 
         // Verify interactions for productSkus
-        verify(invalidateCacheRegistry).getAttributeStrategies("productSkus");
+        verify(invalidateCacheRegistry).getInvalidateTypeStrategies("productSkus");
         verify(productSkusStrategies).getStrategies(false);
         verify(productSkusStrategyInfo).getStrategy();
-        verify(productSkusStrategy).getPattern();
+        verify(productSkusStrategy).getPatterns(any(String[].class));
 
         // Verify interactions for categoryUids
-        verify(invalidateCacheRegistry).getAttributeStrategies("categoryUids");
+        verify(invalidateCacheRegistry).getInvalidateTypeStrategies("categoryUids");
         verify(categoryUidsStrategies).getStrategies(false);
         verify(categoryUidsStrategyInfo).getStrategy();
-        verify(categoryUidsStrategy).getPattern();
+        verify(categoryUidsStrategy).getPatterns(any(String[].class));
 
         // Verify interactions for regexPatterns
-        verify(invalidateCacheRegistry).getAttributeStrategies("regexPatterns");
+        verify(invalidateCacheRegistry).getInvalidateTypeStrategies("regexPatterns");
         verify(regexPatternsStrategies).getStrategies(false);
         verify(regexPatternsStrategyInfo).getStrategy();
-        verify(regexPatternsStrategy).getPattern();
+        verify(regexPatternsStrategy).getPatterns(any(String[].class));
     }
 
     @Test
@@ -284,14 +283,14 @@ public class InvalidateCacheImplTest {
     @Test
     public void testNoCachePatternsGenerated() throws Exception {
         Map<String, String[]> dynamicProperties = new HashMap<>();
-        dynamicProperties.put("test-attribute", new String[0]);
+        dynamicProperties.put("invalidType", new String[0]);
 
         Method invalidateCacheByType = InvalidateCacheImpl.class.getDeclaredMethod("invalidateCacheByType", GraphqlClient.class,
-            String.class, String[].class, Map.class);
+            String.class, Map.class);
         invalidateCacheByType.setAccessible(true);
-        invalidateCacheByType.invoke(invalidateCache, client, "default", new String[0], dynamicProperties);
+        invalidateCacheByType.invoke(invalidateCache, client, "default", dynamicProperties);
 
-        verify(logger).debug("No cache patterns generated for attribute: {}", "test-attribute");
+        verify(logger).debug("No cache patterns generated for invalidateType: {}", "invalidType");
     }
 
 }

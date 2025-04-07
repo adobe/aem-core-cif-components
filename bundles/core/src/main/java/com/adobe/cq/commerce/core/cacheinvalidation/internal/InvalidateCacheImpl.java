@@ -14,12 +14,7 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -87,13 +82,19 @@ public class InvalidateCacheImpl {
             return;
         }
 
+        String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAMES, String[].class);
+        if (listOfCacheToSearch != null && listOfCacheToSearch.length != 0) {
+            LOGGER.debug("Cache invalidation based on cache names");
+            client.invalidateCache(storeView, listOfCacheToSearch, new String[0]);
+        }
+
         Map<String, String[]> dynamicProperties = getDynamicProperties(properties);
         if (dynamicProperties.isEmpty()) {
             LOGGER.debug("No dynamic properties found for cache invalidation");
+        } else {
+            LOGGER.debug("Cache invalidation based on dynamic properties");
+            invalidateCacheByType(client, storeView, dynamicProperties);
         }
-
-        String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAME, String[].class);
-        invalidateCacheByType(client, storeView, listOfCacheToSearch, dynamicProperties);
     }
 
     private void invalidateFullCache(GraphqlClient client, String storeView) {
@@ -107,56 +108,51 @@ public class InvalidateCacheImpl {
 
     private Map<String, String[]> getDynamicProperties(ValueMap properties) {
         Map<String, String[]> dynamicProperties = new HashMap<>();
-        Set<String> attributes = invalidateCacheRegistry.getAttributes();
+        Set<String> invalidateTypes = invalidateCacheRegistry.getInvalidateTypes();
 
-        for (String attribute : attributes) {
-            String[] values = properties.get(attribute, String[].class);
+        for (String invalidateType : invalidateTypes) {
+            String[] values = properties.get(invalidateType, String[].class);
             if (values != null && values.length > 0) {
-                dynamicProperties.put(attribute, values);
+                dynamicProperties.put(invalidateType, values);
             }
         }
         return Collections.unmodifiableMap(dynamicProperties);
     }
 
-    private void invalidateCacheByType(GraphqlClient client, String storeView, String[] listOfCacheToSearch,
-        Map<String, String[]> dynamicProperties) {
+    private void invalidateCacheByType(GraphqlClient client, String storeView, Map<String, String[]> dynamicProperties) {
         for (Map.Entry<String, String[]> entry : dynamicProperties.entrySet()) {
             String key = entry.getKey();
             String[] values = entry.getValue();
 
             try {
-                String[] cachePatterns = getAttributePatterns(values, key);
+                String[] cachePatterns = getInvalidatePatterns(values, key);
                 if (cachePatterns.length > 0) {
-                    LOGGER.debug("Invalidating cache for attribute: {}", key);
-                    client.invalidateCache(storeView, listOfCacheToSearch, cachePatterns);
+                    LOGGER.debug("Invalidating cache for invalidateType: {}", key);
+                    client.invalidateCache(storeView, new String[0], cachePatterns);
                 } else {
-                    LOGGER.debug("No cache patterns generated for attribute: {}", key);
+                    LOGGER.debug("No cache patterns generated for invalidateType: {}", key);
                 }
             } catch (Exception e) {
-                LOGGER.error("Error invalidating cache for attribute {}: {}", key, e.getMessage(), e);
+                LOGGER.error("Error invalidating cache for invalidateType {}: {}", key, e.getMessage(), e);
             }
         }
     }
 
-    private String[] getAttributePatterns(String[] patterns, String attribute) {
-        if (attribute == null || patterns == null || patterns.length == 0) {
+    private String[] getInvalidatePatterns(String[] parameters, String invalidateType) {
+        if (invalidateType == null || parameters == null || parameters.length == 0) {
             return new String[0];
         }
 
-        Set<String> resultPatterns = new HashSet<>();
-        AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(attribute);
-
-        if (strategies != null) {
-            for (StrategyInfo strategyInfo : strategies.getStrategies(false)) {
-                String pattern = strategyInfo.getStrategy().getPattern();
-                if (pattern != null) {
-                    String attributeString = String.join("|", patterns);
-                    resultPatterns.add(pattern + "(" + attributeString + ")");
-                } else if ("regexPatterns".equals(attribute)) {
-                    resultPatterns.addAll(Arrays.asList(patterns));
-                }
-            }
+        InvalidateTypeStrategies strategies = invalidateCacheRegistry.getInvalidateTypeStrategies(invalidateType);
+        if (strategies == null) {
+            return new String[0];
         }
-        return resultPatterns.toArray(new String[0]);
+
+        return strategies.getStrategies(false).stream()
+            .map(strategyInfo -> strategyInfo.getStrategy().getPatterns(parameters))
+            .filter(Objects::nonNull)
+            .flatMap(Collection::stream)
+            .distinct()
+            .toArray(String[]::new);
     }
 }

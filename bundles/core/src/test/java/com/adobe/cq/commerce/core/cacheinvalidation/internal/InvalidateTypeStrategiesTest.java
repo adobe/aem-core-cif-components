@@ -24,9 +24,9 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
-public class AttributeStrategiesTest {
+public class InvalidateTypeStrategiesTest {
 
-    private AttributeStrategies attributeStrategies;
+    private InvalidateTypeStrategies invalidateTypeStrategies;
 
     @Mock
     private StrategyInfo mockStrategy1;
@@ -36,7 +36,7 @@ public class AttributeStrategiesTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        attributeStrategies = new AttributeStrategies();
+        invalidateTypeStrategies = new InvalidateTypeStrategies();
     }
 
     @Test
@@ -45,8 +45,8 @@ public class AttributeStrategiesTest {
         when(mockStrategy1.getComponentName()).thenReturn("component1");
 
         // Test adding a strategy
-        attributeStrategies.addStrategy(mockStrategy1);
-        List<StrategyInfo> strategies = attributeStrategies.getStrategies(false);
+        invalidateTypeStrategies.addStrategy(mockStrategy1);
+        List<StrategyInfo> strategies = invalidateTypeStrategies.getStrategies(false);
         assertEquals(1, strategies.size());
         assertEquals(mockStrategy1, strategies.get(0));
     }
@@ -57,8 +57,8 @@ public class AttributeStrategiesTest {
         when(mockStrategy1.getComponentName()).thenReturn(null);
 
         // Test adding a strategy with null component name
-        attributeStrategies.addStrategy(mockStrategy1);
-        List<StrategyInfo> strategies = attributeStrategies.getStrategies(false);
+        invalidateTypeStrategies.addStrategy(mockStrategy1);
+        List<StrategyInfo> strategies = invalidateTypeStrategies.getStrategies(false);
         assertTrue(strategies.isEmpty());
     }
 
@@ -69,13 +69,13 @@ public class AttributeStrategiesTest {
         when(mockStrategy2.getComponentName()).thenReturn("component1");
 
         // Add first strategy
-        attributeStrategies.addStrategy(mockStrategy1);
+        invalidateTypeStrategies.addStrategy(mockStrategy1);
 
         // Add second strategy with same component name
-        attributeStrategies.addStrategy(mockStrategy2);
+        invalidateTypeStrategies.addStrategy(mockStrategy2);
 
         // Verify only the second strategy remains
-        List<StrategyInfo> strategies = attributeStrategies.getStrategies(false);
+        List<StrategyInfo> strategies = invalidateTypeStrategies.getStrategies(false);
         assertEquals(1, strategies.size());
         assertEquals(mockStrategy2, strategies.get(0));
     }
@@ -84,11 +84,11 @@ public class AttributeStrategiesTest {
     public void testRemoveStrategy() {
         // Setup
         when(mockStrategy1.getComponentName()).thenReturn("component1");
-        attributeStrategies.addStrategy(mockStrategy1);
+        invalidateTypeStrategies.addStrategy(mockStrategy1);
 
         // Test removing the strategy
-        attributeStrategies.removeStrategy("component1");
-        List<StrategyInfo> strategies = attributeStrategies.getStrategies(false);
+        invalidateTypeStrategies.removeStrategy("component1");
+        List<StrategyInfo> strategies = invalidateTypeStrategies.getStrategies(false);
         assertTrue(strategies.isEmpty());
     }
 
@@ -100,16 +100,16 @@ public class AttributeStrategiesTest {
         when(mockStrategy1.isInternal()).thenReturn(true);
         when(mockStrategy2.isInternal()).thenReturn(false);
 
-        attributeStrategies.addStrategy(mockStrategy1);
-        attributeStrategies.addStrategy(mockStrategy2);
+        invalidateTypeStrategies.addStrategy(mockStrategy1);
+        invalidateTypeStrategies.addStrategy(mockStrategy2);
 
         // Test getting internal strategies only
-        List<StrategyInfo> internalStrategies = attributeStrategies.getStrategies(true);
+        List<StrategyInfo> internalStrategies = invalidateTypeStrategies.getStrategies(true);
         assertEquals(1, internalStrategies.size());
         assertEquals(mockStrategy1, internalStrategies.get(0));
 
         // Test getting all strategies
-        List<StrategyInfo> allStrategies = attributeStrategies.getStrategies(false);
+        List<StrategyInfo> allStrategies = invalidateTypeStrategies.getStrategies(false);
         assertEquals(2, allStrategies.size());
     }
 

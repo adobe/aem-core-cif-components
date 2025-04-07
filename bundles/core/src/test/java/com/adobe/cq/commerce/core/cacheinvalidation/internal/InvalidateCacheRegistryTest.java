@@ -22,8 +22,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationContext;
 import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationStrategy;
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationContext;
 import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 
 import static org.junit.Assert.assertEquals;
@@ -43,7 +43,7 @@ public class InvalidateCacheRegistryTest {
     private DispatcherCacheInvalidationStrategy mockDispatcherStrategy;
 
     @Mock
-    private DispatcherCacheInvalidationContext mockContext;
+    private CacheInvalidationContext mockContext;
 
     @Before
     public void setUp() {
@@ -52,70 +52,14 @@ public class InvalidateCacheRegistryTest {
     }
 
     @Test
-    public void testBindInvalidateCache() {
-        // Setup
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER, "testAttribute");
-        properties.put("component.name", "testComponent");
-        Mockito.when(mockStrategy.getPattern()).thenReturn("/content/test");
-        Mockito.when(mockStrategy.getInvalidationRequestType()).thenReturn("testAttribute");
-
-        // Test
-        registry.bindInvalidateCache(mockStrategy, properties);
-
-        // Verify
-        Set<String> patterns = registry.getPattern("testAttribute");
-        assertEquals(1, patterns.size());
-        assertTrue(patterns.contains("/content/test"));
-        Mockito.verify(mockStrategy, Mockito.times(1)).getPattern();
-    }
-
-    @Test
-    public void testBindInvalidateDispatcherCache() {
-        // Setup
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER, "testDispatcherAttribute");
-        properties.put("component.name", "testDispatcherComponent");
-        List<String> expectedPaths = Arrays.asList("/content/dispatcher/test");
-        Mockito.when(mockDispatcherStrategy.getPathsToInvalidate(Mockito.any())).thenReturn(expectedPaths);
-        Mockito.when(mockContext.getAttributeData()).thenReturn(Collections.singletonList("testDispatcherAttribute"));
-        Mockito.when(mockDispatcherStrategy.getInvalidationRequestType()).thenReturn("testDispatcherAttribute");
-
-        // Test
-        registry.bindInvalidateDispatcherCache(mockDispatcherStrategy, properties);
-
-        // Verify
-        List<String> paths = registry.getPathsToInvalidate(mockContext);
-        assertEquals(expectedPaths, paths);
-        Mockito.verify(mockDispatcherStrategy, Mockito.times(1)).getPathsToInvalidate(mockContext);
-    }
-
-    @Test
-    public void testUnbindCache() {
-        // Setup
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER, "testAttribute");
-        properties.put("component.name", "testComponent");
-
-        registry.bindInvalidateCache(mockStrategy, properties);
-
-        // Test
-        registry.unbindInvalidateCache(mockStrategy, properties);
-
-        // Verify
-        Set<String> patterns = registry.getPattern("testAttribute");
-        assertTrue(patterns.isEmpty());
-    }
-
-    @Test
-    public void testGetAttributes() {
+    public void testGetInvalidateTypes() {
         // Setup
         Map<String, Object> properties1 = new HashMap<>();
-        properties1.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER, "attr1");
+        properties1.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_TYPE_PARAMETER, "attr1");
         Mockito.when(mockStrategy.getInvalidationRequestType()).thenReturn("attr1");
 
         Map<String, Object> properties2 = new HashMap<>();
-        properties2.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER, "attr2");
+        properties2.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_TYPE_PARAMETER, "attr2");
         Mockito.when(mockStrategy2.getInvalidationRequestType()).thenReturn("attr2");
 
         // Test
@@ -123,72 +67,24 @@ public class InvalidateCacheRegistryTest {
         registry.bindInvalidateCache(mockStrategy2, properties2);
 
         // Verify
-        Set<String> attributes = registry.getAttributes();
-        assertEquals(2, attributes.size());
-        assertTrue(attributes.contains("attr1"));
-        assertTrue(attributes.contains("attr2"));
+        Set<String> invalidateTypes = registry.getInvalidateTypes();
+        assertEquals(2, invalidateTypes.size());
+        assertTrue(invalidateTypes.contains("attr1"));
+        assertTrue(invalidateTypes.contains("attr2"));
     }
 
     @Test
-    public void testGetEmptyPathsWhenNoStrategiesRegistered() {
-        // Setup
-        Mockito.when(mockContext.getAttributeData()).thenReturn(Collections.singletonList("nonExistentAttribute"));
-
-        // Test & Verify
-        List<String> paths = registry.getPathsToInvalidate(mockContext);
-        assertEquals(0, paths.size());
-    }
-
-    @Test
-    public void testGetAttributeStrategies() {
+    public void testGetInvalidateTypeStrategies() {
         // Setup
         Map<String, Object> properties = new HashMap<>();
-        properties.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER, "testAttribute");
-        Mockito.when(mockStrategy.getInvalidationRequestType()).thenReturn("testAttribute");
+        properties.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_TYPE_PARAMETER, "invalidType");
+        Mockito.when(mockStrategy.getInvalidationRequestType()).thenReturn("invalidType");
 
         // Test
         registry.bindInvalidateCache(mockStrategy, properties);
 
         // Verify
-        AttributeStrategies strategies = registry.getAttributeStrategies("testAttribute");
+        InvalidateTypeStrategies strategies = registry.getInvalidateTypeStrategies("invalidType");
         assertTrue(strategies != null);
-    }
-
-    @Test
-    public void testUnbindInvalidateCache() {
-        // Setup
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER, "testAttribute");
-        properties.put("component.name", "testComponent");
-        Mockito.when(mockStrategy.getInvalidationRequestType()).thenReturn("testAttribute");
-
-        // Bind the strategy
-        registry.bindInvalidateCache(mockStrategy, properties);
-
-        // Unbind the strategy
-        registry.unbindInvalidateCache(mockStrategy, properties);
-
-        // Verify
-        Set<String> patterns = registry.getPattern("testAttribute");
-        assertTrue(patterns.isEmpty());
-    }
-
-    @Test
-    public void testUnbindInvalidateDispatcherCache() {
-        // Setup
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER, "testDispatcherAttribute");
-        properties.put("component.name", "testDispatcherComponent");
-        Mockito.when(mockDispatcherStrategy.getInvalidationRequestType()).thenReturn("testDispatcherAttribute");
-
-        // Bind the dispatcher strategy
-        registry.bindInvalidateDispatcherCache(mockDispatcherStrategy, properties);
-
-        // Unbind the dispatcher strategy
-        registry.unbindInvalidateDispatcherCache(mockDispatcherStrategy, properties);
-
-        // Verify
-        List<String> paths = registry.getPathsToInvalidate(mockContext);
-        assertTrue(paths.isEmpty());
     }
 }

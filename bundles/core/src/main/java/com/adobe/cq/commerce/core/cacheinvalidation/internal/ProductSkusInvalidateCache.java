@@ -24,7 +24,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationContext;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationContext;
 import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.magento.graphql.*;
@@ -61,8 +61,10 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
     private InvalidateCacheSupport invalidateCacheSupport;
 
     @Override
-    public String getPattern() {
-        return "\"sku\":\\s*\"";
+    public List<String> getPatterns(String[] parameters) {
+        String pattern = "\"sku\":\\s*\"";
+        String invalidateTypeString = String.join("|", parameters);
+        return Collections.singletonList(pattern + "(" + invalidateTypeString + ")");
     }
 
     @Override
@@ -71,9 +73,9 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
     }
 
     @Override
-    public List<String> getPathsToInvalidate(DispatcherCacheInvalidationContext context) {
+    public List<String> getPathsToInvalidate(CacheInvalidationContext context) {
         try {
-            List<String> skus = context.getAttributeData();
+            List<String> skus = context.getInvalidateTypeData();
             if (skus == null) {
                 return Collections.emptyList();
             }
@@ -127,7 +129,7 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
      * @param skus Array of SKUs to query
      * @return List of product data maps
      */
-    private List<Map<String, Object>> fetchProducts(DispatcherCacheInvalidationContext context, String[] skus) {
+    private List<Map<String, Object>> fetchProducts(CacheInvalidationContext context, String[] skus) {
         try {
             ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
             FilterEqualTypeInput skuFilter = new FilterEqualTypeInput().setIn(Arrays.asList(skus));
@@ -170,7 +172,7 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
      * @param skus Array of SKUs
      * @param allPaths Set to add paths to
      */
-    private void addJcrPaths(DispatcherCacheInvalidationContext context, String[] skus, Set<String> allPaths) {
+    private void addJcrPaths(CacheInvalidationContext context, String[] skus, Set<String> allPaths) {
         Session session = context.getResourceResolver().adaptTo(Session.class);
         try {
             String dataList = formatList(skus, ", ", "'%s'");
@@ -190,7 +192,7 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
      * @param products List of product data maps
      * @param allPaths Set to add paths to
      */
-    private void addGraphqlPaths(DispatcherCacheInvalidationContext context, List<Map<String, Object>> products, Set<String> allPaths) {
+    private void addGraphqlPaths(CacheInvalidationContext context, List<Map<String, Object>> products, Set<String> allPaths) {
         Page page = context.getPage();
         LOGGER.debug("Processing {} products for path invalidation", products.size());
 

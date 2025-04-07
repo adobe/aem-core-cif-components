@@ -27,13 +27,12 @@ import org.apache.http.util.EntityUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ValueMap;
-import org.apache.sling.settings.SlingSettingsService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationContext;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationContext;
 import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
@@ -60,9 +59,6 @@ public class InvalidateDispatcherCacheImpl {
     private UrlProviderImpl urlProvider;
 
     @Reference
-    private SlingSettingsService slingSettingsService;
-
-    @Reference
     private InvalidateCacheSupport invalidateCacheSupport;
 
     @Reference
@@ -72,11 +68,6 @@ public class InvalidateDispatcherCacheImpl {
     private static final Logger LOGGER = LoggerFactory.getLogger(InvalidateDispatcherCacheImpl.class);
 
     public void invalidateCache(String path) {
-        if (path == null || path.trim().isEmpty() || slingSettingsService.getRunModes().contains("author")) {
-            LOGGER.warn("Invalid path or operation not supported for author");
-            return;
-        }
-
         try (ResourceResolver resourceResolver = invalidateCacheSupport.getServiceUserResourceResolver()) {
             Resource resource = invalidateCacheSupport.getResource(resourceResolver, path);
             if (resource == null) {
@@ -90,7 +81,7 @@ public class InvalidateDispatcherCacheImpl {
                 .orElse(DISPATCHER_BASE_URL);
             String dispatcherBasePath = invalidateCacheSupport.getDispatcherBasePathForStorePath(storePath);
 
-            if (shouldPerformFullCacheClear(properties, resourceResolver, storePath)) {
+            if (shouldPerformFullCacheClear(properties)) {
                 flushCacheForPaths(Collections.singletonList(dispatcherBasePath), dispatcherUrl, path);
                 return;
             }
@@ -118,7 +109,7 @@ public class InvalidateDispatcherCacheImpl {
         }
     }
 
-    private boolean shouldPerformFullCacheClear(ValueMap properties, ResourceResolver resourceResolver, String storePath) {
+    private boolean shouldPerformFullCacheClear(ValueMap properties) {
         // Check for invalidateAll flag
 
         if (properties.get(InvalidateCacheSupport.PROPERTIES_INVALIDATE_ALL, false)) {
@@ -156,17 +147,17 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     protected Map<String, String[]> getDynamicProperties(ValueMap properties) {
-        return invalidateCacheRegistry.getAttributes().stream()
-            .filter(attribute -> {
-                String[] values = properties.get(attribute, String[].class);
-                AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(attribute);
+        return invalidateCacheRegistry.getInvalidateTypes().stream()
+            .filter(invalidateType -> {
+                String[] values = properties.get(invalidateType, String[].class);
+                InvalidateTypeStrategies strategies = invalidateCacheRegistry.getInvalidateTypeStrategies(invalidateType);
                 return values != null && values.length > 0 && strategies != null &&
                     strategies.getStrategies(false).stream()
                         .anyMatch(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy);
             })
             .collect(Collectors.toMap(
                 Function.identity(),
-                attribute -> properties.get(attribute, String[].class),
+                invalidateType -> properties.get(invalidateType, String[].class),
                 (existing, replacement) -> existing,
                 HashMap::new));
     }
@@ -177,14 +168,14 @@ public class InvalidateDispatcherCacheImpl {
         String dispatcherBasePath = invalidateCacheSupport.getDispatcherBasePathForStorePath(storePath);
         Page page = getPage(resourceResolver, storePath);
 
-        // Process each attribute strategy
+        // Process each invalidateType strategy
         for (Map.Entry<String, String[]> entry : dynamicProperties.entrySet()) {
             if (!isValidEntry(entry)) {
                 continue;
             }
 
             try {
-                Set<String> paths = processAttributeStrategy(entry, page, resourceResolver, storePath, client);
+                Set<String> paths = processInvalidateTypeStrategy(entry, page, resourceResolver, storePath, client);
                 if (paths.contains(dispatcherBasePath)) {
                     LOGGER.debug("Found base path in invalidation paths, performing full cache clear");
                     return Collections.singletonList(dispatcherBasePath);
@@ -199,22 +190,22 @@ public class InvalidateDispatcherCacheImpl {
         return new ArrayList<>(allPaths);
     }
 
-    private Set<String> processAttributeStrategy(Map.Entry<String, String[]> entry, Page page,
+    private Set<String> processInvalidateTypeStrategy(Map.Entry<String, String[]> entry, Page page,
         ResourceResolver resourceResolver, String storePath, MagentoGraphqlClient client) {
         Set<String> paths = new HashSet<>();
-        AttributeStrategies strategies = invalidateCacheRegistry.getAttributeStrategies(entry.getKey());
+        InvalidateTypeStrategies strategies = invalidateCacheRegistry.getInvalidateTypeStrategies(entry.getKey());
 
         strategies.getStrategies(false).stream()
             .filter(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy)
             .forEach(info -> {
                 try {
                     DispatcherCacheInvalidationStrategy strategy = (DispatcherCacheInvalidationStrategy) info.getStrategy();
-                    List<String> attributeData = new ArrayList<>(Arrays.asList(entry.getValue()));
+                    List<String> invalidateTypeData = new ArrayList<>(Arrays.asList(entry.getValue()));
 
-                    DispatcherCacheInvalidationContext context = new DispatcherCacheInvalidationContextImpl(
+                    CacheInvalidationContext context = new CacheInvalidationContextImpl(
                         page,
                         resourceResolver,
-                        attributeData,
+                        invalidateTypeData,
                         storePath,
                         client);
 
@@ -226,7 +217,7 @@ public class InvalidateDispatcherCacheImpl {
                             .collect(Collectors.toSet()));
                     }
                 } catch (Exception e) {
-                    LOGGER.error("Error processing strategy for key: {}", entry.getKey(), e);
+                    LOGGER.error("Exception was thrown by {}: ", info.getStrategy().getClass(), e);
                 }
             });
 

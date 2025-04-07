@@ -24,7 +24,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationContext;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationContext;
 import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationStrategy;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.magento.graphql.*;
@@ -43,8 +43,10 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
     private InvalidateCacheSupport invalidateCacheSupport;
 
     @Override
-    public String getPattern() {
-        return "\"uid\"\\s*:\\s*\\{\"id\"\\s*:\\s*\"";
+    public List<String> getPatterns(String[] parameters) {
+        String pattern = "\"uid\"\\s*:\\s*\\{\"id\"\\s*:\\s*\"";
+        String invalidateDataString = String.join("|", parameters);
+        return Collections.singletonList(pattern + "(" + invalidateDataString + ")");
     }
 
     @Override
@@ -53,9 +55,9 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
     }
 
     @Override
-    public List<String> getPathsToInvalidate(DispatcherCacheInvalidationContext context) {
+    public List<String> getPathsToInvalidate(CacheInvalidationContext context) {
         try {
-            List<String> categoryUids = context.getAttributeData();
+            List<String> categoryUids = context.getInvalidateTypeData();
 
             if (categoryUids == null) {
                 return Collections.emptyList();
@@ -82,7 +84,7 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
         }
     }
 
-    private List<Map<String, Object>> fetchCategories(DispatcherCacheInvalidationContext context, String[] categoryUids) {
+    private List<Map<String, Object>> fetchCategories(CacheInvalidationContext context, String[] categoryUids) {
         String query = getGraphqlQuery(categoryUids);
         Query data = getGraphqlResponseData(context.getGraphqlClient(), query);
         if (data == null || data.getCategoryList() == null) {
@@ -115,7 +117,7 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
             .categoryList(searchArgs, queryArgs)).toString();
     }
 
-    private void addJcrPaths(DispatcherCacheInvalidationContext context, String[] categoryUids, Set<String> allPaths) {
+    private void addJcrPaths(CacheInvalidationContext context, String[] categoryUids, Set<String> allPaths) {
         Session session = context.getResourceResolver().adaptTo(Session.class);
         try {
             String dataList = formatList(categoryUids, ", ", "'%s'");
@@ -128,7 +130,7 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
         }
     }
 
-    private void addGraphqlPaths(DispatcherCacheInvalidationContext context, List<Map<String, Object>> categories, Set<String> allPaths) {
+    private void addGraphqlPaths(CacheInvalidationContext context, List<Map<String, Object>> categories, Set<String> allPaths) {
         Page page = context.getPage();
         categories.stream()
             .filter(Objects::nonNull)

@@ -22,6 +22,7 @@ import javax.jcr.observation.ObservationManager;
 
 import org.apache.sling.jcr.api.SlingRepository;
 import org.apache.sling.serviceusermapping.ServiceUserMapped;
+import org.apache.sling.settings.SlingSettingsService;
 import org.osgi.service.component.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,9 @@ public class InvalidateCacheEventListener implements EventListener {
 
     @Reference
     private InvalidateCacheSupport invalidateCacheSupport;
+
+    @Reference
+    private SlingSettingsService slingSettingsService;
 
     @Reference
     private SlingRepository repository;
@@ -102,7 +106,8 @@ public class InvalidateCacheEventListener implements EventListener {
                 if (path.startsWith(actualPath)) {
                     LOGGER.debug("Cache invalidation event detected: {} and {}", path, event.getType());
                     invalidateCacheImpl.invalidateCache(path);
-                    if (Boolean.TRUE.equals(invalidateCacheSupport.getEnableDispatcherCacheInvalidation())) {
+                    if (!slingSettingsService.getRunModes().contains("author") && Boolean.TRUE.equals(invalidateCacheSupport
+                        .getEnableDispatcherCacheInvalidation())) {
                         invalidateDispatcherCacheImpl.invalidateCache(path);
                     }
                 }

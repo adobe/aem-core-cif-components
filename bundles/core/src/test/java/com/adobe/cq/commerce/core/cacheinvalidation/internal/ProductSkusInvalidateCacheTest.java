@@ -30,12 +30,11 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.spi.DispatcherCacheInvalidationContext;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationContext;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
-import com.adobe.cq.commerce.magento.graphql.Query;
 import com.day.cq.wcm.api.Page;
 import com.shopify.graphql.support.ID;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -55,7 +54,7 @@ public class ProductSkusInvalidateCacheTest {
     private InvalidateCacheSupport invalidateCacheSupport;
 
     @Mock
-    private DispatcherCacheInvalidationContext mockContext;
+    private CacheInvalidationContext mockContext;
 
     @Mock
     private ResourceResolver resourceResolver;
@@ -117,7 +116,7 @@ public class ProductSkusInvalidateCacheTest {
         when(mockContext.getStorePath()).thenReturn(TEST_STORE_PATH);
         when(mockContext.getGraphqlClient()).thenReturn(graphqlClient);
         when(mockContext.getPage()).thenReturn(page);
-        when(mockContext.getAttributeData()).thenReturn(TEST_SKUS);
+        when(mockContext.getInvalidateTypeData()).thenReturn(TEST_SKUS);
 
         // Set up JCR query mocks
         when(resourceResolver.adaptTo(Session.class)).thenReturn(session);
@@ -129,20 +128,23 @@ public class ProductSkusInvalidateCacheTest {
     }
 
     @Test
-    public void testGetPattern() {
-        assertEquals("\"sku\":\\s*\"", productSkusInvalidateCache.getPattern());
+    public void testGetPatterns() {
+        String[] parameters = { "sku1", "sku2" };
+        List<String> patterns = productSkusInvalidateCache.getPatterns(parameters);
+        assertEquals(1, patterns.size());
+        assertEquals("\"sku\":\\s*\"(sku1|sku2)", patterns.get(0));
     }
 
     @Test
     public void testGetPathsToInvalidateWithNullSkus() {
-        when(mockContext.getAttributeData()).thenReturn(null);
+        when(mockContext.getInvalidateTypeData()).thenReturn(null);
         List<String> paths = productSkusInvalidateCache.getPathsToInvalidate(mockContext);
         assertEquals(0, paths.size());
     }
 
     @Test
     public void testGetPathsToInvalidateWithEmptySkus() {
-        when(mockContext.getAttributeData()).thenReturn(Collections.emptyList());
+        when(mockContext.getInvalidateTypeData()).thenReturn(Collections.emptyList());
         List<String> paths = productSkusInvalidateCache.getPathsToInvalidate(mockContext);
         assertEquals(0, paths.size());
     }
@@ -189,7 +191,7 @@ public class ProductSkusInvalidateCacheTest {
         when(row.getPath()).thenReturn(TEST_PRODUCT_PATH);
 
         Set<String> allPaths = new HashSet<>();
-        invokePrivateMethod("addJcrPaths", new Class<?>[] { DispatcherCacheInvalidationContext.class, String[].class, Set.class },
+        invokePrivateMethod("addJcrPaths", new Class<?>[] { CacheInvalidationContext.class, String[].class, Set.class },
             mockContext, TEST_SKUS.toArray(new String[0]), allPaths);
     }
 
@@ -203,7 +205,7 @@ public class ProductSkusInvalidateCacheTest {
 
         List<Map<String, Object>> products = Collections.singletonList(product);
         Set<String> allPaths = new HashSet<>();
-        invokePrivateMethod("addGraphqlPaths", new Class<?>[] { DispatcherCacheInvalidationContext.class, List.class, Set.class },
+        invokePrivateMethod("addGraphqlPaths", new Class<?>[] { CacheInvalidationContext.class, List.class, Set.class },
             mockContext, products, allPaths);
     }
 
@@ -239,7 +241,7 @@ public class ProductSkusInvalidateCacheTest {
 
         List<Map<String, Object>> products = Collections.singletonList(product);
         Set<String> allPaths = new HashSet<>();
-        invokePrivateMethod("addGraphqlPaths", new Class<?>[] { DispatcherCacheInvalidationContext.class, List.class, Set.class },
+        invokePrivateMethod("addGraphqlPaths", new Class<?>[] { CacheInvalidationContext.class, List.class, Set.class },
             mockContext, products, allPaths);
     }
 
@@ -255,7 +257,7 @@ public class ProductSkusInvalidateCacheTest {
         when(queryManager.createQuery(anyString(), eq(javax.jcr.query.Query.JCR_SQL2))).thenThrow(new RuntimeException("JCR Query Error"));
 
         Set<String> allPaths = new HashSet<>();
-        invokePrivateMethod("addJcrPaths", new Class<?>[] { DispatcherCacheInvalidationContext.class, String[].class, Set.class },
+        invokePrivateMethod("addJcrPaths", new Class<?>[] { CacheInvalidationContext.class, String[].class, Set.class },
             mockContext, TEST_SKUS.toArray(new String[0]), allPaths);
         assertTrue(allPaths.isEmpty());
     }
