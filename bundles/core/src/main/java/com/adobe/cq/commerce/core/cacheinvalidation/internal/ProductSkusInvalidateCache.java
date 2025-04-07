@@ -61,10 +61,10 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
     private InvalidateCacheSupport invalidateCacheSupport;
 
     @Override
-    public List<String> getPatterns(String[] parameters) {
+    public List<String> getPatterns(String[] invalidationParameters) {
         String pattern = "\"sku\":\\s*\"";
-        String invalidateTypeString = String.join("|", parameters);
-        return Collections.singletonList(pattern + "(" + invalidateTypeString + ")");
+        String invalidationTypeString = String.join("|", invalidationParameters);
+        return Collections.singletonList(pattern + "(" + invalidationTypeString + ")");
     }
 
     @Override
@@ -75,7 +75,7 @@ public class ProductSkusInvalidateCache extends InvalidateDispatcherCacheBase im
     @Override
     public List<String> getPathsToInvalidate(CacheInvalidationContext context) {
         try {
-            List<String> skus = context.getInvalidateTypeData();
+            List<String> skus = context.getInvalidationParameters();
             if (skus == null) {
                 return Collections.emptyList();
             }

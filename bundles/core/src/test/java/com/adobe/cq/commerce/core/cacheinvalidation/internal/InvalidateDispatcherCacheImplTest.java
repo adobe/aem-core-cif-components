@@ -84,7 +84,7 @@ public class InvalidateDispatcherCacheImplTest {
     private ValueMap properties;
 
     @Mock
-    private InvalidateTypeStrategies invalidateTypeStrategies;
+    private InvalidationStrategies invalidationStrategies;
 
     @Mock
     private StrategyInfo strategyInfo;
@@ -110,12 +110,12 @@ public class InvalidateDispatcherCacheImplTest {
         // Setup basic properties
         when(valueMap.get(InvalidateCacheSupport.PROPERTIES_STORE_PATH, String.class)).thenReturn("/content/store");
         properties = mock(ValueMap.class);
-        when(invalidateTypeStrategies.getStrategies(false)).thenReturn(Collections.singletonList(strategyInfo));
+        when(invalidationStrategies.getStrategies(false)).thenReturn(Collections.singletonList(strategyInfo));
         when(strategyInfo.getStrategy()).thenReturn(strategy);
 
         // Ensure invalidateCacheRegistry is not null
-        when(invalidateCacheRegistry.getInvalidateTypes()).thenReturn(Collections.singleton("invalidType"));
-        when(invalidateCacheRegistry.getInvalidateTypeStrategies("invalidType")).thenReturn(invalidateTypeStrategies);
+        when(invalidateCacheRegistry.getInvalidationTypes()).thenReturn(Collections.singleton("invalidType"));
+        when(invalidateCacheRegistry.getInvalidationStrategies("invalidType")).thenReturn(invalidationStrategies);
     }
 
     private void setField(Object target, String fieldName, Object value) {
@@ -132,14 +132,14 @@ public class InvalidateDispatcherCacheImplTest {
     public void testInvalidateCacheResourceNotFound() {
         when(invalidateCacheSupport.getResource(any(), anyString())).thenReturn(null);
         dispatcherCache.invalidateCache("/content/path");
-        verify(invalidateCacheRegistry, never()).getInvalidateTypes();
+        verify(invalidateCacheRegistry, never()).getInvalidationTypes();
     }
 
     @Test
     public void testInvalidateCacheWithException() {
         when(invalidateCacheSupport.getServiceUserResourceResolver()).thenThrow(new RuntimeException("Test exception"));
         dispatcherCache.invalidateCache("/content/path");
-        verify(invalidateCacheRegistry, never()).getInvalidateTypes();
+        verify(invalidateCacheRegistry, never()).getInvalidationTypes();
     }
 
     @Test
@@ -202,7 +202,7 @@ public class InvalidateDispatcherCacheImplTest {
     public void testGetDynamicPropertiesWithNoInvalidType() {
         ValueMap properties = mock(ValueMap.class);
         InvalidateCacheRegistry invalidateCacheRegistry = mock(InvalidateCacheRegistry.class);
-        when(invalidateCacheRegistry.getInvalidateTypes()).thenReturn(Collections.emptySet());
+        when(invalidateCacheRegistry.getInvalidationTypes()).thenReturn(Collections.emptySet());
         Map<String, String[]> result = dispatcherCache.getDynamicProperties(properties);
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -213,8 +213,8 @@ public class InvalidateDispatcherCacheImplTest {
         ValueMap properties = mock(ValueMap.class);
         when(properties.get("invalidType", String[].class)).thenReturn(new String[] { "value" });
         InvalidateCacheRegistry invalidateCacheRegistry = mock(InvalidateCacheRegistry.class);
-        when(invalidateCacheRegistry.getInvalidateTypes()).thenReturn(Collections.singleton("invalidType"));
-        when(invalidateCacheRegistry.getInvalidateTypeStrategies("invalidType")).thenReturn(mock(InvalidateTypeStrategies.class));
+        when(invalidateCacheRegistry.getInvalidationTypes()).thenReturn(Collections.singleton("invalidType"));
+        when(invalidateCacheRegistry.getInvalidationStrategies("invalidType")).thenReturn(mock(InvalidationStrategies.class));
         Map<String, String[]> result = dispatcherCache.getDynamicProperties(properties);
         assertNotNull(result);
     }
@@ -295,7 +295,7 @@ public class InvalidateDispatcherCacheImplTest {
     }
 
     @Test
-    public void testProcessInvalidateTypeStrategy() throws Exception {
+    public void testProcessInvalidationStrategy() throws Exception {
         Map.Entry<String, String[]> entry = mock(Map.Entry.class);
         when(entry.getKey()).thenReturn("testKey");
         when(entry.getValue()).thenReturn(new String[] { "value1", "value2" });
@@ -304,14 +304,14 @@ public class InvalidateDispatcherCacheImplTest {
         List<String> invalidPaths = Arrays.asList("/path1", "/path2");
         when(strategy.getPathsToInvalidate(any(CacheInvalidationContext.class))).thenReturn(invalidPaths);
 
-        // Ensure that getInvalidateTypeStrategies does not return null
-        when(invalidateCacheRegistry.getInvalidateTypeStrategies(anyString())).thenReturn(invalidateTypeStrategies);
-        when(invalidateTypeStrategies.getStrategies(false)).thenReturn(Collections.singletonList(new StrategyInfo(strategy, Collections
+        // Ensure that getInvalidationStrategies does not return null
+        when(invalidateCacheRegistry.getInvalidationStrategies(anyString())).thenReturn(invalidationStrategies);
+        when(invalidationStrategies.getStrategies(false)).thenReturn(Collections.singletonList(new StrategyInfo(strategy, Collections
             .emptyMap(), false)));
 
         // Use reflection to access the private method
         Method method = InvalidateDispatcherCacheImpl.class.getDeclaredMethod(
-            "processInvalidateTypeStrategy", Map.Entry.class, Page.class, ResourceResolver.class, String.class, MagentoGraphqlClient.class);
+            "processInvalidationStrategy", Map.Entry.class, Page.class, ResourceResolver.class, String.class, MagentoGraphqlClient.class);
         method.setAccessible(true);
 
         // Invoke the private method
@@ -358,7 +358,7 @@ public class InvalidateDispatcherCacheImplTest {
         when(invalidateCacheSupport.getResource(any(), anyString())).thenReturn(resource);
         when(resource.adaptTo(MagentoGraphqlClient.class)).thenReturn(null);
         dispatcherCache.invalidateCache("/content/path");
-        verify(invalidateCacheRegistry, never()).getInvalidateTypes();
+        verify(invalidateCacheRegistry, never()).getInvalidationTypes();
     }
 
     @Test

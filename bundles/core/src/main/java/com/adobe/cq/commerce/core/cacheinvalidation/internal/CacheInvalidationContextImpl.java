@@ -28,7 +28,7 @@ import com.day.cq.wcm.api.Page;
 public class CacheInvalidationContextImpl implements CacheInvalidationContext {
     private final Page page;
     private final ResourceResolver resourceResolver;
-    private final List<String> invalidateTypeData;
+    private final List<String> invalidationParameters;
     private final String storePath;
     private final MagentoGraphqlClient graphqlClient;
 
@@ -39,25 +39,25 @@ public class CacheInvalidationContextImpl implements CacheInvalidationContext {
     }
 
     /**
-     * Creates a new CacheInvalidationContextImpl with the given parameters.
+     * Creates a new CacheInvalidationContextImpl with the given invalidationParameters.
      *
      * @param page the page
      * @param resourceResolver the resource resolver
-     * @param invalidateTypeData the invalidate type data entry
+     * @param invalidationParameters the parameters which needs to invalidated
      * @param storePath the store path
      * @param graphqlClient the Magento GraphQL client
      */
-    public CacheInvalidationContextImpl(Page page, ResourceResolver resourceResolver, List<String> invalidateTypeData,
+    public CacheInvalidationContextImpl(Page page, ResourceResolver resourceResolver, List<String> invalidationParameters,
                                         String storePath, MagentoGraphqlClient graphqlClient) {
         requireNonNull(page, "Page");
         requireNonNull(resourceResolver, "ResourceResolver");
-        requireNonNull(invalidateTypeData, "InvalidateTypeData");
+        requireNonNull(invalidationParameters, "InvalidationParameters");
         requireNonNull(storePath, "StorePath");
         requireNonNull(graphqlClient, "GraphqlClient");
 
         this.page = page;
         this.resourceResolver = resourceResolver;
-        this.invalidateTypeData = invalidateTypeData;
+        this.invalidationParameters = invalidationParameters;
         this.storePath = storePath;
         this.graphqlClient = graphqlClient;
     }
@@ -73,8 +73,8 @@ public class CacheInvalidationContextImpl implements CacheInvalidationContext {
     }
 
     @Override
-    public List<String> getInvalidateTypeData() {
-        return invalidateTypeData;
+    public List<String> getInvalidationParameters() {
+        return invalidationParameters;
     }
 
     @Override

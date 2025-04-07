@@ -31,9 +31,9 @@ public class RegexPatternsInvalidateCacheTest {
 
     @Test
     public void testGetPatterns() {
-        // Test that getPatterns returns the input parameters as a list
-        String[] parameters = { "test1", "test2" };
-        List<String> patterns = regexPatternsInvalidateCache.getPatterns(parameters);
+        // Test that getPatterns returns the input invalidationParameters as a list
+        String[] invalidationParameters = { "test1", "test2" };
+        List<String> patterns = regexPatternsInvalidateCache.getPatterns(invalidationParameters);
         assertEquals(2, patterns.size());
         assertEquals("test1", patterns.get(0));
         assertEquals("test2", patterns.get(1));

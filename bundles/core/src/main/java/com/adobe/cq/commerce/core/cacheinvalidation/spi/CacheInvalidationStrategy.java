@@ -32,10 +32,10 @@ public interface CacheInvalidationStrategy {
      * Returns a list of patterns used for cache invalidation. These patterns define which cache entries
      * should be invalidated based on the provided parameters.
      *
-     * @param parameters an array of strings that are used to generate the cache invalidation patterns
+     * @param invalidationParameters an array of strings that are used to generate the cache invalidation patterns
      * @return a list of cache invalidation patterns that determine which cache entries to invalidate
      */
-    List<String> getPatterns(String[] parameters);
+    List<String> getPatterns(String[] invalidationParameters);
 
     /**
      * Returns the type of cache invalidation request. This type specifies how the cache should be invalidated

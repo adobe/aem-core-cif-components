@@ -108,12 +108,12 @@ public class InvalidateCacheImpl {
 
     private Map<String, String[]> getDynamicProperties(ValueMap properties) {
         Map<String, String[]> dynamicProperties = new HashMap<>();
-        Set<String> invalidateTypes = invalidateCacheRegistry.getInvalidateTypes();
+        Set<String> invalidationTypes = invalidateCacheRegistry.getInvalidationTypes();
 
-        for (String invalidateType : invalidateTypes) {
-            String[] values = properties.get(invalidateType, String[].class);
+        for (String invalidationType : invalidationTypes) {
+            String[] values = properties.get(invalidationType, String[].class);
             if (values != null && values.length > 0) {
-                dynamicProperties.put(invalidateType, values);
+                dynamicProperties.put(invalidationType, values);
             }
         }
         return Collections.unmodifiableMap(dynamicProperties);
@@ -125,31 +125,31 @@ public class InvalidateCacheImpl {
             String[] values = entry.getValue();
 
             try {
-                String[] cachePatterns = getInvalidatePatterns(values, key);
+                String[] cachePatterns = getInvalidationPatterns(values, key);
                 if (cachePatterns.length > 0) {
-                    LOGGER.debug("Invalidating cache for invalidateType: {}", key);
+                    LOGGER.debug("Invalidating cache for invalidationType: {}", key);
                     client.invalidateCache(storeView, new String[0], cachePatterns);
                 } else {
-                    LOGGER.debug("No cache patterns generated for invalidateType: {}", key);
+                    LOGGER.debug("No cache patterns generated for invalidationType: {}", key);
                 }
             } catch (Exception e) {
-                LOGGER.error("Error invalidating cache for invalidateType {}: {}", key, e.getMessage(), e);
+                LOGGER.error("Error invalidating cache for invalidationType {}: {}", key, e.getMessage(), e);
             }
         }
     }
 
-    private String[] getInvalidatePatterns(String[] parameters, String invalidateType) {
-        if (invalidateType == null || parameters == null || parameters.length == 0) {
+    private String[] getInvalidationPatterns(String[] invalidationParameters, String invalidationType) {
+        if (invalidationType == null || invalidationParameters == null || invalidationParameters.length == 0) {
             return new String[0];
         }
 
-        InvalidateTypeStrategies strategies = invalidateCacheRegistry.getInvalidateTypeStrategies(invalidateType);
+        InvalidationStrategies strategies = invalidateCacheRegistry.getInvalidationStrategies(invalidationType);
         if (strategies == null) {
             return new String[0];
         }
 
         return strategies.getStrategies(false).stream()
-            .map(strategyInfo -> strategyInfo.getStrategy().getPatterns(parameters))
+            .map(strategyInfo -> strategyInfo.getStrategy().getPatterns(invalidationParameters))
             .filter(Objects::nonNull)
             .flatMap(Collection::stream)
             .distinct()

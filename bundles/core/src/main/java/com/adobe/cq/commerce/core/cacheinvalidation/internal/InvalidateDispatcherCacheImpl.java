@@ -147,17 +147,17 @@ public class InvalidateDispatcherCacheImpl {
     }
 
     protected Map<String, String[]> getDynamicProperties(ValueMap properties) {
-        return invalidateCacheRegistry.getInvalidateTypes().stream()
-            .filter(invalidateType -> {
-                String[] values = properties.get(invalidateType, String[].class);
-                InvalidateTypeStrategies strategies = invalidateCacheRegistry.getInvalidateTypeStrategies(invalidateType);
+        return invalidateCacheRegistry.getInvalidationTypes().stream()
+            .filter(invalidationType -> {
+                String[] values = properties.get(invalidationType, String[].class);
+                InvalidationStrategies strategies = invalidateCacheRegistry.getInvalidationStrategies(invalidationType);
                 return values != null && values.length > 0 && strategies != null &&
                     strategies.getStrategies(false).stream()
                         .anyMatch(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy);
             })
             .collect(Collectors.toMap(
                 Function.identity(),
-                invalidateType -> properties.get(invalidateType, String[].class),
+                invalidationType -> properties.get(invalidationType, String[].class),
                 (existing, replacement) -> existing,
                 HashMap::new));
     }
@@ -168,14 +168,14 @@ public class InvalidateDispatcherCacheImpl {
         String dispatcherBasePath = invalidateCacheSupport.getDispatcherBasePathForStorePath(storePath);
         Page page = getPage(resourceResolver, storePath);
 
-        // Process each invalidateType strategy
+        // Process each invalidationType strategy
         for (Map.Entry<String, String[]> entry : dynamicProperties.entrySet()) {
             if (!isValidEntry(entry)) {
                 continue;
             }
 
             try {
-                Set<String> paths = processInvalidateTypeStrategy(entry, page, resourceResolver, storePath, client);
+                Set<String> paths = processInvalidationStrategy(entry, page, resourceResolver, storePath, client);
                 if (paths.contains(dispatcherBasePath)) {
                     LOGGER.debug("Found base path in invalidation paths, performing full cache clear");
                     return Collections.singletonList(dispatcherBasePath);
@@ -190,22 +190,22 @@ public class InvalidateDispatcherCacheImpl {
         return new ArrayList<>(allPaths);
     }
 
-    private Set<String> processInvalidateTypeStrategy(Map.Entry<String, String[]> entry, Page page,
+    private Set<String> processInvalidationStrategy(Map.Entry<String, String[]> entry, Page page,
         ResourceResolver resourceResolver, String storePath, MagentoGraphqlClient client) {
         Set<String> paths = new HashSet<>();
-        InvalidateTypeStrategies strategies = invalidateCacheRegistry.getInvalidateTypeStrategies(entry.getKey());
+        InvalidationStrategies strategies = invalidateCacheRegistry.getInvalidationStrategies(entry.getKey());
 
         strategies.getStrategies(false).stream()
             .filter(info -> info.getStrategy() instanceof DispatcherCacheInvalidationStrategy)
             .forEach(info -> {
                 try {
                     DispatcherCacheInvalidationStrategy strategy = (DispatcherCacheInvalidationStrategy) info.getStrategy();
-                    List<String> invalidateTypeData = new ArrayList<>(Arrays.asList(entry.getValue()));
+                    List<String> invalidationParameters = new ArrayList<>(Arrays.asList(entry.getValue()));
 
                     CacheInvalidationContext context = new CacheInvalidationContextImpl(
                         page,
                         resourceResolver,
-                        invalidateTypeData,
+                        invalidationParameters,
                         storePath,
                         client);
 

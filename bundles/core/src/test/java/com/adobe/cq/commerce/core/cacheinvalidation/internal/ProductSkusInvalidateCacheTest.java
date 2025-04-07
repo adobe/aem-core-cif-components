@@ -116,7 +116,7 @@ public class ProductSkusInvalidateCacheTest {
         when(mockContext.getStorePath()).thenReturn(TEST_STORE_PATH);
         when(mockContext.getGraphqlClient()).thenReturn(graphqlClient);
         when(mockContext.getPage()).thenReturn(page);
-        when(mockContext.getInvalidateTypeData()).thenReturn(TEST_SKUS);
+        when(mockContext.getInvalidationParameters()).thenReturn(TEST_SKUS);
 
         // Set up JCR query mocks
         when(resourceResolver.adaptTo(Session.class)).thenReturn(session);
@@ -129,22 +129,22 @@ public class ProductSkusInvalidateCacheTest {
 
     @Test
     public void testGetPatterns() {
-        String[] parameters = { "sku1", "sku2" };
-        List<String> patterns = productSkusInvalidateCache.getPatterns(parameters);
+        String[] invalidationParameters = { "sku1", "sku2" };
+        List<String> patterns = productSkusInvalidateCache.getPatterns(invalidationParameters);
         assertEquals(1, patterns.size());
         assertEquals("\"sku\":\\s*\"(sku1|sku2)", patterns.get(0));
     }
 
     @Test
     public void testGetPathsToInvalidateWithNullSkus() {
-        when(mockContext.getInvalidateTypeData()).thenReturn(null);
+        when(mockContext.getInvalidationParameters()).thenReturn(null);
         List<String> paths = productSkusInvalidateCache.getPathsToInvalidate(mockContext);
         assertEquals(0, paths.size());
     }
 
     @Test
     public void testGetPathsToInvalidateWithEmptySkus() {
-        when(mockContext.getInvalidateTypeData()).thenReturn(Collections.emptyList());
+        when(mockContext.getInvalidationParameters()).thenReturn(Collections.emptyList());
         List<String> paths = productSkusInvalidateCache.getPathsToInvalidate(mockContext);
         assertEquals(0, paths.size());
     }

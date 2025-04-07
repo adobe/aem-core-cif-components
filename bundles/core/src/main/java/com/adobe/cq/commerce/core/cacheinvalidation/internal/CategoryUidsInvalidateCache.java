@@ -43,10 +43,10 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
     private InvalidateCacheSupport invalidateCacheSupport;
 
     @Override
-    public List<String> getPatterns(String[] parameters) {
+    public List<String> getPatterns(String[] invalidationParameters) {
         String pattern = "\"uid\"\\s*:\\s*\\{\"id\"\\s*:\\s*\"";
-        String invalidateDataString = String.join("|", parameters);
-        return Collections.singletonList(pattern + "(" + invalidateDataString + ")");
+        String invalidationParametersString = String.join("|", invalidationParameters);
+        return Collections.singletonList(pattern + "(" + invalidationParametersString + ")");
     }
 
     @Override
@@ -57,7 +57,7 @@ public class CategoryUidsInvalidateCache extends InvalidateDispatcherCacheBase i
     @Override
     public List<String> getPathsToInvalidate(CacheInvalidationContext context) {
         try {
-            List<String> categoryUids = context.getInvalidateTypeData();
+            List<String> categoryUids = context.getInvalidationParameters();
 
             if (categoryUids == null) {
                 return Collections.emptyList();

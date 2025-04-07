@@ -52,7 +52,7 @@ public class InvalidateCacheRegistryTest {
     }
 
     @Test
-    public void testGetInvalidateTypes() {
+    public void testGetInvalidationTypes() {
         // Setup
         Map<String, Object> properties1 = new HashMap<>();
         properties1.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_TYPE_PARAMETER, "attr1");
@@ -67,14 +67,14 @@ public class InvalidateCacheRegistryTest {
         registry.bindInvalidateCache(mockStrategy2, properties2);
 
         // Verify
-        Set<String> invalidateTypes = registry.getInvalidateTypes();
+        Set<String> invalidateTypes = registry.getInvalidationTypes();
         assertEquals(2, invalidateTypes.size());
         assertTrue(invalidateTypes.contains("attr1"));
         assertTrue(invalidateTypes.contains("attr2"));
     }
 
     @Test
-    public void testGetInvalidateTypeStrategies() {
+    public void testGetInvalidationTypeStrategies() {
         // Setup
         Map<String, Object> properties = new HashMap<>();
         properties.put(InvalidateCacheSupport.PROPERTY_INVALIDATE_TYPE_PARAMETER, "invalidType");
@@ -84,7 +84,7 @@ public class InvalidateCacheRegistryTest {
         registry.bindInvalidateCache(mockStrategy, properties);
 
         // Verify
-        InvalidateTypeStrategies strategies = registry.getInvalidateTypeStrategies("invalidType");
+        InvalidationStrategies strategies = registry.getInvalidationStrategies("invalidType");
         assertTrue(strategies != null);
     }
 }

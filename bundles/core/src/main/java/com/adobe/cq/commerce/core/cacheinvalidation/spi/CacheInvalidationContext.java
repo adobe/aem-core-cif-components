@@ -26,7 +26,7 @@ import com.day.cq.wcm.api.Page;
  * Context object containing all parameters needed for dispatcher cache invalidation.
  * This interface provides access to various components required for managing dispatcher cache invalidation
  * in the Commerce integration with AEM, including the page context, resource resolver,
- * invalidate type data, store path, and GraphQL client.
+ * invalidation parameters, store path, and GraphQL client.
  */
 @ProviderType
 public interface CacheInvalidationContext {
@@ -47,12 +47,12 @@ public interface CacheInvalidationContext {
     ResourceResolver getResourceResolver();
 
     /**
-     * Returns a list of invalidate type data strings that provide additional details
+     * Returns a list of invalidation parameters strings that provide additional details
      * necessary for processing cache invalidation.
      *
-     * @return a list of invalidate type data strings
+     * @return a list of invalidation parameters strings
      */
-    List<String> getInvalidateTypeData();
+    List<String> getInvalidationParameters();
 
     /**
      * Returns the store path associated with the cache invalidation context.

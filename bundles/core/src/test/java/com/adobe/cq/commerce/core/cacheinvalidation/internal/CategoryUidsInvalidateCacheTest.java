@@ -141,15 +141,15 @@ public class CategoryUidsInvalidateCacheTest {
 
     @Test
     public void testGetPatterns() {
-        String[] parameters = { "uid1", "uid2" };
-        List<String> patterns = categoryUidsInvalidateCache.getPatterns(parameters);
+        String[] invalidationParameters = { "uid1", "uid2" };
+        List<String> patterns = categoryUidsInvalidateCache.getPatterns(invalidationParameters);
         assertEquals(1, patterns.size());
         assertEquals("\"uid\"\\s*:\\s*\\{\"id\"\\s*:\\s*\"(uid1|uid2)", patterns.get(0));
     }
 
     @Test
     public void testGetPathsToInvalidateWithEmptyCategoryUids() {
-        when(mockContext.getInvalidateTypeData()).thenReturn(Collections.emptyList());
+        when(mockContext.getInvalidationParameters()).thenReturn(Collections.emptyList());
 
         List<String> paths = categoryUidsInvalidateCache.getPathsToInvalidate(mockContext);
 
@@ -158,8 +158,8 @@ public class CategoryUidsInvalidateCacheTest {
     }
 
     @Test
-    public void testGetPathsToInvalidateWithNullInvalidateTypeData() {
-        when(mockContext.getInvalidateTypeData()).thenReturn(null);
+    public void testGetPathsToInvalidateWithNullInvalidationParameters() {
+        when(mockContext.getInvalidationParameters()).thenReturn(null);
 
         List<String> paths = categoryUidsInvalidateCache.getPathsToInvalidate(mockContext);
 
@@ -169,7 +169,7 @@ public class CategoryUidsInvalidateCacheTest {
 
     @Test
     public void testGetPathsToInvalidateWithGraphQLError() throws Exception {
-        when(mockContext.getInvalidateTypeData()).thenReturn(Collections.singletonList(TEST_CATEGORY_UID));
+        when(mockContext.getInvalidationParameters()).thenReturn(Collections.singletonList(TEST_CATEGORY_UID));
         when(mockContext.getGraphqlClient()).thenReturn(graphqlClient);
         when(graphqlClient.execute(anyString())).thenThrow(new RuntimeException("GraphQL Error"));
 
@@ -181,7 +181,7 @@ public class CategoryUidsInvalidateCacheTest {
 
     @Test
     public void testGetPathsToInvalidateWithJCRQueryError() throws Exception {
-        when(mockContext.getInvalidateTypeData()).thenReturn(Collections.singletonList(TEST_CATEGORY_UID));
+        when(mockContext.getInvalidationParameters()).thenReturn(Collections.singletonList(TEST_CATEGORY_UID));
         when(queryManager.createQuery(anyString(), eq(Query.JCR_SQL2))).thenThrow(new RepositoryException("JCR Query Error"));
 
         List<String> paths = categoryUidsInvalidateCache.getPathsToInvalidate(mockContext);
@@ -192,7 +192,7 @@ public class CategoryUidsInvalidateCacheTest {
 
     @Test
     public void testGetPathsToInvalidateWithEmptyGraphQLResponse() throws Exception {
-        when(mockContext.getInvalidateTypeData()).thenReturn(Collections.singletonList(TEST_CATEGORY_UID));
+        when(mockContext.getInvalidationParameters()).thenReturn(Collections.singletonList(TEST_CATEGORY_UID));
         when(mockContext.getGraphqlClient()).thenReturn(graphqlClient);
         when(graphqlClient.execute(anyString())).thenReturn(graphqlResponse);
         when(graphqlResponse.getData()).thenReturn(mock(com.adobe.cq.commerce.magento.graphql.Query.class));

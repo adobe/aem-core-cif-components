@@ -30,7 +30,7 @@ public class InvalidateCacheRegistry {
 
     private static final String INTERNAL_PACKAGE_PREFIX = "com.adobe.cq.commerce.core.cacheinvalidation.internal";
 
-    private final Map<String, InvalidateTypeStrategies> invalidateCacheList = new HashMap<>();
+    private final Map<String, InvalidationStrategies> invalidateCacheList = new HashMap<>();
 
     @Reference(
         service = CacheInvalidationStrategy.class,
@@ -40,18 +40,18 @@ public class InvalidateCacheRegistry {
         policy = ReferencePolicy.DYNAMIC,
         policyOption = ReferencePolicyOption.GREEDY)
     void bindInvalidateCache(CacheInvalidationStrategy invalidateCache, Map<String, Object> properties) {
-        String invalidateType = invalidateCache.getInvalidationRequestType();
-        if (invalidateType != null) {
+        String invalidationType = invalidateCache.getInvalidationRequestType();
+        if (invalidationType != null) {
             boolean isInternal = isInternalStrategy(invalidateCache);
-            InvalidateTypeStrategies strategies = invalidateCacheList.computeIfAbsent(invalidateType, k -> new InvalidateTypeStrategies());
+            InvalidationStrategies strategies = invalidateCacheList.computeIfAbsent(invalidationType, k -> new InvalidationStrategies());
             strategies.addStrategy(new StrategyInfo(invalidateCache, properties, isInternal));
         }
     }
 
     void unbindInvalidateCache(CacheInvalidationStrategy invalidateCache, Map<String, Object> properties) {
-        String invalidateType = invalidateCache.getInvalidationRequestType();
-        if (invalidateType != null) {
-            InvalidateTypeStrategies strategies = invalidateCacheList.get(invalidateType);
+        String invalidationType = invalidateCache.getInvalidationRequestType();
+        if (invalidationType != null) {
+            InvalidationStrategies strategies = invalidateCacheList.get(invalidationType);
             if (strategies != null) {
                 String componentName = (String) properties.get("component.name");
                 if (componentName != null) {
@@ -69,18 +69,18 @@ public class InvalidateCacheRegistry {
         policy = ReferencePolicy.DYNAMIC,
         policyOption = ReferencePolicyOption.GREEDY)
     void bindInvalidateDispatcherCache(DispatcherCacheInvalidationStrategy invalidateDispatcherCache, Map<String, Object> properties) {
-        String invalidateType = invalidateDispatcherCache.getInvalidationRequestType();
-        if (invalidateType != null) {
+        String invalidationType = invalidateDispatcherCache.getInvalidationRequestType();
+        if (invalidationType != null) {
             boolean isInternal = isInternalStrategy(invalidateDispatcherCache);
-            InvalidateTypeStrategies strategies = invalidateCacheList.computeIfAbsent(invalidateType, k -> new InvalidateTypeStrategies());
+            InvalidationStrategies strategies = invalidateCacheList.computeIfAbsent(invalidationType, k -> new InvalidationStrategies());
             strategies.addStrategy(new StrategyInfo(invalidateDispatcherCache, properties, isInternal));
         }
     }
 
     void unbindInvalidateDispatcherCache(DispatcherCacheInvalidationStrategy invalidateDispatcherCache, Map<String, Object> properties) {
-        String invalidateType = invalidateDispatcherCache.getInvalidationRequestType();
-        if (invalidateType != null) {
-            InvalidateTypeStrategies strategies = invalidateCacheList.get(invalidateType);
+        String invalidationType = invalidateDispatcherCache.getInvalidationRequestType();
+        if (invalidationType != null) {
+            InvalidationStrategies strategies = invalidateCacheList.get(invalidationType);
             if (strategies != null) {
                 String componentName = (String) properties.get("component.name");
                 if (componentName != null) {
@@ -94,11 +94,11 @@ public class InvalidateCacheRegistry {
         return strategy.getClass().getPackage().getName().startsWith(INTERNAL_PACKAGE_PREFIX);
     }
 
-    public Set<String> getInvalidateTypes() {
+    public Set<String> getInvalidationTypes() {
         return Collections.unmodifiableSet(invalidateCacheList.keySet());
     }
 
-    public InvalidateTypeStrategies getInvalidateTypeStrategies(String invalidateType) {
-        return invalidateCacheList.get(invalidateType);
+    public InvalidationStrategies getInvalidationStrategies(String invalidationType) {
+        return invalidateCacheList.get(invalidationType);
     }
 }

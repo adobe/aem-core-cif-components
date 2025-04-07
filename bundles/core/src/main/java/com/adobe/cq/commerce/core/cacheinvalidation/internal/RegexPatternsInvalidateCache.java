@@ -26,8 +26,8 @@ import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationStrateg
 public class RegexPatternsInvalidateCache implements CacheInvalidationStrategy {
 
     @Override
-    public List<String> getPatterns(String[] parameters) {
-        return Arrays.asList(parameters);
+    public List<String> getPatterns(String[] invalidationParameters) {
+        return Arrays.asList(invalidationParameters);
     }
 
     @Override
