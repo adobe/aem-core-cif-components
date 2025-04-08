@@ -290,8 +290,7 @@ jobs:
           command: |
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> /home/circleci/.npmrc
             echo $GPG_PRIVATE_KEY | base64 --decode | gpg --batch --import
-            mvn -B -s /home/circleci/project/.circleci/settings.xml org.apache.rat:apache-rat-plugin:0.12:check -Drat.consoleOutput=true
-            cat /home/circleci/project/target/rat.txt
+            mvn -B -s /home/circleci/project/.circleci/settings.xml clean deploy -P release-sign-artifacts,adobe-public -Dskip-it -DdryRun=true -Drat.consoleOutput=true
             rm -rf /home/circleci/.gnupg
             rm -rf /home/circleci/.npmrc
 
