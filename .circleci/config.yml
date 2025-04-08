@@ -290,7 +290,10 @@ jobs:
           command: |
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> /home/circleci/.npmrc
             echo $GPG_PRIVATE_KEY | base64 --decode | gpg --batch --import
-            mvn -B -s /home/circleci/project/.circleci/settings.xml clean deploy -P release-sign-artifacts,adobe-public -Dskip-it
+            mvn -B -s /home/circleci/project/.circleci/settings.xml clean deploy -P release-sign-artifacts,adobe-public -Dskip-it -DdryRun=true
+            cat /home/circleci/project/target/rat.txt
+            mvn -B -s /home/circleci/project/.circleci/settings.xml org.apache.rat:apache-rat-plugin:0.12:check
+            cat /home/circleci/project/target/rat.txt
             rm -rf /home/circleci/.gnupg
             rm -rf /home/circleci/.npmrc
 
@@ -325,12 +328,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - build-java-8:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
       - karma:
           filters:
             tags:
@@ -347,58 +344,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - integration-test-655:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - build-java-8
-            - karma
-            - jest
-            - jest-extension-product-recs
-            - jest-extension-experience-platform-connector
-      - integration-test-cloudready-with-addon:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - build-java-8
-            - karma
-            - jest
-            - jest-extension-product-recs
-            - jest-extension-experience-platform-connector
-      - selenium-chrome-655:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - build-java-8
-            - karma
-            - jest
-            - jest-extension-product-recs
-            - jest-extension-experience-platform-connector
-      - selenium-chrome-cloudready-with-addon:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - build-java-8
-            - karma
-            - jest
-            - jest-extension-product-recs
-            - jest-extension-experience-platform-connector
       - release:
           context:
             - CIF Artifactory Cloud
@@ -407,17 +352,5 @@ workflows:
           requires:
             - build-java-11
           filters:
-            branches:
-              ignore: /.*/
             tags:
-              only: /^core-cif-components-reactor-\d+\.\d+\.\d+$/
-      - deploy-queries:
-          context:
-            - CIF Artifactory Cloud
-          requires:
-            - build-java-11
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /^core-cif-components-reactor-\d+\.\d+\.\d+$/
+              only: /.*/
