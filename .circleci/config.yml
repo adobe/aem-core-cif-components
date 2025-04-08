@@ -325,6 +325,12 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - build-java-8:
+          context:
+            - CIF Artifactory Cloud
+          filters:
+            tags:
+              only: /.*/
       - karma:
           filters:
             tags:
@@ -341,6 +347,58 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - integration-test-655:
+          context:
+            - CIF Artifactory Cloud
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-java-11
+            - build-java-8
+            - karma
+            - jest
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
+      - integration-test-cloudready-with-addon:
+          context:
+            - CIF Artifactory Cloud
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-java-11
+            - build-java-8
+            - karma
+            - jest
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
+      - selenium-chrome-655:
+          context:
+            - CIF Artifactory Cloud
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-java-11
+            - build-java-8
+            - karma
+            - jest
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
+      - selenium-chrome-cloudready-with-addon:
+          context:
+            - CIF Artifactory Cloud
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-java-11
+            - build-java-8
+            - karma
+            - jest
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
       - release:
           context:
             - CIF Artifactory Cloud
@@ -349,5 +407,17 @@ workflows:
           requires:
             - build-java-11
           filters:
+            branches:
+              ignore: /.*/
             tags:
-              only: /.*/
+              only: /^core-cif-components-reactor-\d+\.\d+\.\d+$/
+      - deploy-queries:
+          context:
+            - CIF Artifactory Cloud
+          requires:
+            - build-java-11
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^core-cif-components-reactor-\d+\.\d+\.\d+$/
