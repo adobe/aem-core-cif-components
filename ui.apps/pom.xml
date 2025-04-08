@@ -22,7 +22,7 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>2.26.7-SNAPSHOT</version>
+        <version>2.26.8</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
     <!-- ====================================================================== -->
@@ -39,7 +39,7 @@
         <connection>scm:git:https://github.com/adobe/aem-core-cif-components</connection>
         <developerConnection>scm:git:git@github.com:adobe/aem-core-cif-components.git</developerConnection>
         <url>https://github.com/adobe/aem-core-cif-components</url>
-        <tag>HEAD</tag>
+        <tag>core-cif-components-reactor-2.26.8</tag>
     </scm>
     <organization>
         <name>Adobe</name>
