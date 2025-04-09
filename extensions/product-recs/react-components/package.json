@@ -1,6 +1,6 @@
 {
   "name": "@adobe/aem-core-cif-product-recs-extension",
-  "version": "2.27.0",
+  "version": "2.16.0",
   "description": "React Components for AEM CIF Core Components Product Recommendations",
   "author": "Adobe Systems Inc.",
   "license": "Apache-2.0",
