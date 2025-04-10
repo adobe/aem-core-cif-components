@@ -85,7 +85,7 @@ public class InvalidateCacheImpl {
         String[] listOfCacheToSearch = properties.get(InvalidateCacheSupport.PROPERTIES_CACHE_NAMES, String[].class);
         if (listOfCacheToSearch != null && listOfCacheToSearch.length != 0) {
             LOGGER.debug("Cache invalidation based on cache names");
-            client.invalidateCache(storeView, listOfCacheToSearch, new String[0]);
+            client.invalidateCache(storeView, listOfCacheToSearch, null);
         }
 
         Map<String, String[]> dynamicProperties = getDynamicProperties(properties);
@@ -128,7 +128,7 @@ public class InvalidateCacheImpl {
                 String[] cachePatterns = getInvalidationPatterns(values, key);
                 if (cachePatterns.length > 0) {
                     LOGGER.debug("Invalidating cache for invalidationType: {}", key);
-                    client.invalidateCache(storeView, new String[0], cachePatterns);
+                    client.invalidateCache(storeView, null, cachePatterns);
                 } else {
                     LOGGER.debug("No cache patterns generated for invalidationType: {}", key);
                 }
