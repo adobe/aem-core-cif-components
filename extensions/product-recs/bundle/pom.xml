@@ -23,12 +23,12 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>2.15.3-SNAPSHOT</version>
+        <version>2.16.3-SNAPSHOT</version>
         <relativePath>../../../parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>core-cif-components-extensions-product-recs-bundle</artifactId>
-    <version>2.15.3-SNAPSHOT</version>
+    <version>2.16.3-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>AEM CIF Core Components - Products Recommendations Bundle</name>

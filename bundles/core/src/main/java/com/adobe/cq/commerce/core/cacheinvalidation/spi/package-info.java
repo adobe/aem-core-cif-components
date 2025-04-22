@@ -14,7 +14,22 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-@Version("1.0.0")
-package com.adobe.cq.commerce.core.cacheinvalidation.internal.spi;
+/**
+ * <p>
+ * Experimental package providing Service Provider Interface (SPI) for cache invalidation.
+ * </p>
+ * 
+ * <p>
+ * This package defines interfaces and contracts that allow third-party implementations to integrate
+ * with AEM Commerce Core's cache invalidation system. It enables custom cache invalidation strategies
+ * and mechanisms to be plugged into the core commerce functionality.
+ * </p>
+ * 
+ * <p>
+ * <strong>Note:</strong> This is an experimental API that may change in future releases.
+ * </p>
+ */
+@Version("0.0.1")
+package com.adobe.cq.commerce.core.cacheinvalidation.spi;
 
 import org.osgi.annotation.versioning.Version;

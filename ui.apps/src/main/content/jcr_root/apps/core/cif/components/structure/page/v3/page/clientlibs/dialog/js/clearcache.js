@@ -69,7 +69,7 @@
             type: method,
             url: actionUrl,
             contentType: 'application/json',
-            data: JSON.stringify({ storePath: storePath }),
+            data: JSON.stringify({ storePath: storePath, invalidateAll: true }),
             success: function() {
                 showDialog(Granite.I18n.get('Cache cleared successfully!'), 'success');
             },

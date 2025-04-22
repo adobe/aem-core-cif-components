@@ -14,17 +14,24 @@
 
 package com.adobe.cq.commerce.core.cacheinvalidation.internal;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.osgi.service.component.annotations.Component;
 
-import com.adobe.cq.commerce.core.cacheinvalidation.internal.spi.CacheInvalidationStrategy;
+import com.adobe.cq.commerce.core.cacheinvalidation.spi.CacheInvalidationStrategy;
 
 @Component(
-    service = CacheInvalidationStrategy.class,
-    property = { InvalidateCacheSupport.PROPERTY_INVALIDATE_REQUEST_PARAMETER + "=regexPatterns" })
+    service = CacheInvalidationStrategy.class)
 public class RegexPatternsInvalidateCache implements CacheInvalidationStrategy {
 
     @Override
-    public String getPattern() {
-        return null;
+    public List<String> getPatterns(String[] invalidationParameters) {
+        return Arrays.asList(invalidationParameters);
+    }
+
+    @Override
+    public String getInvalidationType() {
+        return "regexPatterns";
     }
 }
