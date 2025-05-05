@@ -80,7 +80,6 @@
                 <configuration>
                     <excludes>
                         <exclude>.dockerignore</exclude>
-                        <exclude>test-module/**/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
