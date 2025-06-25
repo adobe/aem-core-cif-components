@@ -72,7 +72,7 @@ const ProductRecsGallery = props => {
 
         content = (
             <>
-                <h2 className={classes.title}>{unit.unitName || props.title}</h2>
+                <h2 className={classes.title}>{unit.storefrontLabel || props.title}</h2>
                 <div className={classes.container} ref={e => observeElement(e, isVisible)}>
                     {unit.products.map(product => (
                         <ProductCard
