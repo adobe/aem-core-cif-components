@@ -69,87 +69,39 @@ public class SiteStructureFactoryTest {
 
     @Test
     public void testExperienceFragmentWithPreviewPage() {
-        // Create experience fragment structure with cq:cifPreviewPage property
-        aemContext.create().page("/content/experience-fragments/venia/us/en/site/header/master");
-        aemContext.create().page("/content/venia/us/en");
+        // Setup: Create XF structure with cq:cifPreviewPage property
+        setupExperienceFragmentWithPreviewPage();
 
-        // Add navRoot property to make it a landing page
-        aemContext.create().resource("/content/venia/us/en/jcr:content", "navRoot", true);
+        // Test: Verify both XF and resolved pages produce same SiteStructure
+        SiteStructure xfSiteStructure = getSiteStructureForPage("/content/experience-fragments/venia/us/en/site/header/master");
+        SiteStructure resolvedSiteStructure = getSiteStructureForPage("/content/venia/us/en");
 
-        // Add cq:cifPreviewPage property
-        aemContext.create().resource("/content/experience-fragments/venia/us/en/site/header", "cq:cifPreviewPage", "/content/venia/us/en");
-
-        // Test with experience fragment page
-        aemContext.currentPage("/content/experience-fragments/venia/us/en/site/header/master");
-        AdapterManager adapterManager = aemContext.getService(AdapterManager.class);
-        SiteStructure xfSiteStructure = adapterManager.getAdapter(aemContext.request(), SiteStructure.class);
-        assertNotNull(xfSiteStructure);
-
-        // Clear the request attributes to force a new adapter resolution
-        aemContext.request().removeAttribute(SiteStructure.class.getName());
-
-        // Change to the resolved page and test again
-        aemContext.currentPage("/content/venia/us/en");
-        SiteStructure resolvedSiteStructure = adapterManager.getAdapter(aemContext.request(), SiteStructure.class);
-        assertNotNull(resolvedSiteStructure);
-
-        // Both should resolve to the same landing page since they represent the same underlying page
-        Page xfLandingPage = xfSiteStructure.getLandingPage();
-        Page resolvedLandingPage = resolvedSiteStructure.getLandingPage();
-
-        assertNotNull("XF SiteStructure landing page should not be null", xfLandingPage);
-        assertNotNull("Resolved SiteStructure landing page should not be null", resolvedLandingPage);
-        assertEquals("Both SiteStructure objects should resolve to the same landing page",
-            xfLandingPage.getPath(), resolvedLandingPage.getPath());
+        // Assert: Both should resolve to the same landing page
+        assertSameLandingPage(xfSiteStructure, resolvedSiteStructure, "/content/venia/us/en");
     }
 
     @Test
     public void testExperienceFragmentWithProgressivePathLookup() {
-        // Create experience fragment structure with cq:cifPreviewPage property
-        aemContext.create().page("/content/experience-fragments/venia/us/en/site/header/master");
-        aemContext.create().page("/content/venia/us/en");
+        // Setup: Create XF structure without cq:cifPreviewPage but with corresponding content page
+        setupExperienceFragmentWithProgressiveLookup();
 
-        // Add navRoot property to make it a landing page
-        aemContext.create().resource("/content/venia/us/en/jcr:content", "navRoot", true);
+        // Test: Verify both XF and resolved pages produce same SiteStructure
+        SiteStructure xfSiteStructure = getSiteStructureForPage("/content/experience-fragments/venia/us/en/site/header/master");
+        SiteStructure resolvedSiteStructure = getSiteStructureForPage("/content/venia/us/en");
 
-        // Test with experience fragment page
-        aemContext.currentPage("/content/experience-fragments/venia/us/en/site/header/master");
-        AdapterManager adapterManager = aemContext.getService(AdapterManager.class);
-        SiteStructure xfSiteStructure = adapterManager.getAdapter(aemContext.request(), SiteStructure.class);
-        assertNotNull(xfSiteStructure);
-
-        // Clear the request attributes to force a new adapter resolution
-        aemContext.request().removeAttribute(SiteStructure.class.getName());
-
-        // Change to the resolved page and test again
-        aemContext.currentPage("/content/venia/us/en");
-        SiteStructure resolvedSiteStructure = adapterManager.getAdapter(aemContext.request(), SiteStructure.class);
-        assertNotNull(resolvedSiteStructure);
-
-        // Both should resolve to the same landing page since they represent the same underlying page
-        Page xfLandingPage = xfSiteStructure.getLandingPage();
-        Page resolvedLandingPage = resolvedSiteStructure.getLandingPage();
-
-        assertNotNull("XF SiteStructure landing page should not be null", xfLandingPage);
-        assertNotNull("Resolved SiteStructure landing page should not be null", resolvedLandingPage);
-        assertEquals("Both SiteStructure objects should resolve to the same landing page",
-            xfLandingPage.getPath(), resolvedLandingPage.getPath());
+        // Assert: Both should resolve to the same landing page
+        assertSameLandingPage(xfSiteStructure, resolvedSiteStructure, "/content/venia/us/en");
     }
 
     @Test
     public void testExperienceFragmentWithNoCorrespondingPage() {
-        // Create experience fragment page without any corresponding content pages
-        aemContext.create().page("/content/experience-fragments/venia/us/en/site/header/master");
+        // Setup: Create XF structure without any corresponding content page
+        setupExperienceFragmentWithoutCorrespondingPage();
 
-        // Add navRoot property to make it a landing page
-        aemContext.create().resource("/content/venia/us/en/jcr:content", "navRoot", true);
+        // Test: Verify XF page produces SiteStructure without landing page
+        SiteStructure xfSiteStructure = getSiteStructureForPage("/content/experience-fragments/venia/us/en/site/header/master");
 
-        // Test with experience fragment page
-        aemContext.currentPage("/content/experience-fragments/venia/us/en/site/header/master");
-
-        AdapterManager adapterManager = aemContext.getService(AdapterManager.class);
-        SiteStructure xfSiteStructure = adapterManager.getAdapter(aemContext.request(), SiteStructure.class);
-        assertNotNull(xfSiteStructure);
+        // Assert: Should not have a landing page since no corresponding content page exists
         assertNull("SiteStructure should not have a landing page for XF without corresponding content page",
             xfSiteStructure.getLandingPage());
     }
@@ -184,5 +136,57 @@ public class SiteStructureFactoryTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // ========== HELPER METHODS ==========
+
+    private void setupExperienceFragmentWithPreviewPage() {
+        aemContext.create().page("/content/experience-fragments/venia/us/en/site/header/master");
+        aemContext.create().page("/content/venia/us/en");
+
+        // Add navRoot property to make it a landing page
+        aemContext.create().resource("/content/venia/us/en/jcr:content", "navRoot", true);
+
+        // Add cq:cifPreviewPage property
+        aemContext.create().resource("/content/experience-fragments/venia/us/en/site/header", "cq:cifPreviewPage", "/content/venia/us/en");
+    }
+
+    private void setupExperienceFragmentWithProgressiveLookup() {
+        aemContext.create().page("/content/experience-fragments/venia/us/en/site/header/master");
+        aemContext.create().page("/content/venia/us/en");
+
+        // Add navRoot property to make it a landing page
+        aemContext.create().resource("/content/venia/us/en/jcr:content", "navRoot", true);
+    }
+
+    private void setupExperienceFragmentWithoutCorrespondingPage() {
+        aemContext.create().page("/content/experience-fragments/venia/us/en/site/header/master");
+
+        // Add navRoot property to make it a landing page
+        aemContext.create().resource("/content/venia/us/en/jcr:content", "navRoot", true);
+    }
+
+    private SiteStructure getSiteStructureForPage(String pagePath) {
+        aemContext.currentPage(pagePath);
+        AdapterManager adapterManager = aemContext.getService(AdapterManager.class);
+        SiteStructure siteStructure = adapterManager.getAdapter(aemContext.request(), SiteStructure.class);
+        assertNotNull("SiteStructure should not be null for page: " + pagePath, siteStructure);
+
+        // Clear the request attributes to force a new adapter resolution for next call
+        aemContext.request().removeAttribute(SiteStructure.class.getName());
+
+        return siteStructure;
+    }
+
+    private void assertSameLandingPage(SiteStructure siteStructure1, SiteStructure siteStructure2, String expectedPath) {
+        Page landingPage1 = siteStructure1.getLandingPage();
+        Page landingPage2 = siteStructure2.getLandingPage();
+
+        assertNotNull("First SiteStructure landing page should not be null", landingPage1);
+        assertNotNull("Second SiteStructure landing page should not be null", landingPage2);
+        assertEquals("Both SiteStructure objects should resolve to the same landing page",
+            expectedPath, landingPage1.getPath());
+        assertEquals("Both SiteStructure objects should resolve to the same landing page",
+            expectedPath, landingPage2.getPath());
     }
 }
