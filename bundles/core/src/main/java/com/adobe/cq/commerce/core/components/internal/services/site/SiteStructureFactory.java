@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.site;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.adapter.AdapterFactory;
 import org.apache.sling.api.resource.Resource;
@@ -46,6 +47,8 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 public class SiteStructureFactory implements AdapterFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SiteStructureFactory.class);
+    private static final String EXPERIENCE_FRAGMENTS_PATH = "/content/experience-fragments";
+    private static final String PN_CIF_PREVIEW_PAGE = "cq:cifPreviewPage";
 
     @Reference
     private PageManagerFactory pageManagerFactory;
@@ -65,7 +68,111 @@ public class SiteStructureFactory implements AdapterFactory {
     }
 
     private SiteStructure getAdapter(Page currentPage) {
+        if (currentPage.getPath().startsWith(EXPERIENCE_FRAGMENTS_PATH)) {
+            currentPage = getCurrentPageForXf(currentPage);
+        }
+
         return new SiteStructureImpl(currentPage);
+    }
+
+    /**
+     * Gets the appropriate current page for experience fragments by either finding
+     * a navigation root with cq:cifPreviewPage or using progressive path lookup.
+     * 
+     * @param xfPage The experience fragment page
+     * @return The resolved current page for site structure
+     */
+    private Page getCurrentPageForXf(Page xfPage) {
+        // First try to find preview page with cq:cifPreviewPage
+        Page previewPage = findPreviewPage(xfPage);
+        if (previewPage != null) {
+            return previewPage;
+        }
+
+        // Fallback to progressive path lookup
+        return findCorrespondingPage(xfPage);
+    }
+
+    /**
+     * Recursively tries to find a corresponding page in the main content structure
+     * by progressively removing path segments from the experience fragment path.
+     * 
+     * @param xfPage The experience fragment page
+     * @return The found page or the original page if no match found
+     */
+    private Page findCorrespondingPage(Page xfPage) {
+        String experienceFragmentPath = xfPage.getPath();
+        String relativePath = experienceFragmentPath.substring(EXPERIENCE_FRAGMENTS_PATH.length() + 1);
+        String contentPath = "/content/" + relativePath;
+
+        PageManager pageManager = xfPage.getPageManager();
+        Page foundPage = findCorrespondingPageIterative(pageManager, contentPath);
+
+        return foundPage != null ? foundPage : xfPage;
+    }
+
+    /**
+     * Iteratively tries to find a corresponding page in the main content structure
+     * by progressively removing path segments from the experience fragment path.
+     * 
+     * @param pageManager The page manager to use for page lookups
+     * @param contentPath The full content path (e.g., "/content/venia/us/en/site/header/master")
+     * @return The found page or null if no page exists
+     */
+    private Page findCorrespondingPageIterative(PageManager pageManager, String contentPath) {
+        if (contentPath == null || contentPath.isEmpty()) {
+            return null;
+        }
+
+        // Use iterative approach instead of recursion to avoid stack overflow
+        String currentPath = contentPath;
+
+        while (StringUtils.isNotEmpty(currentPath)) {
+            // Try the current path
+            Page page = pageManager.getPage(currentPath);
+            if (page != null) {
+                return page;
+            }
+
+            // Remove the last segment and try again
+            int lastSlashIndex = currentPath.lastIndexOf('/');
+            if (lastSlashIndex <= 0) {
+                break; // Reached root level
+            }
+
+            currentPath = currentPath.substring(0, lastSlashIndex);
+        }
+
+        return null;
+    }
+
+    /**
+     * Finds the preview page by looking for a node with a non-empty cq:cifPreviewPage attribute.
+     * Traverses up the tree through both pages and folders.
+     * 
+     * @param currentPage The current page to start the search from
+     * @return The preview page if found, otherwise null
+     */
+    private Page findPreviewPage(Page currentPage) {
+        if (currentPage == null) {
+            return null;
+        }
+
+        PageManager pageManager = currentPage.getPageManager();
+
+        // Walk up the tree using resources to support both pages and folders
+        for (Resource resource = currentPage.adaptTo(Resource.class); resource != null; resource = resource.getParent()) {
+            String previewPagePath = resource.getValueMap().get(PN_CIF_PREVIEW_PAGE, String.class);
+
+            if (previewPagePath != null && !previewPagePath.trim().isEmpty()) {
+                Page previewPage = pageManager.getPage(previewPagePath);
+                if (previewPage != null) {
+                    return previewPage;
+                }
+            }
+        }
+
+        return null;
     }
 
     private SiteStructure getAdapter(Resource resource) {
