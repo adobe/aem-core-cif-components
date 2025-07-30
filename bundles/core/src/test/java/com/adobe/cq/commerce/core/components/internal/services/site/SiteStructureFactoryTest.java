@@ -138,6 +138,22 @@ public class SiteStructureFactoryTest {
         }
     }
 
+    @Test
+    public void testFindPreviewPageWithNullPage() {
+        try {
+            java.lang.reflect.Method findPreviewPageMethod = SiteStructureFactory.class.getDeclaredMethod(
+                "findPreviewPage", Page.class);
+            findPreviewPageMethod.setAccessible(true);
+
+            // Test with null page
+            Page result = (Page) findPreviewPageMethod.invoke(subject, (Page) null);
+            assertNull("findPreviewPage should return null when given a null page", result);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     // ========== HELPER METHODS ==========
 
     private void setupExperienceFragmentWithPreviewPage() {
