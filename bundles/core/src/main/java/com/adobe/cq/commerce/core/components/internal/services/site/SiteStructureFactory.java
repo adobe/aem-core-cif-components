@@ -182,55 +182,32 @@ public class SiteStructureFactory implements AdapterFactory {
     }
 
     /**
-     * Recursively tries to find a corresponding page in the main content structure
+     * Tries to find a corresponding page in the main content structure
      * by progressively removing path segments from the experience fragment path.
      *
      * @param xfPage The experience fragment page
      * @return The found page or the original page if no match found
      */
     private Page findCorrespondingPage(Page xfPage) {
-        String experienceFragmentPath = xfPage.getPath();
-        String contentPath = experienceFragmentPath.replace(EXPERIENCE_FRAGMENTS_PATH, "/content");
-
         PageManager pageManager = xfPage.getPageManager();
-        Page foundPage = findCorrespondingPageIterative(pageManager, contentPath);
-
-        return foundPage != null ? foundPage : xfPage;
-    }
-
-    /**
-     * Iteratively tries to find a corresponding page in the main content structure
-     * by progressively removing path segments from the experience fragment path.
-     *
-     * @param pageManager The page manager to use for page lookups
-     * @param contentPath The full content path (e.g., "/content/venia/us/en/site/header/master")
-     * @return The found page or null if no page exists
-     */
-    private Page findCorrespondingPageIterative(PageManager pageManager, String contentPath) {
-        if (contentPath == null || contentPath.isEmpty()) {
-            return null;
-        }
-
-        // Use iterative approach instead of recursion to avoid stack overflow
-        String currentPath = contentPath;
-
-        while (StringUtils.isNotEmpty(currentPath)) {
+        String contentPath = xfPage.getPath().replace(EXPERIENCE_FRAGMENTS_PATH, "/content");
+        while (StringUtils.isNotEmpty(contentPath)) {
             // Try the current path
-            Page page = pageManager.getPage(currentPath);
+            Page page = pageManager.getPage(contentPath);
             if (page != null) {
                 return page;
             }
 
             // Remove the last segment and try again
-            int lastSlashIndex = currentPath.lastIndexOf('/');
+            int lastSlashIndex = contentPath.lastIndexOf('/');
             if (lastSlashIndex <= 0) {
                 break; // Reached root level
             }
 
-            currentPath = currentPath.substring(0, lastSlashIndex);
+            contentPath = contentPath.substring(0, lastSlashIndex);
         }
 
-        return null;
+        return xfPage;
     }
 
     /**
