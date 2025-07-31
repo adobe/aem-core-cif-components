@@ -28,6 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
+import com.day.cq.commons.inherit.ComponentInheritanceValueMap;
+import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
+import com.day.cq.commons.inherit.InheritanceValueMap;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.PageManagerFactory;
@@ -242,17 +245,21 @@ public class SiteStructureFactory implements AdapterFactory {
             return null;
         }
 
-        PageManager pageManager = currentPage.getPageManager();
+        // Use InheritanceValueMap to automatically traverse up the hierarchy
+        InheritanceValueMap properties = new ComponentInheritanceValueMap(currentPage.adaptTo(Resource.class));
+        String previewPagePath = properties.getInherited(PN_CIF_PREVIEW_PAGE, String.class);
 
-        // Walk up the tree using resources to support both pages and folders
-        for (Resource resource = currentPage.adaptTo(Resource.class); resource != null; resource = resource.getParent()) {
-            String previewPagePath = resource.getValueMap().get(PN_CIF_PREVIEW_PAGE, String.class);
+        // Fallback to HierarchyNodeInheritanceValueMap if not found
+        if (previewPagePath == null || previewPagePath.trim().isEmpty()) {
+            properties = new HierarchyNodeInheritanceValueMap(currentPage.getContentResource());
+            previewPagePath = properties.getInherited(PN_CIF_PREVIEW_PAGE, String.class);
+        }
 
-            if (previewPagePath != null && !previewPagePath.trim().isEmpty()) {
-                Page previewPage = pageManager.getPage(previewPagePath);
-                if (previewPage != null) {
-                    return previewPage;
-                }
+        if (previewPagePath != null && !previewPagePath.trim().isEmpty()) {
+            PageManager pageManager = currentPage.getPageManager();
+            Page previewPage = pageManager.getPage(previewPagePath);
+            if (previewPage != null) {
+                return previewPage;
             }
         }
 
