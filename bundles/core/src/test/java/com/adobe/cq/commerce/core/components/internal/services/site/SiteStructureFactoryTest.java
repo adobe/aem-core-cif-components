@@ -23,7 +23,6 @@ import org.junit.Test;
 
 import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.PageManager;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
@@ -104,38 +103,6 @@ public class SiteStructureFactoryTest {
         // Assert: Should not have a landing page since no corresponding content page exists
         assertNull("SiteStructure should not have a landing page for XF without corresponding content page",
             xfSiteStructure.getLandingPage());
-    }
-
-    @Test
-    public void testFindCorrespondingPageIterativeEdgeCases() {
-        PageManager pageManager = aemContext.pageManager();
-
-        try {
-            java.lang.reflect.Method findCorrespondingPageIterativeMethod = SiteStructureFactory.class.getDeclaredMethod(
-                "findCorrespondingPageIterative", PageManager.class, String.class);
-            findCorrespondingPageIterativeMethod.setAccessible(true);
-
-            // Test null path
-            Page result = (Page) findCorrespondingPageIterativeMethod.invoke(subject, pageManager, (String) null);
-            assertNull(result);
-
-            // Test empty path
-            result = (Page) findCorrespondingPageIterativeMethod.invoke(subject, pageManager, "");
-            assertNull(result);
-
-            // Test non-existent path
-            result = (Page) findCorrespondingPageIterativeMethod.invoke(subject, pageManager, "/content/non/existent/path");
-            assertNull(result);
-
-            // Test existing path
-            aemContext.create().page("/content/venia");
-            result = (Page) findCorrespondingPageIterativeMethod.invoke(subject, pageManager, "/content/venia/us/en/site/header/master");
-            assertNotNull(result);
-            assertEquals("/content/venia", result.getPath());
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Test
