@@ -86,7 +86,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         .map(headerName -> headerName.toLowerCase(Locale.ROOT))
         .collect(Collectors.toSet());
     private static final String LOCAL_CACHE_ATTR = MagentoGraphqlClient.class.getName() + ".LocalCache";
-    private static final String BACKEND_CALL_ATTRIBUTE = "com.adobe.cif.backendcall";
+    private static final String BACKEND_CALL_DURATION_ATTRIBUTE = "com.adobe.cif.backendCallDurationInMs";
 
     private SlingHttpServletRequest request;
     private Resource resource;
@@ -224,7 +224,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
             // Initialize backend call duration attribute
             existingDuration = new AtomicLong(0);
-            request.setAttribute(BACKEND_CALL_ATTRIBUTE, existingDuration);
+            request.setAttribute(BACKEND_CALL_DURATION_ATTRIBUTE, existingDuration);
         }
     }
 
