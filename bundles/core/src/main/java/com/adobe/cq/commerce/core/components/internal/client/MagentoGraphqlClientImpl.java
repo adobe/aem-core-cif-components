@@ -27,6 +27,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -83,6 +86,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         .map(headerName -> headerName.toLowerCase(Locale.ROOT))
         .collect(Collectors.toSet());
     private static final String LOCAL_CACHE_ATTR = MagentoGraphqlClient.class.getName() + ".LocalCache";
+    private static final String BACKEND_CALL_ATTRIBUTE = "com.adobe.cif.backendcall";
 
     private SlingHttpServletRequest request;
     private Resource resource;
@@ -93,6 +97,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     private RequestOptions requestOptions;
     private List<Header> httpHeaders;
     private Map<String, GraphqlResponse<Query, Error>> localResponseCache;
+    private AtomicLong existingDuration;
 
     public MagentoGraphqlClientImpl(Resource resource) {
         this.resource = resource;
@@ -216,6 +221,10 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
                 localResponseCache = new HashMap<>();
                 request.setAttribute(LOCAL_CACHE_ATTR, localResponseCache);
             }
+
+            // Initialize backend call duration attribute
+            existingDuration = new AtomicLong(0);
+            request.setAttribute(BACKEND_CALL_ATTRIBUTE, existingDuration);
         }
     }
 
@@ -234,9 +243,22 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         if (httpMethod == HttpMethod.POST) {
             // skip caching if POST is enforced by the caller
             try {
-                return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
+                GraphqlResponse<Query, Error> response = graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class,
+                    options);
+
+                // Add backend call duration to request attributes
+                if (response.getDuration() != null) {
+                    existingDuration.set(response.getDuration());
+                }
+
+                return response;
             } catch (RuntimeException ex) {
                 LOGGER.error("Failed to execute query: {}", query, ex);
+
+                // Extract duration from exception message and set as request attribute
+                Long duration = extractDurationFromException(ex);
+                existingDuration.set(duration != null ? duration : 0);
+
                 return newErrorResponse(ex);
             }
         }
@@ -269,8 +291,12 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
                 }
             }
 
-            GraphqlRequest request = new GraphqlRequest(query);
-            GraphqlResponse<Query, Error> response = graphqlClient.execute(request, Query.class, Error.class, options);
+            GraphqlRequest graphqlRequest = new GraphqlRequest(query);
+            GraphqlResponse<Query, Error> response = graphqlClient.execute(graphqlRequest, Query.class, Error.class, options);
+
+            if (response.getDuration() != null) {
+                existingDuration.set(response.getDuration());
+            }
 
             if (localResponseCache != null) {
                 localResponseCache.put(query, response);
@@ -279,6 +305,11 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             return response;
         } catch (RuntimeException ex) {
             LOGGER.error("Failed to execute query: {}", query, ex);
+
+            // Extract duration from exception message and set as request attribute
+            Long duration = extractDurationFromException(ex);
+            existingDuration.set(duration != null ? duration : 0);
+
             return newErrorResponse(ex);
         }
     }
@@ -359,6 +390,39 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         error.setCategory(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
         response.setErrors(Collections.singletonList(error));
         return response;
+    }
+
+    /**
+     * Extracts duration from exception message if it contains timing information.
+     * Expected format: "Failed to send GraphQL request after 20ms"
+     * 
+     * @param throwable The exception to extract duration from
+     * @return Duration in milliseconds, or null if not found
+     */
+    private static Long extractDurationFromException(Throwable throwable) {
+        if (throwable == null) {
+            return null;
+        }
+
+        String message = throwable.getMessage();
+        if (message == null) {
+            return null;
+        }
+
+        // Look for pattern "Xms" where X is only digits and ms follows immediately (no space)
+        Pattern pattern = Pattern.compile("(\\d+)ms\\b", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(message);
+
+        if (matcher.find()) {
+            try {
+                return Long.parseLong(matcher.group(1));
+            } catch (NumberFormatException e) {
+                LOGGER.debug("Could not parse duration from exception message: {}", message);
+                return null;
+            }
+        }
+
+        return null;
     }
 
     private static String readFallBackConfiguration(Resource resource, String propertyName) {
