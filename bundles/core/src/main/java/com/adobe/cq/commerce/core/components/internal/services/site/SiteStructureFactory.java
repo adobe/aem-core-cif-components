@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.site;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.adapter.AdapterFactory;
 import org.apache.sling.api.resource.Resource;
@@ -27,6 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
+import com.day.cq.commons.inherit.ComponentInheritanceValueMap;
+import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
+import com.day.cq.commons.inherit.InheritanceValueMap;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.PageManagerFactory;
@@ -46,6 +50,8 @@ import com.day.cq.wcm.scripting.WCMBindingsConstants;
 public class SiteStructureFactory implements AdapterFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SiteStructureFactory.class);
+    private static final String EXPERIENCE_FRAGMENTS_PATH = "/content/experience-fragments";
+    private static final String PN_CIF_PREVIEW_PAGE = "cq:cifPreviewPage";
 
     @Reference
     private PageManagerFactory pageManagerFactory;
@@ -65,6 +71,10 @@ public class SiteStructureFactory implements AdapterFactory {
     }
 
     private SiteStructure getAdapter(Page currentPage) {
+        if (currentPage.getPath().startsWith(EXPERIENCE_FRAGMENTS_PATH)) {
+            currentPage = getCurrentPageForXf(currentPage);
+        }
+
         return new SiteStructureImpl(currentPage);
     }
 
@@ -151,5 +161,85 @@ public class SiteStructureFactory implements AdapterFactory {
         }
 
         return siteStructure;
+    }
+
+    /**
+     * Gets the appropriate current page for experience fragments by either finding
+     * a navigation root with cq:cifPreviewPage or using progressive path lookup.
+     *
+     * @param xfPage The experience fragment page
+     * @return The resolved current page for site structure
+     */
+    private Page getCurrentPageForXf(Page xfPage) {
+        // First try to find preview page with cq:cifPreviewPage
+        Page previewPage = findPreviewPage(xfPage);
+        if (previewPage != null) {
+            return previewPage;
+        }
+
+        // Fallback to progressive path lookup
+        return findCorrespondingPage(xfPage);
+    }
+
+    /**
+     * Tries to find a corresponding page in the main content structure
+     * by progressively removing path segments from the experience fragment path.
+     *
+     * @param xfPage The experience fragment page
+     * @return The found page or the original page if no match found
+     */
+    private Page findCorrespondingPage(Page xfPage) {
+        PageManager pageManager = xfPage.getPageManager();
+        String contentPath = xfPage.getPath().replace(EXPERIENCE_FRAGMENTS_PATH, "/content");
+        while (StringUtils.isNotEmpty(contentPath)) {
+            // Try the current path
+            Page page = pageManager.getPage(contentPath);
+            if (page != null) {
+                return page;
+            }
+
+            // Remove the last segment and try again
+            int lastSlashIndex = contentPath.lastIndexOf('/');
+            if (lastSlashIndex <= 0) {
+                break; // Reached root level
+            }
+
+            contentPath = contentPath.substring(0, lastSlashIndex);
+        }
+
+        return xfPage;
+    }
+
+    /**
+     * Finds the preview page by looking for a node with a non-empty cq:cifPreviewPage attribute.
+     * Uses InheritanceValueMap to traverse up the hierarchy automatically.
+     *
+     * @param currentPage The current page to start the search from
+     * @return The preview page if found, otherwise null
+     */
+    private Page findPreviewPage(Page currentPage) {
+        if (currentPage == null) {
+            return null;
+        }
+
+        // Use InheritanceValueMap to automatically traverse up the hierarchy
+        InheritanceValueMap properties = new ComponentInheritanceValueMap(currentPage.adaptTo(Resource.class));
+        String previewPagePath = properties.getInherited(PN_CIF_PREVIEW_PAGE, String.class);
+
+        // Fallback to HierarchyNodeInheritanceValueMap if not found
+        if (previewPagePath == null || previewPagePath.trim().isEmpty()) {
+            properties = new HierarchyNodeInheritanceValueMap(currentPage.getContentResource());
+            previewPagePath = properties.getInherited(PN_CIF_PREVIEW_PAGE, String.class);
+        }
+
+        if (previewPagePath != null && !previewPagePath.trim().isEmpty()) {
+            PageManager pageManager = currentPage.getPageManager();
+            Page previewPage = pageManager.getPage(previewPagePath);
+            if (previewPage != null) {
+                return previewPage;
+            }
+        }
+
+        return null;
     }
 }
