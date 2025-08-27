@@ -251,7 +251,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
                     options);
 
                 // Add backend call duration to request attributes
-                if (response.getDuration() != null) {
+                if (existingDuration != null && response.getDuration() > 0) {
                     existingDuration.addAndGet(response.getDuration());
                 }
 
@@ -260,7 +260,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
                 LOGGER.error("Failed to execute query: {}", query, ex);
 
                 // Add duration from GraphqlRequestException if available
-                if (ex instanceof GraphqlRequestException) {
+                if (existingDuration != null && ex instanceof GraphqlRequestException) {
                     existingDuration.addAndGet(((GraphqlRequestException) ex).getDurationMs());
                 }
 
@@ -299,7 +299,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             GraphqlRequest graphqlRequest = new GraphqlRequest(query);
             GraphqlResponse<Query, Error> response = graphqlClient.execute(graphqlRequest, Query.class, Error.class, options);
 
-            if (response.getDuration() != null) {
+            if (existingDuration != null && response.getDuration() > 0) {
                 existingDuration.addAndGet(response.getDuration());
             }
 
@@ -312,7 +312,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             LOGGER.error("Failed to execute query: {}", query, ex);
 
             // Add duration from GraphqlRequestException if available
-            if (ex instanceof GraphqlRequestException) {
+            if (existingDuration != null && ex instanceof GraphqlRequestException) {
                 existingDuration.addAndGet(((GraphqlRequestException) ex).getDurationMs());
             }
 
