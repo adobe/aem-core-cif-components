@@ -261,7 +261,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
                 // Add duration from GraphqlRequestException if available
                 if (existingDuration != null && ex instanceof GraphqlRequestException) {
-                    existingDuration.addAndGet(((GraphqlRequestException) ex).getDurationMs());
+                    existingDuration.addAndGet(((GraphqlRequestException) ex).getDuration());
                 }
 
                 return newErrorResponse(ex);
@@ -313,7 +313,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
             // Add duration from GraphqlRequestException if available
             if (existingDuration != null && ex instanceof GraphqlRequestException) {
-                existingDuration.addAndGet(((GraphqlRequestException) ex).getDurationMs());
+                existingDuration.addAndGet(((GraphqlRequestException) ex).getDuration());
             }
 
             return newErrorResponse(ex);
