@@ -30,6 +30,7 @@ try {
     ci.stage("Integration Tests");
     let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
+    let aemCifSdkApiVersion = ci.sh('mvn help:evaluate -Dexpression=aem.cif.sdk.api.snapshot -q -DforceStdout', true);
     let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
 
 
@@ -39,14 +40,14 @@ try {
         
         // Download latest add-on release from artifactory
         let extras = '';
-        const downloadArtifact = (artifactId, type, outputFileName, classifier = '') => {
+        const downloadArtifact = (artifactId, type, outputFileName, classifier = '', version = 'LATEST') => {
             const classifierOption = classifier ? `-Dclassifier=${classifier}` : '';
-            ci.sh(`mvn -U -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=${artifactId} -Dversion=LATEST -Dtype=${type} ${classifierOption} -DoutputDirectory=${buildPath} -DoutputFileName=${outputFileName}`);
+            ci.sh(`mvn -U -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=${artifactId} -Dversion=${version} -Dtype=${type} ${classifierOption} -DoutputDirectory=${buildPath} -DoutputFileName=${outputFileName}`);
         };
 
         if (AEM === 'classic') {
             extras += ` --install-file ${buildPath}/addon.zip`;
-            downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip');
+            downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip', '', aemCifSdkApiVersion);
             extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM === 'addon') {
             extras += ` --install-file ${buildPath}/addon.far`;
