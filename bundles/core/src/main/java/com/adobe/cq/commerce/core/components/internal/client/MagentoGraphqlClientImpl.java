@@ -28,8 +28,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -396,39 +394,6 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         error.setCategory(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
         response.setErrors(Collections.singletonList(error));
         return response;
-    }
-
-    /**
-     * Extracts duration from exception message if it contains timing information.
-     * Expected format: "Failed to send GraphQL request after 20ms"
-     * 
-     * @param throwable The exception to extract duration from
-     * @return Duration in milliseconds, or null if not found
-     */
-    private static Long extractDurationFromException(Throwable throwable) {
-        if (throwable == null) {
-            return null;
-        }
-
-        String message = throwable.getMessage();
-        if (message == null) {
-            return null;
-        }
-
-        // Look for pattern "Xms" where X is only digits and ms follows immediately (no space)
-        Pattern pattern = Pattern.compile("(\\d+)ms\\b", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(message);
-
-        if (matcher.find()) {
-            try {
-                return Long.parseLong(matcher.group(1));
-            } catch (NumberFormatException e) {
-                LOGGER.debug("Could not parse duration from exception message: {}", message);
-                return null;
-            }
-        }
-
-        return null;
     }
 
     private static String readFallBackConfiguration(Resource resource, String propertyName) {
