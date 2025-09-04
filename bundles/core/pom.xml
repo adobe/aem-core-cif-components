@@ -87,6 +87,7 @@
                         <!-- Enable processing of OSGI metatype annotations -->
                         <_metatypeannotations>*</_metatypeannotations>
                         <Import-Package>
+                            com.adobe.cq.commerce.graphql.client;version="[1.0.0,2.0.0)",
                             com.adobe.cq.dam.cfm.content;version="[1.1.0,2)",
                             javax.annotation;version=0.0.0,
                             !org.apache.sling.sitemap.*,
