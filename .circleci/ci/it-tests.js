@@ -47,7 +47,7 @@ try {
 
         if (AEM === 'classic') {
             extras += ` --install-file ${buildPath}/addon.zip`;
-            downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip', 'LATEST');
+            downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
             extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM === 'addon') {
             extras += ` --install-file ${buildPath}/addon.far`;
