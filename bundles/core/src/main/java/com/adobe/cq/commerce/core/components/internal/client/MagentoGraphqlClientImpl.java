@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -52,6 +53,7 @@ import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequestException;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.RequestOptions;
@@ -83,6 +85,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         .map(headerName -> headerName.toLowerCase(Locale.ROOT))
         .collect(Collectors.toSet());
     private static final String LOCAL_CACHE_ATTR = MagentoGraphqlClient.class.getName() + ".LocalCache";
+    private static final String BACKEND_CALL_DURATION_ATTRIBUTE = "com.adobe.cif.backendCallDurationInMs";
 
     private SlingHttpServletRequest request;
     private Resource resource;
@@ -93,6 +96,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     private RequestOptions requestOptions;
     private List<Header> httpHeaders;
     private Map<String, GraphqlResponse<Query, Error>> localResponseCache;
+    private AtomicLong existingDuration;
 
     public MagentoGraphqlClientImpl(Resource resource) {
         this.resource = resource;
@@ -216,6 +220,13 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
                 localResponseCache = new HashMap<>();
                 request.setAttribute(LOCAL_CACHE_ATTR, localResponseCache);
             }
+
+            // Initialize backend call duration attribute
+            existingDuration = (AtomicLong) request.getAttribute(BACKEND_CALL_DURATION_ATTRIBUTE);
+            if (existingDuration == null) {
+                existingDuration = new AtomicLong(0);
+                request.setAttribute(BACKEND_CALL_DURATION_ATTRIBUTE, existingDuration);
+            }
         }
     }
 
@@ -234,9 +245,23 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         if (httpMethod == HttpMethod.POST) {
             // skip caching if POST is enforced by the caller
             try {
-                return graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class, options);
+                GraphqlResponse<Query, Error> response = graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class,
+                    options);
+
+                // Add backend call duration to request attributes
+                if (existingDuration != null && response.getDuration() > 0) {
+                    existingDuration.addAndGet(response.getDuration());
+                }
+
+                return response;
             } catch (RuntimeException ex) {
                 LOGGER.error("Failed to execute query: {}", query, ex);
+
+                // Add duration from GraphqlRequestException if available
+                if (existingDuration != null && ex instanceof GraphqlRequestException) {
+                    existingDuration.addAndGet(((GraphqlRequestException) ex).getDuration());
+                }
+
                 return newErrorResponse(ex);
             }
         }
@@ -269,8 +294,12 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
                 }
             }
 
-            GraphqlRequest request = new GraphqlRequest(query);
-            GraphqlResponse<Query, Error> response = graphqlClient.execute(request, Query.class, Error.class, options);
+            GraphqlRequest graphqlRequest = new GraphqlRequest(query);
+            GraphqlResponse<Query, Error> response = graphqlClient.execute(graphqlRequest, Query.class, Error.class, options);
+
+            if (existingDuration != null && response.getDuration() > 0) {
+                existingDuration.addAndGet(response.getDuration());
+            }
 
             if (localResponseCache != null) {
                 localResponseCache.put(query, response);
@@ -279,6 +308,12 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             return response;
         } catch (RuntimeException ex) {
             LOGGER.error("Failed to execute query: {}", query, ex);
+
+            // Add duration from GraphqlRequestException if available
+            if (existingDuration != null && ex instanceof GraphqlRequestException) {
+                existingDuration.addAndGet(((GraphqlRequestException) ex).getDuration());
+            }
+
             return newErrorResponse(ex);
         }
     }

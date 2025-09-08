@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.Cookie;
@@ -41,6 +42,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.AtMost;
+import org.mockito.stubbing.Stubber;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.ComponentsConfigurationAdapterFactory;
@@ -50,6 +52,7 @@ import com.adobe.cq.commerce.core.testing.TestContext;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequestException;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.RequestOptions;
@@ -82,6 +85,7 @@ public class MagentoGraphqlClientImplTest {
         "my-store", "enableUIDSupport", "true"));
 
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
+    private static final String BACKEND_CALL_DURATION_ATTRIBUTE = "com.adobe.cif.backendCallDurationInMs";
 
     private static final String PAGE_A = "/content/pageA";
     private static final String LAUNCH_BASE_PATH = "/content/launches/2020/09/14/mylaunch";
@@ -404,6 +408,86 @@ public class MagentoGraphqlClientImplTest {
         assertEquals("[java.lang.RuntimeException: \"foo\"] Caused by: [java.lang.RuntimeException: \"bar\"]",
             response.getErrors().get(0).getMessage());
         assertEquals(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY, response.getErrors().get(0).getCategory());
+    }
+
+    @Test
+    public void checkGraphqlDurationBeenSet() {
+        MagentoGraphqlClient client = createTestClient();
+        mockSuccessfulResponse(100L);
+
+        client.execute("{dummy}");
+        client.execute("{dummy123}");
+
+        assertDurationAccumulation(200L, "Duration should be accumulated from both calls");
+    }
+
+    @Test
+    public void checkGraphqlDurationBeenSetDuringErrorResponse() {
+        MagentoGraphqlClient client = createTestClient();
+        mockExceptionResponse(
+            new GraphqlRequestException("Test error 1", 150L),
+            new GraphqlRequestException("Test error 2", 200L));
+
+        client.execute("{dummy}");
+        client.execute("{dummy123}");
+
+        assertDurationAccumulation(350L, "Duration should be accumulated from both error calls");
+    }
+
+    @Test
+    public void checkGraphqlDurationBeenSetWithHttpMethod() {
+        MagentoGraphqlClient client = createTestClient();
+        mockSuccessfulResponse(100L);
+
+        client.execute("{dummy1}", HttpMethod.GET);   // caching path
+        client.execute("{dummy2}", HttpMethod.POST);  // non-caching path
+
+        assertDurationAccumulation(200L, "Duration should be accumulated from both calls");
+    }
+
+    @Test
+    public void checkGraphqlDurationBeenSetWithHttpMethodDuringError() {
+        MagentoGraphqlClient client = createTestClient();
+        mockExceptionResponse(
+            new GraphqlRequestException("Test error with GET", 180L),
+            new GraphqlRequestException("Test error with POST", 220L));
+
+        client.execute("{dummy1}", HttpMethod.GET);   // caching path error
+        client.execute("{dummy2}", HttpMethod.POST);  // non-caching path error
+
+        assertDurationAccumulation(400L, "Duration should be accumulated from both error calls");
+    }
+
+    // Helper methods for optimized duration testing
+    private MagentoGraphqlClient createTestClient() {
+        context.currentPage("/content/pageD");
+        return new MagentoGraphqlClientImpl(context.currentResource(), null, context.request());
+    }
+
+    private GraphqlResponse mockSuccessfulResponse(long duration) {
+        GraphqlResponse expected = mock(GraphqlResponse.class);
+        when(expected.getDuration()).thenReturn(duration);
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(expected);
+        return expected;
+    }
+
+    private void mockExceptionResponse(GraphqlRequestException... exceptions) {
+        if (exceptions.length == 0)
+            return;
+
+        // Build the doThrow chain dynamically
+        Stubber stubbing = doThrow(exceptions[0]);
+        for (int i = 1; i < exceptions.length; i++) {
+            stubbing = stubbing.doThrow(exceptions[i]);
+        }
+
+        stubbing.when(graphqlClient).execute(any(), any(), any(), any());
+    }
+
+    private void assertDurationAccumulation(long expectedDuration, String message) {
+        AtomicLong existingDuration = (AtomicLong) context.request().getAttribute(BACKEND_CALL_DURATION_ATTRIBUTE);
+        assertNotNull("Duration should be set in request attributes", existingDuration);
+        assertEquals(message, expectedDuration, existingDuration.get());
     }
 
     /**

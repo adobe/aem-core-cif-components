@@ -32,6 +32,9 @@ try {
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
     let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
 
+    // TODO: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
+    let aemCifSdkApiVersion = "2025.09.02.1-SNAPSHOT";
+
 
     ci.dir(qpPath, () => {
         // Connect to QP
@@ -39,18 +42,18 @@ try {
         
         // Download latest add-on release from artifactory
         let extras = '';
-        const downloadArtifact = (artifactId, type, outputFileName, classifier = '') => {
+        const downloadArtifact = (artifactId, type, outputFileName, version = 'LATEST', classifier = '') => {
             const classifierOption = classifier ? `-Dclassifier=${classifier}` : '';
-            ci.sh(`mvn -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=${artifactId} -Dversion=LATEST -Dtype=${type} ${classifierOption} -DoutputDirectory=${buildPath} -DoutputFileName=${outputFileName}`);
+            ci.sh(`mvn -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=${artifactId} -Dversion=${version} -Dtype=${type} ${classifierOption} -DoutputDirectory=${buildPath} -DoutputFileName=${outputFileName}`);
         };
 
         if (AEM === 'classic') {
             extras += ` --install-file ${buildPath}/addon.zip`;
-            downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip');
+            downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
             extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM === 'addon') {
             extras += ` --install-file ${buildPath}/addon.far`;
-            downloadArtifact('cif-cloud-ready-feature-pkg', 'far', 'addon.far', 'cq-commerce-addon-authorfar');
+            downloadArtifact('cif-cloud-ready-feature-pkg', 'far', 'addon.far', 'LATEST', 'cq-commerce-addon-authorfar');
         }
         
         // Start CQ
