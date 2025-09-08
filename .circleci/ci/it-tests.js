@@ -30,8 +30,10 @@ try {
     ci.stage("Integration Tests");
     let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
-    let aemCifSdkApiVersion = ci.sh('mvn help:evaluate -Dexpression=aem.cif.sdk.api.snapshot -q -DforceStdout', true);
     let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
+
+    // To-Do: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
+    let aemCifSdkApiVersion = ci.sh('mvn help:evaluate -Dexpression=aem.cif.sdk.api.snapshot -q -DforceStdout', true);
 
 
     ci.dir(qpPath, () => {
