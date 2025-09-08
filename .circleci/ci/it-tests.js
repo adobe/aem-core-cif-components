@@ -32,7 +32,7 @@ try {
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
     let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
 
-    // To-Do: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
+    // TODO: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
     let aemCifSdkApiVersion = ci.sh('mvn help:evaluate -Dexpression=aem.cif.sdk.api.snapshot -q -DforceStdout', true);
 
 
