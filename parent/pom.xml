@@ -474,7 +474,7 @@
                 <plugin>
                     <groupId>org.apache.jackrabbit</groupId>
                     <artifactId>filevault-package-maven-plugin</artifactId>
-                    <version>1.1.4</version>
+                    <version>1.1.8</version>
                     <extensions>true</extensions>
                     <configuration>
                         <failOnMissingEmbed>true</failOnMissingEmbed>
