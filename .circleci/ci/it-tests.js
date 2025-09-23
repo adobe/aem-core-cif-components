@@ -59,7 +59,8 @@ try {
             extras += ` --install-file ${buildPath}/addon.far`;
             downloadArtifact('cif-cloud-ready-feature-pkg', 'far', 'addon.far', 'LATEST', 'cq-commerce-addon-authorfar');
         }
-        
+
+        const maxMetaspace = AEM == 'lts' ? '-XX:MaxMetaspaceSize=256m' : '-XX:MaxPermSize=256m';
         // Start CQ
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
             --bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar \
@@ -76,7 +77,7 @@ try {
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-config'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-content'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])} \
-            --vm-options \\\"-Xmx1536m -XX:MaxPermSize=256m -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
+            --vm-options \\\"-Xmx1536m ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
     });
 
 
