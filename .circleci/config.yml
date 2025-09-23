@@ -386,6 +386,18 @@ workflows:
             - jest
             - jest-extension-product-recs
             - jest-extension-experience-platform-connector
+      - integration-test-660:
+          context:
+            - CIF Artifactory Cloud
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-java-11
+            - karma
+            - jest
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
       - integration-test-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -408,6 +420,18 @@ workflows:
           requires:
             - build-java-11
             - build-java-8
+            - karma
+            - jest
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
+      - selenium-chrome-660:
+          context:
+            - CIF Artifactory Cloud
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-java-11
             - karma
             - jest
             - jest-extension-product-recs
