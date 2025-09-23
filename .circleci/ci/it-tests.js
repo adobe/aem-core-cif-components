@@ -51,6 +51,10 @@ try {
             extras += ` --install-file ${buildPath}/addon.zip`;
             downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
             extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
+        } else if (AEM === 'lts') {
+            extras += ` --install-file ${buildPath}/addon.zip`;
+            downloadArtifact('commerce-addon-aem-660-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
+            extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM === 'addon') {
             extras += ` --install-file ${buildPath}/addon.far`;
             downloadArtifact('cif-cloud-ready-feature-pkg', 'far', 'addon.far', 'LATEST', 'cq-commerce-addon-authorfar');
