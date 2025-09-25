@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services.experiencefragments;
 
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.adobe.cq.cif.common.associatedcontent.AssociatedContentQuery;
 import com.adobe.cq.cif.common.associatedcontent.AssociatedContentService;
 import com.adobe.cq.cif.common.associatedcontent.AssociatedContentService.XfParams;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.WCMException;
@@ -62,11 +64,11 @@ public class CommerceExperienceFragmentsRetrieverImpl implements CommerceExperie
 
         ResourceResolver resourceResolver = currentPage.getContentResource().getResourceResolver();
         AssociatedContentQuery<Page> contentQuery = associatedContentService
-            .listProductExperienceFragments(resourceResolver,
-                XfParams.of(sku)
-                    .path(getExperienceFragmentsRoot(currentPage))
-                    .location(fragmentLocation))
-            .withLimit(1);
+                .listProductExperienceFragments(resourceResolver,
+                        XfParams.of(sku)
+                                .path(getExperienceFragmentsRoot(currentPage))
+                                .location(fragmentLocation))
+                .withLimit(1);
 
         Iterator<Page> results = contentQuery.execute();
         if (results.hasNext()) {
@@ -84,13 +86,27 @@ public class CommerceExperienceFragmentsRetrieverImpl implements CommerceExperie
             return Collections.emptyList();
         }
 
+        ComponentsConfiguration configProperties = currentPage.adaptTo(Resource.class).adaptTo(ComponentsConfiguration.class);
+
+        if (configProperties != null && !configProperties.get("enableUIDSupport", Boolean.TRUE)) {
+            LOGGER.debug("Category experience fragments UID support is disabled, attempting to decode base64 categoryUid");
+            // Decode base64 categoryUid when UID support is disabled
+            try {
+                byte[] decoded = Base64.getDecoder().decode(categoryUid);
+                categoryUid = new String(decoded);
+                LOGGER.debug("Successfully decoded categoryUid from base64: {}", categoryUid);
+            } catch (IllegalArgumentException e) {
+                LOGGER.warn("Failed to decode base64 categoryUid '{}', using original value: {}", categoryUid, e.getMessage());
+            }
+        }
+
         ResourceResolver resourceResolver = currentPage.getContentResource().getResourceResolver();
         AssociatedContentQuery<Page> contentQuery = associatedContentService
-            .listCategoryExperienceFragments(resourceResolver,
-                XfParams.of(categoryUid)
-                    .path(getExperienceFragmentsRoot(currentPage))
-                    .location(fragmentLocation))
-            .withLimit(1);
+                .listCategoryExperienceFragments(resourceResolver,
+                        XfParams.of(categoryUid)
+                                .path(getExperienceFragmentsRoot(currentPage))
+                                .location(fragmentLocation))
+                .withLimit(1);
 
         Iterator<Page> results = contentQuery.execute();
         if (results.hasNext()) {
