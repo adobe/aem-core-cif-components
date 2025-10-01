@@ -72,13 +72,20 @@ executors:
     docker:
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:19823-final-openjdk11
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:22450-openjdk11
         <<: *docker_auth
   test_executor_655:
     docker:
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
         <<: *docker_auth
       - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.22.0-openjdk11
+        <<: *docker_auth
+
+  test_executor_660:
+    docker:
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.7-openjdk21
+        <<: *docker_auth
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-lts:6.6.0-openjdk21
         <<: *docker_auth
 
 jobs:
@@ -246,6 +253,15 @@ jobs:
     working_directory: /home/circleci/build
     <<: *integration_test_steps
 
+  integration-test-660:
+    executor: test_executor_660
+    environment:
+      AEM: lts
+      TYPE: integration
+    resource_class: large
+    working_directory: /home/circleci/build
+    <<: *integration_test_steps
+
   integration-test-cloudready-with-addon:
     executor: test_executor_cloudready
     environment:
@@ -259,6 +275,16 @@ jobs:
     executor: test_executor_655
     environment:
       AEM: classic
+      TYPE: selenium
+      BROWSER: chrome
+    resource_class: large
+    working_directory: /home/circleci/build
+    <<: *selenium_test_steps
+
+  selenium-chrome-660:
+    executor: test_executor_660
+    environment:
+      AEM: lts
       TYPE: selenium
       BROWSER: chrome
     resource_class: large
@@ -360,6 +386,18 @@ workflows:
             - jest
             - jest-extension-product-recs
             - jest-extension-experience-platform-connector
+      - integration-test-660:
+          context:
+            - CIF Artifactory Cloud
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-java-11
+            - karma
+            - jest
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
       - integration-test-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -382,6 +420,18 @@ workflows:
           requires:
             - build-java-11
             - build-java-8
+            - karma
+            - jest
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
+      - selenium-chrome-660:
+          context:
+            - CIF Artifactory Cloud
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-java-11
             - karma
             - jest
             - jest-extension-product-recs
