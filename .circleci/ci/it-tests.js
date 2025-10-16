@@ -32,9 +32,6 @@ try {
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
     let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
 
-    // TODO: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
-    let aemCifSdkApiVersion = "2025.09.02.1-SNAPSHOT";
-
 
     ci.dir(qpPath, () => {
         // Connect to QP
@@ -49,11 +46,11 @@ try {
 
         if (AEM === 'classic') {
             extras += ` --install-file ${buildPath}/addon.zip`;
-            downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
+            downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip');
             extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM === 'lts') {
             extras += ` --install-file ${buildPath}/addon.zip`;
-            downloadArtifact('commerce-addon-aem-660-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
+            downloadArtifact('commerce-addon-aem-660-all', 'zip', 'addon.zip');
             extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM === 'addon') {
             extras += ` --install-file ${buildPath}/addon.far`;
