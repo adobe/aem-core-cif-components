@@ -89,7 +89,7 @@
                         <Import-Package>
                             com.adobe.cq.dam.cfm.content;version="[1.1.0,2)",
                             javax.annotation;version=0.0.0,
-                            com.adobe.cq.commerce.magento.graphql;version="[9.1,13)",
+                            com.adobe.cq.commerce.magento.graphql;version="[9.1,12)",
                             !org.apache.sling.sitemap.*,
                             !com.adobe.aem.wcm.seo.*,
                             *
