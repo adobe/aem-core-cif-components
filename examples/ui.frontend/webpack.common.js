@@ -21,12 +21,12 @@ module.exports = {
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                loader: ['babel-loader'],
+                use: ['babel-loader'],
             },
             {
                 test: /\.jsx?$/,
                 exclude: /node_modules\/(?!@magento\/)/,
-                loader: ['babel-loader'],
+                use: ['babel-loader'],
             },
             {
                 test: /\.scss$/,
@@ -34,29 +34,23 @@ module.exports = {
                     MiniCssExtractPlugin.loader,
                     {
                         loader: 'css-loader',
-                        options: {
-                            url: false,
-                        },
+                        options: { url: false },
                     },
                     {
                         loader: 'postcss-loader',
                         options: {
-                            plugins() {
-                                return [require('autoprefixer')];
+                            postcssOptions: {
+                                plugins: [require('autoprefixer')],
                             },
                         },
                     },
                     {
                         loader: 'sass-loader',
-                        options: {
-                            url: false,
-                        },
+                        options: {},
                     },
                     {
                         loader: 'webpack-import-glob-loader',
-                        options: {
-                            url: false,
-                        },
+                        options: {},
                     },
                 ],
             },

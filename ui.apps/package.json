@@ -10,8 +10,8 @@
     "karma:debug": "karma start --no-single-run --browsers Chrome karma.conf.js --auto-watch",
     "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
     "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc",
-    "webpack:dev": "webpack --env.production --mode=development",
-    "webpack:prod": "webpack --env.production --mode=production"
+    "webpack:dev": "npm run i18n:extract-compile && NODE_OPTIONS=--openssl-legacy-provider webpack --env.production --mode=development",
+    "webpack:prod": "npm run i18n:extract-compile && NODE_OPTIONS=--openssl-legacy-provider webpack --env.production --mode=production"
   },
   "author": "Adobe",
   "repository": {
@@ -56,7 +56,7 @@
     "karma-mocha": "^2.0.0",
     "karma-sinon": "^1.0.5",
     "karma-spec-reporter": "0.0.32",
-    "karma-webpack": "^5.0.0",
+    "karma-webpack": "~4.0.2",
     "mocha": "^6.2.2",
     "prettier": "^1.19.1",
     "sinon": "^7.5.0",

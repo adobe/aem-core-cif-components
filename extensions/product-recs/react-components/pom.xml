@@ -72,6 +72,9 @@
                         <goals>
                             <goal>npm</goal>
                         </goals>
+                        <configuration>
+                            <arguments>install --legacy-peer-deps</arguments>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>npm-webpack-development</id> <!-- webpack development mode -->
@@ -81,6 +84,9 @@
                         <configuration>
                             <skip>${webpack.prod}</skip>
                             <arguments>run webpack:dev</arguments>
+                            <environmentVariables>
+                                <NODE_OPTIONS>--openssl-legacy-provider</NODE_OPTIONS>
+                            </environmentVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -91,6 +97,9 @@
                         <configuration>
                             <skip>${webpack.dev}</skip>
                             <arguments>run webpack:prod</arguments>
+                            <environmentVariables>
+                                <NODE_OPTIONS>--openssl-legacy-provider</NODE_OPTIONS>
+                            </environmentVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -100,6 +109,27 @@
                         </goals>
                         <configuration>
                             <arguments>link</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-link-core-react-components</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>link</arguments>
+                            <workingDirectory>${basedir}/../../../react-components</workingDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-link-core-react-components-into-module</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>link @adobe/aem-core-cif-react-components</arguments>
                         </configuration>
                     </execution>
                     <execution>

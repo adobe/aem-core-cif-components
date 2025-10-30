@@ -16,8 +16,8 @@
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
     "lint:fix": "eslint --fix 'src/**/*.js'",
-    "webpack:dev": "npm run i18n:extract-compile && webpack --mode=development",
-    "webpack:prod": "npm run i18n:extract-compile && webpack --mode=production && node css-template.js",
+    "webpack:dev": "npm run i18n:extract-compile && NODE_OPTIONS=--openssl-legacy-provider webpack --mode=development",
+    "webpack:prod": "npm run i18n:extract-compile && NODE_OPTIONS=--openssl-legacy-provider webpack --mode=production && node css-template.js",
     "test": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --coverage",
     "jest": "jest --coverage",
     "ci": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --ci --runInBand --coverage",
@@ -34,7 +34,7 @@
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-react": "^7.8.3",
     "@formatjs/cli": "^4.2.33",
-    "@magento/peregrine": "^15.5.2",
+    "@magento/peregrine": "15.6.2",
     "@peculiar/webcrypto": "^1.1.4",
     "@testing-library/jest-dom": "^5.14.0",
     "@testing-library/react": "^9.5.0",
@@ -75,7 +75,7 @@
   },
   "peerDependencies": {
     "@apollo/client": "~3.5.0",
-    "@magento/peregrine": "^15.5.2",
+    "@magento/peregrine": "15.6.2",
     "braintree-web-drop-in": "^1.22.1",
     "graphql": "~15.7.2",
     "informed": "~3.29.4",
@@ -86,7 +86,7 @@
     "react-intl": "~5.20.0"
   },
   "engines": {
-    "node": ">=12",
-    "npm": ">= 6"
+    "node": ">=22",
+    "npm": ">= 10"
   }
 }

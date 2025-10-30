@@ -81,6 +81,9 @@
                         <configuration>
                             <skip>${webpack.prod}</skip>
                             <arguments>run webpack:dev</arguments>
+                            <environmentVariables>
+                                <NODE_OPTIONS>--openssl-legacy-provider</NODE_OPTIONS>
+                            </environmentVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -91,6 +94,9 @@
                         <configuration>
                             <skip>${webpack.dev}</skip>
                             <arguments>run webpack:prod</arguments>
+                            <environmentVariables>
+                                <NODE_OPTIONS>--openssl-legacy-provider</NODE_OPTIONS>
+                            </environmentVariables>
                         </configuration>
                     </execution>
                     <execution>

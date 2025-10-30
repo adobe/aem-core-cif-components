@@ -16,8 +16,8 @@
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
     "lint:fix": "eslint --fix 'src/**/*.js'",
-    "webpack:dev": "webpack --mode=development",
-    "webpack:prod": "webpack --mode=production",
+    "webpack:dev": "npm run i18n:extract-compile && NODE_OPTIONS=--openssl-legacy-provider webpack --mode=development",
+    "webpack:prod": "npm run i18n:extract-compile && NODE_OPTIONS=--openssl-legacy-provider webpack --mode=production",
     "test": "npm run lint && npm run prettier:check",
     "ci": "npm run lint && npm run prettier:check",
     "test:watch": "npm run lint",
@@ -33,7 +33,7 @@
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-react": "^7.8.3",
     "@magento/experience-platform-connector": "^1.0.0",
-    "@magento/peregrine": "^12.5.0",
+    "@magento/peregrine": "15.6.2",
     "@testing-library/jest-dom": "^5.14.0",
     "@testing-library/react": "^9.5.0",
     "@testing-library/react-hooks": "^7.0.0",
@@ -58,11 +58,11 @@
     "@adobe/magento-storefront-events-sdk": "1.5.3",
     "@apollo/client": "~3.5.0",
     "@magento/experience-platform-connector": "^1.0.0",
-    "@magento/peregrine": "^12.5.0",
+    "@magento/peregrine": "15.6.2",
     "react": "^17.0.2"
   },
   "engines": {
-    "node": ">=12",
-    "npm": ">= 6"
+    "node": ">=22",
+    "npm": ">= 10"
   }
 }

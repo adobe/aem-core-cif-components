@@ -16,8 +16,8 @@
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
     "lint:fix": "eslint --fix 'src/**/*.js'",
-    "webpack:dev": "npm run i18n:extract-compile && webpack --mode=development",
-    "webpack:prod": "npm run i18n:extract-compile && webpack --mode=production && node css-template.js",
+    "webpack:dev": "npm run i18n:extract-compile && NODE_OPTIONS=--openssl-legacy-provider webpack --mode=development",
+    "webpack:prod": "npm run i18n:extract-compile && NODE_OPTIONS=--openssl-legacy-provider webpack --mode=production && node css-template.js",
     "test": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --coverage",
     "jest": "jest --coverage",
     "ci": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --ci --runInBand --coverage",
@@ -28,14 +28,14 @@
     "i18n:extract-compile": "formatjs extract --out-file i18n/__temp.json 'src/**/*.js' && formatjs compile --ast --out-file i18n/en.json i18n/__temp.json && rm i18n/__temp.json"
   },
   "devDependencies": {
-    "@adobe/aem-core-cif-react-components": "^2.10.0",
-    "@apollo/client": "~3.1.2",
+    "@adobe/aem-core-cif-react-components": "^2.17.2",
+    "@apollo/client": "~3.5.0",
     "@babel/core": "^7.8.7",
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-react": "^7.8.3",
     "@formatjs/cli": "^4.2.33",
-    "@magento/peregrine": "^11.0.0",
+    "@magento/peregrine": "15.6.2",
     "@magento/recommendations-js-sdk": "^2.0.5",
     "@peculiar/webcrypto": "^1.1.4",
     "@testing-library/react": "^9.5.0",
@@ -51,7 +51,7 @@
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^4.1.2",
     "file-loader": "^4.3.0",
-    "graphql": "~15.3.0",
+    "graphql": "^16.8.0",
     "identity-obj-proxy": "^3.0.0",
     "informed": "~3.29.4",
     "jest": "^24.9.0",
@@ -70,17 +70,17 @@
     "webpack-cli": "^3.3.11"
   },
   "peerDependencies": {
-    "@adobe/aem-core-cif-react-components": "^2.10.0",
-    "@apollo/client": "^3.1.2",
+    "@adobe/aem-core-cif-react-components": "^2.17.2",
+    "@apollo/client": "~3.5.0",
     "@magento/recommendations-js-sdk": "^2.0.5",
-    "graphql": "~15.3.0",
+    "graphql": "^16.8.0",
     "prop-types": "^15.7.2",
     "react": "~17.0.1",
     "react-dom": "~17.0.1",
     "react-intl": "~5.20.0"
   },
   "engines": {
-    "node": ">=12",
-    "npm": ">= 6"
+    "node": ">=22",
+    "npm": ">= 10"
   }
 }
