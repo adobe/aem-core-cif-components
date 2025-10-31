@@ -69,7 +69,6 @@
     "webpack-merge": "^4.2.1"
   },
   "dependencies": {
-    "@adobe/aem-core-cif-react-components": "^2.0.0",
     "@apollo/client": "^3.5.5",
     "@babel/runtime": "^7.4.5",
     "@magento/peregrine": "11.0.0",
