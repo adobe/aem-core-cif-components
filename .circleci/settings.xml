@@ -80,8 +80,8 @@
     <servers>
         <server>
             <id>central</id>
-            <username>${env.SONATYPE_USER}</username>
-            <password>${env.SONATYPE_PASS}</password>
+            <username>${env.MAVEN_CENTRAL_USERNAME}</username>
+            <password>${env.MAVEN_CENTRAL_PASSWORD}</password>
         </server>
         <server>
             <id>maven-adobe-cif-release</id>
