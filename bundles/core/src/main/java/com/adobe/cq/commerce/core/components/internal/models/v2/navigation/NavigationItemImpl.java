@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v2.navigation;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.adobe.cq.wcm.core.components.commons.link.Link;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 
 class NavigationItemImpl implements NavigationItem {
@@ -61,5 +62,10 @@ class NavigationItemImpl implements NavigationItem {
     @Override
     public int getLevel() {
         return level;
+    }
+
+    @Override
+    public Link getLink() {
+        return commerceNavigationItem.getLink();
     }
 }
