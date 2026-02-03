@@ -468,7 +468,7 @@
             <groupId>io.wcm</groupId>
             <artifactId>io.wcm.testing.aem-mock</artifactId>
             <!-- TODO: CIF-2469 Use version from parent pom -->
-            <version>2.2.6</version>
+            <version>2.2.16</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.sling</groupId>
