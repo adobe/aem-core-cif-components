@@ -81,6 +81,8 @@ public class FeaturedCategoryListImplTest {
     private static final String COMPONENT_PATH_FALLBACK_ID_TYPE = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorylist4";
     private static final String COMPONENT_PATH_LINK_TARGET_UNCHECKED = "/content/pageA/jcr:content/root/responsivegrid/productcarousel_with_link_target_unchecked";
     private static final String COMPONENT_PATH_LINK_TARGET_CHECKED = "/content/pageA/jcr:content/root/responsivegrid/productcarousel_with_link_target_checked";
+    private static final String COMPONENT_PATH_WITH_URL_PATH = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorywithurlpathlist3";
+    private static final String COMPONENT_PATH_WITH_MULTIPLE_URL_PATH = "/content/pageA/jcr:content/root/responsivegrid/featuredcategorywithurlpathlist4";
 
     @Rule
     public final AemContext context = buildAemContext("/context/jcr-content.json")
@@ -99,10 +101,12 @@ public class FeaturedCategoryListImplTest {
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
         GraphqlClient graphqlClient = new GraphqlClientImpl();
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        Utils.registerGraphqlClient(context, graphqlClient, null);
 
         Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid:{in:[\"uid-5");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{url_path:{in:[\"equipment");
 
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> withNullGraphqlClient
             ? null
@@ -256,5 +260,36 @@ public class FeaturedCategoryListImplTest {
     public void testJsonExport() throws Exception {
         setupTest(COMPONENT_PATH);
         Utils.testJSONExport(featuredCategoryList, "/exporter/featuredcategories.json");
+    }
+
+    @Test
+    public void verifyUrlPathCategoryType() throws Exception {
+        setupTest(COMPONENT_PATH_WITH_URL_PATH);
+        AbstractRetriever retriever = featuredCategoryList.getCategoriesRetriever();
+
+        categories = featuredCategoryList.getCategories();
+        Assert.assertNotNull(categories);
+
+        Field retrieverQueryField = AbstractRetriever.class.getDeclaredField("query");
+        retrieverQueryField.setAccessible(true);
+        String query = (String) retrieverQueryField.get(retriever);
+
+        Assert.assertTrue(query.contains("categoryList(filters:{url_path:{in:[\"equipment\"]}})"));
+    }
+
+    @Test
+    public void testMultipleUrlPathCategoryType() throws Exception {
+        setupTest(COMPONENT_PATH_WITH_MULTIPLE_URL_PATH);
+        AbstractRetriever retriever = featuredCategoryList.getCategoriesRetriever();
+
+        categories = featuredCategoryList.getCategories();
+        Assert.assertNotNull(categories);
+        Assert.assertEquals(3, categories.size());
+
+        Field retrieverQueryField = AbstractRetriever.class.getDeclaredField("query");
+        retrieverQueryField.setAccessible(true);
+        String query = (String) retrieverQueryField.get(retriever);
+
+        Assert.assertTrue(query.contains("categoryList(filters:{url_path:{in:[\"equipment\",\"equipment/running\",\"equipment/bike\"]}})"));
     }
 }

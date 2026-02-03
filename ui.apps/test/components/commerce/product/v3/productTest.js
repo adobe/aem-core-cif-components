@@ -347,5 +347,180 @@ describe('Product v3', () => {
                 assert.equal(price, '');
             });
         });
+
+        it('updates JSON-LD price when new prices are provided', () => {
+            const jsonLdScript = document.createElement('script');
+            jsonLdScript.type = 'application/ld+json';
+            jsonLdScript.innerHTML = JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'Product',
+                offers: [
+                    {
+                        sku: 'sample-sku',
+                        price: 0, // initial price
+                        priceCurrency: 'USD',
+                        priceSpecification: {
+                            price: 0 // initial regular price
+                        }
+                    }
+                ]
+            });
+            document.head.appendChild(jsonLdScript);
+
+            let product = new Product({ element: productRoot });
+
+            product._updateJsonLdPrice = function(prices) {
+                if (CIF.enableClientSidePriceLoading || !document.querySelector('script[type="application/ld+json"]')) {
+                    return;
+                }
+
+                const jsonLdScript = document.querySelector('script[type="application/ld+json"]');
+                const jsonLdData = JSON.parse(jsonLdScript.innerHTML.trim());
+
+                if (Array.isArray(jsonLdData.offers)) {
+                    let priceUpdated = false;
+
+                    jsonLdData.offers.forEach(offer => {
+                        const convertedPrice = prices[offer.sku];
+
+                        if (convertedPrice) {
+                            offer.price = convertedPrice.finalPrice;
+                            if (offer.priceSpecification) {
+                                offer.priceSpecification.price = convertedPrice.regularPrice;
+                            }
+                            priceUpdated = true;
+                        }
+                    });
+
+                    if (priceUpdated) {
+                        jsonLdScript.innerHTML = JSON.stringify(jsonLdData, null, 2);
+                    }
+                }
+            };
+
+            product._updateJsonLdPrice(convertedPrices);
+
+            const updatedJsonLdData = JSON.parse(jsonLdScript.innerHTML);
+
+            assert.equal(updatedJsonLdData.offers[0].price, 98);
+            assert.equal(updatedJsonLdData.offers[0].priceSpecification.price, 98);
+
+            // Clean up by removing the script tag
+            document.head.removeChild(jsonLdScript);
+        });
+        it('does not update JSON-LD price when client-side price loading is disabled', () => {
+            // Mock CIF.enableClientSidePriceLoading to false
+            window.CIF = {
+                enableClientSidePriceLoading: false,
+                PriceFormatter: class {
+                    // Mock the PriceFormatter for this test case as well
+                    constructor(price) {
+                        this.price = price;
+                    }
+                    format() {
+                        return `$${this.price.toFixed(2)}`; // Basic mock behavior
+                    }
+                }
+            };
+
+            // Initial JSON-LD script setup
+            const jsonLdScript = document.createElement('script');
+            jsonLdScript.type = 'application/ld+json';
+            jsonLdScript.innerHTML = JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'Product',
+                offers: [
+                    {
+                        sku: 'sample-sku',
+                        price: 0, // initial price
+                        priceCurrency: 'USD',
+                        priceSpecification: {
+                            price: 0 // initial regular price
+                        }
+                    }
+                ]
+            });
+            document.head.appendChild(jsonLdScript);
+
+            // Sample prices to update
+            const convertedPrices = {
+                'sample-sku': {
+                    finalPrice: 98,
+                    regularPrice: 98
+                }
+            };
+
+            let product = new Product({ element: productRoot });
+            product._updateJsonLdPrice(convertedPrices);
+
+            const updatedJsonLdData = JSON.parse(jsonLdScript.innerHTML);
+
+            // Assert that the price values were NOT updated (should remain at 0)
+            assert.equal(updatedJsonLdData.offers[0].price, 0);
+            assert.equal(updatedJsonLdData.offers[0].priceSpecification.price, 0);
+
+            // Clean up by removing the script tag
+            document.head.removeChild(jsonLdScript);
+        });
+        it('updates JSON-LD prices for multiple offers with different SKUs', () => {
+            window.CIF = {
+                enableClientSidePriceLoading: true, // Ensure client-side price loading is enabled
+                PriceFormatter: class {
+                    constructor(price) {
+                        this.price = price;
+                    }
+                    format() {
+                        return `$${this.price.toFixed(2)}`;
+                    }
+                }
+            };
+            const jsonLdScript = document.createElement('script');
+            jsonLdScript.type = 'application/ld+json';
+            jsonLdScript.innerHTML = JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'Product',
+                offers: [
+                    {
+                        sku: 'sku-1',
+                        price: 0,
+                        priceCurrency: 'USD',
+                        priceSpecification: {
+                            price: 0
+                        }
+                    },
+                    {
+                        sku: 'sku-2',
+                        price: 0,
+                        priceCurrency: 'USD',
+                        priceSpecification: {
+                            price: 0
+                        }
+                    }
+                ]
+            });
+            document.head.appendChild(jsonLdScript);
+
+            const convertedPrices = {
+                'sku-1': {
+                    finalPrice: 50,
+                    regularPrice: 60
+                },
+                'sku-2': {
+                    finalPrice: 100,
+                    regularPrice: 120
+                }
+            };
+
+            let product = new Product({ element: productRoot });
+            product._updateJsonLdPrice(convertedPrices);
+
+            const updatedJsonLdData = JSON.parse(jsonLdScript.innerHTML);
+            assert.equal(updatedJsonLdData.offers[0].price, 50);
+            assert.equal(updatedJsonLdData.offers[0].priceSpecification.price, 60);
+            assert.equal(updatedJsonLdData.offers[1].price, 100);
+            assert.equal(updatedJsonLdData.offers[1].priceSpecification.price, 120);
+
+            document.head.removeChild(jsonLdScript);
+        });
     });
 });

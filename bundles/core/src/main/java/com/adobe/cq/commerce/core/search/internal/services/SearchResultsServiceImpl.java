@@ -205,10 +205,16 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             category = categoryRetriever.fetchCategory();
         }
 
+        List<Error> errors = new ArrayList<>();
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
         // has available for querying against
-        List<FilterAttributeMetadata> availableFilters = searchFilterService.retrieveCurrentlyAvailableCommerceFilters(request, page);
+        Pair<List<FilterAttributeMetadata>, List<Error>> filterAttributeInfo = searchFilterService
+            .retrieveCurrentlyAvailableCommerceFiltersInfo(request, page);
+        List<FilterAttributeMetadata> availableFilters = filterAttributeInfo.getLeft();
         SorterKey currentSorterKey = findSortKey(mutableSearchOptions);
+        if (filterAttributeInfo.getRight() != null) {
+            errors.addAll(filterAttributeInfo.getRight());
+        }
 
         String productsQueryString = generateProductsQueryString(mutableSearchOptions, availableFilters, productQueryHook,
             productAttributeFilterHook,
@@ -221,9 +227,11 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         // If we have any errors returned we'll log them and return an empty search result
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
+            errors.addAll(response.getErrors());
             response.getErrors()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
 
+            searchResultsSet.setErrors(errors);
             return new ImmutablePair<>(category, searchResultsSet);
         }
 
@@ -240,6 +248,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
         searchResultsSet.setTotalResults(products.getTotalCount());
         searchResultsSet.setProductListItems(productListItems);
         searchResultsSet.setSearchAggregations(searchAggregations);
+        searchResultsSet.setErrors(errors);
 
         return new ImmutablePair<>(category, searchResultsSet);
     }

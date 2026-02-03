@@ -42,6 +42,7 @@ The following properties are written to JCR for this component and are expected 
 3) `./productSku` identifies the Product to be connected with Button
 4) `./categoryId`  identifies the  Category to be connected with Button
 5) `./externalLink` identifies the External Link to be connected with Button
+6) `./categoryIdType` identifies the Category Id Type to be connected with Button
 
 ## BEM Description
 

@@ -47,6 +47,7 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.wcm.core.components.commons.link.Link;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 import com.day.cq.commons.inherit.HierarchyNodeInheritanceValueMap;
 import com.day.cq.commons.inherit.InheritanceValueMap;
@@ -248,6 +249,11 @@ public class NavigationImpl implements Navigation {
                 addItems(pageManager, this, item, items);
             }
             return items;
+        }
+
+        @Override
+        public Link getLink() {
+            return wcmItem.getLink();
         }
     }
 

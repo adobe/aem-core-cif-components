@@ -58,8 +58,8 @@ class UrlToProductRetriever extends AbstractProductRetriever {
     protected void populate() {
         // Get product list from response
         GraphqlResponse<Query, Error> response = executeQuery();
-
-        if (CollectionUtils.isEmpty(response.getErrors())) {
+        errors = response.getErrors();
+        if (CollectionUtils.isEmpty(errors)) {
             Query rootQuery = response.getData();
             List<ProductInterface> products = rootQuery.getProducts().getItems();
 

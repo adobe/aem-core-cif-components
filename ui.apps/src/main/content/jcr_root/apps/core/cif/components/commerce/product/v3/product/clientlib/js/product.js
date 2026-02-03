@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
+import DOMPurify from 'dompurify';
+
 class Product {
     constructor(config) {
         this._element = config.element;
@@ -61,7 +63,9 @@ class Product {
                         this._updatePrice(this._state.prices[key], key);
                     }
                 } else {
+                    // Update base product price
                     this._updatePrice(this._state.prices[this._state.sku]);
+                    this._updateJsonLdPrice(this._state.prices);
                 }
             })
             .catch(err => {
@@ -88,7 +92,7 @@ class Product {
         const nameEl = this._element.querySelector(Product.selectors.name);
         if (nameEl) nameEl.innerText = variant.name;
         const descriptionEl = this._element.querySelector(Product.selectors.description);
-        if (descriptionEl) descriptionEl.innerHTML = variant.description;
+        if (descriptionEl) descriptionEl.innerHTML = DOMPurify.sanitize(variant.description);
 
         // Use client-side fetched price
         if (this._state.sku in this._state.prices) {
@@ -115,8 +119,41 @@ class Product {
         const priceEl = this._element.querySelector(Product.selectors.price + `[data-product-sku="${sku}"]`);
         if (priceEl) priceEl.innerHTML = innerHTML;
     }
-}
 
+    _updateJsonLdPrice(prices) {
+        if (!window.CIF.enableClientSidePriceLoading || !document.querySelector('script[type="application/ld+json"]')) {
+            return;
+        }
+
+        const jsonLdScript = document.querySelector('script[type="application/ld+json"]');
+        const jsonLdData = JSON.parse(jsonLdScript.innerHTML.trim());
+
+        if (Array.isArray(jsonLdData.offers)) {
+            let priceUpdated = false;
+
+            jsonLdData.offers.forEach(offer => {
+                const convertedPrice = prices[offer.sku];
+                if (convertedPrice) {
+                    offer.price = convertedPrice.finalPrice;
+                    if (offer.priceSpecification) {
+                        offer.priceSpecification.price = convertedPrice.regularPrice;
+                    }
+                    priceUpdated = true;
+                }
+            });
+
+            if (priceUpdated) {
+                const sanitizedJson = DOMPurify.sanitize(
+                    JSON.stringify(jsonLdData, null, 2)
+                        .replace(/},\s*{/g, '},\n{')
+                        .replace(/\[\s*{/g, '[\n{')
+                        .replace(/}\s*\]/g, '}\n]')
+                );
+                jsonLdScript.textContent = sanitizedJson;
+            }
+        }
+    }
+}
 Product.selectors = {
     self: '[data-cmp-is=product]',
     sku: '.productFullDetail__sku [role=sku]',

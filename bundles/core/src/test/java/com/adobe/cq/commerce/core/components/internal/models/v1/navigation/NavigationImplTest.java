@@ -43,6 +43,7 @@ import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
 import com.adobe.cq.commerce.core.components.models.navigation.NavigationModel;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.wcm.core.components.commons.link.Link;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
@@ -610,5 +611,64 @@ public class NavigationImplTest {
 
         when(catalogPage.adaptTo(ComponentsConfiguration.class)).thenReturn(new ComponentsConfiguration(configProperties));
         when(siteStructure.isCatalogPage(catalogPage)).thenReturn(Boolean.TRUE);
+    }
+
+    @Test
+    public void testNavigationPageItemGetLink() {
+        // Test that page-based navigation items return the link from the underlying WCM item
+
+        String pageTitle = "Page 1";
+        String pageURL = "/page1";
+        boolean active = true;
+
+        NavigationItem item = mock(NavigationItem.class);
+        when(item.getTitle()).thenReturn(pageTitle);
+        when(item.getURL()).thenReturn(pageURL);
+        when(item.isActive()).thenReturn(active);
+
+        // Mock the Link object
+        Link mockLink = mock(Link.class);
+        when(mockLink.getURL()).thenReturn(pageURL);
+        when(item.getLink()).thenReturn(mockLink);
+
+        navigationItems.add(item);
+
+        List<com.adobe.cq.commerce.core.components.models.navigation.NavigationItem> items = navigation.getItems();
+        Assert.assertEquals(1, items.size());
+        com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
+
+        // Verify that getLink() returns the link from the underlying WCM item
+        Link link = navigationItem.getLink();
+        Assert.assertNotNull("getLink() should return a non-null Link for page-based navigation items", link);
+        Assert.assertEquals(pageURL, link.getURL());
+    }
+
+    @Test
+    public void testNavigationCategoryItemGetLinkReturnsNull() {
+        // Test that category-based navigation items return null for getLink()
+
+        String categoryId = "uid-0";
+        String categoryUrlPath = "category-1";
+        String categoryName = "Category 1";
+
+        initCatalogPage(true, true, false);
+
+        NavigationItem item = mock(NavigationItem.class);
+        when(item.getPath()).thenReturn(CATALOG_PAGE_PATH);
+        navigationItems.add(item);
+
+        CategoryTree category = mock(CategoryTree.class);
+        when(category.getUid()).thenReturn(new ID(categoryId));
+        when(category.getUrlPath()).thenReturn(categoryUrlPath);
+        when(category.getName()).thenReturn(categoryName);
+        categoryList.add(category);
+
+        List<com.adobe.cq.commerce.core.components.models.navigation.NavigationItem> items = navigation.getItems();
+        Assert.assertEquals(1, items.size());
+        com.adobe.cq.commerce.core.components.models.navigation.NavigationItem navigationItem = items.get(0);
+
+        // Verify that getLink() returns null for category-based navigation items
+        Link link = navigationItem.getLink();
+        Assert.assertNull("getLink() should return null for category-based navigation items", link);
     }
 }

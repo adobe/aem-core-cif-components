@@ -187,7 +187,7 @@ public class PageMetadataImplTest {
         CloseableHttpClient httpClient = Mockito.mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        Utils.registerGraphqlClient(context, graphqlClient, null);
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
@@ -269,7 +269,7 @@ public class PageMetadataImplTest {
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        Utils.registerGraphqlClient(context, graphqlClient, null);
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");

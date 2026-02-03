@@ -30,6 +30,13 @@ import com.adobe.cq.wcm.core.components.models.Component;
 public interface FeaturedCategoryList extends Component {
 
     /**
+     * Name of the resource property that stores category id type
+     * which is used to build call-to-action link for category page
+     *
+     */
+    String CATEGORY_IDENTIFIER_TYPE = "categoryIdType";
+
+    /**
      * Returns the categories data in a list from Magento depending on configurations.
      *
      * @return {@code  List<CategoryInterface>}

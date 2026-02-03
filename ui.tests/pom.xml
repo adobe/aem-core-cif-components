@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>2.12.7-SNAPSHOT</version>
+        <version>2.17.15-SNAPSHOT</version>
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
@@ -80,7 +80,6 @@
                 <configuration>
                     <excludes>
                         <exclude>.dockerignore</exclude>
-                        <exclude>test-module/**/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -96,7 +95,7 @@
                     <plugin>
                         <groupId>com.github.eirslett</groupId>
                         <artifactId>frontend-maven-plugin</artifactId>
-                        <version>1.9.1</version>
+                        <version>1.14.0</version>
                         <executions>
                             <execution>
                                 <id>install node and npm</id>
@@ -124,8 +123,8 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <nodeVersion>v12.14.1</nodeVersion>
-                            <installDirectory>${project.basedir}/../frontend-maven-plugin</installDirectory>
+                            <nodeVersion>v14.21.3</nodeVersion>
+                            <npmVersion>6.14.18</npmVersion>
                             <workingDirectory>test-module</workingDirectory>
                             <environmentVariables>
                                 <AEM_AUTHOR_URL>${AEM_AUTHOR_URL}</AEM_AUTHOR_URL>

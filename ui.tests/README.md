@@ -9,6 +9,10 @@ To execute the tests, simply run
 mvn verify -Pui-tests-local-execution
 ```
 
+## Notes
+* We shouldn't update the @wdio/mocha-framework as @wdio/sync will not be compactible. Use 7.4.6 version only.
+
+
 ## Requirements
 
 * Maven

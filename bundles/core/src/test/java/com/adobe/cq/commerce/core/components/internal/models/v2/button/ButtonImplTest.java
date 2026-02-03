@@ -61,14 +61,15 @@ public class ButtonImplTest {
     public void setUp() throws Exception {
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
-        Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK);
-        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
-            "{products(filter:{sku:{eq:\"MJ01\"}}");
 
         GraphqlClient graphqlClient = spy(new GraphqlClientImpl());
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        Utils.registerGraphqlClient(context, graphqlClient, null);
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
+
+        Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK, "{categoryList");
+        Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
+            "{products(filter:{sku:{eq:\"MJ01\"}}");
 
         Page page = spy(context.currentPage(PAGE));
 
@@ -169,6 +170,15 @@ public class ButtonImplTest {
     public void testInvalidLinkType() {
         final String expResult = "#";
         setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2InvalidLinkType");
+        button = context.request().adaptTo(Button.class);
+
+        assertEquals(expResult, button.getLink());
+    }
+
+    @Test
+    public void testGetLinkForCategoryWhenSelectionIdIsUrlPath() {
+        final String expResult = "/content/category-page.html/equipment.html";
+        setUpTestResource("/content/pageA/jcr:content/root/responsivegrid/button2TypeCategoryWithSelectionIdUrlPath");
         button = context.request().adaptTo(Button.class);
 
         assertEquals(expResult, button.getLink());

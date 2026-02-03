@@ -34,7 +34,9 @@ import org.apache.sling.models.annotations.via.ResourceSuperType;
 
 import com.adobe.cq.commerce.core.components.internal.models.v1.common.CommerceIdentifierImpl;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
@@ -90,16 +92,25 @@ public class CommerceTeaserImpl implements CommerceTeaser {
             for (Resource action : configuredActions) {
                 ValueMap actionProperties = action.getValueMap();
                 String productSku = actionProperties.get(PN_ACTION_PRODUCT_SKU, String.class);
-                String categoryUid = actionProperties.get(PN_ACTION_CATEGORY_ID, String.class);
+                String categoryId = actionProperties.get(PN_ACTION_CATEGORY_ID, String.class);
+                String categoryIdType = actionProperties.get(PN_ACTION_CATEGORY_ID_TYPE, String.class);
                 String link = actionProperties.get(Teaser.PN_ACTION_LINK, String.class);
 
                 ListItem wcmAction = null;
                 String actionUrl;
                 CommerceIdentifier identifier = null;
 
-                if (StringUtils.isNotBlank(categoryUid)) {
-                    actionUrl = urlProvider.toCategoryUrl(request, currentPage, categoryUid);
-                    identifier = new CommerceIdentifierImpl(categoryUid, CommerceIdentifier.IdentifierType.UID,
+                if (StringUtils.isNotBlank(categoryId)) {
+                    CommerceIdentifier.IdentifierType identifierType = CommerceIdentifier.IdentifierType.UID;
+                    CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+                    if (AbstractCategoryRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryIdType)) {
+                        params.setUrlPath(categoryId);
+                        identifierType = CommerceIdentifier.IdentifierType.URL_PATH;
+                    } else {
+                        params.setUid(categoryId);
+                    }
+                    actionUrl = urlProvider.formatCategoryUrl(request, currentPage, params);
+                    identifier = new CommerceIdentifierImpl(categoryId, identifierType,
                         CommerceIdentifier.EntityType.CATEGORY);
                 } else if (StringUtils.isNotBlank(productSku)) {
                     actionUrl = urlProvider.toProductUrl(request, currentPage, productSku);

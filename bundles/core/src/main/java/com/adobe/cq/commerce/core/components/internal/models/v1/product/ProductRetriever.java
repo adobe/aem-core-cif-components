@@ -39,6 +39,8 @@ class ProductRetriever extends AbstractProductRetriever {
                 .urlKey()
                 .stockStatus()
                 .color()
+                .specialPrice()
+                .specialToDate()
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .mediaGallery(g -> g

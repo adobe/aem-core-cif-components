@@ -17,6 +17,10 @@ package com.adobe.cq.commerce.core.components.models.navigation;
 
 import java.util.List;
 
+import org.jetbrains.annotations.Nullable;
+
+import com.adobe.cq.wcm.core.components.commons.link.Link;
+
 /**
  * Simple data model for a navigation item of the navigation component.
  */
@@ -41,4 +45,19 @@ public interface NavigationItem {
      * @return The navigation items to be rendered by the navigation component.
      */
     List<NavigationItem> getItems();
+
+    /**
+     * Returns the link for this navigation item.
+     * <p>
+     * For page-based navigation items, this returns the link to the underlying page,
+     * including any link attributes such as target. For category-based navigation items,
+     * this may return {@code null}.
+     *
+     * @return the {@link Link} object for this navigation item, or {@code null} if not available
+     * @since 2.7.0
+     */
+    @Nullable
+    default Link getLink() {
+        return null;
+    }
 }

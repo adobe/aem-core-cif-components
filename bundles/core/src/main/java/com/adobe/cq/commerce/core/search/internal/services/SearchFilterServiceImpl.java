@@ -15,12 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.search.internal.services;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
@@ -85,41 +87,58 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         return Optional.ofNullable(page.adaptTo(Resource.class))
             .map(r -> new SyntheticResource(r.getResourceResolver(), r.getPath(), SearchFilterService.class.getName()))
             .map(r -> r.adaptTo(MagentoGraphqlClient.class))
-            .map(this::retrieveCurrentlyAvailableCommerceFilters)
+            .map(magentoGraphqlClient -> retrieveCurrentlyAvailableCommerceFiltersInfo(magentoGraphqlClient).getLeft())
             .orElseGet(Collections::emptyList);
     }
 
-    public List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(final SlingHttpServletRequest request, Page page) {
+    public Pair<List<FilterAttributeMetadata>, List<Error>> retrieveCurrentlyAvailableCommerceFiltersInfo(
+        final SlingHttpServletRequest request, Page page) {
         // This is used to configure the cache in the GraphqlClient with a cache name of
         // --> com.adobe.cq.commerce.core.search.services.SearchFilterService
-        return Optional.ofNullable(page.adaptTo(Resource.class))
-            .map(r -> new SyntheticResource(r.getResourceResolver(), r.getPath(), SearchFilterService.class.getName()))
-            .map(r -> new SlingHttpServletRequestWrapper(request) {
+        Resource r = page.adaptTo(Resource.class);
+        if (r != null) {
+            SyntheticResource syntheticResource = new SyntheticResource(r.getResourceResolver(), r.getPath(), SearchFilterService.class
+                .getName());
+            SlingHttpServletRequestWrapper slingHttpServletRequestWrapper = new SlingHttpServletRequestWrapper(request) {
                 @Override
                 public Resource getResource() {
-                    return r;
+                    return syntheticResource;
                 }
-            })
-            .map(r -> r.adaptTo(MagentoGraphqlClient.class))
-            .map(this::retrieveCurrentlyAvailableCommerceFilters)
-            .orElseGet(Collections::emptyList);
+            };
+            MagentoGraphqlClient magentoGraphqlClient = slingHttpServletRequestWrapper.adaptTo(MagentoGraphqlClient.class);
+            if (magentoGraphqlClient != null) {
+                Pair<List<FilterAttributeMetadata>, List<Error>> filterAttributeMetadataInfo = retrieveCurrentlyAvailableCommerceFiltersInfo(
+                    magentoGraphqlClient);
+                return filterAttributeMetadataInfo;
+            }
+        }
+        return Pair.of(Collections.emptyList(), Collections.emptyList());
     }
 
-    private List<FilterAttributeMetadata> retrieveCurrentlyAvailableCommerceFilters(MagentoGraphqlClient magentoGraphqlClient) {
+    private Pair<List<FilterAttributeMetadata>, List<Error>> retrieveCurrentlyAvailableCommerceFiltersInfo(
+        MagentoGraphqlClient magentoGraphqlClient) {
         // First we query Magento for the required attribute and filter information
-        final List<__InputValue> availableFilters = fetchAvailableSearchFilters(magentoGraphqlClient);
-        final List<Attribute> attributes = fetchAttributeMetadata(magentoGraphqlClient, availableFilters);
+        final Pair<List<__InputValue>, List<Error>> availableFiltersInfo = fetchAvailableSearchFilters(magentoGraphqlClient);
+        final Pair<List<Attribute>, List<Error>> attributesInfo = fetchAttributeMetadata(magentoGraphqlClient, availableFiltersInfo
+            .getLeft());
+        final List<Error> errors = new ArrayList<>();
+        if (availableFiltersInfo.getRight() != null) {
+            errors.addAll(availableFiltersInfo.getRight());
+        }
+        if (attributesInfo.getRight() != null) {
+            errors.addAll(attributesInfo.getRight());
+        }
         // Then we combine this data into a useful set of data usable by other systems
-        FilterAttributeMetadataConverter converter = new FilterAttributeMetadataConverter(attributes);
-        return availableFilters.stream().map(converter).collect(Collectors.toList());
+        FilterAttributeMetadataConverter converter = new FilterAttributeMetadataConverter(attributesInfo.getLeft());
+        return Pair.of(availableFiltersInfo.getLeft().stream().map(converter).collect(Collectors.toList()), errors);
     }
 
-    private List<Attribute> fetchAttributeMetadata(final MagentoGraphqlClient magentoGraphqlClient,
+    private Pair<List<Attribute>, List<Error>> fetchAttributeMetadata(final MagentoGraphqlClient magentoGraphqlClient,
         final List<__InputValue> availableFilters) {
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("MagentoGraphQL client is null, unable to make query to fetch attribute metadata.");
-            return Collections.emptyList();
+            return Pair.of(Collections.emptyList(), Collections.emptyList());
         }
 
         List<AttributeInput> attributeInputs = availableFilters.stream().map(inputField -> {
@@ -144,11 +163,12 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
             response.getErrors()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
-            return Collections.emptyList();
+            return Pair.of(Collections.emptyList(), response.getErrors());
         }
 
         CustomAttributeMetadata cam = response.getData().getCustomAttributeMetadata();
-        return cam != null ? response.getData().getCustomAttributeMetadata().getItems() : Collections.emptyList();
+        return Pair.of(cam != null ? response.getData().getCustomAttributeMetadata().getItems() : Collections.emptyList(),
+            Collections.emptyList());
     }
 
     /**
@@ -157,11 +177,11 @@ public class SearchFilterServiceImpl implements SearchFilterService {
      * @param magentoGraphqlClient client for making Magento GraphQL requests
      * @return key value pair of the attribute code or identifier and filter type for that attribute
      */
-    private List<__InputValue> fetchAvailableSearchFilters(final MagentoGraphqlClient magentoGraphqlClient) {
+    private Pair<List<__InputValue>, List<Error>> fetchAvailableSearchFilters(final MagentoGraphqlClient magentoGraphqlClient) {
 
         if (magentoGraphqlClient == null) {
             LOGGER.error("MagentoGraphQL client is null, unable to make introspection call to fetch available filter attributes.");
-            return Collections.emptyList();
+            return Pair.of(Collections.emptyList(), Collections.emptyList());
         }
 
         __TypeQueryDefinition typeQuery = q -> q
@@ -179,10 +199,10 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
             response.getErrors()
                 .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
-            return Collections.emptyList();
+            return Pair.of(Collections.emptyList(), response.getErrors());
         }
 
         __Type type = response.getData().__getType();
-        return type != null ? type.getInputFields() : Collections.emptyList();
+        return Pair.of(type != null ? type.getInputFields() : Collections.emptyList(), Collections.emptyList());
     }
 }

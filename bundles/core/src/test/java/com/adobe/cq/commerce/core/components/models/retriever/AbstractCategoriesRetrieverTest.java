@@ -98,4 +98,17 @@ public class AbstractCategoriesRetrieverTest {
         String query = subject.generateQuery(Collections.singletonList("abc"));
         Assert.assertEquals("{categoryList(filters:{name:{match:\"my-name\"},url_path:{eq:\"a/b/my-category\"}}){uid}}", query);
     }
+
+    @Test
+    public void testGenerateQueryWhenCategoryIdTypeAsDefault() {
+        String query = subject.generateQuery(Collections.singletonList("abc"));
+        Assert.assertEquals("{categoryList(filters:{category_uid:{in:[\"abc\"]}}){uid}}", query);
+    }
+
+    @Test
+    public void testGenerateQueryWhenCategoryIdTypeAsUrlPath() {
+        subject.setCategoryIdType("urlPath");
+        String query = subject.generateQuery(Collections.singletonList("tops"));
+        Assert.assertEquals("{categoryList(filters:{url_path:{in:[\"tops\"]}}){uid}}", query);
+    }
 }

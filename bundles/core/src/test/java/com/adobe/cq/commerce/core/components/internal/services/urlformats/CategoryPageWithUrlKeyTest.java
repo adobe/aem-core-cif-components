@@ -21,7 +21,9 @@ import org.junit.Test;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class CategoryPageWithUrlKeyTest {
 
@@ -103,5 +105,26 @@ public class CategoryPageWithUrlKeyTest {
         assertNull(params.getUrlPath());
         assertEquals("/page/path", params.getPage());
         assertEquals("url-key", params.getUrlKey());
+    }
+
+    @Test
+    public void testValidateRequiredParamsWhenUrlKeyIsSet() {
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUrlKey("url-key");
+        assertTrue(subject.validateRequiredParams(params));
+    }
+
+    @Test
+    public void testValidateRequiredParamsWhenUrlKeyIsNotSet() {
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUid("uid");
+        assertFalse(subject.validateRequiredParams(params));
+    }
+
+    @Test
+    public void testValidateRequiredParamsWhenUrlPathIsSet() {
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUrlKey("urlPath");
+        assertTrue(subject.validateRequiredParams(params));
     }
 }

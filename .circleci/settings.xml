@@ -66,7 +66,7 @@
         </profile>
 
         <profile>
-            <id>ossrh</id>
+            <id>central</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
@@ -79,9 +79,9 @@
 
     <servers>
         <server>
-            <id>ossrh</id>
-            <username>${env.SONATYPE_USER}</username>
-            <password>${env.SONATYPE_PASS}</password>
+            <id>central</id>
+            <username>${env.MAVEN_CENTRAL_USERNAME}</username>
+            <password>${env.MAVEN_CENTRAL_PASSWORD}</password>
         </server>
         <server>
             <id>maven-adobe-cif-release</id>

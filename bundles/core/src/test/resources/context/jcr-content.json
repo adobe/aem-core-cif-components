@@ -317,6 +317,41 @@
                 }
               }
             },
+            "commerceteaserwithcategoryselectionasurlpath": {
+              "actionsEnabled": true,
+              "sling:resourceType": "venia/components/content/teaser",
+              "pretitle": "Pretitle",
+              "titleFromPage": "flase",
+              "jcr:title": "Title",
+              "descriptionFromPage": false,
+              "jcr:description": "Description",
+              "id": "id",
+              "fileReference": "/content/dam/image.jpg",
+              "actions": {
+                "item0": {
+                  "productSku": "MJ01",
+                  "text": "A product"
+                },
+                "item1": {
+                  "categoryId": "equipment",
+                  "categoryIdType": "urlPath",
+                  "text": "A category"
+                },
+                "item2": {
+                  "categoryId": "equipment",
+                  "categoryIdType": "urlPath",
+                  "productSku": "MJ01",
+                  "text": "A category"
+                },
+                "item3": {
+                  "text": "Some text"
+                },
+                "item4": {
+                  "link": "/content/page",
+                  "text": "A page"
+                }
+            }
+          },
             "featuredcategorylist": {
                 "sling:resourceType": "venia/components/commerce/featuredcategorylist",
                 "titleType": "h2",
@@ -365,6 +400,32 @@
                         "categoryId": "uid-7"
                     }
                 }
+            },
+            "featuredcategorywithurlpathlist3": {
+              "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+              "items": {
+                "item0": {
+                  "categoryId": "equipment",
+                  "categoryIdType": "urlPath"
+                }
+              }
+            },
+            "featuredcategorywithurlpathlist4": {
+              "sling:resourceType": "venia/components/commerce/featuredcategorylist",
+              "items": {
+                "item0": {
+                  "categoryId": "equipment",
+                  "categoryIdType": "urlPath"
+                },
+                "item1": {
+                  "categoryId": "equipment/running",
+                  "categoryIdType": "urlPath"
+                },
+                "item2": {
+                  "categoryId": "equipment/bike",
+                  "categoryIdType": "urlPath"
+                }
+              }
             },
             "featuredcategorylist_with_link_target_unchecked": {
               "sling:resourceType": "venia/components/commerce/featuredcategorylist",
@@ -450,6 +511,13 @@
                 "sling:resourceType": "core/cif/components/content/button/v2/button",
                 "linkType": "category",
                 "categoryId": "MTI=="
+            },
+            "button2TypeCategoryWithSelectionIdUrlPath": {
+              "jcr:primaryType": "nt:unstructured",
+              "sling:resourceType": "core/cif/components/content/button/v2/button",
+              "linkType": "category",
+              "categoryId": "equipment",
+              "categoryIdType": "urlPath"
             },
             "button2TypeCategoryEmpty": {
                 "jcr:primaryType": "nt:unstructured",

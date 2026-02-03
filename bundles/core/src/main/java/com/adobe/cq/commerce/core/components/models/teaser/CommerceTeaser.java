@@ -38,6 +38,12 @@ public interface CommerceTeaser extends Teaser {
     String PN_ACTION_CATEGORY_ID = "categoryId";
 
     /**
+     * Name of the resource property that stores category id type which is used to build call-to-action link for category page
+     *
+     */
+    String PN_ACTION_CATEGORY_ID_TYPE = "categoryIdType";
+
+    /**
      * Retrieves the URL of the image associated with this teaser.
      * 
      * @return A String representing the URL or {@code null} if there is not image associated with the teaser

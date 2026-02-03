@@ -47,6 +47,7 @@ import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategor
 import com.adobe.cq.commerce.core.components.models.categorylist.FeaturedCategoryListItem;
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
@@ -63,7 +64,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = { FeaturedCategoryList.class, ComponentExporter.class },
-    resourceType = com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCategoryListImpl.RESOURCE_TYPE)
+    resourceType = {
+        com.adobe.cq.commerce.core.components.internal.models.v1.categorylist.FeaturedCategoryListImpl.RESOURCE_TYPE,
+        "core/cif/components/commerce/categorycarousel/v1/categorycarousel"
+    })
 @Exporter(
     name = ExporterConstants.SLING_MODEL_EXPORTER_NAME,
     extensions = ExporterConstants.SLING_MODEL_EXTENSION)
@@ -106,6 +110,7 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
         // After the identifier type has been determined, the specific list will be used further
         List<String> categoryIdentifiers = new ArrayList<>();
         assetOverride = new HashMap<>();
+        String categoryIdType = null;
 
         // Iterate entries of composite multifield
         Resource items = resource.getChild(ITEMS_PROP);
@@ -117,6 +122,8 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 ValueMap props = item.getValueMap();
 
                 String categoryIdentifier = props.get(CATEGORY_IDENTIFIER, String.class);
+                categoryIdType = props.get(CATEGORY_IDENTIFIER_TYPE, String.class);
+
                 if (StringUtils.isEmpty(categoryIdentifier)) {
                     continue;
                 }
@@ -141,6 +148,9 @@ public class FeaturedCategoryListImpl extends DataLayerComponent implements Feat
                 categoriesRetriever = new CategoriesRetriever(magentoGraphqlClient);
                 // Setting the identifiers list based on the determined identifier type
                 categoriesRetriever.setIdentifiers(categoryIdentifiers);
+                if (AbstractCategoryRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryIdType)) {
+                    categoriesRetriever.setCategoryIdType(categoryIdType);
+                }
             }
         }
     }

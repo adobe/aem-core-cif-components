@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.search.internal.models;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import com.adobe.cq.commerce.core.search.models.SearchAggregation;
 import com.adobe.cq.commerce.core.search.models.SearchOptions;
 import com.adobe.cq.commerce.core.search.models.SearchResultsSet;
 import com.adobe.cq.commerce.core.search.models.SorterKey;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public class SearchResultsSetImpl implements SearchResultsSet {
 
@@ -38,6 +40,7 @@ public class SearchResultsSetImpl implements SearchResultsSet {
     private List<SearchAggregation> searchAggregations = new ArrayList<>();
     private Pager pager;
     private SorterImpl sorter = new SorterImpl();
+    private List<Error> errors;
 
     @Nonnull
     @Override
@@ -143,5 +146,14 @@ public class SearchResultsSetImpl implements SearchResultsSet {
     public boolean hasSorting() {
         List<SorterKey> keys = getSorter().getKeys();
         return keys != null && !keys.isEmpty();
+    }
+
+    @Override
+    public List<Error> getErrors() {
+        return errors == null ? Collections.emptyList() : errors;
+    }
+
+    public void setErrors(List<Error> errors) {
+        this.errors = errors;
     }
 }

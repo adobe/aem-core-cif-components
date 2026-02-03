@@ -20,7 +20,6 @@ import java.lang.annotation.Annotation;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.stream.Collectors;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -80,7 +79,7 @@ public class CommerceLinksTransformerTest {
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
         GraphqlClientImpl graphqlClient = spy(new GraphqlClientImpl());
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        Utils.registerGraphqlClient(context, graphqlClient, null);
         context.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
             "{products(filter:{sku:{eq:\"MJ01\"}}");
@@ -155,9 +154,8 @@ public class CommerceLinksTransformerTest {
         // verify transformed HTML
         String transformedHtml = writer.toString();
 
-        Path filePath = Paths.get(classLoader.getResource(TEST_HTML).getPath());
-        String originalHtml = Files.lines(filePath).collect(Collectors.joining(System.lineSeparator()));
-
+        Path filePath = Paths.get(classLoader.getResource(TEST_HTML).toURI());
+        String originalHtml = new String(Files.readAllBytes(filePath));
         assertTrue(transformedHtml.endsWith(originalHtml));
     }
 

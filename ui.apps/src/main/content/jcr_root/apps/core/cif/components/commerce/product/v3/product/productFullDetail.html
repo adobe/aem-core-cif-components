@@ -23,7 +23,8 @@
           data-sly-use.skuTpl="sku.html"
           data-sly-use.detailsTpl="details.html"
           data-sly-use.priceTpl="price.html"
-          data-sly-use.groupedProductsTpl="groupedProducts.html">
+          data-sly-use.groupedProductsTpl="groupedProducts.html"
+          data-sly-use.productJsonLdTpl="productJsonLd.html">
     <form class="productFullDetail__root ${additionalCssClasses}"
           data-sly-set.visibleSections="${product.visibleSections}"
           data-product-sku="${product.sku}"
@@ -88,6 +89,9 @@
             <section data-sly-test="${'DETAILS' in visibleSections}" class="productFullDetail__details productFullDetail__section">
                 <sly data-sly-call="${detailsTpl.product @ product=product}"></sly>
             </section>
+            <sly data-sly-test="${product.getJsonLd != null}">
+                <sly data-sly-call="${productJsonLdTpl.productJsonLd @ product=product}"></sly>
+            </sly>
         </sly>
         <p data-sly-test="${!found}">${'Product not found.' @ i18n}</p>
     </form>

@@ -17,11 +17,16 @@ package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
@@ -53,7 +58,6 @@ import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -88,7 +92,11 @@ public class SearchFilterServiceImplTest {
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         graphqlClient = new GraphqlClientImpl();
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "GET");
+
+        // Create additionalConfig map
+        Map<String, Object> additionalConfig = new HashMap<>();
+        additionalConfig.put("httpMethod", "GET");
+        Utils.registerGraphqlClient(context, graphqlClient, additionalConfig);
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
@@ -143,8 +151,8 @@ public class SearchFilterServiceImplTest {
 
         assertThat(filterAttributeMetadata).hasSize(29);
 
-        verify(httpClient).execute(argThat(new GraphqlQueryMatcher("{__type", "get")));
-        verify(httpClient).execute(argThat(new GraphqlQueryMatcher("{customAttributeMetadata", "post")));
+        verify(httpClient).execute(argThat(new GraphqlQueryMatcher("{__type", "GET")), any(ResponseHandler.class));
+        verify(httpClient).execute(argThat(new GraphqlQueryMatcher("{customAttributeMetadata", "post")), any(ResponseHandler.class));
     }
 
     @Test
@@ -192,5 +200,26 @@ public class SearchFilterServiceImplTest {
         final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
             .retrieveCurrentlyAvailableCommerceFilters(page);
         assertThat(filterAttributeMetadata).hasSize(0);
+    }
+
+    @Test
+    public void testRetrieveCurrentlyAvailableCommerceFiltersInfoWithErrors() {
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient") != null ? graphqlClient : null);
+
+        Query query = new Query();
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
+        response.setData(query);
+        Error error = new Error();
+        response.setErrors(Collections.singletonList(error));
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+
+        SlingHttpServletRequest request = context.request();
+
+        final Pair<List<FilterAttributeMetadata>, List<Error>> filterAttributeMetadata = searchFilterServiceUnderTest
+            .retrieveCurrentlyAvailableCommerceFiltersInfo(request, page);
+        assertThat(filterAttributeMetadata.getLeft()).hasSize(0);
+        assertThat(filterAttributeMetadata.getRight()).hasSize(2);
     }
 }
