@@ -16,19 +16,19 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingScriptHelper;
 import org.apache.sling.models.annotations.Model;
@@ -63,7 +63,6 @@ import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.BundleProduct;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.ComplexTextValue;
@@ -76,11 +75,14 @@ import com.adobe.cq.commerce.magento.graphql.GiftCardProduct;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.GroupedProductItem;
 import com.adobe.cq.commerce.magento.graphql.MediaGalleryInterface;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.ProductImage;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductStockStatus;
+import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
+import com.adobe.cq.commerce.magento.graphql.gson.QueryDeserializer;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.models.Component;
 import com.adobe.cq.wcm.core.components.models.datalayer.AssetData;
@@ -96,10 +98,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static com.adobe.cq.wcm.core.components.util.ComponentUtils.ID_SEPARATOR;
 
-@Model(
-    adaptables = SlingHttpServletRequest.class,
-    adapters = Product.class,
-    resourceType = ProductImpl.RESOURCE_TYPE)
+@Model(adaptables = SlingHttpServletRequest.class, adapters = Product.class, resourceType = ProductImpl.RESOURCE_TYPE)
 public class ProductImpl extends DataLayerComponent implements Product {
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v1/product";
@@ -109,56 +108,80 @@ public class ProductImpl extends DataLayerComponent implements Product {
     private static final boolean LOAD_CLIENT_PRICE_DEFAULT = true;
     private static final String SELECTION_PROPERTY = "selection";
     /**
-     * Name of the boolean policy property indicating if the product component should show an add to wish list button or not.
+     * Name of the boolean policy property indicating if the product component
+     * should show an add to wish list button or not.
      */
-    private static final String PN_STYLE_ENABLE_ADD_TO_WISHLIST = "enableAddToWishList";
+    static final String PN_STYLE_ENABLE_ADD_TO_WISHLIST = "enableAddToWishList";
     /**
-     * Name of a boolean configuration properties used by the CIF Configuration to store if the endpoint has wish lists enabled.
+     * Name of a boolean configuration properties used by the CIF Configuration to
+     * store if the endpoint has wish lists enabled.
      */
     private static final String PN_CONFIG_ENABLE_WISH_LISTS = "enableWishLists";
+
+    static Optional<ProductInterface> PLACEHOLDER_PRODUCT;
+
+    static ProductInterface getPlaceholderProduct() {
+        if (PLACEHOLDER_PRODUCT == null) {
+            try {
+                InputStream data = ProductImpl.class.getClassLoader().getResourceAsStream(PLACEHOLDER_DATA);
+                if (data != null) {
+                    String json = IOUtils.toString(data, StandardCharsets.UTF_8);
+                    Query rootQuery = QueryDeserializer.getGson().fromJson(json, Query.class);
+                    PLACEHOLDER_PRODUCT = Optional.of(rootQuery.getProducts().getItems().get(0));
+                } else {
+                    LOGGER.warn("Could not find placeholder data on classpath: {}", PLACEHOLDER_DATA);
+                    PLACEHOLDER_PRODUCT = Optional.empty();
+                }
+            } catch (IOException ex) {
+                LOGGER.warn("Could not load placeholder data", ex);
+                PLACEHOLDER_PRODUCT = Optional.empty();
+            }
+        }
+        return PLACEHOLDER_PRODUCT.orElse(null);
+    }
 
     @Self
     private SlingHttpServletRequest request;
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
-    private Page currentPage;
+    protected Page currentPage;
     @OSGiService
     private UrlProvider urlProvider;
-    @ScriptVariable(
-        name = WCMBindingsConstants.NAME_CURRENT_STYLE,
-        injectionStrategy = InjectionStrategy.OPTIONAL)
-    private ValueMap currentStyle;
+    @ScriptVariable(name = WCMBindingsConstants.NAME_CURRENT_STYLE, injectionStrategy = InjectionStrategy.OPTIONAL)
+    protected ValueMap currentStyle;
     @ScriptVariable(name = "wcmmode", injectionStrategy = InjectionStrategy.OPTIONAL)
     private SightlyWCMMode wcmMode;
     @SlingObject
     private SlingScriptHelper sling;
     @OSGiService
-    private XSSAPI xssApi;
+    protected XSSAPI xssApi;
     @OSGiService
     private PageManagerFactory pageManagerFactory;
     @OSGiService
     private Externalizer externalizer;
 
+    private ProductInterface product;
+    private ValueMap properties;
     private Boolean configurable;
     private Boolean isGroupedProduct;
     private Boolean isVirtualProduct;
     private Boolean isBundleProduct;
     private Boolean isGiftCardProduct;
-    private Boolean loadClientPrice;
+    private Boolean loadClientPrice = Boolean.FALSE;
     private boolean usePlaceholderData = false;
     private boolean isAuthor = true;
     private String canonicalUrl;
     private boolean enableAddToWishList;
-
     protected AbstractProductRetriever productRetriever;
-
     private Locale locale;
 
     @PostConstruct
     protected void initModel() {
-        // When the Model is created by the CatalogPageNotFoundFilter, script variables will not yet be available. In this case we have to
-        // initialise some fields manually, which is necessary as the Model is cache=true and will not be recreated during rendering.
+        // When the Model is created by the CatalogPageNotFoundFilter, script variables
+        // will not yet be available. In this case we have to
+        // initialise some fields manually, which is necessary as the Model is
+        // cache=true and will not be recreated during rendering.
         if (currentPage == null) {
             currentPage = pageManagerFactory.getPageManager(request.getResourceResolver())
                 .getContainingPage(request.getResource());
@@ -167,74 +190,98 @@ public class ProductImpl extends DataLayerComponent implements Product {
             currentStyle = Utils.getStyleProperties(request, resource);
         }
 
-        ComponentsConfiguration configProperties = currentPage.getContentResource().adaptTo(ComponentsConfiguration.class);
-        // Get product selection from dialog
-        ValueMap properties = request.getResource().getValueMap();
-        String sku = properties.get(SELECTION_PROPERTY, String.class);
-        isAuthor = wcmMode != null && !wcmMode.isDisabled();
+        properties = request.getResource().getValueMap();
+        Resource contentResource = currentPage.getContentResource();
+        ComponentsConfiguration configProperties = contentResource.adaptTo(ComponentsConfiguration.class);
 
+        isAuthor = wcmMode != null && !wcmMode.isDisabled();
+        loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
+        locale = currentPage.getLanguage(false);
+        enableAddToWishList = configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS, Boolean.TRUE) : Boolean.TRUE;
+        enableAddToWishList = enableAddToWishList
+            && currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Product.super.getAddToWishListEnabled());
+
+        initProductRetriever();
+    }
+
+    private void initProductRetriever() {
+        if (magentoGraphqlClient == null) {
+            return;
+        }
+
+        String sku = properties.get(SELECTION_PROPERTY, String.class);
+
+        // Load product data for component (pre configured)
+        if (StringUtils.isNotBlank(sku)) {
+            productRetriever = new ProductRetriever(magentoGraphqlClient);
+            productRetriever.setIdentifier(sku);
+        } else {
+            UnaryOperator<ProductAttributeFilterInput> queryHook = urlProvider.getProductFilterHook(request);
+
+            if (queryHook != null) {
+                productRetriever = new ProductRetriever(magentoGraphqlClient);
+                productRetriever.extendProductFilterWith(queryHook);
+            }
+        }
+    }
+
+    private ProductInterface fetchProduct() {
+        ProductInterface product = null;
+
+        // we never return a product when no graphql client is available
+        // this is the original behaviour implemented in CIF-1244, even though we could return the placeholder image
+        // the same way we do it for other error cases
         if (magentoGraphqlClient != null) {
-            // If no product is selected via dialog, extract it from the URL
-            if (StringUtils.isEmpty(sku)) {
-                sku = urlProvider.getProductIdentifier(request);
+            if (productRetriever != null) {
+                product = productRetriever.fetchProduct();
+                if (product != null) {
+                    return product;
+                }
             }
 
-            // Load product data for component
-            if (StringUtils.isNotBlank(sku)) {
-                productRetriever = new ProductRetriever(magentoGraphqlClient);
-                productRetriever.setIdentifier(sku);
-                loadClientPrice = properties.get(PN_LOAD_CLIENT_PRICE, currentStyle.get(PN_LOAD_CLIENT_PRICE, LOAD_CLIENT_PRICE_DEFAULT));
-            } else if (isAuthor) {
-                // In AEM Sites editor, load some dummy placeholder data for the component.
-                try {
-                    productRetriever = new ProductPlaceholderRetriever(magentoGraphqlClient, PLACEHOLDER_DATA);
-                } catch (IOException e) {
-                    LOGGER.warn("Cannot use placeholder data", e);
-                }
+            if (isAuthor) {
                 usePlaceholderData = true;
-                loadClientPrice = false;
+                product = getPlaceholderProduct();
             }
         }
 
-        locale = currentPage.getLanguage(false);
-        enableAddToWishList = (configProperties != null ? configProperties.get(PN_CONFIG_ENABLE_WISH_LISTS, Boolean.TRUE) : Boolean.TRUE)
-            && currentStyle.get(PN_STYLE_ENABLE_ADD_TO_WISHLIST, Product.super.getAddToWishListEnabled());
+        return product;
     }
 
     @Override
     public Boolean getFound() {
-        return productRetriever != null && productRetriever.fetchProduct() != null;
+        return fetchProduct() != null;
     }
 
     @Override
     public String getName() {
-        return productRetriever.fetchProduct().getName();
+        return fetchProduct().getName();
     }
 
     @Override
     public String getDescription() {
-        return safeDescription(productRetriever.fetchProduct());
+        return safeDescription(fetchProduct());
     }
 
     @Override
     public String getSku() {
-        return productRetriever.fetchProduct().getSku();
+        return fetchProduct().getSku();
     }
 
     @Override
     public Price getPriceRange() {
-        return new PriceImpl(productRetriever.fetchProduct().getPriceRange(), locale);
+        return new PriceImpl(fetchProduct().getPriceRange(), locale);
     }
 
     @Override
     public Boolean getInStock() {
-        return ProductStockStatus.IN_STOCK.equals(productRetriever.fetchProduct().getStockStatus());
+        return ProductStockStatus.IN_STOCK.equals(fetchProduct().getStockStatus());
     }
 
     @Override
     public Boolean isConfigurable() {
         if (configurable == null) {
-            configurable = productRetriever != null && productRetriever.fetchProduct() instanceof ConfigurableProduct;
+            configurable = fetchProduct() instanceof ConfigurableProduct;
         }
         return configurable;
     }
@@ -242,7 +289,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public Boolean isGroupedProduct() {
         if (isGroupedProduct == null) {
-            isGroupedProduct = productRetriever != null && productRetriever.fetchProduct() instanceof GroupedProduct;
+            isGroupedProduct = fetchProduct() instanceof GroupedProduct;
         }
         return isGroupedProduct;
     }
@@ -250,7 +297,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public Boolean isVirtualProduct() {
         if (isVirtualProduct == null) {
-            isVirtualProduct = productRetriever != null && productRetriever.fetchProduct() instanceof VirtualProduct;
+            isVirtualProduct = fetchProduct() instanceof VirtualProduct;
         }
         return isVirtualProduct;
     }
@@ -258,7 +305,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public Boolean isBundleProduct() {
         if (isBundleProduct == null) {
-            isBundleProduct = productRetriever != null && productRetriever.fetchProduct() instanceof BundleProduct;
+            isBundleProduct = fetchProduct() instanceof BundleProduct;
         }
         return isBundleProduct;
     }
@@ -266,7 +313,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
     @Override
     public Boolean isGiftCardProduct() {
         if (isGiftCardProduct == null) {
-            isGiftCardProduct = productRetriever != null && productRetriever.fetchProduct() instanceof GiftCardProduct;
+            isGiftCardProduct = fetchProduct() instanceof GiftCardProduct;
         }
         return isGiftCardProduct;
     }
@@ -284,11 +331,12 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public List<Variant> getVariants() {
-        // Don't return any variants if the current product is not of type ConfigurableProduct.
+        // Don't return any variants if the current product is not of type
+        // ConfigurableProduct.
         if (!isConfigurable()) {
             return Collections.emptyList();
         }
-        ConfigurableProduct product = (ConfigurableProduct) productRetriever.fetchProduct();
+        ConfigurableProduct product = (ConfigurableProduct) fetchProduct();
 
         return product.getVariants().parallelStream().map(this::mapVariant).collect(Collectors.toList());
     }
@@ -299,7 +347,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         if (!isGroupedProduct()) {
             return Collections.emptyList();
         }
-        GroupedProduct product = (GroupedProduct) productRetriever.fetchProduct();
+        GroupedProduct product = (GroupedProduct) fetchProduct();
 
         return product.getItems()
             .parallelStream()
@@ -310,7 +358,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public List<Asset> getAssets() {
-        return filterAndSortAssets(productRetriever.fetchProduct().getMediaGallery());
+        return filterAndSortAssets(fetchProduct().getMediaGallery());
     }
 
     @Override
@@ -326,12 +374,13 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public List<VariantAttribute> getVariantAttributes() {
-        // Don't return any variant selection properties if the current product is not of type ConfigurableProduct.
+        // Don't return any variant selection properties if the current product is not
+        // of type ConfigurableProduct.
         if (!isConfigurable()) {
             return Collections.emptyList();
         }
 
-        ConfigurableProduct product = (ConfigurableProduct) productRetriever.fetchProduct();
+        ConfigurableProduct product = (ConfigurableProduct) fetchProduct();
 
         List<VariantAttribute> optionList = new ArrayList<>();
         for (ConfigurableProductOptions option : product.getConfigurableOptions()) {
@@ -343,7 +392,9 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public Boolean loadClientPrice() {
-        return loadClientPrice && !LaunchUtils.isLaunchBasedPath(currentPage.getPath());
+        // set usePlaceholderData as side effect of fetchProduct(), usually a noop if any of the other methods was called before
+        fetchProduct();
+        return loadClientPrice && !usePlaceholderData && !LaunchUtils.isLaunchBasedPath(currentPage.getPath());
     }
 
     @Override
@@ -357,7 +408,8 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
         VariantImpl productVariant = new VariantImpl();
         productVariant.setId(
-            StringUtils.join("product", ID_SEPARATOR, StringUtils.substring(DigestUtils.sha256Hex(product.getSku()), 0, 10)));
+            StringUtils.join("product", ID_SEPARATOR,
+                StringUtils.substring(DigestUtils.sha256Hex(product.getSku()), 0, 10)));
         productVariant.setName(product.getName());
         productVariant.setDescription(safeDescription(product));
         productVariant.setSku(product.getSku());
@@ -385,6 +437,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
         groupedProductItem.setPriceRange(new PriceImpl(product.getPriceRange(), locale));
         groupedProductItem.setDefaultQuantity(item.getQty());
         groupedProductItem.setVirtualProduct(product instanceof VirtualProduct);
+        groupedProductItem.setStorefrontContext(new ProductStorefrontContextImpl(product, this.resource));
 
         return groupedProductItem;
     }
@@ -394,7 +447,8 @@ public class ProductImpl extends DataLayerComponent implements Product {
             : assets.parallelStream()
                 .filter(a -> (a.getDisabled() == null || !a.getDisabled()) && a instanceof ProductImage)
                 .map(this::mapAsset)
-                .sorted(Comparator.comparing(a -> a.getPosition() == null ? Integer.MAX_VALUE : a.getPosition()))
+                .sorted(Comparator
+                    .comparing(a -> a.getPosition() == null ? Integer.MAX_VALUE : a.getPosition()))
                 .collect(Collectors.toList());
     }
 
@@ -412,13 +466,35 @@ public class ProductImpl extends DataLayerComponent implements Product {
         VariantValueImpl variantValue = new VariantValueImpl();
         variantValue.setId(value.getValueIndex());
         variantValue.setLabel(value.getLabel());
+        String cssModifierSource = value.getDefaultLabel() != null ? value.getDefaultLabel() : value.getLabel();
+        variantValue.setCssClassModifier(cssModifierSource.trim().replaceAll("\\s+", "-").toLowerCase());
+        VariantValue.SwatchType swatchType = null;
+
+        if (value.getSwatchData() != null) {
+            switch (value.getSwatchData().getGraphQlTypeName()) {
+                case "ImageSwatchData":
+                    swatchType = VariantValue.SwatchType.IMAGE;
+                    break;
+                case "TextSwatchData":
+                    swatchType = VariantValue.SwatchType.TEXT;
+                    break;
+                case "ColorSwatchData":
+                    swatchType = VariantValue.SwatchType.COLOR;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        variantValue.setSwatchType(swatchType);
 
         return variantValue;
     }
 
     protected VariantAttribute mapVariantAttribute(ConfigurableProductOptions option) {
         // Get list of values
-        List<VariantValue> values = option.getValues().parallelStream().map(this::mapVariantValue).collect(Collectors.toList());
+        List<VariantValue> values = option.getValues().parallelStream().map(this::mapVariantValue)
+            .collect(Collectors.toList());
 
         // Create attribute map
         VariantAttributeImpl attribute = new VariantAttributeImpl();
@@ -441,17 +517,17 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public String getMetaDescription() {
-        return productRetriever.fetchProduct().getMetaDescription();
+        return fetchProduct().getMetaDescription();
     }
 
     @Override
     public String getMetaKeywords() {
-        return productRetriever.fetchProduct().getMetaKeyword();
+        return fetchProduct().getMetaKeyword();
     }
 
     @Override
     public String getMetaTitle() {
-        return StringUtils.defaultString(productRetriever.fetchProduct().getMetaTitle(), getName());
+        return StringUtils.defaultString(fetchProduct().getMetaTitle(), getName());
     }
 
     @Override
@@ -461,13 +537,13 @@ public class ProductImpl extends DataLayerComponent implements Product {
             return null;
         }
         if (canonicalUrl == null) {
-            Page productPage = SiteNavigation.getProductPage(currentPage);
-            ProductInterface product = productRetriever != null ? productRetriever.fetchProduct() : null;
-            SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling.getService(SitemapLinkExternalizerProvider.class);
+            ProductInterface product = fetchProduct();
+            SitemapLinkExternalizerProvider sitemapLinkExternalizerProvider = sling
+                .getService(SitemapLinkExternalizerProvider.class);
 
-            if (productPage != null && product != null && sitemapLinkExternalizerProvider != null) {
+            if (product != null && sitemapLinkExternalizerProvider != null) {
                 canonicalUrl = sitemapLinkExternalizerProvider.getExternalizer(request.getResourceResolver())
-                    .toExternalProductUrl(request, productPage, new ProductUrlFormat.Params(product));
+                    .toExternalProductUrl(request, currentPage, new ProductUrlFormat.Params(product));
             } else {
                 // fallback to the previous/legacy logic
                 if (isAuthor) {
@@ -535,13 +611,13 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public CategoryData[] getDataLayerCategories() {
-        List<CategoryInterface> productCategories = productRetriever.fetchProduct().getCategories();
+        List<CategoryInterface> productCategories = fetchProduct().getCategories();
 
         if (productCategories == null || productCategories.size() == 0) {
             return new CategoryData[0];
         }
 
-        return productRetriever.fetchProduct().getCategories()
+        return fetchProduct().getCategories()
             .stream()
             .map(c -> new CategoryDataImpl(c.getUid().toString(), c.getName(), c.getImage()))
             .toArray(CategoryData[]::new);
@@ -554,7 +630,7 @@ public class ProductImpl extends DataLayerComponent implements Product {
 
     @Override
     public ProductStorefrontContext getStorefrontContext() {
-        return new ProductStorefrontContextImpl(productRetriever.fetchProduct(), resource);
+        return new ProductStorefrontContextImpl(fetchProduct(), resource);
     }
 
     @Override

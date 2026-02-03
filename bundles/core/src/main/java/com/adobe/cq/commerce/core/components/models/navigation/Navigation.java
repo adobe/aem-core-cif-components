@@ -17,6 +17,8 @@ package com.adobe.cq.commerce.core.components.models.navigation;
 
 import java.util.List;
 
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
+
 /**
  * Sling model interface to represent a navigation.
  */
@@ -25,7 +27,8 @@ public interface Navigation {
     /**
      * Sling resource type for catalog landing page.
      */
-    String RT_CATALOG_PAGE = "core/cif/components/structure/catalogpage/v1/catalogpage";
+    String RT_CATALOG_PAGE = SiteStructure.RT_CATALOG_PAGE;
+    String RT_CATALOG_PAGE_V3 = SiteStructure.RT_CATALOG_PAGE_V3;
 
     /**
      * Boolean property for adding to navigation the main categories of the catalog instead of the catalog

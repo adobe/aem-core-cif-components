@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.internal.models.v1.product;
 
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.product.GroupItem;
+import com.adobe.cq.commerce.core.components.storefrontcontext.ProductStorefrontContext;
 
 public class GroupItemImpl implements GroupItem {
 
@@ -25,6 +26,7 @@ public class GroupItemImpl implements GroupItem {
     private Price priceRange;
     private Double defaultQuantity;
     private Boolean virtualProduct;
+    private ProductStorefrontContext context;
 
     @Override
     public String getName() {
@@ -69,5 +71,14 @@ public class GroupItemImpl implements GroupItem {
 
     public void setVirtualProduct(Boolean virtualProduct) {
         this.virtualProduct = virtualProduct;
+    }
+
+    @Override
+    public ProductStorefrontContext getStorefrontContext() {
+        return context;
+    }
+
+    public void setStorefrontContext(ProductStorefrontContext context) {
+        this.context = context;
     }
 }

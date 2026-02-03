@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -38,14 +39,20 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
+import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlKey;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.CategoryPageWithUrlPath;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithCategoryAndUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSku;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlKey;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithSkuAndUrlPath;
+import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlKey;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithUrlPath;
+import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
@@ -54,43 +61,55 @@ import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider.ParamsBuilder;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.adobe.cq.commerce.magento.graphql.UrlRewrite;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
 import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class UrlProviderImplTest {
 
     @Rule
     public final AemContext context = newAemContext("/context/jcr-page-filter.json");
-
     private UrlProvider urlProvider;
     private MockSlingHttpServletRequest request;
     private CloseableHttpClient httpClient;
     private GraphqlClient graphqlClient;
     private Map<String, Object> caConfig = new HashMap<>();
 
+    private Function<Resource, ComponentsConfiguration> caConfigSupplier = r -> new ComponentsConfiguration(
+        new ValueMapDecorator(caConfig));
+
     @Before
     public void setup() throws Exception {
         urlProvider = context.getService(UrlProvider.class);
-        request = context.request();
+        request = newRequest();
 
         httpClient = mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         graphqlClient = spy(new GraphqlClientImpl());
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        Utils.registerGraphqlClient(context, graphqlClient, null);
         context.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
         context.registerAdapter(Resource.class, ComponentsConfiguration.class,
-            (Function<Resource, ComponentsConfiguration>) resource -> new ComponentsConfiguration(new ValueMapDecorator(caConfig)));
+            (Function<Resource, ComponentsConfiguration>) r -> caConfigSupplier.apply(r));
 
         Utils.setupHttpResponse("graphql/magento-graphql-product-result.json", httpClient, HttpStatus.SC_OK,
             "{products(filter:{sku:{eq:\"MJ01\"}}");
@@ -104,12 +123,16 @@ public class UrlProviderImplTest {
             "{categoryList(filters:{category_uid:{eq:\"uid-5\"}}");
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid:{eq:\"uid-99\"}}");
+        Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{url_path:{eq:\"men/tops-men/jackets-men\"}}");
         // from url_path men/tops-men/jackets-men
         Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{url_key:{eq:\"jackets-men\"}}");
         // from url_path does/not/exist
         Utils.setupHttpResponse("graphql/magento-graphql-empty-data.json", httpClient, HttpStatus.SC_OK,
             "categoryList(filters:{url_key:{eq:\"exist\"}");
+        Utils.setupHttpResponse(null, httpClient, HttpStatus.SC_NOT_FOUND,
+            "categoryList(filters:{url_path:{eq:\"does/not/exist\"}");
 
         context.registerInjectActivateService(urlProvider);
     }
@@ -122,9 +145,34 @@ public class UrlProviderImplTest {
         Whitebox.setInternalState(specificPageStrategy, "generateSpecificPageUrls", generateSpecificPageUrls);
     }
 
+    private MockSlingHttpServletRequest newRequest() {
+        // we cannot use context.request() as this will create a single instance with an adapter cache that we cannot flush during a test
+        MockSlingHttpServletRequest request = new MockSlingHttpServletRequest(context.resourceResolver());
+        SlingBindings bindings = new SlingBindings();
+        bindings.put("request", this.request);
+        bindings.put("response", context.response());
+        bindings.put("sling", context.slingScriptHelper());
+        request.setAttribute(SlingBindings.class.getName(), bindings);
+        return request;
+    }
+
+    private Page setCurrentPage(String path) {
+        return setCurrentPage(context.currentPage(path));
+    }
+
+    private Page setCurrentPage(Page page) {
+        page = context.currentPage(page);
+        SlingBindings bindings = (SlingBindings) request.getAttribute(SlingBindings.class.getName());
+        bindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        request.setAttribute(SiteStructure.class.getName(), null);
+        request.setResource(page.adaptTo(Resource.class));
+
+        return page;
+    }
+
     @Test
     public void testProductUrl() {
-        Page page = context.currentPage("/content/product-page");
+        Page page = setCurrentPage("/content/product-page");
 
         Map<String, String> params = new ParamsBuilder()
             .urlKey("beaumont-summit-kit")
@@ -136,8 +184,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductUrlWithCustomPage() {
-        Page page = context.create().page("/content/custom-page");
-        context.currentPage(page);
+        setCurrentPage(context.create().page("/content/custom-page"));
         Map<String, String> params = new ParamsBuilder()
             .urlKey("beaumont-summit-kit")
             .page("/content/custom-page")
@@ -149,7 +196,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductUrlWithSubpageAndAnchor() {
-        Page page = context.currentPage("/content/product-page");
+        Page page = setCurrentPage("/content/product-page");
         configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
@@ -163,7 +210,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testNestedProductUrlWithAnchor() {
-        Page page = context.currentPage("/content/product-page");
+        Page page = setCurrentPage("/content/product-page");
         configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
@@ -177,7 +224,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductUrlMissingParams() {
-        Page page = context.currentPage("/content/product-page");
+        Page page = setCurrentPage("/content/product-page");
         Map<String, String> params = new ParamsBuilder()
             .sku("MJ01")
             .map();
@@ -188,7 +235,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductUrlWithGraphQLClient() {
-        Page page = context.currentPage("/content/product-page");
+        Page page = setCurrentPage("/content/product-page");
 
         String url = urlProvider.toProductUrl(request, page, "MJ01");
         assertEquals("/content/product-page.html/beaumont-summit-kit.html", url);
@@ -198,7 +245,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductUrlNotFoundWithGraphQLClient() {
-        Page page = context.currentPage("/content/product-page");
+        Page page = setCurrentPage("/content/product-page");
 
         String url = urlProvider.toProductUrl(request, page, "MJ02");
         assertEquals("/content/product-page.html/{{url_key}}.html", url);
@@ -208,7 +255,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductUrlWithGraphQLClientMissingParameters() {
-        Page page = context.currentPage("/content/product-page");
+        Page page = setCurrentPage("/content/product-page");
 
         String url = urlProvider.toProductUrl(request, page, StringUtils.EMPTY);
         assertEquals("/content/product-page.html/{{url_key}}.html", url);
@@ -216,7 +263,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductUrlOnlySKU() {
-        Page page = context.currentPage("/content/product-page");
+        Page page = setCurrentPage("/content/product-page");
         MockOsgi.deactivate(urlProvider, context.bundleContext());
         MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithSku.PATTERN);
 
@@ -229,7 +276,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductUrlWithSKUProductNotFound() {
-        Page page = context.currentPage("/content/product-page");
+        Page page = setCurrentPage("/content/product-page");
         MockOsgi.deactivate(urlProvider, context.bundleContext());
         MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithSkuAndUrlKey.PATTERN);
 
@@ -244,10 +291,10 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductPageWithinAnotherProductPagesContext() {
-        Page page = context.currentPage("/content/product-page");
-        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        Page page = setCurrentPage("/content/product-page");
+        SlingBindings slingBindings = (SlingBindings) request.getAttribute(SlingBindings.class.getName());
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
-        MockRequestPathInfo pathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         pathInfo.setSuffix("/category-b/another-product.html");
         MockOsgi.deactivate(urlProvider, context.bundleContext());
         MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithCategoryAndUrlKey.PATTERN);
@@ -285,11 +332,10 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductPageWithinCategoryContext() {
-        Page currentPage = context.currentPage("/content/category-page");
-        Page productPage = context.currentPage("/content/product-page");
-        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
-        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, currentPage);
-        MockRequestPathInfo pathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        setCurrentPage("/content/category-page");
+
+        Page productPage = context.pageManager().getPage("/content/product-page");
+        MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         pathInfo.setSuffix("/category-b.html");
         MockOsgi.deactivate(urlProvider, context.bundleContext());
         MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithCategoryAndUrlKey.PATTERN);
@@ -328,11 +374,10 @@ public class UrlProviderImplTest {
     @Test
     public void testProductUrlSpecificPageFromCategoryPageContext() {
         // verify that the specific page can be picked by the category url_key provided by the category url format
-        Page currentPage = context.currentPage("/content/category-page");
-        Page productPage = context.currentPage("/content/product-page");
-        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
-        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, currentPage);
-        MockRequestPathInfo pathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        setCurrentPage("/content/category-page");
+        Page productPage = context.pageManager().getPage("/content/product-page");
+
+        MockRequestPathInfo pathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         pathInfo.setSuffix("/category-b.html");
         MockOsgi.deactivate(urlProvider, context.bundleContext());
         MockOsgi.activate(urlProvider, context.bundleContext(),
@@ -352,8 +397,79 @@ public class UrlProviderImplTest {
     }
 
     @Test
+    public void testProductPageWithFormatFromCatalogPage() {
+        Page currentPage = setCurrentPage("/content");
+
+        // provide a ComponentsConfiguration specific for the specific search root
+        Function<Resource, ComponentsConfiguration> originalSupplier = caConfigSupplier;
+        ComponentsConfiguration specificCaConfig = new ComponentsConfiguration(new ValueMapDecorator(ImmutableMap.of(
+            UrlFormat.PRODUCT_PAGE_URL_FORMAT, ProductPageWithSkuAndUrlKey.PATTERN)));
+        caConfigSupplier = r -> !r.getPath().equals("/content/new-catalog/jcr:content")
+            ? originalSupplier.apply(r)
+            : specificCaConfig;
+
+        // create a catalog page as specific search root
+        context.create().page("/content/new-catalog", "catalogpage", ImmutableMap.of(
+            "sling:resourceType", SiteStructure.RT_CATALOG_PAGE_V3,
+            SiteStructureImpl.PN_CIF_PRODUCT_PAGE, "/content/new-catalog",
+            "selectorFilter", "bar"));
+
+        // enabled specific page strategy and set another product url format than used by the specific search root
+        configureSpecificPageStrategy(true);
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            "productPageUrlFormat", ProductPageWithSkuAndUrlPath.PATTERN);
+
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setUrlKey("bar");
+        params.setUrlPath("foo/bar");
+        params.setSku("1234");
+
+        String url = urlProvider.toProductUrl(request, currentPage, params);
+        assertEquals("/content/new-catalog.html/1234/bar.html", url);
+    }
+
+    /**
+     * This test checks that a search root is applicable for a given set of parameters independently of the ones the configured url format
+     * would be able to parse from the url.
+     * <p>
+     * The selection of a specific page is done only with those parameters of the url format that can also be parsed from the url.
+     * This is important when deep linking is not enabled (default on publish) to resolve the specific page from the requested page using
+     * the parameters available in the url. For the selection of the search root from multiple catalog pages this strict behavior is not
+     * necessary as even with deep linking disabled the link to the product/category points to the selected search root.
+     */
+    @Test
+    public void testProductPageWithMultipleCatalogPagesSelectionUsesAllUrlParameters() {
+        Page currentPage = setCurrentPage("/content");
+
+        // create a catalog page as specific search root
+        context.create().page("/content/new-catalog", "catalogpage", ImmutableMap.of(
+            "sling:resourceType", SiteStructure.RT_CATALOG_PAGE_V3,
+            SiteStructureImpl.PN_CIF_PRODUCT_PAGE, "/content/new-catalog/product",
+            SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER, "foo",
+            SiteStructureImpl.PN_MAGENTO_ROOT_CATEGORY_IDENTIFIER_TYPE, "urlPath"));
+        context.create().page("/content/new-catalog/product");
+
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            "productPageUrlFormat", ProductPageWithUrlKey.PATTERN,
+            "enableContextAwareProductUrls", true);
+
+        // the category url params cannot be parsed from url by the ProductPageWithUrlKey, but the selection based on the catalog page
+        // should still work
+        ProductUrlFormat.Params params = new ProductUrlFormat.Params();
+        params.setUrlKey("bar");
+        params.setUrlRewrites(Arrays.asList(
+            new UrlRewrite().setUrl("bar"),
+            new UrlRewrite().setUrl("foo/bar")));
+
+        String url = urlProvider.toProductUrl(request, currentPage, params);
+        assertEquals("/content/new-catalog/product.html/bar.html", url);
+    }
+
+    @Test
     public void testCategoryUrl() {
-        Page page = context.currentPage("/content/category-page");
+        Page page = setCurrentPage("/content/category-page");
 
         Map<String, String> params = new ParamsBuilder()
             .urlPath("men")
@@ -365,7 +481,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCategoryUrlWithSubpage() {
-        Page page = context.currentPage("/content/category-page");
+        Page page = setCurrentPage("/content/category-page");
         configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
@@ -379,7 +495,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCategoryUrlWithSubpageArray() {
-        Page page = context.currentPage("/content/category-page");
+        Page page = setCurrentPage("/content/category-page");
         configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
@@ -393,7 +509,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCategoryUrlWithSubpageV2() {
-        Page page = context.currentPage("/content/category-page");
+        Page page = setCurrentPage("/content/category-page");
         configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
@@ -406,7 +522,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCategoryUrlWithSubpageArrayV2() {
-        Page page = context.currentPage("/content/category-page");
+        Page page = setCurrentPage("/content/category-page");
         configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
@@ -420,7 +536,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testNestedCategoryUrl() {
-        Page page = context.currentPage("/content/category-page");
+        Page page = setCurrentPage("/content/category-page");
         configureSpecificPageStrategy(true);
 
         Map<String, String> params = new ParamsBuilder()
@@ -433,7 +549,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCategoryUrlMissingParams() {
-        Page page = context.currentPage("/content/category-page");
+        Page page = setCurrentPage("/content/category-page");
         Map<String, String> params = new ParamsBuilder()
             .uid("UID-42")
             .map();
@@ -444,7 +560,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCategoryUrlWithGraphQLClient() {
-        Page page = context.currentPage("/content/category-page");
+        Page page = setCurrentPage("/content/category-page");
 
         String url = urlProvider.toCategoryUrl(request, page, "uid-5");
         assertEquals("/content/category-page.html/equipment.html", url);
@@ -454,7 +570,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCategoryUrlNotFoundWithGraphQLClient() {
-        Page page = context.currentPage("/content/category-page");
+        Page page = setCurrentPage("/content/category-page");
 
         String url = urlProvider.toCategoryUrl(request, page, "uid-99");
         assertEquals("/content/category-page.html/{{url_path}}.html", url);
@@ -464,7 +580,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCategoryUrlWithGraphQLClientMissingParameters() {
-        Page page = context.currentPage("/content/category-page");
+        Page page = setCurrentPage("/content/category-page");
 
         String url = urlProvider.toCategoryUrl(request, page, StringUtils.EMPTY);
         assertEquals("/content/category-page.html/{{url_path}}.html", url);
@@ -472,14 +588,14 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductIdentifierParsingInSuffixUrlKey() {
-        context.currentPage("/content/catalog-page");
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        setCurrentPage("/content/catalog-page");
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         requestPathInfo.setSuffix("/beaumont-summit-kit.html");
 
-        String identifier = urlProvider.getProductIdentifier(context.request());
+        String identifier = urlProvider.getProductIdentifier(request);
         assertEquals("MJ01", identifier);
         // second access should be cached in request attributes
-        identifier = urlProvider.getProductIdentifier(context.request());
+        identifier = urlProvider.getProductIdentifier(request);
         assertEquals("MJ01", identifier);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
@@ -487,25 +603,25 @@ public class UrlProviderImplTest {
 
     @Test
     public void testProductIdentifierParsingInSuffixUrlKeyWithGraphqlClientError() {
-        context.currentPage("/content/product-page");
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        setCurrentPage("/content/product-page");
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         requestPathInfo.setSuffix("/beaumont-summit-kit.html");
 
         doThrow(new RuntimeException()).when(graphqlClient).execute(any(), any(), any(), any());
 
-        String identifier = urlProvider.getProductIdentifier(context.request());
+        String identifier = urlProvider.getProductIdentifier(request);
         Assert.assertNull(identifier);
     }
 
     @Test
     public void testProductIdentifierParsingInSuffixSKU() {
-        context.currentPage("/content/product-page");
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        setCurrentPage("/content/product-page");
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         requestPathInfo.setSuffix("/MJ01.html");
         MockOsgi.deactivate(urlProvider, context.bundleContext());
         MockOsgi.activate(urlProvider, context.bundleContext(), "productPageUrlFormat", ProductPageWithSku.PATTERN);
 
-        String identifier = urlProvider.getProductIdentifier(context.request());
+        String identifier = urlProvider.getProductIdentifier(request);
         assertEquals("MJ01", identifier);
 
         verify(graphqlClient, never()).execute(any(), any(), any(), any());
@@ -513,26 +629,53 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCategoryIdentifierParsingUrlPath() {
-        context.currentPage("/content/catalog-page");
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        ArgumentCaptor<GraphqlRequest> reqCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        setCurrentPage("/content/catalog-page");
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         requestPathInfo.setSuffix("/men/tops-men/jackets-men");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(), "categoryPageUrlFormat", CategoryPageWithUrlPath.PATTERN);
 
-        String identifier = urlProvider.getCategoryIdentifier(context.request());
+        String identifier = urlProvider.getCategoryIdentifier(request);
         assertEquals("MTI==", identifier);
         // second access should be cached in request attributes
-        identifier = urlProvider.getCategoryIdentifier(context.request());
+        identifier = urlProvider.getCategoryIdentifier(request);
         assertEquals("MTI==", identifier);
 
-        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+        verify(graphqlClient, times(1)).execute(reqCaptor.capture(), any(), any(), any());
+
+        GraphqlRequest gqlReq = reqCaptor.getValue();
+        assertEquals("{categoryList(filters:{url_path:{eq:\"men/tops-men/jackets-men\"}}){uid}}", gqlReq.getQuery());
+    }
+
+    @Test
+    public void testCategoryIdentifierParsingUrlKey() {
+        ArgumentCaptor<GraphqlRequest> reqCaptor = ArgumentCaptor.forClass(GraphqlRequest.class);
+        setCurrentPage("/content/catalog-page");
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
+        requestPathInfo.setSuffix("/jackets-men");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(), "categoryPageUrlFormat", CategoryPageWithUrlKey.PATTERN);
+
+        String identifier = urlProvider.getCategoryIdentifier(request);
+        assertEquals("MTI==", identifier);
+        // second access should be cached in request attributes
+        identifier = urlProvider.getCategoryIdentifier(request);
+        assertEquals("MTI==", identifier);
+
+        verify(graphqlClient, times(1)).execute(reqCaptor.capture(), any(), any(), any());
+
+        GraphqlRequest gqlReq = reqCaptor.getValue();
+        assertEquals("{categoryList(filters:{url_key:{eq:\"jackets-men\"}}){uid}}", gqlReq.getQuery());
     }
 
     @Test
     public void testCategoryIdentifierParsingUrlPathNotFound() {
-        context.currentPage("/content/catalog-page");
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        setCurrentPage("/content/catalog-page");
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) request.getRequestPathInfo();
         requestPathInfo.setSuffix("/does/not/exist.html");
 
-        String identifier = urlProvider.getCategoryIdentifier(context.request());
+        String identifier = urlProvider.getCategoryIdentifier(request);
         Assert.assertNull(identifier);
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
@@ -540,51 +683,49 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCustomProductPageFormat() {
-        Page page = context.create().page("/page");
-        context.currentPage(page);
-        context.request().setQueryString("sku=MJ02");
+        Page page = setCurrentPage("/content/product-page");
+        request.setQueryString("sku=MJ02");
         context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.PRODUCT_PAGE_URL_FORMAT);
         // registering the custom format causes a new service to be created
         UrlProvider urlProvider = context.getService(UrlProvider.class);
 
         // verify parse
-        String identifier = urlProvider.getProductIdentifier(context.request());
+        String identifier = urlProvider.getProductIdentifier(request);
         assertEquals("MJ02", identifier);
 
         // verify format
         String url = urlProvider.toProductUrl(request, page, "MJ02");
-        assertEquals("/page.html?sku=MJ02", url);
+        assertEquals("/content/product-page.html?sku=MJ02", url);
 
         // verify the product page url format is not used for categories
         url = urlProvider.toCategoryUrl(request, page, "uid-5");
-        assertEquals("/page.html/equipment.html", url);
+        assertEquals("/content/category-page.html/equipment.html", url);
     }
 
     @Test
     public void testCustomCategoryPageFormat() {
-        Page page = context.create().page("/page");
-        context.currentPage(page);
-        context.request().setQueryString("uid=uid-5");
+        Page page = setCurrentPage("/content/category-page");
+        request.setQueryString("uid=uid-5");
         context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.CATEGORY_PAGE_URL_FORMAT);
         // registering the custom format causes a new service to be created
         UrlProvider urlProvider = context.getService(UrlProvider.class);
 
         // verify parse
-        String identifier = urlProvider.getCategoryIdentifier(context.request());
+        String identifier = urlProvider.getCategoryIdentifier(request);
         assertEquals("uid-5", identifier);
 
         // verify format
         String url = urlProvider.toCategoryUrl(request, page, "uid-5");
-        assertEquals("/page.html?uid=uid-5", url);
+        assertEquals("/content/category-page.html?uid=uid-5", url);
 
         // verify the category page url format is not used for products
         url = urlProvider.toProductUrl(request, page, "MJ01");
-        assertEquals("/page.html/beaumont-summit-kit.html", url);
+        assertEquals("/content/product-page.html/beaumont-summit-kit.html", url);
     }
 
     @Test
     public void testCustomCategoryPageFormatWithSpecificPage() {
-        Page page = context.currentPage("/content/category-page");
+        Page page = setCurrentPage("/content/category-page");
         context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.CATEGORY_PAGE_URL_FORMAT);
         configureSpecificPageStrategy(true);
         // registering the custom format causes a new service to be created
@@ -603,7 +744,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCAConfigWithDefaultProductUrlFormat() {
-        Page page = context.currentPage("/content/product-page");
+        Page page = setCurrentPage("/content/product-page");
         MockOsgi.deactivate(urlProvider, context.bundleContext());
         MockOsgi.activate(urlProvider, context.bundleContext(),
             UrlFormat.PRODUCT_PAGE_URL_FORMAT, ProductPageWithSku.PATTERN);
@@ -621,7 +762,7 @@ public class UrlProviderImplTest {
 
     @Test
     public void testCAConfigWithDefaultCategoryUrlFormat() {
-        Page page = context.currentPage("/content/category-page");
+        Page page = setCurrentPage("/content/category-page");
         MockOsgi.deactivate(urlProvider, context.bundleContext());
         MockOsgi.activate(urlProvider, context.bundleContext(),
             UrlFormat.CATEGORY_PAGE_URL_FORMAT,
@@ -639,6 +780,23 @@ public class UrlProviderImplTest {
     }
 
     @Test
+    public void testCAConfigWithDefaultCategoryUrlPathFormatWithSelectionIdAsUid() {
+        Page page = setCurrentPage("/content/category-page");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            UrlFormat.CATEGORY_PAGE_URL_FORMAT,
+            CategoryPageWithUrlPath.PATTERN);
+
+        caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CategoryPageWithUrlPath.PATTERN);
+
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUid("uid-5");
+
+        String url = urlProvider.formatCategoryUrl(request, page, params);
+        assertEquals("/content/category-page.html/equipment.html", url);
+    }
+
+    @Test
     public void testCAConfigWithLegacyCustomProductUrlFormat() {
         // register multiple formats
         context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.PRODUCT_PAGE_URL_FORMAT);
@@ -648,29 +806,34 @@ public class UrlProviderImplTest {
         UrlProvider urlProvider = context.getService(UrlProvider.class);
 
         // verify format
-        // always create new page to not cache the Resource -> ComponentsConfiguration adaption
-        // no configuration, defaults to highest-ranked/first new custom format)
-        Page page = context.currentPage(context.create().page("/page1"));
+        // always reset the current page to not cache the Resource -> ComponentsConfiguration adaption
+        // and always create a new request to not cache Request -> SiteStructure adaption
+        // no configuration, defaults to highest-ranked/first new custom format
+        request = newRequest();
+        Page page = setCurrentPage("/content/product-page");
         String url = urlProvider.toProductUrl(request, page, "MJ02");
-        assertEquals("/page1.html?sku=MJ02#A", url);
+        assertEquals("/content/product-page.html?sku=MJ02#A", url);
 
         // configure another new custom url format
-        page = context.currentPage(context.create().page("/page2"));
+        request = newRequest();
+        page = setCurrentPage("/content/product-page");
         caConfig.put(UrlFormat.PRODUCT_PAGE_URL_FORMAT, AnotherCustomProductPageUrlFormat.class.getName());
         url = urlProvider.toProductUrl(request, page, "MJ02");
-        assertEquals("/page2.html?sku=MJ02#B", url);
+        assertEquals("/content/product-page.html?sku=MJ02#B", url);
 
         // configure legacy custom url format
-        page = context.currentPage(context.create().page("/page3"));
+        request = newRequest();
+        page = setCurrentPage("/content/product-page");
         caConfig.put(UrlFormat.PRODUCT_PAGE_URL_FORMAT, CustomLegacyUrlFormat.class.getName());
         url = urlProvider.toProductUrl(request, page, "MJ02");
-        assertEquals("/page3.html?sku=MJ02", url);
+        assertEquals("/content/product-page.html?sku=MJ02", url);
 
         // use default format
-        page = context.currentPage(context.create().page("/page4"));
+        request = newRequest();
+        page = setCurrentPage("/content/product-page");
         caConfig.put(UrlFormat.PRODUCT_PAGE_URL_FORMAT, ProductPageWithSku.PATTERN);
         url = urlProvider.toProductUrl(request, page, "MJ02");
-        assertEquals("/page4.html/MJ02.html", url);
+        assertEquals("/content/product-page.html/MJ02.html", url);
     }
 
     @Test
@@ -687,29 +850,95 @@ public class UrlProviderImplTest {
         params.setUid("uid-1");
 
         // verify format
-        // always create new page to not cache the Resource -> ComponentsConfiguration adaption
-        // no configuration, defaults to highest-ranked/first new custom format)
-        Page page = context.currentPage(context.create().page("/page1"));
+        // always reset the current page to not cache the Resource -> ComponentsConfiguration adaption
+        // and always create a new request to not cache Request -> SiteStructure adaption
+        // no configuration, defaults to highest-ranked/first new custom format
+        request = newRequest();
+        Page page = setCurrentPage("/content/category-page");
         String url = urlProvider.toCategoryUrl(request, page, params);
-        assertEquals("/page1.html?uid=uid-1#A", url);
+        assertEquals("/content/category-page.html?uid=uid-1#A", url);
 
         // configure another new custom url format
-        page = context.currentPage(context.create().page("/page2"));
+        request = newRequest();
+        page = setCurrentPage("/content/category-page");
         caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, AnotherCustomCategoryPageUrlFormat.class.getName());
         url = urlProvider.toCategoryUrl(request, page, params);
-        assertEquals("/page2.html?uid=uid-1#B", url);
+        assertEquals("/content/category-page.html?uid=uid-1#B", url);
 
         // configure legacy custom url format
-        page = context.currentPage(context.create().page("/page3"));
+        request = newRequest();
+        page = setCurrentPage("/content/category-page");
         caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CustomLegacyUrlFormat.class.getName());
         url = urlProvider.toCategoryUrl(request, page, params);
-        assertEquals("/page3.html?uid=uid-1", url);
+        assertEquals("/content/category-page.html?uid=uid-1", url);
 
         // use default format
-        page = context.currentPage(context.create().page("/page4"));
+        request = newRequest();
+        page = setCurrentPage("/content/category-page");
         caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CategoryPageWithUrlKey.PATTERN);
         url = urlProvider.toCategoryUrl(request, page, params);
-        assertEquals("/page4.html/bar.html", url);
+        assertEquals("/content/category-page.html/bar.html", url);
+    }
+
+    @Test
+    public void testCAConfigWhenValidateMethodNotDeclaredWithUrlPathAndUrlKey() {
+        // register formats
+        context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.CATEGORY_PAGE_URL_FORMAT);
+        context.registerService(CategoryUrlFormat.class, new CustomCategoryPageUrlFormatWithoutValidateRequiredParamsMethod());
+        request = newRequest();
+        Page page = setCurrentPage("/content/category-page");
+        caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CustomCategoryPageUrlFormatWithoutValidateRequiredParamsMethod.class.getName());
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+
+        // Provide the required parameters for generating the url
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUrlPath("men/tops-men/jackets-men");
+        params.setUrlKey("jackets-men");
+        String url = urlProvider.formatCategoryUrl(request, page, params);
+        assertEquals("/content/category-page.html/jackets-men/men/tops-men/jackets-men.html", url);
+        // It should call the graphql client even if it got the required parameters
+        // as validateRequiredParams method is set to false as default
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testCAConfigWhenValidateMethodDeclaredWithUrlPathOnly() {
+        // register formats
+        context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.CATEGORY_PAGE_URL_FORMAT);
+        context.registerService(CategoryUrlFormat.class, new CustomCategoryPageUrlFormatWithValidateRequiredParamsMethod());
+        request = newRequest();
+        Page page = setCurrentPage("/content/category-page");
+        caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CustomCategoryPageUrlFormatWithValidateRequiredParamsMethod.class.getName());
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+
+        // Test when urlPath only provided
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUrlPath("men/tops-men/jackets-men");
+        String url = urlProvider.formatCategoryUrl(request, page, params);
+        assertEquals("/content/category-page.html/jackets-men/men/tops-men/jackets-men.html", url);
+        // It should call the graphql client as it doesn't satisfy the validateRequiredParams method
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testCAConfigWhenValidateMethodDeclaredWithUrlPathAndUrlKey() {
+        // register formats
+        context.registerService(UrlFormat.class, new CustomLegacyUrlFormat(), UrlFormat.PROP_USE_AS, UrlFormat.CATEGORY_PAGE_URL_FORMAT);
+        context.registerService(CategoryUrlFormat.class, new CustomCategoryPageUrlFormatWithValidateRequiredParamsMethod());
+        request = newRequest();
+        Page page = setCurrentPage("/content/category-page");
+        caConfig.put(UrlFormat.CATEGORY_PAGE_URL_FORMAT, CustomCategoryPageUrlFormatWithValidateRequiredParamsMethod.class.getName());
+        UrlProvider urlProvider = context.getService(UrlProvider.class);
+
+        // Test when urlPath only provided
+        CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+        params.setUrlPath("men/tops-men/jackets-men");
+        params.setUrlKey("jackets-men");
+        String url = urlProvider.formatCategoryUrl(request, page, params);
+        assertEquals("/content/category-page.html/jackets-men/men/tops-men/jackets-men.html", url);
+        // It shouldn't call the graphql client as it is satisfy the validateRequiredParams method
+        verify(graphqlClient, never()).execute(any(), any(), any(), any());
+
     }
 
     private static class CustomLegacyUrlFormat implements UrlFormat {
@@ -751,6 +980,34 @@ public class UrlProviderImplTest {
     private static class AnotherCustomCategoryPageUrlFormat extends CustomCategoryPageUrlFormat {
         AnotherCustomCategoryPageUrlFormat() {
             anchor = "B";
+        }
+    }
+
+    private static class CustomCategoryPageUrlFormatWithoutValidateRequiredParamsMethod extends CustomCategoryPageUrlFormat {
+        CustomCategoryPageUrlFormatWithoutValidateRequiredParamsMethod() {
+            anchor = "c";
+        }
+
+        @Override
+        public String format(Params parameters) {
+            String urlKey = StringUtils.defaultIfEmpty(parameters.getUrlKey(), "{{url_path}}");
+            return parameters.getPage()
+                + ".html/"
+                + parameters.getUrlKey() + "/"
+                + StringUtils.defaultIfEmpty(parameters.getUrlPath(), urlKey)
+                + ".html";
+        }
+    }
+
+    private static class CustomCategoryPageUrlFormatWithValidateRequiredParamsMethod extends
+        CustomCategoryPageUrlFormatWithoutValidateRequiredParamsMethod {
+        CustomCategoryPageUrlFormatWithValidateRequiredParamsMethod() {
+            anchor = "d";
+        }
+
+        @Override
+        public boolean validateRequiredParams(Params parameters) {
+            return StringUtils.isNotEmpty(parameters.getUrlPath()) && StringUtils.isNotEmpty(parameters.getUrlKey());
         }
     }
 
@@ -824,5 +1081,32 @@ public class UrlProviderImplTest {
             copy.setSku(parameters.getSku());
             return copy;
         }
+    }
+
+    @Test
+    public void testProductFilterHook() {
+        setCurrentPage("/content");
+        // no information in the url
+        UnaryOperator<ProductAttributeFilterInput> inputHook = urlProvider.getProductFilterHook(request);
+        assertNull(inputHook);
+
+        // default url format (url_key)
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/foobar.html");
+        ProductAttributeFilterInput input = urlProvider.getProductFilterHook(request).apply(null);
+        assertNotNull(input);
+        assertNull(input.getSku());
+        assertNotNull(input.getUrlKey());
+        assertEquals("foobar", input.getUrlKey().getEq());
+
+        // with sku and url_key, sku takes precedence
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/FOO007/foobar.html");
+        MockOsgi.deactivate(urlProvider, context.bundleContext());
+        MockOsgi.activate(urlProvider, context.bundleContext(),
+            UrlFormat.PRODUCT_PAGE_URL_FORMAT, ProductPageWithSkuAndUrlKey.PATTERN);
+        input = urlProvider.getProductFilterHook(request).apply(null);
+        assertNotNull(input);
+        assertNull(input.getUrlKey());
+        assertNotNull(input.getSku());
+        assertEquals("FOO007", input.getSku().getEq());
     }
 }

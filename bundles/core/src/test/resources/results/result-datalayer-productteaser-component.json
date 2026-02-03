@@ -3,6 +3,7 @@
     "xdm:currencyCode": "USD",
     "xdm:SKU": "MJ01",
     "xdm:listPrice": 42.0,
+    "xdm:discountAmount": 0.0,
     "dc:title": "Beaumont Summit Kit",
     "@type": "venia/components/commerce/productteaser"
   }

@@ -53,6 +53,7 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.mockito.Mockito.*;
 
+@Deprecated
 public class CommerceTeaserImplTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
@@ -75,7 +76,7 @@ public class CommerceTeaserImplTest {
     public void setup() throws Exception {
         GraphqlClient graphqlClient = new GraphqlClientImpl();
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
-        context.registerInjectActivateService(graphqlClient);
+        Utils.registerGraphqlClient(context, graphqlClient, null);
         Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-category-list-result.json");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);

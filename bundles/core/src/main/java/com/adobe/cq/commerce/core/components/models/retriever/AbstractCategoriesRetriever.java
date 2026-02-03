@@ -17,10 +17,15 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -36,12 +41,19 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCategoriesRetriever.class);
+
     public static final String CATEGORY_IMAGE_FOLDER = "catalog/category/";
 
     /**
      * Lambda that extends the category query.
      */
     protected Consumer<CategoryTreeQuery> categoryQueryHook;
+
+    /**
+     * Lambda that allows to replace or extend the category filters.
+     */
+    protected Function<CategoryFilterInput, CategoryFilterInput> categoryFilterHook;
 
     /**
      * List of category instances. Is only available after populate() was called.
@@ -53,6 +65,12 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
      * specific and should be checked in subclass implementations.
      */
     protected List<String> identifiers;
+
+    /**
+     * CategoryIdType that should be used when fetched. Usually uid but we can define it explicitly in the implementation
+     * specific and should be checked in subclass implementations.
+     */
+    protected String categoryIdType;
 
     public AbstractCategoriesRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -82,6 +100,16 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     }
 
     /**
+     * Set the type category identifier which will using during fetch. Categories are retrieved using
+     * this categoryIdType if not set then it will use UID.
+     *
+     * @param categoryIdType Type category identifier
+     */
+    public void setCategoryIdType(String categoryIdType) {
+        this.categoryIdType = categoryIdType;
+    }
+
+    /**
      * Extend the category query part of the category GraphQL query with a partial query provided by a lambda hook that sets additional
      * fields.
      *
@@ -101,6 +129,41 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     }
 
     /**
+     * Extends or replaces the category filter with a custom instance defined by a lambda hook.
+     *
+     * Example 1 (Extend):
+     *
+     * <pre>
+     * {@code
+     * categoriesRetriever.extendCategoryFilterWith(f -> f
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * Example 2 (Replace):
+     *
+     * <pre>
+     * {@code
+     * categoriesRetriever.extendCategoryFilterWith(f -> new CategoryFilterInput()
+     *     .setCategoryUid(new FilterEqualTypeInput()
+     *         .setEq("custom-uid"))
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * @param categoryFilterHook Lambda that extends or replaces the category filter.
+     */
+    public void extendCategoryFilterWith(Function<CategoryFilterInput, CategoryFilterInput> categoryFilterHook) {
+        if (this.categoryFilterHook == null) {
+            this.categoryFilterHook = categoryFilterHook;
+        } else {
+            this.categoryFilterHook = this.categoryFilterHook.andThen(categoryFilterHook);
+        }
+    }
+
+    /**
      * Generates the partial CategoryTree query part of the GraphQL category query.
      *
      * @return CategoryTree query definition
@@ -114,14 +177,28 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
      * @return GraphQL query as string
      */
     protected String generateQuery(List<String> identifiers) {
-        CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
-        return Operations.query(query -> {
-            FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setIn(identifiers);
-            CategoryFilterInput filter = new CategoryFilterInput().setCategoryUid(identifiersFilter);
+        CategoryFilterInput filter = new CategoryFilterInput();
+        FilterEqualTypeInput identifiersFilter = new FilterEqualTypeInput().setIn(identifiers);
 
-            QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
-            query.categoryList(searchArgs, queryArgs);
-        }).toString();
+        // Set the filter type
+        if (AbstractCategoryRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(this.categoryIdType)) {
+            filter.setUrlPath(identifiersFilter);
+        } else {
+            filter.setCategoryUid(identifiersFilter);
+        }
+
+        // Apply category filter hook
+        if (this.categoryFilterHook != null) {
+            filter = this.categoryFilterHook.apply(filter);
+        }
+
+        CategoryFilterInput finalFilter = filter;
+        QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(finalFilter);
+
+        CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
+
+        return Operations.query(query -> query
+            .categoryList(searchArgs, queryArgs)).toString();
     }
 
     /**
@@ -139,12 +216,28 @@ public abstract class AbstractCategoriesRetriever extends AbstractRetriever {
     @Override
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
-        if (CollectionUtils.isEmpty(response.getErrors())) {
+        errors = response.getErrors();
+        if (CollectionUtils.isEmpty(errors)) {
             Query rootQuery = response.getData();
             categories = rootQuery.getCategoryList();
             categories.sort(Comparator.comparing(c -> identifiers.indexOf(c.getUid().toString())));
         } else {
             categories = Collections.emptyList();
+        }
+        logDuplicateCategories();
+    }
+
+    private void logDuplicateCategories() {
+        if (categories == null) {
+            return;
+        }
+        Set<String> categoryIds = new HashSet<>();
+        for (CategoryTree category : categories) {
+            String uid = category.getUid().toString();
+            if (categoryIds.contains(uid)) {
+                LOGGER.warn("Duplicate category detected: {}", uid);
+            }
+            categoryIds.add(uid);
         }
     }
 }

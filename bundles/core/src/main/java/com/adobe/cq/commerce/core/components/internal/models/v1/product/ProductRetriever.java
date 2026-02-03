@@ -21,6 +21,7 @@ import com.adobe.cq.commerce.magento.graphql.BundleProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.GroupedProductQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQueryDefinition;
+import com.adobe.cq.commerce.magento.graphql.SwatchDataInterfaceQuery;
 
 class ProductRetriever extends AbstractProductRetriever {
 
@@ -38,6 +39,8 @@ class ProductRetriever extends AbstractProductRetriever {
                 .urlKey()
                 .stockStatus()
                 .color()
+                .specialPrice()
+                .specialToDate()
                 .priceRange(r -> r
                     .minimumPrice(generatePriceQuery()))
                 .mediaGallery(g -> g
@@ -61,11 +64,11 @@ class ProductRetriever extends AbstractProductRetriever {
     protected ProductInterfaceQueryDefinition generateProductQuery() {
         return q -> {
             q.sku()
+                .urlKey()
                 .name()
                 .description(d -> d.html())
                 .image(i -> i.label().url())
                 .thumbnail(t -> t.label().url())
-                .urlKey()
                 .stockStatus()
                 .metaDescription()
                 .metaKeyword()
@@ -89,7 +92,9 @@ class ProductRetriever extends AbstractProductRetriever {
                         .attributeCode()
                         .values(v -> v
                             .valueIndex()
-                            .label()))
+                            .label()
+                            .defaultLabel()
+                            .swatchData(SwatchDataInterfaceQuery::value)))
                     .variants(v -> v
                         .attributes(a -> a
                             .code()

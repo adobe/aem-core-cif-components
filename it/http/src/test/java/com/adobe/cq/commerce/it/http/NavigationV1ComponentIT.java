@@ -35,6 +35,6 @@ public class NavigationV1ComponentIT extends CommerceTestBase {
 
         // Check the number of elements in the navigation menu
         Elements elements = doc.select(NAVIGATION_SELECTOR + ".categoryTree__root > .categoryTree__tree > .cmp-navigation__item");
-        Assert.assertEquals(13, elements.size());
+        Assert.assertEquals(14, elements.size());
     }
 }

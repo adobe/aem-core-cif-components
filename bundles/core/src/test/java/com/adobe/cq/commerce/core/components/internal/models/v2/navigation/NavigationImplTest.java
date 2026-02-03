@@ -29,6 +29,7 @@ import org.mockito.Mockito;
 import com.adobe.cq.commerce.core.testing.MockPathProcessor;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.sightly.SightlyWCMMode;
+import com.adobe.cq.wcm.core.components.commons.link.Link;
 import com.adobe.cq.wcm.core.components.models.Navigation;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
 import com.adobe.cq.wcm.core.components.services.link.PathProcessor;
@@ -107,5 +108,24 @@ public class NavigationImplTest {
 
         Assert.assertNotNull(children);
         Assert.assertEquals(2, children.size());
+    }
+
+    @Test
+    public void testNavigationItemGetLink() {
+        Navigation navigation = context.request().adaptTo(Navigation.class);
+
+        Assert.assertNotNull(navigation);
+
+        List<NavigationItem> items = navigation.getItems();
+        Assert.assertNotNull(items);
+        Assert.assertEquals(1, items.size());
+
+        NavigationItem item = items.get(0);
+        Assert.assertNotNull(item);
+
+        // Verify that getLink() returns a non-null Link for page-based navigation items
+        Link link = item.getLink();
+        Assert.assertNotNull("getLink() should return a non-null Link for page-based navigation items", link);
+        Assert.assertEquals("/content/pageA/pageB.html", link.getURL());
     }
 }

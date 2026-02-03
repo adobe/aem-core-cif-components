@@ -36,20 +36,24 @@ import com.adobe.cq.commerce.core.search.models.SorterKey;
 public class SearchStorefrontContextImpl extends AbstractCommerceStorefrontContext implements SearchStorefrontContext {
 
     private final SearchOptions searchOptions;
+    private final String unitId;
+    private final String requestId;
 
-    public SearchStorefrontContextImpl(SearchOptions searchOptions, Resource resource) {
+    public SearchStorefrontContextImpl(SearchOptions searchOptions, String requestId, String unitId, Resource resource) {
         super(resource);
         this.searchOptions = searchOptions;
+        this.requestId = requestId;
+        this.unitId = unitId;
     }
 
     @Override
     public String getSearchUnitId() {
-        return StringUtils.EMPTY;
+        return unitId;
     }
 
     @Override
     public String getSearchRequestId() {
-        return StringUtils.EMPTY;
+        return requestId;
     }
 
     @Override
@@ -93,6 +97,7 @@ public class SearchStorefrontContextImpl extends AbstractCommerceStorefrontConte
                     return null;
                 }
 
+                // TODO: support ranges here, as we support them in the implementation. Currently a range will be treated as eq
                 @Override
                 public Range getRange() {
                     return null;

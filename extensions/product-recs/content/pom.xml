@@ -22,7 +22,7 @@
     <parent>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-parent</artifactId>
-        <version>2.8.1-SNAPSHOT</version>
+        <version>2.17.15-SNAPSHOT</version>
         <relativePath>../../../parent/pom.xml</relativePath>
     </parent>
 
@@ -124,26 +124,6 @@
                         </goals>
                         <configuration>
                             <arguments>run prettier:check</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm-webpack-development</id> <!-- webpack development mode -->
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${webpack.prod}</skip>
-                            <arguments>run webpack:dev</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm-webpack-production</id> <!-- webpack production mode -->
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${webpack.dev}</skip>
-                            <arguments>run webpack:prod</arguments>
                         </configuration>
                     </execution>
                 </executions>

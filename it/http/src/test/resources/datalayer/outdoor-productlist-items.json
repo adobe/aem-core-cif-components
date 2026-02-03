@@ -3,6 +3,7 @@
     "productlist-0186366f7c-item-d8f7aa6253": {
       "xdm:SKU": "24-MB02",
       "xdm:listPrice": 59.0,
+      "xdm:discountAmount": 0.0,
       "xdm:currencyCode": "USD",
       "@type": "core/cif/components/commerce/productlistitem",
       "dc:title": "Fusion Backpack"
@@ -12,6 +13,7 @@
     "productlist-0186366f7c-item-746a9ae1b7": {
       "xdm:SKU": "24-MG03",
       "xdm:listPrice": 54.0,
+      "xdm:discountAmount": 0.0,
       "xdm:currencyCode": "USD",
       "@type": "core/cif/components/commerce/productlistitem",
       "dc:title": "Summit Watch"
@@ -21,6 +23,7 @@
     "productlist-0186366f7c-item-e38fb02cec": {
       "xdm:SKU": "24-WG01",
       "xdm:listPrice": 49.0,
+      "xdm:discountAmount": 0.0,
       "xdm:currencyCode": "USD",
       "@type": "core/cif/components/commerce/productlistitem",
       "dc:title": "Bolo Sport Watch"
@@ -30,6 +33,7 @@
     "productlist-0186366f7c-item-500741b9f1": {
       "xdm:SKU": "MH01",
       "xdm:listPrice": 52.0,
+      "xdm:discountAmount": 0.0,
       "xdm:currencyCode": "USD",
       "@type": "core/cif/components/commerce/productlistitem",
       "dc:title": "Chaz Kangeroo Hoodie"
@@ -39,6 +43,7 @@
     "productlist-0186366f7c-item-9bd673acd2": {
       "xdm:SKU": "MH03",
       "xdm:listPrice": 63.0,
+      "xdm:discountAmount": 0.0,
       "xdm:currencyCode": "USD",
       "@type": "core/cif/components/commerce/productlistitem",
       "dc:title": "Bruno Compete Hoodie"
@@ -48,6 +53,7 @@
     "productlist-0186366f7c-item-bb9507166d": {
       "xdm:SKU": "WJ04",
       "xdm:listPrice": 84.0,
+      "xdm:discountAmount": 0.0,
       "xdm:currencyCode": "USD",
       "@type": "core/cif/components/commerce/productlistitem",
       "dc:title": "Ingrid Running Jacket"

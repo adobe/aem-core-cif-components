@@ -23,24 +23,48 @@ import com.adobe.cq.commerce.magento.graphql.FilterEqualTypeInput;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 
-class UrlToCategoryRetriever extends AbstractCategoryRetriever {
+abstract class UrlToCategoryRetriever extends AbstractCategoryRetriever {
 
-    UrlToCategoryRetriever(MagentoGraphqlClient client) {
+    private UrlToCategoryRetriever(MagentoGraphqlClient client) {
         super(client);
+    }
+
+    @Override
+    protected CategoryTreeQueryDefinition generateCategoryQuery() {
+        return q -> q.uid();
     }
 
     @Override
     public String generateQuery(String identifier) {
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
         return Operations.query(query -> {
-            CategoryFilterInput filter = new CategoryFilterInput().setUrlKey(new FilterEqualTypeInput().setEq(identifier));
+            CategoryFilterInput filter = generateCategoryFilterInput();
             QueryQuery.CategoryListArgumentsDefinition searchArgs = s -> s.filters(filter);
             query.categoryList(searchArgs, queryArgs);
         }).toString();
     }
 
-    @Override
-    protected CategoryTreeQueryDefinition generateCategoryQuery() {
-        return q -> q.uid();
+    protected abstract CategoryFilterInput generateCategoryFilterInput();
+
+    static class ByUrlKey extends UrlToCategoryRetriever {
+        ByUrlKey(MagentoGraphqlClient client) {
+            super(client);
+        }
+
+        @Override
+        protected CategoryFilterInput generateCategoryFilterInput() {
+            return new CategoryFilterInput().setUrlKey(new FilterEqualTypeInput().setEq(identifier));
+        }
+    }
+
+    static class ByUrlPath extends UrlToCategoryRetriever {
+        ByUrlPath(MagentoGraphqlClient client) {
+            super(client);
+        }
+
+        @Override
+        protected CategoryFilterInput generateCategoryFilterInput() {
+            return new CategoryFilterInput().setUrlPath(new FilterEqualTypeInput().setEq(identifier));
+        }
     }
 }

@@ -4,6 +4,7 @@
       "items": [
         {
           "__typename": "SimpleProduct",
+          "sku": "24-MG01",
           "upsell_products": [
             {
               "__typename": "SimpleProduct",

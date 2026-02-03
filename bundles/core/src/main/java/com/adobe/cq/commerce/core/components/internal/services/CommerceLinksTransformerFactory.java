@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.services;
 import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.rewriter.DefaultTransformer;
 import org.apache.sling.rewriter.ProcessingComponentConfiguration;
@@ -42,7 +43,6 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.day.cq.wcm.api.Page;
@@ -138,21 +138,19 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
             if (StringUtils.isNotBlank(productSku)) {
                 // if there is both product and category attribute on a link then product attribute is honored
                 Page currentPage = request.getResourceResolver().adaptTo(PageManager.class).getContainingPage(request.getResource());
-                Page productPage = SiteNavigation.getProductPage(currentPage);
                 if (replaceText) {
-                    linkInfo = prepareProductInfo(productSku, productPage);
+                    linkInfo = prepareProductInfo(productSku, currentPage);
                 } else {
-                    linkInfo = new LinkInfo(urlProvider.toProductUrl(request, productPage, productSku));
+                    linkInfo = new LinkInfo(urlProvider.toProductUrl(request, currentPage, productSku));
                 }
             } else {
-                String categoryUid = attributes.getValue(ATTR_CATEGORY_UID);
+                String categoryUid = StringEscapeUtils.unescapeHtml4(attributes.getValue(ATTR_CATEGORY_UID));
                 if (StringUtils.isNotBlank(categoryUid)) {
                     Page currentPage = request.getResourceResolver().adaptTo(PageManager.class).getContainingPage(request.getResource());
-                    Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
                     if (replaceText) {
-                        linkInfo = prepareCategoryInfo(categoryUid, categoryPage);
+                        linkInfo = prepareCategoryInfo(categoryUid, currentPage);
                     } else {
-                        linkInfo = new LinkInfo(urlProvider.toCategoryUrl(request, categoryPage, categoryUid));
+                        linkInfo = new LinkInfo(urlProvider.toCategoryUrl(request, currentPage, categoryUid));
                     }
                 }
             }

@@ -15,9 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.searchresults;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import com.adobe.cq.commerce.core.components.models.productcollection.ProductCollection;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchResultsStorefrontContext;
 import com.adobe.cq.commerce.core.components.storefrontcontext.SearchStorefrontContext;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
+import com.adobe.cq.commerce.magento.graphql.ProductInterfaceQuery;
 
 /**
  * Don't forget the comment
@@ -37,4 +42,53 @@ public interface SearchResults extends ProductCollection {
      * @return search results context
      */
     SearchResultsStorefrontContext getSearchResultsStorefrontContext();
+
+    /**
+     * Extend the product query part of the search GraphQL query with a partial query provided by a lambda hook that sets additional
+     * fields.
+     *
+     * Example:
+     *
+     * <pre>
+     * {@code
+     * searchResults.extendProductQueryWith(p -> p
+     *     .createdAt()
+     *     .addCustomSimpleField("is_returnable"));
+     * }
+     * </pre>
+     *
+     * If called multiple times, each hook will be "appended" to the previously registered hook(s).
+     *
+     * @param productQueryHook Lambda that extends the product query
+     */
+    void extendProductQueryWith(Consumer<ProductInterfaceQuery> productQueryHook);
+
+    /**
+     * Extends or replaces the product attribute filter with a custom instance defined by a lambda hook.
+     *
+     * Example 1 (Extend):
+     *
+     * <pre>
+     * {@code
+     * searchResults.extendProductFilterWith(f -> f
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * Example 2 (Replace):
+     *
+     * <pre>
+     * {@code
+     * searchResults.extendProductFilterWith(f -> new ProductAttributeFilterInput()
+     *     .setSku(new FilterEqualTypeInput()
+     *         .setEq("custom-sku"))
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * @param productAttributeFilterHook Lambda that extends or replaces the product attribute filter.
+     */
+    void extendProductFilterWith(Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook);
 }

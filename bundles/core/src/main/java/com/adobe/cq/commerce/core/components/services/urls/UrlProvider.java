@@ -17,12 +17,16 @@ package com.adobe.cq.commerce.core.components.services.urls;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import javax.annotation.Nullable;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.osgi.annotation.versioning.ProviderType;
 
+import com.adobe.cq.commerce.magento.graphql.CategoryFilterInput;
+import com.adobe.cq.commerce.magento.graphql.ProductAttributeFilterInput;
 import com.day.cq.wcm.api.Page;
 
 @ProviderType
@@ -88,7 +92,7 @@ public interface UrlProvider {
      * Either {@code request} or {@code page} parameter can be
      * <code>null</code> but not both.
      * If both are null an {@link IllegalArgumentException} is thrown.
-     * 
+     *
      * @param request The current Sling HTTP request.
      * @param page This parameter can be null if the URL template does set a
      *            {{page}} parameter and a request is given.
@@ -112,7 +116,7 @@ public interface UrlProvider {
      * Either {@code request} or {@code page} parameter can be
      * <code>null</code> but not both.
      * If both are null an {@link IllegalArgumentException} is thrown.
-     * 
+     *
      * @param request The current Sling HTTP request.
      * @param page This parameter can be null if the URL template does set a
      *            {{page}} parameter and a request is given.
@@ -182,8 +186,33 @@ public interface UrlProvider {
      *            {{page}} parameter and a request is given.
      * @param params The parameters used in the URL template.
      * @return The category URL.
+     * @deprecated use
+     *             {@link UrlProvider#formatCategoryUrl(SlingHttpServletRequest, Page, CategoryUrlFormat.Params)}
+     *             instead
      */
+    @Deprecated
     String toCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, CategoryUrlFormat.Params params);
+
+    /**
+     * Returns the category page URL. If the required attributes are not available
+     * then need to provide necessary attribute to call commerce service
+     * in order to create category url
+     * {@code params} parameter.
+     * <p>
+     * This method should be used if the component already loaded the URL
+     * attributes.
+     * <p>
+     * Either {@code request} or {@code page} parameter can be
+     * <code>null</code> but not both.
+     * If both are null an {@link IllegalArgumentException} is thrown.
+     *
+     * @param request The current Sling HTTP request.
+     * @param page This parameter can be null if the URL template does set a
+     *            {{page}} parameter and a request is given.
+     * @param params The parameters used in the URL template.
+     * @return The category URL.
+     */
+    String formatCategoryUrl(@Nullable SlingHttpServletRequest request, @Nullable Page page, CategoryUrlFormat.Params params);
 
     /**
      * Returns the category page URL. Only the category identifier must be provided,
@@ -215,6 +244,19 @@ public interface UrlProvider {
     String getProductIdentifier(SlingHttpServletRequest request);
 
     /**
+     * Returns a hook that replaces a given {@link ProductAttributeFilterInput} with a new instance constructed from the identifiers
+     * available by the given request.
+     * <p>
+     * The hook can be passed to
+     * {@link com.adobe.cq.commerce.core.components.models.retriever.AbstractProductRetriever#extendProductFilterWith(Function)} or
+     * {@link com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever#extendProductFilterWith(Function)}.
+     *
+     * @param request the current request
+     * @return a unary operator that excepts a {@link ProductAttributeFilterInput} and returns a new instance to replace it
+     */
+    UnaryOperator<ProductAttributeFilterInput> getProductFilterHook(SlingHttpServletRequest request);
+
+    /**
      * Parses and returns the {@link ProductUrlFormat.Params} used in the given {@link SlingHttpServletRequest} based on the URLProvider
      * configuration for product page URLs.
      *
@@ -230,6 +272,19 @@ public interface UrlProvider {
      * @return The category uid identifier.
      */
     String getCategoryIdentifier(SlingHttpServletRequest request);
+
+    /**
+     * Returns a hook that replaces a given {@link CategoryFilterInput} with a new instance constructed from the identifiers available by
+     * the given request.
+     * <p>
+     * The hook can be passed to
+     * {@link com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever#extendCategoryFilterWith(Function)} or
+     * {@link com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoriesRetriever#extendCategoryFilterWith(Function)}.
+     *
+     * @param request the current request
+     * @return a unary operator that excepts a {@link ProductAttributeFilterInput} and returns a new instance to replace it
+     */
+    UnaryOperator<CategoryFilterInput> getCategoryFilterHook(SlingHttpServletRequest request);
 
     /**
      * Parses and returns the {@link CategoryUrlFormat.Params} used in the given Sling HTTP request based on the URLProvider configuration

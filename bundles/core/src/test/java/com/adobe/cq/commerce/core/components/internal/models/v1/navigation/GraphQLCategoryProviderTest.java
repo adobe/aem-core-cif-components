@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.navigation;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -83,15 +84,18 @@ public class GraphQLCategoryProviderTest {
     @Before
     public void setup() throws IOException {
         graphqlClient = new GraphqlClientImpl();
-        context.registerInjectActivateService(graphqlClient);
-        Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-navigation-result.json");
+        Utils.registerGraphqlClient(context, graphqlClient, null);
+        Utils.addHttpResponseFrom(
+            graphqlClient,
+            "graphql/magento-graphql-navigation-result.json",
+            "{categoryList(filters:{category_uid:{eq:\"Mg==\"}}){", "{categoryList(filters:{url_path:{eq:\"test\"}}){");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> graphqlClient);
     }
 
     @Test
     public void testMissingMagentoGraphqlClient() {
         GraphQLCategoryProvider categoryProvider = new GraphQLCategoryProvider(null);
-        Assert.assertTrue(categoryProvider.getChildCategories("Mg==", 10).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategoriesByUid("Mg==", 10).isEmpty());
     }
 
     @Test
@@ -103,7 +107,7 @@ public class GraphQLCategoryProviderTest {
         error.setMessage("foobar");
         errorResp.setErrors(Collections.singletonList(error));
         when(magentoGraphqlClient.execute(anyString())).thenReturn(errorResp);
-        Assert.assertTrue(categoryProvider.getChildCategories("Mg==", 10).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategoriesByUid("Mg==", 10).isEmpty());
     }
 
     @Test
@@ -122,16 +126,16 @@ public class GraphQLCategoryProviderTest {
         // test category not found
         when(graphqlClient.execute(anyString())).thenReturn(response);
         when(response.getData()).thenReturn(rootQuery);
-        Assert.assertTrue(categoryProvider.getChildCategories("not-existing", 10).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategoriesByUid("not-existing", 10).isEmpty());
 
         // test category found but null
         when(rootQuery.getCategoryList()).thenReturn(list);
         when(rootQuery.getCategoryList().get(0)).thenReturn(null);
-        Assert.assertTrue(categoryProvider.getChildCategories("-10", 10).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategoriesByUid("-10", 10).isEmpty());
 
         // test category children not found
         when(rootQuery.getCategoryList().get(0)).thenReturn(category);
-        Assert.assertTrue(categoryProvider.getChildCategories("13", 10).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategoriesByUid("13", 10).isEmpty());
     }
 
     @Test
@@ -147,29 +151,32 @@ public class GraphQLCategoryProviderTest {
             new MagentoGraphqlClientImpl(page.getContentResource(), null, null));
 
         // Test null categoryId
-        Assert.assertTrue(categoryProvider.getChildCategories(null, 5).isEmpty());
+        Assert.assertTrue(categoryProvider.getChildCategoriesByUid(null, 5).isEmpty());
 
-        // Test category children found
-        List<CategoryTree> categories = categoryProvider.getChildCategories("Mg==", 5);
-        Assert.assertEquals(6, categories.size());
-        Assert.assertEquals(categories.stream().sorted(Comparator.comparing(CategoryTree::getPosition)).collect(Collectors.toList()),
-            categories);
+        // Test category children found when searched by uid or url_path
+        List<CategoryTree> categoriesByUid = categoryProvider.getChildCategoriesByUid("Mg==", 5);
+        List<CategoryTree> categoriesByUrlPath = categoryProvider.getChildCategoriesByUrlPath("test", 5);
 
-        CategoryTree women = categories.get(1);
-        Assert.assertNotNull(women);
-        Assert.assertEquals("Women", women.getName());
-        List<CategoryTree> womenChildren = women.getChildren();
-        Assert.assertNotNull(womenChildren);
-        Assert.assertEquals(2, womenChildren.size());
-        CategoryTree tops = womenChildren.get(0);
-        Assert.assertNotNull(tops);
-        Assert.assertEquals("Tops", tops.getName());
-        List<CategoryTree> topsChildren = tops.getChildren();
-        Assert.assertNotNull(topsChildren);
-        Assert.assertEquals(3, topsChildren.size());
-        Assert.assertEquals(topsChildren.stream().sorted(Comparator.comparing(CategoryTree::getPosition)).collect(Collectors.toList()),
-            topsChildren);
+        for (List<CategoryTree> categories : Arrays.asList(categoriesByUid, categoriesByUrlPath)) {
+            Assert.assertEquals(6, categories.size());
+            Assert.assertEquals(categories.stream().sorted(Comparator.comparing(CategoryTree::getPosition)).collect(Collectors.toList()),
+                categories);
 
+            CategoryTree women = categories.get(1);
+            Assert.assertNotNull(women);
+            Assert.assertEquals("Women", women.getName());
+            List<CategoryTree> womenChildren = women.getChildren();
+            Assert.assertNotNull(womenChildren);
+            Assert.assertEquals(2, womenChildren.size());
+            CategoryTree tops = womenChildren.get(0);
+            Assert.assertNotNull(tops);
+            Assert.assertEquals("Tops", tops.getName());
+            List<CategoryTree> topsChildren = tops.getChildren();
+            Assert.assertNotNull(topsChildren);
+            Assert.assertEquals(3, topsChildren.size());
+            Assert.assertEquals(topsChildren.stream().sorted(Comparator.comparing(CategoryTree::getPosition)).collect(Collectors.toList()),
+                topsChildren);
+        }
     }
 
     @Test

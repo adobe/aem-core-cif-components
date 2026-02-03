@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -35,6 +36,7 @@ import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.QueryQuery;
 import com.adobe.cq.commerce.magento.graphql.SimpleProductQuery;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
+import com.shopify.graphql.support.Input;
 
 /**
  * Abstract implementation of product retriever that loads product data using GraphQL.
@@ -50,6 +52,11 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
      * Lambda that extends the product variant query.
      */
     protected Consumer<SimpleProductQuery> variantQueryHook;
+
+    /**
+     * Lambda that allows to replace or extend the product attribute filters.
+     */
+    protected Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook;
 
     /**
      * Product instance. Is only available after populate() was called.
@@ -139,16 +146,58 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     }
 
     /**
+     * Extends or replaces the product attribute filter with a custom instance defined by a lambda hook.
+     *
+     * Example 1 (Extend):
+     *
+     * <pre>
+     * {@code
+     * productRetriever.extendProductFilterWith(f -> f
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * Example 2 (Replace):
+     *
+     * <pre>
+     * {@code
+     * productRetriever.extendProductFilterWith(f -> new ProductAttributeFilterInput()
+     *     .setSku(new FilterEqualTypeInput()
+     *         .setEq("custom-sku"))
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * @param productAttributeFilterHook Lambda that extends or replaces the product attribute filter.
+     */
+    public void extendProductFilterWith(Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook) {
+        if (this.productAttributeFilterHook == null) {
+            this.productAttributeFilterHook = productAttributeFilterHook;
+        } else {
+            this.productAttributeFilterHook = this.productAttributeFilterHook.andThen(productAttributeFilterHook);
+        }
+    }
+
+    /**
      * Generate a complete product GraphQL query with a filter for the given product identifier.
      *
      * @param identifier Product identifier, usually SKU or slug
      * @return GraphQL query as string
      */
     protected String generateQuery(String identifier) {
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
         FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
-        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(identifierFilter);
+        filter.setSkuInput(Input.optional(identifierFilter));
 
-        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+        // Apply product attribute filter hook
+        if (this.productAttributeFilterHook != null) {
+            filter = this.productAttributeFilterHook.apply(filter);
+        }
+
+        ProductAttributeFilterInput finalFilter = filter;
+        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(finalFilter);
 
         ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
         return Operations.query(query -> query
@@ -184,7 +233,8 @@ public abstract class AbstractProductRetriever extends AbstractRetriever {
     protected void populate() {
         // Get product list from response
         GraphqlResponse<Query, Error> response = executeQuery();
-        if (CollectionUtils.isEmpty(response.getErrors())) {
+        errors = response.getErrors();
+        if (CollectionUtils.isEmpty(errors)) {
             Query rootQuery = response.getData();
             List<ProductInterface> products = rootQuery.getProducts().getItems();
 

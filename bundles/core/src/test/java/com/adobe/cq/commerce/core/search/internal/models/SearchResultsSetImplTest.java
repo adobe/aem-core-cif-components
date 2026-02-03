@@ -28,6 +28,7 @@ import org.junit.Test;
 
 import com.adobe.cq.commerce.core.search.models.Pager;
 import com.adobe.cq.commerce.core.search.models.SearchAggregation;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -109,5 +110,15 @@ public class SearchResultsSetImplTest {
     @Test
     public void testSearchResultsSetHasAggregations() {
         Assert.assertTrue(modelUnderTest.hasAggregations());
+    }
+
+    @Test
+    public void testGetErrors() {
+        Assert.assertTrue(modelUnderTest.getErrors().isEmpty());
+        Assert.assertFalse(modelUnderTest.hasErrors());
+
+        modelUnderTest.setErrors(Arrays.asList(new Error(), new Error()));
+        Assert.assertEquals(2, modelUnderTest.getErrors().size());
+        Assert.assertTrue(modelUnderTest.hasErrors());
     }
 }

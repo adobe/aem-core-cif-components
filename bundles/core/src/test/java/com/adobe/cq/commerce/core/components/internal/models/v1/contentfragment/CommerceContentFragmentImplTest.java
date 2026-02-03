@@ -38,6 +38,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.adobe.cq.cif.common.associatedcontent.AssociatedContentQuery;
+import com.adobe.cq.cif.common.associatedcontent.AssociatedContentService;
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl;
 import com.adobe.cq.commerce.core.components.models.contentfragment.CommerceContentFragment;
@@ -47,15 +49,13 @@ import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.dam.cfm.ContentElement;
+import com.adobe.cq.dam.cfm.ContentFragment;
 import com.adobe.cq.dam.cfm.DataType;
 import com.adobe.cq.dam.cfm.FragmentData;
 import com.adobe.cq.dam.cfm.content.FragmentRenderService;
 import com.adobe.cq.dam.cfm.converter.ContentTypeConverter;
 import com.adobe.cq.sightly.SightlyWCMMode;
 import com.adobe.cq.wcm.core.components.testing.MockLanguageManager;
-import com.day.cq.search.Query;
-import com.day.cq.search.QueryBuilder;
-import com.day.cq.search.result.SearchResult;
 import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Style;
@@ -67,6 +67,7 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -97,6 +98,7 @@ public class CommerceContentFragmentImplTest {
     private List<ContentElement> contentFragmentElements = new ArrayList<>();
     private CloseableHttpClient httpClient;
     private FragmentRenderService renderService;
+    private AssociatedContentService associatedContentService;
 
     @Before
     public void setup() throws Exception {
@@ -108,14 +110,17 @@ public class CommerceContentFragmentImplTest {
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         GraphqlClient graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        Utils.registerGraphqlClient(context, graphqlClient, null);
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 
         Utils.setupHttpResponse("graphql/magento-graphql-product-sku.json", httpClient, HttpStatus.SC_OK, "{products(filter:{url_key");
         Utils.setupHttpResponse("graphql/magento-graphql-cf-category.json", httpClient, HttpStatus.SC_OK, "url_key\"}}){uid}}");
         Utils.setupHttpResponse("graphql/magento-graphql-category-uid.json", httpClient, HttpStatus.SC_OK,
-            "{categoryList(filters:{url_key");
+            "{categoryList(filters:{url_path");
+
+        associatedContentService = mock(AssociatedContentService.class);
+        context.registerService(AssociatedContentService.class, associatedContentService);
 
         prepareContentFragment(resourceResolver);
 
@@ -144,27 +149,27 @@ public class CommerceContentFragmentImplTest {
     }
 
     private void prepareContentFragment(ResourceResolver resourceResolver) {
-        QueryBuilder queryBuilder = Mockito.mock(QueryBuilder.class);
-        Mockito.doReturn(queryBuilder).when(resourceResolver).adaptTo(Mockito.eq(QueryBuilder.class));
+        AssociatedContentQuery<ContentFragment> query = mock(AssociatedContentQuery.class);
+        when(query.withLimit(anyLong())).thenReturn(query);
+        when(associatedContentService.listProductContentFragments(any(), any())).thenReturn(query);
+        when(associatedContentService.listCategoryContentFragments(any(), any())).thenReturn(query);
 
-        Query query = mock(Query.class);
-        when(queryBuilder.createQuery(any(), any())).thenReturn(query);
-        SearchResult searchResult = mock(SearchResult.class);
-        when(query.getResult()).thenReturn(searchResult);
-        when(searchResult.getTotalMatches()).thenReturn(1L);
-        List<Resource> resources = new ArrayList<>();
-        Resource res = mock(Resource.class);
-        resources.add(res);
-        when(searchResult.getResources()).thenReturn(resources.iterator());
-        when(res.getPath()).thenReturn("/content/cf");
-        when(resourceResolver.getResource(res.getPath())).thenReturn(res);
-        com.adobe.cq.dam.cfm.ContentFragment cf = mock(com.adobe.cq.dam.cfm.ContentFragment.class);
+        List<ContentFragment> contentFragments = new ArrayList<>();
+        ContentFragment cf = mock(ContentFragment.class);
         when(cf.getName()).thenReturn("name");
         when(cf.getDescription()).thenReturn("description");
         when(cf.getTitle()).thenReturn("title");
         when(cf.getElements()).thenAnswer(inv -> contentFragmentElements.iterator());
         when(cf.getAssociatedContent()).thenReturn(Collections.emptyIterator());
+
+        Resource res = mock(Resource.class);
+        when(res.getPath()).thenReturn("/content/cf");
         when(res.adaptTo(com.adobe.cq.dam.cfm.ContentFragment.class)).thenReturn(cf);
+        when(resourceResolver.getResource(res.getPath())).thenReturn(res);
+
+        when(cf.adaptTo(Resource.class)).thenReturn(res);
+        contentFragments.add(cf);
+        when(query.execute()).thenReturn(contentFragments.iterator());
 
         // prepare model
         Resource model = mock(Resource.class);
@@ -264,7 +269,7 @@ public class CommerceContentFragmentImplTest {
         Assert.assertTrue(StringUtils.isBlank(contentFragment.getType()));
         Assert.assertEquals(CommerceContentFragmentImpl.RESOURCE_TYPE, contentFragment.getExportedType());
         Assert.assertEquals("dam/cfm/components/grid", contentFragment.getGridResourceType());
-        Assert.assertEquals("{\"title\":\"title\"}", contentFragment.getEditorJSON());
+        Assert.assertEquals("{\"title\":\"title\",\"path\":\"/content/cf\"}", contentFragment.getEditorJSON());
         Assert.assertTrue(contentFragment.getElements().isEmpty());
         Assert.assertTrue(contentFragment.getExportedItems().isEmpty());
         Assert.assertEquals(0, contentFragment.getExportedItemsOrder().length);

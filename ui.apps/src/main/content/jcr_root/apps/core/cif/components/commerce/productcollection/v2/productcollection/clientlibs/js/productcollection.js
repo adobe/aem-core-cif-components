@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
+import ProductCollectionActions from './actions';
+
 class ProductCollection {
     constructor(config) {
         this._element = config.element;
@@ -53,7 +55,7 @@ class ProductCollection {
             prices: {},
 
             // Load prices on the client-side
-            loadPrices: this._element.dataset.loadClientPrice !== undefined
+            loadPrices: window.CIF.enableClientSidePriceLoading || this._element.dataset.loadClientPrice !== undefined
         };
 
         // Intl.NumberFormat instance for formatting prices
@@ -67,45 +69,11 @@ class ProductCollection {
         this._state.loadPrices && this._fetchPrices();
     }
 
-    /**
-     * Convert given GraphQL PriceRange object into data structure as defined by the sling model.
-     */
-    _convertPriceToRange(range) {
-        let price = {};
-        price.currency = range.minimum_price.final_price.currency;
-        price.regularPrice = range.minimum_price.regular_price.value;
-        price.finalPrice = range.minimum_price.final_price.value;
-        price.discountAmount = range.minimum_price.discount.amount_off;
-        price.discountPercent = range.minimum_price.discount.percent_off;
-
-        if (range.maximum_price) {
-            price.regularPriceMax = range.maximum_price.regular_price.value;
-            price.finalPriceMax = range.maximum_price.final_price.value;
-            price.discountAmountMax = range.maximum_price.discount.amount_off;
-            price.discountPercentMax = range.maximum_price.discount.percent_off;
-        }
-
-        price.discounted = !!(price.discountAmount && price.discountAmount > 0);
-        price.range = !!(
-            price.finalPrice &&
-            price.finalPriceMax &&
-            Math.round(price.finalPrice * 100) != Math.round(price.finalPriceMax * 100)
-        );
-
-        price.isStartPrice = range.__typename == 'GroupedProduct';
-
-        return price;
-    }
-
     _fetchPrices() {
         // Retrieve current prices
         if (!window.CIF || !window.CIF.CommerceGraphqlApi) return;
-        return window.CIF.CommerceGraphqlApi.getProductPrices(this._state.skus, false)
-            .then(prices => {
-                let convertedPrices = {};
-                for (let key in prices) {
-                    convertedPrices[key] = this._convertPriceToRange(prices[key]);
-                }
+        return window.CIF.CommerceGraphqlApi.getProductPriceModels(this._state.skus, false)
+            .then(convertedPrices => {
                 this._state.prices = convertedPrices;
 
                 // Update prices
@@ -119,56 +87,17 @@ class ProductCollection {
     _updatePrices() {
         this._element.querySelectorAll(ProductCollection.selectors.item).forEach(item => {
             if (!(item.dataset.sku in this._state.prices)) return;
-
             const price = this._state.prices[item.dataset.sku];
 
-            let innerHTML = '';
-            if (!price.range) {
-                if (price.discounted) {
-                    innerHTML += `<span class="regularPrice">${this._formatter.formatPrice({
-                        value: price.regularPrice,
-                        currency: price.currency
-                    })}</span>
-                        <span class="discountedPrice">${this._formatter.formatPrice({
-                            value: price.finalPrice,
-                            currency: price.currency
-                        })}</span>`;
-                } else {
-                    let prefix = price.isStartPrice ? this._formatter.get('Starting at') + ' ' : '';
-                    innerHTML += `<span>${prefix}${this._formatter.formatPrice({
-                        value: price.regularPrice,
-                        currency: price.currency
-                    })}</span>`;
-                }
-            } else {
-                let from = this._formatter.get('From');
-                let to = this._formatter.get('To');
-                if (price.discounted) {
-                    innerHTML += `<span class="regularPrice">${from} ${this._formatter.formatPrice({
-                        value: price.regularPrice,
-                        currency: price.currency
-                    })} ${to} ${this._formatter.formatPrice({
-                        value: price.regularPriceMax,
-                        currency: price.currency
-                    })}</span>
-                        <span class="discountedPrice">${from} ${this._formatter.formatPrice({
-                        value: price.finalPrice,
-                        currency: price.currency
-                    })} ${to} ${this._formatter.formatPrice({
-                        value: price.finalPriceMax,
-                        currency: price.currency
-                    })}</span>`;
-                } else {
-                    innerHTML += `<span>${from} ${this._formatter.formatPrice({
-                        value: price.regularPrice,
-                        currency: price.currency
-                    })} ${to} ${this._formatter.formatPrice({
-                        value: price.regularPriceMax,
-                        currency: price.currency
-                    })}</span>`;
-                }
+            // Only update if prices are available and not null
+            if (!price || !price.regularPrice || !price.finalPrice) {
+                return;
             }
 
+            const innerHTML = this._formatter.formatPriceAsHtml(price, {
+                showDiscountPercentage: false,
+                showStartingAt: true
+            });
             item.querySelector(ProductCollection.selectors.price).innerHTML = innerHTML;
         });
     }
@@ -202,9 +131,14 @@ class ProductCollection {
 
         // Parse response and only select product items
         let text = await response.text();
-        let domParser = new DOMParser();
-        let more = domParser.parseFromString(text, 'text/html');
-        let moreItems = more.querySelectorAll(ProductCollection.selectors.item);
+        let more = document.createRange().createContextualFragment(text);
+
+        // install addToCart and addToWishList actions on new items
+        new ProductCollectionActions(more);
+
+        let moreItems = more.querySelectorAll(
+            ProductCollection.selectors.item + ', ' + ProductCollection.selectors.xfitem
+        );
 
         // Append new product items to existing product gallery
         let galleryItems = this._element.querySelector(ProductCollection.selectors.galleryItems);
@@ -229,6 +163,7 @@ ProductCollection.selectors = {
     self: '[data-cmp-is=productcollection]',
     price: '.price',
     item: '.productcollection__item[role=product]',
+    xfitem: '.productcollection__item-xf',
     sortKey: '.productcollection__sort-keys',
     galleryItems: '.productcollection__items',
     loadMoreButton: '.productcollection__loadmore-button',
@@ -239,14 +174,16 @@ ProductCollection.selectors = {
 (function(document) {
     function onDocumentReady() {
         // Initialize product collection component
-        const productCollectionCmp = document.querySelector(ProductCollection.selectors.self);
-        if (productCollectionCmp) new ProductCollection({ element: productCollectionCmp });
+        const productCollectionCmps = document.querySelectorAll(ProductCollection.selectors.self);
+        for (let productCollectionCmp of productCollectionCmps) {
+            new ProductCollection({ element: productCollectionCmp });
+        }
     }
 
-    if (document.readyState !== 'loading') {
+    if (window.CIF) {
         onDocumentReady();
     } else {
-        document.addEventListener('DOMContentLoaded', onDocumentReady);
+        document.addEventListener('aem.cif.clientlib-initialized', onDocumentReady);
     }
 })(window.document);
 

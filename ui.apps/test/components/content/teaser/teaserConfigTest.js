@@ -17,11 +17,13 @@
 
 import TeaserConfigV1 from '../../../../src/main/content/jcr_root/apps/core/cif/components/content/teaser/v1/teaser/clientlib/editor/js/teaser';
 import TeaserConfigV2 from '../../../../src/main/content/jcr_root/apps/core/cif/components/content/teaser/v2/teaser/clientlib/editor/js/teaser';
+import TeaserConfigV3 from '../../../../src/main/content/jcr_root/apps/core/cif/components/content/teaser/v3/teaser/clientlib/editor/js/teaser';
 import jQuery from '../../../clientlibs/common/jQueryMockForTest';
 
 [
     ['TeaserConfig v1', TeaserConfigV1],
-    ['TeaserConfig v2', TeaserConfigV2]
+    ['TeaserConfig v2', TeaserConfigV2],
+    ['TeaserConfig v3', TeaserConfigV3]
 ].forEach(([name, TeaserConfig]) =>
     describe(name, () => {
         var body;
@@ -204,6 +206,24 @@ import jQuery from '../../../clientlibs/common/jQueryMockForTest';
                                                         </coral-taglist>
                                                         <input class="foundation-field-related" type="hidden"
                                                                name="./actions/item0/link@Delete"></foundation-autocomplete>
+                                                </div>
+                                                <div class="coral-Form-fieldwrapper coral-Form-fieldwrapper--singleline">
+                                                    <coral-checkbox class="cmp-teaser__editor-actionField-linkTarget coral-Form-field _coral-Checkbox" data-cmp-teaser-v2-dialog-edit-hook="actionTarget" name="./actions/item0/./linkTarget" value="_blank" labelledby="description_866fc36e-46a1-4923-9f15-15a46e861631" data-foundation-validation="" data-validation="">
+                                                        <input type="checkbox" handle="input" class=" _coral-Checkbox-input" id="coral-id-577" aria-labelledby="description_866fc36e-46a1-4923-9f15-15a46e861631" name="./actions/item0/./linkTarget" value="_blank">
+                                                        <span class=" _coral-Checkbox-box" handle="checkbox"></span>
+                                                        <label class=" _coral-Checkbox-label" handle="labelWrapper" for="coral-id-577" style="margin: 0px;">
+                                                            <span class=" u-coral-screenReaderOnly" handle="screenReaderOnly" hidden="">Select</span>
+                                                            <coral-checkbox-label></coral-checkbox-label>
+                                                        </label>
+                                                    </coral-checkbox>
+                                                    <input class="foundation-field-related" type="hidden" name="./actions/item0/./linkTarget@Delete">
+                                                    <input class="foundation-field-related" type="hidden" value="_self" name="./actions/item0/./linkTarget@DefaultValue">
+                                                    <input class="foundation-field-related" type="hidden" value="true" name="./actions/item0/./linkTarget@UseDefaultWhenMissing">
+                                                    <coral-icon class="coral-Form-fieldinfo _coral-Icon _coral-Icon--sizeS" icon="infoCircle" tabindex="0" aria-describedby="description_866fc36e-46a1-4923-9f15-15a46e861631" alt="description" role="img" aria-label="description" size="S"></coral-icon>
+                                                    <coral-tooltip target="_prev" placement="right" id="description_866fc36e-46a1-4923-9f15-15a46e861631" x-placement="left" x-out-of-boundaries="" class="_coral-Overlay _coral-Tooltip _coral-Tooltip--default _coral-Tooltip--left" role="tooltip" tabindex="-1" variant="default">                                                                
+                                                        <span class=" _coral-Tooltip-tip" handle="tip"></span>
+                                                        <coral-tooltip-content class="_coral-Tooltip-label">If checked the link will be opened in a new browser tab.</coral-tooltip-content>
+                                                    </coral-tooltip>
                                                 </div>                                            
                                                 <div class="coral-Form-fieldwrapper">
                                                     <label class="coral-Form-fieldlabel">Product</label>
@@ -332,13 +352,13 @@ import jQuery from '../../../clientlibs/common/jQueryMockForTest';
                                                     </foundation-autocomplete>
                                                 </div>
                                                 <div class="coral-Form-fieldwrapper">
-                                                    <label class="coral-Form-fieldlabel">Link Text
-                                                    *</label>
-                                                        <input
-                                                            class="coral-Form-field cmp-teaser__editor-actionField coral3-Textfield"
-                                                            data-cmp-teaser-v1-dialog-edit-hook="actionTitle" data-foundation-validation=""
-                                                            data-validation="" is="coral-textfield" name="./actions/item0/text"
-                                                            placeholder="Text" type="text" value="">
+                                                    <label class="coral-Form-fieldlabel">Link Text *</label>
+                                                    <input
+                                                        class="coral-Form-field cmp-teaser__editor-actionField coral3-Textfield"
+                                                        data-cmp-teaser-v1-dialog-edit-hook="actionTitle" data-foundation-validation=""                                                        
+                                                        data-validation="" is="coral-textfield" 
+                                                        data-cmp-teaser-v2-dialog-edit-hook="actionTitle" name="./actions/item0/text"
+                                                        placeholder="Text" type="text" value="">
                                                 </div>
                                             </div>
                                         </coral-multifield-item-content>

@@ -4,6 +4,7 @@
       {
         "name": "Equipment",
         "url_path": "equipment",
+        "url_key": "equipment",
         "position": 1,
         "image": "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg",
         "uid": "uid-5"
@@ -11,6 +12,7 @@
       {
         "name": "Running",
         "url_path": "equipment/running",
+        "url_key": "running",
         "position": 1,
         "image": null,
         "uid": "uid-6"
@@ -18,6 +20,7 @@
       {
         "name": "Bike",
         "url_path": "equipment/bike",
+        "url_key": "bike",
         "position": 1,
         "image": "https://test-url.magentosite.cloud/media/catalog/category/500_F_4437974_DbE4NRiaoRtUeivMyfPoXZFNdCnYmjPq_1.jpg",
         "uid": "uid-7"

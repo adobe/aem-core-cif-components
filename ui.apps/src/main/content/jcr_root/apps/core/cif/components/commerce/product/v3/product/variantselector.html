@@ -14,18 +14,23 @@
   ~ limitations under the License.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/-->
 <template data-sly-template.variants="${ @ product}">
+    <h2 class="productFullDetail__areaTitle">
+        <span>${'Variants' @ i18n}</span>
+    </h2>
     <sly data-sly-list.variantAttribute="${product.variantAttributes}">
+        <sly data-sly-test.isColorOption="${variantAttribute.values[0].swatchType && variantAttribute.values[0].swatchType == 'COLOR'}"></sly>
         <div class="option__root">
             <h3 class="option__title"><span>${variantAttribute.label}</span></h3>
             <div
-                data-sly-test.isColor="${variantAttribute.label == 'Color'}"
+                data-sly-test.isColor="${isColorOption || variantAttribute.label == 'Color'}"
                 data-id="${variantAttribute.id}"
                 class="swatchList__root tileList__root"
             >
                 <sly data-sly-list.variantValue="${variantAttribute.values}">
                     <button
-                        class="swatch__root tile__root clickable__root"
+                        class="${'swatch__root clickable__root tile__root tile__root--{0}' @ format=[variantValue.cssClassModifier], context='text'}"
                         title="${variantValue.label}"
+                        data-title="${variantValue.label}"
                         data-id="${variantValue.uid}"
                         style="${'background-color: {0};' @ format=[variantValue.label], context='styleString'}"
                     ></button>
@@ -33,7 +38,11 @@
             </div>
             <div class="tileList__root" data-sly-test="${!isColor}" data-id="${variantAttribute.id}">
                 <sly data-sly-list.variantValue="${variantAttribute.values}">
-                    <button class="tile__root clickable__root" data-id="${variantValue.uid}">
+                    <button 
+                        class="${'clickable__root tile__root tile__root--{0}' @ format=[variantValue.cssClassModifier], context='text'}" 
+                        data-id="${variantValue.uid}"
+                        data-title="${variantValue.label}"
+                    >
                         <span>${variantValue.label}</span>
                     </button>
                 </sly>

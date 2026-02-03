@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -47,6 +48,11 @@ public abstract class AbstractProductsRetriever extends AbstractRetriever {
      * Lambda that extends the product variant query.
      */
     protected Consumer<SimpleProductQuery> variantQueryHook;
+
+    /**
+     * Lambda that allows to replace or extend the product attribute filters.
+     */
+    protected Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook;
 
     /**
      * List of product instances. Is only available after populate() was called.
@@ -124,15 +130,58 @@ public abstract class AbstractProductsRetriever extends AbstractRetriever {
     }
 
     /**
+     * Extends or replaces the product attribute filter with a custom instance defined by a lambda hook.
+     *
+     * Example 1 (Extend):
+     *
+     * <pre>
+     * {@code
+     * productsRetriever.extendProductFilterWith(f -> f
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * Example 2 (Replace):
+     *
+     * <pre>
+     * {@code
+     * productsRetriever.extendProductFilterWith(f -> new ProductAttributeFilterInput()
+     *     .setSku(new FilterEqualTypeInput()
+     *         .setEq("custom-sku"))
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * @param productAttributeFilterHook Lambda that extends or replaces the product attribute filter.
+     */
+    public void extendProductFilterWith(Function<ProductAttributeFilterInput, ProductAttributeFilterInput> productAttributeFilterHook) {
+        if (this.productAttributeFilterHook == null) {
+            this.productAttributeFilterHook = productAttributeFilterHook;
+        } else {
+            this.productAttributeFilterHook = this.productAttributeFilterHook.andThen(productAttributeFilterHook);
+        }
+    }
+
+    /**
      * Generate a complete product GraphQL query with a filter for the given product identifiers.
      *
      * @param identifiers product SKUs
      * @return GraphQL query as string
      */
     protected String generateQuery(List<String> identifiers) {
+        ProductAttributeFilterInput filter = new ProductAttributeFilterInput();
         FilterEqualTypeInput skuFilter = new FilterEqualTypeInput().setIn(identifiers);
-        ProductAttributeFilterInput filter = new ProductAttributeFilterInput().setSku(skuFilter);
-        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(filter);
+        filter.setSku(skuFilter);
+
+        // Apply product attribute filter hook
+        if (this.productAttributeFilterHook != null) {
+            filter = this.productAttributeFilterHook.apply(filter);
+        }
+
+        ProductAttributeFilterInput finalFilter = filter;
+        QueryQuery.ProductsArgumentsDefinition searchArgs = s -> s.filter(finalFilter);
 
         ProductsQueryDefinition queryArgs = q -> q.items(generateProductQuery());
         return Operations.query(query -> query
@@ -155,7 +204,8 @@ public abstract class AbstractProductsRetriever extends AbstractRetriever {
     protected void populate() {
         // Get product list from response
         GraphqlResponse<Query, Error> response = executeQuery();
-        if (CollectionUtils.isEmpty(response.getErrors())) {
+        errors = response.getErrors();
+        if (CollectionUtils.isEmpty(errors)) {
             Query rootQuery = response.getData();
             products = rootQuery.getProducts().getItems();
         } else {

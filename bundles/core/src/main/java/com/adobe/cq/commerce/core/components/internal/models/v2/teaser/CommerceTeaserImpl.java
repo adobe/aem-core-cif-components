@@ -39,7 +39,6 @@ import com.adobe.cq.commerce.core.components.internal.models.v1.teaser.CommerceT
 import com.adobe.cq.commerce.core.components.models.common.CommerceIdentifier;
 import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
 import com.adobe.cq.wcm.core.components.models.ListItem;
@@ -48,6 +47,10 @@ import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/**
+ * @deprecated use {@link com.adobe.cq.commerce.core.components.internal.models.v3.teaser.CommerceTeaserImpl} instead
+ */
+@Deprecated
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = { Teaser.class, ComponentExporter.class },
@@ -91,9 +94,6 @@ public class CommerceTeaserImpl implements CommerceTeaser {
         if (actionsNode != null) {
             Iterable<Resource> configuredActions = actionsNode.getChildren();
 
-            Page productPage = SiteNavigation.getProductPage(currentPage);
-            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
-
             // build teaser action items for all configured actions
             for (Resource action : configuredActions) {
                 ValueMap actionProperties = action.getValueMap();
@@ -105,11 +105,11 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 CommerceIdentifier identifier = null;
 
                 if (StringUtils.isNotBlank(categoryUid)) {
-                    actionUrl = urlProvider.toCategoryUrl(request, categoryPage, categoryUid);
+                    actionUrl = urlProvider.toCategoryUrl(request, currentPage, categoryUid);
                     identifier = new CommerceIdentifierImpl(categoryUid, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY);
                 } else if (StringUtils.isNotBlank(productSku)) {
-                    actionUrl = urlProvider.toProductUrl(request, productPage, productSku);
+                    actionUrl = urlProvider.toProductUrl(request, currentPage, productSku);
                     identifier = new CommerceIdentifierImpl(productSku, CommerceIdentifier.IdentifierType.SKU,
                         CommerceIdentifier.EntityType.PRODUCT);
                 } else if (StringUtils.isNotBlank(link)) {

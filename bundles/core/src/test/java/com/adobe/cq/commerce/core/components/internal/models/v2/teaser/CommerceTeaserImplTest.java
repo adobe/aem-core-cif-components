@@ -60,6 +60,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+@Deprecated
 public class CommerceTeaserImplTest {
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
@@ -86,7 +87,7 @@ public class CommerceTeaserImplTest {
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
         GraphqlClient graphqlClient = spy(new GraphqlClientImpl());
-        context.registerInjectActivateService(graphqlClient);
+        Utils.registerGraphqlClient(context, graphqlClient, null);
 
         Utils.setupHttpResponse("graphql/magento-graphql-category-list-result.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{category_uid:{eq:");

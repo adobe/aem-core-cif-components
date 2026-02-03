@@ -126,7 +126,8 @@ public class ProductTeaserImplTest {
         product = rootQuery.getProducts().getItems().get(0);
 
         GraphqlClient graphqlClient = new GraphqlClientImpl();
-        context.registerInjectActivateService(graphqlClient);
+        Utils.registerGraphqlClient(context, graphqlClient, null);
+        ;
         Utils.addHttpResponseFrom(graphqlClient, graphqlResultPath);
         when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
@@ -174,6 +175,8 @@ public class ProductTeaserImplTest {
         setUp(resourcePath, true);
 
         assertEquals(product.getName(), productTeaser.getName());
+        assertEquals("MJ01", productTeaser.getCombinedSku().getBaseSku());
+        assertNull(productTeaser.getCombinedSku().getVariantSku());
 
         // There is a dedicated specific subpage for that product
         assertTrue(productTeaser.getUrl().startsWith(PRODUCT_SPECIFIC_PAGE));
@@ -206,6 +209,8 @@ public class ProductTeaserImplTest {
 
         assertEquals(variant.getName(), productTeaser.getName());
         assertEquals(toProductUrl(product, variantSku), productTeaser.getUrl());
+        assertEquals("MJ01", productTeaser.getCombinedSku().getBaseSku());
+        assertEquals(variantSku, productTeaser.getCombinedSku().getVariantSku());
 
         NumberFormat priceFormatter = NumberFormat.getCurrencyInstance(Locale.US);
         Money amount = variant.getPriceRange().getMinimumPrice().getFinalPrice();
@@ -246,7 +251,7 @@ public class ProductTeaserImplTest {
         when(teaserResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         GraphqlClient graphqlClient = new GraphqlClientImpl();
-        context.registerInjectActivateService(graphqlClient);
+        Utils.registerGraphqlClient(context, graphqlClient, null);
         Utils.addHttpResponseFrom(graphqlClient, "graphql/magento-graphql-virtualproduct-result.json");
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);

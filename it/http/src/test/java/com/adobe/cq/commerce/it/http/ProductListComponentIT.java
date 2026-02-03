@@ -49,7 +49,7 @@ public class ProductListComponentIT extends CommerceTestBase {
             doc -> doc.select("meta[name=keywords]").first().attr("content"), "Meta keywords for Outdoor Collection",
             doc -> doc.select("meta[name=description]").first().attr("content"), "Meta description for Outdoor Collection",
             // 6.5.8 uses the externalizer author link to create the canonical link
-            doc -> doc.select("link[rel=canonical]").first().attr("href"), "http://localhost:4502" + pagePath));
+            doc -> doc.select("link[rel=canonical]").first().attr("href"), pagePath));
     }
 
     @Test

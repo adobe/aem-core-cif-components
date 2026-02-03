@@ -1,0 +1,490 @@
+{
+  "data": {
+    "products": {
+      "total_count": 12,
+      "items": [
+        {
+          "__typename": "SimpleProduct",
+          "staged": false,
+          "sku": "24-MB02",
+          "name": "Fusion Backpack",
+          "small_image": {
+            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/fusion-backpack/mb02-gray-0.jpg"
+          },
+          "url_key": "fusion-backpack",
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 59,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 59,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          }
+        },
+        {
+          "__typename": "SimpleProduct",
+          "staged": false,
+          "sku": "24-MG03",
+          "name": "Summit Watch",
+          "small_image": {
+            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/summit-watch/mg03-br-0.jpg"
+          },
+          "url_key": "summit-watch",
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 54,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 54,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          }
+        },
+        {
+          "__typename": "SimpleProduct",
+          "staged": false,
+          "sku": "24-WG01",
+          "name": "Bolo Sport Watch",
+          "small_image": {
+            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/bolo-sport-watch/wg01-bk-0.jpg"
+          },
+          "url_key": "bolo-sport-watch",
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 49,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 49,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          }
+        },
+        {
+          "__typename": "ConfigurableProduct",
+          "staged": false,
+          "sku": "MH01",
+          "name": "Chaz Kangeroo Hoodie",
+          "small_image": {
+            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/chaz-kangeroo-hoodie/mh01-gray_main_2.jpg"
+          },
+          "url_key": "chaz-kangeroo-hoodie",
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 52,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 52,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            },
+            "maximum_price": {
+              "regular_price": {
+                "value": 52,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 52,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          }
+        },
+        {
+          "__typename": "ConfigurableProduct",
+          "staged": false,
+          "sku": "MH03",
+          "name": "Bruno Compete Hoodie",
+          "small_image": {
+            "url": "/content/dam/core-components-examples/library/cif-sample-assets/catalog/product/bruno-compete-hoodie/mh03-black_main_2.jpg"
+          },
+          "url_key": "bruno-compete-hoodie",
+          "price_range": {
+            "minimum_price": {
+              "regular_price": {
+                "value": 63,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 63,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            },
+            "maximum_price": {
+              "regular_price": {
+                "value": 63,
+                "currency": "USD"
+              },
+              "final_price": {
+                "value": 63,
+                "currency": "USD"
+              },
+              "discount": {
+                "amount_off": 0,
+                "percent_off": 0
+              }
+            }
+          }
+        }
+      ],
+      "aggregations": [
+        {
+          "options": [
+            {
+              "count": 1,
+              "label": "40-50",
+              "value": "40_50"
+            },
+            {
+              "count": 3,
+              "label": "50-60",
+              "value": "50_60"
+            },
+            {
+              "count": 1,
+              "label": "60-70",
+              "value": "60_70"
+            },
+            {
+              "count": 1,
+              "label": "80-*",
+              "value": "80_*"
+            }
+          ],
+          "attribute_code": "price",
+          "count": 4,
+          "label": "Price"
+        },
+        {
+          "options": [
+            {
+              "count": 3,
+              "label": "Gear",
+              "value": "3"
+            },
+            {
+              "count": 1,
+              "label": "Bags",
+              "value": "4"
+            },
+            {
+              "count": 2,
+              "label": "Watches",
+              "value": "6"
+            },
+            {
+              "count": 1,
+              "label": "Collections",
+              "value": "7"
+            },
+            {
+              "count": 2,
+              "label": "New Luma Yoga Collection",
+              "value": "8"
+            },
+            {
+              "count": 2,
+              "label": "Tops",
+              "value": "13"
+            },
+            {
+              "count": 2,
+              "label": "Hoodies & Sweatshirts",
+              "value": "16"
+            },
+            {
+              "count": 1,
+              "label": "Tops",
+              "value": "22"
+            },
+            {
+              "count": 1,
+              "label": "Jackets",
+              "value": "24"
+            },
+            {
+              "count": 1,
+              "label": "Performance Fabrics",
+              "value": "36"
+            },
+            {
+              "count": 2,
+              "label": "Eco Friendly",
+              "value": "37"
+            }
+          ],
+          "attribute_code": "category_id",
+          "count": 11,
+          "label": "Category"
+        },
+        {
+          "options": [
+            {
+              "count": 4,
+              "label": "Black",
+              "value": "49"
+            },
+            {
+              "count": 1,
+              "label": "Blue",
+              "value": "50"
+            },
+            {
+              "count": 1,
+              "label": "Gray",
+              "value": "52"
+            },
+            {
+              "count": 1,
+              "label": "Green",
+              "value": "53"
+            },
+            {
+              "count": 2,
+              "label": "Orange",
+              "value": "56"
+            },
+            {
+              "count": 1,
+              "label": "Red",
+              "value": "58"
+            },
+            {
+              "count": 1,
+              "label": "White",
+              "value": "59"
+            }
+          ],
+          "attribute_code": "color",
+          "count": 7,
+          "label": "Color"
+        },
+        {
+          "options": [
+            {
+              "count": 1,
+              "label": "Outdoor",
+              "value": "5"
+            },
+            {
+              "count": 1,
+              "label": "Yoga",
+              "value": "8"
+            },
+            {
+              "count": 2,
+              "label": "Recreation",
+              "value": "9"
+            },
+            {
+              "count": 1,
+              "label": "Gym",
+              "value": "11"
+            },
+            {
+              "count": 1,
+              "label": "Athletic",
+              "value": "16"
+            },
+            {
+              "count": 2,
+              "label": "Sports",
+              "value": "17"
+            },
+            {
+              "count": 1,
+              "label": "Hiking",
+              "value": "18"
+            },
+            {
+              "count": 1,
+              "label": "School",
+              "value": "20"
+            }
+          ],
+          "attribute_code": "activity",
+          "count": 8,
+          "label": "Activity"
+        },
+        {
+          "options": [
+            {
+              "count": 1,
+              "label": "Burlap",
+              "value": "31"
+            },
+            {
+              "count": 2,
+              "label": "Nylon",
+              "value": "37"
+            },
+            {
+              "count": 2,
+              "label": "Polyester",
+              "value": "38"
+            },
+            {
+              "count": 1,
+              "label": "Metal",
+              "value": "43"
+            },
+            {
+              "count": 1,
+              "label": "Plastic",
+              "value": "44"
+            },
+            {
+              "count": 2,
+              "label": "Silicone",
+              "value": "48"
+            },
+            {
+              "count": 1,
+              "label": "Organic Cotton",
+              "value": "156"
+            },
+            {
+              "count": 1,
+              "label": "CoolTech&trade;",
+              "value": "158"
+            },
+            {
+              "count": 1,
+              "label": "Wool",
+              "value": "161"
+            }
+          ],
+          "attribute_code": "material",
+          "count": 9,
+          "label": "Material"
+        },
+        {
+          "options": [
+            {
+              "count": 2,
+              "label": "Electronic",
+              "value": "86"
+            },
+            {
+              "count": 2,
+              "label": "Exercise",
+              "value": "87"
+            },
+            {
+              "count": 2,
+              "label": "Timepiece",
+              "value": "90"
+            }
+          ],
+          "attribute_code": "category_gear",
+          "count": 3,
+          "label": "Category Gear"
+        },
+        {
+          "options": [
+            {
+              "count": 3,
+              "label": "XS",
+              "value": "169"
+            },
+            {
+              "count": 3,
+              "label": "S",
+              "value": "170"
+            },
+            {
+              "count": 3,
+              "label": "M",
+              "value": "171"
+            },
+            {
+              "count": 3,
+              "label": "L",
+              "value": "172"
+            },
+            {
+              "count": 3,
+              "label": "XL",
+              "value": "173"
+            }
+          ],
+          "attribute_code": "size",
+          "count": 5,
+          "label": "Size"
+        },
+        {
+          "options": [
+            {
+              "count": 2,
+              "label": "All-Weather",
+              "value": "204"
+            },
+            {
+              "count": 3,
+              "label": "Cool",
+              "value": "206"
+            },
+            {
+              "count": 2,
+              "label": "Indoor",
+              "value": "207"
+            },
+            {
+              "count": 3,
+              "label": "Spring",
+              "value": "210"
+            },
+            {
+              "count": 3,
+              "label": "Windy",
+              "value": "212"
+            },
+            {
+              "count": 1,
+              "label": "Wintry",
+              "value": "213"
+            }
+          ],
+          "attribute_code": "climate",
+          "count": 6,
+          "label": "Climate"
+        }
+      ]
+    }
+  }
+}

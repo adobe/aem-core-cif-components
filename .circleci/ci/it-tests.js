@@ -30,24 +30,37 @@ try {
     ci.stage("Integration Tests");
     let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
-    let graphqlClientVersion = ci.sh('mvn help:evaluate -Dexpression=graphql.client.version -q -DforceStdout', true);
     let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
+
+    // TODO: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
+    let aemCifSdkApiVersion = "2025.09.02.1-SNAPSHOT";
+
 
     ci.dir(qpPath, () => {
         // Connect to QP
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
-
-        // We install the graphql-client by default except with the CIF Add-On
-        let extras = `--bundle com.adobe.commerce.cif:graphql-client:${graphqlClientVersion}:jar`;
-        if (AEM == 'classic') {
-        	// The core components are already installed in the Cloud SDK
-        	extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
-        } else if (AEM == 'addon') {
-            // Download latest add-on release from artifactory
-            ci.sh(`mvn -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=cif-cloud-ready-feature-pkg -Dversion=LATEST -Dtype=far -Dclassifier=cq-commerce-addon-authorfar -DoutputDirectory=${buildPath} -DoutputFileName=addon.far`);
-            extras = ` --install-file ${buildPath}/addon.far`;
-        }
         
+        // Download latest add-on release from artifactory
+        let extras = '';
+        const downloadArtifact = (artifactId, type, outputFileName, version = 'LATEST', classifier = '') => {
+            const classifierOption = classifier ? `-Dclassifier=${classifier}` : '';
+            ci.sh(`mvn -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=${artifactId} -Dversion=${version} -Dtype=${type} ${classifierOption} -DoutputDirectory=${buildPath} -DoutputFileName=${outputFileName}`);
+        };
+
+        if (AEM === 'classic') {
+            extras += ` --install-file ${buildPath}/addon.zip`;
+            downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
+            extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
+        } else if (AEM === 'lts') {
+            extras += ` --install-file ${buildPath}/addon.zip`;
+            downloadArtifact('commerce-addon-aem-660-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
+            extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
+        } else if (AEM === 'addon') {
+            extras += ` --install-file ${buildPath}/addon.far`;
+            downloadArtifact('cif-cloud-ready-feature-pkg', 'far', 'addon.far', 'LATEST', 'cq-commerce-addon-authorfar');
+        }
+
+        const maxMetaspace = AEM == 'lts' ? '-XX:MaxMetaspaceSize=512m' : '-XX:MaxPermSize=256m';
         // Start CQ
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
             --bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar \
@@ -64,8 +77,27 @@ try {
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-config'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-content'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])} \
-            --vm-options \\\"-Xmx1536m -XX:MaxPermSize=256m -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
+            --vm-options \\\"-Xmx1536m ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
     });
+
+
+    // Temporary fix for integration & selenium test
+    const formData = {
+        apply: true,
+        factoryPid: 'com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl',
+        action: 'ajaxConfigManager',
+        url: "http://localhost:4502/apps/cif-components-examples/graphql",
+        httpMethod: 'GET',
+        propertylist: 'url,httpMethod'
+    };
+
+    ci.sh(`curl 'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~examples' \
+        -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+        -H 'Origin: http://localhost:4502' \
+        -u 'admin:admin' \
+        --data-raw '${Object.entries(formData)
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join('&')}'`);
 
 
 

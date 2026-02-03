@@ -16,8 +16,7 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.experiencefragment;
 
 import java.io.IOException;
-
-import javax.jcr.Session;
+import java.util.Collections;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -27,19 +26,17 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
-import org.apache.sling.testing.mock.jcr.MockJcr;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
-import com.adobe.cq.commerce.core.components.models.experiencefragment.CommerceExperienceFragment;
+import com.adobe.cq.commerce.core.components.internal.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
-import com.day.cq.wcm.api.LanguageManager;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.msm.api.LiveRelationshipManager;
 import com.day.cq.wcm.scripting.WCMBindingsConstants;
@@ -49,6 +46,8 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -61,25 +60,34 @@ public class CommerceExperienceFragmentImplTest {
     private static final String ANOTHER_PAGE = PAGE + "/another-page";
     private static final String RESOURCE_XF1 = "/jcr:content/root/xf-component-1";
     private static final String RESOURCE_XF2 = "/jcr:content/root/xf-component-2";
-    private static final String XF_ROOT = "/content/experience-fragments/";
-    private static final String SITE_XF_ROOT = XF_ROOT + "mysite/page";
-
-    private static final String PRODUCT_QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s')" +
-        " AND (node.[" + CommerceExperienceFragment.PN_CQ_PRODUCTS + "] = '%s'" +
-        " OR node.[" + CommerceExperienceFragment.PN_CQ_PRODUCTS + "] LIKE '%s#%%')" +
-        " AND node.[" + CommerceExperienceFragment.PN_FRAGMENT_LOCATION + "] %s";
-
-    private static final String CATEGORY_QUERY_TEMPLATE = "SELECT * FROM [cq:PageContent] as node WHERE ISDESCENDANTNODE('%s')" +
-        " AND node.[" + CommerceExperienceFragment.PN_CQ_CATEGORIES + "] = '%s'" +
-        " AND node.[" + CommerceExperienceFragment.PN_FRAGMENT_LOCATION + "] %s";
 
     @Rule
     public final AemContext context = buildAemContext("/context/jcr-content-experiencefragment.json")
         .<AemContext>afterSetUp(context -> {
             context.registerService(LiveRelationshipManager.class, mock(LiveRelationshipManager.class));
-            LanguageManager languageManager = context.registerService(LanguageManager.class, mock(LanguageManager.class));
-            Page rootPage = context.pageManager().getPage(PAGE);
-            Mockito.when(languageManager.getLanguageRoot(any())).thenReturn(rootPage);
+            CommerceExperienceFragmentsRetriever cxfRetriever = context.registerService(CommerceExperienceFragmentsRetriever.class, mock(
+                CommerceExperienceFragmentsRetriever.class));
+
+            Resource xf1uid = context.resourceResolver().getResource(
+                "/content/experience-fragments/mysite/page/xf-1-uid/master/jcr:content");
+            Resource xf2uid = context.resourceResolver()
+                .getResource("/content/experience-fragments/mysite/page/xf-2-uid/master/jcr:content");
+            Mockito.when(cxfRetriever.getExperienceFragmentsForProduct(eq("sku-xf1"),
+                isNull(String.class), any())).thenReturn(Collections.singletonList(xf1uid));
+            Mockito.when(cxfRetriever.getExperienceFragmentsForProduct(eq("sku-xf2"),
+                eq("location-xf2"), any())).thenReturn(Collections.singletonList(xf2uid));
+            Mockito.when(cxfRetriever.getExperienceFragmentsForProduct(eq("sku-xf3"),
+                any(), any())).thenReturn(Collections.emptyList());
+            Mockito.when(cxfRetriever.getExperienceFragmentsForProduct(isNull(String.class),
+                any(), any())).thenReturn(Collections.emptyList());
+            Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(eq("uid1"),
+                isNull(String.class), any())).thenReturn(Collections.singletonList(xf1uid));
+            Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(eq("uid2"),
+                eq("location-xf2"), any())).thenReturn(Collections.singletonList(xf2uid));
+            Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(eq("uid3"), any(), any())).thenReturn(Collections
+                .emptyList());
+            Mockito.when(cxfRetriever.getExperienceFragmentsForCategory(isNull(String.class),
+                any(), any())).thenReturn(Collections.emptyList());
         })
         .build();
 
@@ -96,7 +104,7 @@ public class CommerceExperienceFragmentImplTest {
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
         GraphqlClient graphqlClient = Mockito.spy(new GraphqlClientImpl());
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+        Utils.registerGraphqlClient(context, graphqlClient, null);
 
         Utils.setupHttpResponse("graphql/magento-graphql-xf1-category.json", httpClient, HttpStatus.SC_OK, "1\"}}){uid}}");
         Utils.setupHttpResponse("graphql/magento-graphql-xf1-product.json", httpClient, HttpStatus.SC_OK,
@@ -120,17 +128,6 @@ public class CommerceExperienceFragmentImplTest {
 
     }
 
-    private String buildQuery(String xfRoot, String productSku, String categoryId, String fragmentLocation) {
-        String flCondition = fragmentLocation != null ? "= '" + fragmentLocation + "'" : "IS NULL";
-        String query;
-        if (productSku != null) {
-            query = String.format(PRODUCT_QUERY_TEMPLATE, xfRoot, productSku, productSku, flCondition);
-        } else {
-            query = String.format(CATEGORY_QUERY_TEMPLATE, xfRoot, categoryId, flCondition);
-        }
-        return query;
-    }
-
     @Test
     public void testFragmentOnProductPageWithoutLocationProperty() throws IOException {
         setup(PRODUCT_PAGE, RESOURCE_XF1);
@@ -138,7 +135,7 @@ public class CommerceExperienceFragmentImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/url-key-xf1.html");
 
-        verifyFragment(SITE_XF_ROOT, "sku-xf1", null, null, "xf-1-uid",
+        verifyFragment("sku-xf1", null, null, "xf-1-uid",
             "/content/experience-fragments/mysite/page/xf-1-uid/master/jcr:content");
     }
 
@@ -149,19 +146,8 @@ public class CommerceExperienceFragmentImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/url-key-xf2.html");
 
-        verifyFragment(SITE_XF_ROOT, "sku-xf2", null, "location-xf2", "xf-2-uid",
+        verifyFragment("sku-xf2", null, "location-xf2", "xf-2-uid",
             "/content/experience-fragments/mysite/page/xf-2-uid/master/jcr:content");
-    }
-
-    @Test
-    public void testFragmentOnProductPageWithInvalidLanguageManager() throws IOException {
-        Mockito.reset(context.getService(LanguageManager.class));
-        setup(PRODUCT_PAGE, RESOURCE_XF1);
-
-        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
-        requestPathInfo.setSuffix("/url-key-xf1.html");
-
-        verifyFragment(XF_ROOT, "sku-xf1", null, null, "xf-1-uid", "/content/experience-fragments/mysite/page/xf-1-uid/master/jcr:content");
     }
 
     @Test
@@ -171,7 +157,7 @@ public class CommerceExperienceFragmentImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/sku-xf3.html");
 
-        verifyFragmentResourceIsNull(XF_ROOT, "sku-xf3", null, "location-xf2");
+        verifyFragmentResourceIsNull("sku-xf3", null, "location-xf2");
     }
 
     @Test
@@ -190,7 +176,7 @@ public class CommerceExperienceFragmentImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSelectorString("sku-xf1");
 
-        verifyFragmentResourceIsNull(XF_ROOT, "sku-xf1", null, null);
+        verifyFragmentResourceIsNull("sku-xf1", null, null);
     }
 
     @Test
@@ -200,7 +186,7 @@ public class CommerceExperienceFragmentImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/uid1.html");
 
-        verifyFragment(SITE_XF_ROOT, null, "uid1", null, "xf-1-uid",
+        verifyFragment(null, "uid1", null, "xf-1-uid",
             "/content/experience-fragments/mysite/page/xf-1-uid/master/jcr:content");
     }
 
@@ -211,7 +197,7 @@ public class CommerceExperienceFragmentImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/uid2.html");
 
-        verifyFragment(SITE_XF_ROOT, null, "uid2", "location-xf2", "xf-2-uid",
+        verifyFragment(null, "uid2", "location-xf2", "xf-2-uid",
             "/content/experience-fragments/mysite/page/xf-2-uid/master/jcr:content");
     }
 
@@ -222,14 +208,14 @@ public class CommerceExperienceFragmentImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/uid3.html");
 
-        verifyFragmentResourceIsNull(XF_ROOT, null, "uid3", "location-xf2");
+        verifyFragmentResourceIsNull(null, "uid3", "location-xf2");
     }
 
     @Test
     public void testFragmentOnCategoryPageWithInvalidUid() throws IOException {
         setup(CATEGORY_PAGE, RESOURCE_XF2);
 
-        verifyFragmentResourceIsNull(XF_ROOT, null, null, null);
+        verifyFragmentResourceIsNull(null, null, null);
     }
 
     @Test
@@ -239,37 +225,23 @@ public class CommerceExperienceFragmentImplTest {
         MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
         requestPathInfo.setSuffix("/url_path2.html");
 
-        verifyFragment(SITE_XF_ROOT, null, "uid2", "location-xf2", "xf-2-uid",
+        verifyFragment(null, "uid2", "location-xf2", "xf-2-uid",
             "/content/experience-fragments/mysite/page/xf-2-uid/master/jcr:content");
     }
 
-    private void verifyFragment(String xfRootPath, String productSku, String categoryId, String fragmentLocation, String expectedXFName,
+    private void verifyFragment(String productSku, String categoryId, String fragmentLocation, String expectedXFName,
         String expectedXFPath) {
-        XFMockQueryResultHandler queryHandler = mockJcrQueryResult(xfRootPath, productSku, categoryId, fragmentLocation);
-
         CommerceExperienceFragmentImpl cxf = context.request().adaptTo(CommerceExperienceFragmentImpl.class);
         Assert.assertNotNull(cxf);
         Assert.assertEquals(expectedXFName, cxf.getName());
         Assert.assertEquals(CommerceExperienceFragmentImpl.RESOURCE_TYPE, cxf.getExportedType());
         Assert.assertEquals(expectedXFPath, cxf.getExperienceFragmentResource().getPath());
 
-        String expectedQuery = buildQuery(xfRootPath, productSku, categoryId, fragmentLocation);
-        Assert.assertEquals(expectedQuery, queryHandler.getQuery().getStatement());
     }
 
-    private void verifyFragmentResourceIsNull(String xfRootPath, String productSku, String categoryId, String fragmentLocation) {
-        mockJcrQueryResult(xfRootPath, productSku, categoryId, fragmentLocation);
-
+    private void verifyFragmentResourceIsNull(String productSku, String categoryId, String fragmentLocation) {
         CommerceExperienceFragmentImpl cxf = context.request().adaptTo(CommerceExperienceFragmentImpl.class);
         Assert.assertNotNull(cxf);
         Assert.assertNull(cxf.getExperienceFragmentResource());
-    }
-
-    private XFMockQueryResultHandler mockJcrQueryResult(String xfRootPath, String productSku, String categoryId, String fragmentLocation) {
-        Resource pageResource = context.resourceResolver().getResource(xfRootPath);
-        Session session = context.resourceResolver().adaptTo(Session.class);
-        XFMockQueryResultHandler queryHandler = new XFMockQueryResultHandler(pageResource, productSku, categoryId, fragmentLocation);
-        MockJcr.addQueryResultHandler(session, queryHandler);
-        return queryHandler;
     }
 }

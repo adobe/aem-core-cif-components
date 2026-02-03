@@ -15,6 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.models.retriever;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -24,6 +28,7 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
  * Abstract implementation of retriever that fetches data using GraphQL.
  */
 public abstract class AbstractRetriever {
+    private static final List<Error> INITIAL_ERRORS = Collections.unmodifiableList(new ArrayList<>());
 
     /**
      * Generated or fully customized query.
@@ -34,6 +39,7 @@ public abstract class AbstractRetriever {
      * Instance of the Magento GraphQL client.
      */
     protected MagentoGraphqlClient client;
+    protected List<Error> errors = INITIAL_ERRORS;
 
     public AbstractRetriever(MagentoGraphqlClient client) {
         if (client == null) {
@@ -52,7 +58,35 @@ public abstract class AbstractRetriever {
     }
 
     /**
+     * Returns the errors encountered during the retrieval of GraphQL results.
+     *
+     * @return list of errors
+     *
+     * @throws IllegalStateException if this method is invoked earlier than {@link #populate()} on this instance
+     */
+    public final List<Error> getErrors() {
+        if (errors == INITIAL_ERRORS) {
+            throw new IllegalStateException("The populate() method must be called and it must populate 'errors' before getErrors().");
+        }
+
+        return errors == null ? Collections.emptyList() : errors;
+    }
+
+    /**
+     * Checks whether there were any errors encountered during the retrieval of GraphQL results.
+     *
+     * @return {@code true} if there where any errors, {@code false} otherwise
+     *
+     * @throws IllegalStateException if this method is invoked earlier than {@link #populate()} on this instance
+     */
+    public final boolean hasErrors() {
+        return !getErrors().isEmpty();
+    }
+
+    /**
      * Executes the query and parses the response.
+     * Implementors should initialize the {@link #errors} field with the errors
+     * in the GraphQL response returned by {@link #executeQuery()}.
      */
     abstract protected void populate();
 

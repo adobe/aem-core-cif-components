@@ -46,7 +46,6 @@ import com.adobe.cq.commerce.core.components.models.teaser.CommerceTeaser;
 import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.ProductUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.export.json.ComponentExporter;
 import com.adobe.cq.export.json.ExporterConstants;
 import com.adobe.cq.wcm.core.components.models.ListItem;
@@ -55,6 +54,10 @@ import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
 import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+/**
+ * @deprecated use {@link com.adobe.cq.commerce.core.components.internal.models.v3.teaser.CommerceTeaserImpl} instead
+ */
+@Deprecated
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = { Teaser.class, ComponentExporter.class },
@@ -112,9 +115,6 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                 categoriesRetriever.setIdentifiers(categoryIds);
             }
 
-            Page productPage = SiteNavigation.getProductPage(currentPage);
-            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
-
             // build teaser action items for all configured actions
             for (Resource action : configuredActions) {
                 ValueMap properties = action.getValueMap();
@@ -145,13 +145,13 @@ public class CommerceTeaserImpl implements CommerceTeaser {
                         params = new CategoryUrlFormat.Params();
                         params.setUid(categoryId);
                     }
-                    actionUrl = urlProvider.toCategoryUrl(request, categoryPage, params);
+                    actionUrl = urlProvider.toCategoryUrl(request, currentPage, params);
                     identifier = new CommerceIdentifierImpl(categoryId, CommerceIdentifier.IdentifierType.UID,
                         CommerceIdentifier.EntityType.CATEGORY);
                 } else if (productSlug != null) {
                     ProductUrlFormat.Params params = new ProductUrlFormat.Params();
                     params.setUrlKey(productSlug);
-                    actionUrl = urlProvider.toProductUrl(request, productPage, params);
+                    actionUrl = urlProvider.toProductUrl(request, currentPage, params);
                     identifier = new CommerceIdentifierImpl(productSlug, CommerceIdentifier.IdentifierType.URL_KEY,
                         CommerceIdentifier.EntityType.PRODUCT);
                 } else if (link != null) {

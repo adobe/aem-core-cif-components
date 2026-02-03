@@ -37,8 +37,9 @@ import org.apache.sling.models.annotations.injectorspecific.ValueMapValue;
 import org.apache.sling.models.factory.ModelFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
-import com.adobe.cq.commerce.core.components.utils.SiteNavigation;
 import com.adobe.cq.wcm.core.components.commons.link.Link;
 import com.adobe.cq.wcm.core.components.models.Button;
 import com.adobe.cq.wcm.core.components.models.datalayer.ComponentData;
@@ -72,6 +73,8 @@ public class ButtonImpl implements Button {
     private String productIdentifier;
     @ValueMapValue(name = "categoryId", injectionStrategy = InjectionStrategy.OPTIONAL)
     private String categoryIdentifier;
+    @ValueMapValue(name = "categoryIdType", injectionStrategy = InjectionStrategy.OPTIONAL)
+    private String categoryIdType;
     @ValueMapValue(injectionStrategy = InjectionStrategy.OPTIONAL)
     private String externalLink;
     @ValueMapValue(injectionStrategy = InjectionStrategy.OPTIONAL)
@@ -99,11 +102,15 @@ public class ButtonImpl implements Button {
         if (EXTERNAL_LINK.equals(linkType)) {
             link = externalLink;
         } else if (PRODUCT.equals(linkType) && productIdentifier != null) {
-            Page productPage = SiteNavigation.getProductPage(currentPage);
-            link = urlProvider.toProductUrl(request, productPage, productIdentifier);
+            link = urlProvider.toProductUrl(request, currentPage, productIdentifier);
         } else if (CATEGORY.equals(linkType) && categoryIdentifier != null) {
-            Page categoryPage = SiteNavigation.getCategoryPage(currentPage);
-            link = urlProvider.toCategoryUrl(request, categoryPage, categoryIdentifier);
+            CategoryUrlFormat.Params params = new CategoryUrlFormat.Params();
+            if (AbstractCategoryRetriever.CATEGORY_IDENTIFIER_URL_PATH.equals(categoryIdType)) {
+                params.setUrlPath(categoryIdentifier);
+            } else {
+                params.setUid(categoryIdentifier);
+            }
+            link = urlProvider.formatCategoryUrl(request, currentPage, params);
         } else if (StringUtils.isNotEmpty(linkTo)) {
             link = linkTo + ".html";
         }

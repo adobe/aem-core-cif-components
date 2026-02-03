@@ -30,12 +30,14 @@ const config = {
 };
 
 describe('GiftCardProductOptions', () => {
-    const dispatchEventSpy = jest.spyOn(document, 'dispatchEvent').mockImplementation(event => {
+    const eventHandler = jest.fn().mockImplementation(event => {
         return event.detail;
     });
+    document.addEventListener('aem.cif.add-to-cart', eventHandler);
+    document.addEventListener('aem.cif.add-to-wishlist', eventHandler);
 
     afterEach(() => {
-        dispatchEventSpy.mockClear();
+        eventHandler.mockClear();
     });
 
     it('renders the component with no sku', () => {
@@ -74,11 +76,14 @@ describe('GiftCardProductOptions', () => {
     it('renders the component with full options', async () => {
         const gitfCardProductOptionsContainer = document.createElement('div');
 
-        const { asFragment, getByRole, getByLabelText } = render(<GiftCardProductOptions sku="gift-card" />, {
-            config: config,
-            container: document.body.appendChild(gitfCardProductOptionsContainer),
-            mocks: [mockResponse, mockAddToCartMutation]
-        });
+        const { asFragment, getByRole, getByLabelText } = render(
+            <GiftCardProductOptions sku="gift-card" showQuantity={true} />,
+            {
+                config: config,
+                container: document.body.appendChild(gitfCardProductOptionsContainer),
+                mocks: [mockResponse, mockAddToCartMutation]
+            }
+        );
 
         expect(await screen.findByText(/cart/i)).toBeInTheDocument();
 
@@ -86,7 +91,7 @@ describe('GiftCardProductOptions', () => {
 
         // Click add to cart which should be disabled
         fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
-        expect(dispatchEventSpy).toHaveBeenCalledTimes(0);
+        expect(eventHandler).toHaveBeenCalledTimes(0);
 
         // Add the required inputs
         fireEvent.change(getByLabelText(/amount/i), {
@@ -100,10 +105,10 @@ describe('GiftCardProductOptions', () => {
         fireEvent.click(getByRole('button', { name: 'Add to Cart' }));
 
         // Add to cart should be called just once since the first click was on a disabled button
-        await wait(() => expect(dispatchEventSpy).toHaveBeenCalledTimes(1));
+        await wait(() => expect(eventHandler).toHaveBeenCalledTimes(1));
 
         // The mock dispatchEvent function returns the CustomEvent detail
-        expect(dispatchEventSpy).toHaveReturnedWith([
+        expect(eventHandler).toHaveReturnedWith([
             {
                 sku: 'gift-card',
                 parentSku: 'gift-card',
@@ -154,9 +159,9 @@ describe('GiftCardProductOptions', () => {
         fireEvent.click(getByRole('button', { name: 'Add to Wish List' }));
 
         // Add to cart should be called just once since the first click was on a disabled button
-        await wait(() => expect(dispatchEventSpy).toHaveBeenCalledTimes(1));
+        await wait(() => expect(eventHandler).toHaveBeenCalledTimes(1));
 
-        expect(dispatchEventSpy).toHaveReturnedWith([
+        expect(eventHandler).toHaveReturnedWith([
             {
                 sku: 'gift-card',
                 quantity: 1

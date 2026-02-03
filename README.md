@@ -3,6 +3,7 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.adobe.commerce.cif/core-cif-components-all/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.adobe.commerce.cif/core-cif-components-all)
 [![npm](https://img.shields.io/npm/v/@adobe/aem-core-cif-react-components)](https://www.npmjs.com/package/@adobe/aem-core-cif-react-components)
 ![GitHub](https://img.shields.io/github/license/adobe/aem-core-cif-components.svg)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=master&repo=184471389&machine=standardLinux32gb&location=WestEurope&devcontainer_path=.devcontainer%2Fdevcontainer.json)
 
 # AEM CIF Core Components
 
@@ -34,8 +35,9 @@ See the [AEM Content & Commerce documentation](https://experienceleague.adobe.co
 - [Searchbar](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/searchbar/v2/searchbar)
 - [Shopping Cart](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/minicart/v2/minicart)
 - [Featured Category List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/featuredcategorylist/v1/featuredcategorylist)
-- [Commerce Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/teaser/v2/teaser)
+- [Commerce Teaser](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/teaser/v3/teaser)
 - [Commerce Button](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/button/v2/button)
+- [Commerce List](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/list/v1/list)
 - [Sign In](react-components/src/components/SignIn)
 - [Create Account](react-components/src/components/CreateAccount)
 - [Mini Account](ui.apps/src/main/content/jcr_root/apps/core/cif/components/content/miniaccount/v2/miniaccount)
@@ -63,9 +65,9 @@ Components that are in technical preview may change in a none backward compatibl
 
 The latest version of the AEM CIF Core Components, require the below minimum system requirements:
 
-| CIF Core Components | AEM as a Cloud Service | AEM 6.5 | Adobe Commerce | Java  |
-|---------------------| ---------------------- | ------- | -------------- | ----- |
-| 2.8.0               | Continual              | 6.5.7   | 2.4.2 ee       | 8, 11 |
+| CIF Core Components | AEM as a Cloud Service | AEM 6.5 | AEM Commerce Add-On | Adobe Commerce | Java  |
+|---------------------| ---------------------- | ------- |---------------------| -------------- | ----- |
+| 2.17.2              | Continual              | 6.5.18   | v2025.09.02.00      | 2.4.2 ee       |  11 |
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 

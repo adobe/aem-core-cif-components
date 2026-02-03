@@ -19,20 +19,21 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.reflect.Type;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.json.Json;
 import javax.json.JsonReader;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -40,12 +41,10 @@ import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.junit.Assert;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
-import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.magento.graphql.Query;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
@@ -55,8 +54,8 @@ import com.adobe.cq.wcm.core.components.internal.jackson.DefaultMethodSkippingMo
 import com.adobe.cq.wcm.core.components.internal.jackson.PageModuleProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -120,9 +119,19 @@ public class Utils {
 
         if (contains != null) {
             GraphqlQueryMatcher matcher = new GraphqlQueryMatcher(contains);
-            when(httpClient.execute(Mockito.argThat(matcher))).thenReturn(mockedHttpResponse);
+            when(httpClient.execute(Mockito.argThat(matcher), any(ResponseHandler.class)))
+                .thenAnswer(invocation -> {
+                    HttpUriRequest request = invocation.getArgumentAt(0, HttpUriRequest.class);
+                    ResponseHandler<?> handler = invocation.getArgumentAt(1, ResponseHandler.class);
+                    return handler.handleResponse(mockedHttpResponse);
+                });
         } else {
-            when(httpClient.execute(Mockito.any(HttpUriRequest.class))).thenReturn(mockedHttpResponse);
+            when(httpClient.execute(any(HttpUriRequest.class), any(ResponseHandler.class)))
+                .thenAnswer(invocation -> {
+                    HttpUriRequest request = invocation.getArgumentAt(0, HttpUriRequest.class);
+                    ResponseHandler<?> handler = invocation.getArgumentAt(1, ResponseHandler.class);
+                    return handler.handleResponse(mockedHttpResponse);
+                });
         }
 
         when(mockedStatusLine.getStatusCode()).thenReturn(httpCode);
@@ -154,9 +163,19 @@ public class Utils {
 
         if (contains != null) {
             GraphqlQueryMatcher matcher = new GraphqlQueryMatcher(contains);
-            when(httpClient.execute(Mockito.argThat(matcher))).thenReturn(mockedHttpResponse);
+            when(httpClient.execute(Mockito.argThat(matcher), any(ResponseHandler.class)))
+                .thenAnswer(invocation -> {
+                    HttpUriRequest request = invocation.getArgumentAt(0, HttpUriRequest.class);
+                    ResponseHandler<?> handler = invocation.getArgumentAt(1, ResponseHandler.class);
+                    return handler.handleResponse(mockedHttpResponse);
+                });
         } else {
-            when(httpClient.execute((HttpUriRequest) Mockito.any())).thenReturn(mockedHttpResponse);
+            when(httpClient.execute(any(HttpUriRequest.class), any(ResponseHandler.class)))
+                .thenAnswer(invocation -> {
+                    HttpUriRequest request = invocation.getArgumentAt(0, HttpUriRequest.class);
+                    ResponseHandler<?> handler = invocation.getArgumentAt(1, ResponseHandler.class);
+                    return handler.handleResponse(mockedHttpResponse);
+                });
         }
 
         when(mockedStatusLine.getStatusCode()).thenReturn(errorCode);
@@ -207,50 +226,6 @@ public class Utils {
         return IOUtils.toString(Utils.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
     }
 
-    /**
-     * Matcher class used to match a GraphQL query. This is used to properly mock GraphQL responses.
-     */
-    private static class GraphqlQueryMatcher extends ArgumentMatcher<HttpUriRequest> {
-
-        private String contains;
-
-        public GraphqlQueryMatcher(String contains) {
-            this.contains = contains;
-        }
-
-        @Override
-        public boolean matches(Object obj) {
-            if (!(obj instanceof HttpUriRequest)) {
-                return false;
-            }
-
-            if (obj instanceof HttpEntityEnclosingRequest) {
-                // GraphQL query is in POST body
-                HttpEntityEnclosingRequest req = (HttpEntityEnclosingRequest) obj;
-                try {
-                    String body = IOUtils.toString(req.getEntity().getContent(), StandardCharsets.UTF_8);
-                    Gson gson = new Gson();
-                    GraphqlRequest graphqlRequest = gson.fromJson(body, GraphqlRequest.class);
-                    return graphqlRequest.getQuery().contains(contains);
-                } catch (Exception e) {
-                    return false;
-                }
-            } else {
-                // GraphQL query is in the URL 'query' parameter
-                HttpUriRequest req = (HttpUriRequest) obj;
-                String uri = null;
-                try {
-                    uri = URLDecoder.decode(req.getURI().toString(), StandardCharsets.UTF_8.name());
-                } catch (UnsupportedEncodingException e) {
-                    return false;
-                }
-                String graphqlQuery = uri.substring(uri.indexOf("?query=") + 7);
-                return graphqlQuery.contains(contains);
-            }
-        }
-
-    }
-
     static public void addDataLayerConfig(ConfigurationBuilder mockConfigBuilder, boolean enabled) {
         ValueMap datalayerVm = new ValueMapDecorator(ImmutableMap.of("enabled", enabled));
 
@@ -299,4 +274,20 @@ public class Utils {
         IOUtils.closeQuietly(is);
     }
 
+    /**
+     * Triggers the activate method of GraphqlClient service.
+     * 
+     * @param context The AEM context.
+     * @param graphqlClient The GraphqlClient service.
+     */
+    public static void registerGraphqlClient(AemContext context, GraphqlClient graphqlClient, Map<String, Object> additionalConfig) {
+        if (additionalConfig == null) {
+            additionalConfig = Collections.emptyMap();
+        }
+        Map<String, Object> config = new HashMap<>();
+        config.put("httpMethod", "POST");
+        config.put("url", "https://localhost");
+        config.putAll(additionalConfig);
+        context.registerInjectActivateService(graphqlClient, config);
+    }
 }

@@ -145,7 +145,7 @@ public class PreviewServletTest {
 
         // verify UrlProvider parameters
         Map<String, String> params = captor.getValue();
-        Assert.assertEquals("Incorrect number of parameters", 6, params.size());
+        Assert.assertEquals("Incorrect number of parameters", 7, params.size());
         Assert.assertEquals("Incorrect UID parameter", "testUid", params.get(UrlProvider.UID_PARAM));
         Assert.assertEquals("Incorrect SKU parameter", "testSku", params.get(UrlProvider.SKU_PARAM));
         Assert.assertEquals("Incorrect URL_KEY parameter", "testUrlKey", params.get(UrlProvider.URL_KEY_PARAM));
@@ -193,7 +193,7 @@ public class PreviewServletTest {
 
         // verify UrlProvider parameters
         Map<String, String> params = captor.getValue();
-        Assert.assertEquals("Incorrect number of parameters", 6, params.size());
+        Assert.assertEquals("Incorrect number of parameters", 7, params.size());
         Assert.assertEquals("Incorrect UID parameter", "testUid", params.get(UrlProvider.UID_PARAM));
         Assert.assertEquals("Incorrect SKU parameter", "testSku", params.get(UrlProvider.SKU_PARAM));
         Assert.assertEquals("Incorrect URL_KEY parameter", "testUrlKey", params.get(UrlProvider.URL_KEY_PARAM));

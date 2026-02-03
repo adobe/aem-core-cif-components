@@ -17,6 +17,7 @@ package com.adobe.cq.commerce.core.components.models.retriever;
 
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -38,6 +39,11 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 public abstract class AbstractCategoryRetriever extends AbstractRetriever {
 
     /**
+     * Category Identifier url path
+     */
+    public static final String CATEGORY_IDENTIFIER_URL_PATH = "urlPath";
+
+    /**
      * Lambda that extends the category query.
      */
     protected Consumer<CategoryTreeQuery> categoryQueryHook;
@@ -46,6 +52,11 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * Lambda that extends the product query.
      */
     protected Consumer<ProductInterfaceQuery> productQueryHook;
+
+    /**
+     * Lambda that allows to replace or extend the category filters.
+     */
+    protected Function<CategoryFilterInput, CategoryFilterInput> categoryFilterHook;
 
     /**
      * Category instance. Is only available after populate() was called.
@@ -66,6 +77,12 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * Page size for pagination of products in a category.
      */
     protected int pageSize = 6;
+
+    /**
+     * CategoryIdType that should be used when fetched. Usually uid but we can define it explicitly in the implementation
+     * specific and should be checked in subclass implementations.
+     */
+    protected String categoryIdType;
 
     public AbstractCategoryRetriever(MagentoGraphqlClient client) {
         super(client);
@@ -113,6 +130,16 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     }
 
     /**
+     * Set the type category identifier which will using during fetch. Categories are retrieved using
+     * this categoryIdType if not set then it will use UID.
+     *
+     * @param categoryIdType Type category identifier
+     */
+    public void setCategoryIdType(String categoryIdType) {
+        this.categoryIdType = categoryIdType;
+    }
+
+    /**
      * Extend the category query part of the category GraphQL query with a partial query provided by a lambda hook that sets additional
      * fields.
      *
@@ -134,6 +161,41 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
             this.categoryQueryHook = categoryQueryHook;
         } else {
             this.categoryQueryHook = this.categoryQueryHook.andThen(categoryQueryHook);
+        }
+    }
+
+    /**
+     * Extends or replaces the category filter with a custom instance defined by a lambda hook.
+     *
+     * Example 1 (Extend):
+     *
+     * <pre>
+     * {@code
+     * categoryRetriever.extendCategoryFilterWith(f -> f
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * Example 2 (Replace):
+     *
+     * <pre>
+     * {@code
+     * categoryRetriever.extendCategoryFilterWith(f -> new CategoryFilterInput()
+     *     .setCategoryUid(new FilterEqualTypeInput()
+     *         .setEq("custom-uid"))
+     *     .setCustomFilter("my-attribute", new FilterEqualTypeInput()
+     *         .setEq("my-value")));
+     * }
+     * </pre>
+     *
+     * @param categoryFilterHook Lambda that extends or replaces the category filter.
+     */
+    public void extendCategoryFilterWith(Function<CategoryFilterInput, CategoryFilterInput> categoryFilterHook) {
+        if (this.categoryFilterHook == null) {
+            this.categoryFilterHook = categoryFilterHook;
+        } else {
+            this.categoryFilterHook = this.categoryFilterHook.andThen(categoryFilterHook);
         }
     }
 
@@ -204,10 +266,23 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
      * @return GraphQL query as string
      */
     public Pair<CategoryListArgumentsDefinition, CategoryTreeQueryDefinition> generateCategoryQueryArgs(String identifier) {
+        CategoryFilterInput filter = new CategoryFilterInput();
         FilterEqualTypeInput identifierFilter = new FilterEqualTypeInput().setEq(identifier);
-        CategoryFilterInput filter = new CategoryFilterInput().setCategoryUid(identifierFilter);
 
-        CategoryListArgumentsDefinition searchArgs = q -> q.filters(filter);
+        // Set the filter type
+        if (CATEGORY_IDENTIFIER_URL_PATH.equals(this.categoryIdType)) {
+            filter.setUrlPath(identifierFilter);
+        } else {
+            filter.setCategoryUid(identifierFilter);
+        }
+
+        // Apply category filter hook
+        if (this.categoryFilterHook != null) {
+            filter = this.categoryFilterHook.apply(filter);
+        }
+
+        CategoryFilterInput finalFilter = filter;
+        CategoryListArgumentsDefinition searchArgs = q -> q.filters(finalFilter);
         CategoryTreeQueryDefinition queryArgs = generateCategoryQuery();
 
         return new ImmutablePair<>(searchArgs, queryArgs);
@@ -237,7 +312,8 @@ public abstract class AbstractCategoryRetriever extends AbstractRetriever {
     @Override
     protected void populate() {
         GraphqlResponse<Query, Error> response = executeQuery();
-        if (CollectionUtils.isEmpty(response.getErrors())) {
+        errors = response.getErrors();
+        if (CollectionUtils.isEmpty(errors)) {
             Query rootQuery = response.getData();
             if (rootQuery.getCategoryList() != null && !rootQuery.getCategoryList().isEmpty()) {
                 category = Optional.of(rootQuery.getCategoryList().get(0));

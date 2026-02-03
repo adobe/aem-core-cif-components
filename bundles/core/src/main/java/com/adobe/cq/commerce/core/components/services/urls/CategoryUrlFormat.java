@@ -33,6 +33,17 @@ import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 public interface CategoryUrlFormat extends GenericUrlFormat<CategoryUrlFormat.Params> {
 
     /**
+     * Validates the given parameters are required ones for this format. Avoid checking of the page parameter here
+     * Implementations should override this method to provide their own validation
+     *
+     * @param params the parameters to validate
+     * @return boolean
+     */
+    default boolean validateRequiredParams(CategoryUrlFormat.Params params) {
+        return false;
+    }
+
+    /**
      * Instances of this class hold the parameters used by implementations of the {@link CategoryUrlFormat}.
      */
     @ProviderType

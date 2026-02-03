@@ -57,7 +57,9 @@ public class ButtonImplTest {
     public void setUp() throws Exception {
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory());
         GraphqlClient graphqlClient = new GraphqlClientImpl();
-        context.registerInjectActivateService(graphqlClient);
+
+        Utils.registerGraphqlClient(context, graphqlClient, null);
+
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
             "cq:graphqlClient", String.class) != null ? graphqlClient : null);
 

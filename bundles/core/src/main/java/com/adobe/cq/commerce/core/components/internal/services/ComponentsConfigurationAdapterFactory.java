@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.services;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.sling.api.adapter.AdapterFactory;
@@ -31,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
-import com.google.common.collect.ImmutableMap;
 
 @Component(
     service = { AdapterFactory.class },
@@ -46,7 +46,7 @@ public class ComponentsConfigurationAdapterFactory implements AdapterFactory {
     private static final String SUBSERVICE_NAME = "cif-components-configuration";
     private static final Logger LOG = LoggerFactory.getLogger(ComponentsConfigurationAdapterFactory.class);
 
-    private static final Map<String, Object> authInfo = ImmutableMap.of(ResourceResolverFactory.SUBSERVICE, SUBSERVICE_NAME);
+    private static final Map<String, Object> authInfo = Collections.singletonMap(ResourceResolverFactory.SUBSERVICE, SUBSERVICE_NAME);
 
     private static final String CONFIGURATION_NAME = "cloudconfigs/commerce";
 

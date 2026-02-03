@@ -17,15 +17,20 @@ package com.adobe.cq.commerce.core.search.internal.services;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
-import org.apache.sling.testing.mock.sling.ResourceResolverType;
+import org.apache.sling.testing.mock.osgi.MockOsgi;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,6 +42,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
+import com.adobe.cq.commerce.core.testing.GraphqlQueryMatcher;
 import com.adobe.cq.commerce.core.testing.Utils;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -47,33 +53,28 @@ import com.day.cq.wcm.api.Page;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import io.wcm.testing.mock.aem.junit.AemContext;
-import io.wcm.testing.mock.aem.junit.AemContextCallback;
 
+import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SearchFilterServiceImplTest {
 
     @Rule
-    public final AemContext context = createContext("/context/jcr-content.json");
+    public final AemContext context = buildAemContext("/context/jcr-content.json")
+        .<AemContext>afterSetUp(context -> {
+            context.registerAdapter(Resource.class, ComponentsConfiguration.class,
+                (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
+        })
+        .build();
 
     private static final ValueMap MOCK_CONFIGURATION = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
         "my-store", "enableUIDSupport", "true"));
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
-
-    private static AemContext createContext(String contentPath) {
-        return new AemContext(
-            (AemContextCallback) context -> {
-                // Load page structure
-                context.load().json(contentPath, "/content");
-                context.registerAdapter(Resource.class, ComponentsConfiguration.class,
-                    (Function<Resource, ComponentsConfiguration>) input -> MOCK_CONFIGURATION_OBJECT);
-            },
-            ResourceResolverType.JCR_MOCK);
-    }
 
     private static final String PAGE = "/content/pageA";
 
@@ -91,7 +92,11 @@ public class SearchFilterServiceImplTest {
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
         graphqlClient = new GraphqlClientImpl();
-        context.registerInjectActivateService(graphqlClient, "httpMethod", "POST");
+
+        // Create additionalConfig map
+        Map<String, Object> additionalConfig = new HashMap<>();
+        additionalConfig.put("httpMethod", "GET");
+        Utils.registerGraphqlClient(context, graphqlClient, additionalConfig);
 
         Utils.setupHttpResponse("graphql/magento-graphql-introspection-result.json", httpClient, HttpStatus.SC_OK, "{__type");
         Utils.setupHttpResponse("graphql/magento-graphql-attributes-result.json", httpClient, HttpStatus.SC_OK, "{customAttributeMetadata");
@@ -131,6 +136,23 @@ public class SearchFilterServiceImplTest {
         assertThat(newAttr.getFilterInputType()).isEqualTo("FilterEqualTypeInput");
         assertThat(newAttr.getAttributeType()).isEqualTo("Int");
         assertThat(newAttr.getAttributeInputType()).isEqualTo("boolean");
+    }
+
+    @Test
+    public void testRetrieveMetadataEnforcedPost() throws IOException {
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient") != null ? graphqlClient : null);
+
+        MockOsgi.deactivate(searchFilterServiceUnderTest, context.bundleContext());
+        MockOsgi.activate(searchFilterServiceUnderTest, context.bundleContext(), "enforcePost", Boolean.TRUE);
+
+        final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
+            .retrieveCurrentlyAvailableCommerceFilters(page);
+
+        assertThat(filterAttributeMetadata).hasSize(29);
+
+        verify(httpClient).execute(argThat(new GraphqlQueryMatcher("{__type", "GET")), any(ResponseHandler.class));
+        verify(httpClient).execute(argThat(new GraphqlQueryMatcher("{customAttributeMetadata", "post")), any(ResponseHandler.class));
     }
 
     @Test
@@ -178,5 +200,26 @@ public class SearchFilterServiceImplTest {
         final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
             .retrieveCurrentlyAvailableCommerceFilters(page);
         assertThat(filterAttributeMetadata).hasSize(0);
+    }
+
+    @Test
+    public void testRetrieveCurrentlyAvailableCommerceFiltersInfoWithErrors() {
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> input.getValueMap().get(
+            "cq:graphqlClient") != null ? graphqlClient : null);
+
+        Query query = new Query();
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<Object, Object>();
+        response.setData(query);
+        Error error = new Error();
+        response.setErrors(Collections.singletonList(error));
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+
+        SlingHttpServletRequest request = context.request();
+
+        final Pair<List<FilterAttributeMetadata>, List<Error>> filterAttributeMetadata = searchFilterServiceUnderTest
+            .retrieveCurrentlyAvailableCommerceFiltersInfo(request, page);
+        assertThat(filterAttributeMetadata.getLeft()).hasSize(0);
+        assertThat(filterAttributeMetadata.getRight()).hasSize(2);
     }
 }

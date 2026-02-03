@@ -13,18 +13,21 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import { useIntl } from 'react-intl';
-import { useStorefrontEvents, Price, Trigger, createProductPageUrl } from '@adobe/aem-core-cif-react-components';
-
+import { Price, Trigger, createProductPageUrl, dataLayerUtils } from '@adobe/aem-core-cif-react-components';
+import { useStorefrontInstanceContext } from '../../context/StorefrontInstanceContext';
 import classes from './ProductCard.css';
 
 const ProductCard = props => {
-    const { showAddToWishList } = props;
-    const mse = useStorefrontEvents();
+    const { showAddToWishList, parentId } = props;
+    const { mse } = useStorefrontInstanceContext();
     const intl = useIntl();
+    const addToCartRef = useRef();
+    const addToWishlistRef = useRef();
+    const [dataLayer, setDataLayer] = useState(undefined);
 
     const {
         unit: { unitId },
@@ -36,9 +39,10 @@ const ProductCard = props => {
         const { unitId } = unit;
 
         const customEvent = new CustomEvent('aem.cif.add-to-cart', {
+            bubbles: true,
             detail: [{ sku, quantity: 1, virtual: type === 'virtual' }]
         });
-        document.dispatchEvent(customEvent);
+        addToCartRef.current.dispatchEvent(customEvent);
 
         mse && mse.publish.recsItemAddToCartClick(unitId, productId);
     };
@@ -47,9 +51,10 @@ const ProductCard = props => {
         const { sku } = product;
 
         const customEvent = new CustomEvent('aem.cif.add-to-wishlist', {
+            bubbles: true,
             detail: [{ sku, quantity: 1 }]
         });
-        document.dispatchEvent(customEvent);
+        addToWishlistRef.current.dispatchEvent(customEvent);
     };
 
     const openDetails = (unit, product) => {
@@ -88,8 +93,44 @@ const ProductCard = props => {
         return <img className={classes.productImage} src={smallImage.url} alt={name} />;
     };
 
+    const cartProps = {
+        className: classes.card,
+        key: sku
+    };
+
+    if (dataLayer) {
+        cartProps['data-cmp-data-layer'] = JSON.stringify(dataLayer);
+    }
+
+    useEffect(() => {
+        (async () => {
+            if (parentId) {
+                const dataLayerKey = await dataLayerUtils.generateId(parentId, sku, '-item-');
+                const dataLayerBody = {
+                    parentId,
+                    '@type': 'core/cif/components/commerce/productlistitem',
+                    'dc:title': name,
+                    'xdm:SKU': sku
+                };
+
+                if (prices?.minimum?.final) {
+                    dataLayerBody['xdm:currencyCode'] = currency;
+                    dataLayerBody['xdm:listPrice'] = prices.minimum.final;
+                }
+
+                const componentObject = { [dataLayerKey]: dataLayerBody };
+                // set the componentObject to the state
+                setDataLayer(componentObject);
+                // and add it to the datalayer
+                dataLayerUtils.pushData({
+                    component: componentObject
+                });
+            }
+        })();
+    }, []);
+
     return (
-        <div className={classes.card} key={sku}>
+        <div {...cartProps}>
             <a
                 href={createProductPageUrl(sku)}
                 title={name}
@@ -109,14 +150,14 @@ const ProductCard = props => {
                             openDetails(props.unit, props.product);
                         }
                     }}>
-                    <span className={classes.addToCart}>
+                    <span className={classes.addToCart} ref={addToCartRef}>
                         {intl.formatMessage({ id: 'productrecs:add-to-cart', defaultMessage: 'Add to Cart' })}
                     </span>
                 </Trigger>
             }
             {showAddToWishList && (
                 <Trigger className={classes.buttonMargin} action={() => addToWishlist(props.product)}>
-                    <span className={classes.addToWishlist}>
+                    <span className={classes.addToWishlist} ref={addToWishlistRef}>
                         {intl.formatMessage({ id: 'productrecs:add-to-wishlist', defaultMessage: 'Add to Wish List' })}
                     </span>
                 </Trigger>
@@ -147,7 +188,8 @@ ProductCard.propTypes = {
             url: PropTypes.string
         })
     }),
-    showAddToWishList: PropTypes.bool
+    showAddToWishList: PropTypes.bool,
+    parentId: PropTypes.string
 };
 
 export default ProductCard;
