@@ -25,7 +25,7 @@
     "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
     "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc",
     "snapshot:update": "jest --updateSnapshot",
-    "i18n:extract-compile": "formatjs extract --out-file i18n/__temp.json 'src/**/*.js' && formatjs compile --ast --out-file i18n/en.json i18n/__temp.json && rm i18n/__temp.json"
+    "i18n:extract-compile": "formatjs extract --out-file i18n/__temp.json 'src/**/*.js' && formatjs compile --ast --out-file i18n/en.json i18n/__temp.json && rimraf i18n/__temp.json"
   },
   "devDependencies": {
     "@adobe/aem-core-cif-react-components": "^2.10.0",
