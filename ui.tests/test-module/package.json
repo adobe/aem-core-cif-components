@@ -43,6 +43,6 @@
     "test-local-firefox": "cross-env SELENIUM_BROWSER=firefox wdio run wdio.conf.local.js",
     "pretest-cloud": "npm run lint",
     "test-cloud": "wdio run wdio.conf.cloud.js",
-    "clean": "rm -rf node_modules reports"
+    "clean": "node -e \"require('fs').rmSync('node_modules',{recursive:true,force:true});require('fs').rmSync('reports',{recursive:true,force:true})\""
   }
 }
