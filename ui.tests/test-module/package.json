@@ -33,8 +33,7 @@
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
     "source-map-support": "^0.5.0",
-    "tough-cookie": "^4.0.0",
-    "rimraf": "3.0.0"
+    "tough-cookie": "^4.0.0"
   },
   "scripts": {
     "lint": "eslint .",
@@ -44,6 +43,6 @@
     "test-local-firefox": "cross-env SELENIUM_BROWSER=firefox wdio run wdio.conf.local.js",
     "pretest-cloud": "npm run lint",
     "test-cloud": "wdio run wdio.conf.cloud.js",
-    "clean": "rirmaf node_modules reports"
+    "clean": "rirmaf -rf node_modules reports"
   }
 }
