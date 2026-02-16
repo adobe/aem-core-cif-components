@@ -32,6 +32,7 @@
     "log4js": "^6.1.2",
     "request": "^2.88.2",
     "request-promise": "^4.2.5",
+    "rimraf": "3.0.2",
     "source-map-support": "^0.5.0",
     "tough-cookie": "^4.0.0"
   },
@@ -43,6 +44,6 @@
     "test-local-firefox": "cross-env SELENIUM_BROWSER=firefox wdio run wdio.conf.local.js",
     "pretest-cloud": "npm run lint",
     "test-cloud": "wdio run wdio.conf.cloud.js",
-    "clean": "node -e \"require('fs').rmSync('node_modules',{recursive:true,force:true});require('fs').rmSync('reports',{recursive:true,force:true})\""
+    "clean": "rimraf node_modules reports"
   }
 }
