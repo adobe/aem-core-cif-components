@@ -6,8 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run prettier:check",
-    "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
-    "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc"
+    "prettier:check": "prettier --check \"src/**/*.js\" \"src/**/*.css\" \"test/**/*.js\" \"test/**/*.css\" --config ./.prettierrc",
+    "prettier:fix": "prettier --write \"src/**/*.js\" \"src/**/*.css\" \"test/**/*.js\" \"test/**/*.css\" --config ./.prettierrc"
   },
   "author": "Adobe",
   "repository": {
