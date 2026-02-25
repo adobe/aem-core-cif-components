@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.internal.utils.VersionHistoryResourceResolver;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 
@@ -70,6 +71,8 @@ public class ComponentsConfigurationAdapterFactory implements AdapterFactory {
                     resourcePath);
                 return null;
             }
+
+            resource = VersionHistoryResourceResolver.resolveSourceResource(resource);
 
             if (LaunchUtils.isLaunchBasedPath(resource.getPath())) {
                 // In Launches we have to resolve the ComponentConfigurations from the production resource as there is still an issue

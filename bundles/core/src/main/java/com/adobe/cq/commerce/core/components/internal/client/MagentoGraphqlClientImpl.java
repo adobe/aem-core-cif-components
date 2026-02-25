@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.DeniedHttpHeaders;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.utils.VersionHistoryResourceResolver;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
@@ -147,6 +148,8 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         } else {
             configurationResource = resource;
         }
+
+        configurationResource = VersionHistoryResourceResolver.resolveSourceResource(configurationResource);
 
         LOGGER.debug("Try to get a graphql client from the resource at {}", configurationResource.getPath());
         ComponentsConfiguration configuration = configurationResource.adaptTo(ComponentsConfiguration.class);

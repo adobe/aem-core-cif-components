@@ -319,6 +319,27 @@ public class MagentoGraphqlClientImplTest {
     }
 
     @Test
+    public void testVersionHistoryPathResolvesSourceConfiguration() {
+        context.registerAdapter(Resource.class, ComponentsConfiguration.class, (Function<Resource, ComponentsConfiguration>) resource -> {
+            if (resource.getPath().startsWith("/content/pageA")) {
+                return MOCK_CONFIGURATION_OBJECT;
+            }
+            return ComponentsConfiguration.EMPTY;
+        });
+
+        context.create().page("/tmp/versionhistory/hash/version/content/pageA");
+        Resource versionResource = context.create().resource(
+            "/tmp/versionhistory/hash/version/content/pageA/jcr:content/root/responsivegrid/product");
+
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(versionResource, null, null);
+        assertNotNull("GraphQL client created successfully", client);
+
+        client.execute("{dummy}");
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(Collections.singletonList(new BasicHeader("Store", "my-store")), null);
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
     public void testPreviewVersionHeaderWithTimewarpRequestParameter() {
         Calendar time = Calendar.getInstance();
         time.setTimeInMillis(time.getTimeInMillis() + 3600000); // 1h in future from now

@@ -117,6 +117,18 @@ public class ComponentsConfigurationAdapterFactoryTest {
     }
 
     @Test
+    public void testAdaptFromResourceWithinVersionHistory() {
+        Resource versionHistoryResource = context.create().resource("/tmp/versionhistory/hash/version/pageH");
+        ComponentsConfiguration configuration = versionHistoryResource.adaptTo(ComponentsConfiguration.class);
+
+        Assert.assertNotNull("Configuration is not null", configuration);
+        Assert.assertTrue("The configuration has some data in it", configuration.size() > 0);
+
+        String unrelatedProperty = configuration.get("aTotallyUnrelatedProperty", String.class);
+        Assert.assertEquals("The configuration is correct", unrelatedProperty, "true");
+    }
+
+    @Test
     public void testAdaptNullResource() {
         ComponentsConfiguration configuration = context.resourceResolver().adaptTo(ComponentsConfiguration.class);
         Assert.assertNull(configuration);
