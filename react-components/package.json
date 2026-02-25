@@ -9,32 +9,59 @@
     "url": "https://github.com/adobe/aem-core-cif-components"
   },
   "main": "dist/index.js",
-  "files": [
-    "dist",
-    "i18n"
-  ],
+  "module": "dist/esm/index.js",
+  "sideEffects": ["**/*.css"],
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./Price": {
+      "import": "./dist/esm/components/Price/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./Cart": {
+      "import": "./dist/esm/components/Minicart/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./AuthBar": {
+      "import": "./dist/esm/components/AuthBar/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./i18n/en.json": "./i18n/en.json"
+  },
+  "files": ["dist", "i18n"],
   "scripts": {
-    "lint": "eslint 'src/**/*.js'",
-    "lint:fix": "eslint --fix 'src/**/*.js'",
-    "webpack:dev": "npm run i18n:extract-compile && webpack --mode=development",
-    "webpack:prod": "npm run i18n:extract-compile && webpack --mode=production && node css-template.js",
+    "lint": "eslint \"src/**/*.js\"",
+    "lint:fix": "eslint --fix \"src/**/*.js\"",
+    "webpack:dev": "npm run i18n:extract-compile && node scripts/run-webpack.js development",
+    "webpack:prod": "npm run i18n:extract-compile && node scripts/run-webpack.js production && node css-template.js",
+    "build:esm": "npm run i18n:extract-compile && rollup -c",
+    "build": "npm run webpack:prod && npm run build:esm",
     "test": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --coverage",
     "jest": "jest --coverage",
     "ci": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --ci --runInBand --coverage",
     "test:watch": "npm run i18n:extract-compile && npm run lint && jest --watch",
-    "prettier:check": "prettier --check '{src,test}/**/*.{js,css}' --config ./.prettierrc",
-    "prettier:fix": "prettier --write '{src,test}/**/*.{js,css}' --config ./.prettierrc",
+    "prettier:check": "prettier --check \"{src,test}/**/*.{js,css}\" --config ./.prettierrc",
+    "prettier:fix": "prettier --write \"{src,test}/**/*.{js,css}\" --config ./.prettierrc",
     "snapshot:update": "jest --updateSnapshot",
     "i18n:extract-compile": "formatjs extract \"src/**/*.js\" --out-file i18n/__temp.json && formatjs compile --ast --out-file i18n/en.json i18n/__temp.json && rimraf i18n/__temp.json"
   },
   "devDependencies": {
-    "@apollo/client": "~3.1.2",
+    "@apollo/client": "~3.6.0",
     "@babel/core": "^7.8.7",
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-react": "^7.8.3",
     "@formatjs/cli": "^4.2.33",
     "@magento/peregrine": "^11.0.0",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-commonjs": "^25.0.6",
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "@peculiar/webcrypto": "^1.1.4",
     "@testing-library/jest-dom": "^5.14.0",
     "@testing-library/react": "^9.5.0",
@@ -46,6 +73,7 @@
     "braintree-web-drop-in": "^1.22.1",
     "bufferutil": "^4.0.1",
     "clean-webpack-plugin": "^3.0.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^3.4.2",
     "eslint": "^7.10.0",
     "eslint-plugin-header": "^3.0.0",
@@ -63,12 +91,14 @@
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-dom": "~17.0.1",
-    "rimraf": "3.0.2",
     "react-feather": "^2.0.3",
     "react-intl": "~5.20.0",
     "react-redux": "~7.2.2",
     "redux-actions": "~2.6.5",
     "redux-thunk": "^2.3.0",
+    "rimraf": "3.0.2",
+    "rollup": "^3.29.0",
+    "rollup-plugin-postcss": "^4.0.2",
     "typescript": "^4.4.2",
     "utf-8-validate": "^5.0.2",
     "webpack": "^4.42.0",
