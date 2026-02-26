@@ -39,9 +39,7 @@ public class VersionHistoryResourceResolverTest {
     @Test
     public void testResolveNonVersionHistoryResourceReturnsSameResource() {
         Resource resource = context.create().resource("/content/site/page");
-
         Resource resolved = VersionHistoryResourceResolver.resolveSourceResource(resource);
-
         Assert.assertEquals("/content/site/page", resolved.getPath());
     }
 
@@ -52,7 +50,6 @@ public class VersionHistoryResourceResolverTest {
             Collections.singletonMap("cq:sourcePath", "/content/site/source-page"));
 
         Resource resolved = VersionHistoryResourceResolver.resolveSourceResource(resource);
-
         Assert.assertEquals("/content/site/source-page", resolved.getPath());
     }
 
@@ -65,7 +62,6 @@ public class VersionHistoryResourceResolverTest {
                 "sourcePath", "/content/site/source-page"));
 
         Resource resolved = VersionHistoryResourceResolver.resolveSourceResource(resource);
-
         Assert.assertEquals("/content/site/source-page", resolved.getPath());
     }
 
@@ -79,7 +75,6 @@ public class VersionHistoryResourceResolverTest {
                 "jcr:sourcePath", "/content/site/source-page"));
 
         Resource resolved = VersionHistoryResourceResolver.resolveSourceResource(resource);
-
         Assert.assertEquals("/content/site/source-page", resolved.getPath());
     }
 
@@ -87,9 +82,7 @@ public class VersionHistoryResourceResolverTest {
     public void testResolveUsingRelativePathCandidate() {
         context.create().resource("/content/site/page");
         Resource resource = context.create().resource("/tmp/versionhistory/hash/version/content/site/page");
-
         Resource resolved = VersionHistoryResourceResolver.resolveSourceResource(resource);
-
         Assert.assertEquals("/content/site/page", resolved.getPath());
     }
 
@@ -97,9 +90,7 @@ public class VersionHistoryResourceResolverTest {
     public void testResolveUsingRelativePathParentFallback() {
         context.create().resource("/content/site/page");
         Resource resource = context.create().resource("/tmp/versionhistory/hash/version/content/site/page/child");
-
         Resource resolved = VersionHistoryResourceResolver.resolveSourceResource(resource);
-
         Assert.assertEquals("/content/site/page", resolved.getPath());
     }
 
@@ -107,27 +98,51 @@ public class VersionHistoryResourceResolverTest {
     public void testResolveUsingContentPrefixedFallback() {
         context.create().resource("/content/site/page");
         Resource resource = context.create().resource("/tmp/versionhistory/hash/version/site/page");
-
         Resource resolved = VersionHistoryResourceResolver.resolveSourceResource(resource);
-
         Assert.assertEquals("/content/site/page", resolved.getPath());
     }
 
     @Test
     public void testResolveInvalidVersionHistoryPathReturnsSameResource() {
         Resource resource = context.create().resource("/tmp/versionhistory/hash/version");
+        Resource resourceWithTrailingSlash = context.create().resource("/tmp/versionhistory/hash/version/");
 
         Resource resolved = VersionHistoryResourceResolver.resolveSourceResource(resource);
+        Resource resolvedWithTrailingSlash = VersionHistoryResourceResolver.resolveSourceResource(resourceWithTrailingSlash);
 
         Assert.assertEquals("/tmp/versionhistory/hash/version", resolved.getPath());
+        Assert.assertEquals("/tmp/versionhistory/hash/version", resolvedWithTrailingSlash.getPath());
     }
 
     @Test
     public void testResolveWithoutAnyCandidateReturnsSameResource() {
         Resource resource = context.create().resource("/tmp/versionhistory/hash/version/site/page");
-
         Resource resolved = VersionHistoryResourceResolver.resolveSourceResource(resource);
-
         Assert.assertEquals("/tmp/versionhistory/hash/version/site/page", resolved.getPath());
+    }
+
+    @Test
+    public void testResolveSourcePathFallsBackWhenTargetMissing() {
+        context.create().resource("/content/site/source-page");
+        Resource resource = context.create().resource("/tmp/versionhistory/hash/version/site/page",
+            ImmutableMap.of(
+                "cq:sourcePath", "/content/site/missing-page",
+                "sourcePath", "/content/site/source-page"));
+        Resource resolved = VersionHistoryResourceResolver.resolveSourceResource(resource);
+        Assert.assertEquals("/content/site/source-page", resolved.getPath());
+    }
+
+    @Test
+    public void testResolveInvalidVersionHistoryPathWithoutVersionIdReturnsSameResource() {
+        Resource resource = context.create().resource("/tmp/versionhistory/hashonly");
+        Resource resolved = VersionHistoryResourceResolver.resolveSourceResource(resource);
+        Assert.assertEquals("/tmp/versionhistory/hashonly", resolved.getPath());
+    }
+
+    @Test
+    public void testResolveContentRelativePathWithoutCandidateReturnsSameResource() {
+        Resource resource = context.create().resource("/tmp/versionhistory/hash/version/content/unknown");
+        Resource resolved = VersionHistoryResourceResolver.resolveSourceResource(resource);
+        Assert.assertEquals("/tmp/versionhistory/hash/version/content/unknown", resolved.getPath());
     }
 }
