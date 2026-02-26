@@ -1,30 +1,3 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<Checkbox> renders the correct tree 1`] = `
-<DocumentFragment>
-  <form>
-    <label
-      class="root"
-      for="c"
-    >
-      <span
-        class="icon"
-      />
-      <input
-        class="input"
-        id="c"
-        name="a"
-        type="checkbox"
-      />
-      <span
-        class="label"
-      >
-        b
-      </span>
-    </label>
-    <p
-      class="root"
-    />
-  </form>
-</DocumentFragment>
-`;
+exports[`<Checkbox> renders the correct tree 1`] = `<form><label class="root" for="c"><span class="icon"></span><input type="checkbox" class="input" id="c" name="a"><span class="label">b</span></label><p class="root"></p></form>`;

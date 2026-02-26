@@ -1,11 +1,3 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<Price /> renders the component 1`] = `
-<DocumentFragment>
-  <span
-    class=""
-  >
-    €123.45
-  </span>
-</DocumentFragment>
-`;
+exports[`<Price /> renders the component 1`] = `<span class="">€123.45</span>`;
