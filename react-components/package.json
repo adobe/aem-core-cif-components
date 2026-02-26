@@ -52,7 +52,7 @@
     "i18n:extract-compile": "formatjs extract \"src/**/*.js\" --out-file i18n/__temp.json && formatjs compile --ast --out-file i18n/en.json i18n/__temp.json && rimraf i18n/__temp.json"
   },
   "devDependencies": {
-    "@apollo/client": "~3.6.0",
+    "@apollo/client": "~3.1.2",
     "@babel/core": "^7.8.7",
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@babel/preset-env": "^7.8.7",
