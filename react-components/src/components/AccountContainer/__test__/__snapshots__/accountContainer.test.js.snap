@@ -78,7 +78,6 @@ exports[`<AccountContainer> renders the component 1`] = `
                 aria-label="email"
                 autocomplete="email"
                 class="input"
-                id="596760c2-e9f4-480d-a490-a30f446a28a0"
                 name="email"
                 value=""
               />
@@ -118,7 +117,6 @@ exports[`<AccountContainer> renders the component 1`] = `
                 aria-label="password"
                 autocomplete="current-password"
                 class="input"
-                id="5dc510e0-924f-40e9-a2b7-d6cafda9db86"
                 name="password"
                 type="password"
                 value=""
