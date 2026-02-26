@@ -440,6 +440,7 @@ exports[`<AddressForm /> renders the component with address select 1`] = `
               >
                 <select
                   class="input"
+                  id="3adfcada-ca4d-4137-84bc-9c3b0608c5e7"
                   name="address_select"
                 >
                   <option
