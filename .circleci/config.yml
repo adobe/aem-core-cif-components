@@ -176,7 +176,7 @@ jobs:
           command: |
             node -v
             npm -v
-            npm ci
+            npm ci --legacy-peer-deps
           working_directory: ./react-components
       - run:
           name: Run Unit Tests (Jest)
