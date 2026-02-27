@@ -1,3 +1,144 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<SignIn> renders the component 1`] = `<div class="root"><form class="form"><div class="formTitle">Sign-in to Your Account</div><div class="root"><label><span class="label"><span class="requiredSymbol"></span>Email address</span></label><span class="root" style="--iconsBefore: 0; --iconsAfter: 0;"><span class="input"><input autocomplete="email" aria-label="email" class="input" name="email" value=""></span><span class="before"></span><span class="after"></span></span><p class="root"></p></div><div class="root"><label><span class="label"><span class="requiredSymbol"></span>Password</span></label><span class="root" style="--iconsBefore: 0; --iconsAfter: 0;"><span class="input"><input type="password" autocomplete="current-password" aria-label="password" class="input" name="password" value=""></span><span class="before"></span><span class="after"></span></span><p class="root"></p></div><div class="forgotPasswordButton"><button class="root_lowPriority" type="button"><span class="content">Forgot Password?</span></button></div><div class="signInError"></div><div class="signInButton"><button class="root_highPriority" type="submit" aria-label="submit"><span class="content">Sign In</span></button></div><div class="createAccountButton"><button class="root_normalPriority" type="button"><span class="content">Create an Account</span></button></div></form></div>`;
+exports[`<SignIn> renders the component 1`] = `
+<DocumentFragment>
+  <div
+    class="root"
+  >
+    <form
+      class="form"
+    >
+      <div
+        class="formTitle"
+      >
+        Sign-in to Your Account
+      </div>
+      <div
+        class="root"
+      >
+        <label>
+          <span
+            class="label"
+          >
+            <span
+              class="requiredSymbol"
+            />
+            Email address
+          </span>
+        </label>
+        <span
+          class="root"
+          style="--iconsBefore: 0; --iconsAfter: 0;"
+        >
+          <span
+            class="input"
+          >
+            <input
+              aria-label="email"
+              autocomplete="email"
+              class="input"
+              name="email"
+              value=""
+            />
+          </span>
+          <span
+            class="before"
+          />
+          <span
+            class="after"
+          />
+        </span>
+        <p
+          class="root"
+        />
+      </div>
+      <div
+        class="root"
+      >
+        <label>
+          <span
+            class="label"
+          >
+            <span
+              class="requiredSymbol"
+            />
+            Password
+          </span>
+        </label>
+        <span
+          class="root"
+          style="--iconsBefore: 0; --iconsAfter: 0;"
+        >
+          <span
+            class="input"
+          >
+            <input
+              aria-label="password"
+              autocomplete="current-password"
+              class="input"
+              name="password"
+              type="password"
+              value=""
+            />
+          </span>
+          <span
+            class="before"
+          />
+          <span
+            class="after"
+          />
+        </span>
+        <p
+          class="root"
+        />
+      </div>
+      <div
+        class="forgotPasswordButton"
+      >
+        <button
+          class="root_lowPriority"
+          type="button"
+        >
+          <span
+            class="content"
+          >
+            Forgot Password?
+          </span>
+        </button>
+      </div>
+      <div
+        class="signInError"
+      />
+      <div
+        class="signInButton"
+      >
+        <button
+          aria-label="submit"
+          class="root_highPriority"
+          type="submit"
+        >
+          <span
+            class="content"
+          >
+            Sign In
+          </span>
+        </button>
+      </div>
+      <div
+        class="createAccountButton"
+      >
+        <button
+          class="root_normalPriority"
+          type="button"
+        >
+          <span
+            class="content"
+          >
+            Create an Account
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</DocumentFragment>
+`;
