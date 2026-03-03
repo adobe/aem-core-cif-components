@@ -15,10 +15,12 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.it.http;
 
-import org.apache.http.HttpEntity;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.sling.testing.clients.ClientException;
 import org.apache.sling.testing.clients.SlingHttpResponse;
 import org.apache.sling.testing.clients.util.FormEntityBuilder;
+import org.apache.sling.testing.clients.util.JsonUtils;
+import org.codehaus.jackson.JsonNode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -31,34 +33,31 @@ import static org.junit.Assert.assertTrue;
 
 public class VersionHistoryPreviewIT extends CommerceTestBase {
 
-    private static final String SOURCE_PRODUCT_TEASER_PAGE = COMMERCE_LIBRARY_PATH + "/productteaser";
-    private static final String VERSION_HISTORY_ROOT_BASE = "/tmp/versionhistory/cif-it-hash";
+    private static final String VERSION_HISTORY_ROOT = "/tmp/versionhistory/";
     private static final String VERSION_HISTORY_PAGE_SUFFIX = "/content/core-components-examples/library/commerce/productteaser";
+    private static final String SOURCE_PRODUCT_TEASER_PAGE = VERSION_HISTORY_PAGE_SUFFIX;
+    private static final String VERSION_HISTORY_SERVLET = "/mnt/overlay/wcm/core/content/sites/versionhistory/_jcr_content.txt";
     private static final String PRODUCT_TEASER_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .productteaser .item__name > span";
-    private String versionHistoryRoot;
+    private static final int VERSION_POLL_ATTEMPTS = 30;
+    private static final long VERSION_POLL_DELAY_MS = 1000L;
     private String versionHistoryPagePath;
+    private String versionHistoryVersionRoot;
 
     @Before
-    public void setup() throws ClientException {
-        assertTrue("Source page missing: " + SOURCE_PRODUCT_TEASER_PAGE, adminAuthor.exists(SOURCE_PRODUCT_TEASER_PAGE));
-        versionHistoryRoot = VERSION_HISTORY_ROOT_BASE + "/cif-it-version-" + System.currentTimeMillis();
-        String versionHistoryParent = versionHistoryRoot + "/content/core-components-examples/library/commerce";
-        String versionHistoryPageNode = versionHistoryRoot + VERSION_HISTORY_PAGE_SUFFIX;
-        versionHistoryPagePath = versionHistoryPageNode + ".html";
-
-        adminAuthor.createNodeRecursive(versionHistoryParent, "sling:Folder");
-        HttpEntity copyEntity = FormEntityBuilder.create()
-            .addParameter(":operation", "copy")
-            .addParameter(":dest", versionHistoryPageNode)
-            .build();
-        adminAuthor.doPost(SOURCE_PRODUCT_TEASER_PAGE, copyEntity, 200, 201);
-        assertTrue("Version history preview page was not created", adminAuthor.exists(versionHistoryPageNode));
+    public void setup() throws Exception {
+        String label = "it-version-" + System.currentTimeMillis();
+        adminAuthor.createVersion(SOURCE_PRODUCT_TEASER_PAGE, "IT version", label);
+        String versionId = waitForVersionId(SOURCE_PRODUCT_TEASER_PAGE, label);
+        versionHistoryPagePath = determinePreviewUrl(versionId);
+        versionHistoryVersionRoot = getVersionHistoryVersionRoot(versionHistoryPagePath);
+        assertTrue("Version preview URL should be a version history path", versionHistoryPagePath.contains(VERSION_HISTORY_ROOT));
+        assertTrue("Version preview URL should end with .html", versionHistoryPagePath.endsWith(".html"));
     }
 
     @After
     public void cleanup() throws ClientException {
-        if (versionHistoryRoot != null && adminAuthor.exists(versionHistoryRoot)) {
-            adminAuthor.deletePath(versionHistoryRoot);
+        if (versionHistoryVersionRoot != null && adminAuthor.exists(versionHistoryVersionRoot)) {
+            adminAuthor.deletePath(versionHistoryVersionRoot);
         }
     }
 
@@ -68,5 +67,61 @@ public class VersionHistoryPreviewIT extends CommerceTestBase {
         Document doc = Jsoup.parse(response.getContent());
         Elements elements = doc.select(PRODUCT_TEASER_SELECTOR);
         assertEquals("Summit Watch", elements.first().html());
+    }
+
+    private String determinePreviewUrl(String versionId) throws ClientException {
+        UrlEncodedFormEntity formEntity = FormEntityBuilder.create()
+            .addParameter("wcmmode", "disabled")
+            .addParameter("versionId", versionId)
+            .build();
+        SlingHttpResponse response = adminAuthor.doPost(VERSION_HISTORY_SERVLET, formEntity, 200);
+        return response.getContent().trim() + ".html";
+    }
+
+    private String waitForVersionId(String pagePath, String label) throws Exception {
+        String versionId = null;
+        for (int attempt = 0; attempt < VERSION_POLL_ATTEMPTS; attempt++) {
+            versionId = getVersionIdByLabel(pagePath, label);
+            if (versionId != null) {
+                return versionId;
+            }
+            Thread.sleep(VERSION_POLL_DELAY_MS);
+        }
+        throw new AssertionError("Version with label '" + label + "' was not created for " + pagePath);
+    }
+
+    private String getVersionIdByLabel(String pagePath, String label) throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet("/bin/wcm/versions.json?path=" + pagePath + "&showChildren=false", 200);
+        JsonNode versions = JsonUtils.getJsonNodeFromString(response.getContent()).path("versions");
+        if (versions == null || versions.size() == 0) {
+            return null;
+        }
+        for (int i = 0; i < versions.size(); i++) {
+            JsonNode version = versions.get(i);
+            if (label.equals(version.path("label").getTextValue())) {
+                return version.path("id").getTextValue();
+            }
+        }
+        return null;
+    }
+
+    private String getVersionHistoryVersionRoot(String previewPagePath) {
+        int start = previewPagePath.indexOf(VERSION_HISTORY_ROOT);
+        if (start < 0) {
+            return null;
+        }
+
+        int hashStart = start + VERSION_HISTORY_ROOT.length();
+        int hashEnd = previewPagePath.indexOf('/', hashStart);
+        if (hashEnd < 0) {
+            return null;
+        }
+
+        int versionEnd = previewPagePath.indexOf('/', hashEnd + 1);
+        if (versionEnd < 0) {
+            return null;
+        }
+
+        return previewPagePath.substring(0, versionEnd);
     }
 }

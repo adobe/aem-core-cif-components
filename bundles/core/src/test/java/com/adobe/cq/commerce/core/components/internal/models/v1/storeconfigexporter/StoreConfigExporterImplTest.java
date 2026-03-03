@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 
@@ -60,6 +61,10 @@ public class StoreConfigExporterImplTest {
             .put("httpHeaders", new String[] { "customHeader-1=value1", "customHeader-2=value2" })
             .put("jcr:language", "de_de")
             .put("enableClientSidePriceLoading", true).build());
+    private static final String VERSION_HISTORY_ROOT = "/tmp/versionhistory/hash/version";
+    private static final String VERSION_HISTORY_PAGE_C = VERSION_HISTORY_ROOT + "/pageB/pageC";
+    private static final String VERSION_HISTORY_UNKNOWN_PAGE = VERSION_HISTORY_ROOT + "/unknown/page";
+    private static final String VERSION_HISTORY_PAGE_WITH_NON_PAGE_SOURCE = VERSION_HISTORY_ROOT + "/nonpage";
 
     @Rule
     public final AemContext context = TestContext.newAemContext();
@@ -179,6 +184,45 @@ public class StoreConfigExporterImplTest {
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
         assertNotNull(storeConfigExporter);
         assertEquals("/content/pageB.html", storeConfigExporter.getStoreRootUrl());
+    }
+
+    @Test
+    public void testGetStoreRootUrlForVersionHistoryPage() {
+        context.create().page(VERSION_HISTORY_PAGE_C);
+        setupWithPage(VERSION_HISTORY_PAGE_C, HttpMethod.POST);
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        assertNotNull(storeConfigExporter);
+        assertEquals("/content/pageB.html", storeConfigExporter.getStoreRootUrl());
+    }
+
+    @Test
+    public void testGetStoreRootUrlForVersionHistoryPageWithoutSourceLandingPage() {
+        context.create().page(VERSION_HISTORY_UNKNOWN_PAGE);
+        setupWithPage(VERSION_HISTORY_UNKNOWN_PAGE, HttpMethod.POST);
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        assertNotNull(storeConfigExporter);
+        Assert.assertNull(storeConfigExporter.getStoreRootUrl());
+    }
+
+    @Test
+    public void testVersionHistorySourceResolverReturnsNullForNonVersionPage() throws Exception {
+        setupWithPage("/content/pageD", HttpMethod.POST);
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        assertNotNull(storeConfigExporter);
+
+        Method method = StoreConfigExporterImpl.class.getDeclaredMethod("getStoreRootPageFromVersionHistorySource");
+        method.setAccessible(true);
+        Assert.assertNull(method.invoke(storeConfigExporter));
+    }
+
+    @Test
+    public void testGetStoreRootUrlForVersionHistoryPageWithNonPageSource() {
+        context.create().page(VERSION_HISTORY_PAGE_WITH_NON_PAGE_SOURCE);
+        context.create().resource("/content/nonpage", "jcr:primaryType", "nt:unstructured");
+        setupWithPage(VERSION_HISTORY_PAGE_WITH_NON_PAGE_SOURCE, HttpMethod.POST);
+        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
+        assertNotNull(storeConfigExporter);
+        Assert.assertNull(storeConfigExporter.getStoreRootUrl());
     }
 
     @Test

@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.client;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -91,6 +92,10 @@ public class MagentoGraphqlClientImplTest {
     private static final String LAUNCH_BASE_PATH = "/content/launches/2020/09/14/mylaunch";
     private static final String LAUNCH_PAGE_A = LAUNCH_BASE_PATH + PAGE_A;
     private static final String PRODUCT_COMPONENT_PATH = "/content/pageA/jcr:content/root/responsivegrid/product";
+    private static final String VERSION_HISTORY_ROOT = "/tmp/versionhistory";
+    private static final String VERSION_HISTORY_PAGE_A = VERSION_HISTORY_ROOT + "/hash/version/pageA";
+    private static final String VERSION_HISTORY_PRODUCT_TEASER_RESOURCE_PATH = VERSION_HISTORY_PAGE_A
+        + "/jcr:content/root/responsivegrid/productteaser-simple";
 
     private GraphqlClient graphqlClient;
 
@@ -286,6 +291,18 @@ public class MagentoGraphqlClientImplTest {
     }
 
     @Test
+    public void testGetPageFromResourceResolvesContainingPage() throws Exception {
+        Method method = MagentoGraphqlClientImpl.class.getDeclaredMethod("getPageFromResource", Resource.class);
+        method.setAccessible(true);
+
+        Resource contentResource = context.resourceResolver().getResource("/content/pageB/pageC/jcr:content");
+        Page page = (Page) method.invoke(null, contentResource);
+
+        assertNotNull(page);
+        assertEquals("/content/pageB/pageC", page.getPath());
+    }
+
+    @Test
     public void testPreviewVersionHeaderOnLaunchPage() {
         context.registerAdapter(Resource.class, Launch.class, (Function<Resource, Launch>) resource -> new MockLaunch(resource));
 
@@ -327,11 +344,11 @@ public class MagentoGraphqlClientImplTest {
             return ComponentsConfiguration.EMPTY;
         });
 
-        context.create().page("/tmp/versionhistory/hash/version/content/pageA");
-        Resource versionResource = context.create().resource(
-            "/tmp/versionhistory/hash/version/content/pageA/jcr:content/root/responsivegrid/product");
+        context.create().page(VERSION_HISTORY_PAGE_A);
+        Resource versionResource = context.create().resource(VERSION_HISTORY_PRODUCT_TEASER_RESOURCE_PATH);
+        Page versionPage = context.pageManager().getPage(VERSION_HISTORY_PAGE_A);
 
-        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(versionResource, null, null);
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(versionResource, versionPage, null);
         assertNotNull("GraphQL client created successfully", client);
 
         client.execute("{dummy}");
