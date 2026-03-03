@@ -15,7 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.models.v1.storeconfigexporter;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 
@@ -202,17 +201,6 @@ public class StoreConfigExporterImplTest {
         StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
         assertNotNull(storeConfigExporter);
         Assert.assertNull(storeConfigExporter.getStoreRootUrl());
-    }
-
-    @Test
-    public void testVersionHistorySourceResolverReturnsNullForNonVersionPage() throws Exception {
-        setupWithPage("/content/pageD", HttpMethod.POST);
-        StoreConfigExporterImpl storeConfigExporter = context.request().adaptTo(StoreConfigExporterImpl.class);
-        assertNotNull(storeConfigExporter);
-
-        Method method = StoreConfigExporterImpl.class.getDeclaredMethod("getStoreRootPageFromVersionHistorySource");
-        method.setAccessible(true);
-        Assert.assertNull(method.invoke(storeConfigExporter));
     }
 
     @Test

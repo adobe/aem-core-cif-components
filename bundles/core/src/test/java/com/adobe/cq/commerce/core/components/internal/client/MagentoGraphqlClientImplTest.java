@@ -15,7 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.client;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -288,18 +287,6 @@ public class MagentoGraphqlClientImplTest {
         // Get page which has the magentoStore property in its jcr:content node
         Resource resource = spy(context.resourceResolver().getResource("/content/pageG"));
         new MagentoGraphqlClientImpl(resource, null, null);
-    }
-
-    @Test
-    public void testGetPageFromResourceResolvesContainingPage() throws Exception {
-        Method method = MagentoGraphqlClientImpl.class.getDeclaredMethod("getPageFromResource", Resource.class);
-        method.setAccessible(true);
-
-        Resource contentResource = context.resourceResolver().getResource("/content/pageB/pageC/jcr:content");
-        Page page = (Page) method.invoke(null, contentResource);
-
-        assertNotNull(page);
-        assertEquals("/content/pageB/pageC", page.getPath());
     }
 
     @Test

@@ -126,9 +126,12 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
         if (storeRootPage == null) {
             storeRootPage = siteStructure.getLandingPage();
             if (storeRootPage == null) {
+                Resource currentPageResource = currentPage != null ? currentPage.adaptTo(Resource.class) : null;
                 // Timeline preview pages live under /tmp/versionhistory and may not have a resolvable landing page.
                 // In that case, resolve the source /content page and reuse its site structure.
-                storeRootPage = getStoreRootPageFromVersionHistorySource();
+                if (VersionHistoryUtils.isVersionHistoryResource(currentPageResource)) {
+                    storeRootPage = getStoreRootPageFromVersionHistorySource(currentPageResource);
+                }
             }
         }
 
@@ -166,14 +169,11 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     /**
      * Resolves the landing page from the source /content page when the current page is rendered from
      * AEM version history preview under /tmp/versionhistory.
+     *
+     * @param versionHistoryPageResource the version history page resource under /tmp/versionhistory
      */
-    private Page getStoreRootPageFromVersionHistorySource() {
-        Resource currentPageResource = currentPage != null ? currentPage.adaptTo(Resource.class) : null;
-        if (!VersionHistoryUtils.isVersionHistoryResource(currentPageResource)) {
-            return null;
-        }
-
-        Resource sourcePageResource = VersionHistoryUtils.resolveSourceResource(currentPageResource);
+    private Page getStoreRootPageFromVersionHistorySource(Resource versionHistoryPageResource) {
+        Resource sourcePageResource = VersionHistoryUtils.resolveSourceResource(versionHistoryPageResource);
         Page sourcePage = sourcePageResource != null ? sourcePageResource.adaptTo(Page.class) : null;
         if (sourcePage == null) {
             return null;
