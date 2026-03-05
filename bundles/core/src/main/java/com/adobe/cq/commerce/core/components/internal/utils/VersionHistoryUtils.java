@@ -31,7 +31,7 @@ public final class VersionHistoryUtils {
     /**
      * Returns {@code true} when the resource is a synthetic version preview resource under /tmp/versionhistory.
      */
-    public static boolean isVersionHistoryResource(Resource resource) {
+    public static boolean isVersionPreviewResource(Resource resource) {
         return resource != null && StringUtils.startsWith(resource.getPath(), VERSION_HISTORY_ROOT);
     }
 
@@ -39,7 +39,7 @@ public final class VersionHistoryUtils {
      * Resolves a version preview resource back to its source page/resource so configuration lookups can work.
      */
     public static Resource resolveSourceResource(Resource resource) {
-        if (!isVersionHistoryResource(resource)) {
+        if (!isVersionPreviewResource(resource)) {
             return resource;
         }
 

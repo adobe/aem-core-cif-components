@@ -73,7 +73,7 @@ public class ComponentsConfigurationAdapterFactory implements AdapterFactory {
             }
 
             // If the adapted resource comes from version history preview, resolve it to the source content path.
-            if (VersionHistoryUtils.isVersionHistoryResource(resource)) {
+            if (VersionHistoryUtils.isVersionPreviewResource(resource)) {
                 resource = VersionHistoryUtils.resolveSourceResource(resource);
             }
 

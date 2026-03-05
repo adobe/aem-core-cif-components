@@ -99,9 +99,9 @@ public class VersionHistoryUtilsTest {
         Resource versionResource = context.create().resource(VERSION_HISTORY_ROOT + "/hash/version/site/page");
         Resource contentResource = context.create().resource("/content/site/page");
 
-        Assert.assertTrue(VersionHistoryUtils.isVersionHistoryResource(versionResource));
-        Assert.assertFalse(VersionHistoryUtils.isVersionHistoryResource(contentResource));
-        Assert.assertFalse(VersionHistoryUtils.isVersionHistoryResource(null));
+        Assert.assertTrue(VersionHistoryUtils.isVersionPreviewResource(versionResource));
+        Assert.assertFalse(VersionHistoryUtils.isVersionPreviewResource(contentResource));
+        Assert.assertFalse(VersionHistoryUtils.isVersionPreviewResource(null));
     }
 
     @Test

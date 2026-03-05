@@ -129,7 +129,7 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
                 Resource currentPageResource = currentPage != null ? currentPage.adaptTo(Resource.class) : null;
                 // Timeline preview pages live under /tmp/versionhistory and may not have a resolvable landing page.
                 // In that case, resolve the source /content page and reuse its site structure.
-                if (VersionHistoryUtils.isVersionHistoryResource(currentPageResource)) {
+                if (VersionHistoryUtils.isVersionPreviewResource(currentPageResource)) {
                     storeRootPage = getStoreRootPageFromVersionHistorySource(currentPageResource);
                 }
             }

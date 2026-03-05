@@ -141,7 +141,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             configurationResource = Objects.requireNonNull(page.adaptTo(Resource.class), "page is not a Resource");
 
             // If the page is rendered from AEM version history preview, resolve back to the source resource.
-            if (VersionHistoryUtils.isVersionHistoryResource(configurationResource)) {
+            if (VersionHistoryUtils.isVersionPreviewResource(configurationResource)) {
                 configurationResource = VersionHistoryUtils.resolveSourceResource(configurationResource);
             }
 
