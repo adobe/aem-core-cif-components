@@ -13,4 +13,25 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+import 'regenerator-runtime/runtime';
 import '@testing-library/jest-dom';
+
+// Mock UUID generation for deterministic form field IDs in snapshots (informed uses uuid or crypto)
+let uuidCounter = 0;
+const deterministicId = () =>
+    `aaaaaaaa-bbbb-cccc-dddd-${String(++uuidCounter)
+        .padStart(12, '0')
+        .slice(-12)}`;
+
+jest.mock('uuid', () => ({
+    v4: () => deterministicId(),
+    v1: () => deterministicId()
+}));
+if (typeof globalThis.crypto === 'undefined') {
+    globalThis.crypto = {};
+}
+globalThis.crypto.randomUUID = deterministicId;
+if (typeof global !== 'undefined') {
+    global.crypto = global.crypto || {};
+    global.crypto.randomUUID = deterministicId;
+}

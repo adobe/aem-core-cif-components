@@ -81,6 +81,7 @@ exports[`<AccountDropdown> renders the change password component inside account 
               <input
                 aria-label="old-password"
                 class="input"
+                id="11d0d4f4-b424-46c7-bdfe-7a8f0d423899"
                 name="oldPassword"
                 type="password"
                 value=""
@@ -121,6 +122,7 @@ exports[`<AccountDropdown> renders the change password component inside account 
                 aria-label="password"
                 autocomplete="password"
                 class="input"
+                id="45ff4d22-557f-44da-9cc9-fa7381792fec"
                 name="password"
                 type="password"
                 value=""
@@ -160,6 +162,7 @@ exports[`<AccountDropdown> renders the change password component inside account 
               <input
                 aria-label="confirm"
                 class="input"
+                id="dc333377-5e85-433e-bd42-e84cb372d0bf"
                 name="confirm"
                 type="password"
                 value=""
@@ -245,6 +248,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
               aria-label="firstname"
               autocomplete="given-name"
               class="input"
+              id="671f4960-8870-49c4-ad0a-ba47f802a004"
               name="customer.firstname"
               value=""
             />
@@ -284,6 +288,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
               aria-label="lastname"
               autocomplete="family-name"
               class="input"
+              id="7613d2e7-9c00-495f-a3b1-d1076935ab17"
               name="customer.lastname"
               value=""
             />
@@ -323,6 +328,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
               aria-label="email"
               autocomplete="email"
               class="input"
+              id="84bd3c52-0d29-43b0-a9e9-baeb5f2d8795"
               name="customer.email"
               value=""
             />
@@ -362,6 +368,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
               aria-label="password"
               autocomplete="new-password"
               class="input"
+              id="8313a998-4d89-42aa-b461-9bffc5f4c628"
               name="password"
               type="password"
               value=""
@@ -401,6 +408,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
             <input
               aria-label="confirm"
               class="input"
+              id="19d387a8-36fc-4a39-9a9e-854511054e57"
               name="confirm"
               type="password"
               value=""
@@ -420,6 +428,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
       <div>
         <label
           class="root"
+          for="86172f79-e509-49f3-93f9-651cf8710153"
         >
           <span
             class="icon"
@@ -427,6 +436,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
           <input
             aria-label="subscribe"
             class="input"
+            id="86172f79-e509-49f3-93f9-651cf8710153"
             name="subscribe"
             type="checkbox"
           />
@@ -512,6 +522,7 @@ exports[`<AccountDropdown> renders the forgot password component inside account 
                 aria-label="email"
                 autocomplete="email"
                 class="input"
+                id="ed1993f4-78a1-4dbe-913f-dcb60453c2d0"
                 name="email"
                 value=""
               />

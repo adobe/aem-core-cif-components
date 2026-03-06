@@ -27,6 +27,7 @@ exports[`<EditableForm /> renders the payments form if countries are loaded 1`] 
           >
             <select
               class="input"
+              id="d5bb7ff6-23ba-4186-a4a9-5893b6c20b6e"
               name="payment_method"
             >
               <option
@@ -77,6 +78,7 @@ exports[`<EditableForm /> renders the payments form if countries are loaded 1`] 
       >
         <label
           class="root"
+          for="41f76ae4-1447-47df-812e-c19904b4e0c7"
         >
           <span
             class="icon"
@@ -104,6 +106,7 @@ exports[`<EditableForm /> renders the payments form if countries are loaded 1`] 
           <input
             checked=""
             class="input"
+            id="41f76ae4-1447-47df-812e-c19904b4e0c7"
             name="addresses_same"
             type="checkbox"
           />
@@ -178,6 +181,7 @@ exports[`<EditableForm /> renders the shipping method form if countries are load
           >
             <select
               class="input"
+              id="a0215567-9ba4-487c-8d0c-0b7cfec2d02d"
               name="shippingMethod"
             >
               <option

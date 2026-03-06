@@ -22,17 +22,17 @@ const mockSetCustomerInformation = jest.fn();
 const mockChangeCustomerPassword = jest.fn();
 
 jest.mock('@apollo/client', () => {
-    const { useMutation, ...rest } = jest.requireActual('@apollo/client');
+    const actual = jest.requireActual('@apollo/client');
 
     return {
-        ...rest,
+        ...actual,
         useMutation: jest.fn().mockImplementation(mutation => {
             if (mutation === 'setCustomerInformationMutation') {
                 return [mockSetCustomerInformation, { loading: false }];
             } else if (mutation === 'changeCustomerPasswordMutation') {
                 return [mockChangeCustomerPassword, { loading: false }];
             } else {
-                return useMutation(mutation);
+                return actual.useMutation(mutation);
             }
         }),
         useQuery: jest.fn().mockReturnValue({
