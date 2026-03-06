@@ -17,153 +17,22 @@
       "require": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./CommerceApp": {
-      "import": "./dist/esm/components/App/index.js",
-      "require": "./dist/cjs/components/App/index.js",
-      "default": "./dist/esm/components/App/index.js"
-    },
-    "./AuthBar": {
-      "import": "./dist/esm/components/AuthBar/index.js",
-      "require": "./dist/cjs/components/AuthBar/index.js",
-      "default": "./dist/esm/components/AuthBar/index.js"
+    "./Price": {
+      "import": "./dist/esm/components/Price/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./Cart": {
       "import": "./dist/esm/components/Minicart/index.js",
-      "require": "./dist/cjs/components/Minicart/index.js",
-      "default": "./dist/esm/components/Minicart/index.js"
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
     },
-    "./CartTrigger": {
-      "import": "./dist/esm/components/CartTrigger/index.js",
-      "require": "./dist/cjs/components/CartTrigger/index.js",
-      "default": "./dist/esm/components/CartTrigger/index.js"
+    "./AuthBar": {
+      "import": "./dist/esm/components/AuthBar/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
     },
-    "./AccountContainer": {
-      "import": "./dist/esm/components/AccountContainer/index.js",
-      "require": "./dist/cjs/components/AccountContainer/index.js",
-      "default": "./dist/esm/components/AccountContainer/index.js"
-    },
-    "./AddressBook": {
-      "import": "./dist/esm/components/AddressBook/index.js",
-      "require": "./dist/cjs/components/AddressBook/index.js",
-      "default": "./dist/esm/components/AddressBook/index.js"
-    },
-    "./BundleProductOptions": {
-      "import": "./dist/esm/components/BundleProductOptions/index.js",
-      "require": "./dist/cjs/components/BundleProductOptions/index.js",
-      "default": "./dist/esm/components/BundleProductOptions/index.js"
-    },
-    "./GiftCardOptions": {
-      "import": "./dist/esm/components/GiftCardOptions/index.js",
-      "require": "./dist/cjs/components/GiftCardOptions/index.js",
-      "default": "./dist/esm/components/GiftCardOptions/index.js"
-    },
-    "./Portal": {
-      "import": "./dist/esm/components/Portal/index.js",
-      "require": "./dist/cjs/components/Portal/index.js",
-      "default": "./dist/esm/components/Portal/index.js"
-    },
-    "./PortalPlacer": {
-      "import": "./dist/esm/components/PortalPlacer/index.js",
-      "require": "./dist/cjs/components/PortalPlacer/index.js",
-      "default": "./dist/esm/components/PortalPlacer/index.js"
-    },
-    "./ResetPassword": {
-      "import": "./dist/esm/components/ResetPassword/index.js",
-      "require": "./dist/cjs/components/ResetPassword/index.js",
-      "default": "./dist/esm/components/ResetPassword/index.js"
-    },
-    "./Price": {
-      "import": "./dist/esm/components/Price/index.js",
-      "require": "./dist/cjs/components/Price/index.js",
-      "default": "./dist/esm/components/Price/index.js"
-    },
-    "./Trigger": {
-      "import": "./dist/esm/components/Trigger/index.js",
-      "require": "./dist/cjs/components/Trigger/index.js",
-      "default": "./dist/esm/components/Trigger/index.js"
-    },
-    "./LoadingIndicator": {
-      "import": "./dist/esm/components/LoadingIndicator/index.js",
-      "require": "./dist/cjs/components/LoadingIndicator/index.js",
-      "default": "./dist/esm/components/LoadingIndicator/index.js"
-    },
-    "./ConfigContext": {
-      "import": "./dist/esm/context/ConfigContext.js",
-      "require": "./dist/cjs/context/ConfigContext.js",
-      "default": "./dist/esm/context/ConfigContext.js"
-    },
-    "./UserContext": {
-      "import": "./dist/esm/context/UserContext.js",
-      "require": "./dist/cjs/context/UserContext.js",
-      "default": "./dist/esm/context/UserContext.js"
-    },
-    "./CheckoutProvider": {
-      "import": "./dist/esm/components/Checkout/checkoutContext.js",
-      "require": "./dist/cjs/components/Checkout/checkoutContext.js",
-      "default": "./dist/esm/components/Checkout/checkoutContext.js"
-    },
-    "./AccountDetails": {
-      "import": "./dist/esm/components/AccountDetails/index.js",
-      "require": "./dist/cjs/components/AccountDetails/index.js",
-      "default": "./dist/esm/components/AccountDetails/index.js"
-    },
-    "./MyAccount": {
-      "import": "./dist/esm/components/MyAccount/index.js",
-      "require": "./dist/cjs/components/MyAccount/index.js",
-      "default": "./dist/esm/components/MyAccount/index.js"
-    },
-    "./authUtils": {
-      "import": "./dist/esm/utils/authUtils.js",
-      "require": "./dist/cjs/utils/authUtils.js",
-      "default": "./dist/esm/utils/authUtils.js"
-    },
-    "./hooks": {
-      "import": "./dist/esm/utils/hooks.js",
-      "require": "./dist/cjs/utils/hooks.js",
-      "default": "./dist/esm/utils/hooks.js"
-    },
-    "./createProductPageUrl": {
-      "import": "./dist/esm/utils/createProductPageUrl.js",
-      "require": "./dist/cjs/utils/createProductPageUrl.js",
-      "default": "./dist/esm/utils/createProductPageUrl.js"
-    },
-    "./useDataLayerEvents": {
-      "import": "./dist/esm/utils/useDataLayerEvents.js",
-      "require": "./dist/cjs/utils/useDataLayerEvents.js",
-      "default": "./dist/esm/utils/useDataLayerEvents.js"
-    },
-    "./useAddToCart": {
-      "import": "./dist/esm/talons/Cart/index.js",
-      "require": "./dist/cjs/talons/Cart/index.js",
-      "default": "./dist/esm/talons/Cart/index.js"
-    },
-    "./useAddToWishlistEvent": {
-      "import": "./dist/esm/talons/Wishlist/index.js",
-      "require": "./dist/cjs/talons/Wishlist/index.js",
-      "default": "./dist/esm/talons/Wishlist/index.js"
-    },
-    "./useCustomUrlEvent": {
-      "import": "./dist/esm/utils/useCustomUrlEvent.js",
-      "require": "./dist/cjs/utils/useCustomUrlEvent.js",
-      "default": "./dist/esm/utils/useCustomUrlEvent.js"
-    },
-    "./useReferrerEvent": {
-      "import": "./dist/esm/utils/useReferrerEvent.js",
-      "require": "./dist/cjs/utils/useReferrerEvent.js",
-      "default": "./dist/esm/utils/useReferrerEvent.js"
-    },
-    "./usePageEvent": {
-      "import": "./dist/esm/utils/usePageEvent.js",
-      "require": "./dist/cjs/utils/usePageEvent.js",
-      "default": "./dist/esm/utils/usePageEvent.js"
-    },
-    "./dataLayerUtils": {
-      "import": "./dist/esm/utils/dataLayerUtils.js",
-      "require": "./dist/cjs/utils/dataLayerUtils.js",
-      "default": "./dist/esm/utils/dataLayerUtils.js"
-    },
-    "./i18n/en.json": "./i18n/en.json",
-    "./main.css": "./dist/main.css"
+    "./i18n/en.json": "./i18n/en.json"
   },
   "files": ["dist", "i18n"],
   "scripts": {
