@@ -80,7 +80,7 @@
     "prettier:check": "prettier --check \"{src,test}/**/*.{js,css}\" --config ./.prettierrc",
     "prettier:fix": "prettier --write \"{src,test}/**/*.{js,css}\" --config ./.prettierrc",
     "snapshot:update": "jest --updateSnapshot",
-    "i18n:extract-compile": "formatjs extract \"src/**/*.js\" --out-file i18n/__temp.json && formatjs compile --ast --out-file i18n/en.json i18n/__temp.json && rimraf i18n/__temp.json"
+    "i18n:extract-compile": "formatjs extract \"src/**/*.js\" --out-file i18n/__temp.json && formatjs compile --ast --out-file i18n/en.json i18n/__temp.json && node -e \"require('fs').unlinkSync('i18n/__temp.json')\""
   },
   "devDependencies": {
     "@apollo/client": "~3.5.0",
