@@ -27,7 +27,7 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
           >
             <input
               class="input"
-              id="eb99cea6-947b-4d1b-b33d-29960f5cf2fb"
+              id="8711306c-3877-4de7-9503-d97d9248f075"
               name="firstname"
               value=""
             />
@@ -66,7 +66,7 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
           >
             <input
               class="input"
-              id="d3d92ce3-185e-42d6-b664-cf2a22da6925"
+              id="51880c24-20bd-4ef4-b0e3-0a85ad9cce31"
               name="lastname"
               value=""
             />
@@ -105,7 +105,7 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
           >
             <input
               class="input"
-              id="8ad2f045-01d2-4b40-aca6-f61605d01c26"
+              id="0f64441e-0cde-4a73-8998-64c83c66404e"
               name="email"
               value=""
             />
@@ -145,7 +145,7 @@ exports[`<EditForm> renders a form with the "Change password" button 1`] = `
             <input
               autocomplete="current-password"
               class="input"
-              id="f478813f-894e-4376-b408-de1a96830ad9"
+              id="5bd6756b-f8cc-4559-b5b3-5c10075fd3f7"
               name="password"
               type="password"
               value=""
@@ -237,7 +237,7 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
           >
             <input
               class="input"
-              id="6b47468f-2198-464d-9b98-a800566e8813"
+              id="6263f62f-904e-4bd1-8bba-bcb6e910d03f"
               name="firstname"
               value=""
             />
@@ -276,7 +276,7 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
           >
             <input
               class="input"
-              id="8f27fd7f-1a68-4ca1-b657-188066b56fad"
+              id="ccf5f037-d950-4360-a470-987b242a58b2"
               name="lastname"
               value=""
             />
@@ -315,7 +315,7 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
           >
             <input
               class="input"
-              id="3e9e3cf9-15b3-4db4-825f-a62cf9434cfd"
+              id="0c985821-b672-4854-af06-a409bec4c15e"
               name="email"
               value=""
             />
@@ -355,7 +355,7 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
             <input
               autocomplete="current-password"
               class="input"
-              id="d3410858-d025-4163-9276-105ca591a63e"
+              id="3b46d835-fb90-4b15-8cd2-77320d3e5ee6"
               name="password"
               type="password"
               value=""
@@ -426,7 +426,7 @@ exports[`<EditForm> renders a form without the "Change password" button 1`] = `
         >
           <input
             class="input"
-            id="3c9fbb5f-146e-4939-b587-c72d5bf8eb3e"
+            id="9f867982-6078-45e7-a335-7c3f5ac47339"
             name="newPassword"
             type="password"
             value=""

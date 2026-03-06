@@ -75,11 +75,11 @@
     "build:esm": "node build-esm.js",
     "test": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --coverage",
     "jest": "jest --coverage",
-    "ci": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --ci --runInBand --coverage",
+    "ci": "npm run lint && npm run prettier:check && jest --ci --runInBand --coverage",
     "test:watch": "npm run i18n:extract-compile && npm run lint && jest --watch",
     "prettier:check": "prettier --check \"{src,test}/**/*.{js,css}\" --config ./.prettierrc",
     "prettier:fix": "prettier --write \"{src,test}/**/*.{js,css}\" --config ./.prettierrc",
-    "snapshot:update": "jest --updateSnapshot",
+    "snapshot:update": "npm run i18n:extract-compile && jest --ci --runInBand --updateSnapshot",
     "i18n:extract-compile": "formatjs extract \"src/**/*.js\" --out-file i18n/__temp.json && formatjs compile --ast --out-file i18n/en.json i18n/__temp.json && node -e \"require('fs').unlinkSync('i18n/__temp.json')\""
   },
   "devDependencies": {
