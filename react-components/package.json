@@ -9,15 +9,228 @@
     "url": "https://github.com/adobe/aem-core-cif-components"
   },
   "main": "dist/index.js",
+  "module": "dist/esm/index.js",
+  "sideEffects": [
+    "**/*.css"
+  ],
   "files": [
     "dist",
     "i18n"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./CommerceApp": {
+      "import": "./dist/esm/components/App/index.js",
+      "require": "./dist/cjs/components/App/index.js"
+    },
+    "./AuthBar": {
+      "import": "./dist/esm/components/AuthBar/index.js",
+      "require": "./dist/cjs/components/AuthBar/index.js"
+    },
+    "./Cart": {
+      "import": "./dist/esm/components/Minicart/index.js",
+      "require": "./dist/cjs/components/Minicart/index.js"
+    },
+    "./CartTrigger": {
+      "import": "./dist/esm/components/CartTrigger/index.js",
+      "require": "./dist/cjs/components/CartTrigger/index.js"
+    },
+    "./AccountContainer": {
+      "import": "./dist/esm/components/AccountContainer/index.js",
+      "require": "./dist/cjs/components/AccountContainer/index.js"
+    },
+    "./AddressBook": {
+      "import": "./dist/esm/components/AddressBook/index.js",
+      "require": "./dist/cjs/components/AddressBook/index.js"
+    },
+    "./BundleProductOptions": {
+      "import": "./dist/esm/components/BundleProductOptions/index.js",
+      "require": "./dist/cjs/components/BundleProductOptions/index.js"
+    },
+    "./GiftCardOptions": {
+      "import": "./dist/esm/components/GiftCardOptions/index.js",
+      "require": "./dist/cjs/components/GiftCardOptions/index.js"
+    },
+    "./Portal": {
+      "import": "./dist/esm/components/Portal/index.js",
+      "require": "./dist/cjs/components/Portal/index.js"
+    },
+    "./PortalPlacer": {
+      "import": "./dist/esm/components/PortalPlacer/index.js",
+      "require": "./dist/cjs/components/PortalPlacer/index.js"
+    },
+    "./ResetPassword": {
+      "import": "./dist/esm/components/ResetPassword/index.js",
+      "require": "./dist/cjs/components/ResetPassword/index.js"
+    },
+    "./Price": {
+      "import": "./dist/esm/components/Price/index.js",
+      "require": "./dist/cjs/components/Price/index.js"
+    },
+    "./Trigger": {
+      "import": "./dist/esm/components/Trigger/index.js",
+      "require": "./dist/cjs/components/Trigger/index.js"
+    },
+    "./LoadingIndicator": {
+      "import": "./dist/esm/components/LoadingIndicator/index.js",
+      "require": "./dist/cjs/components/LoadingIndicator/index.js"
+    },
+    "./ConfigContext": {
+      "import": "./dist/esm/context/ConfigContext.js",
+      "require": "./dist/cjs/context/ConfigContext.js"
+    },
+    "./UserContext": {
+      "import": "./dist/esm/context/UserContext.js",
+      "require": "./dist/cjs/context/UserContext.js"
+    },
+    "./CheckoutProvider": {
+      "import": "./dist/esm/components/Checkout/checkoutContext.js",
+      "require": "./dist/cjs/components/Checkout/checkoutContext.js"
+    },
+    "./Minicart": {
+      "import": "./dist/esm/components/Minicart/index.js",
+      "require": "./dist/cjs/components/Minicart/index.js"
+    },
+    "./AccountDetails": {
+      "import": "./dist/esm/components/AccountDetails/index.js",
+      "require": "./dist/cjs/components/AccountDetails/index.js"
+    },
+    "./MyAccount": {
+      "import": "./dist/esm/components/MyAccount/index.js",
+      "require": "./dist/cjs/components/MyAccount/index.js"
+    },
+    "./AccountLink": {
+      "import": "./dist/esm/components/MyAccount/accountLink.js",
+      "require": "./dist/cjs/components/MyAccount/accountLink.js"
+    },
+    "./AccountLinks": {
+      "import": "./dist/esm/components/MyAccount/AccountLinks/index.js",
+      "require": "./dist/cjs/components/MyAccount/AccountLinks/index.js"
+    },
+    "./utils/authUtils": {
+      "import": "./dist/esm/utils/authUtils.js",
+      "require": "./dist/cjs/utils/authUtils.js"
+    },
+    "./utils/hooks": {
+      "import": "./dist/esm/utils/hooks.js",
+      "require": "./dist/cjs/utils/hooks.js"
+    },
+    "./utils/createProductPageUrl": {
+      "import": "./dist/esm/utils/createProductPageUrl.js",
+      "require": "./dist/cjs/utils/createProductPageUrl.js"
+    },
+    "./utils/useDataLayerEvents": {
+      "import": "./dist/esm/utils/useDataLayerEvents.js",
+      "require": "./dist/cjs/utils/useDataLayerEvents.js"
+    },
+    "./talons/Cart": {
+      "import": "./dist/esm/talons/Cart/index.js",
+      "require": "./dist/cjs/talons/Cart/index.js"
+    },
+    "./talons/Wishlist": {
+      "import": "./dist/esm/talons/Wishlist/index.js",
+      "require": "./dist/cjs/talons/Wishlist/index.js"
+    },
+    "./utils/useCustomUrlEvent": {
+      "import": "./dist/esm/utils/useCustomUrlEvent.js",
+      "require": "./dist/cjs/utils/useCustomUrlEvent.js"
+    },
+    "./utils/useReferrerEvent": {
+      "import": "./dist/esm/utils/useReferrerEvent.js",
+      "require": "./dist/cjs/utils/useReferrerEvent.js"
+    },
+    "./utils/usePageEvent": {
+      "import": "./dist/esm/utils/usePageEvent.js",
+      "require": "./dist/cjs/utils/usePageEvent.js"
+    },
+    "./utils/dataLayerUtils": {
+      "import": "./dist/esm/utils/dataLayerUtils.js",
+      "require": "./dist/cjs/utils/dataLayerUtils.js"
+    },
+    "./App": {
+      "import": "./dist/esm/components/App/index.js",
+      "require": "./dist/cjs/components/App/index.js"
+    },
+    "./AddressForm": {
+      "import": "./dist/esm/components/AddressForm/index.js",
+      "require": "./dist/cjs/components/AddressForm/index.js"
+    },
+    "./Button": {
+      "import": "./dist/esm/components/Button/index.js",
+      "require": "./dist/cjs/components/Button/index.js"
+    },
+    "./ChangePassword": {
+      "import": "./dist/esm/components/ChangePassword/index.js",
+      "require": "./dist/cjs/components/ChangePassword/index.js"
+    },
+    "./Checkbox": {
+      "import": "./dist/esm/components/Checkbox/index.js",
+      "require": "./dist/cjs/components/Checkbox/index.js"
+    },
+    "./Checkout": {
+      "import": "./dist/esm/components/Checkout/index.js",
+      "require": "./dist/cjs/components/Checkout/index.js"
+    },
+    "./CreateAccount": {
+      "import": "./dist/esm/components/CreateAccount/index.js",
+      "require": "./dist/cjs/components/CreateAccount/index.js"
+    },
+    "./Dialog": {
+      "import": "./dist/esm/components/Dialog/index.js",
+      "require": "./dist/cjs/components/Dialog/index.js"
+    },
+    "./Field": {
+      "import": "./dist/esm/components/Field/index.js",
+      "require": "./dist/cjs/components/Field/index.js"
+    },
+    "./ForgotPassword": {
+      "import": "./dist/esm/components/ForgotPassword/index.js",
+      "require": "./dist/cjs/components/ForgotPassword/index.js"
+    },
+    "./FormError": {
+      "import": "./dist/esm/components/FormError/index.js",
+      "require": "./dist/cjs/components/FormError/index.js"
+    },
+    "./Icon": {
+      "import": "./dist/esm/components/Icon/index.js",
+      "require": "./dist/cjs/components/Icon/index.js"
+    },
+    "./LinkButton": {
+      "import": "./dist/esm/components/LinkButton/index.js",
+      "require": "./dist/cjs/components/LinkButton/index.js"
+    },
+    "./Mask": {
+      "import": "./dist/esm/components/Mask/index.js",
+      "require": "./dist/cjs/components/Mask/index.js"
+    },
+    "./Password": {
+      "import": "./dist/esm/components/Password/index.js",
+      "require": "./dist/cjs/components/Password/index.js"
+    },
+    "./Select": {
+      "import": "./dist/esm/components/Select/index.js",
+      "require": "./dist/cjs/components/Select/index.js"
+    },
+    "./SignIn": {
+      "import": "./dist/esm/components/SignIn/index.js",
+      "require": "./dist/cjs/components/SignIn/index.js"
+    },
+    "./TextInput": {
+      "import": "./dist/esm/components/TextInput/index.js",
+      "require": "./dist/cjs/components/TextInput/index.js"
+    }
+  },
   "scripts": {
     "lint": "eslint 'src/**/*.js'",
     "lint:fix": "eslint --fix 'src/**/*.js'",
+    "build:esm": "rimraf dist/esm && babel src --out-dir dist/esm --env-name esm --copy-files",
+    "build:cjs": "rimraf dist/cjs && babel src --out-dir dist/cjs --env-name cjs --copy-files",
     "webpack:dev": "npm run i18n:extract-compile && webpack --mode=development",
-    "webpack:prod": "npm run i18n:extract-compile && webpack --mode=production && node css-template.js",
+    "webpack:prod": "npm run i18n:extract-compile && webpack --mode=production && npm run build:esm && npm run build:cjs && node css-template.js",
     "test": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --coverage",
     "jest": "jest --coverage",
     "ci": "npm run i18n:extract-compile && npm run lint && npm run prettier:check && jest --ci --runInBand --coverage",
@@ -28,13 +241,14 @@
     "i18n:extract-compile": "formatjs extract \"src/**/*.js\" --out-file i18n/__temp.json && formatjs compile --ast --out-file i18n/en.json i18n/__temp.json && rimraf i18n/__temp.json"
   },
   "devDependencies": {
-    "@apollo/client": "~3.1.2",
+    "@apollo/client": "~3.5.0",
+    "@babel/cli": "^7.8.7",
     "@babel/core": "^7.8.7",
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@babel/preset-env": "^7.8.7",
     "@babel/preset-react": "^7.8.3",
     "@formatjs/cli": "^4.2.33",
-    "@magento/peregrine": "^11.0.0",
+    "@magento/peregrine": "^12.5.0",
     "@peculiar/webcrypto": "^1.1.4",
     "@testing-library/jest-dom": "^5.14.0",
     "@testing-library/react": "^9.5.0",
@@ -55,7 +269,7 @@
     "file-loader": "^4.3.0",
     "graphql": "~15.7.2",
     "identity-obj-proxy": "^3.0.0",
-    "informed": "~3.9.0",
+    "informed": "~3.29.0",
     "jest": "^26.0.0",
     "jest-junit": "^10.0.0",
     "mini-css-extract-plugin": "^0.8.2",
@@ -75,11 +289,11 @@
     "webpack-cli": "^3.3.11"
   },
   "peerDependencies": {
-    "@apollo/client": "^3.1.2",
-    "@magento/peregrine": "^11.0.0 || ~12.5.0",
+    "@apollo/client": "^3.5.0",
+    "@magento/peregrine": "^11.0.0 || ^12.5.0",
     "braintree-web-drop-in": "^1.22.1",
     "graphql": "~15.7.2",
-    "informed": "~3.29.4",
+    "informed": "~3.29.0",
     "prop-types": "^15.7.2",
     "react": "~17.0.1",
     "react-dom": "~17.0.1",

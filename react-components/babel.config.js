@@ -37,6 +37,16 @@ module.exports = function(api) {
             exclude: [
                 /node_modules\/(?!@magento\/)/
             ]
+        },
+        // ESM build for tree-shaking (SITES-40242)
+        esm: {
+            plugins,
+            presets: [...presets, ['@babel/preset-env', { modules: false, targets: { esmodules: true } }]]
+        },
+        // CJS build for subpath require() support
+        cjs: {
+            plugins,
+            presets: [...presets, ['@babel/preset-env', { modules: 'commonjs', targets: 'defaults' }]]
         }
     };
 
