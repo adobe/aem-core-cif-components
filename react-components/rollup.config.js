@@ -35,26 +35,15 @@ function resolveGraphQL() {
 
 module.exports = {
     input: 'src/index.js',
-    output: [
-        {
-            dir: 'dist/esm',
-            format: 'esm',
-            preserveModules: true,
-            preserveModulesRoot: 'src',
-            entryFileNames: '[name].js',
-            chunkFileNames: '[name].js',
-            sourcemap: true
-        },
-        {
-            dir: 'dist/cjs',
-            format: 'cjs',
-            preserveModules: true,
-            preserveModulesRoot: 'src',
-            entryFileNames: '[name].js',
-            chunkFileNames: '[name].js',
-            sourcemap: true
-        }
-    ],
+    output: {
+        dir: 'dist/esm',
+        format: 'esm',
+        preserveModules: true,
+        preserveModulesRoot: 'src',
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name].js',
+        sourcemap: true
+    },
     external: [...peerDeps, /^@magento\/peregrine\/./],
     plugins: [
         resolveGraphQL(),
@@ -72,8 +61,8 @@ module.exports = {
         commonjs({ include: /node_modules/ }),
         postcss({
             modules: { localIdentName: 'cmp-[folder]__[name]__[local]' },
-            inject: true,
-            extract: false,
+            inject: false,
+            extract: 'main.css',
             minimize: true
         })
     ]
