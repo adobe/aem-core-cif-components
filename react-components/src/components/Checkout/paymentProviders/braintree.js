@@ -17,6 +17,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useCheckoutState } from '../checkoutContext';
 import { useMutation } from '@apollo/client';
+import dropIn from 'braintree-web-drop-in';
 import CREATE_BRAINTREE_CLIENT_TOKEN from '../../../queries/mutation_create_braintree_client_token.graphql';
 import { oneOf } from 'prop-types';
 import { useFieldApi } from 'informed';
@@ -38,9 +39,6 @@ const Braintree = props => {
 
     async function createDropinInstance() {
         try {
-            // Lazy-load Braintree (~200KB) - only loaded when user reaches checkout payment step
-            const { default: dropIn } = await import('braintree-web-drop-in');
-
             // Tear down instance if it already exists, e.g. when switching between the PayPal and credit card form.
             if (dropinInstance) {
                 await dropinInstance.teardown();

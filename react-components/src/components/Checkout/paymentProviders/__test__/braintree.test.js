@@ -14,8 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 jest.mock('braintree-web-drop-in', () => ({
-    __esModule: true,
-    default: { create: jest.fn() }
+    create: jest.fn()
 }));
 jest.mock('informed', () => ({
     useFieldApi: jest.fn()
