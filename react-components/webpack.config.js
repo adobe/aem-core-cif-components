@@ -33,7 +33,7 @@ module.exports = {
         publicPath: '/dist/'
     },
     optimization: {
-        minimize: true,
+        minimize: false,
     },
     module: {
         rules: [
