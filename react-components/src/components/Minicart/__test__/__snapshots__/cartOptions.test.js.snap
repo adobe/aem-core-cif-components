@@ -45,7 +45,7 @@ exports[`<CartOptions> renders the component properly 1`] = `
           >
             <select
               class="input"
-              id="56fcafa7-13da-4f1b-b3c7-86ade6067b8a"
+              id="d1d37aca-23a7-4445-996b-323d0898042c"
               name="quantity"
             >
               <option

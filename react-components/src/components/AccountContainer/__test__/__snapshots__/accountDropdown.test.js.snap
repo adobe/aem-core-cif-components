@@ -81,7 +81,7 @@ exports[`<AccountDropdown> renders the change password component inside account 
               <input
                 aria-label="old-password"
                 class="input"
-                id="11d0d4f4-b424-46c7-bdfe-7a8f0d423899"
+                id="faefdfd9-4d02-476b-913c-19cda3769809"
                 name="oldPassword"
                 type="password"
                 value=""
@@ -122,7 +122,7 @@ exports[`<AccountDropdown> renders the change password component inside account 
                 aria-label="password"
                 autocomplete="password"
                 class="input"
-                id="45ff4d22-557f-44da-9cc9-fa7381792fec"
+                id="ed1c88cf-a593-4de4-9a09-23da7e28ef02"
                 name="password"
                 type="password"
                 value=""
@@ -162,7 +162,7 @@ exports[`<AccountDropdown> renders the change password component inside account 
               <input
                 aria-label="confirm"
                 class="input"
-                id="dc333377-5e85-433e-bd42-e84cb372d0bf"
+                id="120c9fef-4cd3-4b88-8c82-16cc52a2129f"
                 name="confirm"
                 type="password"
                 value=""
@@ -248,7 +248,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
               aria-label="firstname"
               autocomplete="given-name"
               class="input"
-              id="671f4960-8870-49c4-ad0a-ba47f802a004"
+              id="461aeb83-b842-4bcd-b15a-67ec6bca2719"
               name="customer.firstname"
               value=""
             />
@@ -288,7 +288,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
               aria-label="lastname"
               autocomplete="family-name"
               class="input"
-              id="7613d2e7-9c00-495f-a3b1-d1076935ab17"
+              id="6335c366-286d-43ac-b4b5-967bafe62fa4"
               name="customer.lastname"
               value=""
             />
@@ -328,7 +328,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
               aria-label="email"
               autocomplete="email"
               class="input"
-              id="84bd3c52-0d29-43b0-a9e9-baeb5f2d8795"
+              id="1d295496-3aed-4fba-b308-90ce40833599"
               name="customer.email"
               value=""
             />
@@ -368,7 +368,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
               aria-label="password"
               autocomplete="new-password"
               class="input"
-              id="8313a998-4d89-42aa-b461-9bffc5f4c628"
+              id="71d61225-b88a-465b-9a77-c5f686eda8cd"
               name="password"
               type="password"
               value=""
@@ -408,7 +408,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
             <input
               aria-label="confirm"
               class="input"
-              id="19d387a8-36fc-4a39-9a9e-854511054e57"
+              id="bc8af4ce-f845-494e-aa7d-c43bb7e59f21"
               name="confirm"
               type="password"
               value=""
@@ -428,7 +428,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
       <div>
         <label
           class="root"
-          for="86172f79-e509-49f3-93f9-651cf8710153"
+          for="2edf8b9f-a1d7-4ce6-a40f-6502fdfcd52e"
         >
           <span
             class="icon"
@@ -436,7 +436,7 @@ exports[`<AccountDropdown> renders the create account component inside account d
           <input
             aria-label="subscribe"
             class="input"
-            id="86172f79-e509-49f3-93f9-651cf8710153"
+            id="2edf8b9f-a1d7-4ce6-a40f-6502fdfcd52e"
             name="subscribe"
             type="checkbox"
           />
@@ -522,7 +522,7 @@ exports[`<AccountDropdown> renders the forgot password component inside account 
                 aria-label="email"
                 autocomplete="email"
                 class="input"
-                id="ed1993f4-78a1-4dbe-913f-dcb60453c2d0"
+                id="cf9bd613-53e5-47e3-9292-c10004b832ab"
                 name="email"
                 value=""
               />
