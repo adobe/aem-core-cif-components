@@ -719,7 +719,7 @@
                     <artifactId>frontend-maven-plugin</artifactId>
                     <version>1.12.1</version>
                     <configuration>
-                        <nodeVersion>v16.20.0</nodeVersion>
+                        <nodeVersion>v12.14.1</nodeVersion>
                     </configuration>
                 </plugin>
             </plugins>
