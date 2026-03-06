@@ -37,7 +37,7 @@ exports[`<SignIn> renders the component 1`] = `
               aria-label="email"
               autocomplete="email"
               class="input"
-              id="23214e21-08f7-4dbe-a954-c64db82247c0"
+              id="b5dd2811-94b5-4a03-90d8-a9f3e80d093f"
               name="email"
               value=""
             />
@@ -77,7 +77,7 @@ exports[`<SignIn> renders the component 1`] = `
               aria-label="password"
               autocomplete="current-password"
               class="input"
-              id="dcbec06e-fb2a-4b14-b55b-8c9bc66dba4a"
+              id="66e85b6f-a92d-4aae-9dd9-d08a9a1c9964"
               name="password"
               type="password"
               value=""

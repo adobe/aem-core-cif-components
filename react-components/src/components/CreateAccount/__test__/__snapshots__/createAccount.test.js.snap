@@ -30,7 +30,7 @@ exports[`<CreateAccount> renders the component 1`] = `
             aria-label="firstname"
             autocomplete="given-name"
             class="input"
-            id="a1564072-415e-4f3e-b653-0636d9d4f33a"
+            id="c99b8efd-129a-4d54-8a5f-d298a7ec8044"
             name="customer.firstname"
             value=""
           />
@@ -70,7 +70,7 @@ exports[`<CreateAccount> renders the component 1`] = `
             aria-label="lastname"
             autocomplete="family-name"
             class="input"
-            id="27062142-78d7-44d3-9744-9c30376392f5"
+            id="ba710b01-d525-415d-b127-35ba90017e6a"
             name="customer.lastname"
             value=""
           />
@@ -110,7 +110,7 @@ exports[`<CreateAccount> renders the component 1`] = `
             aria-label="email"
             autocomplete="email"
             class="input"
-            id="d675080e-94f3-43f4-97ca-9a40253c566c"
+            id="e5e60f9b-4cc4-44f7-a7ed-968a6c5b9e83"
             name="customer.email"
             value=""
           />
@@ -150,7 +150,7 @@ exports[`<CreateAccount> renders the component 1`] = `
             aria-label="password"
             autocomplete="new-password"
             class="input"
-            id="fb2765be-0be9-462e-a027-8ce1a70ae325"
+            id="011f0e90-4eb6-449d-8459-2648c0e6005f"
             name="password"
             type="password"
             value=""
@@ -190,7 +190,7 @@ exports[`<CreateAccount> renders the component 1`] = `
           <input
             aria-label="confirm"
             class="input"
-            id="2cd2341e-a5cf-4428-b432-ccc96fde9487"
+            id="d9ba19e0-cbdf-48a0-8f07-27e7c95c0581"
             name="confirm"
             type="password"
             value=""
@@ -210,7 +210,7 @@ exports[`<CreateAccount> renders the component 1`] = `
     <div>
       <label
         class="root"
-        for="b5709af8-721d-4362-9127-3837b5dc8347"
+        for="60eb0af3-a9ef-4c4d-96e5-2f92af408263"
       >
         <span
           class="icon"
@@ -218,7 +218,7 @@ exports[`<CreateAccount> renders the component 1`] = `
         <input
           aria-label="subscribe"
           class="input"
-          id="b5709af8-721d-4362-9127-3837b5dc8347"
+          id="60eb0af3-a9ef-4c4d-96e5-2f92af408263"
           name="subscribe"
           type="checkbox"
         />
