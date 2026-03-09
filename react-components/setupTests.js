@@ -14,37 +14,3 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 import '@testing-library/jest-dom';
-
-// Suppress jsdom getComputedStyle not implemented errors (from @testing-library/dom)
-const originalError = console.error;
-console.error = (...args) => {
-    const msg = String(args[0] || '');
-    if (msg.includes('Not implemented: window.computedStyle') || msg.includes('computedStyle(elt, pseudoElt)')) {
-        return;
-    }
-    originalError.apply(console, args);
-};
-
-const UUID_REGEX = /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/g;
-
-// Replace dynamic UUIDs in snapshots with placeholder for stable test output
-expect.addSnapshotSerializer({
-    test: (val) => {
-        if (typeof val === 'string') return /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/.test(val);
-        if (val && typeof val === 'object' && val.nodeType === 11) return true; // DocumentFragment
-        return false;
-    },
-    serialize: (val, config, indentation, depth, refs, printer) => {
-        let str;
-        if (typeof val === 'string') {
-            str = val;
-        } else if (val && val.nodeType === 11) {
-            const div = document.createElement('div');
-            div.appendChild(val.cloneNode(true));
-            str = div.innerHTML;
-        } else {
-            str = printer(val, config, indentation, depth, refs);
-        }
-        return str.replace(UUID_REGEX, '[uuid]');
-    }
-});

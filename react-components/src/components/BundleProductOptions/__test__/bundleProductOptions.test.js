@@ -33,7 +33,7 @@ const config = {
 describe('BundleProductOptions', () => {
     it('renders the component with no sku', () => {
         const { asFragment } = render(<BundleProductOptions />, { config: config });
-        expect(asFragment()).toMatchInlineSnapshot(``);
+        expect(asFragment()).toMatchInlineSnapshot(`<DocumentFragment />`);
     });
 
     it('renders the component with sku', () => {
