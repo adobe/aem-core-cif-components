@@ -91,6 +91,10 @@ public class MagentoGraphqlClientImplTest {
     private static final String LAUNCH_BASE_PATH = "/content/launches/2020/09/14/mylaunch";
     private static final String LAUNCH_PAGE_A = LAUNCH_BASE_PATH + PAGE_A;
     private static final String PRODUCT_COMPONENT_PATH = "/content/pageA/jcr:content/root/responsivegrid/product";
+    private static final String VERSION_HISTORY_ROOT = "/tmp/versionhistory";
+    private static final String VERSION_HISTORY_PAGE_A = VERSION_HISTORY_ROOT + "/hash/version/pageA";
+    private static final String VERSION_HISTORY_PRODUCT_TEASER_RESOURCE_PATH = VERSION_HISTORY_PAGE_A
+        + "/jcr:content/root/responsivegrid/productteaser-simple";
 
     private GraphqlClient graphqlClient;
 
@@ -315,6 +319,27 @@ public class MagentoGraphqlClientImplTest {
         headers.add(new BasicHeader("Preview-Version", "1606809600")); // Tuesday, 1 December 2020 09:00:00 GMT+01:00
 
         RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, HttpMethod.POST);
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
+    public void testVersionHistoryPathResolvesSourceConfiguration() {
+        context.registerAdapter(Resource.class, ComponentsConfiguration.class, (Function<Resource, ComponentsConfiguration>) resource -> {
+            if (resource.getPath().startsWith("/content/pageA")) {
+                return MOCK_CONFIGURATION_OBJECT;
+            }
+            return ComponentsConfiguration.EMPTY;
+        });
+
+        context.create().page(VERSION_HISTORY_PAGE_A);
+        Resource versionResource = context.create().resource(VERSION_HISTORY_PRODUCT_TEASER_RESOURCE_PATH);
+        Page versionPage = context.pageManager().getPage(VERSION_HISTORY_PAGE_A);
+
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(versionResource, versionPage, null);
+        assertNotNull("GraphQL client created successfully", client);
+
+        client.execute("{dummy}");
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(Collections.singletonList(new BasicHeader("Store", "my-store")), null);
         verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
     }
 

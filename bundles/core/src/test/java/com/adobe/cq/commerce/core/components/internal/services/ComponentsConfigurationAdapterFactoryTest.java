@@ -19,6 +19,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.serviceusermapping.ServiceUserMapped;
 import org.apache.sling.testing.mock.caconfig.ContextPlugins;
 import org.apache.sling.testing.mock.sling.ResourceResolverType;
@@ -39,6 +40,10 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 import io.wcm.testing.mock.aem.junit.AemContextBuilder;
 
 public class ComponentsConfigurationAdapterFactoryTest {
+
+    private static final String VERSION_HISTORY_ROOT = "/tmp/versionhistory";
+    private static final String VERSION_HISTORY_PAGE_H = VERSION_HISTORY_ROOT + "/hash/version/pageH";
+    private ComponentsConfigurationAdapterFactory factory;
 
     @Rule
     public final AemContext context = new AemContextBuilder(ResourceResolverType.JCR_MOCK).plugin(ContextPlugins.CACONFIG)
@@ -72,7 +77,7 @@ public class ComponentsConfigurationAdapterFactoryTest {
         context.registerService(ServiceUserMapped.class, serviceUserMapped, ImmutableMap.of(ServiceUserMapped.SUBSERVICENAME,
             "cif-components-configuration"));
 
-        ComponentsConfigurationAdapterFactory factory = new ComponentsConfigurationAdapterFactory();
+        factory = new ComponentsConfigurationAdapterFactory();
         context.registerInjectActivateService(factory);
     }
 
@@ -117,8 +122,33 @@ public class ComponentsConfigurationAdapterFactoryTest {
     }
 
     @Test
+    public void testAdaptFromResourceWithinVersionHistory() {
+        Resource versionHistoryResource = context.create().resource(VERSION_HISTORY_PAGE_H);
+        ComponentsConfiguration configuration = versionHistoryResource.adaptTo(ComponentsConfiguration.class);
+
+        Assert.assertNotNull("Configuration is not null", configuration);
+        Assert.assertTrue("The configuration has some data in it", configuration.size() > 0);
+
+        String unrelatedProperty = configuration.get("aTotallyUnrelatedProperty", String.class);
+        Assert.assertEquals("The configuration is correct", unrelatedProperty, "true");
+    }
+
+    @Test
     public void testAdaptNullResource() {
         ComponentsConfiguration configuration = context.resourceResolver().adaptTo(ComponentsConfiguration.class);
+        Assert.assertNull(configuration);
+    }
+
+    @Test
+    public void testAdaptFromNonResourceReturnsNull() {
+        ComponentsConfiguration configuration = factory.getAdapter("not-a-resource", ComponentsConfiguration.class);
+        Assert.assertNull(configuration);
+    }
+
+    @Test
+    public void testAdaptFromMissingResourceReturnsNull() {
+        Resource missingResource = new SyntheticResource(context.resourceResolver(), "/content/does-not-exist", "nt:unstructured");
+        ComponentsConfiguration configuration = factory.getAdapter(missingResource, ComponentsConfiguration.class);
         Assert.assertNull(configuration);
     }
 }
