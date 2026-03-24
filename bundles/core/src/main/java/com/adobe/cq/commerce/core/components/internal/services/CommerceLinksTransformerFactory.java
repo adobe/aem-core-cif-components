@@ -141,7 +141,7 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
                 if (replaceText) {
                     linkInfo = prepareProductInfo(productSku, currentPage);
                 } else {
-                    linkInfo = new LinkInfo(urlProvider.toProductUrl(request, currentPage, productSku));
+                    linkInfo = new LinkInfo(mapUrl(urlProvider.toProductUrl(request, currentPage, productSku)));
                 }
             } else {
                 String categoryUid = StringEscapeUtils.unescapeHtml4(attributes.getValue(ATTR_CATEGORY_UID));
@@ -150,7 +150,7 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
                     if (replaceText) {
                         linkInfo = prepareCategoryInfo(categoryUid, currentPage);
                     } else {
-                        linkInfo = new LinkInfo(urlProvider.toCategoryUrl(request, currentPage, categoryUid));
+                        linkInfo = new LinkInfo(mapUrl(urlProvider.toCategoryUrl(request, currentPage, categoryUid)));
                     }
                 }
             }
@@ -222,7 +222,7 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
             ProductUrlFormat.Params urlParams = new ProductUrlFormat.Params(product);
             urlParams.setSku(productSku);
 
-            return new LinkInfo(urlProvider.toProductUrl(request, productPage, urlParams), product.getName());
+            return new LinkInfo(mapUrl(urlProvider.toProductUrl(request, productPage, urlParams)), product.getName());
         }
 
         @Nullable
@@ -246,7 +246,14 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
             CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(category);
             params.setUid(categoryUid);
 
-            return new LinkInfo(urlProvider.toCategoryUrl(request, categoryPage, params), category.getName());
+            return new LinkInfo(mapUrl(urlProvider.toCategoryUrl(request, categoryPage, params)), category.getName());
+        }
+
+        private String mapUrl(String url) {
+            if (StringUtils.isNotBlank(url)) {
+                url = StringUtils.defaultIfBlank(request.getResourceResolver().map(request, url), url);
+            }
+            return url;
         }
     }
 
