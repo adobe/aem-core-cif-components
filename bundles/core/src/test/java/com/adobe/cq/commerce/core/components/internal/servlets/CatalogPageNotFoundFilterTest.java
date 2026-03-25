@@ -16,7 +16,9 @@
 package com.adobe.cq.commerce.core.components.internal.servlets;
 
 import java.io.IOException;
+import java.util.Arrays;
 
+import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -24,9 +26,11 @@ import javax.servlet.ServletResponse;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.engine.EngineConstants;
 import org.apache.sling.models.factory.ModelFactory;
 import org.apache.sling.scripting.api.BindingsValuesProvider;
 import org.apache.sling.testing.mock.sling.servlet.MockRequestPathInfo;
@@ -38,8 +42,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.internal.util.reflection.Whitebox;
+import org.osgi.framework.ServiceReference;
 
-import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
 import com.adobe.cq.commerce.core.components.internal.services.experiencefragments.CommerceExperienceFragmentsRetriever;
 import com.adobe.cq.commerce.core.search.internal.services.SearchFilterServiceImpl;
@@ -54,6 +58,8 @@ import com.day.cq.wcm.api.policies.ContentPolicyManager;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -97,7 +103,7 @@ public class CatalogPageNotFoundFilterTest {
         aemContext.registerInjectActivateService(subject);
 
         CloseableHttpClient httpClient = mock(CloseableHttpClient.class);
-        aemContext.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
+        aemContext.registerService(HttpClientBuilderFactory.class, new TestHttpClientBuilderFactory(httpClient));
 
         GraphqlClient graphqlClient = spy(new GraphqlClientImpl());
         Utils.registerGraphqlClient(aemContext, graphqlClient, null);
@@ -182,6 +188,19 @@ public class CatalogPageNotFoundFilterTest {
     }
 
     @Test
+    public void testReturns404ForMissingProductOnSpecificPageContentResource() throws ServletException, IOException {
+        aemContext.currentResource("/content/venia/us/en/products/product-page/product-specific-page/jcr:content");
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
+
+        subject.doFilter(request, response, filterChain);
+
+        verify(filterChain, never()).doFilter(request, response);
+        verify(contentModelFinder).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
     public void testReturns404ForMissingCategory() throws ServletException, IOException {
         aemContext.currentPage("/content/venia/us/en/products/category-page");
         ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
@@ -220,5 +239,40 @@ public class CatalogPageNotFoundFilterTest {
         verify(contentModelFinder, never()).findProductComponentModel(any(), any());
         verify(contentModelFinder).findProductListComponentModel(any(), any());
         assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void testRegistersForForwardScope() throws Exception {
+        ServiceReference<?>[] references = aemContext.bundleContext().getServiceReferences(Filter.class.getName(), null);
+        assertNotNull(references);
+
+        ServiceReference<?> filterReference = Arrays.stream(references)
+            .filter(reference -> aemContext.bundleContext().getService(reference) == subject)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("CatalogPageNotFoundFilter service is not registered"));
+
+        Object filterScopes = filterReference.getProperty(EngineConstants.SLING_FILTER_SCOPE);
+
+        assertTrue(filterScopes instanceof String[]);
+        assertTrue(Arrays.asList((String[]) filterScopes).contains(EngineConstants.FILTER_SCOPE_REQUEST));
+        assertTrue(Arrays.asList((String[]) filterScopes).contains(EngineConstants.FILTER_SCOPE_FORWARD));
+    }
+
+    private static final class TestHttpClientBuilderFactory implements HttpClientBuilderFactory {
+        private final CloseableHttpClient client;
+
+        private TestHttpClientBuilderFactory(CloseableHttpClient client) {
+            this.client = client;
+        }
+
+        @Override
+        public HttpClientBuilder newBuilder() {
+            return new HttpClientBuilder() {
+                @Override
+                public CloseableHttpClient build() {
+                    return client;
+                }
+            };
+        }
     }
 }
