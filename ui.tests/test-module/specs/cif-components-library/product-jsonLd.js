@@ -108,28 +108,21 @@ describe('Enable JSON-LD and Verify on Product Page', () => {
         await saveButton.waitForEnabled({ timeout: 5000 });
         await saveButton.click();
 
-        // Allow time for save to process
-        await browser.pause(2000);
-
-        // Navigate to product page
-
         const productPageUrl = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/chaz-kangeroo-hoodie.html?wcmmode=disabled`;
         await browser.url(productPageUrl);
 
-        // Wait for the URL to change before verifying elements
         await browser.waitUntil(
             async () => (await browser.getUrl()).includes('/library/commerce/product/sample-product.html'),
             { timeout: 10000, timeoutMsg: 'Product page URL did not load in time' }
         );
 
-        // Short delay to allow rendering
-        await browser.pause(2000);
-
-        // Verify JSON-LD script presence
-
-        const pageSource = await browser.getPageSource();
-        if (!pageSource.includes('<script type="application/ld+json">')) {
-            throw new Error('Test failed: JSON-LD is missing while Enable JSON checkbox is selected.');
-        }
+        await browser.waitUntil(
+            async () => (await browser.getPageSource()).includes('<script type="application/ld+json">'),
+            {
+                timeout: 90000,
+                interval: 500,
+                timeoutMsg: 'JSON-LD script did not appear after enabling in commerce cloud config'
+            }
+        );
     });
 });

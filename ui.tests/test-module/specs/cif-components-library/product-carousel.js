@@ -42,29 +42,37 @@ describe('Product Carousel component in CIF components library', () => {
 
         // Check that the right/next arrow button is displayed
         const rightButton = $(`${productcarousel_selector} .productcarousel__btn--next`);
-        expect(rightButton).toBeDisplayed();
+        rightButton.waitForDisplayed({ timeout: 60000 });
 
         // Check that the 3rd product is not yet displayed in viewport
         // Expect's toBeDisplayedInViewport and all similar functions do not work so we use the 'x' coordinates
         let product = $(`${productcarousel_selector} .product__card[data-product-sku="MH01-XS-Orange"]`);
+        product.waitForExist({ timeout: 60000 });
 
         // Verify that the product is NOT displayed: it''s positioned at the right of the arrow
         expect(product.getLocation('x') < rightButton.getLocation('x')).toBe(false);
 
         // Click right/next arrow
         rightButton.click();
-        browser.pause(2000); // wait until product "scroll" is done in carousel
 
-        // Verify that the product is displayed: it''s now positioned at the left of the arrow
+        browser.waitUntil(() => product.getLocation('x') < rightButton.getLocation('x'), {
+            timeout: 15000,
+            interval: 100,
+            timeoutMsg: 'Carousel did not scroll after clicking next'
+        });
+
         expect(product.getLocation('x') < rightButton.getLocation('x')).toBe(true);
     });
 
     it('exposes the SKU of the products', () => {
-        // Go to the product carousel page
         browser.url(productcarousel_page);
-        let productCards = $$(`${productcarousel_selector} .product__card`);
 
-        productCards.forEach((card) => {
+        browser.waitUntil(
+            () => $$(`${productcarousel_selector} .product__card`).length > 0,
+            { timeout: 60000, timeoutMsg: 'No product cards rendered in carousel' }
+        );
+
+        $$(`${productcarousel_selector} .product__card`).forEach((card) => {
             expect(card).toHaveAttribute('data-product-sku');
         });
     });

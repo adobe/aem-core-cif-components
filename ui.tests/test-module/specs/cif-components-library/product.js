@@ -48,20 +48,40 @@ describe('Product component in CIF components library', () => {
         const largeSizeButton = $(`${product_selector} button.tile__root[data-id="MTcy"]`);
         expect(largeSizeButton).toBeDisplayed();
 
-        // Select grey and size L
+        greyColorButton.waitForDisplayed({ timeout: 60000 });
+        largeSizeButton.waitForDisplayed({ timeout: 60000 });
+
         greyColorButton.click();
         largeSizeButton.click();
 
-        // Verify that the product name was updated
         const productName = $(`${product_selector} .productFullDetail__productName > span`);
+        browser.waitUntil(() => productName.getText() === 'Chaz Kangeroo Hoodie-L-Gray', {
+            timeout: 20000,
+            interval: 200,
+            timeoutMsg: 'Product name did not update after variant selection'
+        });
+
         expect(productName).toHaveText('Chaz Kangeroo Hoodie-L-Gray');
     });
 
     it('exposes the SKU of the product', () => {
         // Go to the product page
         browser.url(product_page);
-        const fullDetailElement = $(`${product_selector} .productFullDetail__root`);
 
+        browser.waitUntil(
+            () => {
+                const el = $(`${product_selector} .productFullDetail__root`);
+                const sku = el.getAttribute('data-product-sku');
+                return el.isExisting() && sku != null && String(sku).length > 0;
+            },
+            {
+                timeout: 60000,
+                interval: 200,
+                timeoutMsg: 'Product detail root did not expose data-product-sku after GraphQL load'
+            }
+        );
+
+        const fullDetailElement = $(`${product_selector} .productFullDetail__root`);
         expect(fullDetailElement).toHaveAttribute('data-product-sku');
     });
 });
