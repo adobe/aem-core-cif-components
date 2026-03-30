@@ -115,13 +115,27 @@ try {
     
     // Run UI tests
     if (TYPE === 'selenium') {
-        // Get version of ChromeDriver
-        let chromedriver = ci.sh('chromedriver --version', true); // Returns something like ChromeDriver 80.0.3987.16 (320f6526c1632ad4f205ebce69b99a062ed78647-refs/branch-heads/3987@{#185})
-        chromedriver = chromedriver.split(' ');
-        chromedriver = chromedriver.length >= 2 ? chromedriver[1] : '';
+        // WDIO selenium-standalone needs a ChromeDriver build matching the *Chrome browser* under test.
+        // Prefer the browser version from google-chrome/chromium: some qp images (e.g. openjdk21 / AEM LTS)
+        // expose a chromedriver on PATH that does not match the Chrome installed by browser-tools, which
+        // breaks only those executors while 6.5.x + openjdk11 jobs still pass.
+        let driverVersion = '';
+        const chromeOut = ci.sh(
+            'sh -c \'(google-chrome --version || chromium --version || chromium-browser --version) 2>/dev/null || true\'',
+            true
+        );
+        const chromeMatch = chromeOut.match(/(\d+\.\d+\.\d+\.\d+)/);
+        if (chromeMatch) {
+            driverVersion = chromeMatch[1];
+        } else {
+            let chromedriver = ci.sh('chromedriver --version', true);
+            chromedriver = chromedriver.split(' ');
+            driverVersion = chromedriver.length >= 2 ? chromedriver[1] : '';
+        }
 
         ci.dir('ui.tests', () => {
-            ci.sh(`CHROMEDRIVER=${chromedriver} mvn test -U -B -Pui-tests-local-execution -DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`);
+            const prefix = driverVersion ? `CHROMEDRIVER=${driverVersion} ` : '';
+            ci.sh(`${prefix}mvn test -U -B -Pui-tests-local-execution -DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`);
         });
     }
     
