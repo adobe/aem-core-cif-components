@@ -37,8 +37,10 @@ describe('Product component in CIF components library', () => {
     });
 
     it('can select a variant', () => {
+        // Go to the product page
         browser.url(product_page);
 
+        // Check that the grey variant color selection is displayed
         const greyColorButton = $(`${product_selector} button.tile__root[data-id="NTI="]`);
         const largeSizeButton = $(`${product_selector} button.tile__root[data-id="MTcy"]`);
 

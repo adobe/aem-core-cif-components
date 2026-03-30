@@ -68,10 +68,10 @@ exports.config = {
         }],
     ],
 
-    // Mocha parameters (commerce library tests wait on GraphQL + React hydration)
+    // Mocha parameters
     mochaOpts: {
         ui: 'bdd',
-        timeout: 180000
+        timeout: 120000
     },
 
     // Gets executed before test execution begins
@@ -90,15 +90,10 @@ exports.config = {
     beforeCommand: function (commandName) {
         // For WDIO commands which can lead into page navigation
         if (['url', 'refresh', 'click', 'call'].includes(commandName)) {
-            // AEM Survey overlay blocks selectors and a full refresh mid-test breaks GraphQL-driven pages.
-            if ($('#omg_surveyContainer').isExisting()) {
-                console.log('Removing AEM Survey overlay from the DOM (avoid refresh during UI tests).');
-                browser.execute(() => {
-                    const el = document.getElementById('omg_surveyContainer'); // eslint-disable-line no-undef -- browser context
-                    if (el) {
-                        el.remove();
-                    }
-                });
+            // Handle AEM Survey dialog
+            if($('#omg_surveyContainer').isExisting()) {
+                console.log('Detected presence of the AEM Survey Dialog! Refreshing the page to get rid of it.');
+                browser.refresh();
             }
         }
     }

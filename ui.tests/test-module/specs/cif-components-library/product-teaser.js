@@ -32,24 +32,10 @@ describe('Product Teaser component in the CIF components library', () => {
     });
 
     it('exposes the SKU of the product', () => {
+        // Go to the product page
         browser.url(productTeaserPage);
 
-        browser.waitUntil(
-            () => {
-                const el = $(`${productTeaserSelector} .item__root`);
-                if (!el.isExisting()) {
-                    return false;
-                }
-                const sku = el.getAttribute('data-product-sku');
-                return sku != null && String(sku).length > 0;
-            },
-            {
-                timeout: 90000,
-                interval: 200,
-                timeoutMsg: 'Product teaser did not expose data-product-sku after GraphQL load'
-            }
-        );
-
+        // check the element for the data-product-sku attribute
         const productTeaserElement = $(`${productTeaserSelector} .item__root`);
         expect(productTeaserElement).toHaveAttribute('data-product-sku');
     });
