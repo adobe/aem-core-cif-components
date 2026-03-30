@@ -47,6 +47,7 @@ import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.PageManagerFactory;
 
 @Component(
+    service = Filter.class,
     property = {
         EngineConstants.SLING_FILTER_SCOPE + "=" + EngineConstants.FILTER_SCOPE_REQUEST,
         // as this is in REQUEST scope it is called for the resource before it got forwarded to jcr:content
@@ -56,6 +57,8 @@ import com.day.cq.wcm.api.PageManagerFactory;
             + com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl.RESOURCE_TYPE,
         EngineConstants.SLING_FILTER_RESOURCETYPES + "="
             + com.adobe.cq.commerce.core.components.internal.models.v2.page.PageImpl.RESOURCE_TYPE,
+        EngineConstants.SLING_FILTER_RESOURCETYPES + "="
+            + com.adobe.cq.commerce.core.components.internal.models.v3.page.PageImpl.RESOURCE_TYPE,
         // limit to typical content rendering requests
         EngineConstants.SLING_FILTER_EXTENSIONS + "=html",
         EngineConstants.SLING_FILTER_EXTENSIONS + "=json",
