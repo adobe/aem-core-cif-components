@@ -94,7 +94,7 @@ exports.config = {
             if ($('#omg_surveyContainer').isExisting()) {
                 console.log('Removing AEM Survey overlay from the DOM (avoid refresh during UI tests).');
                 browser.execute(() => {
-                    const el = document.getElementById('omg_surveyContainer');
+                    const el = document.getElementById('omg_surveyContainer'); // eslint-disable-line no-undef -- browser context
                     if (el) {
                         el.remove();
                     }
