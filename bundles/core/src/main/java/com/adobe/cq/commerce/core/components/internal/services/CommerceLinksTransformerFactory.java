@@ -157,7 +157,8 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
 
             if (linkInfo != null && StringUtils.isNotBlank(linkInfo.href)) {
                 AttributesImpl newAttributes = new AttributesImpl(attributes);
-                newAttributes.setValue(attributes.getIndex(ATTR_HREF), linkInfo.href);
+                newAttributes.setValue(attributes.getIndex(ATTR_HREF),
+                    StringUtils.defaultIfBlank(request.getResourceResolver().map(request, linkInfo.href), linkInfo.href));
                 if (StringUtils.isNotBlank(linkInfo.title)) {
                     String title = attributes.getValue(ATTR_TITLE);
                     if (title == null) {
