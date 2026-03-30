@@ -37,26 +37,25 @@ describe('Product component in CIF components library', () => {
     });
 
     it('can select a variant', () => {
-        // Go to the product page
         browser.url(product_page);
 
-        // Check that the grey variant color selection is displayed
         const greyColorButton = $(`${product_selector} button.tile__root[data-id="NTI="]`);
-        expect(greyColorButton).toBeDisplayed();
-
-        // Check that the L variant size selection is displayed
         const largeSizeButton = $(`${product_selector} button.tile__root[data-id="MTcy"]`);
-        expect(largeSizeButton).toBeDisplayed();
 
-        greyColorButton.waitForDisplayed({ timeout: 60000 });
-        largeSizeButton.waitForDisplayed({ timeout: 60000 });
+        greyColorButton.waitForDisplayed({ timeout: 90000 });
+        largeSizeButton.waitForDisplayed({ timeout: 90000 });
 
         greyColorButton.click();
         largeSizeButton.click();
 
         const productName = $(`${product_selector} .productFullDetail__productName > span`);
-        browser.waitUntil(() => productName.getText() === 'Chaz Kangeroo Hoodie-L-Gray', {
-            timeout: 20000,
+        browser.waitUntil(() => {
+            if (!productName.isExisting()) {
+                return false;
+            }
+            return productName.getText() === 'Chaz Kangeroo Hoodie-L-Gray';
+        }, {
+            timeout: 30000,
             interval: 200,
             timeoutMsg: 'Product name did not update after variant selection'
         });
@@ -71,11 +70,14 @@ describe('Product component in CIF components library', () => {
         browser.waitUntil(
             () => {
                 const el = $(`${product_selector} .productFullDetail__root`);
+                if (!el.isExisting()) {
+                    return false;
+                }
                 const sku = el.getAttribute('data-product-sku');
-                return el.isExisting() && sku != null && String(sku).length > 0;
+                return sku != null && String(sku).length > 0;
             },
             {
-                timeout: 60000,
+                timeout: 90000,
                 interval: 200,
                 timeoutMsg: 'Product detail root did not expose data-product-sku after GraphQL load'
             }

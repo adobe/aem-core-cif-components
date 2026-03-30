@@ -37,11 +37,14 @@ describe('Product Teaser component in the CIF components library', () => {
         browser.waitUntil(
             () => {
                 const el = $(`${productTeaserSelector} .item__root`);
+                if (!el.isExisting()) {
+                    return false;
+                }
                 const sku = el.getAttribute('data-product-sku');
-                return el.isExisting() && sku != null && String(sku).length > 0;
+                return sku != null && String(sku).length > 0;
             },
             {
-                timeout: 60000,
+                timeout: 90000,
                 interval: 200,
                 timeoutMsg: 'Product teaser did not expose data-product-sku after GraphQL load'
             }

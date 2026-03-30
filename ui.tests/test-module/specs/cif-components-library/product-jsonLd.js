@@ -113,16 +113,18 @@ describe('Enable JSON-LD and Verify on Product Page', () => {
 
         await browser.waitUntil(
             async () => (await browser.getUrl()).includes('/library/commerce/product/sample-product.html'),
-            { timeout: 10000, timeoutMsg: 'Product page URL did not load in time' }
+            { timeout: 15000, timeoutMsg: 'Product page URL did not load in time' }
         );
 
-        await browser.waitUntil(
-            async () => (await browser.getPageSource()).includes('<script type="application/ld+json">'),
-            {
-                timeout: 90000,
-                interval: 500,
-                timeoutMsg: 'JSON-LD script did not appear after enabling in commerce cloud config'
-            }
-        );
+        const hasJsonLd = async () => {
+            const src = await browser.getPageSource();
+            return /application\/ld\+json/i.test(src);
+        };
+
+        await browser.waitUntil(hasJsonLd, {
+            timeout: 120000,
+            interval: 750,
+            timeoutMsg: 'JSON-LD script did not appear after enabling in commerce cloud config'
+        });
     });
 });

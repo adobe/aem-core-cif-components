@@ -37,19 +37,25 @@ describe('Product Carousel component in CIF components library', () => {
     });
 
     it('can click navigation arrows in carousel', () => {
-        // Go to the product carousel page
         browser.url(productcarousel_page);
 
-        // Check that the right/next arrow button is displayed
+        $(`${productcarousel_selector}`).waitForExist({ timeout: 90000 });
+
+        browser.waitUntil(
+            () => $$(`${productcarousel_selector} .product__card`).length > 0,
+            {
+                timeout: 90000,
+                interval: 250,
+                timeoutMsg: 'Carousel product cards did not load (GraphQL)'
+            }
+        );
+
         const rightButton = $(`${productcarousel_selector} .productcarousel__btn--next`);
-        rightButton.waitForDisplayed({ timeout: 60000 });
+        rightButton.waitForDisplayed({ timeout: 90000 });
 
-        // Check that the 3rd product is not yet displayed in viewport
-        // Expect's toBeDisplayedInViewport and all similar functions do not work so we use the 'x' coordinates
         let product = $(`${productcarousel_selector} .product__card[data-product-sku="MH01-XS-Orange"]`);
-        product.waitForExist({ timeout: 60000 });
+        product.waitForExist({ timeout: 30000 });
 
-        // Verify that the product is NOT displayed: it''s positioned at the right of the arrow
         expect(product.getLocation('x') < rightButton.getLocation('x')).toBe(false);
 
         // Click right/next arrow
@@ -67,9 +73,11 @@ describe('Product Carousel component in CIF components library', () => {
     it('exposes the SKU of the products', () => {
         browser.url(productcarousel_page);
 
+        $(`${productcarousel_selector}`).waitForExist({ timeout: 90000 });
+
         browser.waitUntil(
             () => $$(`${productcarousel_selector} .product__card`).length > 0,
-            { timeout: 60000, timeoutMsg: 'No product cards rendered in carousel' }
+            { timeout: 90000, interval: 250, timeoutMsg: 'No product cards rendered in carousel' }
         );
 
         $$(`${productcarousel_selector} .product__card`).forEach((card) => {

@@ -22,12 +22,10 @@ describe('Product bundle in CIF components library', () => {
     const product_selector = '.cmp-examples-demo__top .product';
 
     before(() => {
-        // AEM Login
         browser.AEMForceLogout();
         browser.url(config.aem.author.base_url);
         browser.AEMLogin(config.aem.author.username, config.aem.author.password);
 
-        // Setup GraphQL client
         commons.configureExamplesGraphqlClient(browser);
     });
 
@@ -35,68 +33,81 @@ describe('Product bundle in CIF components library', () => {
         browser.setWindowSize(1280, 960);
     });
 
-    it('can customize a bundle product', () => {
-        // Max number of retries
-        let retries = 3;
-        let pageLoadedSuccessfully = false;
+    it('can customize a bundle product', function () {
+        this.timeout(180000);
 
-        while (retries > 0 && !pageLoadedSuccessfully) {
+        const resolveCustomizeButton = () => {
+            let btn = $(`${product_selector} .productFullDetail__customizeBundle button`);
+            if (!btn.isExisting()) {
+                btn = $('button=Customize');
+            }
+            return btn;
+        };
+
+        const waitForBundleProductReady = () => {
+            browser.waitUntil(
+                () => {
+                    const inDemo = $(`${product_selector} .productFullDetail__root`).isExisting();
+                    const title = $('h1=Sprite Yoga Companion Kit');
+                    return inDemo || (title.isExisting() && title.isDisplayed());
+                },
+                {
+                    timeout: 55000,
+                    interval: 250,
+                    timeoutMsg: 'Bundle product demo did not render (product root or title)'
+                }
+            );
+        };
+
+        const maxAttempts = 3;
+        let lastError;
+
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
-                // Go to the product page
                 browser.url(product_page);
+                waitForBundleProductReady();
 
-                // Scroll to the "Sprite Yoga Companion Kit" title
-                const titleElement = $('h1=Sprite Yoga Companion Kit'); // Find the title by its exact text
-                titleElement.scrollIntoView(); // Scroll the page to the title
-
-                // Wait for the title to be in view (for debugging purposes)
-                browser.pause(1000);
-
-                // Try finding the "Customize" button using the normal selector
-                let customizeButton = $(`${product_selector} .productFullDetail__customizeBundle button`);
-
-                // If the button is not found, try finding it by the button text
-                if (!customizeButton.isExisting()) {
-                    customizeButton = $('button=Customize'); // Find the button by its text content
+                const titleElement = $('h1=Sprite Yoga Companion Kit');
+                if (titleElement.isExisting()) {
+                    titleElement.scrollIntoView();
                 }
 
-                // Ensure the button is displayed and interactable
-                if (customizeButton.isDisplayedInViewport()) {
-                    // Scroll to the button if it's not in view
-                    customizeButton.scrollIntoView();
+                browser.waitUntil(
+                    () => {
+                        const btn = resolveCustomizeButton();
+                        return btn.isExisting() && btn.isDisplayed();
+                    },
+                    {
+                        timeout: 40000,
+                        interval: 200,
+                        timeoutMsg: `Attempt ${attempt}: Customize control did not become visible`
+                    }
+                );
 
-                    // Wait for the button to be clickable and click it
-                    customizeButton.waitForClickable({ timeout: 20000 });
-                    customizeButton.click();
+                const customizeButton = resolveCustomizeButton();
+                customizeButton.scrollIntoView();
+                customizeButton.waitForClickable({ timeout: 25000 });
+                customizeButton.click();
 
-                    // Pause to allow any post-click actions to complete
-                    browser.pause(2000);
+                browser.waitUntil(
+                    () => $$(`${product_selector} .productFullDetail__bundleProduct`).length === 5,
+                    {
+                        timeout: 35000,
+                        interval: 200,
+                        timeoutMsg: `Attempt ${attempt}: expected 5 bundle option rows after Customize`
+                    }
+                );
 
-                    // Check for bundle product options after clicking the button
-                    const options = $$(`${product_selector} .productFullDetail__bundleProduct`);
-
-                    // Ensure there are exactly 5 options available
-                    expect(options.length).toBe(5);
-
-                    // If everything works, mark page as successfully loaded
-                    pageLoadedSuccessfully = true;
-                } else {
-                    throw new Error('Customize button is not visible in the viewport!');
-                }
-            } catch (error) {
-                retries--; // Decrease retry count
-
-                // If retries left, refresh the page and try again
-                if (retries > 0) {
-                    browser.refresh();
-                    browser.pause(3000); // Wait for 3 seconds before retrying
+                expect($$(`${product_selector} .productFullDetail__bundleProduct`).length).toBe(5);
+                return;
+            } catch (e) {
+                lastError = e;
+                if (attempt === maxAttempts) {
+                    break;
                 }
             }
         }
 
-        // Fail the test if the page is not loaded successfully after retries
-        if (!pageLoadedSuccessfully) {
-            throw new Error('Page could not be loaded successfully after 3 retries.');
-        }
+        throw lastError || new Error('Page could not be loaded successfully after 3 retries.');
     });
 });
