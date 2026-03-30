@@ -54,6 +54,7 @@ import com.day.cq.wcm.api.PageManagerFactory;
     service = Filter.class,
     property = {
         EngineConstants.SLING_FILTER_SCOPE + "=" + EngineConstants.FILTER_SCOPE_REQUEST,
+        EngineConstants.SLING_FILTER_SCOPE + "=" + EngineConstants.FILTER_SCOPE_FORWARD,
         // as this is in REQUEST scope it is called for the resource before it got forwarded to jcr:content
         EngineConstants.SLING_FILTER_RESOURCETYPES + "=" + NameConstants.NT_PAGE,
         // but we also want to cover cases where the page content is requested directly
