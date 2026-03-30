@@ -61,7 +61,13 @@ case config.CHROME:
         }
     };
     if (config.selenium.headless === true) {
-        capabilities['goog:chromeOptions'].args = ['headless'];
+        // Match wdio.conf.cloud.js so headless Chrome is stable in Docker/CI (e.g. CircleCI).
+        capabilities['goog:chromeOptions'].args = [
+            'headless',
+            'disable-gpu',
+            'no-sandbox',
+            'disable-dev-shm-usage'
+        ];
     }
     break;
 case config.FIREFOX:
