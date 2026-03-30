@@ -141,7 +141,7 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
                 if (replaceText) {
                     linkInfo = prepareProductInfo(productSku, currentPage);
                 } else {
-                    linkInfo = new LinkInfo(mapUrl(urlProvider.toProductUrl(request, currentPage, productSku)));
+                    linkInfo = new LinkInfo(urlProvider.toProductUrl(request, currentPage, productSku));
                 }
             } else {
                 String categoryUid = StringEscapeUtils.unescapeHtml4(attributes.getValue(ATTR_CATEGORY_UID));
@@ -150,14 +150,15 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
                     if (replaceText) {
                         linkInfo = prepareCategoryInfo(categoryUid, currentPage);
                     } else {
-                        linkInfo = new LinkInfo(mapUrl(urlProvider.toCategoryUrl(request, currentPage, categoryUid)));
+                        linkInfo = new LinkInfo(urlProvider.toCategoryUrl(request, currentPage, categoryUid));
                     }
                 }
             }
 
             if (linkInfo != null && StringUtils.isNotBlank(linkInfo.href)) {
                 AttributesImpl newAttributes = new AttributesImpl(attributes);
-                newAttributes.setValue(attributes.getIndex(ATTR_HREF), linkInfo.href);
+                newAttributes.setValue(attributes.getIndex(ATTR_HREF),
+                    StringUtils.defaultIfBlank(request.getResourceResolver().map(request, linkInfo.href), linkInfo.href));
                 if (StringUtils.isNotBlank(linkInfo.title)) {
                     String title = attributes.getValue(ATTR_TITLE);
                     if (title == null) {
@@ -222,7 +223,7 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
             ProductUrlFormat.Params urlParams = new ProductUrlFormat.Params(product);
             urlParams.setSku(productSku);
 
-            return new LinkInfo(mapUrl(urlProvider.toProductUrl(request, productPage, urlParams)), product.getName());
+            return new LinkInfo(urlProvider.toProductUrl(request, productPage, urlParams), product.getName());
         }
 
         @Nullable
@@ -246,14 +247,7 @@ public class CommerceLinksTransformerFactory implements TransformerFactory {
             CategoryUrlFormat.Params params = new CategoryUrlFormat.Params(category);
             params.setUid(categoryUid);
 
-            return new LinkInfo(mapUrl(urlProvider.toCategoryUrl(request, categoryPage, params)), category.getName());
-        }
-
-        private String mapUrl(String url) {
-            if (StringUtils.isNotBlank(url)) {
-                url = StringUtils.defaultIfBlank(request.getResourceResolver().map(request, url), url);
-            }
-            return url;
+            return new LinkInfo(urlProvider.toCategoryUrl(request, categoryPage, params), category.getName());
         }
     }
 
