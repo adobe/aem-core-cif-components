@@ -122,11 +122,12 @@ try {
         // `google-chrome` symlink, so the old probe returned empty and we fell back to PATH chromedriver
         // (wrong major vs installed Chrome) — WDIO then exits immediately after starting workers.
         let driverVersion = '';
+        // Use --product-version only (one line, e.g. 130.0.6723.100). Do not use --version here: its text
+        // can confuse parsing and is unnecessary once product-version exists on Chrome for Testing builds.
         const versionProbe = ci.sh(
             'sh -c \'for c in google-chrome google-chrome-stable chromium chromium-browser; do ' +
                 'if command -v "$c" >/dev/null 2>&1; then ' +
                 'o=$("$c" --product-version 2>/dev/null); [ -n "$o" ] && echo "$o" && exit 0; ' +
-                'o=$("$c" --version 2>/dev/null); [ -n "$o" ] && echo "$o" && exit 0; ' +
                 'fi; done; exit 0\'',
             true,
             false

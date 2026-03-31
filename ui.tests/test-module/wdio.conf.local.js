@@ -61,7 +61,14 @@ case config.CHROME:
         }
     };
     if (config.selenium.headless === true) {
-        capabilities['goog:chromeOptions'].args = ['headless'];
+        // Keep in sync with wdio.conf.cloud.js — use plain "headless" (not "headless=new"); the latter
+        // can fail immediately on CI when passed as a single goog:chromeOptions arg with WDIO 7.
+        capabilities['goog:chromeOptions'].args = [
+            'headless',
+            'disable-gpu',
+            'no-sandbox',
+            'disable-dev-shm-usage'
+        ];
     }
     break;
 case config.FIREFOX:
