@@ -87,15 +87,28 @@ try {
     // config too early yields 404 on /apps/cif-components-examples/graphql and broken pages (StoreConfigExporter / empty DOM).
     if (AEM === 'lts') {
         ci.stage('Wait for AEM HTTP (LTS 6.6)');
+        // Do not use `set -e` here: with command substitutions and `||`, bash can exit non-zero even after a
+        // successful `exit 0` path (observed in CI: "ready after attempt 1" then process exit 1).
+        const aemWaitScript = [
+            'i=0',
+            'while [ "$i" -lt 60 ]; do',
+            '  i=$((i + 1))',
+            '  code=$(curl -s -o /dev/null -w "%{http_code}" -u admin:admin http://localhost:4502/libs/granite/core/content/login.html) || code=000',
+            '  if [ "$code" = "200" ] || [ "$code" = "302" ]; then',
+            '    echo "AEM login page ready after attempt $i (HTTP $code)"',
+            '    exit 0',
+            '  fi',
+            '  echo "Waiting for AEM (attempt $i/60, HTTP $code)..."',
+            '  sleep 10',
+            'done',
+            'echo "AEM did not become ready in time"',
+            'exit 1'
+        ].join('\n');
+        ci.sh('bash -lc ' + JSON.stringify(aemWaitScript));
         ci.sh(
-            'bash -lc \'set -e; ' +
-                'for i in $(seq 1 60); do ' +
-                'code=$(curl -s -o /dev/null -w "%{http_code}" -u admin:admin http://localhost:4502/libs/granite/core/content/login.html || echo 000); ' +
-                'if [ "$code" = "200" ]; then echo "AEM login page ready after attempt $i"; exit 0; fi; ' +
-                'echo "Waiting for AEM (attempt $i/60, HTTP $code)..."; sleep 10; ' +
-                'done; echo "AEM did not become ready in time"; exit 1\''
+            'bash -lc ' +
+                JSON.stringify('echo "LTS settle time for bundles / HTL / GraphQL (45s)..."; sleep 45')
         );
-        ci.sh('bash -lc \'echo "LTS settle time for bundles / HTL / GraphQL (45s)..."; sleep 45\'');
     }
 
     // Temporary fix for integration & selenium test
