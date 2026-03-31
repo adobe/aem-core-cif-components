@@ -158,6 +158,28 @@ try {
         if (!graphqlOk) {
             throw new Error('GraphQL OSGi config failed after 5 attempts (LTS)');
         }
+
+        // OSGi POST can succeed while the GraphQL proxy servlet is still not mapped — browser then gets 404 on
+        // /apps/cif-components-examples/graphql and SPA shows "No CIF configuration". This is not a flaky UI
+        // test; fail here with a clear signal instead of long WDIO timeouts on empty DOM.
+        ci.stage('Wait for GraphQL proxy URL (LTS 6.6)');
+        const graphqlServletWaitScript = [
+            'i=0',
+            'while [ "$i" -lt 30 ]; do',
+            '  i=$((i + 1))',
+            '  code=$(curl -s -o /dev/null -w "%{http_code}" -u admin:admin "http://localhost:4502/apps/cif-components-examples/graphql") || code=000',
+            '  if [ "$code" != "404" ] && [ "$code" != "000" ]; then',
+            '    echo "GraphQL endpoint reachable after attempt $i (HTTP $code)"',
+            '    exit 0',
+            '  fi',
+            '  echo "Waiting for GraphQL servlet (attempt $i/30, HTTP $code)..."',
+            '  sleep 10',
+            'done',
+            'echo "GraphQL servlet still HTTP 404 — commerce addon proxy or bundle not ready; fix stack/version, not selectors."',
+            'exit 1'
+        ].join('\n');
+        console.log('bash -lc ' + JSON.stringify(graphqlServletWaitScript));
+        execFileSync('bash', ['-lc', graphqlServletWaitScript], { stdio: 'inherit' });
     } else {
         ci.sh(`curl 'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~examples' \
         -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
