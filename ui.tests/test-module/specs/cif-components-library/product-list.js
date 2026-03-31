@@ -16,12 +16,16 @@
 
 const config = require('../../lib/config');
 const commons = require('../../lib/commons');
+const { logSpecStep } = require('../../lib/wdio.diagnostics');
+
+const SPEC = 'product-list';
 
 describe('Product List component in the CIF components library', () => {
     const productListPage = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/productlist/sample-productlist.html/outdoor.html`;
     const productListPageSelector = '.cmp-examples-demo__top .productlist';
 
     before(() => {
+        logSpecStep(SPEC, 'before: AEM login + configureExamplesGraphqlClient (start)');
         // AEM Login
         browser.AEMForceLogout();
         browser.url(config.aem.author.base_url);
@@ -29,14 +33,19 @@ describe('Product List component in the CIF components library', () => {
 
         // Setup GraphQL client
         commons.configureExamplesGraphqlClient(browser);
+        logSpecStep(SPEC, `before: done url=${browser.getUrl()}`);
     });
 
     it('exposes the SKU of the product', () => {
+        logSpecStep(SPEC, `it product list SKU: navigate ${productListPage}`);
         // Go to the product page
         browser.url(productListPage);
+        logSpecStep(SPEC, `it product list SKU: after url=${browser.getUrl()}`);
 
         // check the element for the data-product-sku attribute
         const productListCards = $$(`${productListPageSelector} .productcollection__item`);
+        logSpecStep(SPEC, `it product list SKU: ${productListCards.length} collection items`);
         productListCards.forEach((card) => expect(card).toHaveAttribute('data-product-sku'));
+        logSpecStep(SPEC, 'it product list SKU: done');
     });
 });

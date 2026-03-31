@@ -19,6 +19,7 @@
  */
 const conf = require('./lib/config');
 const commons = require('./lib/commons');
+const wdioDiagnostics = require('./lib/wdio.diagnostics');
 const HtmlReporter = require('@rpii/wdio-html-reporter').HtmlReporter;
 const path = require('path');
 const log4js = require('log4js');
@@ -31,7 +32,8 @@ exports.config = {
         './specs/**/*.js'
     ],
 
-    logLevel: 'debug',
+    // Use WDIO_LOG_LEVEL=trace for full WebDriver protocol logs in CI.
+    logLevel: process.env.WDIO_LOG_LEVEL || 'info',
 
     bail: 0,
 
@@ -78,22 +80,57 @@ exports.config = {
     before: function() {
         // Init custom WDIO commands (ex. AEMLogin)
         require('./lib/wdio.commands');
+        wdioDiagnostics.ensureLogPath();
     },
 
-    // WDIO Hook executed after each test
-    afterTest: function() {
+    beforeSuite: function (suite) {
+        wdioDiagnostics.logSuiteStart(suite);
+    },
+
+    afterSuite: function (suite) {
+        wdioDiagnostics.logSuiteEnd(suite);
+    },
+
+    beforeTest: function (test) {
+        wdioDiagnostics.logTestStart(test);
+    },
+
+    // WDIO Hook executed after each test — logs END + final URL for every test; full DOM/console on failure
+    afterTest: function (test, context, hookResult) {
         // Take a screenshot that will be attached in the HTML report
         commons.takeScreenshot(browser);
+        const r = hookResult || {};
+        const duration =
+            typeof r.duration === 'number'
+                ? r.duration
+                : test && typeof test.duration === 'number'
+                  ? test.duration
+                  : undefined;
+        wdioDiagnostics.logTestComplete(browser, test, {
+            passed: r.passed,
+            duration: duration,
+            error: r.error
+        });
     },
 
     // Gets executed after each WDIO command
     beforeCommand: function (commandName) {
         // For WDIO commands which can lead into page navigation
         if (['url', 'refresh', 'click', 'call'].includes(commandName)) {
-            // Handle AEM Survey dialog
-            if($('#omg_surveyContainer').isExisting()) {
-                console.log('Detected presence of the AEM Survey Dialog! Refreshing the page to get rid of it.');
-                browser.refresh();
+            // AEM Survey: only act when visible. Avoid unconditional refresh — it resets React/GraphQL
+            // and was a major source of flaky commerce library tests.
+            const survey = $('#omg_surveyContainer');
+            if (survey.isExisting() && survey.isDisplayedInViewport()) {
+                console.log(
+                    '[UI-DIAG] AEM Survey dialog visible; dismissing with Escape (avoid refresh that resets React).'
+                );
+                browser.keys('Escape');
+                try {
+                    survey.waitForDisplayed({ reverse: true, timeout: 5000 });
+                } catch (e) {
+                    console.log('[UI-DIAG] Survey still visible after Escape; refreshing once as fallback.');
+                    browser.refresh();
+                }
             }
         }
     }

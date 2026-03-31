@@ -16,12 +16,16 @@
 
 const config = require('../../lib/config');
 const commons = require('../../lib/commons');
+const { logSpecStep } = require('../../lib/wdio.diagnostics');
+
+const SPEC = 'product-bundle';
 
 describe('Product bundle in CIF components library', () => {
     const product_page = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/sprite-yoga-companion-kit.html`;
     const product_selector = '.cmp-examples-demo__top .product';
 
     before(() => {
+        logSpecStep(SPEC, 'before: AEM login + configureExamplesGraphqlClient (start)');
         // AEM Login
         browser.AEMForceLogout();
         browser.url(config.aem.author.base_url);
@@ -29,24 +33,31 @@ describe('Product bundle in CIF components library', () => {
 
         // Setup GraphQL client
         commons.configureExamplesGraphqlClient(browser);
+        logSpecStep(SPEC, `before: done url=${browser.getUrl()}`);
     });
 
     beforeEach(() => {
         browser.setWindowSize(1280, 960);
+        logSpecStep(SPEC, 'beforeEach: setWindowSize 1280x960');
     });
 
     it('can customize a bundle product', () => {
         // Max number of retries
         let retries = 3;
         let pageLoadedSuccessfully = false;
+        let attempt = 0;
 
         while (retries > 0 && !pageLoadedSuccessfully) {
+            attempt += 1;
+            logSpecStep(SPEC, `it customize bundle: attempt ${attempt} remaining_retries=${retries} url=${product_page}`);
             try {
                 // Go to the product page
                 browser.url(product_page);
+                logSpecStep(SPEC, `it customize bundle: after navigate url=${browser.getUrl()}`);
 
                 // Scroll to the "Sprite Yoga Companion Kit" title
                 const titleElement = $('h1=Sprite Yoga Companion Kit'); // Find the title by its exact text
+                logSpecStep(SPEC, 'it customize bundle: scrollTo h1 Sprite Yoga Companion Kit');
                 titleElement.scrollIntoView(); // Scroll the page to the title
 
                 // Wait for the title to be in view (for debugging purposes)
@@ -62,6 +73,7 @@ describe('Product bundle in CIF components library', () => {
 
                 // Ensure the button is displayed and interactable
                 if (customizeButton.isDisplayedInViewport()) {
+                    logSpecStep(SPEC, 'it customize bundle: Customize button in viewport, click');
                     // Scroll to the button if it's not in view
                     customizeButton.scrollIntoView();
 
@@ -80,14 +92,20 @@ describe('Product bundle in CIF components library', () => {
 
                     // If everything works, mark page as successfully loaded
                     pageLoadedSuccessfully = true;
+                    logSpecStep(SPEC, 'it customize bundle: success (5 bundle options)');
                 } else {
                     throw new Error('Customize button is not visible in the viewport!');
                 }
             } catch (error) {
+                logSpecStep(
+                    SPEC,
+                    `it customize bundle: attempt ${attempt} error=${error && error.message ? error.message : error}`
+                );
                 retries--; // Decrease retry count
 
                 // If retries left, refresh the page and try again
                 if (retries > 0) {
+                    logSpecStep(SPEC, `it customize bundle: refresh and retry (${retries} left)`);
                     browser.refresh();
                     browser.pause(3000); // Wait for 3 seconds before retrying
                 }
@@ -96,7 +114,9 @@ describe('Product bundle in CIF components library', () => {
 
         // Fail the test if the page is not loaded successfully after retries
         if (!pageLoadedSuccessfully) {
+            logSpecStep(SPEC, 'it customize bundle: FAILED after all retries');
             throw new Error('Page could not be loaded successfully after 3 retries.');
         }
+        logSpecStep(SPEC, 'it customize bundle: done');
     });
 });

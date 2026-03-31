@@ -15,27 +15,35 @@
  */
 
 const config = require('../../lib/config');
+const { logSpecStep } = require('../../lib/wdio.diagnostics');
+
+const SPEC = 'product-jsonLd';
 
 describe('Enable JSON-LD and Verify on Product Page', () => {
     before(() => {
+        logSpecStep(SPEC, 'before: setWindowSize + AEM login (start)');
         browser.setWindowSize(1280, 960);
 
         browser.AEMForceLogout();
         browser.url(config.aem.author.base_url);
         browser.AEMLogin(config.aem.author.username, config.aem.author.password);
+        logSpecStep(SPEC, `before: done url=${browser.getUrl()}`);
     });
 
     it('should enable JSON-LD in AEM settings, save changes, and verify its presence on the product page', async () => {
-        await browser.url(
-            `${config.aem.author.base_url}/mnt/overlay/cif/shell/content/configuration/properties.html?item=%2Fconf%2Fcore-components-examples%2Fsettings%2Fcloudconfigs%2Fcommerce`
-        );
+        const overlayUrl = `${config.aem.author.base_url}/mnt/overlay/cif/shell/content/configuration/properties.html?item=%2Fconf%2Fcore-components-examples%2Fsettings%2Fcloudconfigs%2Fcommerce`;
+        logSpecStep(SPEC, `it JSON-LD: open commerce cloud config overlay ${overlayUrl}`);
+        await browser.url(overlayUrl);
+        logSpecStep(SPEC, `it JSON-LD: after overlay url=${await browser.getUrl()}`);
 
         // Wait for tabs to load
 
+        logSpecStep(SPEC, 'it JSON-LD: waitUntil coral-tab present');
         await browser.waitUntil(async () => (await $$('coral-tab')).length > 0, {
             timeout: 10000,
             timeoutMsg: 'Tabs did not load in time'
         });
+        logSpecStep(SPEC, 'it JSON-LD: tabs loaded');
 
         // Select the "Features" tab
 
@@ -52,9 +60,11 @@ describe('Enable JSON-LD and Verify on Product Page', () => {
         }
 
         if (!featuresTab) {
+            logSpecStep(SPEC, 'it JSON-LD: ERROR Features tab not found');
             throw new Error('Features tab not found! Possible DOM change or incorrect selector.');
         }
 
+        logSpecStep(SPEC, 'it JSON-LD: select Features tab');
         if ((await featuresTab.getAttribute('aria-selected')) !== 'true') {
             await featuresTab.click();
         }
@@ -63,9 +73,11 @@ describe('Enable JSON-LD and Verify on Product Page', () => {
             timeout: 5000,
             timeoutMsg: ' Features tab was not selected in time'
         });
+        logSpecStep(SPEC, 'it JSON-LD: Features tab selected');
 
         // Locate JSON-LD checkbox
 
+        logSpecStep(SPEC, 'it JSON-LD: locate enableJsonLd checkbox');
         const enableJsonLdCheckbox = await $('coral-checkbox[name="./enableJsonLd"]');
         await enableJsonLdCheckbox.waitForDisplayed({ timeout: 5000 });
 
@@ -103,6 +115,7 @@ describe('Enable JSON-LD and Verify on Product Page', () => {
 
         // Save changes
 
+        logSpecStep(SPEC, 'it JSON-LD: click save (shell-propertiespage-doneactivator)');
         const saveButton = await $('#shell-propertiespage-doneactivator');
         await saveButton.waitForDisplayed({ timeout: 5000 });
         await saveButton.waitForEnabled({ timeout: 5000 });
@@ -110,10 +123,12 @@ describe('Enable JSON-LD and Verify on Product Page', () => {
 
         // Allow time for save to process
         await browser.pause(2000);
+        logSpecStep(SPEC, 'it JSON-LD: after save pause 2000ms');
 
         // Navigate to product page
 
         const productPageUrl = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/product/sample-product.html/chaz-kangeroo-hoodie.html?wcmmode=disabled`;
+        logSpecStep(SPEC, `it JSON-LD: navigate product page ${productPageUrl}`);
         await browser.url(productPageUrl);
 
         // Wait for the URL to change before verifying elements
@@ -121,15 +136,19 @@ describe('Enable JSON-LD and Verify on Product Page', () => {
             async () => (await browser.getUrl()).includes('/library/commerce/product/sample-product.html'),
             { timeout: 10000, timeoutMsg: 'Product page URL did not load in time' }
         );
+        logSpecStep(SPEC, `it JSON-LD: product URL ok url=${await browser.getUrl()}`);
 
         // Short delay to allow rendering
         await browser.pause(2000);
 
         // Verify JSON-LD script presence
 
+        logSpecStep(SPEC, 'it JSON-LD: getPageSource and check application/ld+json');
         const pageSource = await browser.getPageSource();
         if (!pageSource.includes('<script type="application/ld+json">')) {
+            logSpecStep(SPEC, 'it JSON-LD: FAILED script type application/ld+json not in page source');
             throw new Error('Test failed: JSON-LD is missing while Enable JSON checkbox is selected.');
         }
+        logSpecStep(SPEC, 'it JSON-LD: done (JSON-LD script found)');
     });
 });

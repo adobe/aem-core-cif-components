@@ -16,12 +16,16 @@
 
 const config = require('../../lib/config');
 const commons = require('../../lib/commons');
+const { logSpecStep } = require('../../lib/wdio.diagnostics');
+
+const SPEC = 'product-teaser';
 
 describe('Product Teaser component in the CIF components library', () => {
     const productTeaserPage = `${config.aem.author.base_url}/content/core-components-examples/library/commerce/productteaser.html`;
     const productTeaserSelector = '.cmp-examples-demo__top .productteaser';
 
     before(() => {
+        logSpecStep(SPEC, 'before: AEM login + configureExamplesGraphqlClient (start)');
         // AEM Login
         browser.AEMForceLogout();
         browser.url(config.aem.author.base_url);
@@ -29,14 +33,19 @@ describe('Product Teaser component in the CIF components library', () => {
 
         // Setup GraphQL client
         commons.configureExamplesGraphqlClient(browser);
+        logSpecStep(SPEC, `before: done url=${browser.getUrl()}`);
     });
 
     it('exposes the SKU of the product', () => {
+        logSpecStep(SPEC, `it teaser SKU: navigate ${productTeaserPage}`);
         // Go to the product page
         browser.url(productTeaserPage);
+        logSpecStep(SPEC, `it teaser SKU: after url=${browser.getUrl()}`);
 
         // check the element for the data-product-sku attribute
+        logSpecStep(SPEC, 'it teaser SKU: expect .item__root data-product-sku');
         const productTeaserElement = $(`${productTeaserSelector} .item__root`);
         expect(productTeaserElement).toHaveAttribute('data-product-sku');
+        logSpecStep(SPEC, 'it teaser SKU: done');
     });
 });
