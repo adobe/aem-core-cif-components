@@ -100,12 +100,14 @@ exports.config = {
         // Take a screenshot that will be attached in the HTML report
         commons.takeScreenshot(browser);
         const r = hookResult || {};
-        const duration =
-            typeof r.duration === 'number'
-                ? r.duration
-                : test && typeof test.duration === 'number'
-                  ? test.duration
-                  : undefined;
+        let duration;
+        if (typeof r.duration === 'number') {
+            duration = r.duration;
+        } else if (test && typeof test.duration === 'number') {
+            duration = test.duration;
+        } else {
+            duration = undefined;
+        }
         wdioDiagnostics.logTestComplete(browser, test, {
             passed: r.passed,
             duration: duration,

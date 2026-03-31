@@ -76,6 +76,20 @@ function logTestStart(test) {
     diag(`START ${title}`);
 }
 
+// Script strings run in the browser; `document` must not appear as a Node identifier (eslint no-undef).
+const SCRIPT_READY_STATE = 'return document.readyState';
+const SCRIPT_DOM_SNAPSHOT = [
+    'return ({',
+    'h1Count: document.querySelectorAll("h1").length,',
+    'productRoots: document.querySelectorAll(".cmp-examples-demo__top .product").length,',
+    'productFullDetail: document.querySelectorAll(".cmp-examples-demo__top .product .productFullDetail__root").length,',
+    'carouselNext: document.querySelectorAll(".cmp-examples-demo__top .productcarousel .productcarousel__btn--next").length,',
+    'teaserRoot: document.querySelectorAll(".cmp-examples-demo__top .productteaser .item__root").length,',
+    'jsonLdScripts: document.querySelectorAll(\'script[type="application/ld+json"]\').length,',
+    'surveyContainers: document.querySelectorAll("#omg_surveyContainer").length',
+    '});'
+].join('');
+
 function collectPageSummary(browser) {
     try {
         diag(`URL ${browser.getUrl()}`);
@@ -88,7 +102,7 @@ function collectPageSummary(browser) {
         diag(`TITLE (unavailable) ${e.message}`);
     }
     try {
-        const ready = browser.execute(() => document.readyState);
+        const ready = browser.execute(SCRIPT_READY_STATE);
         diag(`document.readyState ${ready}`);
     } catch (e) {
         diag(`readyState (unavailable) ${e.message}`);
@@ -97,20 +111,7 @@ function collectPageSummary(browser) {
 
 function collectDomAndConsole(browser) {
     try {
-        const snapshot = browser.execute(() => ({
-            h1Count: document.querySelectorAll('h1').length,
-            productRoots: document.querySelectorAll('.cmp-examples-demo__top .product').length,
-            productFullDetail: document.querySelectorAll(
-                '.cmp-examples-demo__top .product .productFullDetail__root'
-            ).length,
-            carouselNext: document.querySelectorAll(
-                '.cmp-examples-demo__top .productcarousel .productcarousel__btn--next'
-            ).length,
-            teaserRoot: document.querySelectorAll('.cmp-examples-demo__top .productteaser .item__root')
-                .length,
-            jsonLdScripts: document.querySelectorAll('script[type="application/ld+json"]').length,
-            surveyContainers: document.querySelectorAll('#omg_surveyContainer').length
-        }));
+        const snapshot = browser.execute(SCRIPT_DOM_SNAPSHOT);
         diag(`DOM snapshot ${JSON.stringify(snapshot)}`);
     } catch (e) {
         diag(`DOM snapshot (unavailable) ${e.message}`);
