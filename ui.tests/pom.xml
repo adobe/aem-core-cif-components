@@ -43,6 +43,8 @@
         <AEM_PUBLISH_USERNAME>admin</AEM_PUBLISH_USERNAME>
         <AEM_PUBLISH_PASSWORD>admin</AEM_PUBLISH_PASSWORD>
         <SELENIUM_BROWSER>chrome</SELENIUM_BROWSER>
+        <!-- Extra ms after GraphQL OSGi config in WDIO (LTS CI sets this; 0 = default 5s base pause only) -->
+        <AEM_LTS_UI_EXTRA_PAUSE_MS>0</AEM_LTS_UI_EXTRA_PAUSE_MS>
     </properties>
 
     <build>
@@ -135,6 +137,7 @@
                                 <AEM_PUBLISH_PASSWORD>${AEM_PUBLISH_PASSWORD}</AEM_PUBLISH_PASSWORD>
                                 <SELENIUM_BROWSER>${SELENIUM_BROWSER}</SELENIUM_BROWSER>
                                 <HEADLESS_BROWSER>${HEADLESS_BROWSER}</HEADLESS_BROWSER>
+                                <AEM_LTS_UI_EXTRA_PAUSE_MS>${AEM_LTS_UI_EXTRA_PAUSE_MS}</AEM_LTS_UI_EXTRA_PAUSE_MS>
                             </environmentVariables>
                         </configuration>
                     </plugin>

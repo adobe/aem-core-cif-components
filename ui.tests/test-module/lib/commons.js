@@ -67,7 +67,8 @@ function configureExamplesGraphqlClient(browser) {
         acceptSelfSignedCertificates: 'true',
         allowHttpProtocol: 'true'
     });
-    browser.pause(5000); // let OSGi services restart
+    const extraMs = parseInt(process.env.AEM_LTS_UI_EXTRA_PAUSE_MS || '0', 10);
+    browser.pause(5000 + (Number.isFinite(extraMs) ? extraMs : 0)); // let OSGi services restart (LTS CI may add ms)
 }
 
 class OnboardingDialogHandler {

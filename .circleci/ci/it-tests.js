@@ -82,6 +82,21 @@ try {
             --vm-options \\\"${jvmHeap} ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
     });
 
+    // AEM 6.6 LTS (660 addon, Java 21) is slower to reach full readiness than 6.5 / Cloud: OSGi bundles, HTL,
+    // and the GraphQL servlet may not exist until minutes after qp reports "started". Posting GraphQL OSGi
+    // config too early yields 404 on /apps/cif-components-examples/graphql and broken pages (StoreConfigExporter / empty DOM).
+    if (AEM === 'lts') {
+        ci.stage('Wait for AEM HTTP (LTS 6.6)');
+        ci.sh(
+            'bash -lc \'set -e; ' +
+                'for i in $(seq 1 60); do ' +
+                'code=$(curl -s -o /dev/null -w "%{http_code}" -u admin:admin http://localhost:4502/libs/granite/core/content/login.html || echo 000); ' +
+                'if [ "$code" = "200" ]; then echo "AEM login page ready after attempt $i"; exit 0; fi; ' +
+                'echo "Waiting for AEM (attempt $i/60, HTTP $code)..."; sleep 10; ' +
+                'done; echo "AEM did not become ready in time"; exit 1\''
+        );
+        ci.sh('bash -lc \'echo "LTS settle time for bundles / HTL / GraphQL (45s)..."; sleep 45\'');
+    }
 
     // Temporary fix for integration & selenium test
     const formData = {
@@ -93,13 +108,46 @@ try {
         propertylist: 'url,httpMethod'
     };
 
-    ci.sh(`curl 'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~examples' \
+    const graphqlConfigPayload = Object.entries(formData)
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join('&');
+
+    // -f: fail on HTTP error — used for LTS retries so we re-post if config endpoint was not ready.
+    const graphqlCurlStrict =
+        'curl -sS -f -o /dev/null ' +
+        '\'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~examples\' ' +
+        '-H \'Content-Type: application/x-www-form-urlencoded; charset=UTF-8\' ' +
+        '-H \'Origin: http://localhost:4502\' ' +
+        '-u \'admin:admin\' ' +
+        '--data-raw \'' + graphqlConfigPayload + '\'';
+
+    if (AEM === 'lts') {
+        ci.stage('Apply GraphQL OSGi config (LTS retries)');
+        let graphqlOk = false;
+        for (let attempt = 1; attempt <= 5; attempt++) {
+            try {
+                console.log(`GraphQL OSGi config attempt ${attempt}/5`);
+                ci.sh(graphqlCurlStrict);
+                graphqlOk = true;
+                console.log('GraphQL OSGi config POST succeeded');
+                break;
+            } catch (e) {
+                console.log(`GraphQL OSGi config attempt ${attempt} failed: ${e.message}`);
+                if (attempt < 5) {
+                    ci.sh('sleep 20');
+                }
+            }
+        }
+        if (!graphqlOk) {
+            throw new Error('GraphQL OSGi config failed after 5 attempts (LTS)');
+        }
+    } else {
+        ci.sh(`curl 'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~examples' \
         -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
         -H 'Origin: http://localhost:4502' \
         -u 'admin:admin' \
-        --data-raw '${Object.entries(formData)
-        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-        .join('&')}'`);
+        --data-raw '${graphqlConfigPayload}'`);
+    }
 
 
 
@@ -152,7 +200,12 @@ try {
 
         ci.dir('ui.tests', () => {
             const prefix = driverVersion ? `CHROMEDRIVER=${driverVersion} ` : '';
-            ci.sh(`${prefix}mvn test -U -B -Pui-tests-local-execution -DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`);
+            // Give OSGi more time after GraphQL config before browser tests (LTS 6.6 only).
+            const ltsPause =
+                AEM === 'lts' ? '-DAEM_LTS_UI_EXTRA_PAUSE_MS=20000 ' : '';
+            ci.sh(
+                `${prefix}mvn test -U -B -Pui-tests-local-execution ${ltsPause}-DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`
+            );
         });
     }
     
