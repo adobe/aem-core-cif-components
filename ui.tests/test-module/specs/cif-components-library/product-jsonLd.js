@@ -15,22 +15,18 @@
  */
 
 const config = require('../../lib/config');
-const commons = require('../../lib/commons');
 const { logSpecStep } = require('../../lib/wdio.diagnostics');
 
 const SPEC = 'product-jsonLd';
 
 describe('Enable JSON-LD and Verify on Product Page', () => {
     before(() => {
-        logSpecStep(SPEC, 'before: setWindowSize + AEM login + configureExamplesGraphqlClient (start)');
+        logSpecStep(SPEC, 'before: setWindowSize + AEM login (start)');
         browser.setWindowSize(1280, 960);
 
         browser.AEMForceLogout();
         browser.url(config.aem.author.base_url);
         browser.AEMLogin(config.aem.author.username, config.aem.author.password);
-        // Same as other CIF library specs: applies GraphQL client OSGi config and Sling Authenticator rules
-        // for /apps/cif-components-examples/graphql (CI curl alone does not update the authenticator).
-        commons.configureExamplesGraphqlClient(browser);
         logSpecStep(SPEC, `before: done url=${browser.getUrl()}`);
     });
 
