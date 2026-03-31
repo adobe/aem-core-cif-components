@@ -117,23 +117,37 @@ try {
     
     // Run UI tests
     if (TYPE === 'selenium') {
-        // WDIO selenium-standalone needs a ChromeDriver build matching the *Chrome browser* under test.
-        // Prefer the browser version from google-chrome/chromium: some qp images (e.g. openjdk21 / AEM LTS)
-        // expose a chromedriver on PATH that does not match the Chrome installed by browser-tools, which
-        // breaks only those executors while 6.5.x + openjdk11 jobs still pass.
+        // selenium-standalone must use a ChromeDriver build matching the *Chrome binary* under test.
+        // CircleCI browser-tools often installs `google-chrome-stable` only; LTS qp (openjdk21) may have no
+        // `google-chrome` symlink, so the old probe returned empty and we fell back to PATH chromedriver
+        // (wrong major vs installed Chrome) — WDIO then exits immediately after starting workers.
         let driverVersion = '';
-        const chromeOut = ci.sh(
-            'sh -c \'(google-chrome --version || chromium --version || chromium-browser --version) 2>/dev/null || true\'',
-            true
+        const versionProbe = ci.sh(
+            'sh -c \'for c in google-chrome google-chrome-stable chromium chromium-browser; do ' +
+                'if command -v "$c" >/dev/null 2>&1; then ' +
+                'o=$("$c" --product-version 2>/dev/null); [ -n "$o" ] && echo "$o" && exit 0; ' +
+                'o=$("$c" --version 2>/dev/null); [ -n "$o" ] && echo "$o" && exit 0; ' +
+                'fi; done; exit 0\'',
+            true,
+            false
         );
-        const chromeMatch = chromeOut.match(/(\d+\.\d+\.\d+\.\d+)/);
-        if (chromeMatch) {
-            driverVersion = chromeMatch[1];
+        let verMatch = versionProbe.match(/(\d+\.\d+\.\d+\.\d+)/);
+        if (!verMatch) {
+            verMatch = versionProbe.match(/(\d+\.\d+\.\d+)/);
+        }
+        if (verMatch) {
+            driverVersion = verMatch[1];
         } else {
-            let chromedriver = ci.sh('chromedriver --version', true);
+            let chromedriver = ci.sh('chromedriver --version', true, false);
             chromedriver = chromedriver.split(' ');
             driverVersion = chromedriver.length >= 2 ? chromedriver[1] : '';
         }
+        console.log(
+            'UI tests: Chrome version probe =>',
+            JSON.stringify(versionProbe),
+            'using CHROMEDRIVER=',
+            driverVersion || '(none; selenium-standalone default)'
+        );
 
         ci.dir('ui.tests', () => {
             const prefix = driverVersion ? `CHROMEDRIVER=${driverVersion} ` : '';
