@@ -15,6 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
+const { execFileSync } = require('child_process');
+
 const ci = new (require('./ci.js'))();
 
 ci.context();
@@ -104,11 +106,13 @@ try {
             'echo "AEM did not become ready in time"',
             'exit 1'
         ].join('\n');
-        ci.sh('bash -lc ' + JSON.stringify(aemWaitScript));
-        ci.sh(
-            'bash -lc ' +
-                JSON.stringify('echo "LTS settle time for bundles / HTL / GraphQL (45s)..."; sleep 45')
-        );
+        // execFileSync passes the script as argv (no /bin/sh -c), so $i / $code / $(curl) are not expanded
+        // by the parent shell — unlike ci.sh(execSync(string)), which broke the multi-line JSON.stringify form.
+        console.log('bash -lc ' + JSON.stringify(aemWaitScript));
+        execFileSync('bash', ['-lc', aemWaitScript], { stdio: 'inherit' });
+        const ltsSettleScript = 'echo "LTS settle time for bundles / HTL / GraphQL (45s)..."; sleep 45';
+        console.log('bash -lc ' + JSON.stringify(ltsSettleScript));
+        execFileSync('bash', ['-lc', ltsSettleScript], { stdio: 'inherit' });
     }
 
     // Temporary fix for integration & selenium test
