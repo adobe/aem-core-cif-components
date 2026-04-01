@@ -33,7 +33,7 @@ try {
     let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
 
     // TODO: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
-    let aemCifSdkApiVersion = "2025.09.02.1-SNAPSHOT";
+    let aemCifSdkApiVersion = "2025.12.04.00";
 
 
     ci.dir(qpPath, () => {

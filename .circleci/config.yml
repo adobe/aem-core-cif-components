@@ -58,9 +58,9 @@ executors:
 
   test_executor_660:
     docker:
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.7-openjdk17
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.7-openjdk21
         <<: *docker_auth
-      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-lts:6.6.0-openjdk17
+      - image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-lts:6.6.0-openjdk21
         <<: *docker_auth
 
 jobs:
