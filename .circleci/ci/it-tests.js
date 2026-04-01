@@ -231,7 +231,7 @@ try {
             extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM === 'lts') {
             extras += ` --install-file ${buildPath}/addon.zip`;
-            downloadArtifact('commerce-addon-aem-660-all', 'zip', 'addon.zip', aemCifCommerceAddonVersion660);
+            downloadArtifact('commerce-addon-aem-660-all', 'zip', 'addon.zip', aemCifCommerceAddonVersion650);
             extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM === 'addon') {
             extras += ` --install-file ${buildPath}/addon.far`;
