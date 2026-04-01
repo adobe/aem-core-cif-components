@@ -19,6 +19,63 @@ const { execFileSync } = require('child_process');
 
 const ci = new (require('./ci.js'))();
 
+/** Felix /system/console/bundles.json shape differs by version — normalize to an array of bundle objects. */
+function parseFelixBundlesJson(raw) {
+    const j = JSON.parse(raw);
+    if (Array.isArray(j)) {
+        return j;
+    }
+    if (j && Array.isArray(j.data)) {
+        return j.data;
+    }
+    if (j && Array.isArray(j.bundles)) {
+        return j.bundles;
+    }
+    return [];
+}
+
+/**
+ * LTS Selenium must match it/http preconditions from CommerceTestBase: IT polls until key bundles are Active
+ * before applying OSGi config. The Selenium job only ran login wait + fixed sleep + curl, so commerce + examples
+ * bundles could still be resolving — GraphQL servlet 404, HTL StoreConfigExporter errors, empty DOM.
+ */
+function waitForLtsFelixBundlesActive(bundleSymbolicNames, stageLabel) {
+    const maxAttempts = 60;
+    const sleepSec = 10;
+    const bundlesUrl = 'http://localhost:4502/system/console/bundles.json';
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        let allActive = true;
+        const states = [];
+        try {
+            const raw = execFileSync(
+                'curl',
+                ['-sS', '-u', 'admin:admin', '-f', bundlesUrl],
+                { encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }
+            );
+            const bundles = parseFelixBundlesJson(raw);
+            for (const sym of bundleSymbolicNames) {
+                const b = bundles.find((x) => x.symbolicName === sym);
+                if (b && b.state === 'Active') {
+                    states.push(`${sym}=Active`);
+                } else {
+                    allActive = false;
+                    states.push(`${sym}=${b ? b.state : 'missing'}`);
+                }
+            }
+        } catch (e) {
+            allActive = false;
+            states.push(`bundles.json: ${e.message}`);
+        }
+        if (allActive) {
+            console.log(`LTS: ${stageLabel} — ${states.join(', ')}`);
+            return;
+        }
+        console.log(`LTS: ${stageLabel} attempt ${attempt}/${maxAttempts}: ${states.join('; ')}`);
+        execFileSync('bash', ['-lc', `sleep ${sleepSec}`], { stdio: 'inherit' });
+    }
+    throw new Error(`LTS: timeout waiting for Active: ${bundleSymbolicNames.join(', ')}`);
+}
+
 ci.context();
 
 ci.stage('Project Configuration');
@@ -110,7 +167,18 @@ try {
         // by the parent shell — unlike ci.sh(execSync(string)), which broke the multi-line JSON.stringify form.
         console.log('bash -lc ' + JSON.stringify(aemWaitScript));
         execFileSync('bash', ['-lc', aemWaitScript], { stdio: 'inherit' });
-        const ltsSettleScript = 'echo "LTS settle time for bundles / HTL / GraphQL (45s)..."; sleep 45';
+
+        // Same bundles it/http waits for in CommerceTestBase.init() before OSGi updates (graphql-client only there;
+        // we also require core + examples so HTL / GraphQL servlet exist before UI tests).
+        const ltsRequiredBundles = [
+            'com.adobe.commerce.cif.graphql-client',
+            'com.adobe.commerce.cif.core-cif-components-core',
+            'com.adobe.commerce.cif.core-cif-components-examples-bundle'
+        ];
+        ci.stage('Wait for CIF OSGi bundles Active (LTS — parity with it/http CommerceTestBase)');
+        waitForLtsFelixBundlesActive(ltsRequiredBundles, 'required CIF bundles');
+
+        const ltsSettleScript = 'echo "LTS settle time for HTL / remaining OSGi (30s)..."; sleep 30';
         console.log('bash -lc ' + JSON.stringify(ltsSettleScript));
         execFileSync('bash', ['-lc', ltsSettleScript], { stdio: 'inherit' });
     }
@@ -158,6 +226,28 @@ try {
         if (!graphqlOk) {
             throw new Error('GraphQL OSGi config failed after 5 attempts (LTS)');
         }
+        // CommerceTestBase waits for bundle restart after config; servlet can briefly disappear.
+        const postConfigPause = 'echo "LTS post GraphQL OSGi pause (20s)..."; sleep 20';
+        console.log('bash -lc ' + JSON.stringify(postConfigPause));
+        execFileSync('bash', ['-lc', postConfigPause], { stdio: 'inherit' });
+        ci.stage('Wait for examples GraphQL proxy URL (LTS — HTTP not 404)');
+        const graphqlServletWaitScript = [
+            'i=0',
+            'while [ "$i" -lt 36 ]; do',
+            '  i=$((i + 1))',
+            '  code=$(curl -s -o /dev/null -w "%{http_code}" -u admin:admin "http://localhost:4502/apps/cif-components-examples/graphql") || code=000',
+            '  if [ "$code" != "404" ] && [ "$code" != "000" ]; then',
+            '    echo "GraphQL servlet reachable (HTTP $code) after attempt $i"',
+            '    exit 0',
+            '  fi',
+            '  echo "GraphQL servlet not ready (attempt $i/36, HTTP $code)..."',
+            '  sleep 10',
+            'done',
+            'echo "GraphQL servlet still 404/000 after 36 attempts (~6 min)"',
+            'exit 1'
+        ].join('\n');
+        console.log('bash -lc ' + JSON.stringify(graphqlServletWaitScript));
+        execFileSync('bash', ['-lc', graphqlServletWaitScript], { stdio: 'inherit' });
     } else {
         ci.sh(`curl 'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~examples' \
         -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
