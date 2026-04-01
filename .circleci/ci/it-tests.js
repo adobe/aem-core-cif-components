@@ -35,9 +35,33 @@ function parseFelixBundlesJson(raw) {
 }
 
 /**
- * LTS Selenium must match it/http preconditions from CommerceTestBase: IT polls until key bundles are Active
- * before applying OSGi config. The Selenium job only ran login wait + fixed sleep + curl, so commerce + examples
- * bundles could still be resolving — GraphQL servlet 404, HTL StoreConfigExporter errors, empty DOM.
+ * Log bundle states for CI debugging (does not fail the job).
+ * Note: Felix may list project bundles as "Installed" while wiring; IT does not wait on those.
+ */
+function logLtsFelixBundleStates(bundleSymbolicNames, label) {
+    const bundlesUrl = 'http://localhost:4502/system/console/bundles.json';
+    try {
+        const raw = execFileSync('curl', ['-sS', '-u', 'admin:admin', '-f', bundlesUrl], {
+            encoding: 'utf8',
+            maxBuffer: 32 * 1024 * 1024
+        });
+        const bundles = parseFelixBundlesJson(raw);
+        const parts = [];
+        for (const sym of bundleSymbolicNames) {
+            const b = bundles.find((x) => x.symbolicName === sym);
+            parts.push(`${sym}=${b ? b.state : 'missing'}`);
+        }
+        console.log(`LTS: ${label}: ${parts.join('; ')}`);
+    } catch (e) {
+        console.log(`LTS: ${label}: could not read bundles.json (${e.message})`);
+    }
+}
+
+/**
+ * Match it/http CommerceTestBase.init(): only graphql-client must be Active before OSGi GraphQL client config.
+ * Do not require core/examples bundles here — they can appear as "Installed" in bundles.json during resolution while
+ * still becoming Active later; gating on all three caused false 10m timeouts. Readiness is enforced by the GraphQL
+ * servlet HTTP wait after config.
  */
 function waitForLtsFelixBundlesActive(bundleSymbolicNames, stageLabel) {
     const maxAttempts = 60;
@@ -168,15 +192,15 @@ try {
         console.log('bash -lc ' + JSON.stringify(aemWaitScript));
         execFileSync('bash', ['-lc', aemWaitScript], { stdio: 'inherit' });
 
-        // Same bundles it/http waits for in CommerceTestBase.init() before OSGi updates (graphql-client only there;
-        // we also require core + examples so HTL / GraphQL servlet exist before UI tests).
-        const ltsRequiredBundles = [
-            'com.adobe.commerce.cif.graphql-client',
+        // CommerceTestBase only waits for graphql-client Active; see waitForLtsFelixBundlesActive JSDoc.
+        const ltsGraphqlClientBundle = ['com.adobe.commerce.cif.graphql-client'];
+        const ltsDiagnosticBundles = [
             'com.adobe.commerce.cif.core-cif-components-core',
             'com.adobe.commerce.cif.core-cif-components-examples-bundle'
         ];
-        ci.stage('Wait for CIF OSGi bundles Active (LTS — parity with it/http CommerceTestBase)');
-        waitForLtsFelixBundlesActive(ltsRequiredBundles, 'required CIF bundles');
+        ci.stage('Wait for graphql-client bundle Active (LTS — same as it/http CommerceTestBase)');
+        waitForLtsFelixBundlesActive(ltsGraphqlClientBundle, 'graphql-client bundle');
+        logLtsFelixBundleStates(ltsDiagnosticBundles, 'diagnostic (core + examples; not a gate)');
 
         const ltsSettleScript = 'echo "LTS settle time for HTL / remaining OSGi (30s)..."; sleep 30';
         console.log('bash -lc ' + JSON.stringify(ltsSettleScript));
