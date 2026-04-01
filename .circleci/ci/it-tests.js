@@ -61,8 +61,9 @@ try {
             downloadArtifact('cif-cloud-ready-feature-pkg', 'far', 'addon.far', 'LATEST', 'cq-commerce-addon-authorfar');
         }
 
+        // LTS needs more heap than 6.5, but very large heap + metaspace starves Chrome/selenium on typical CI RAM (8 GiB).
         const jvmHeap = AEM === 'lts' ? '-Xmx2048m' : '-Xmx1536m';
-        const maxMetaspace = AEM === 'lts' ? '-XX:MaxMetaspaceSize=1024m' : '-XX:MaxPermSize=256m';
+        const maxMetaspace = AEM === 'lts' ? '-XX:MaxMetaspaceSize=512m' : '-XX:MaxPermSize=256m';
         // Start CQ
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
             --bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar \

@@ -61,7 +61,14 @@ case config.CHROME:
         }
     };
     if (config.selenium.headless === true) {
-        capabilities['goog:chromeOptions'].args = ['headless'];
+        // Required on many Linux CI VMs (CircleCI, Docker): default Chrome sandbox / small /dev/shm otherwise exit ~0 quickly with no spec output
+        capabilities['goog:chromeOptions'].args = [
+            'headless',
+            '--no-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--window-size=1920,1080'
+        ];
     }
     break;
 case config.FIREFOX:
