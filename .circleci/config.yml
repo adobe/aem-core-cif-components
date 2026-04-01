@@ -12,6 +12,31 @@ common:
         - maven-repo-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ .Branch }}
         - maven-repo-{{ .Environment.CACHE_VERSION }}-
 
+  integration_test_steps: &integration_test_steps
+    steps:
+      - checkout
+      - *restore_cache
+      - attach_workspace:
+          at: /home/circleci/build
+      - run:
+          name: Integration tests
+          command: node .circleci/ci/it-tests.js
+      - store_test_results:
+          path: it/http/target/failsafe-reports
+      # Save test results as artifacts
+      - store_artifacts:
+          path: it/http/target/failsafe-reports
+      # Save AEM logs as artifacts
+      - store_artifacts:
+          path: logs
+      # Save Jacoco coverage report as artifact
+      - store_artifacts:
+          path: bundles/core/target/site/jacoco
+      - store_artifacts:
+          path: extensions/product-recs/bundle/target/site/jacoco
+      - store_artifacts:
+          path: examples/bundle/target/site/jacoco
+
   selenium_test_steps: &selenium_test_steps
     steps:
       - checkout
@@ -219,6 +244,33 @@ jobs:
       - codecov/upload:
           flags: jest
 
+  integration-test-655:
+    executor: test_executor_655
+    environment:
+      AEM: classic
+      TYPE: integration
+    resource_class: large
+    working_directory: /home/circleci/build
+    <<: *integration_test_steps
+
+  integration-test-660:
+    executor: test_executor_660
+    environment:
+      AEM: lts
+      TYPE: integration
+    resource_class: large
+    working_directory: /home/circleci/build
+    <<: *integration_test_steps
+
+  integration-test-cloudready-with-addon:
+    executor: test_executor_cloudready
+    environment:
+      AEM: addon
+      TYPE: integration
+    resource_class: large
+    working_directory: /home/circleci/build
+    <<: *integration_test_steps
+
   selenium-chrome-655:
     executor: test_executor_655
     environment:
@@ -321,6 +373,44 @@ workflows:
           filters:
             tags:
               only: /.*/
+      - integration-test-655:
+          context:
+            - CIF Artifactory Cloud
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-java-11
+            - build-java-8
+            - karma
+            - jest
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
+      - integration-test-660:
+          context:
+            - CIF Artifactory Cloud
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-java-11
+            - karma
+            - jest
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
+      - integration-test-cloudready-with-addon:
+          context:
+            - CIF Artifactory Cloud
+          filters:
+            tags:
+              only: /.*/
+          requires:
+            - build-java-11
+            - build-java-8
+            - karma
+            - jest
+            - jest-extension-product-recs
+            - jest-extension-experience-platform-connector
       - selenium-chrome-655:
           context:
             - CIF Artifactory Cloud
