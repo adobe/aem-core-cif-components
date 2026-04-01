@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
+const { execFileSync } = require('child_process');
 const ci = new (require('./ci.js'))();
 
 ci.context();
@@ -60,7 +61,8 @@ try {
             downloadArtifact('cif-cloud-ready-feature-pkg', 'far', 'addon.far', 'LATEST', 'cq-commerce-addon-authorfar');
         }
 
-        const maxMetaspace = AEM == 'lts' ? '-XX:MaxMetaspaceSize=512m' : '-XX:MaxPermSize=256m';
+        const jvmHeap = AEM === 'lts' ? '-Xmx2048m' : '-Xmx1536m';
+        const maxMetaspace = AEM === 'lts' ? '-XX:MaxMetaspaceSize=1024m' : '-XX:MaxPermSize=256m';
         // Start CQ
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
             --bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar \
@@ -77,27 +79,52 @@ try {
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-config'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-content'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])} \
-            --vm-options \\\"-Xmx1536m ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
+            --vm-options \\\"${jvmHeap} ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
     });
 
+    // LTS (6.6) is slower than 6.5: QP "started" ≠ HTTP ready ≠ GraphQL/examples bundles active. Without a gate, Selenium
+    // often flakes (empty product data, missing data-product-sku, timeouts).
+    if (AEM === 'lts') {
+        ci.stage('Wait for AEM HTTP (LTS)');
+        const waitLogin = [
+            'i=0',
+            'while [ "$i" -lt 60 ]; do',
+            '  i=$((i + 1))',
+            '  code=$(curl -s -o /dev/null -w "%{http_code}" -u admin:admin http://localhost:4502/libs/granite/core/content/login.html) || code=000',
+            '  if [ "$code" = "200" ] || [ "$code" = "302" ]; then echo "AEM ready (attempt $i, HTTP $code)"; exit 0; fi',
+            '  echo "Waiting for AEM ($i/60)..."; sleep 10',
+            'done',
+            'exit 1'
+        ].join('\n');
+        execFileSync('bash', ['-lc', waitLogin], { stdio: 'inherit' });
+        ci.stage('LTS settle (OSGi / HTL / GraphQL wiring)');
+        execFileSync('bash', ['-lc', 'sleep 45'], { stdio: 'inherit' });
+    }
 
-    // Temporary fix for integration & selenium test
+    // Match ui.tests commons.configureExamplesGraphqlClient — http:// localhost requires allowHttpProtocol on recent graphql-client.
     const formData = {
         apply: true,
         factoryPid: 'com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl',
         action: 'ajaxConfigManager',
-        url: "http://localhost:4502/apps/cif-components-examples/graphql",
+        identifier: 'examples',
+        url: 'http://localhost:4502/apps/cif-components-examples/graphql',
         httpMethod: 'GET',
-        propertylist: 'url,httpMethod'
+        allowHttpProtocol: 'true',
+        acceptSelfSignedCertificates: 'true',
+        propertylist: 'identifier,url,httpMethod,allowHttpProtocol,acceptSelfSignedCertificates'
     };
 
-    ci.sh(`curl 'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~examples' \
+    ci.sh(`curl -sS 'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~examples' \
         -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
         -H 'Origin: http://localhost:4502' \
         -u 'admin:admin' \
         --data-raw '${Object.entries(formData)
         .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
         .join('&')}'`);
+
+    if (AEM === 'lts') {
+        execFileSync('bash', ['-lc', 'sleep 25'], { stdio: 'inherit' });
+    }
 
 
 
