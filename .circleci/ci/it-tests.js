@@ -15,9 +15,49 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const { execFileSync } = require('child_process');
 
 const ci = new (require('./ci.js'))();
+
+/**
+ * Quickstart installs CIF packages from the CircleCI workspace (build-java-11 job).
+ * This script does not run a full `mvn install` of the reactor — only `mvn test` in ui.tests for Selenium.
+ */
+function assertWorkspaceQpArtifactsExist(config) {
+    const moduleKeys = [
+        'core-cif-components-apps',
+        'core-cif-components-config',
+        'core-cif-components-core',
+        'core-cif-components-examples-bundle',
+        'core-cif-components-examples-apps',
+        'core-cif-components-examples-config',
+        'core-cif-components-examples-content',
+        'core-cif-components-it-tests-content'
+    ];
+    const missing = [];
+    for (const key of moduleKeys) {
+        const m = config.modules[key];
+        if (!m) {
+            missing.push(`${key} (not in configuration.json — run build from repo root so collectConfiguration runs)`);
+            continue;
+        }
+        const ext = m.packaging === 'content-package' ? '.zip' : '.jar';
+        const filename = `${m.artifactId}-${m.version}${ext}`;
+        const fp = path.join(m.path, 'target', filename);
+        if (!fs.existsSync(fp)) {
+            missing.push(fp);
+        }
+    }
+    if (missing.length) {
+        throw new Error(
+            'Missing workspace build outputs (attach the build job workspace, or run the build job first). Expected files:\n' +
+                missing.join('\n')
+        );
+    }
+    console.log('Workspace: all Quickstart --install-file artifacts are present under target/.');
+}
 
 /** Felix /system/console/bundles.json shape differs by version — normalize to an array of bundle objects. */
 function parseFelixBundlesJson(raw) {
@@ -57,15 +97,69 @@ function logLtsFelixBundleStates(bundleSymbolicNames, label) {
     }
 }
 
+/** POST Felix refreshPackages so QP-installed JARs re-resolve (Installed → Resolved/Active). See Apache Felix Web Console POST action=refreshPackages. */
+function ltsFelixRefreshPackages() {
+    try {
+        execFileSync(
+            'curl',
+            [
+                '-sS',
+                '-u',
+                'admin:admin',
+                '-X',
+                'POST',
+                '-d',
+                'action=refreshPackages',
+                'http://localhost:4502/system/console/bundles'
+            ],
+            { stdio: 'inherit' }
+        );
+        console.log('LTS: refreshPackages POST completed');
+    } catch (e) {
+        console.log(`LTS: refreshPackages failed (non-fatal): ${e.message}`);
+    }
+}
+
+/** When GraphQL servlet never appears, explain and tail error.log if the AEM sidecar exposes it. */
+function printLtsGraphqlServletFailureHints(diagnosticBundleSymbols) {
+    console.log(
+        'LTS: /apps/cif-components-examples/graphql stays 404 while com.adobe.commerce.cif.core-cif-components-examples-bundle ' +
+            'is not Active — the mock GraphQL servlet is not registered. If core/examples stay "Installed", OSGi has not ' +
+            'resolved them (missing imports / wrong add-on). Check error.log for "Unresolved constraint" or bundle symbolic names.'
+    );
+    logLtsFelixBundleStates(diagnosticBundleSymbols, 'bundle states after servlet wait failure');
+    const logUrls = [
+        'http://localhost:3000/crx-quickstart/logs/error.log',
+        'http://localhost:4502/crx-quickstart/logs/error.log'
+    ];
+    for (const logUrl of logUrls) {
+        try {
+            const raw = execFileSync('curl', ['-sS', '-f', '--max-time', '45', logUrl], {
+                encoding: 'utf8',
+                maxBuffer: 16 * 1024 * 1024
+            });
+            const lines = raw.split(/\r?\n/);
+            const tail = lines.slice(-100).join('\n');
+            console.log(`LTS: last 100 lines from ${logUrl}:\n${tail}`);
+            break;
+        } catch (e) {
+            console.log(`LTS: could not fetch ${logUrl} (${e.message})`);
+        }
+    }
+}
+
 /**
  * Match it/http CommerceTestBase.init(): only graphql-client must be Active before OSGi GraphQL client config.
  * Do not require core/examples bundles here — they can appear as "Installed" in bundles.json during resolution while
  * still becoming Active later; gating on all three caused false 10m timeouts. Readiness is enforced by the GraphQL
  * servlet HTTP wait after config.
  */
-function waitForLtsFelixBundlesActive(bundleSymbolicNames, stageLabel) {
-    const maxAttempts = 60;
-    const sleepSec = 10;
+/**
+ * @param {{ maxAttempts?: number, sleepSec?: number }} [opts] — defaults 60 × 10s (~10m). Pre-WDIO gates use fewer attempts.
+ */
+function waitForLtsFelixBundlesActive(bundleSymbolicNames, stageLabel, opts) {
+    const maxAttempts = (opts && opts.maxAttempts) || 60;
+    const sleepSec = (opts && opts.sleepSec) || 10;
     const bundlesUrl = 'http://localhost:4502/system/console/bundles.json';
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         let allActive = true;
@@ -105,6 +199,7 @@ ci.context();
 ci.stage('Project Configuration');
 const config = ci.restoreConfiguration();
 console.log(config);
+assertWorkspaceQpArtifactsExist(config);
 const qpPath = '/home/circleci/cq';
 const buildPath = '/home/circleci/build';
 const { TYPE, BROWSER, AEM } = process.env;
@@ -205,6 +300,16 @@ try {
         const ltsSettleScript = 'echo "LTS settle time for HTL / remaining OSGi (30s)..."; sleep 30';
         console.log('bash -lc ' + JSON.stringify(ltsSettleScript));
         execFileSync('bash', ['-lc', ltsSettleScript], { stdio: 'inherit' });
+
+        // QP drops many bundles via install/; Felix may leave project bundles as "Installed" until packages refresh.
+        ci.stage('LTS Felix refreshPackages (OSGi rewire after quickstart provisioning)');
+        ltsFelixRefreshPackages();
+        const afterRefreshScript = 'echo "LTS pause after refreshPackages (30s)..."; sleep 30';
+        execFileSync('bash', ['-lc', afterRefreshScript], { stdio: 'inherit' });
+        logLtsFelixBundleStates(
+            ['com.adobe.commerce.cif.core-cif-components-core', 'com.adobe.commerce.cif.core-cif-components-examples-bundle'],
+            'diagnostic after refreshPackages'
+        );
     }
 
     // Temporary fix for integration & selenium test
@@ -271,7 +376,20 @@ try {
             'exit 1'
         ].join('\n');
         console.log('bash -lc ' + JSON.stringify(graphqlServletWaitScript));
-        execFileSync('bash', ['-lc', graphqlServletWaitScript], { stdio: 'inherit' });
+        try {
+            execFileSync('bash', ['-lc', graphqlServletWaitScript], { stdio: 'inherit' });
+        } catch (err) {
+            printLtsGraphqlServletFailureHints([
+                'com.adobe.commerce.cif.graphql-client',
+                'com.adobe.commerce.cif.core-cif-components-core',
+                'com.adobe.commerce.cif.core-cif-components-examples-bundle'
+            ]);
+            throw new Error(
+                'LTS: GraphQL servlet URL stayed 404 — examples-bundle is not serving /apps/cif-components-examples/graphql. ' +
+                    'See LTS hints and error.log tail above (e.g. Unresolved constraint). Original: ' +
+                    (err && err.message ? err.message : String(err))
+            );
+        }
     } else {
         ci.sh(`curl 'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~examples' \
         -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
@@ -294,7 +412,7 @@ try {
         });
     }
     
-    // Run UI tests
+    // Run UI tests (reactor already built in build-java-11; this runs ui.tests `mvn test` + WDIO only).
     if (TYPE === 'selenium') {
         // selenium-standalone must use a ChromeDriver build matching the *Chrome binary* under test.
         // CircleCI browser-tools often installs `google-chrome-stable` only; LTS qp (openjdk21) may have no
@@ -328,6 +446,40 @@ try {
             'using CHROMEDRIVER=',
             driverVersion || '(none; selenium-standalone default)'
         );
+
+        // LTS: try to wire OSGi (refreshPackages) until core/examples are Active — avoids long WDIO runs on bad Felix state.
+        if (AEM === 'lts') {
+            const ltsCoreExamplesSymbols = [
+                'com.adobe.commerce.cif.core-cif-components-core',
+                'com.adobe.commerce.cif.core-cif-components-examples-bundle'
+            ];
+            const ltsPreWdioBundleWait = (stageSuffix) => {
+                ci.stage(`LTS pre-Selenium: OSGi refresh + wait for Active (${stageSuffix})`);
+                ltsFelixRefreshPackages();
+                execFileSync('bash', ['-lc', 'echo "LTS pause after refresh before WDIO (20s)..."; sleep 20'], { stdio: 'inherit' });
+                waitForLtsFelixBundlesActive(
+                    ltsCoreExamplesSymbols,
+                    'core + examples must be Active before UI tests',
+                    { maxAttempts: 30, sleepSec: 10 }
+                );
+            };
+            try {
+                ltsPreWdioBundleWait('attempt 1');
+            } catch (firstErr) {
+                console.log(`LTS: pre-WDIO bundle wait failed (${firstErr.message}); retrying refreshPackages once...`);
+                ltsFelixRefreshPackages();
+                execFileSync('bash', ['-lc', 'echo "LTS extra pause before retry (30s)..."; sleep 30'], { stdio: 'inherit' });
+                ltsPreWdioBundleWait('attempt 2 after retry');
+            }
+            logLtsFelixBundleStates(
+                [
+                    'com.adobe.commerce.cif.graphql-client',
+                    'com.adobe.commerce.cif.core-cif-components-core',
+                    'com.adobe.commerce.cif.core-cif-components-examples-bundle'
+                ],
+                'confirm bundle states before WDIO'
+            );
+        }
 
         ci.dir('ui.tests', () => {
             const prefix = driverVersion ? `CHROMEDRIVER=${driverVersion} ` : '';
