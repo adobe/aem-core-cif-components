@@ -123,9 +123,9 @@ function ltsFelixRefreshPackages() {
 /** When GraphQL servlet never appears, explain and tail error.log if the AEM sidecar exposes it. */
 function printLtsGraphqlServletFailureHints(diagnosticBundleSymbols) {
     console.log(
-        'LTS: /apps/cif-components-examples/graphql stays 404 while com.adobe.commerce.cif.core-cif-components-examples-bundle ' +
-            'is not Active — the mock GraphQL servlet is not registered. If core/examples stay "Installed", OSGi has not ' +
-            'resolved them (missing imports / wrong add-on). Check error.log for "Unresolved constraint" or bundle symbolic names.'
+        'LTS: /apps/cif-components-examples/graphql must not stay 404 or return 5xx. 404 usually means examples-bundle not ' +
+            'Active (servlet not registered). 5xx means the servlet ran but failed (proxy/OSGi). If bundles stay "Installed", ' +
+            'check error.log for "Unresolved constraint" or bundle symbolic names.'
     );
     logLtsFelixBundleStates(diagnosticBundleSymbols, 'bundle states after servlet wait failure');
     const logUrls = [
@@ -359,20 +359,21 @@ try {
         const postConfigPause = 'echo "LTS post GraphQL OSGi pause (20s)..."; sleep 20';
         console.log('bash -lc ' + JSON.stringify(postConfigPause));
         execFileSync('bash', ['-lc', postConfigPause], { stdio: 'inherit' });
-        ci.stage('Wait for examples GraphQL proxy URL (LTS — HTTP not 404)');
+        ci.stage('Wait for examples GraphQL proxy URL (LTS — HTTP not 404/5xx)');
+        // Do not treat 5xx as "ready": a 500 means the servlet threw (e.g. proxy misconfig) — WDIO would then fail fast.
         const graphqlServletWaitScript = [
             'i=0',
             'while [ "$i" -lt 36 ]; do',
             '  i=$((i + 1))',
             '  code=$(curl -s -o /dev/null -w "%{http_code}" -u admin:admin "http://localhost:4502/apps/cif-components-examples/graphql") || code=000',
-            '  if [ "$code" != "404" ] && [ "$code" != "000" ]; then',
-            '    echo "GraphQL servlet reachable (HTTP $code) after attempt $i"',
-            '    exit 0',
-            '  fi',
-            '  echo "GraphQL servlet not ready (attempt $i/36, HTTP $code)..."',
+            '  case "$code" in',
+            '    404|000) echo "GraphQL servlet not ready (attempt $i/36, HTTP $code)..." ;;',
+            '    5[0-9][0-9]) echo "GraphQL servlet server error (attempt $i/36, HTTP $code) — waiting for non-5xx..." ;;',
+            '    *) echo "GraphQL servlet OK (HTTP $code) after attempt $i"; exit 0 ;;',
+            '  esac',
             '  sleep 10',
             'done',
-            'echo "GraphQL servlet still 404/000 after 36 attempts (~6 min)"',
+            'echo "GraphQL servlet still 404/000/5xx after 36 attempts (~6 min)"',
             'exit 1'
         ].join('\n');
         console.log('bash -lc ' + JSON.stringify(graphqlServletWaitScript));
@@ -385,8 +386,8 @@ try {
                 'com.adobe.commerce.cif.core-cif-components-examples-bundle'
             ]);
             throw new Error(
-                'LTS: GraphQL servlet URL stayed 404 — examples-bundle is not serving /apps/cif-components-examples/graphql. ' +
-                    'See LTS hints and error.log tail above (e.g. Unresolved constraint). Original: ' +
+                'LTS: GraphQL servlet URL did not return a healthy HTTP status (expect not 404/000/5xx). ' +
+                    'See LTS hints and error.log tail above (e.g. servlet 500 / Unresolved constraint). Original: ' +
                     (err && err.message ? err.message : String(err))
             );
         }

@@ -342,8 +342,8 @@ jobs:
           command: |
             node --unhandled-rejections=strict .circleci/ci/deploy-queries.js
 
-# Workflow timing: Selenium jobs need `build-java-11` (workspace). HTTP integration tests (`it/http`) are not scheduled
-# here — re-add `integration-test-*` jobs if you need CommerceTestBase coverage on CI again.
+# Workflow timing: Selenium attaches `build-java-11` workspace only. Karma/Jest and HTTP IT jobs are omitted from this
+# workflow for faster runs — re-add them if you need front-end or `it/http` coverage on CI.
 workflows:
   version: 2
   build-and-release:
@@ -360,22 +360,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - karma:
-          filters:
-            tags:
-              only: /.*/
-      - jest:
-          filters:
-            tags:
-              only: /.*/
-      - jest-extension-product-recs:
-          filters:
-            tags:
-              only: /.*/
-      - jest-extension-experience-platform-connector:
-          filters:
-            tags:
-              only: /.*/
       - selenium-chrome-655:
           context:
             - CIF Artifactory Cloud
@@ -385,10 +369,6 @@ workflows:
           requires:
             - build-java-11
             - build-java-8
-            - karma
-            - jest
-            - jest-extension-product-recs
-            - jest-extension-experience-platform-connector
       - selenium-chrome-660:
           context:
             - CIF Artifactory Cloud
@@ -397,10 +377,6 @@ workflows:
               only: /.*/
           requires:
             - build-java-11
-            - karma
-            - jest
-            - jest-extension-product-recs
-            - jest-extension-experience-platform-connector
       - selenium-chrome-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
@@ -410,10 +386,6 @@ workflows:
           requires:
             - build-java-11
             - build-java-8
-            - karma
-            - jest
-            - jest-extension-product-recs
-            - jest-extension-experience-platform-connector
       - release:
           context:
             - CIF Artifactory Cloud
