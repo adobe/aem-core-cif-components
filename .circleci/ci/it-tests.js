@@ -83,23 +83,30 @@ try {
             --vm-options \\\"${jvmHeap} ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
     });
 
-    // LTS (6.6) is slower than 6.5: QP "started" ≠ HTTP ready ≠ GraphQL/examples bundles active. Without a gate, Selenium
-    // often flakes (empty product data, missing data-product-sku, timeouts).
+    // LTS (6.6): login.html can return 200 while commerce OSGi / GraphQL / example bundles are still starting — a single
+    // fast 200 (attempt 1) is a common flake pattern. Require two consecutive OK polls, then a fixed settle before UI tests.
     if (AEM === 'lts') {
-        ci.stage('Wait for AEM HTTP (LTS)');
+        ci.stage('Wait for stable AEM HTTP (LTS)');
         const waitLogin = [
+            'ok=0',
             'i=0',
-            'while [ "$i" -lt 60 ]; do',
+            'while [ "$i" -lt 72 ]; do',
             '  i=$((i + 1))',
             '  code=$(curl -s -o /dev/null -w "%{http_code}" -u admin:admin http://localhost:4502/libs/granite/core/content/login.html) || code=000',
-            '  if [ "$code" = "200" ] || [ "$code" = "302" ]; then echo "AEM ready (attempt $i, HTTP $code)"; exit 0; fi',
-            '  echo "Waiting for AEM ($i/60)..."; sleep 10',
+            '  if [ "$code" = "200" ] || [ "$code" = "302" ]; then',
+            '    ok=$((ok + 1))',
+            '    echo "AEM HTTP $code (consecutive OK: $ok, poll $i/72)"',
+            '    if [ "$ok" -ge 2 ]; then echo "AEM login endpoint stable"; break; fi',
+            '  else',
+            '    ok=0',
+            '  fi',
+            '  sleep 10',
             'done',
-            'exit 1'
+            'if [ "$ok" -lt 2 ]; then echo "AEM login did not stabilize in time"; exit 1; fi',
+            'echo "LTS settle: OSGi / commerce / GraphQL (90s)..."',
+            'sleep 90'
         ].join('\n');
         execFileSync('bash', ['-lc', waitLogin], { stdio: 'inherit' });
-        ci.stage('LTS settle (OSGi / HTL / GraphQL wiring)');
-        execFileSync('bash', ['-lc', 'sleep 45'], { stdio: 'inherit' });
     }
 
     // Match ui.tests commons.configureExamplesGraphqlClient — http:// localhost requires allowHttpProtocol on recent graphql-client.
@@ -124,7 +131,7 @@ try {
         .join('&')}'`);
 
     if (AEM === 'lts') {
-        execFileSync('bash', ['-lc', 'sleep 25'], { stdio: 'inherit' });
+        execFileSync('bash', ['-lc', 'echo "Post GraphQL OSGi apply settle (45s)..."; sleep 45'], { stdio: 'inherit' });
     }
 
 
