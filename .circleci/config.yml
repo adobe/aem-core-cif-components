@@ -12,31 +12,6 @@ common:
         - maven-repo-{{ .Environment.CACHE_VERSION }}-{{ arch }}-{{ .Branch }}
         - maven-repo-{{ .Environment.CACHE_VERSION }}-
 
-  integration_test_steps: &integration_test_steps
-    steps:
-      - checkout
-      - *restore_cache
-      - attach_workspace:
-          at: /home/circleci/build
-      - run:
-          name: Integration tests
-          command: node .circleci/ci/it-tests.js
-      - store_test_results:
-          path: it/http/target/failsafe-reports
-      # Save test results as artifacts
-      - store_artifacts:
-          path: it/http/target/failsafe-reports
-      # Save AEM logs as artifacts
-      - store_artifacts:
-          path: logs
-      # Save Jacoco coverage report as artifact
-      - store_artifacts:
-          path: bundles/core/target/site/jacoco
-      - store_artifacts:
-          path: extensions/product-recs/bundle/target/site/jacoco
-      - store_artifacts:
-          path: examples/bundle/target/site/jacoco
-
   selenium_test_steps: &selenium_test_steps
     steps:
       - checkout
@@ -141,7 +116,108 @@ jobs:
       - store_artifacts:
           path: test-results/junit
 
+  karma:
+    docker:
+      - image: cimg/node:16.17.1-browsers
+    steps:
+      - checkout
+      - browser-tools/install-browser-tools
+      - run:
+          name: Provision
+          command: |
+            node -v
+            npm -v
+            npm install
+            npm run webpack:dev
+          working_directory: ./ui.apps
+      - run:
+          name: Run Unit Tests (Karma)
+          command: npm test
+          working_directory: ./ui.apps
+      - store_test_results:
+          path: ui.apps/karma-junit
+      - store_artifacts:
+          path: ui.apps/karma-junit
+      - codecov/upload:
+          flags: karma
 
+  jest:
+    docker:
+      - image: cimg/node:16.20.0-browsers
+    steps:
+      - checkout
+      - run:
+          name: Provision
+          command: |
+            node -v
+            npm -v
+            npm ci --legacy-peer-deps
+          working_directory: ./react-components
+      - run:
+          name: Run Unit Tests (Jest)
+          command: npm run ci
+          working_directory: ./react-components
+      - store_test_results:
+          path: ./react-components/test-results
+      - store_artifacts:
+          path: ./react-components/test-results
+      - codecov/upload:
+          flags: jest
+
+  jest-extension-product-recs:
+    docker:
+      - image: cimg/node:16.17.1-browsers
+    steps:
+      - checkout
+      - run:
+          name: Update permissions
+          command: sudo chown -R circleci /usr/local/lib/node_modules
+      - run:
+          name: Provision (Core)
+          command: |
+            node -v
+            npm -v
+            npm install
+            npm run webpack:dev
+            npm link
+          working_directory: ./react-components
+      - run:
+          name: Provision (Extension)
+          command: |
+            npm install
+            npm link @adobe/aem-core-cif-react-components --legacy-peer-deps
+          working_directory: ./extensions/product-recs/react-components
+      - run:
+          name: Run Unit Tests (Jest)
+          command: npm run ci
+          working_directory: ./extensions/product-recs/react-components
+      - store_test_results:
+          path: ./extensions/product-recs/react-components/test-results
+      - store_artifacts:
+          path: ./extensions/product-recs/react-components/test-results
+      - codecov/upload:
+          flags: jest
+
+  jest-extension-experience-platform-connector:
+    docker:
+      - image: cimg/node:16.17.1-browsers
+    steps:
+      - checkout
+      - run:
+          name: Provision (Extension)
+          command: |
+            npm install --legacy-peer-deps
+          working_directory: ./extensions/experience-platform-connector
+      - run:
+          name: Run Unit Tests (Jest)
+          command: npm run ci
+          working_directory: ./extensions/experience-platform-connector
+      - store_test_results:
+          path: ./extensions/experience-platform-connector/test-results
+      - store_artifacts:
+          path: ./extensions/experience-platform-connector/test-results
+      - codecov/upload:
+          flags: jest
 
   selenium-chrome-655:
     executor: test_executor_655
@@ -245,44 +321,6 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - integration-test-655:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - build-java-8
-            - karma
-            - jest
-            - jest-extension-product-recs
-            - jest-extension-experience-platform-connector
-      - integration-test-660:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - karma
-            - jest
-            - jest-extension-product-recs
-            - jest-extension-experience-platform-connector
-      - integration-test-cloudready-with-addon:
-          context:
-            - CIF Artifactory Cloud
-          filters:
-            tags:
-              only: /.*/
-          requires:
-            - build-java-11
-            - build-java-8
-            - karma
-            - jest
-            - jest-extension-product-recs
-            - jest-extension-experience-platform-connector
       - selenium-chrome-655:
           context:
             - CIF Artifactory Cloud
