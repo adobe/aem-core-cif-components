@@ -16,7 +16,48 @@
 'use strict';
 
 const { execFileSync } = require('child_process');
+const { URLSearchParams } = require('url');
 const ci = new (require('./ci.js'))();
+
+/** Same as ui.tests configureGraphqlClient + it/http CommerceTestBase — mock servlet must be allowed through SlingAuthenticator. */
+function postSlingAuthenticatorForExamplesGraphql() {
+    const params = new URLSearchParams();
+    params.append('apply', 'true');
+    params.append('action', 'ajaxConfigManager');
+    params.append('_charset_', 'utf-8');
+    params.append('propertylist', [
+        'auth.sudo.cookie',
+        'auth.sudo.parameter',
+        'auth.annonymous',
+        'sling.auth.requirements',
+        'sling.auth.anonymous.user',
+        'sling.auth.anonymous.password',
+        'auth.http',
+        'auth.http.realm',
+        'auth.uri.suffix'
+    ].join(','));
+    params.append('auth.sudo.cookie', 'sling.sudo');
+    params.append('auth.sudo.parameter', 'sudo');
+    params.append('auth.annonymous', 'false');
+    ['+/', '-/libs/granite/core/content/login', '-/etc.clientlibs', '-/etc/clientlibs/granite',
+        '-/libs/dam/remoteassets/content/loginerror', '-/apps/cif-components-examples/graphql'
+    ].forEach((entry) => params.append('sling.auth.requirements', entry));
+    params.append('sling.auth.anonymous.user', '');
+    params.append('sling.auth.anonymous.password', 'unmodified');
+    params.append('auth.http', 'preemptive');
+    params.append('auth.http.realm', 'Sling+(Development)');
+    params.append('auth.uri.suffix', '/j_security_check');
+
+    const body = params.toString();
+    execFileSync('curl', [
+        '-sS', '-u', 'admin:admin',
+        '-X', 'POST',
+        'http://localhost:4502/system/console/configMgr/org.apache.sling.engine.impl.auth.SlingAuthenticator',
+        '-H', 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8',
+        '-H', 'Origin: http://localhost:4502',
+        '--data-binary', body
+    ], { stdio: 'inherit' });
+}
 
 ci.context();
 
@@ -28,7 +69,7 @@ const buildPath = '/home/circleci/build';
 const { TYPE, BROWSER, AEM } = process.env;
 
 try {
-    ci.stage("Integration Tests");
+    ci.stage(`AEM IT (${TYPE}, AEM=${AEM})`);
     let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
     let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
@@ -130,8 +171,11 @@ try {
         .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
         .join('&')}'`);
 
+    ci.stage('SlingAuthenticator (mock GraphQL path)');
+    postSlingAuthenticatorForExamplesGraphql();
+
     if (AEM === 'lts') {
-        execFileSync('bash', ['-lc', 'echo "Post GraphQL OSGi apply settle (45s)..."; sleep 45'], { stdio: 'inherit' });
+        execFileSync('bash', ['-lc', 'echo "Post OSGi (GraphQL + Authenticator) settle (60s)..."; sleep 60'], { stdio: 'inherit' });
     }
 
 
@@ -182,7 +226,11 @@ try {
                     if (attempt >= maxAttempts) {
                         throw err;
                     }
-                    ci.stage(`UI tests failed (attempt ${attempt}/${maxAttempts}) — retry after 90s`);
+                    ci.stage(`UI tests failed (attempt ${attempt}/${maxAttempts}) — retry after backoff`);
+                    // LTS: immediate WDIO exit on retry is common; short cool-down before selenium-standalone respawns.
+                    if (AEM === 'lts') {
+                        execFileSync('bash', ['-lc', 'sleep 30'], { stdio: 'inherit' });
+                    }
                     execFileSync('bash', ['-lc', 'sleep 90'], { stdio: 'inherit' });
                 }
             }
