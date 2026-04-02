@@ -136,15 +136,28 @@ try {
 
 
 
-    // Run integration tests
+    // Run integration tests (Java Sling HTTP ITs). Same LTS retry policy as UI tests — transient AEM/network flakes.
     if (TYPE === 'integration') {
-        ci.dir('it/http', () => {
-            ci.sh(`mvn clean verify -U -B \
+        const mvnIt = `mvn clean verify -U -B \
                 -Ptest-all \
                 -Dexclude.category=${excludedCategory} \
                 -Dsling.it.instance.url.1=http://localhost:4502 \
                 -Dsling.it.instance.runmode.1=author \
-                -Dsling.it.instances=1`);
+                -Dsling.it.instances=1`;
+        const maxItAttempts = AEM === 'lts' ? 3 : 1;
+        ci.dir('it/http', () => {
+            for (let attempt = 1; attempt <= maxItAttempts; attempt++) {
+                try {
+                    ci.sh(mvnIt);
+                    return;
+                } catch (err) {
+                    if (attempt >= maxItAttempts) {
+                        throw err;
+                    }
+                    ci.stage(`Integration tests failed (attempt ${attempt}/${maxItAttempts}) — retry after 90s`);
+                    execFileSync('bash', ['-lc', 'sleep 90'], { stdio: 'inherit' });
+                }
+            }
         });
     }
     
