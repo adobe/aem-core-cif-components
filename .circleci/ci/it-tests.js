@@ -245,8 +245,9 @@ try {
                     }
                     ci.stage(`UI tests failed (attempt ${attempt}/${maxAttempts}) — retry after backoff`);
                     // LTS: immediate WDIO exit on retry is common; drop stale Chromedriver before cool-down.
+                    // Do NOT use `pkill -f chromedriver` — that substring appears in the pkill command line and can kill this shell.
                     if (AEM === 'lts') {
-                        execFileSync('bash', ['-lc', 'pkill -f chromedriver 2>/dev/null || true'], { stdio: 'inherit' });
+                        execFileSync('bash', ['-lc', 'killall chromedriver 2>/dev/null || true'], { stdio: 'inherit' });
                         execFileSync('bash', ['-lc', 'sleep 30'], { stdio: 'inherit' });
                     }
                     execFileSync('bash', ['-lc', 'sleep 90'], { stdio: 'inherit' });
