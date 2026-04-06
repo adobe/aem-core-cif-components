@@ -74,10 +74,10 @@ exports.config = {
         }],
     ],
 
-    // Mocha parameters (CI/LTS: e.g. product-jsonLd runs overlay UI then two 120s hydration waits — need headroom)
+    // Mocha parameters
     mochaOpts: {
         ui: 'bdd',
-        timeout: process.env.CI || process.env.CIRCLECI ? 360000 : 120000
+        timeout: 120000
     },
 
     // Gets executed before test execution begins

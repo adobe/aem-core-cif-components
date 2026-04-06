@@ -127,11 +127,6 @@
                             <npmVersion>6.14.18</npmVersion>
                             <workingDirectory>test-module</workingDirectory>
                             <environmentVariables>
-                                <!-- Pass through so WDIO/mocha can detect CI (otherwise only vars below are visible to npm) -->
-                                <CI>${env.CI}</CI>
-                                <CIRCLECI>${env.CIRCLECI}</CIRCLECI>
-                                <NODE_OPTIONS>${env.NODE_OPTIONS}</NODE_OPTIONS>
-                                <CHROMEDRIVER>${env.CHROMEDRIVER}</CHROMEDRIVER>
                                 <AEM_AUTHOR_URL>${AEM_AUTHOR_URL}</AEM_AUTHOR_URL>
                                 <AEM_AUTHOR_USERNAME>${AEM_AUTHOR_USERNAME}</AEM_AUTHOR_USERNAME>
                                 <AEM_AUTHOR_PASSWORD>${AEM_AUTHOR_PASSWORD}</AEM_AUTHOR_PASSWORD>
