@@ -67,7 +67,58 @@ function configureExamplesGraphqlClient(browser) {
         acceptSelfSignedCertificates: 'true',
         allowHttpProtocol: 'true'
     });
-    browser.pause(5000); // let OSGi services restart
+    // LTS / CI: OSGi config propagation + GraphQL client can take longer than 5s
+    browser.pause(process.env.CIRCLECI === 'true' ? 8000 : 5000);
+}
+
+/**
+ * Waits for examples library pages to expose GraphQL endpoint on the body element so React commerce components can hydrate.
+ */
+function waitForExamplesLibraryCommerceContext(browser, timeoutMs) {
+    const timeout = timeoutMs || 120000;
+    browser.waitUntil(
+        () => {
+            const endpoint = $('body').getAttribute('data-graphql-endpoint');
+            return typeof endpoint === 'string' && endpoint.length > 0;
+        },
+        {
+            timeout,
+            timeoutMsg:
+                'Timed out waiting for body[data-graphql-endpoint]. Examples library pages need store / GraphQL context before assertions.'
+        }
+    );
+}
+
+/**
+ * Waits until an element exists and has a non-empty attribute (e.g. data-product-sku after hydration).
+ */
+function waitForSelectorAttribute(selector, attribute, timeoutMs) {
+    const timeout = timeoutMs || 120000;
+    browser.waitUntil(
+        () => {
+            const el = $(selector);
+            if (!el.isExisting()) {
+                return false;
+            }
+            const v = el.getAttribute(attribute);
+            return v != null && v !== '';
+        },
+        {
+            timeout,
+            timeoutMsg: `Timed out waiting for ${selector} to have non-empty attribute ${attribute}`
+        }
+    );
+}
+
+/**
+ * Waits until a selector matches a displayed element (carousel controls, variant tiles, etc.).
+ */
+function waitForDisplayed(selector, timeoutMs) {
+    const timeout = timeoutMs || 120000;
+    browser.waitUntil(() => $(selector).isDisplayed(), {
+        timeout,
+        timeoutMsg: `Timed out waiting for ${selector} to be displayed`
+    });
 }
 
 class OnboardingDialogHandler {
@@ -99,5 +150,8 @@ module.exports = {
     getAuthenticatedRequestOptions: getAuthenticatedRequestOptions,
     takeScreenshot: takeScreenshot,
     OnboardingDialogHandler: OnboardingDialogHandler,
-    configureExamplesGraphqlClient: configureExamplesGraphqlClient
+    configureExamplesGraphqlClient: configureExamplesGraphqlClient,
+    waitForExamplesLibraryCommerceContext: waitForExamplesLibraryCommerceContext,
+    waitForSelectorAttribute: waitForSelectorAttribute,
+    waitForDisplayed: waitForDisplayed
 };

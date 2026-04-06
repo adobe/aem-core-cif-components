@@ -29,6 +29,9 @@ exports.config = {
     // One browser session at a time (avoids OOM on CI when many spec workers queue Chrome)
     maxInstances: 1,
 
+    // CircleCI LTS: transient Chrome/selenium-standalone flakes; one retry keeps successful runs unchanged
+    specFileRetries: process.env.CIRCLECI === 'true' ? 1 : 0,
+
     // Tests
     specs: [
         './specs/**/*.js'
