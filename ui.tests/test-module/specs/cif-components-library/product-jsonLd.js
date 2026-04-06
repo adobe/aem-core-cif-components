@@ -15,6 +15,7 @@
  */
 
 const config = require('../../lib/config');
+const commons = require('../../lib/commons');
 
 describe('Enable JSON-LD and Verify on Product Page', () => {
     before(() => {
@@ -23,6 +24,8 @@ describe('Enable JSON-LD and Verify on Product Page', () => {
         browser.AEMForceLogout();
         browser.url(config.aem.author.base_url);
         browser.AEMLogin(config.aem.author.username, config.aem.author.password);
+
+        commons.configureExamplesGraphqlClient(browser);
     });
 
     it('should enable JSON-LD in AEM settings, save changes, and verify its presence on the product page', async () => {
