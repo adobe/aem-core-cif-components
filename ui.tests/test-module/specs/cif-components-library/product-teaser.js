@@ -35,8 +35,11 @@ describe('Product Teaser component in the CIF components library', () => {
         // Go to the product page
         browser.url(productTeaserPage);
 
+        const itemRoot = `${productTeaserSelector} .item__root`;
+        commons.waitForElementWithDataProductSku(browser, itemRoot);
+
         // check the element for the data-product-sku attribute
-        const productTeaserElement = $(`${productTeaserSelector} .item__root`);
+        const productTeaserElement = $(itemRoot);
         expect(productTeaserElement).toHaveAttribute('data-product-sku');
     });
 });

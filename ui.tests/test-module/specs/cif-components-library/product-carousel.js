@@ -40,6 +40,8 @@ describe('Product Carousel component in CIF components library', () => {
         // Go to the product carousel page
         browser.url(productcarousel_page);
 
+        commons.waitForDisplayed(browser, `${productcarousel_selector} .productcarousel__btn--next`);
+
         // Check that the right/next arrow button is displayed
         const rightButton = $(`${productcarousel_selector} .productcarousel__btn--next`);
         expect(rightButton).toBeDisplayed();

@@ -122,14 +122,22 @@ describe('Enable JSON-LD and Verify on Product Page', () => {
             { timeout: 10000, timeoutMsg: 'Product page URL did not load in time' }
         );
 
-        // Short delay to allow rendering
-        await browser.pause(2000);
+        // GraphQL + JSON-LD can lag behind first paint on LTS; wait for product root then for ld+json in the DOM.
+        await browser.waitUntil(
+            async () => {
+                const el = await browser.$('.cmp-examples-demo__top .product .productFullDetail__root');
+                if (!(await el.isExisting())) {
+                    return false;
+                }
+                const sku = await el.getAttribute('data-product-sku');
+                return sku != null && sku !== '';
+            },
+            { timeout: 120000, timeoutMsg: 'Product did not hydrate (data-product-sku) before JSON-LD check' }
+        );
 
-        // Verify JSON-LD script presence
-
-        const pageSource = await browser.getPageSource();
-        if (!pageSource.includes('<script type="application/ld+json">')) {
-            throw new Error('Test failed: JSON-LD is missing while Enable JSON checkbox is selected.');
-        }
+        await browser.waitUntil(
+            async () => (await browser.getPageSource()).includes('application/ld+json'),
+            { timeout: 120000, timeoutMsg: 'Test failed: JSON-LD is missing while Enable JSON checkbox is selected.' }
+        );
     });
 });
