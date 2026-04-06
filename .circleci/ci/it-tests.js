@@ -125,8 +125,7 @@ try {
             --vm-options \\\"${jvmHeap} ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
     });
 
-    // LTS (6.6): login.html can return 200 while commerce OSGi / GraphQL / example bundles are still starting — a single
-    // fast 200 (attempt 1) is a common flake pattern. Require two consecutive OK polls, then a fixed settle before UI tests.
+    // LTS: require two consecutive OKs on login (avoids one-off 200 while AEM is still starting).
     if (AEM === 'lts') {
         ci.stage('Wait for stable AEM HTTP (LTS)');
         const waitLogin = [
@@ -145,8 +144,8 @@ try {
             '  sleep 10',
             'done',
             'if [ "$ok" -lt 2 ]; then echo "AEM login did not stabilize in time"; exit 1; fi',
-            'echo "LTS settle: OSGi / commerce / GraphQL (90s)..."',
-            'sleep 90'
+            'echo "LTS short settle before OSGi config (30s)..."',
+            'sleep 30'
         ].join('\n');
         execFileSync('bash', ['-lc', waitLogin], { stdio: 'inherit' });
     }
@@ -176,11 +175,10 @@ try {
     postSlingAuthenticatorForExamplesGraphql();
 
     if (AEM === 'lts') {
-        execFileSync('bash', ['-lc', 'echo "Post OSGi (GraphQL + Authenticator) settle (60s)..."; sleep 60'], { stdio: 'inherit' });
+        execFileSync('bash', ['-lc', 'echo "Post OSGi (GraphQL + Authenticator) settle (45s)..."; sleep 45'], { stdio: 'inherit' });
     }
 
-    // LTS: HTTP 200 on login is not enough — commerce pages compile HTL that references core Sling Models. If the core
-    // bundle is not fully active, the first requests throw SightlyException (e.g. StoreConfigExporter unresolved) and ITs fail.
+    // LTS: poll a commerce library page until 200 — proves HTL compiled (core models) before ITs/UI; complements login wait.
     if (AEM === 'lts') {
         ci.stage('Wait for commerce example page (HTL / core bundle ready)');
         const waitCommercePage = [
@@ -197,7 +195,7 @@ try {
         execFileSync('bash', ['-lc', waitCommercePage], { stdio: 'inherit' });
     }
 
-    // Run integration tests (Java Sling HTTP ITs). Same LTS retry policy as UI tests — transient AEM/network flakes.
+    // Run integration tests (Java Sling HTTP ITs); LTS may retry once on transient failures.
     if (TYPE === 'integration') {
         const mvnIt = `mvn clean verify -U -B \
                 -Ptest-all \
@@ -205,7 +203,7 @@ try {
                 -Dsling.it.instance.url.1=http://localhost:4502 \
                 -Dsling.it.instance.runmode.1=author \
                 -Dsling.it.instances=1`;
-        const maxItAttempts = AEM === 'lts' ? 3 : 1;
+        const maxItAttempts = AEM === 'lts' ? 2 : 1;
         ci.dir('it/http', () => {
             for (let attempt = 1; attempt <= maxItAttempts; attempt++) {
                 try {
@@ -230,11 +228,9 @@ try {
         chromedriver = chromedriver.length >= 2 ? chromedriver[1] : '';
 
         ci.dir('ui.tests', () => {
-            // LTS: WDIO sometimes dies immediately after "Execution of N workers started" (Chrome/Node OOM or selenium-standalone race).
-            // Extra Node heap + a few retries with backoff usually clears it without lengthening successful runs.
             const nodeOpts = AEM === 'lts' ? 'NODE_OPTIONS=--max-old-space-size=4096 ' : '';
             const mvnUi = `${nodeOpts}CHROMEDRIVER=${chromedriver} mvn test -U -B -Pui-tests-local-execution -DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`;
-            const maxAttempts = AEM === 'lts' ? 3 : 1;
+            const maxAttempts = AEM === 'lts' ? 2 : 1;
             for (let attempt = 1; attempt <= maxAttempts; attempt++) {
                 try {
                     ci.sh(mvnUi);
@@ -244,13 +240,10 @@ try {
                         throw err;
                     }
                     ci.stage(`UI tests failed (attempt ${attempt}/${maxAttempts}) — retry after backoff`);
-                    // LTS: immediate WDIO exit on retry is common; drop stale Chromedriver before cool-down.
-                    // Do NOT use `pkill -f chromedriver` — that substring appears in the pkill command line and can kill this shell.
                     if (AEM === 'lts') {
-                        execFileSync('bash', ['-lc', 'killall chromedriver 2>/dev/null || true'], { stdio: 'inherit' });
-                        execFileSync('bash', ['-lc', 'sleep 30'], { stdio: 'inherit' });
+                        execFileSync('bash', ['-lc', 'killall chromedriver 2>/dev/null || true; sleep 30'], { stdio: 'inherit' });
                     }
-                    execFileSync('bash', ['-lc', 'sleep 90'], { stdio: 'inherit' });
+                    execFileSync('bash', ['-lc', 'sleep 60'], { stdio: 'inherit' });
                 }
             }
         });

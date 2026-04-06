@@ -312,7 +312,7 @@ jobs:
       - run:
           name: Release
           # Only performs a 'mvn deploy' after the 'mvn release:prepare' because circleCI
-          # already checks out the git tag like 'mvn release:perform' would done.
+          # already checks out the git tag like 'mvn release:perform' would do.
           command: |
             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> /home/circleci/.npmrc
             echo $GPG_PRIVATE_KEY | base64 --decode | gpg --batch --import

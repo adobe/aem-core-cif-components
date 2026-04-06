@@ -67,8 +67,7 @@ function configureExamplesGraphqlClient(browser) {
         acceptSelfSignedCertificates: 'true',
         allowHttpProtocol: 'true'
     });
-    // LTS / CI: GraphQL client + dependent services need a moment before library pages can load product data.
-    browser.pause(process.env.CI || process.env.CIRCLECI ? 8000 : 5000);
+    browser.pause(5000); // let OSGi services restart (specs also wait for hydrated DOM)
 }
 
 /** Wait until React/GraphQL has set data-product-sku (avoids flaky assertions right after browser.url on slow AEM). */
