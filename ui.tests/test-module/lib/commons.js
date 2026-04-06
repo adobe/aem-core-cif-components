@@ -67,8 +67,7 @@ function configureExamplesGraphqlClient(browser) {
         acceptSelfSignedCertificates: 'true',
         allowHttpProtocol: 'true'
     });
-    // LTS / CI: OSGi config propagation + GraphQL client can take longer than 5s
-    browser.pause(process.env.CIRCLECI === 'true' ? 8000 : 5000);
+    browser.pause(5000); // let OSGi apply GraphQL client config
 }
 
 /**

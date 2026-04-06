@@ -178,8 +178,6 @@ try {
         execFileSync('bash', ['-lc', 'echo "Post OSGi (GraphQL + Authenticator) settle (60s)..."; sleep 60'], { stdio: 'inherit' });
     }
 
-
-
     // Run integration tests (Java Sling HTTP ITs). Same LTS retry policy as UI tests — transient AEM/network flakes.
     if (TYPE === 'integration') {
         const mvnIt = `mvn clean verify -U -B \
@@ -213,8 +211,7 @@ try {
         chromedriver = chromedriver.length >= 2 ? chromedriver[1] : '';
 
         ci.dir('ui.tests', () => {
-            // LTS: WDIO sometimes dies immediately after "Execution of N workers started" (Chrome/Node OOM or selenium-standalone race).
-            // Extra Node heap + a few retries with backoff usually clears it without lengthening successful runs.
+            // LTS: extra Node heap; retry Maven run on WDIO/selenium flake (OOM, early exit).
             const nodeOpts = AEM === 'lts' ? 'NODE_OPTIONS=--max-old-space-size=4096 ' : '';
             const mvnUi = `${nodeOpts}CHROMEDRIVER=${chromedriver} mvn test -U -B -Pui-tests-local-execution -DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`;
             const maxAttempts = AEM === 'lts' ? 3 : 1;
@@ -226,11 +223,7 @@ try {
                     if (attempt >= maxAttempts) {
                         throw err;
                     }
-                    ci.stage(`UI tests failed (attempt ${attempt}/${maxAttempts}) — retry after backoff`);
-                    // LTS: immediate WDIO exit on retry is common; short cool-down before selenium-standalone respawns.
-                    if (AEM === 'lts') {
-                        execFileSync('bash', ['-lc', 'sleep 30'], { stdio: 'inherit' });
-                    }
+                    ci.stage(`UI tests failed (attempt ${attempt}/${maxAttempts}) — retry after 90s`);
                     execFileSync('bash', ['-lc', 'sleep 90'], { stdio: 'inherit' });
                 }
             }

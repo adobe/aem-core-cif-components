@@ -15,7 +15,7 @@
  */
 
 /**
- * DO NOT MODIFY
+ * Local WDIO overrides (browser, selenium-standalone). Shared defaults: wdio.conf.commons.js
  */
 let wdio_config = require('./wdio.conf.commons.js').config;
 let config = require('./lib/config');
