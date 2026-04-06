@@ -81,7 +81,7 @@ try {
     ci.dir(qpPath, () => {
         // Connect to QP
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
-        
+
         // Download latest add-on release from artifactory
         let extras = '';
         const downloadArtifact = (artifactId, type, outputFileName, version = 'LATEST', classifier = '') => {
@@ -104,8 +104,7 @@ try {
 
         // LTS needs more heap than 6.5, but very large heap + metaspace starves Chrome/selenium on typical CI RAM (8 GiB).
         const jvmHeap = AEM === 'lts' ? '-Xmx2048m' : '-Xmx1536m';
-        // LTS loads more bundles than 6.5; 640m reduces metaspace churn vs 512m without matching a huge -Xmx that starves Chrome.
-        const maxMetaspace = AEM === 'lts' ? '-XX:MaxMetaspaceSize=640m' : '-XX:MaxPermSize=256m';
+        const maxMetaspace = AEM === 'lts' ? '-XX:MaxMetaspaceSize=512m' : '-XX:MaxPermSize=256m';
         // Start CQ
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
             --bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar \
@@ -179,23 +178,7 @@ try {
         execFileSync('bash', ['-lc', 'echo "Post OSGi (GraphQL + Authenticator) settle (60s)..."; sleep 60'], { stdio: 'inherit' });
     }
 
-    // LTS: HTTP 200 on login is not enough — commerce pages compile HTL that references core Sling Models. If the core
-    // bundle is not fully active, the first requests throw SightlyException (e.g. StoreConfigExporter unresolved) and ITs fail.
-    if (AEM === 'lts') {
-        ci.stage('Wait for commerce example page (HTL / core bundle ready)');
-        const waitCommercePage = [
-            'i=0',
-            'while [ "$i" -lt 24 ]; do',
-            '  i=$((i + 1))',
-            '  code=$(curl -s -o /dev/null -w "%{http_code}" -u admin:admin "http://localhost:4502/content/core-components-examples/library/commerce/productteaser.html") || code=000',
-            '  echo "Commerce library page HTTP $code (poll $i/24)"',
-            '  if [ "$code" = "200" ]; then echo "Commerce example page ready"; exit 0; fi',
-            '  sleep 15',
-            'done',
-            'echo "Commerce example page did not return 200 in time"; exit 1'
-        ].join('\n');
-        execFileSync('bash', ['-lc', waitCommercePage], { stdio: 'inherit' });
-    }
+
 
     // Run integration tests (Java Sling HTTP ITs). Same LTS retry policy as UI tests — transient AEM/network flakes.
     if (TYPE === 'integration') {
@@ -221,7 +204,7 @@ try {
             }
         });
     }
-    
+
     // Run UI tests
     if (TYPE === 'selenium') {
         // Get version of ChromeDriver
@@ -244,10 +227,8 @@ try {
                         throw err;
                     }
                     ci.stage(`UI tests failed (attempt ${attempt}/${maxAttempts}) — retry after backoff`);
-                    // LTS: immediate WDIO exit on retry is common; drop stale Chromedriver before cool-down.
-                    // Do NOT use `pkill -f chromedriver` — that substring appears in the pkill command line and can kill this shell.
+                    // LTS: immediate WDIO exit on retry is common; short cool-down before selenium-standalone respawns.
                     if (AEM === 'lts') {
-                        execFileSync('bash', ['-lc', 'killall chromedriver 2>/dev/null || true'], { stdio: 'inherit' });
                         execFileSync('bash', ['-lc', 'sleep 30'], { stdio: 'inherit' });
                     }
                     execFileSync('bash', ['-lc', 'sleep 90'], { stdio: 'inherit' });
