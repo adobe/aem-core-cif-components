@@ -29,10 +29,6 @@ exports.config = {
     // One browser session at a time (avoids OOM on CI when many spec workers queue Chrome)
     maxInstances: 1,
 
-    // Run one spec file at a time. Default (50% CPUs) spawns N workers for N specs and races selenium-standalone,
-    // which often exits immediately after "Execution of N workers started" on CircleCI with no WDIO error output.
-    maxWorkers: 1,
-
     // Tests
     specs: [
         './specs/**/*.js'

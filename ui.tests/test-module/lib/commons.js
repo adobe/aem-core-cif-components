@@ -67,30 +67,7 @@ function configureExamplesGraphqlClient(browser) {
         acceptSelfSignedCertificates: 'true',
         allowHttpProtocol: 'true'
     });
-    // LTS / CI: GraphQL client + dependent services need a moment before library pages can load product data.
-    browser.pause(process.env.CI || process.env.CIRCLECI ? 8000 : 5000);
-}
-
-/** Wait until React/GraphQL has set data-product-sku (avoids flaky assertions right after browser.url on slow AEM). */
-function waitForElementWithDataProductSku(browser, selector, timeout = 120000) {
-    browser.waitUntil(
-        () => {
-            const el = $(selector);
-            if (!el.isExisting()) {
-                return false;
-            }
-            const sku = el.getAttribute('data-product-sku');
-            return sku != null && sku !== '';
-        },
-        {
-            timeout,
-            timeoutMsg: `Element ${selector} did not receive data-product-sku within ${timeout}ms`
-        }
-    );
-}
-
-function waitForDisplayed(browser, selector, timeout = 120000) {
-    $(selector).waitForDisplayed({ timeout });
+    browser.pause(5000); // let OSGi services restart
 }
 
 class OnboardingDialogHandler {
@@ -122,7 +99,5 @@ module.exports = {
     getAuthenticatedRequestOptions: getAuthenticatedRequestOptions,
     takeScreenshot: takeScreenshot,
     OnboardingDialogHandler: OnboardingDialogHandler,
-    configureExamplesGraphqlClient: configureExamplesGraphqlClient,
-    waitForElementWithDataProductSku: waitForElementWithDataProductSku,
-    waitForDisplayed: waitForDisplayed
+    configureExamplesGraphqlClient: configureExamplesGraphqlClient
 };

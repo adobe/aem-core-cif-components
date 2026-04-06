@@ -35,8 +35,6 @@ describe('Product List component in the CIF components library', () => {
         // Go to the product page
         browser.url(productListPage);
 
-        commons.waitForElementWithDataProductSku(browser, `${productListPageSelector} .productcollection__item`);
-
         // check the element for the data-product-sku attribute
         const productListCards = $$(`${productListPageSelector} .productcollection__item`);
         productListCards.forEach((card) => expect(card).toHaveAttribute('data-product-sku'));

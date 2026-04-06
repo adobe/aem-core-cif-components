@@ -45,8 +45,6 @@ describe('Product bundle in CIF components library', () => {
                 // Go to the product page
                 browser.url(product_page);
 
-                commons.waitForElementWithDataProductSku(browser, `${product_selector} .productFullDetail__root`);
-
                 // Scroll to the "Sprite Yoga Companion Kit" title
                 const titleElement = $('h1=Sprite Yoga Companion Kit'); // Find the title by its exact text
                 titleElement.scrollIntoView(); // Scroll the page to the title

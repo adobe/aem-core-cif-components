@@ -40,9 +40,6 @@ describe('Product component in CIF components library', () => {
         // Go to the product page
         browser.url(product_page);
 
-        commons.waitForElementWithDataProductSku(browser, `${product_selector} .productFullDetail__root`);
-        commons.waitForDisplayed(browser, `${product_selector} button.tile__root[data-id="NTI="]`);
-
         // Check that the grey variant color selection is displayed
         const greyColorButton = $(`${product_selector} button.tile__root[data-id="NTI="]`);
         expect(greyColorButton).toBeDisplayed();
@@ -63,9 +60,7 @@ describe('Product component in CIF components library', () => {
     it('exposes the SKU of the product', () => {
         // Go to the product page
         browser.url(product_page);
-        const fullDetailRoot = `${product_selector} .productFullDetail__root`;
-        commons.waitForElementWithDataProductSku(browser, fullDetailRoot);
-        const fullDetailElement = $(fullDetailRoot);
+        const fullDetailElement = $(`${product_selector} .productFullDetail__root`);
 
         expect(fullDetailElement).toHaveAttribute('data-product-sku');
     });
