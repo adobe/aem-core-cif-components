@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -42,14 +41,14 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.day.cq.commons.jcr.JcrConstants;
 import com.day.cq.wcm.api.Page;
+import com.drew.lang.annotations.Nullable;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
     adapters = { StoreConfigExporter.class },
     resourceType = {
         com.adobe.cq.commerce.core.components.internal.models.v1.page.PageImpl.RESOURCE_TYPE,
-        com.adobe.cq.commerce.core.components.internal.models.v2.page.PageImpl.RESOURCE_TYPE,
-        "cif-components-examples/components/page"
+        com.adobe.cq.commerce.core.components.internal.models.v2.page.PageImpl.RESOURCE_TYPE
     })
 public class StoreConfigExporterImpl implements StoreConfigExporter {
 
