@@ -17,9 +17,10 @@ package com.adobe.cq.commerce.core.components.models.storeconfigexporter;
 
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import org.osgi.annotation.versioning.ConsumerType;
 
-import com.drew.lang.annotations.Nullable;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
