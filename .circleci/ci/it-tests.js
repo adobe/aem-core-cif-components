@@ -23,6 +23,25 @@ function sleepSeconds(seconds) {
     execFileSync('bash', ['-lc', `sleep ${seconds}`], { stdio: 'inherit' });
 }
 
+// Driver version must match installed Chrome; prefer google-chrome --version over chromedriver on PATH.
+function getChromeDriverVersionForSelenium() {
+    try {
+        const out = execFileSync('bash', [
+            '-lc',
+            'google-chrome --version 2>/dev/null || google-chrome-stable --version 2>/dev/null || chromium-browser --version 2>/dev/null || true'
+        ], { encoding: 'utf8' });
+        const m = String(out).match(/(\d+\.\d+\.\d+\.\d+)/);
+        if (m) {
+            return m[1];
+        }
+    } catch (e) {
+        // ignore
+    }
+    let chromedriver = ci.sh('chromedriver --version', true);
+    chromedriver = chromedriver.split(' ');
+    return chromedriver.length >= 2 ? chromedriver[1] : '';
+}
+
 /** Allow /apps/cif-components-examples/graphql through SlingAuthenticator (matches ui.tests + IT CommerceTestBase). */
 function postSlingAuthenticatorForExamplesGraphql() {
     const params = new URLSearchParams();
@@ -206,14 +225,17 @@ try {
 
     // Run UI tests
     if (TYPE === 'selenium') {
-        // Get version of ChromeDriver
-        let chromedriver = ci.sh('chromedriver --version', true); // Returns something like ChromeDriver 80.0.3987.16 (320f6526c1632ad4f205ebce69b99a062ed78647-refs/branch-heads/3987@{#185})
-        chromedriver = chromedriver.split(' ');
-        chromedriver = chromedriver.length >= 2 ? chromedriver[1] : '';
+        const chromedriver = getChromeDriverVersionForSelenium();
+        const chromedriverEnv = chromedriver ? `CHROMEDRIVER=${chromedriver} ` : '';
+        if (chromedriver) {
+            console.log(`UI tests: CHROMEDRIVER=${chromedriver} (aligned with Chrome when possible)`);
+        } else {
+            console.log('UI tests: CHROMEDRIVER unset — selenium-standalone will resolve driver');
+        }
 
         ci.dir('ui.tests', () => {
             const nodeOpts = AEM === 'lts' ? 'NODE_OPTIONS=--max-old-space-size=4096 ' : '';
-            const mvnUi = `${nodeOpts}CHROMEDRIVER=${chromedriver} mvn test -U -B -Pui-tests-local-execution -DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`;
+            const mvnUi = `${nodeOpts}${chromedriverEnv}mvn test -U -B -Pui-tests-local-execution -DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`;
             const maxAttempts = AEM === 'lts' ? 3 : 1;
             for (let attempt = 1; attempt <= maxAttempts; attempt++) {
                 try {
