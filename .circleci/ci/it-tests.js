@@ -67,6 +67,7 @@ ci.context();
 
 ci.stage('Project Configuration');
 const config = ci.restoreConfiguration();
+console.log(config);
 const qpPath = '/home/circleci/cq';
 const buildPath = '/home/circleci/build';
 const { TYPE, BROWSER, AEM } = process.env;
