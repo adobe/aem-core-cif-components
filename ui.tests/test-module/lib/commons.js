@@ -67,7 +67,7 @@ function configureExamplesGraphqlClient(browser) {
         acceptSelfSignedCertificates: 'true',
         allowHttpProtocol: 'true'
     });
-    browser.pause(5000); // let OSGi apply GraphQL client config
+    browser.pause(5000);
 }
 
 class OnboardingDialogHandler {

@@ -61,7 +61,7 @@ case config.CHROME:
         }
     };
     if (config.selenium.headless === true) {
-        // Required on many Linux CI VMs (CircleCI, Docker): default Chrome sandbox / small /dev/shm otherwise exit ~0 quickly with no spec output
+        // Linux CI: sandbox + default /dev/shm often breaks headless Chrome
         capabilities['goog:chromeOptions'].args = [
             'headless',
             '--no-sandbox',

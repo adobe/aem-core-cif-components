@@ -26,7 +26,6 @@ const log4js = require('log4js');
 exports.config = {
     runner: 'local',
 
-    // One browser session at a time (avoids OOM on CI when many spec workers queue Chrome)
     maxInstances: 1,
 
     // Tests

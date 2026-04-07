@@ -19,7 +19,11 @@ const { execFileSync } = require('child_process');
 const { URLSearchParams } = require('url');
 const ci = new (require('./ci.js'))();
 
-/** Same as ui.tests configureGraphqlClient + it/http CommerceTestBase — mock servlet must be allowed through SlingAuthenticator. */
+function sleepSeconds(seconds) {
+    execFileSync('bash', ['-lc', `sleep ${seconds}`], { stdio: 'inherit' });
+}
+
+/** Allow /apps/cif-components-examples/graphql through SlingAuthenticator (matches ui.tests + IT CommerceTestBase). */
 function postSlingAuthenticatorForExamplesGraphql() {
     const params = new URLSearchParams();
     params.append('apply', 'true');
@@ -76,7 +80,6 @@ try {
     // TODO: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
     let aemCifSdkApiVersion = "2025.12.04.00";
 
-
     ci.dir(qpPath, () => {
         // Connect to QP
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
@@ -101,7 +104,6 @@ try {
             downloadArtifact('cif-cloud-ready-feature-pkg', 'far', 'addon.far', 'LATEST', 'cq-commerce-addon-authorfar');
         }
 
-        // LTS needs more heap than 6.5, but very large heap + metaspace starves Chrome/selenium on typical CI RAM (8 GiB).
         const jvmHeap = AEM === 'lts' ? '-Xmx2048m' : '-Xmx1536m';
         const maxMetaspace = AEM === 'lts' ? '-XX:MaxMetaspaceSize=512m' : '-XX:MaxPermSize=256m';
         // Start CQ
@@ -123,8 +125,7 @@ try {
             --vm-options \\\"${jvmHeap} ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
     });
 
-    // LTS (6.6): login.html can return 200 while commerce OSGi / GraphQL / example bundles are still starting — a single
-    // fast 200 (attempt 1) is a common flake pattern. Require two consecutive OK polls, then a fixed settle before UI tests.
+    // LTS: require two consecutive good login polls, then settle (commerce/GraphQL still starting after first 200).
     if (AEM === 'lts') {
         ci.stage('Wait for stable AEM HTTP (LTS)');
         const waitLogin = [
@@ -149,7 +150,6 @@ try {
         execFileSync('bash', ['-lc', waitLogin], { stdio: 'inherit' });
     }
 
-    // Match ui.tests commons.configureExamplesGraphqlClient — http:// localhost requires allowHttpProtocol on recent graphql-client.
     const formData = {
         apply: true,
         factoryPid: 'com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl',
@@ -174,10 +174,11 @@ try {
     postSlingAuthenticatorForExamplesGraphql();
 
     if (AEM === 'lts') {
-        execFileSync('bash', ['-lc', 'echo "Post OSGi (GraphQL + Authenticator) settle (60s)..."; sleep 60'], { stdio: 'inherit' });
+        ci.stage('LTS: settle after GraphQL + SlingAuthenticator (60s)');
+        sleepSeconds(60);
     }
 
-    // Run integration tests (Java Sling HTTP ITs). Same LTS retry policy as UI tests — transient AEM/network flakes.
+    // Integration tests (Sling HTTP ITs); LTS retries on flake
     if (TYPE === 'integration') {
         const mvnIt = `mvn clean verify -U -B \
                 -Ptest-all \
@@ -196,7 +197,7 @@ try {
                         throw err;
                     }
                     ci.stage(`Integration tests failed (attempt ${attempt}/${maxItAttempts}) — retry after 90s`);
-                    execFileSync('bash', ['-lc', 'sleep 90'], { stdio: 'inherit' });
+                    sleepSeconds(90);
                 }
             }
         });
@@ -210,7 +211,6 @@ try {
         chromedriver = chromedriver.length >= 2 ? chromedriver[1] : '';
 
         ci.dir('ui.tests', () => {
-            // LTS: extra Node heap; retry Maven run on WDIO/selenium flake (OOM, early exit).
             const nodeOpts = AEM === 'lts' ? 'NODE_OPTIONS=--max-old-space-size=4096 ' : '';
             const mvnUi = `${nodeOpts}CHROMEDRIVER=${chromedriver} mvn test -U -B -Pui-tests-local-execution -DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`;
             const maxAttempts = AEM === 'lts' ? 3 : 1;
@@ -223,7 +223,7 @@ try {
                         throw err;
                     }
                     ci.stage(`UI tests failed (attempt ${attempt}/${maxAttempts}) — retry after 90s`);
-                    execFileSync('bash', ['-lc', 'sleep 90'], { stdio: 'inherit' });
+                    sleepSeconds(90);
                 }
             }
         });
