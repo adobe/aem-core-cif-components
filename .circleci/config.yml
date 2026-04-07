@@ -436,10 +436,6 @@ workflows:
             - jest
             - jest-extension-product-recs
             - jest-extension-experience-platform-connector
-            - integration-test-660:
-                - success
-                - failed
-                - canceled
       - selenium-chrome-cloudready-with-addon:
           context:
             - CIF Artifactory Cloud
