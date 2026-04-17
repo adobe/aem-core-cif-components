@@ -91,6 +91,7 @@ executors:
 jobs:
   build-java-11:
     executor: cif_executor
+    resource_class: large
     working_directory: /home/circleci/build
     steps:
       - checkout
@@ -128,6 +129,7 @@ jobs:
 
   build-java-8:
     executor: cif_executor_java8
+    resource_class: large
     working_directory: /home/circleci/build
     steps:
       - checkout
