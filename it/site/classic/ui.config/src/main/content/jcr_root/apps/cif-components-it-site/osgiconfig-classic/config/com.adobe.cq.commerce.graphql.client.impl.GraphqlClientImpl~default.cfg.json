@@ -1,0 +1,10 @@
+{
+  "identifier": "default",
+  "httpMethod": "GET",
+  "url": "$[env:COMMERCE_ENDPOINT;default=]",
+  "connectionTimeout": 5000,
+  "socketTimeout": 5000,
+  "maxHttpConnections": 20,
+  "requestPoolTimeout": 2000,
+  "acceptSelfSignedCertificates": false
+}

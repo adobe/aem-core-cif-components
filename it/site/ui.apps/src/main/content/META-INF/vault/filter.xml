@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspaceFilter version="1.0">
+    <filter root="/apps/cif-components-it-site/clientlibs"/>
+    <filter root="/apps/cif-components-it-site/components"/>
+    <filter root="/apps/cif-components-it-site/i18n"/>
+    <filter root="/apps/msm/cif-components-it-site_blueprint" mode="merge"/>
+</workspaceFilter>

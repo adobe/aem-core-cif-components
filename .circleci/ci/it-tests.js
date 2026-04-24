@@ -35,6 +35,15 @@ try {
     // TODO: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
     let aemCifSdkApiVersion = "2025.09.02.1-SNAPSHOT";
 
+    // Build it/site with the appropriate profile
+    ci.dir('it/site', () => {
+        const profile = (AEM === 'classic' || AEM === 'lts') ? ' -Pclassic' : '';
+        ci.sh(`mvn -B clean install${profile}`);
+    });
+
+    let itSitePackage = (AEM === 'classic' || AEM === 'lts')
+        ? ci.addQpFileDependency(config.modules['cif-components-it-site.all-classic'])
+        : ci.addQpFileDependency(config.modules['cif-components-it-site.all']);
 
     ci.dir(qpPath, () => {
         // Connect to QP
@@ -77,6 +86,7 @@ try {
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-config'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-content'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])} \
+            ${itSitePackage} \
             --vm-options \\\"-Xmx1536m ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
     });
 

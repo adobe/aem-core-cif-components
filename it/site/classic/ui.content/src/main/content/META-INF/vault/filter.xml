@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspaceFilter version="1.0">
+    <filter root="/conf/cif-components-it-site/settings/cloudconfigs/commerce" mode="update"/>
+    <filter root="/var/commerce/products/cif-components-it-site-default" mode="merge"/>
+</workspaceFilter>
