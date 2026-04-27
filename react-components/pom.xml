@@ -141,6 +141,12 @@
                         <fileset>
                             <directory>dist</directory>
                         </fileset>
+                        <fileset>
+                            <directory>dist/esm</directory>
+                        </fileset>
+                        <fileset>
+                            <directory>dist/cjs</directory>
+                        </fileset>
                     </filesets>
                 </configuration>
             </plugin>
