@@ -26,6 +26,8 @@ const log4js = require('log4js');
 exports.config = {
     runner: 'local',
 
+    maxInstances: 1,
+
     // Tests
     specs: [
         './specs/**/*.js'

@@ -16,6 +16,7 @@
 
 /**
  * DO NOT MODIFY
+ * Local WDIO overrides (browser, selenium-standalone). Shared defaults: wdio.conf.commons.js
  */
 let wdio_config = require('./wdio.conf.commons.js').config;
 let config = require('./lib/config');
@@ -61,7 +62,14 @@ case config.CHROME:
         }
     };
     if (config.selenium.headless === true) {
-        capabilities['goog:chromeOptions'].args = ['headless'];
+        // Linux CI: sandbox + default /dev/shm often breaks headless Chrome
+        capabilities['goog:chromeOptions'].args = [
+            'headless',
+            '--no-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--window-size=1920,1080'
+        ];
     }
     break;
 case config.FIREFOX:
