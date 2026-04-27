@@ -135,7 +135,49 @@ The reactor pom must inherit from **`core-cif-components-parent`**:
 </parent>
 ```
 
-Drop `<groupId>` and `<version>` from the reactor pom (both inherited). Properties already in the monorepo parent (`aem.host`, `aem.port`, `core.wcm.components.version`, `magento.graphql.version`, etc.) should be omitted from `it/site/pom.xml` unless you need to override them. Only site-specific properties need to be declared (`core.cif.components.version`, `aem.sdk.api`, `aem.cif.sdk.api`, `aemanalyser.version`, etc.).
+Drop `<groupId>` and `<version>` from the reactor pom (both inherited). Properties already in the monorepo parent (`aem.host`, `aem.port`, `core.wcm.components.version`, `magento.graphql.version`, etc.) should be omitted from `it/site/pom.xml` unless you need to override them. Only site-specific properties need to be declared (`core.cif.components.version`, `aem.sdk.api`, `aem.cif.sdk.api`, etc.).
+
+**Compiler and enforcer — set to Java 8.** The archetype generates `<release>11</release>` and an enforcer requiring Java 11. Replace both so the module builds on Java 8 (AEM 6.5 / classic) and Java 11 (AEM Cloud SDK):
+
+```xml
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-enforcer-plugin</artifactId>
+  <configuration>
+    <rules>
+      <requireJavaVersion>
+        <message>Project must be compiled with Java 8 or higher</message>
+        <version>1.8.0</version>
+      </requireJavaVersion>
+    </rules>
+  </configuration>
+</plugin>
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-compiler-plugin</artifactId>
+  <configuration>
+    <source>1.8</source>
+    <target>1.8</target>
+  </configuration>
+</plugin>
+```
+
+> **⚠️ Remove `aemanalyser-maven-plugin` from `all/pom.xml`.**  
+> The archetype adds `aemanalyser-maven-plugin` to the `all` module by default. This plugin is compiled with Java 11 (class file version 55.0) and will fail at build time on Java 8 (`class file versions up to 52.0`). Since this module must build on both Java 8 (AEM 6.5 / classic) and Java 11 (AEM Cloud SDK), remove the plugin entirely from `all/pom.xml` and its `<version>` entry from `pluginManagement`. The `examples` module follows the same approach — it does not use this plugin at all.
+
+**RAT exclude for generated `target/` files.** When the `classic` profile has been run, the root RAT check scans `classic/*/target/vault-work/` and flags auto-generated `MANIFEST.MF` and `definition/.content.xml` files. Add this to the root `pom.xml` `<build><plugins>`:
+
+```xml
+<plugin>
+  <groupId>org.apache.rat</groupId>
+  <artifactId>apache-rat-plugin</artifactId>
+  <configuration>
+    <excludes combine.children="append">
+      <exclude>**/target/**</exclude>
+    </excludes>
+  </configuration>
+</plugin>
+```
 
 All child poms' `<parent><version>` must match the monorepo version (`2.18.3-SNAPSHOT`), not the archetype-generated `1.0.0-SNAPSHOT`.
 
@@ -284,6 +326,22 @@ cd ui.frontend && npm ci
 ```
 
 If **`webpack`** is missing from PATH during Maven, dependencies were not installed.
+
+**`.gitignore`** — add a `.gitignore` inside `ui.frontend/` to exclude the node binaries downloaded by `frontend-maven-plugin` and the installed packages:
+
+```
+**/node/**
+```
+
+The root `.gitignore` already covers `**/node_modules/**`; the `node/` binary directory (containing `node`, `npm`, `npm.cmd`) needs this separate entry.
+
+**Empty `resources/` directory** — the webpack config globs `resources/**/*`. If the directory is empty, webpack emits a build error. Add a `.gitkeep` placeholder:
+
+```bash
+touch ui.frontend/src/main/webpack/resources/.gitkeep
+```
+
+**Skip RAT on `ui.apps` and `ui.frontend`** — both modules contain compiled/generated files (clientlib output, node binaries) that have no license headers. Add `<skip>true</skip>` for `apache-rat-plugin` in each module's `pom.xml`, matching the `examples` module pattern.
 
 ---
 

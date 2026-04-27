@@ -49,7 +49,6 @@
     <core.cif.components.version>2.18.2</core.cif.components.version>
     <aem.cif.sdk.api>2025.09.02.00</aem.cif.sdk.api>
     <aem.sdk.api>2026.3.25194.20260330T181734Z-260300</aem.sdk.api>
-    <aemanalyser.version>1.6.6</aemanalyser.version>
     <bnd.version>6.4.0</bnd.version>
     <componentGroupName>CIF IT Site</componentGroupName>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -60,7 +59,6 @@
   <!-- ====================================================================== -->
   <build>
     <plugins>
-      <!-- Maven Enforcer Plugin — require Java 11+ for this site -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
@@ -76,20 +74,29 @@
                   <version>[3.3.9,)</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
-                  <message>Maven must be executed with a Java 11 JRE or higher.</message>
-                  <version>11</version>
+                  <message>Project must be compiled with Java 8 or higher</message>
+                  <version>1.8.0</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
           </execution>
         </executions>
       </plugin>
-      <!-- Maven Compiler Plugin — Java 11 -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <release>11</release>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <configuration>
+          <excludes combine.children="append">
+            <exclude>**/target/**</exclude>
+          </excludes>
         </configuration>
       </plugin>
     </plugins>
@@ -262,13 +269,6 @@ Bundle-DocURL:
               <version>6.5.7.0</version>
             </dependency>
           </dependencies>
-        </plugin>
-        <!-- AEM Analyser Plugin -->
-        <plugin>
-          <groupId>com.adobe.aem</groupId>
-          <artifactId>aemanalyser-maven-plugin</artifactId>
-          <version>${aemanalyser.version}</version>
-          <extensions>true</extensions>
         </plugin>
         <!-- Content Package Plugin -->
         <plugin>
