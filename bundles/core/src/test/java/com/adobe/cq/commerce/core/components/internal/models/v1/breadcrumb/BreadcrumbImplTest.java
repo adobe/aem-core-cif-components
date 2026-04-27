@@ -76,6 +76,7 @@ public class BreadcrumbImplTest {
         "my-store", "enableUIDSupport", "true"));
 
     private static final ComponentsConfiguration MOCK_CONFIGURATION_OBJECT = new ComponentsConfiguration(MOCK_CONFIGURATION);
+    private static final String VERSION_PREVIEW_ROOT = "/tmp/versionhistory/hash/version";
 
     @Rule
     public final AemContext context = buildAemContext("/context/jcr-content-breadcrumb.json")
@@ -97,6 +98,7 @@ public class BreadcrumbImplTest {
 
     @Before
     public void setUp() throws Exception {
+        context.load().json("/context/jcr-content-breadcrumb.json", VERSION_PREVIEW_ROOT);
         httpClient = mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
 
@@ -309,6 +311,71 @@ public class BreadcrumbImplTest {
         NavigationItem topsCategory = items.get(2);
         assertThat(topsCategory.getURL()).isEqualTo("/content/venia/us/en/products/category-page.html/men/tops-men.html");
         assertThat(topsCategory.isActive()).isTrue();
+    }
+
+    @Test
+    public void testCategoryPageOnVersionPreview() throws Exception {
+        Utils.setupHttpResponse("graphql/magento-graphql-category-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
+            "{categoryList(filters:{url_path");
+
+        String versionPreviewPage = VERSION_PREVIEW_ROOT + "/venia/us/en/products/category-page";
+        prepareModel(versionPreviewPage);
+
+        MockRequestPathInfo requestPathInfo = (MockRequestPathInfo) context.request().getRequestPathInfo();
+        requestPathInfo.setSuffix("/men.html");
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+        List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
+        assertThat(items.stream().map(NavigationItem::getTitle)).containsExactly("en", "Men", "Tops");
+
+        NavigationItem homeItem = items.get(0);
+        assertThat(homeItem.getURL()).startsWith(VERSION_PREVIEW_ROOT + "/venia");
+
+        NavigationItem menCategory = items.get(1);
+        assertThat(menCategory.getURL()).isEqualTo(versionPreviewPage + ".html/men.html");
+        assertThat(menCategory.isActive()).isFalse();
+
+        NavigationItem topsCategory = items.get(2);
+        assertThat(topsCategory.getURL()).isEqualTo(versionPreviewPage + ".html/men/tops-men.html");
+        assertThat(topsCategory.isActive()).isTrue();
+    }
+
+    @Test
+    public void testVersionPreviewSkipsSyntheticAncestorItems() throws Exception {
+        String versionPreviewPage = VERSION_PREVIEW_ROOT + "/venia/us/en/another-page";
+        String syntheticPreviewPage = VERSION_PREVIEW_ROOT + "/venia/us/en/20e4b245-cbeb-4769-b6f1-5018354508b2";
+        prepareModel(versionPreviewPage);
+        context.resourceResolver().getResource("/content/venia/us/en/jcr:content")
+            .adaptTo(ModifiableValueMap.class)
+            .put(JcrConstants.JCR_TITLE, "Venia Demo Store - Home");
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+
+        com.adobe.cq.wcm.core.components.models.Breadcrumb wrappedBreadcrumb = mock(
+            com.adobe.cq.wcm.core.components.models.Breadcrumb.class);
+        List<NavigationItem> wrappedItems = Arrays.asList(
+            mockNavigationItem(
+                "20e4b245-cbeb-4769-b6f1-5018354508b2",
+                syntheticPreviewPage,
+                syntheticPreviewPage + ".html",
+                false),
+            mockNavigationItem(
+                "en",
+                VERSION_PREVIEW_ROOT + "/venia/us/en",
+                "/content/venia/us/en.html",
+                false),
+            mockNavigationItem(
+                "another-page",
+                versionPreviewPage,
+                "/content/venia/us/en/another-page.html",
+                true));
+        when(wrappedBreadcrumb.getItems()).thenReturn(wrappedItems);
+        Whitebox.setInternalState(breadcrumbModel, "breadcrumb", wrappedBreadcrumb);
+
+        List<NavigationItem> items = (List<NavigationItem>) breadcrumbModel.getItems();
+        assertThat(items.stream().map(NavigationItem::getTitle)).containsExactly("Venia Demo Store - Home", "another-page");
+        assertThat(items.get(0).getURL()).isEqualTo(VERSION_PREVIEW_ROOT + "/venia/us/en.html");
+        assertThat(items.get(1).getURL()).isEqualTo(versionPreviewPage + ".html");
     }
 
     @Test
@@ -528,5 +595,20 @@ public class BreadcrumbImplTest {
         NavigationItem product = items.get(3);
         assertThat(product.getURL()).isEqualTo("/content/venia/us/en/products/product-page.html/tiberius-gym-tank.html");
         assertThat(product.isActive()).isTrue();
+    }
+
+    private NavigationItem mockNavigationItem(String title, String pagePath, String url, boolean active) {
+        NavigationItem item = mock(NavigationItem.class);
+        Page page = context.pageManager().getPage(pagePath);
+        if (page == null) {
+            context.create().page(pagePath);
+            page = context.pageManager().getPage(pagePath);
+        }
+
+        when(item.getPage()).thenReturn(page);
+        when(item.getTitle()).thenReturn(title);
+        when(item.getURL()).thenReturn(url);
+        when(item.isActive()).thenReturn(active);
+        return item;
     }
 }
