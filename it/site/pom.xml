@@ -25,6 +25,7 @@
   </parent>
 
   <artifactId>cif-components-it-site</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>CIF IT Site</name>
   <description>CIF IT Site — integration-test site for AEM CIF Core Components</description>
