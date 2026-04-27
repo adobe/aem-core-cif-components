@@ -81,4 +81,13 @@ public class ItSiteSmokeIT {
         Assert.assertEquals("Navigation should be the CIF commerce navigation component",
             "cif-components-it-site/components/commerce/navigation", navigation.get(":type").asText());
     }
+
+    @Test
+    public void testCommerceGraphqlEndpointReachable() throws Exception {
+        SlingHttpResponse response = adminAuthor.doGet(
+            "/api/graphql?query=%7BstoreConfig%7Bstore_code%7D%7D", 200);
+        JsonNode json = MAPPER.readTree(response.getContent());
+        Assert.assertEquals("GraphQL endpoint should return store_code 'default'",
+            "default", json.at("/data/storeConfig/store_code").asText());
+    }
 }
