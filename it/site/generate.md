@@ -20,7 +20,7 @@ it/site/
 ├── classic/                         # built only with -Pclassic
 │   ├── ui.config/                   # osgiconfig-classic OSGi for 6.x CIF GraphQL
 │   ├── ui.content/                  # commerce cloud config + /var/commerce/products/…
-│   └── all/                         # mixed classic "all": site + classic + CIF + WCM Core
+│   └── all/                         # mixed classic "all": site + classic overlays (+ optional WCM Core)
 ├── generate.md
 └── README.md
 ```
@@ -118,7 +118,6 @@ Keep / tune these **properties** (examples as in this module; bump to match your
 
 - **`aem.sdk.api`** — AEM as a Cloud Service SDK API for cloud modules.
 - **`aem.cif.sdk.api`** — CIF add-on API for `ui.apps` / compile scope.
-- **`core.cif.components.version`** — released **`core-cif-components-*`** + **`magento-graphql`** from Maven (used by **`all`** and **`classic/all`**).
 - **`core.wcm.components.version`** — WCM Core (needed for **`classic/all`** embeds).
 - **`magento.graphql.version`** — GraphQL client artifact line.
 
@@ -135,7 +134,7 @@ The reactor pom must inherit from **`core-cif-components-parent`**:
 </parent>
 ```
 
-Drop `<groupId>` and `<version>` from the reactor pom (both inherited). Properties already in the monorepo parent (`aem.host`, `aem.port`, `core.wcm.components.version`, `magento.graphql.version`, etc.) should be omitted from `it/site/pom.xml` unless you need to override them. Only site-specific properties need to be declared (`core.cif.components.version`, `aem.sdk.api`, `aem.cif.sdk.api`, etc.).
+Drop `<groupId>` and `<version>` from the reactor pom (both inherited). Properties already in the monorepo parent (`aem.host`, `aem.port`, `core.wcm.components.version`, `magento.graphql.version`, etc.) should be omitted from `it/site/pom.xml` unless you need to override them. Only site-specific properties need to be declared (`aem.sdk.api`, `aem.cif.sdk.api`, etc.).
 
 **Compiler and enforcer — set to Java 8.** The archetype generates `<release>11</release>` and an enforcer requiring Java 11. Replace both so the module builds on Java 8 (AEM 6.5 / classic) and Java 11 (AEM Cloud SDK):
 
@@ -185,7 +184,6 @@ All child poms' `<parent><version>` must match the monorepo version (`2.18.3-SNA
 
 **`dependencyManagement`:** ensure at least:
 
-- **`com.adobe.commerce.cif`**: `core-cif-components-apps` (zip), `core-cif-components-config` (zip), `core-cif-components-core`, `magento-graphql`
 - **`com.adobe.cq`**: `core.wcm.components.core` (without `provided` scope to allow embedding), **`core.wcm.components.content`** (zip), **`core.wcm.components.config`** (zip) — the last two are required so **`classic/all`** can resolve WCM Core content/config packages.
 
 ---
@@ -280,7 +278,7 @@ Example: CIF Core **2.18.2** requires WCM Core **≥ 2.29.0**.
 |---|---|---|
 | `classic/ui.config` | `container` | OSGi configs under `osgiconfig-classic/config/` (GraphQL client + data service) and `osgiconfig-classic/config.author/` (editor status type) |
 | `classic/ui.content` | `content` | Commerce cloudconfig page with AEM 6.5 resource type; `/var/commerce/products/` catalog root folder |
-| `classic/all` | `mixed` | Embeds all site packages + classic overlays + CIF Core + WCM Core; the only artifact you deploy to AEM 6.5 |
+| `classic/all` | `mixed` | Embeds all site packages + classic overlays (+ optional WCM Core). CIF Core is expected to be installed separately on the target AEM |
 
 ### 7.5 Critical pitfalls
 
@@ -288,7 +286,7 @@ Example: CIF Core **2.18.2** requires WCM Core **≥ 2.29.0**.
 `ui.apps.structure` is an intentionally empty package with broad REPLACE-mode filters covering `/apps`, `/conf`, `/content`, etc. Embedding it causes AEM's JCR Package Installer to wipe out everything under those roots on install — corrupting the entire repository. It must only ever appear in `<repositoryStructurePackages>` (build-time validation, never deployed). The `classic/` folder in this module already has this correct.
 
 **WCM Core version must satisfy CIF Core's vault dependency.**  
-If `core.wcm.components.version` is lower than what `core-cif-components-apps` requires, Package Manager will refuse to install it on AEM 6.5 with a `dependencies!` error. See 7.3b above.
+If the installed WCM Core is lower than what the installed CIF apps require, Package Manager will refuse to install CIF apps on AEM 6.5 with a `dependencies!` error. See 7.3b above.
 
 **Install order is enforced by vault dependency.**  
 `classic/ui.content-classic` declares a vault dependency on `ui.content` in its `properties.xml`. This guarantees AEM Package Manager installs the cloud content package first (which creates `/conf/.../cloudconfigs/commerce` with the cloud resource type), then the classic overlay runs (replacing it with the 6.5 resource type `commerce/gui/components/configuration/page`).
@@ -377,12 +375,9 @@ Avoid `mvn clean install -PautoInstallSinglePackage,classic` on AEM 6.5 — it d
 
 ---
 
-## 10. Optional: CIF Core from a local build
+## 10. CIF Core installation model (this module's assumption)
 
-Since this module is part of `aem-core-cif-components`, the CIF Core artifacts are built in the same reactor. When building the full monorepo (`mvn clean install` from the root), the locally built CIF Core is automatically available to `it/site` via the local `.m2` cache. If building `it/site` in isolation, ensure `core-cif-components-apps`, `core-cif-components-config`, `core-cif-components-core`, and `magento-graphql` at version `${core.cif.components.version}` are already installed in your local `.m2`:
+This module **does not embed** CIF Core artifacts (`core-cif-components-*`) into its `all` / `classic/all` packages. The intended model is:
 
-```bash
-# From monorepo root — build CIF Core first, then site
-mvn clean install -pl ui.apps,all -am
-mvn clean install -pl it/site
-```
+- Install **CIF Core** separately on the target AEM (or have it pre-installed in the test environment).
+- Install **`it/site`** packages to add the test site content/config/apps that the integration tests rely on.

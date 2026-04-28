@@ -46,7 +46,6 @@
     <!-- aem.host, aem.port, aem.publish.*, sling.*, vault.*, magento.graphql.version,
          core.wcm.components.version are all inherited from core-cif-components-parent. -->
     <frontend-maven-plugin.version>1.12.0</frontend-maven-plugin.version>
-    <core.cif.components.version>2.18.3-SNAPSHOT</core.cif.components.version>
     <aem.cif.sdk.api>2025.09.02.00</aem.cif.sdk.api>
     <aem.sdk.api>2026.3.25194.20260330T181734Z-260300</aem.sdk.api>
     <bnd.version>6.4.0</bnd.version>
@@ -486,28 +485,6 @@ Bundle-DocURL:
         <version>${core.wcm.components.version}</version>
       </dependency>
       <!-- CIF Core Components -->
-      <dependency>
-        <groupId>com.adobe.commerce.cif</groupId>
-        <artifactId>core-cif-components-apps</artifactId>
-        <type>zip</type>
-        <version>${core.cif.components.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.adobe.commerce.cif</groupId>
-        <artifactId>core-cif-components-config</artifactId>
-        <type>zip</type>
-        <version>${core.cif.components.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.adobe.commerce.cif</groupId>
-        <artifactId>core-cif-components-core</artifactId>
-        <version>${core.cif.components.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>com.adobe.commerce.cif</groupId>
-        <artifactId>magento-graphql</artifactId>
-        <version>${magento.graphql.version}</version>
-      </dependency>
       <!-- CIF SDK API -->
       <dependency>
         <groupId>com.adobe.aem</groupId>

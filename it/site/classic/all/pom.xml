@@ -89,28 +89,6 @@
                             <target>/apps/cif-components-it-site-packages/application/install</target>
                         </embedded>
                         <embedded>
-                            <groupId>com.adobe.commerce.cif</groupId>
-                            <artifactId>core-cif-components-apps</artifactId>
-                            <type>zip</type>
-                            <target>/apps/cif-components-it-site-vendor-packages/application/install</target>
-                        </embedded>
-                        <embedded>
-                            <groupId>com.adobe.commerce.cif</groupId>
-                            <artifactId>core-cif-components-config</artifactId>
-                            <type>zip</type>
-                            <target>/apps/cif-components-it-site-vendor-packages/application/install</target>
-                        </embedded>
-                        <embedded>
-                            <groupId>com.adobe.commerce.cif</groupId>
-                            <artifactId>core-cif-components-core</artifactId>
-                            <target>/apps/cif-components-it-site-vendor-packages/application/install</target>
-                        </embedded>
-                        <embedded>
-                            <groupId>com.adobe.commerce.cif</groupId>
-                            <artifactId>magento-graphql</artifactId>
-                            <target>/apps/cif-components-it-site-vendor-packages/application/install</target>
-                        </embedded>
-                        <embedded>
                             <groupId>com.adobe.cq</groupId>
                             <artifactId>core.wcm.components.content</artifactId>
                             <type>zip</type>
@@ -241,26 +219,6 @@
             <artifactId>cif-components-it-site.ui.config-classic</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
-        </dependency>
-
-        <!-- Adobe CIF Dependencies -->
-        <dependency>
-            <groupId>com.adobe.commerce.cif</groupId>
-            <artifactId>core-cif-components-apps</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>com.adobe.commerce.cif</groupId>
-            <artifactId>core-cif-components-config</artifactId>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>com.adobe.commerce.cif</groupId>
-            <artifactId>core-cif-components-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.adobe.commerce.cif</groupId>
-            <artifactId>magento-graphql</artifactId>
         </dependency>
 
         <!-- WCM Core Components Dependencies -->
