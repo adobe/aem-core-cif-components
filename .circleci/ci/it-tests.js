@@ -77,7 +77,7 @@ try {
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-config'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-content'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])} \
-            --vm-options \\\"-Xmx1536m ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
+            --vm-options \\\"-Xmx1536m ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec,output=tcpserver,port=6300\\\"`);
     });
 
 
@@ -125,24 +125,36 @@ try {
         });
     }
     
+    // No coverage for UI tests
+    if (TYPE !== 'selenium') {
+        // Dump JaCoCo exec data via TCP while AEM is still running.
+        // The agent uses output=tcpserver so data is only fully flushed through this dump —
+        // relying on the file written during JVM shutdown is unreliable because AEM is often
+        // killed (SIGKILL) after the stop timeout, which truncates the file mid-write.
+        const dumpJacocoExec = () => {
+            ci.sh(`mvn -B org.jacoco:jacoco-maven-plugin:${process.env.JACOCO_VERSION}:dump \
+                -Djacoco.address=localhost -Djacoco.port=6300 \
+                -Djacoco.destFile=jacoco-it.exec -Djacoco.append=false`);
+        };
+        ci.dir('bundles/core', dumpJacocoExec);
+        ci.dir('examples/bundle', dumpJacocoExec);
+    }
+
     ci.dir(qpPath, () => {
         // Stop CQ
         ci.sh('./qp.sh -v stop --id author');
     });
-    
+
     // No coverage for UI tests
     if (TYPE === 'selenium') {
         return;
     }
-    
+
     // Create coverage reports
     const createCoverageReport = () => {
-        // Executing the integration tests runs also executes unit tests and generates a Jacoco report for them. To 
+        // Executing the integration tests also executes unit tests and generates a Jacoco report for them. To
         // strictly separate unit test from integration test coverage, we explicitly delete the unit test report first.
         ci.sh('rm -rf target/site/jacoco');
-
-        // Download Jacoco file which is exposed by a webserver running inside the AEM container.
-        ci.sh('curl -O -f http://localhost:3000/crx-quickstart/jacoco-it.exec');
 
         // Generate new report
         ci.sh(`mvn -B org.jacoco:jacoco-maven-plugin:${process.env.JACOCO_VERSION}:report -Djacoco.dataFile=jacoco-it.exec`);
