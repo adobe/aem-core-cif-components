@@ -134,6 +134,16 @@
         </dependency>
 
         <!-- Adobe CIF Dependencies -->
+        <!--
+          Needed at compile-time for HTL generated Java (e.g. Header model), but the bundle is provided by the
+          target AEM runtime (CIF Core installed separately).
+        -->
+        <dependency>
+            <groupId>com.adobe.commerce.cif</groupId>
+            <artifactId>core-cif-components-core</artifactId>
+            <version>${core.cif.components.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.adobe.aem</groupId>
             <artifactId>aem-cif-sdk-api</artifactId>

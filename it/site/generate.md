@@ -118,6 +118,7 @@ Keep / tune these **properties** (examples as in this module; bump to match your
 
 - **`aem.sdk.api`** — AEM as a Cloud Service SDK API for cloud modules.
 - **`aem.cif.sdk.api`** — CIF add-on API for `ui.apps` / compile scope.
+- **`core.cif.components.version`** — version of the CIF Core bundle used as **compile-time provided** dependency for HTL validation (runtime provides the bundle; `it/site` packages do not embed it).
 - **`core.wcm.components.version`** — WCM Core (needed for **`classic/all`** embeds).
 - **`magento.graphql.version`** — GraphQL client artifact line.
 
