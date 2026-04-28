@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.it.http;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,10 +68,15 @@ public class CommerceTestBase {
     public static void init() throws ClientException, InterruptedException, TimeoutException {
         adminAuthor = cqBaseClassRule.authorRule.getAdminClient(CommerceClient.class);
 
-        // This configures the GraphQL client for the CIF components library
+        // This configures the GraphQL client for the CIF components library.
+        // Use the server's own URL so the mock endpoint is reachable regardless of which port AEM is on.
+        URI serverUri = adminAuthor.getUrl();
+        String graphqlMockUrl = serverUri.getScheme() + "://" + serverUri.getHost() + ":" + serverUri.getPort()
+            + "/apps/cif-components-examples/graphql";
+
         GraphqlOSGiConfig graphqlOsgiConfig = new GraphqlOSGiConfig()
             .withIdentifier("examples")
-            .withUrl("http://localhost:4502/apps/cif-components-examples/graphql")
+            .withUrl(graphqlMockUrl)
             .withHttpMethod("GET")
             .withAcceptSelfSignedCertificates(true)
             .withAllowHttpProtocol(true);
