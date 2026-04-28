@@ -84,79 +84,10 @@ public class ItSiteSmokeIT {
 
     @Test
     public void testCommerceGraphqlEndpointReachable() throws Exception {
-        printGraphqlDiagnostics();
-
         SlingHttpResponse response = adminAuthor.doGet(
-            "/api/graphql?query=%7BstoreConfig%7Bstore_code%7D%7D", 200, 404, 500, 403, 401);
-        int status = response.getStatusLine().getStatusCode();
-        System.out.println("[DEBUG] /api/graphql response status: " + status);
-        if (status != 200) {
-            System.err.println("[DEBUG] /api/graphql returned " + status + ". Response body:\n" + response.getContent());
-        }
-
-        Assert.assertEquals("Expected HTTP Status: 200 for /api/graphql", 200, status);
-
+            "/api/graphql?query=%7BstoreConfig%7Bstore_code%7D%7D", 200);
         JsonNode json = MAPPER.readTree(response.getContent());
         Assert.assertEquals("GraphQL endpoint should return store_code 'default'",
             "default", json.at("/data/storeConfig/store_code").asText());
-    }
-
-    private static void printGraphqlDiagnostics() {
-        // AEM product info — confirms which AEM version is under test
-        try {
-            SlingHttpResponse prodInfo = adminAuthor.doGet("/system/console/status-productinfo.json", 200, 404);
-            if (prodInfo.getStatusLine().getStatusCode() == 200) {
-                JsonNode info = MAPPER.readTree(prodInfo.getContent());
-                System.out.println("[DEBUG] AEM product info: " + info.path("data").toString());
-            }
-        } catch (Exception e) {
-            System.out.println("[DEBUG] Could not read product info: " + e.getMessage());
-        }
-
-        // All bundles whose symbolic name contains "cif", "commerce", or "graphql"
-        try {
-            SlingHttpResponse bundlesResp = adminAuthor.doGet("/system/console/bundles.json", 200);
-            JsonNode bundleData = MAPPER.readTree(bundlesResp.getContent()).path("data");
-            System.out.println("[DEBUG] ========== CIF / Commerce bundle inventory ==========");
-            if (bundleData.isArray()) {
-                for (JsonNode bundle : bundleData) {
-                    String sym = bundle.path("symbolicName").asText("");
-                    if (sym.contains("cif") || sym.contains("commerce") || sym.contains("graphql")) {
-                        String ver = bundle.path("version").asText("?");
-                        String state = bundle.path("state").asText("?");
-                        int id = bundle.path("id").asInt(-1);
-                        System.out.println("[DEBUG]  " + sym + " v" + ver + " -> " + state);
-
-                        // For bundles not Active/Fragment, fetch the detail page to show why
-                        if (!"Active".equals(state) && !"Fragment".equals(state) && id >= 0) {
-                            printBundleDetails(id, sym);
-                        }
-                    }
-                }
-            }
-            System.out.println("[DEBUG] =====================================================");
-        } catch (Exception e) {
-            System.err.println("[DEBUG] Bundle inventory failed: " + e.getMessage());
-        }
-    }
-
-    private static void printBundleDetails(int bundleId, String sym) {
-        try {
-            SlingHttpResponse detail = adminAuthor.doGet("/system/console/bundles/" + bundleId + ".json", 200);
-            JsonNode props = MAPPER.readTree(detail.getContent()).path("data").path(0).path("props");
-            if (props.isArray()) {
-                for (JsonNode prop : props) {
-                    String key = prop.path("key").asText("");
-                    // Print anything that explains why the bundle is not Active
-                    if (key.contains("Unsatisfied") || key.contains("Import-Package")
-                        || key.contains("Require-Bundle") || key.contains("Export-Package")
-                        || key.equals("Status")) {
-                        System.err.println("[DEBUG]    !! [" + sym + "] " + key + ": " + prop.path("value"));
-                    }
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("[DEBUG]    Could not fetch details for bundle " + sym + " (id=" + bundleId + "): " + e.getMessage());
-        }
     }
 }
