@@ -16,20 +16,17 @@
 package com.adobe.cq.commerce.it.http;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.sling.testing.clients.ClientException;
-import org.apache.sling.testing.clients.SlingHttpResponse;
 import org.apache.sling.testing.clients.osgi.OsgiConsoleClient;
-import org.apache.sling.testing.clients.util.JsonUtils;
 import org.apache.sling.testing.clients.util.poller.Polling;
-import org.codehaus.jackson.JsonNode;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -71,37 +68,22 @@ public class CommerceTestBase {
     public static void init() throws ClientException, InterruptedException, TimeoutException {
         adminAuthor = cqBaseClassRule.authorRule.getAdminClient(CommerceClient.class);
 
-        // This configures the GraphQL client for the CIF components library
+        // This configures the GraphQL client for the CIF components library.
+        // Use the server's own URL so the mock endpoint is reachable regardless of which port AEM is on.
+        URI serverUri = adminAuthor.getUrl();
+        String graphqlMockUrl = serverUri.getScheme() + "://" + serverUri.getHost() + ":" + serverUri.getPort()
+            + "/apps/cif-components-examples/graphql";
+
         GraphqlOSGiConfig graphqlOsgiConfig = new GraphqlOSGiConfig()
             .withIdentifier("examples")
-            .withUrl("http://localhost:4502/apps/cif-components-examples/graphql")
+            .withUrl(graphqlMockUrl)
             .withHttpMethod("GET")
             .withAcceptSelfSignedCertificates(true)
             .withAllowHttpProtocol(true);
 
-        updateOSGiConfiguration(adminAuthor, graphqlOsgiConfig.build(), GRAPHQL_CLIENT_BUNDLE, GRAPHQL_CLIENT_FACTORY_PID);
+        updateOSGiConfiguration(adminAuthor, graphqlOsgiConfig.build(), GRAPHQL_CLIENT_BUNDLE,
+            GRAPHQL_CLIENT_FACTORY_PID + "~examples");
         updateSlingAuthenticatorOSGiConfig(adminAuthor);
-    }
-
-    /**
-     * Fetches the PID of a service based on the factory PID.
-     * 
-     * @param osgiClient
-     * @return The PID of the first configuration found for factory PID.
-     * @throws ClientException
-     */
-    private static String getConfigurationPid(OsgiConsoleClient osgiClient, String factoryPID) throws ClientException {
-        SlingHttpResponse resp = osgiClient.doGet(CONFIGURATION_CONSOLE_URL + "/*.json");
-        JsonNode json = JsonUtils.getJsonNodeFromString(resp.getContent());
-        Iterator<JsonNode> it = json.getElements();
-        while (it.hasNext()) {
-            JsonNode config = it.next();
-            JsonNode factoryId = config.get("factoryPid");
-            if (factoryId != null && factoryPID.equals(factoryId.getTextValue())) {
-                return config.get("pid").getTextValue();
-            }
-        }
-        return null;
     }
 
     protected static void updateOSGiConfiguration(CQClient client, Map<String, Object> config, String bundle, String factoryPID)
@@ -129,8 +111,7 @@ public class CommerceTestBase {
         polling.poll(30000, 1000);
 
         LOG.info("Creating configuration. {}", config);
-        String configurationPid = getConfigurationPid(osgiClient, factoryPID);
-        osgiClient.waitEditConfiguration(30, configurationPid, null, config, SC_MOVED_TEMPORARILY);
+        osgiClient.waitEditConfiguration(30, factoryPID, null, config, SC_MOVED_TEMPORARILY);
 
         // Wait for bundle to restart
         polling.poll(30000, 1000);

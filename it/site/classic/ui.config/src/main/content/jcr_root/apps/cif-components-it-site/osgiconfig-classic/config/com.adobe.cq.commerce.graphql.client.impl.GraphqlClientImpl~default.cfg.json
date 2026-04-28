@@ -1,0 +1,10 @@
+{
+  "identifier": "default",
+  "httpMethod": "GET",
+  "url": "https://mcprod.catalogservice-commerce.fun/graphql",
+  "connectionTimeout": 5000,
+  "socketTimeout": 5000,
+  "maxHttpConnections": 20,
+  "requestPoolTimeout": 2000,
+  "acceptSelfSignedCertificates": false
+}

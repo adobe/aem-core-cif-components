@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workspaceFilter version="1.0">
+    <filter root="/conf/cif-components-it-site" mode="merge"/>
+    <filter root="/content/cif-components-it-site" mode="merge"/>
+    <filter root="/content/dam/cif-components-it-site" mode="merge">
+        <exclude pattern="/content/dam/cif-components-it-site(/.*)?"/>
+        <include pattern="/content/dam/cif-components-it-site/jcr:content(/.*)?"/>
+    </filter>
+    <filter root="/content/dam/cif-components-it-site/asset.jpg" mode="merge"/>
+    <filter root="/content/experience-fragments/cif-components-it-site" mode="merge"/>
+</workspaceFilter>

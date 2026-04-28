@@ -64,6 +64,7 @@
             <modules>
                 <module>it/content</module>
                 <module>it/http</module>
+                <module>it/site</module>
                 <module>ui.tests</module>
             </modules>
         </profile>

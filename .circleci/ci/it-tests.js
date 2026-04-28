@@ -35,6 +35,15 @@ try {
     // TODO: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
     let aemCifSdkApiVersion = "2025.09.02.1-SNAPSHOT";
 
+    // Build it/site with the appropriate profile
+    ci.dir('it/site', () => {
+        const profile = (AEM === 'classic' || AEM === 'lts') ? ' -Pclassic' : '';
+        ci.sh(`mvn -B clean install${profile}`);
+    });
+
+    let itSitePackage = (AEM === 'classic' || AEM === 'lts')
+        ? ci.addQpFileDependency(config.modules['cif-components-it-site.all-classic'])
+        : ci.addQpFileDependency(config.modules['cif-components-it-site.all']);
 
     ci.dir(qpPath, () => {
         // Connect to QP
@@ -60,7 +69,7 @@ try {
             downloadArtifact('cif-cloud-ready-feature-pkg', 'far', 'addon.far', 'LATEST', 'cq-commerce-addon-authorfar');
         }
 
-        const maxMetaspace = AEM == 'lts' ? '-XX:MaxMetaspaceSize=512m' : '-XX:MaxPermSize=256m';
+        const maxMetaspace = '-XX:MaxMetaspaceSize=512m';
         // Start CQ
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
             --bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar \
@@ -77,6 +86,7 @@ try {
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-config'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-content'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])} \
+            ${itSitePackage} \
             --vm-options \\\"-Xmx1536m ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec\\\"`);
     });
 
