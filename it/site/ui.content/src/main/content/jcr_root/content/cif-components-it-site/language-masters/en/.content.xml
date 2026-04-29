@@ -77,10 +77,6 @@
                                 width="4"/>
                         </cq:responsive>
                     </teaser_copy_1579324932>
-                    <helloworld
-                        jcr:primaryType="nt:unstructured"
-                        sling:resourceType="cif-components-it-site/components/helloworld"
-                        text="lalala :)"/>
                     <productcarousel
                         jcr:primaryType="nt:unstructured"
                         sling:resourceType="cif-components-it-site/components/commerce/productcarousel"/>
