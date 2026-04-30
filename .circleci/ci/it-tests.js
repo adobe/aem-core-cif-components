@@ -24,13 +24,20 @@ const config = ci.restoreConfiguration();
 console.log(config);
 const qpPath = '/home/circleci/cq';
 const buildPath = '/home/circleci/build';
-const { TYPE, BROWSER, AEM } = process.env;
+const { TYPE, BROWSER, AEM, COMMERCE_ENDPOINT, COMMERCE_INTEGRATION_TOKEN } = process.env;
 
 try {
     ci.stage("Integration Tests");
     let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
-    let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
+    let excludedCategory;
+    if (AEM === 'classic') {
+        excludedCategory = 'junit.category.IgnoreOn65';
+    } else if (AEM === 'lts') {
+        excludedCategory = 'junit.category.IgnoreOnLts';
+    } else {
+        excludedCategory = 'junit.category.IgnoreOnCloud';
+    }
 
     // TODO: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
     let aemCifSdkApiVersion = "2025.09.02.1-SNAPSHOT";
@@ -113,13 +120,17 @@ try {
 
     // Run integration tests
     if (TYPE === 'integration') {
+        const commerceEndpoint = COMMERCE_ENDPOINT ? `-DCOMMERCE_ENDPOINT="${COMMERCE_ENDPOINT}"` : '';
+        const integrationToken = COMMERCE_INTEGRATION_TOKEN ? `-DCOMMERCE_INTEGRATION_TOKEN="${COMMERCE_INTEGRATION_TOKEN}"` : '';
         ci.dir('it/http', () => {
             ci.sh(`mvn clean verify -U -B \
                 -Ptest-all \
                 -Dexclude.category=${excludedCategory} \
                 -Dsling.it.instance.url.1=http://localhost:4502 \
                 -Dsling.it.instance.runmode.1=author \
-                -Dsling.it.instances=1`);
+                -Dsling.it.instances=1 \
+                ${commerceEndpoint} \
+                ${integrationToken}`);
         });
     }
     

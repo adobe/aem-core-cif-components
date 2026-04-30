@@ -16,66 +16,33 @@
 package com.adobe.cq.commerce.it.http;
 
 import org.apache.sling.testing.clients.ClientException;
-import org.apache.sling.testing.clients.SlingHttpResponse;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 
-import com.adobe.cq.testing.client.CQClient;
-import com.adobe.cq.testing.junit.rules.CQAuthorClassRule;
-import com.adobe.cq.testing.junit.rules.CQRule;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-/**
- * Smoke tests for the CIF IT Site — verifies the site loads and the commerce navigation is configured.
- */
-public class ItSiteSmokeIT {
+public class ItSiteSmokeIT extends ItSiteTestBase {
 
-    private static final String IT_SITE_HOME = "/content/cif-components-it-site/us/en";
-    private static final String HEADER_XF_MODEL = "/content/experience-fragments/cif-components-it-site/us/en/site/header/master.model.json";
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    @ClassRule
-    public static final CQAuthorClassRule cqBaseClassRule = new CQAuthorClassRule();
-
-    @Rule
-    public CQRule cqBaseRule = new CQRule(cqBaseClassRule.authorRule);
-
-    private static CQClient adminAuthor;
-
-    @BeforeClass
-    public static void init() throws ClientException {
-        adminAuthor = cqBaseClassRule.authorRule.getAdminClient(CQClient.class);
-    }
+    private static final String HEADER_XF_MODEL = IT_SITE_XF_ROOT + "/header/master.model.json";
 
     @Test
     public void testHomePageLoads() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(IT_SITE_HOME + ".html", 200);
-        Document doc = Jsoup.parse(response.getContent());
+        Document doc = getPage(IT_SITE_ROOT);
         Assert.assertTrue("Page h1 should contain 'CIF IT Site'",
             doc.select("h1.cmp-title__text").first().text().contains("CIF IT Site"));
     }
 
     @Test
     public void testNavigationRendered() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(IT_SITE_HOME + ".html", 200);
-        Document doc = Jsoup.parse(response.getContent());
-        Elements navContainer = doc.select("div.navigation");
-        Assert.assertTrue("Navigation container should be present in the page", navContainer.size() > 0);
+        Document doc = getPage(IT_SITE_ROOT);
+        Assert.assertEquals("Navigation should have 6 first-level items",
+            6, doc.select("li.cmp-navigation__item--level-0").size());
     }
 
     @Test
     public void testCommerceNavigationConfigured() throws Exception {
-        SlingHttpResponse response = adminAuthor.doGet(HEADER_XF_MODEL, 200);
-        JsonNode json = MAPPER.readTree(response.getContent());
-        JsonNode navigation = json.at("/:items/root/:items/navigation");
-
+        JsonNode navigation = getJson(HEADER_XF_MODEL).at("/:items/root/:items/navigation");
         Assert.assertFalse("Navigation component should exist at the expected model path",
             navigation.isMissingNode());
         Assert.assertEquals("Navigation should be the CIF commerce navigation component",
@@ -84,9 +51,7 @@ public class ItSiteSmokeIT {
 
     @Test
     public void testCommerceGraphqlEndpointReachable() throws Exception {
-        SlingHttpResponse response = adminAuthor.doGet(
-            "/api/graphql?query=%7BstoreConfig%7Bstore_code%7D%7D", 200);
-        JsonNode json = MAPPER.readTree(response.getContent());
+        JsonNode json = executeGraphql("{storeConfig{store_code}}");
         Assert.assertEquals("GraphQL endpoint should return store_code 'default'",
             "default", json.at("/data/storeConfig/store_code").asText());
     }
