@@ -300,12 +300,12 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     /**
      * Full end-to-end cache invalidation workflow triggered by product SKU.
      * <ol>
-     *   <li>Fetches the Scarves category page and reads VA01's current name — warms the cache.</li>
-     *   <li>Updates the product name in Magento via REST to a unique test value.</li>
-     *   <li>Fetches the page again — asserts AEM still serves the <em>old</em> name (cache is holding).</li>
-     *   <li>POSTs {@code productSkus:["VA01"]} to the invalidation servlet.</li>
-     *   <li>Fetches the page again — asserts AEM now serves the <em>new</em> name (cache was cleared).</li>
-     *   <li>Restores the original name in Magento and clears the cache in the finally block.</li>
+     * <li>Fetches the Scarves category page and reads VA01's current name — warms the cache.</li>
+     * <li>Updates the product name in Magento via REST to a unique test value.</li>
+     * <li>Fetches the page again — asserts AEM still serves the <em>old</em> name (cache is holding).</li>
+     * <li>POSTs {@code productSkus:["VA01"]} to the invalidation servlet.</li>
+     * <li>Fetches the page again — asserts AEM now serves the <em>new</em> name (cache was cleared).</li>
+     * <li>Restores the original name in Magento and clears the cache in the finally block.</li>
      * </ol>
      */
     @Test
@@ -335,12 +335,12 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     /**
      * Full end-to-end cache invalidation workflow triggered by category UID.
      * <ol>
-     *   <li>Fetches the Scarves category page and reads the category title — warms the cache.</li>
-     *   <li>Updates the category name in Magento via REST to a unique test value.</li>
-     *   <li>Fetches the page again — asserts AEM still serves the <em>old</em> name (cache is holding).</li>
-     *   <li>POSTs {@code categoryUids:["MTQ="]} to the invalidation servlet.</li>
-     *   <li>Fetches the page again — asserts AEM now serves the <em>new</em> name (cache was cleared).</li>
-     *   <li>Restores the original name in Magento and clears the cache in the finally block.</li>
+     * <li>Fetches the Scarves category page and reads the category title — warms the cache.</li>
+     * <li>Updates the category name in Magento via REST to a unique test value.</li>
+     * <li>Fetches the page again — asserts AEM still serves the <em>old</em> name (cache is holding).</li>
+     * <li>POSTs {@code categoryUids:["MTQ="]} to the invalidation servlet.</li>
+     * <li>Fetches the page again — asserts AEM now serves the <em>new</em> name (cache was cleared).</li>
+     * <li>Restores the original name in Magento and clears the cache in the finally block.</li>
      * </ol>
      */
     @Test
@@ -370,12 +370,12 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     /**
      * Full end-to-end cache invalidation workflow triggered by cache name.
      * <ol>
-     *   <li>Fetches the Scarves category page and reads VA01's current name — warms the cache.</li>
-     *   <li>Updates the product name in Magento via REST to a unique test value.</li>
-     *   <li>Fetches the page again — asserts AEM still serves the <em>old</em> name (cache is holding).</li>
-     *   <li>POSTs {@code cacheNames:["cif-components-it-site/components/commerce/productlist"]} to the invalidation servlet.</li>
-     *   <li>Fetches the page again — asserts AEM now serves the <em>new</em> name (cache was cleared).</li>
-     *   <li>Restores the original name in Magento and clears the cache in the finally block.</li>
+     * <li>Fetches the Scarves category page and reads VA01's current name — warms the cache.</li>
+     * <li>Updates the product name in Magento via REST to a unique test value.</li>
+     * <li>Fetches the page again — asserts AEM still serves the <em>old</em> name (cache is holding).</li>
+     * <li>POSTs {@code cacheNames:["cif-components-it-site/components/commerce/productlist"]} to the invalidation servlet.</li>
+     * <li>Fetches the page again — asserts AEM now serves the <em>new</em> name (cache was cleared).</li>
+     * <li>Restores the original name in Magento and clears the cache in the finally block.</li>
      * </ol>
      */
     @Test
@@ -406,12 +406,12 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     /**
      * Full end-to-end cache invalidation workflow using {@code invalidateAll}.
      * <ol>
-     *   <li>Fetches the Scarves category page and reads VA01's current name — warms the cache.</li>
-     *   <li>Updates the product name in Magento via REST to a unique test value.</li>
-     *   <li>Fetches the page again — asserts AEM still serves the <em>old</em> name (cache is holding).</li>
-     *   <li>POSTs {@code invalidateAll:true} to clear every cache bucket for the store.</li>
-     *   <li>Fetches the page again — asserts AEM now serves the <em>new</em> name (cache was cleared).</li>
-     *   <li>Restores the original name in Magento and clears the cache in the finally block.</li>
+     * <li>Fetches the Scarves category page and reads VA01's current name — warms the cache.</li>
+     * <li>Updates the product name in Magento via REST to a unique test value.</li>
+     * <li>Fetches the page again — asserts AEM still serves the <em>old</em> name (cache is holding).</li>
+     * <li>POSTs {@code invalidateAll:true} to clear every cache bucket for the store.</li>
+     * <li>Fetches the page again — asserts AEM now serves the <em>new</em> name (cache was cleared).</li>
+     * <li>Restores the original name in Magento and clears the cache in the finally block.</li>
      * </ol>
      */
     @Test
