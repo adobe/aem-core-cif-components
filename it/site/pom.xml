@@ -32,7 +32,6 @@
 
   <modules>
     <module>all</module>
-    <module>ui.frontend</module>
     <module>ui.apps</module>
     <module>ui.apps.structure</module>
     <module>ui.config</module>
@@ -45,7 +44,6 @@
   <properties>
     <!-- aem.host, aem.port, aem.publish.*, sling.*, vault.*, magento.graphql.version,
          core.wcm.components.version are all inherited from core-cif-components-parent. -->
-    <frontend-maven-plugin.version>1.12.0</frontend-maven-plugin.version>
     <!-- Version of CIF Core artifacts used for compile-time only dependencies (provided by runtime AEM). -->
     <core.cif.components.version>2.18.3-SNAPSHOT</core.cif.components.version>
     <aem.cif.sdk.api>2025.09.02.00</aem.cif.sdk.api>

@@ -16,7 +16,6 @@ it/site/
 ├── ui.apps.structure/               # structure package; filters in pom.xml only
 ├── ui.config/
 ├── ui.content/
-├── ui.frontend/
 ├── classic/                         # built only with -Pclassic
 │   ├── ui.config/                   # osgiconfig-classic OSGi for 6.x CIF GraphQL
 │   ├── ui.content/                  # commerce cloud config + /var/commerce/products/…
@@ -25,7 +24,7 @@ it/site/
 └── README.md
 ```
 
-**Default reactor modules (root `pom.xml`):** `all`, `ui.frontend`, `ui.apps`, `ui.apps.structure`, `ui.config`, `ui.content` — **no** `core`, `it.tests`, `ui.tests`.
+**Default reactor modules (root `pom.xml`):** `all`, `ui.apps`, `ui.apps.structure`, `ui.config`, `ui.content` — **no** `ui.frontend`, `core`, `it.tests`, `ui.tests`.
 
 **Classic reactor modules (profile `classic`):** `classic/ui.config`, `classic/ui.content`, `classic/all`.
 
@@ -316,31 +315,31 @@ In Package Manager, confirm **`<appId>.ui.content-classic`** shows **Installed**
 
 ---
 
-## 8. `ui.frontend`
+## 8. ClientLibs (static CSS — no `ui.frontend` build step)
 
-The Webpack build runs in CI / full reactor. After clone or checkout:
+This module does **not** use a `ui.frontend` webpack/npm pipeline. The archetype generates one, but it was removed because the SCSS files were almost entirely empty stubs and the only meaningful output was a small amount of CSS.
 
-```bash
-cd ui.frontend && npm ci
-```
-
-If **`webpack`** is missing from PATH during Maven, dependencies were not installed.
-
-**`.gitignore`** — add a `.gitignore` inside `ui.frontend/` to exclude the node binaries downloaded by `frontend-maven-plugin` and the installed packages:
+CSS is shipped as a single static file committed directly to `ui.apps`:
 
 ```
-**/node/**
+ui.apps/src/main/content/jcr_root/apps/cif-components-it-site/clientlibs/clientlib-site/css/site.css
 ```
 
-The root `.gitignore` already covers `**/node_modules/**`; the `node/` binary directory (containing `node`, `npm`, `npm.cmd`) needs this separate entry.
+The `clientlib-site` folder is a standard AEM `cq:ClientLibraryFolder` with `categories="[cif-components-it-site.site]"`. There is no JS (the only JS in the archetype was for the HelloWorld demo component, which is also removed).
 
-**Empty `resources/` directory** — the webpack config globs `resources/**/*`. If the directory is empty, webpack emits a build error. Add a `.gitkeep` placeholder:
+**When regenerating from the archetype:** delete `ui.frontend/` and remove `<module>ui.frontend</module>` and the `frontend-maven-plugin.version` property from the root `pom.xml`. Then write or copy a `site.css` directly into `clientlib-site/css/`.
 
-```bash
-touch ui.frontend/src/main/webpack/resources/.gitkeep
+**`customheaderlibs.html`** — ensure all three clientlib categories are loaded:
+
+```html
+<sly data-sly-use.clientlib="core/wcm/components/commons/v1/templates/clientlib.html">
+    <sly data-sly-call="${clientlib.css @ categories='cif-components-it-site.base'}"/>
+    <sly data-sly-call="${clientlib.css @ categories='cif-components-it-site.cif'}"/>
+    <sly data-sly-call="${clientlib.css @ categories='cif-components-it-site.site'}"/>
+</sly>
 ```
 
-**Skip RAT on `ui.apps` and `ui.frontend`** — both modules contain compiled/generated files (clientlib output, node binaries) that have no license headers. Add `<skip>true</skip>` for `apache-rat-plugin` in each module's `pom.xml`, matching the `examples` module pattern.
+The archetype omits the `cif-components-it-site.site` line — without it the `clientlib-site` CSS is never served to the browser.
 
 ---
 
