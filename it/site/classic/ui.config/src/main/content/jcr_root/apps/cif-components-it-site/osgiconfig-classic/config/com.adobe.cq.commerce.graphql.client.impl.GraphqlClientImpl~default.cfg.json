@@ -1,0 +1,18 @@
+{
+  "identifier": "default",
+  "httpMethod": "GET",
+  "url": "https://mcprod.catalogservice-commerce.fun/graphql",
+  "connectionTimeout": 5000,
+  "socketTimeout": 5000,
+  "maxHttpConnections": 20,
+  "requestPoolTimeout": 2000,
+  "acceptSelfSignedCertificates": true,
+  "cacheConfigurations": [
+    "cif-components-it-site/components/commerce/navigation:true:5:300",
+    "com.adobe.cq.commerce.core.search.services.SearchFilterService:true:10:300",
+    "cif-components-it-site/components/commerce/breadcrumb:true:1000:300",
+    "cif-components-it-site/components/commerce/product:true:50:1000",
+    "cif-components-it-site/components/commerce/productcollection:true:50:1000",
+    "cif-components-it-site/components/commerce/productlist:true:50:300"
+  ]
+}
