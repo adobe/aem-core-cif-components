@@ -169,6 +169,30 @@ public class CatalogPageNotFoundFilterTest {
     }
 
     @Test
+    public void testJcrContentRequestPassesThrough() throws ServletException, IOException {
+        aemContext.currentResource("/content/venia/us/en/products/product-page/jcr:content");
+
+        subject.doFilter(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        verify(contentModelFinder, never()).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void testJcrContentDescendantRequestPassesThrough() throws ServletException, IOException {
+        aemContext.currentResource("/content/venia/us/en/products/product-page/jcr:content/root");
+
+        subject.doFilter(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        verify(contentModelFinder, never()).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
     public void testReturns404ForMissingProduct() throws ServletException, IOException {
         aemContext.currentPage("/content/venia/us/en/products/product-page");
         ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
