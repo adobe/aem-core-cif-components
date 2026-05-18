@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.it.http;
 import java.io.IOException;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -351,6 +352,68 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         }
     }
 
+    // ---- retry helpers for Catalog Service eventual-consistency lag --------------------
+
+    /**
+     * Polls AEM's category title for up to 30 seconds, returning successfully once it matches
+     * {@code expected}. Used after a cache invalidation to absorb the Magento → Catalog
+     * Service sync lag (Magento REST writes don't appear in the GraphQL read store
+     * instantly; the gap can be a few hundred ms to several seconds under load).
+     */
+    private void waitForCategoryTitleOnAem(TestData data, String expected) throws Exception {
+        long deadline = System.currentTimeMillis() + 30_000;
+        String last = null;
+        while (System.currentTimeMillis() < deadline) {
+            last = getCategoryNameFromPage(data);
+            if (expected.equals(last)) {
+                return;
+            }
+            Thread.sleep(1_000);
+        }
+        Assert.assertEquals("Category title did not match expected value within 30s after invalidation",
+            expected, last);
+    }
+
+    /**
+     * Polls the PDP breadcrumb for up to 30 seconds, returning successfully once it contains
+     * {@code expectedSubstring}.
+     */
+    private void waitForCategoryNameInPdpBreadcrumb(TestData data, String expectedSubstring) throws Exception {
+        long deadline = System.currentTimeMillis() + 30_000;
+        String last = null;
+        while (System.currentTimeMillis() < deadline) {
+            last = getPdpBreadcrumbText(data);
+            if (last != null && last.contains(expectedSubstring)) {
+                return;
+            }
+            Thread.sleep(1_000);
+        }
+        Assert.assertTrue("PDP breadcrumb did not contain '" + expectedSubstring + "' within 30s after invalidation"
+            + " (last value: " + last + ")", last != null && last.contains(expectedSubstring));
+    }
+
+    /**
+     * Confirms Magento itself reflects the updated category name via REST GET. Run immediately
+     * after {@link #updateCategoryName(int, String)} so the test fails fast if the Magento
+     * write didn't actually take effect — distinguishes a Magento problem from an AEM cache
+     * problem in downstream assertions.
+     */
+    private void verifyMagentoCategoryName(int categoryId, String expectedName) throws IOException {
+        String url = commerceRestBase() + "/categories/" + categoryId;
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(url);
+            request.setHeader("Authorization", "Bearer " + INTEGRATION_TOKEN);
+            HttpResponse response = client.execute(request);
+            String body = EntityUtils.toString(response.getEntity());
+            Assert.assertEquals("Magento GET /categories/" + categoryId + " should return 200",
+                200, response.getStatusLine().getStatusCode());
+            JsonNode root = OBJECT_MAPPER.readTree(body);
+            String actualName = root.path("name").asText(null);
+            Assert.assertEquals("Magento category " + categoryId + " did not reflect the expected name",
+                expectedName, actualName);
+        }
+    }
+
     // ============================================================================================
     // SERVLET AVAILABILITY TESTS — single set, no Magento writes
     // ============================================================================================
@@ -446,6 +509,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
 
         String testName = "CIF-IT-Cat-" + data.categoryId + "-" + System.currentTimeMillis();
         updateCategoryName(data.categoryId, testName);
+        verifyMagentoCategoryName(data.categoryId, testName);
         try {
             Assert.assertEquals("Category title should serve stale cached name before invalidation",
                 originalCategoryName, getCategoryNameFromPage(data));
@@ -454,10 +518,9 @@ public class CacheInvalidationIT extends ItSiteTestBase {
 
             postJson(CACHE_INVALIDATION_ENDPOINT, categoryUidsPayload(data.categoryUid), 200);
 
-            Assert.assertEquals("Category title should be updated after categoryUids invalidation",
-                testName, getCategoryNameFromPage(data));
-            Assert.assertTrue("PDP breadcrumb should contain updated category name after invalidation",
-                getPdpBreadcrumbText(data).contains(testName));
+            // Poll up to 30 s to absorb Magento → Catalog Service eventual-consistency lag.
+            waitForCategoryTitleOnAem(data, testName);
+            waitForCategoryNameInPdpBreadcrumb(data, testName);
 
         } finally {
             updateCategoryName(data.categoryId, data.originalCategoryName);
