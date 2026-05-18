@@ -26,21 +26,27 @@ const qpPath = '/home/circleci/cq';
 const buildPath = '/home/circleci/build';
 const { TYPE, BROWSER, AEM } = process.env;
 
-const CORE_BUNDLE_SYMBOLIC_NAME = 'com.adobe.commerce.cif.core-cif-components-core';
-const ADDON_BUNDLE_SYMBOLIC_NAME = 'com.adobe.cq.cif.commerce-addon-bundle';
-const AEM_READY_TIMEOUT_MS = 360000;
+const CORE_BUNDLE = 'com.adobe.commerce.cif.core-cif-components-core';
+const ADDON_BUNDLE = 'com.adobe.cq.cif.commerce-addon-bundle';
+const AEM_READY_TIMEOUT_MS = AEM === 'lts' ? 480000 : 360000;
 const AEM_READY_POLL_INTERVAL_MS = 5000;
 
-const isBundleActive = (bundlesJson, symbolicName) => {
+const getBundle = (bundlesJson, symbolicName) => {
     const parsed = JSON.parse(bundlesJson);
     const bundles = Array.isArray(parsed) ? parsed : (parsed.data || []);
-    const bundle = bundles.find((entry) => entry.symbolicName === symbolicName || entry.name === symbolicName);
-    return bundle && bundle.state === 'Active';
+    return bundles.find((entry) => entry.symbolicName === symbolicName || entry.name === symbolicName);
 };
 
-const waitForAemReady = () => {
+const isBundleActive = (bundle) => {
+    return bundle && (bundle.state === 'Active' || bundle.stateRaw === 32);
+};
+
+// Wait for AEM + commerce add-on, install project bundles once add-on deps exist, then wait for core Active.
+const prepareAemForCifTests = () => {
+    const needAddon = AEM === 'classic' || AEM === 'lts';
     const deadline = Date.now() + AEM_READY_TIMEOUT_MS;
     let attempt = 0;
+    let projectBundlesInstalled = false;
 
     while (Date.now() < deadline) {
         attempt++;
@@ -55,19 +61,33 @@ const waitForAemReady = () => {
             }
 
             const bundlesJson = ci.sh('curl -sf -u admin:admin http://localhost:4502/system/console/bundles.json', true, false);
-            if (AEM === 'classic' || AEM === 'lts') {
-                if (!isBundleActive(bundlesJson, ADDON_BUNDLE_SYMBOLIC_NAME)) {
-                    throw new Error(`bundle ${ADDON_BUNDLE_SYMBOLIC_NAME} is not Active`);
-                }
-            }
-            if (!isBundleActive(bundlesJson, CORE_BUNDLE_SYMBOLIC_NAME)) {
-                throw new Error(`bundle ${CORE_BUNDLE_SYMBOLIC_NAME} is not Active`);
+
+            if (needAddon && !isBundleActive(getBundle(bundlesJson, ADDON_BUNDLE))) {
+                throw new Error('commerce add-on bundle not Active');
             }
 
-            console.log(`AEM is ready after ${attempt} attempt(s).`);
+            if (!projectBundlesInstalled) {
+                const installBundle = (jarPath) => {
+                    ci.sh(
+                        `curl -sf -u admin:admin -F action=install -F bundlestart=1 -F bundlefile=@${jarPath} http://localhost:4502/system/console/bundles`,
+                        false,
+                        true
+                    );
+                };
+                installBundle(ci.resolveModuleArtifactPath(config.modules['core-cif-components-core']));
+                installBundle(ci.resolveModuleArtifactPath(config.modules['core-cif-components-examples-bundle']));
+                projectBundlesInstalled = true;
+                throw new Error('project bundles installed, waiting for core bundle to start');
+            }
+
+            if (!isBundleActive(getBundle(bundlesJson, CORE_BUNDLE))) {
+                throw new Error('core-cif-components-core not Active');
+            }
+
+            console.log(`AEM ready for CIF tests after ${attempt} attempt(s).`);
             return;
         } catch (error) {
-            console.log(`Waiting for AEM to be ready (attempt ${attempt}): ${error.message}`);
+            console.log(`Waiting for AEM (attempt ${attempt}): ${error.message}`);
             if (Date.now() + AEM_READY_POLL_INTERVAL_MS > deadline) {
                 break;
             }
@@ -75,23 +95,29 @@ const waitForAemReady = () => {
         }
     }
 
-    throw new Error(`Timed out after ${AEM_READY_TIMEOUT_MS / 1000}s waiting for AEM and required bundles to be ready.`);
+    throw new Error(`Timed out after ${AEM_READY_TIMEOUT_MS / 1000}s waiting for AEM to be ready.`);
 };
 
 try {
     ci.stage("Integration Tests");
     let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
-    let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
+    let excludedCategory;
+    if (AEM === 'classic') {
+        excludedCategory = 'junit.category.IgnoreOn65';
+    } else if (AEM === 'lts') {
+        excludedCategory = 'junit.category.IgnoreOnLts';
+    } else {
+        excludedCategory = 'junit.category.IgnoreOnCloud';
+    }
 
     // TODO: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
     let aemCifSdkApiVersion = "2025.09.02.1-SNAPSHOT";
 
-
     ci.dir(qpPath, () => {
         // Connect to QP
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
-        
+
         // Download latest add-on release from artifactory
         const downloadArtifact = (artifactId, type, outputFileName, version = 'LATEST', classifier = '') => {
             const classifierOption = classifier ? `-Dclassifier=${classifier}` : '';
@@ -120,8 +146,6 @@ try {
             `--bundle com.adobe.cq:core.wcm.components.examples.ui.config:${wcmVersion}:zip`,
             `--bundle com.adobe.cq:core.wcm.components.examples.ui.apps:${wcmVersion}:zip`,
             `--bundle com.adobe.cq:core.wcm.components.examples.ui.content:${wcmVersion}:zip`,
-            ci.addQpFileDependency(config.modules['core-cif-components-core']),
-            ci.addQpFileDependency(config.modules['core-cif-components-examples-bundle']),
             ci.addQpFileDependency(config.modules['core-cif-components-config']),
             ci.addQpFileDependency(config.modules['core-cif-components-apps']),
             ci.addQpFileDependency(config.modules['core-cif-components-examples-config']),
@@ -131,13 +155,12 @@ try {
         );
 
         const maxMetaspace = '-XX:MaxMetaspaceSize=512m';
-        // Start CQ — commerce add-on and WCM first, then OSGi bundles, then content packages (see qpInstallArgs).
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
             ${qpInstallArgs.join(' \\\n            ')} \
             --vm-options \\\"-Xmx1536m ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec,output=tcpserver,port=6300\\\"`);
     });
 
-    waitForAemReady();
+    prepareAemForCifTests();
 
     // Temporary fix for integration & selenium test
     const graphqlClientProperties = ['url', 'httpMethod'];
@@ -175,7 +198,7 @@ try {
                 -Dsling.it.instances=1`);
         });
     }
-    
+
     // Run UI tests
     if (TYPE === 'selenium') {
         // Get version of ChromeDriver
@@ -187,7 +210,7 @@ try {
             ci.sh(`CHROMEDRIVER=${chromedriver} mvn test -U -B -Pui-tests-local-execution -DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`);
         });
     }
-    
+
     // No coverage for UI tests
     if (TYPE !== 'selenium') {
         // Dump JaCoCo exec data via TCP while AEM is still running.

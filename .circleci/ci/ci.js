@@ -165,19 +165,19 @@ module.exports = class CI {
         return JSON.parse(configuration);
     }
 
-    addQpFileDependency(module) {
-        let output = '--install-file ';
-
+    resolveModuleArtifactPath(module) {
         let filename = `${module.artifactId}-${module.version}`;
-        if (module.packaging == 'content-package') { 
+        if (module.packaging == 'content-package') {
             filename += '.zip';
         } else if (module.packaging == 'bundle') {
             filename += '.jar';
         }
 
-        output += path.resolve(module.path, 'target', filename);
+        return path.resolve(module.path, 'target', filename);
+    }
 
-        return output;
+    addQpFileDependency(module) {
+        return '--install-file ' + this.resolveModuleArtifactPath(module);
     }
 
     parsePom() {
