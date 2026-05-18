@@ -29,6 +29,7 @@ const { TYPE, BROWSER, AEM } = process.env;
 const CORE_BUNDLE = 'com.adobe.commerce.cif.core-cif-components-core';
 const ADDON_BUNDLE = 'com.adobe.cq.cif.commerce-addon-bundle';
 
+// Wait for AEM HTTP, commerce add-on (classic/LTS), then install and activate project bundles.
 const prepareAemForCifTests = () => {
     const needAddon = AEM === 'classic' || AEM === 'lts';
     const deadline = Date.now() + 360000;
@@ -111,8 +112,10 @@ try {
     let aemCifSdkApiVersion = "2025.09.02.1-SNAPSHOT";
 
     ci.dir(qpPath, () => {
+        // Connect to QP
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
 
+        // Download latest add-on release from artifactory
         let extras = '';
         const downloadArtifact = (artifactId, type, outputFileName, version = 'LATEST', classifier = '') => {
             const classifierOption = classifier ? `-Dclassifier=${classifier}` : '';
@@ -133,6 +136,7 @@ try {
         }
 
         const maxMetaspace = '-XX:MaxMetaspaceSize=512m';
+        // Start CQ (core and examples bundles are installed later via Felix when add-on is ready)
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
             --bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar \
             --bundle com.adobe.commerce.cif:magento-graphql:${magentoGraphqlVersion}:jar \
@@ -151,6 +155,7 @@ try {
 
     prepareAemForCifTests();
 
+    // Configure GraphQL client for examples (allowInsecure on classic/LTS for http://localhost)
     const formData = {
         apply: true,
         factoryPid: 'com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl',
@@ -172,6 +177,7 @@ try {
         .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
         .join('&')}'`);
 
+    // Run integration tests
     if (TYPE === 'integration') {
         ci.dir('it/http', () => {
             ci.sh(`mvn clean verify -U -B \
@@ -183,13 +189,19 @@ try {
         });
     }
 
+    // Run UI tests
     if (TYPE === 'selenium') {
         ci.dir('ui.tests', () => {
             ci.sh(`mvn test -U -B -Pui-tests-local-execution -DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`);
         });
     }
 
+    // No coverage for UI tests
     if (TYPE !== 'selenium') {
+        // Dump JaCoCo exec data via TCP while AEM is still running.
+        // The agent uses output=tcpserver so data is only fully flushed through this dump —
+        // relying on the file written during JVM shutdown is unreliable because AEM is often
+        // killed (SIGKILL) after the stop timeout, which truncates the file mid-write.
         const dumpJacocoExec = () => {
             ci.sh(`mvn -B org.jacoco:jacoco-maven-plugin:${process.env.JACOCO_VERSION}:dump \
                 -Djacoco.address=localhost -Djacoco.port=6300 \
@@ -200,25 +212,35 @@ try {
     }
 
     ci.dir(qpPath, () => {
+        // Stop CQ
         ci.sh('./qp.sh -v stop --id author');
     });
 
+    // No coverage for UI tests
     if (TYPE === 'selenium') {
         return;
     }
 
+    // Create coverage reports
     const createCoverageReport = () => {
+        // Executing the integration tests also executes unit tests and generates a Jacoco report for them. To
+        // strictly separate unit test from integration test coverage, we explicitly delete the unit test report first.
         ci.sh('rm -rf target/site/jacoco');
+
+        // Generate new report
         ci.sh(`mvn -B org.jacoco:jacoco-maven-plugin:${process.env.JACOCO_VERSION}:report -Djacoco.dataFile=jacoco-it.exec`);
+
+        // Upload report to codecov
         ci.sh('curl -s https://codecov.io/bash | bash -s -- -c -F integration -f target/site/jacoco/jacoco.xml');
     };
 
     ci.dir('bundles/core', createCoverageReport);
     ci.dir('examples/bundle', createCoverageReport);
 
-} finally {
+} finally { // Always download logs from AEM container
     ci.sh('mkdir logs');
     ci.dir('logs', () => {
+        // A webserver running inside the AEM container exposes the logs folder, so we can download log files as needed.
         ci.sh('curl -O -f http://localhost:3000/crx-quickstart/logs/error.log');
         ci.sh('curl -O -f http://localhost:3000/crx-quickstart/logs/stdout.log');
         ci.sh('curl -O -f http://localhost:3000/crx-quickstart/logs/stderr.log');
