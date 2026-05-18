@@ -19,68 +19,80 @@
  */
 let wdio_config = require('./wdio.conf.commons.js').config;
 let config = require('./lib/config');
+const { execSync } = require('child_process');
 
 wdio_config.hostname = 'localhost';
 
-const { CHROMEDRIVER } = process.env;
+function resolveChromedriverPath() {
+    if (process.env.CHROMEDRIVER_PATH) {
+        return process.env.CHROMEDRIVER_PATH;
+    }
+    try {
+        return execSync('command -v chromedriver', { encoding: 'utf8' }).trim();
+    } catch (e) {
+        return undefined;
+    }
+}
 
-if (CHROMEDRIVER) {
-    const drivers = {
-        chrome: { version: CHROMEDRIVER }
+function getChromedriverServiceOptions() {
+    const options = {
+        logFileName: 'chromedriver.log',
+        outputDir: config.reports_path
     };
-
-    wdio_config.services = [
-        ['selenium-standalone', {
-            logPath: config.reports_path,
-            installArgs: { drivers },
-            args: { drivers }
-        }]
-    ];
-} else {
-    wdio_config.services = [
-        ['selenium-standalone', {
-            logPath: config.reports_path
-        }]
-    ];
+    const chromedriverCustomPath = resolveChromedriverPath();
+    if (chromedriverCustomPath) {
+        options.chromedriverCustomPath = chromedriverCustomPath;
+    }
+    return options;
 }
 
 // Define capabilities based on configuration
 let capabilities = {};
 
 switch (config.selenium.browser) {
-case config.CHROME:
-    capabilities = {
-        maxInstances: 1,
-        browserName: 'chrome',
-        'goog:chromeOptions': {
-            'excludeSwitches': ['enable-automation'],
-            'prefs': {
-                'credentials_enable_service': false,
-                'profile.password_manager_enabled': false
+    case config.CHROME:
+        wdio_config.services = [['chromedriver', getChromedriverServiceOptions()]];
+        capabilities = {
+            maxInstances: 1,
+            browserName: 'chrome',
+            'goog:chromeOptions': {
+                'excludeSwitches': ['enable-automation'],
+                'prefs': {
+                    'credentials_enable_service': false,
+                    'profile.password_manager_enabled': false
+                }
             }
+        };
+        if (config.selenium.headless === true) {
+            capabilities['goog:chromeOptions'].args = [
+                'headless',
+                '--no-sandbox',
+                '--disable-dev-shm-usage'
+            ];
         }
-    };
-    if (config.selenium.headless === true) {
-        capabilities['goog:chromeOptions'].args = ['headless'];
-    }
-    break;
-case config.FIREFOX:
-    capabilities = {
-        maxInstances: 1,
-        browserName: 'firefox',
-        'moz:firefoxOptions': {
-            prefs: {
-                // Prevent opening the extension tabs on startup
-                'extensions.enabledScopes': 0
+        break;
+    case config.FIREFOX:
+        wdio_config.services = [
+            ['selenium-standalone', {
+                logPath: config.reports_path
+            }]
+        ];
+        capabilities = {
+            maxInstances: 1,
+            browserName: 'firefox',
+            'moz:firefoxOptions': {
+                prefs: {
+                    // Prevent opening the extension tabs on startup
+                    'extensions.enabledScopes': 0
+                }
             }
+        };
+        if (config.selenium.headless === true) {
+            capabilities['moz:firefoxOptions'].args = ['-headless'];
         }
-    };
-    if (config.selenium.headless === true) {
-        capabilities['moz:firefoxOptions'].args = ['-headless'];
-    }
-    break;
-default:
-    throw new Error('Unsupported browser defined in configuration!');
+        break;
+    default:
+        throw new Error('Unsupported browser defined in configuration!');
 }
 
 wdio_config.capabilities = [capabilities];
