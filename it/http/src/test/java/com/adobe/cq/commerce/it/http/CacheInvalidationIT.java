@@ -414,6 +414,65 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         }
     }
 
+    /**
+     * Symmetric to {@link #verifyMagentoCategoryName(int, String)} — confirms Magento itself
+     * reflects the updated product name via REST GET. Run immediately after
+     * {@link #updateProductName(String, String)}.
+     */
+    private void verifyMagentoProductName(String sku, String expectedName) throws IOException {
+        String url = commerceRestBase() + "/products/" + sku;
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(url);
+            request.setHeader("Authorization", "Bearer " + INTEGRATION_TOKEN);
+            HttpResponse response = client.execute(request);
+            String body = EntityUtils.toString(response.getEntity());
+            Assert.assertEquals("Magento GET /products/" + sku + " should return 200",
+                200, response.getStatusLine().getStatusCode());
+            JsonNode root = OBJECT_MAPPER.readTree(body);
+            String actualName = root.path("name").asText(null);
+            Assert.assertEquals("Magento product " + sku + " did not reflect the expected name",
+                expectedName, actualName);
+        }
+    }
+
+    /**
+     * Polls the product card name on the category listing for up to 30 seconds, returning
+     * successfully once it matches {@code expected}.
+     */
+    private void waitForProductNameOnCategoryListing(TestData data, String expected) throws Exception {
+        long deadline = System.currentTimeMillis() + 30_000;
+        String last = null;
+        while (System.currentTimeMillis() < deadline) {
+            last = getProductNameFromCategoryPage(data);
+            if (expected.equals(last)) {
+                return;
+            }
+            Thread.sleep(1_000);
+        }
+        Assert.assertEquals(
+            "Category-page product name did not match expected value within 30s after invalidation",
+            expected, last);
+    }
+
+    /**
+     * Polls the PDP product name for up to 30 seconds, returning successfully once it matches
+     * {@code expected}.
+     */
+    private void waitForProductNameOnPdp(TestData data, String expected) throws Exception {
+        long deadline = System.currentTimeMillis() + 30_000;
+        String last = null;
+        while (System.currentTimeMillis() < deadline) {
+            last = getProductNameFromPdp(data);
+            if (expected.equals(last)) {
+                return;
+            }
+            Thread.sleep(1_000);
+        }
+        Assert.assertEquals(
+            "PDP product name did not match expected value within 30s after invalidation",
+            expected, last);
+    }
+
     // ============================================================================================
     // SERVLET AVAILABILITY TESTS — single set, no Magento writes
     // ============================================================================================
@@ -481,6 +540,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
 
         String testName = "CIF-IT-" + data.productSku + "-" + System.currentTimeMillis();
         updateProductName(data.productSku, testName);
+        verifyMagentoProductName(data.productSku, testName);
         try {
             Assert.assertEquals("Category listing should serve stale cached name before invalidation",
                 originalNameOnCategory, getProductNameFromCategoryPage(data));
@@ -489,10 +549,9 @@ public class CacheInvalidationIT extends ItSiteTestBase {
 
             postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(data.productSku), 200);
 
-            Assert.assertEquals("Category listing should serve updated name after productSkus invalidation",
-                testName, getProductNameFromCategoryPage(data));
-            Assert.assertEquals("PDP should serve updated name after productSkus invalidation",
-                testName, getProductNameFromPdp(data));
+            // Poll up to 30 s to absorb Magento → Catalog Service eventual-consistency lag.
+            waitForProductNameOnCategoryListing(data, testName);
+            waitForProductNameOnPdp(data, testName);
 
         } finally {
             updateProductName(data.productSku, data.originalProductName);
@@ -537,6 +596,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
 
         String testName = "CIF-IT-CN-" + data.productSku + "-" + System.currentTimeMillis();
         updateProductName(data.productSku, testName);
+        verifyMagentoProductName(data.productSku, testName);
         try {
             Assert.assertEquals("Category listing should serve stale cached name before cache-name invalidation",
                 originalNameOnCategory, getProductNameFromCategoryPage(data));
@@ -550,10 +610,9 @@ public class CacheInvalidationIT extends ItSiteTestBase {
                     "cif-components-it-site/components/commerce/product"),
                 200);
 
-            Assert.assertEquals("Category listing should serve updated name after cache-name invalidation",
-                testName, getProductNameFromCategoryPage(data));
-            Assert.assertEquals("PDP should serve updated name after cache-name invalidation",
-                testName, getProductNameFromPdp(data));
+            // Poll up to 30 s to absorb Magento → Catalog Service eventual-consistency lag.
+            waitForProductNameOnCategoryListing(data, testName);
+            waitForProductNameOnPdp(data, testName);
 
         } finally {
             updateProductName(data.productSku, data.originalProductName);
@@ -576,6 +635,8 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         String testCategoryName = "CIF-IT-AllC-" + data.categoryId + "-" + System.currentTimeMillis();
         updateProductName(data.productSku, testProductName);
         updateCategoryName(data.categoryId, testCategoryName);
+        verifyMagentoProductName(data.productSku, testProductName);
+        verifyMagentoCategoryName(data.categoryId, testCategoryName);
         try {
             Assert.assertEquals("Category listing should serve stale product name before invalidateAll",
                 originalProductOnCategory, getProductNameFromCategoryPage(data));
@@ -588,14 +649,11 @@ public class CacheInvalidationIT extends ItSiteTestBase {
 
             postJson(CACHE_INVALIDATION_ENDPOINT, invalidateAllPayload(), 200);
 
-            Assert.assertEquals("Category listing should serve updated product name after invalidateAll",
-                testProductName, getProductNameFromCategoryPage(data));
-            Assert.assertEquals("PDP should serve updated product name after invalidateAll",
-                testProductName, getProductNameFromPdp(data));
-            Assert.assertEquals("Category title should be updated after invalidateAll",
-                testCategoryName, getCategoryNameFromPage(data));
-            Assert.assertTrue("PDP breadcrumb should contain updated category name after invalidateAll",
-                getPdpBreadcrumbText(data).contains(testCategoryName));
+            // Poll up to 30 s to absorb Magento → Catalog Service eventual-consistency lag.
+            waitForProductNameOnCategoryListing(data, testProductName);
+            waitForProductNameOnPdp(data, testProductName);
+            waitForCategoryTitleOnAem(data, testCategoryName);
+            waitForCategoryNameInPdpBreadcrumb(data, testCategoryName);
 
         } finally {
             updateProductName(data.productSku, data.originalProductName);
@@ -613,6 +671,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
 
         String testName = "CIF-IT-RX-" + data.productSku + "-" + System.currentTimeMillis();
         updateProductName(data.productSku, testName);
+        verifyMagentoProductName(data.productSku, testName);
         try {
             Assert.assertEquals("Category listing should serve stale cached name before regex invalidation",
                 originalNameOnCategory, getProductNameFromCategoryPage(data));
@@ -623,10 +682,9 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             postJson(CACHE_INVALIDATION_ENDPOINT,
                 regexPatternsPayload("\\\"sku\\\":\\\\s*\\\"" + data.productSku + "\\\""), 200);
 
-            Assert.assertEquals("Category listing should serve updated name after regex invalidation",
-                testName, getProductNameFromCategoryPage(data));
-            Assert.assertEquals("PDP should serve updated name after regex invalidation",
-                testName, getProductNameFromPdp(data));
+            // Poll up to 30 s to absorb Magento → Catalog Service eventual-consistency lag.
+            waitForProductNameOnCategoryListing(data, testName);
+            waitForProductNameOnPdp(data, testName);
 
         } finally {
             updateProductName(data.productSku, data.originalProductName);
