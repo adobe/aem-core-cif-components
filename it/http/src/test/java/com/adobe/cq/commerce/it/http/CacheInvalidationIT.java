@@ -104,20 +104,24 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         }
     }
 
-    // Classic / AEM 6.5 — Leather Belts
+    // Each fixture uses a 2-level category url_path so the leaf category name appears in the
+    // PDP breadcrumb (the IT site's breadcrumb component uses structureDepth=2, which cuts off
+    // before the leaf for 3-level category hierarchies like accessories/belts/leather-belts).
+
+    // Classic / AEM 6.5 — Blouses & Shirts
     private static final TestData CLASSIC = new TestData(
-        "BLT-LEA-001", "black-leather-belt", "Black Leather Belt",
-        "NjE=", 61, "venia-accessories/venia-belts/venia-leather-belts", "Leather Belts");
+        "VT01", "penelope-peasant-blouse", "Penelope Peasant Blouse",
+        "MjM=", 23, "venia-tops/venia-blouses", "Blouses & Shirts");
 
-    // LTS — Metal Belts
+    // LTS — Pants & Shorts
     private static final TestData LTS = new TestData(
-        "BLT-MET-001", "silver-metal-belt", "Silver Metal Belt",
-        "Njc=", 67, "venia-accessories/venia-belts/venia-metal-belts", "Metal Belts");
+        "VP01", "selena-pants", "Selena Pants",
+        "MzI=", 32, "venia-bottoms/venia-pants", "Pants & Shorts");
 
-    // Cloud — Fabric Belts
+    // Cloud — Scarves
     private static final TestData CLOUD = new TestData(
-        "BLT-FAB-001", "canvas-fabric-belt", "Canvas Fabric Belt",
-        "NjQ=", 64, "venia-accessories/venia-belts/venia-fabric-belts", "Fabric Belts");
+        "VA01", "dulcea-infinity-scarf", "Dulcea Infinity Scarf",
+        "MTQ=", 14, "venia-accessories/venia-scarves", "Scarves");
 
     // ---- Magento REST connection ----------------------------------------
 
@@ -251,6 +255,25 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         return nameEl.isEmpty() ? null : nameEl.first().text().trim();
     }
 
+    /**
+     * Concatenates every breadcrumb item on the PDP. Used to verify the leaf category name
+     * appears in the product page breadcrumb after a category cache invalidation. Works only
+     * when {@code data.categoryUrlPath} is 2 segments deep (the IT site breadcrumb is
+     * configured with {@code structureDepth=2} and skips deeper leaves).
+     */
+    private String getPdpBreadcrumbText(TestData data) throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(data.productPageUrl, 200);
+        Document doc = Jsoup.parse(response.getContent());
+        Elements items = doc.select(".cmp-breadcrumb__item");
+        StringBuilder sb = new StringBuilder();
+        for (Element item : items) {
+            if (sb.length() > 0)
+                sb.append(" | ");
+            sb.append(item.text().trim());
+        }
+        return sb.toString();
+    }
+
     private void updateProductName(String sku, String name) throws IOException {
         String url = commerceRestBase() + "/products/" + sku;
         String body = "{\"product\":{\"name\":\"" + name + "\"}}";
@@ -369,17 +392,23 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     private void runCategoryUidsWorkflow(TestData data) throws Exception {
         String originalCategoryName = getCategoryNameFromPage(data);
         Assert.assertNotNull("Category page should render a category name", originalCategoryName);
+        Assert.assertTrue("PDP breadcrumb should initially contain category '" + originalCategoryName + "'",
+            getPdpBreadcrumbText(data).contains(originalCategoryName));
 
         String testName = "CIF-IT-Cat-" + data.categoryId + "-" + System.currentTimeMillis();
         updateCategoryName(data.categoryId, testName);
         try {
             Assert.assertEquals("Category title should serve stale cached name before invalidation",
                 originalCategoryName, getCategoryNameFromPage(data));
+            Assert.assertTrue("PDP breadcrumb should still contain stale category name before invalidation",
+                getPdpBreadcrumbText(data).contains(originalCategoryName));
 
             postJson(CACHE_INVALIDATION_ENDPOINT, categoryUidsPayload(data.categoryUid), 200);
 
             Assert.assertEquals("Category title should be updated after categoryUids invalidation",
                 testName, getCategoryNameFromPage(data));
+            Assert.assertTrue("PDP breadcrumb should contain updated category name after invalidation",
+                getPdpBreadcrumbText(data).contains(testName));
 
         } finally {
             updateCategoryName(data.categoryId, data.originalCategoryName);
@@ -426,6 +455,8 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         Assert.assertNotNull("PDP should render " + data.productSku + " with a name", originalProductOnPdp);
         String originalCategoryName = getCategoryNameFromPage(data);
         Assert.assertNotNull("Category page should render a category name", originalCategoryName);
+        Assert.assertTrue("PDP breadcrumb should initially contain category '" + originalCategoryName + "'",
+            getPdpBreadcrumbText(data).contains(originalCategoryName));
 
         String testProductName = "CIF-IT-AllP-" + data.productSku + "-" + System.currentTimeMillis();
         String testCategoryName = "CIF-IT-AllC-" + data.categoryId + "-" + System.currentTimeMillis();
@@ -438,6 +469,8 @@ public class CacheInvalidationIT extends ItSiteTestBase {
                 originalProductOnPdp, getProductNameFromPdp(data));
             Assert.assertEquals("Category title should be stale before invalidateAll",
                 originalCategoryName, getCategoryNameFromPage(data));
+            Assert.assertTrue("PDP breadcrumb should still contain stale category name before invalidateAll",
+                getPdpBreadcrumbText(data).contains(originalCategoryName));
 
             postJson(CACHE_INVALIDATION_ENDPOINT, invalidateAllPayload(), 200);
 
@@ -447,6 +480,8 @@ public class CacheInvalidationIT extends ItSiteTestBase {
                 testProductName, getProductNameFromPdp(data));
             Assert.assertEquals("Category title should be updated after invalidateAll",
                 testCategoryName, getCategoryNameFromPage(data));
+            Assert.assertTrue("PDP breadcrumb should contain updated category name after invalidateAll",
+                getPdpBreadcrumbText(data).contains(testCategoryName));
 
         } finally {
             updateProductName(data.productSku, data.originalProductName);
