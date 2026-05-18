@@ -119,6 +119,16 @@ public class CatalogPageNotFoundFilterTest {
         Utils.setupHttpResponse(null, httpClient, HttpStatus.SC_NOT_FOUND, "{eq:\"does-not-exist\"}}");
     }
 
+    /**
+     * AEM mocks resolve {@code currentPage} to the page's {@code jcr:content} resource; the production filter must
+     * still validate catalog pages when the request resource is the {@code cq:Page} node (REQUEST scope before forward).
+     */
+    private void currentPageAsPageResource(String pagePath) {
+        aemContext.currentPage(pagePath);
+        Resource pageResource = aemContext.resourceResolver().getResource(pagePath);
+        request.setResource(pageResource);
+    }
+
     @Test
     public void testNoopOnNonCatalogPages() throws ServletException, IOException {
         aemContext.currentPage("/content/venia/us/en");
@@ -144,7 +154,7 @@ public class CatalogPageNotFoundFilterTest {
 
     @Test
     public void testReturns200ForProduct() throws ServletException, IOException {
-        aemContext.currentPage("/content/venia/us/en/products/product-page");
+        currentPageAsPageResource("/content/venia/us/en/products/product-page");
         ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/beaumont-summit-kit.html");
 
         subject.doFilter(request, response, filterChain);
@@ -157,7 +167,7 @@ public class CatalogPageNotFoundFilterTest {
 
     @Test
     public void testReturns200ForCategory() throws ServletException, IOException {
-        aemContext.currentPage("/content/venia/us/en/products/category-page");
+        currentPageAsPageResource("/content/venia/us/en/products/category-page");
         ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/men/tops-men/jackets-men.html");
 
         subject.doFilter(request, response, filterChain);
@@ -169,8 +179,32 @@ public class CatalogPageNotFoundFilterTest {
     }
 
     @Test
+    public void testJcrContentRequestPassesThrough() throws ServletException, IOException {
+        aemContext.currentResource("/content/venia/us/en/products/product-page/jcr:content");
+
+        subject.doFilter(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        verify(contentModelFinder, never()).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void testJcrContentDescendantRequestPassesThrough() throws ServletException, IOException {
+        aemContext.currentResource("/content/venia/us/en/products/product-page/jcr:content/root");
+
+        subject.doFilter(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        verify(contentModelFinder, never()).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
     public void testReturns404ForMissingProduct() throws ServletException, IOException {
-        aemContext.currentPage("/content/venia/us/en/products/product-page");
+        currentPageAsPageResource("/content/venia/us/en/products/product-page");
         ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
 
         subject.doFilter(request, response, filterChain);
@@ -183,7 +217,7 @@ public class CatalogPageNotFoundFilterTest {
 
     @Test
     public void testReturns404ForMissingCategory() throws ServletException, IOException {
-        aemContext.currentPage("/content/venia/us/en/products/category-page");
+        currentPageAsPageResource("/content/venia/us/en/products/category-page");
         ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
 
         subject.doFilter(request, response, filterChain);
@@ -197,7 +231,7 @@ public class CatalogPageNotFoundFilterTest {
     @Test
     public void testReturns200ForMissingProductWithWcmModeNotDisabled() throws ServletException, IOException {
         when(wcmMode.isDisabled()).thenReturn(false);
-        aemContext.currentPage("/content/venia/us/en/products/product-page");
+        currentPageAsPageResource("/content/venia/us/en/products/product-page");
         ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
 
         subject.doFilter(request, response, filterChain);
@@ -211,7 +245,7 @@ public class CatalogPageNotFoundFilterTest {
     @Test
     public void testReturns200ForMissingCategoryWithWcmModeNotDisabled() throws ServletException, IOException {
         when(wcmMode.isDisabled()).thenReturn(false);
-        aemContext.currentPage("/content/venia/us/en/products/category-page");
+        currentPageAsPageResource("/content/venia/us/en/products/category-page");
         ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
 
         subject.doFilter(request, response, filterChain);
