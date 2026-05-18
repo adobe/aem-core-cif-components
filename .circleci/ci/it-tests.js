@@ -26,6 +26,58 @@ const qpPath = '/home/circleci/cq';
 const buildPath = '/home/circleci/build';
 const { TYPE, BROWSER, AEM } = process.env;
 
+const CORE_BUNDLE_SYMBOLIC_NAME = 'com.adobe.commerce.cif.core-cif-components-core';
+const ADDON_BUNDLE_SYMBOLIC_NAME = 'com.adobe.cq.cif.commerce-addon-bundle';
+const AEM_READY_TIMEOUT_MS = 360000;
+const AEM_READY_POLL_INTERVAL_MS = 5000;
+
+const isBundleActive = (bundlesJson, symbolicName) => {
+    const parsed = JSON.parse(bundlesJson);
+    const bundles = Array.isArray(parsed) ? parsed : (parsed.data || []);
+    const bundle = bundles.find((entry) => entry.symbolicName === symbolicName || entry.name === symbolicName);
+    return bundle && bundle.state === 'Active';
+};
+
+const waitForAemReady = () => {
+    const deadline = Date.now() + AEM_READY_TIMEOUT_MS;
+    let attempt = 0;
+
+    while (Date.now() < deadline) {
+        attempt++;
+        try {
+            const loginStatus = ci.sh(
+                'curl -sf -o /dev/null -w "%{http_code}" -u admin:admin http://localhost:4502/libs/granite/core/content/login.html',
+                true,
+                false
+            );
+            if (loginStatus !== '200') {
+                throw new Error(`login page returned HTTP ${loginStatus}`);
+            }
+
+            const bundlesJson = ci.sh('curl -sf -u admin:admin http://localhost:4502/system/console/bundles.json', true, false);
+            if (AEM === 'classic' || AEM === 'lts') {
+                if (!isBundleActive(bundlesJson, ADDON_BUNDLE_SYMBOLIC_NAME)) {
+                    throw new Error(`bundle ${ADDON_BUNDLE_SYMBOLIC_NAME} is not Active`);
+                }
+            }
+            if (!isBundleActive(bundlesJson, CORE_BUNDLE_SYMBOLIC_NAME)) {
+                throw new Error(`bundle ${CORE_BUNDLE_SYMBOLIC_NAME} is not Active`);
+            }
+
+            console.log(`AEM is ready after ${attempt} attempt(s).`);
+            return;
+        } catch (error) {
+            console.log(`Waiting for AEM to be ready (attempt ${attempt}): ${error.message}`);
+            if (Date.now() + AEM_READY_POLL_INTERVAL_MS > deadline) {
+                break;
+            }
+            ci.sh(`sleep ${AEM_READY_POLL_INTERVAL_MS / 1000}`, false, false);
+        }
+    }
+
+    throw new Error(`Timed out after ${AEM_READY_TIMEOUT_MS / 1000}s waiting for AEM and required bundles to be ready.`);
+};
+
 try {
     ci.stage("Integration Tests");
     let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
@@ -41,55 +93,68 @@ try {
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
         
         // Download latest add-on release from artifactory
-        let extras = '';
         const downloadArtifact = (artifactId, type, outputFileName, version = 'LATEST', classifier = '') => {
             const classifierOption = classifier ? `-Dclassifier=${classifier}` : '';
             ci.sh(`mvn -s ${buildPath}/.circleci/settings.xml com.googlecode.maven-download-plugin:download-maven-plugin:1.6.3:artifact -Partifactory-cloud -DgroupId=com.adobe.cq.cif -DartifactId=${artifactId} -Dversion=${version} -Dtype=${type} ${classifierOption} -DoutputDirectory=${buildPath} -DoutputFileName=${outputFileName}`);
         };
 
+        const qpInstallArgs = [
+            '--bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar',
+            `--bundle com.adobe.commerce.cif:magento-graphql:${magentoGraphqlVersion}:jar`
+        ];
+
         if (AEM === 'classic') {
-            extras += ` --install-file ${buildPath}/addon.zip`;
             downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
-            extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
+            qpInstallArgs.push(`--install-file ${buildPath}/addon.zip`);
+            qpInstallArgs.push(`--bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`);
         } else if (AEM === 'lts') {
-            extras += ` --install-file ${buildPath}/addon.zip`;
             downloadArtifact('commerce-addon-aem-660-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
-            extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
+            qpInstallArgs.push(`--install-file ${buildPath}/addon.zip`);
+            qpInstallArgs.push(`--bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`);
         } else if (AEM === 'addon') {
-            extras += ` --install-file ${buildPath}/addon.far`;
             downloadArtifact('cif-cloud-ready-feature-pkg', 'far', 'addon.far', 'LATEST', 'cq-commerce-addon-authorfar');
+            qpInstallArgs.push(`--install-file ${buildPath}/addon.far`);
         }
 
+        qpInstallArgs.push(
+            `--bundle com.adobe.cq:core.wcm.components.examples.ui.config:${wcmVersion}:zip`,
+            `--bundle com.adobe.cq:core.wcm.components.examples.ui.apps:${wcmVersion}:zip`,
+            `--bundle com.adobe.cq:core.wcm.components.examples.ui.content:${wcmVersion}:zip`,
+            ci.addQpFileDependency(config.modules['core-cif-components-core']),
+            ci.addQpFileDependency(config.modules['core-cif-components-examples-bundle']),
+            ci.addQpFileDependency(config.modules['core-cif-components-config']),
+            ci.addQpFileDependency(config.modules['core-cif-components-apps']),
+            ci.addQpFileDependency(config.modules['core-cif-components-examples-config']),
+            ci.addQpFileDependency(config.modules['core-cif-components-examples-apps']),
+            ci.addQpFileDependency(config.modules['core-cif-components-examples-content']),
+            ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])
+        );
+
         const maxMetaspace = '-XX:MaxMetaspaceSize=512m';
-        // Start CQ
+        // Start CQ — commerce add-on and WCM first, then OSGi bundles, then content packages (see qpInstallArgs).
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
-            --bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar \
-            --bundle com.adobe.commerce.cif:magento-graphql:${magentoGraphqlVersion}:jar \
-            --bundle com.adobe.cq:core.wcm.components.examples.ui.config:${wcmVersion}:zip \
-            --bundle com.adobe.cq:core.wcm.components.examples.ui.apps:${wcmVersion}:zip \
-            --bundle com.adobe.cq:core.wcm.components.examples.ui.content:${wcmVersion}:zip \
-            ${extras} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-apps'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-config'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-core'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-examples-bundle'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-examples-apps'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-examples-config'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-examples-content'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])} \
+            ${qpInstallArgs.join(' \\\n            ')} \
             --vm-options \\\"-Xmx1536m ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec,output=tcpserver,port=6300\\\"`);
     });
 
+    waitForAemReady();
 
     // Temporary fix for integration & selenium test
+    const graphqlClientProperties = ['url', 'httpMethod'];
     const formData = {
         apply: true,
         factoryPid: 'com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl',
         action: 'ajaxConfigManager',
         url: "http://localhost:4502/apps/cif-components-examples/graphql",
-        httpMethod: 'GET',
-        propertylist: 'url,httpMethod'
+        httpMethod: 'GET'
     };
+
+    if (AEM === 'classic' || AEM === 'lts') {
+        formData.allowInsecure = 'true';
+        graphqlClientProperties.push('allowInsecure');
+    }
+
+    formData.propertylist = graphqlClientProperties.join(',');
 
     ci.sh(`curl 'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~examples' \
         -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
@@ -98,8 +163,6 @@ try {
         --data-raw '${Object.entries(formData)
         .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
         .join('&')}'`);
-
-
 
     // Run integration tests
     if (TYPE === 'integration') {
