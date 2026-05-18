@@ -1,6 +1,6 @@
 {
   "identifier": "default",
-  "httpMethod": "GET",
+  "httpMethod": "POST",
   "url": "https://mcprod.catalogservice-commerce.fun/graphql",
   "connectionTimeout": 5000,
   "socketTimeout": 5000,
