@@ -100,7 +100,11 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             this.categoryUrlPath = categoryUrlPath;
             this.originalCategoryName = originalCategoryName;
             this.categoryPageUrl = IT_SITE_ROOT + "/products/category-page.html/" + categoryUrlPath + ".html";
-            this.productPageUrl = IT_SITE_ROOT + "/products/product-page.html/" + categoryUrlPath + "/" + productUrlKey + ".html";
+            // ?wcmmode=disabled forces publish-mode rendering — without it, AEM in author
+            // mode renders the "Product name" i18n placeholder when the product context
+            // isn't loaded, breaking PDP assertions on Cloud-style AEM instances.
+            this.productPageUrl = IT_SITE_ROOT + "/products/product-page.html/" + categoryUrlPath + "/" + productUrlKey
+                + ".html?wcmmode=disabled";
         }
     }
 
@@ -207,19 +211,24 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      * data-layer JSON as a final fallback.
      */
     private String getProductNameFromCategoryPage(TestData data) throws ClientException {
+        System.out.println("[CacheIT] GET category page → " + data.categoryPageUrl);
         SlingHttpResponse response = adminAuthor.doGet(data.categoryPageUrl, 200);
         Document doc = Jsoup.parse(response.getContent());
         Elements items = doc.select(".productcollection__item[data-product-sku=" + data.productSku + "]");
         if (items.isEmpty()) {
+            System.out.println("[CacheIT]   product card for SKU " + data.productSku + " NOT FOUND on category page");
             return null;
         }
         Element item = items.first();
         Elements titleEl = item.select(".productcollection__item-title span");
         if (!titleEl.isEmpty()) {
-            return titleEl.first().text().trim();
+            String name = titleEl.first().text().trim();
+            System.out.println("[CacheIT]   category-page name (title span) = " + name);
+            return name;
         }
         String titleAttr = item.attr("title");
         if (titleAttr != null && !titleAttr.isEmpty()) {
+            System.out.println("[CacheIT]   category-page name (title attr) = " + titleAttr.trim());
             return titleAttr.trim();
         }
         String dataLayer = item.attr("data-cmp-data-layer");
@@ -228,20 +237,26 @@ public class CacheInvalidationIT extends ItSiteTestBase {
                 JsonNode json = OBJECT_MAPPER.readTree(dataLayer.replace("&quot;", "\""));
                 JsonNode firstValue = json.fields().next().getValue();
                 if (firstValue.has("dc:title")) {
-                    return firstValue.get("dc:title").asText();
+                    String name = firstValue.get("dc:title").asText();
+                    System.out.println("[CacheIT]   category-page name (data layer) = " + name);
+                    return name;
                 }
             } catch (Exception ignored) {
                 // fall through
             }
         }
+        System.out.println("[CacheIT]   product card found but NO name could be extracted");
         return null;
     }
 
     private String getCategoryNameFromPage(TestData data) throws ClientException {
+        System.out.println("[CacheIT] GET category page (for title) → " + data.categoryPageUrl);
         SlingHttpResponse response = adminAuthor.doGet(data.categoryPageUrl, 200);
         Document doc = Jsoup.parse(response.getContent());
         Elements elements = doc.select(".category__title");
-        return elements.isEmpty() ? null : elements.first().text();
+        String name = elements.isEmpty() ? null : elements.first().text();
+        System.out.println("[CacheIT]   category title = " + name);
+        return name;
     }
 
     /**
@@ -249,10 +264,29 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      * {@code .productFullDetail__productName > span}.
      */
     private String getProductNameFromPdp(TestData data) throws ClientException {
+        System.out.println("[CacheIT] GET PDP → " + data.productPageUrl);
         SlingHttpResponse response = adminAuthor.doGet(data.productPageUrl, 200);
         Document doc = Jsoup.parse(response.getContent());
         Elements nameEl = doc.select(".productFullDetail__productName > span");
-        return nameEl.isEmpty() ? null : nameEl.first().text().trim();
+        String name = nameEl.isEmpty() ? null : nameEl.first().text().trim();
+        System.out.println("[CacheIT]   PDP product name = " + name
+            + ("Product name".equals(name) ? "   *** PLACEHOLDER — product context not loaded on this AEM ***" : ""));
+        return name;
+    }
+
+    /**
+     * Verifies the PDP actually resolves to a real product (not the {@code "Product name"}
+     * i18n placeholder that AEM renders when the product context isn't loaded). Fails the
+     * test fast with a setup-vs-cache-invalidation disambiguating message so future
+     * failures aren't misdiagnosed as cache-invalidation problems.
+     */
+    private void assertPdpResolves(TestData data) throws ClientException {
+        String name = getProductNameFromPdp(data);
+        Assert.assertNotEquals(
+            "PDP at " + data.productPageUrl + " did not resolve the product — got the "
+                + "'Product name' i18n placeholder. This is an AEM URL-routing / WCM-mode "
+                + "issue, not a cache invalidation failure.",
+            "Product name", name);
     }
 
     /**
@@ -262,6 +296,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      * configured with {@code structureDepth=2} and skips deeper leaves).
      */
     private String getPdpBreadcrumbText(TestData data) throws ClientException {
+        System.out.println("[CacheIT] GET PDP (for breadcrumb) → " + data.productPageUrl);
         SlingHttpResponse response = adminAuthor.doGet(data.productPageUrl, 200);
         Document doc = Jsoup.parse(response.getContent());
         Elements items = doc.select(".cmp-breadcrumb__item");
@@ -271,12 +306,14 @@ public class CacheInvalidationIT extends ItSiteTestBase {
                 sb.append(" | ");
             sb.append(item.text().trim());
         }
+        System.out.println("[CacheIT]   PDP breadcrumb (" + items.size() + " items) = " + sb);
         return sb.toString();
     }
 
     private void updateProductName(String sku, String name) throws IOException {
         String url = commerceRestBase() + "/products/" + sku;
         String body = "{\"product\":{\"name\":\"" + name + "\"}}";
+        System.out.println("[CacheIT] PUT Magento product " + sku + " → " + name);
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpPut request = new HttpPut(url);
             request.setHeader("Authorization", "Bearer " + INTEGRATION_TOKEN);
@@ -284,14 +321,17 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
             HttpResponse response = client.execute(request);
             EntityUtils.consume(response.getEntity());
+            int status = response.getStatusLine().getStatusCode();
+            System.out.println("[CacheIT]   Magento product PUT response: " + status);
             Assert.assertEquals("Magento product update (PUT /products/" + sku + ") should return 200",
-                200, response.getStatusLine().getStatusCode());
+                200, status);
         }
     }
 
     private void updateCategoryName(int categoryId, String name) throws IOException {
         String url = commerceRestBase() + "/categories/" + categoryId;
         String body = "{\"category\":{\"name\":\"" + name + "\"}}";
+        System.out.println("[CacheIT] PUT Magento category " + categoryId + " → " + name);
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpPut request = new HttpPut(url);
             request.setHeader("Authorization", "Bearer " + INTEGRATION_TOKEN);
@@ -299,8 +339,10 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
             HttpResponse response = client.execute(request);
             EntityUtils.consume(response.getEntity());
+            int status = response.getStatusLine().getStatusCode();
+            System.out.println("[CacheIT]   Magento category PUT response: " + status);
             Assert.assertEquals("Magento category update (PUT /categories/" + categoryId + ") should return 200",
-                200, response.getStatusLine().getStatusCode());
+                200, status);
         }
     }
 
@@ -363,6 +405,9 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     // ============================================================================================
 
     private void runProductSkusWorkflow(TestData data) throws Exception {
+        System.out.println("\n[CacheIT] ===== runProductSkusWorkflow sku=" + data.productSku
+            + " category=" + data.categoryUrlPath + " =====");
+        assertPdpResolves(data);
         String originalNameOnCategory = getProductNameFromCategoryPage(data);
         Assert.assertNotNull("Category page should render product " + data.productSku, originalNameOnCategory);
         String originalNameOnPdp = getProductNameFromPdp(data);
@@ -376,6 +421,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             Assert.assertEquals("PDP should serve stale cached name before invalidation",
                 originalNameOnPdp, getProductNameFromPdp(data));
 
+            System.out.println("[CacheIT] POST invalidate productSkus=[" + data.productSku + "]");
             postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(data.productSku), 200);
 
             Assert.assertEquals("Category listing should serve updated name after productSkus invalidation",
@@ -390,6 +436,9 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     }
 
     private void runCategoryUidsWorkflow(TestData data) throws Exception {
+        System.out.println("\n[CacheIT] ===== runCategoryUidsWorkflow categoryId=" + data.categoryId
+            + " uid=" + data.categoryUid + " path=" + data.categoryUrlPath + " =====");
+        assertPdpResolves(data);
         String originalCategoryName = getCategoryNameFromPage(data);
         Assert.assertNotNull("Category page should render a category name", originalCategoryName);
         Assert.assertTrue("PDP breadcrumb should initially contain category '" + originalCategoryName + "'",
@@ -403,6 +452,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             Assert.assertTrue("PDP breadcrumb should still contain stale category name before invalidation",
                 getPdpBreadcrumbText(data).contains(originalCategoryName));
 
+            System.out.println("[CacheIT] POST invalidate categoryUids=[" + data.categoryUid + "]");
             postJson(CACHE_INVALIDATION_ENDPOINT, categoryUidsPayload(data.categoryUid), 200);
 
             Assert.assertEquals("Category title should be updated after categoryUids invalidation",
@@ -417,6 +467,9 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     }
 
     private void runCacheNamesWorkflow(TestData data) throws Exception {
+        System.out.println("\n[CacheIT] ===== runCacheNamesWorkflow sku=" + data.productSku
+            + " category=" + data.categoryUrlPath + " =====");
+        assertPdpResolves(data);
         String originalNameOnCategory = getProductNameFromCategoryPage(data);
         Assert.assertNotNull("Category page should render product " + data.productSku, originalNameOnCategory);
         String originalNameOnPdp = getProductNameFromPdp(data);
@@ -431,6 +484,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
                 originalNameOnPdp, getProductNameFromPdp(data));
 
             // Invalidate both productlist (category listing) and product (PDP) buckets.
+            System.out.println("[CacheIT] POST invalidate cacheNames=[productlist, product]");
             postJson(CACHE_INVALIDATION_ENDPOINT,
                 cacheNamesPayload(
                     "cif-components-it-site/components/commerce/productlist",
@@ -449,6 +503,9 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     }
 
     private void runInvalidateAllWorkflow(TestData data) throws Exception {
+        System.out.println("\n[CacheIT] ===== runInvalidateAllWorkflow sku=" + data.productSku
+            + " categoryId=" + data.categoryId + " path=" + data.categoryUrlPath + " =====");
+        assertPdpResolves(data);
         String originalProductOnCategory = getProductNameFromCategoryPage(data);
         Assert.assertNotNull("Category page should render product " + data.productSku, originalProductOnCategory);
         String originalProductOnPdp = getProductNameFromPdp(data);
@@ -472,6 +529,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             Assert.assertTrue("PDP breadcrumb should still contain stale category name before invalidateAll",
                 getPdpBreadcrumbText(data).contains(originalCategoryName));
 
+            System.out.println("[CacheIT] POST invalidate ALL");
             postJson(CACHE_INVALIDATION_ENDPOINT, invalidateAllPayload(), 200);
 
             Assert.assertEquals("Category listing should serve updated product name after invalidateAll",
@@ -491,6 +549,9 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     }
 
     private void runRegexPatternsWorkflow(TestData data) throws Exception {
+        System.out.println("\n[CacheIT] ===== runRegexPatternsWorkflow sku=" + data.productSku
+            + " category=" + data.categoryUrlPath + " =====");
+        assertPdpResolves(data);
         String originalNameOnCategory = getProductNameFromCategoryPage(data);
         Assert.assertNotNull("Category page should render product " + data.productSku, originalNameOnCategory);
         String originalNameOnPdp = getProductNameFromPdp(data);
@@ -505,6 +566,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
                 originalNameOnPdp, getProductNameFromPdp(data));
 
             // Regex matches any cached GraphQL JSON containing the product SKU.
+            System.out.println("[CacheIT] POST invalidate regexPatterns matching SKU " + data.productSku);
             postJson(CACHE_INVALIDATION_ENDPOINT,
                 regexPatternsPayload("\\\"sku\\\":\\\\s*\\\"" + data.productSku + "\\\""), 200);
 
