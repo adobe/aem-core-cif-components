@@ -50,49 +50,49 @@ function getChromedriverServiceOptions() {
 let capabilities = {};
 
 switch (config.selenium.browser) {
-    case config.CHROME:
-        wdio_config.services = [['chromedriver', getChromedriverServiceOptions()]];
-        capabilities = {
-            maxInstances: 1,
-            browserName: 'chrome',
-            'goog:chromeOptions': {
-                'excludeSwitches': ['enable-automation'],
-                'prefs': {
-                    'credentials_enable_service': false,
-                    'profile.password_manager_enabled': false
-                }
+case config.CHROME:
+    wdio_config.services = [['chromedriver', getChromedriverServiceOptions()]];
+    capabilities = {
+        maxInstances: 1,
+        browserName: 'chrome',
+        'goog:chromeOptions': {
+            'excludeSwitches': ['enable-automation'],
+            'prefs': {
+                'credentials_enable_service': false,
+                'profile.password_manager_enabled': false
             }
-        };
-        if (config.selenium.headless === true) {
-            capabilities['goog:chromeOptions'].args = [
-                'headless',
-                '--no-sandbox',
-                '--disable-dev-shm-usage'
-            ];
         }
-        break;
-    case config.FIREFOX:
-        wdio_config.services = [
-            ['selenium-standalone', {
-                logPath: config.reports_path
-            }]
+    };
+    if (config.selenium.headless === true) {
+        capabilities['goog:chromeOptions'].args = [
+            'headless',
+            '--no-sandbox',
+            '--disable-dev-shm-usage'
         ];
-        capabilities = {
-            maxInstances: 1,
-            browserName: 'firefox',
-            'moz:firefoxOptions': {
-                prefs: {
-                    // Prevent opening the extension tabs on startup
-                    'extensions.enabledScopes': 0
-                }
+    }
+    break;
+case config.FIREFOX:
+    wdio_config.services = [
+        ['selenium-standalone', {
+            logPath: config.reports_path
+        }]
+    ];
+    capabilities = {
+        maxInstances: 1,
+        browserName: 'firefox',
+        'moz:firefoxOptions': {
+            prefs: {
+                // Prevent opening the extension tabs on startup
+                'extensions.enabledScopes': 0
             }
-        };
-        if (config.selenium.headless === true) {
-            capabilities['moz:firefoxOptions'].args = ['-headless'];
         }
-        break;
-    default:
-        throw new Error('Unsupported browser defined in configuration!');
+    };
+    if (config.selenium.headless === true) {
+        capabilities['moz:firefoxOptions'].args = ['-headless'];
+    }
+    break;
+default:
+    throw new Error('Unsupported browser defined in configuration!');
 }
 
 wdio_config.capabilities = [capabilities];
