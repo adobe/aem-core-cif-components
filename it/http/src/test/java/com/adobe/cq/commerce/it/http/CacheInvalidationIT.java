@@ -81,50 +81,44 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      */
     private static final class TestData {
         final String productSku;
-        final String productUrlKey;
         final String originalProductName;
         final String categoryUid;
         final int categoryId;
         final String categoryUrlPath;
         final String originalCategoryName;
         final String categoryPageUrl;
-        final String productPageUrl;
 
-        TestData(String productSku, String productUrlKey, String originalProductName,
+        TestData(String productSku, String originalProductName,
                  String categoryUid, int categoryId, String categoryUrlPath, String originalCategoryName) {
             this.productSku = productSku;
-            this.productUrlKey = productUrlKey;
             this.originalProductName = originalProductName;
             this.categoryUid = categoryUid;
             this.categoryId = categoryId;
             this.categoryUrlPath = categoryUrlPath;
             this.originalCategoryName = originalCategoryName;
             this.categoryPageUrl = IT_SITE_ROOT + "/products/category-page.html/" + categoryUrlPath + ".html";
-            // ?wcmmode=disabled forces publish-mode rendering — without it, AEM in author
-            // mode renders the "Product name" i18n placeholder when the product context
-            // isn't loaded, breaking PDP assertions on Cloud-style AEM instances.
-            this.productPageUrl = IT_SITE_ROOT + "/products/product-page.html/" + categoryUrlPath + "/" + productUrlKey
-                + ".html?wcmmode=disabled";
         }
     }
 
     // Each fixture uses a 2-level category url_path so the leaf category name appears in the
-    // PDP breadcrumb (the IT site's breadcrumb component uses structureDepth=2, which cuts off
-    // before the leaf for 3-level category hierarchies like accessories/belts/leather-belts).
+    // PDP breadcrumb (the IT site's breadcrumb component uses structureDepth=2).
+    // The PDP URL is discovered at runtime from the product card href on the category page
+    // — see discoverPdpUrl() — so the test works regardless of how each AEM instance is
+    // configured to build product URLs.
 
     // Classic / AEM 6.5 — Blouses & Shirts
     private static final TestData CLASSIC = new TestData(
-        "VT01", "penelope-peasant-blouse", "Penelope Peasant Blouse",
+        "VT01", "Penelope Peasant Blouse",
         "MjM=", 23, "venia-tops/venia-blouses", "Blouses & Shirts");
 
     // LTS — Pants & Shorts
     private static final TestData LTS = new TestData(
-        "VP01", "selena-pants", "Selena Pants",
+        "VP01", "Selena Pants",
         "MzI=", 32, "venia-bottoms/venia-pants", "Pants & Shorts");
 
     // Cloud — Scarves
     private static final TestData CLOUD = new TestData(
-        "VA01", "dulcea-infinity-scarf", "Dulcea Infinity Scarf",
+        "VA01", "Dulcea Infinity Scarf",
         "MTQ=", 14, "venia-accessories/venia-scarves", "Scarves");
 
     // ---- Magento REST connection ----------------------------------------
@@ -263,9 +257,34 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      * Reads the product name from the PDP using the same selector as {@link ProductComponentIT},
      * {@code .productFullDetail__productName > span}.
      */
+    /**
+     * Discovers the actual PDP URL this AEM instance expects for the given SKU by reading
+     * the product card's {@code href} on the category page. This sidesteps URL-format
+     * differences between AEM instances (e.g. context-aware vs leaf-only product URLs)
+     * because the category page itself emits whichever URL its URL provider is configured
+     * to produce. Returns the URL with {@code ?wcmmode=disabled} appended so the PDP
+     * renders in publish mode (avoids the "Product name" i18n placeholder in author mode).
+     */
+    private String discoverPdpUrl(TestData data) throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(data.categoryPageUrl, 200);
+        Document doc = Jsoup.parse(response.getContent());
+        Elements items = doc.select(".productcollection__item[data-product-sku=" + data.productSku + "]");
+        if (items.isEmpty()) {
+            throw new AssertionError("Cannot derive PDP URL: product card for SKU "
+                + data.productSku + " not found on " + data.categoryPageUrl);
+        }
+        String href = items.first().attr("href");
+        if (href == null || href.isEmpty()) {
+            throw new AssertionError("Cannot derive PDP URL: product card for SKU "
+                + data.productSku + " has no href attribute");
+        }
+        return href + (href.contains("?") ? "&" : "?") + "wcmmode=disabled";
+    }
+
     private String getProductNameFromPdp(TestData data) throws ClientException {
-        System.out.println("[CacheIT] GET PDP → " + data.productPageUrl);
-        SlingHttpResponse response = adminAuthor.doGet(data.productPageUrl, 200);
+        String pdpUrl = discoverPdpUrl(data);
+        System.out.println("[CacheIT] GET PDP → " + pdpUrl);
+        SlingHttpResponse response = adminAuthor.doGet(pdpUrl, 200);
         Document doc = Jsoup.parse(response.getContent());
         Elements nameEl = doc.select(".productFullDetail__productName > span");
         String name = nameEl.isEmpty() ? null : nameEl.first().text().trim();
@@ -283,7 +302,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     private void assertPdpResolves(TestData data) throws ClientException {
         String name = getProductNameFromPdp(data);
         Assert.assertNotEquals(
-            "PDP at " + data.productPageUrl + " did not resolve the product — got the "
+            "PDP for SKU " + data.productSku + " did not resolve the product — got the "
                 + "'Product name' i18n placeholder. This is an AEM URL-routing / WCM-mode "
                 + "issue, not a cache invalidation failure.",
             "Product name", name);
@@ -296,8 +315,9 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      * configured with {@code structureDepth=2} and skips deeper leaves).
      */
     private String getPdpBreadcrumbText(TestData data) throws ClientException {
-        System.out.println("[CacheIT] GET PDP (for breadcrumb) → " + data.productPageUrl);
-        SlingHttpResponse response = adminAuthor.doGet(data.productPageUrl, 200);
+        String pdpUrl = discoverPdpUrl(data);
+        System.out.println("[CacheIT] GET PDP (for breadcrumb) → " + pdpUrl);
+        SlingHttpResponse response = adminAuthor.doGet(pdpUrl, 200);
         Document doc = Jsoup.parse(response.getContent());
         Elements items = doc.select(".cmp-breadcrumb__item");
         StringBuilder sb = new StringBuilder();
