@@ -64,6 +64,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
 
     // Test product: VA01 (Dulcea Infinity Scarf) is in the Scarves category
     private static final String TEST_PRODUCT_SKU = "VA01";
+    private static final String TEST_PRODUCT_URL_KEY = "dulcea-infinity-scarf";
 
     // Test category: Scarves — VA01 belongs to this category; url_path used for page URL
     private static final String TEST_CATEGORY_UID = "MTQ="; // base64("14") — Scarves
@@ -71,8 +72,18 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     private static final String TEST_CATEGORY_URL_PATH = "venia-accessories/venia-scarves";
     private static final int TEST_CATEGORY_ID = 14;
 
+    // Hardcoded known-good Magento values for cleanup. Cleanup must NOT rely on whatever
+    // AEM happened to render at test start — if a previous failed run left a dirty value
+    // there (e.g. CIF-IT-CN-1778843318152), restoring to that would propagate the dirt.
+    private static final String ORIGINAL_PRODUCT_NAME = "Dulcea Infinity Scarf";
+    private static final String ORIGINAL_CATEGORY_NAME = "Scarves";
+
     // Category page that lists VA01 — used by both product and category workflow tests
     private static final String TEST_CATEGORY_PAGE_URL = IT_SITE_ROOT + "/products/category-page.html/" + TEST_CATEGORY_URL_PATH + ".html";
+
+    // Product detail page (PDP) for VA01 — built per the IT site URL provider config
+    // ({{page}}.html/{{url_path}}.html where url_path = category url_path + product url_key)
+    private static final String TEST_PRODUCT_PAGE_URL = IT_SITE_ROOT + "/products/product-page.html/" + TEST_CATEGORY_URL_PATH + "/" + TEST_PRODUCT_URL_KEY + ".html";
 
     // COMMERCE_ENDPOINT is the Magento base URL (without /graphql), e.g. https://mcprod.example.com
     // REST writes go to COMMERCE_ENDPOINT/rest/V1 — must point to a writable Magento instance
@@ -155,7 +166,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      * The product card is located via the {@code data-product-sku} attribute; the name is read
      * from the title span or, as a fallback, from the data-layer JSON.
      */
-    private String getProductNameFromPage() throws ClientException {
+    private String getProductNameFromCategoryPage() throws ClientException {
         SlingHttpResponse response = adminAuthor.doGet(TEST_CATEGORY_PAGE_URL, 200);
         Document doc = Jsoup.parse(response.getContent());
         Elements items = doc.select(".productcollection__item[data-product-sku=" + TEST_PRODUCT_SKU + "]");
@@ -193,6 +204,33 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         return elements.isEmpty() ? null : elements.first().text();
     }
 
+    /**
+     * Reads the product name from the product detail page (PDP) — uses the same selector
+     * as {@link ProductComponentIT}, {@code .productFullDetail__productName > span}.
+     */
+    private String getProductNameFromPdp() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(TEST_PRODUCT_PAGE_URL, 200);
+        Document doc = Jsoup.parse(response.getContent());
+        Elements nameEl = doc.select(".productFullDetail__productName > span");
+        return nameEl.isEmpty() ? null : nameEl.first().text().trim();
+    }
+
+    /**
+     * Returns the concatenated text of every breadcrumb item on the PDP — used to verify
+     * that the category name appears in the product page breadcrumb hierarchy.
+     */
+    private String getPdpBreadcrumbText() throws ClientException {
+        SlingHttpResponse response = adminAuthor.doGet(TEST_PRODUCT_PAGE_URL, 200);
+        Document doc = Jsoup.parse(response.getContent());
+        Elements items = doc.select(".cmp-breadcrumb__item");
+        StringBuilder sb = new StringBuilder();
+        for (Element item : items) {
+            if (sb.length() > 0) sb.append(" | ");
+            sb.append(item.text().trim());
+        }
+        return sb.toString();
+    }
+
     private void updateProductName(String sku, String name) throws IOException {
         String url = commerceRestBase() + "/products/" + sku;
         String body = "{\"product\":{\"name\":\"" + name + "\"}}";
@@ -204,7 +242,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             HttpResponse response = client.execute(request);
             EntityUtils.consume(response.getEntity());
             Assert.assertEquals("Magento product update (PUT /products/" + sku + ") should return 200",
-                200, response.getStatusLine().getStatusCode());
+                    200, response.getStatusLine().getStatusCode());
         }
     }
 
@@ -219,7 +257,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             HttpResponse response = client.execute(request);
             EntityUtils.consume(response.getEntity());
             Assert.assertEquals("Magento category update (PUT /categories/" + categoryId + ") should return 200",
-                200, response.getStatusLine().getStatusCode());
+                    200, response.getStatusLine().getStatusCode());
         }
     }
 
@@ -233,7 +271,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     public void testServletReachable() throws Exception {
         SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT, invalidateAllPayload(), 200, 400, 500);
         Assert.assertNotEquals("Cache invalidation servlet should be reachable (not 404)",
-            404, response.getStatusLine().getStatusCode());
+                404, response.getStatusLine().getStatusCode());
     }
 
     /**
@@ -243,7 +281,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     @Test
     public void testInvalidateByProductSkus() throws Exception {
         SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT,
-            productSkusPayload(TEST_PRODUCT_SKU), 200);
+                productSkusPayload(TEST_PRODUCT_SKU), 200);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
@@ -254,7 +292,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     @Test
     public void testInvalidateByCategoryUids() throws Exception {
         SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT,
-            categoryUidsPayload(TEST_CATEGORY_UID), 200);
+                categoryUidsPayload(TEST_CATEGORY_UID), 200);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
@@ -265,10 +303,10 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     @Test
     public void testInvalidateByCacheNames() throws Exception {
         SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT,
-            cacheNamesPayload(
-                "cif-components-it-site/components/commerce/productlist",
-                "cif-components-it-site/components/commerce/navigation"),
-            200);
+                cacheNamesPayload(
+                        "cif-components-it-site/components/commerce/productlist",
+                        "cif-components-it-site/components/commerce/navigation"),
+                200);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
@@ -279,8 +317,8 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     @Test
     public void testInvalidateByRegexPatterns() throws Exception {
         SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT,
-            regexPatternsPayload("\\\"sku\\\":\\\\s*\\\"" + TEST_PRODUCT_SKU + "\\\""),
-            200);
+                regexPatternsPayload("\\\"sku\\\":\\\\s*\\\"" + TEST_PRODUCT_SKU + "\\\""),
+                200);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
@@ -291,7 +329,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     @Test
     public void testInvalidateAll() throws Exception {
         SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT,
-            invalidateAllPayload(), 200);
+                invalidateAllPayload(), 200);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
@@ -310,24 +348,28 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      */
     @Test
     public void testProductCacheInvalidationWorkflow() throws Exception {
-        String originalName = getProductNameFromPage();
-        Assert.assertNotNull("Category page should render product VA01 with a name", originalName);
+        String originalNameOnCategory = getProductNameFromCategoryPage();
+        Assert.assertNotNull("Category page should render product VA01 with a name", originalNameOnCategory);
+        String originalNameOnPdp = getProductNameFromPdp();
+        Assert.assertNotNull("PDP should render VA01 with a name", originalNameOnPdp);
 
         String testName = "CIF-IT-" + System.currentTimeMillis();
         updateProductName(TEST_PRODUCT_SKU, testName);
         try {
-            String cachedName = getProductNameFromPage();
-            Assert.assertEquals("AEM should serve stale cached name before invalidation",
-                originalName, cachedName);
+            Assert.assertEquals("Category listing should serve stale cached name before invalidation",
+                    originalNameOnCategory, getProductNameFromCategoryPage());
+            Assert.assertEquals("PDP should serve stale cached name before invalidation",
+                    originalNameOnPdp, getProductNameFromPdp());
 
             postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(TEST_PRODUCT_SKU), 200);
 
-            String freshName = getProductNameFromPage();
-            Assert.assertEquals("AEM should serve updated name after cache invalidation",
-                testName, freshName);
+            Assert.assertEquals("Category listing should serve updated name after cache invalidation",
+                    testName, getProductNameFromCategoryPage());
+            Assert.assertEquals("PDP should serve updated name after cache invalidation",
+                    testName, getProductNameFromPdp());
 
         } finally {
-            updateProductName(TEST_PRODUCT_SKU, originalName);
+            updateProductName(TEST_PRODUCT_SKU, ORIGINAL_PRODUCT_NAME);
             postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(TEST_PRODUCT_SKU), 200);
         }
     }
@@ -347,22 +389,26 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     public void testCategoryUidCacheInvalidationWorkflow() throws Exception {
         String originalName = getCategoryNameFromPage();
         Assert.assertNotNull("Category page should render a category name", originalName);
+        Assert.assertTrue("PDP breadcrumb should initially contain the category name '" + originalName + "'",
+                getPdpBreadcrumbText().contains(originalName));
 
         String testName = "CIF-IT-Cat-" + System.currentTimeMillis();
         updateCategoryName(TEST_CATEGORY_ID, testName);
         try {
-            String cachedName = getCategoryNameFromPage();
-            Assert.assertEquals("AEM should serve stale cached category name before invalidation",
-                originalName, cachedName);
+            Assert.assertEquals("Category page should serve stale cached category name before invalidation",
+                    originalName, getCategoryNameFromPage());
+            Assert.assertTrue("PDP breadcrumb should still contain stale category name before invalidation",
+                    getPdpBreadcrumbText().contains(originalName));
 
             postJson(CACHE_INVALIDATION_ENDPOINT, categoryUidsPayload(TEST_CATEGORY_UID), 200);
 
-            String freshName = getCategoryNameFromPage();
-            Assert.assertEquals("AEM should serve updated category name after invalidation",
-                testName, freshName);
+            Assert.assertEquals("Category page should serve updated category name after invalidation",
+                    testName, getCategoryNameFromPage());
+            Assert.assertTrue("PDP breadcrumb should contain updated category name after invalidation",
+                    getPdpBreadcrumbText().contains(testName));
 
         } finally {
-            updateCategoryName(TEST_CATEGORY_ID, originalName);
+            updateCategoryName(TEST_CATEGORY_ID, ORIGINAL_CATEGORY_NAME);
             postJson(CACHE_INVALIDATION_ENDPOINT, categoryUidsPayload(TEST_CATEGORY_UID), 200);
         }
     }
@@ -380,25 +426,33 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      */
     @Test
     public void testCacheNameInvalidationClearsProductCache() throws Exception {
-        String originalName = getProductNameFromPage();
-        Assert.assertNotNull("Category page should render product VA01 with a name", originalName);
+        String originalNameOnCategory = getProductNameFromCategoryPage();
+        Assert.assertNotNull("Category page should render product VA01 with a name", originalNameOnCategory);
+        String originalNameOnPdp = getProductNameFromPdp();
+        Assert.assertNotNull("PDP should render VA01 with a name", originalNameOnPdp);
 
         String testName = "CIF-IT-CN-" + System.currentTimeMillis();
         updateProductName(TEST_PRODUCT_SKU, testName);
         try {
-            String cachedName = getProductNameFromPage();
-            Assert.assertEquals("AEM should serve stale cached name before cache-name invalidation",
-                originalName, cachedName);
+            Assert.assertEquals("Category listing should serve stale cached name before cache-name invalidation",
+                    originalNameOnCategory, getProductNameFromCategoryPage());
+            Assert.assertEquals("PDP should serve stale cached name before cache-name invalidation",
+                    originalNameOnPdp, getProductNameFromPdp());
 
+            // Invalidate BOTH the productlist (category listing) and product (PDP) cache buckets.
             postJson(CACHE_INVALIDATION_ENDPOINT,
-                cacheNamesPayload("cif-components-it-site/components/commerce/productlist"), 200);
+                    cacheNamesPayload(
+                            "cif-components-it-site/components/commerce/productlist",
+                            "cif-components-it-site/components/commerce/product"),
+                    200);
 
-            String freshName = getProductNameFromPage();
-            Assert.assertEquals("AEM should serve updated name after cache-name invalidation",
-                testName, freshName);
+            Assert.assertEquals("Category listing should serve updated name after cache-name invalidation",
+                    testName, getProductNameFromCategoryPage());
+            Assert.assertEquals("PDP should serve updated name after cache-name invalidation",
+                    testName, getProductNameFromPdp());
 
         } finally {
-            updateProductName(TEST_PRODUCT_SKU, originalName);
+            updateProductName(TEST_PRODUCT_SKU, ORIGINAL_PRODUCT_NAME);
             postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(TEST_PRODUCT_SKU), 200);
         }
     }
@@ -416,25 +470,79 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      */
     @Test
     public void testInvalidateAllClearsProductCache() throws Exception {
-        String originalName = getProductNameFromPage();
-        Assert.assertNotNull("Category page should render product VA01 with a name", originalName);
+        String originalProductOnCategory = getProductNameFromCategoryPage();
+        Assert.assertNotNull("Category page should render product VA01 with a name", originalProductOnCategory);
+        String originalProductOnPdp = getProductNameFromPdp();
+        Assert.assertNotNull("PDP should render VA01 with a name", originalProductOnPdp);
+        String originalCategoryName = getCategoryNameFromPage();
+        Assert.assertNotNull("Category page should render a category name", originalCategoryName);
+        Assert.assertTrue("PDP breadcrumb should initially contain the category name '" + originalCategoryName + "'",
+                getPdpBreadcrumbText().contains(originalCategoryName));
 
-        String testName = "CIF-IT-All-" + System.currentTimeMillis();
-        updateProductName(TEST_PRODUCT_SKU, testName);
+        String testProductName = "CIF-IT-AllP-" + System.currentTimeMillis();
+        String testCategoryName = "CIF-IT-AllC-" + System.currentTimeMillis();
+        updateProductName(TEST_PRODUCT_SKU, testProductName);
+        updateCategoryName(TEST_CATEGORY_ID, testCategoryName);
         try {
-            String cachedName = getProductNameFromPage();
-            Assert.assertEquals("AEM should serve stale cached name before invalidateAll",
-                originalName, cachedName);
+            Assert.assertEquals("Category listing should serve stale product name before invalidateAll",
+                    originalProductOnCategory, getProductNameFromCategoryPage());
+            Assert.assertEquals("PDP should serve stale product name before invalidateAll",
+                    originalProductOnPdp, getProductNameFromPdp());
+            Assert.assertEquals("Category title should be stale before invalidateAll",
+                    originalCategoryName, getCategoryNameFromPage());
+            Assert.assertTrue("PDP breadcrumb should still contain stale category name before invalidateAll",
+                    getPdpBreadcrumbText().contains(originalCategoryName));
 
             postJson(CACHE_INVALIDATION_ENDPOINT, invalidateAllPayload(), 200);
 
-            String freshName = getProductNameFromPage();
-            Assert.assertEquals("AEM should serve updated name after invalidateAll",
-                testName, freshName);
+            Assert.assertEquals("Category listing should serve updated product name after invalidateAll",
+                    testProductName, getProductNameFromCategoryPage());
+            Assert.assertEquals("PDP should serve updated product name after invalidateAll",
+                    testProductName, getProductNameFromPdp());
+            Assert.assertEquals("Category title should be updated after invalidateAll",
+                    testCategoryName, getCategoryNameFromPage());
+            Assert.assertTrue("PDP breadcrumb should contain updated category name after invalidateAll",
+                    getPdpBreadcrumbText().contains(testCategoryName));
 
         } finally {
-            updateProductName(TEST_PRODUCT_SKU, originalName);
+            updateProductName(TEST_PRODUCT_SKU, ORIGINAL_PRODUCT_NAME);
+            updateCategoryName(TEST_CATEGORY_ID, ORIGINAL_CATEGORY_NAME);
             postJson(CACHE_INVALIDATION_ENDPOINT, invalidateAllPayload(), 200);
+        }
+    }
+
+    /**
+     * Full end-to-end cache invalidation workflow using {@code regexPatterns} that match the
+     * product SKU in cached GraphQL JSON. Verifies both the category listing and the PDP
+     * are refreshed — matching the dual-page check pattern from Venia's regex test.
+     */
+    @Test
+    public void testRegexPatternsCacheInvalidationWorkflow() throws Exception {
+        String originalNameOnCategory = getProductNameFromCategoryPage();
+        Assert.assertNotNull("Category page should render product VA01 with a name", originalNameOnCategory);
+        String originalNameOnPdp = getProductNameFromPdp();
+        Assert.assertNotNull("PDP should render VA01 with a name", originalNameOnPdp);
+
+        String testName = "CIF-IT-RX-" + System.currentTimeMillis();
+        updateProductName(TEST_PRODUCT_SKU, testName);
+        try {
+            Assert.assertEquals("Category listing should serve stale cached name before regex invalidation",
+                    originalNameOnCategory, getProductNameFromCategoryPage());
+            Assert.assertEquals("PDP should serve stale cached name before regex invalidation",
+                    originalNameOnPdp, getProductNameFromPdp());
+
+            // Regex matches any cached GraphQL JSON containing the product SKU
+            postJson(CACHE_INVALIDATION_ENDPOINT,
+                    regexPatternsPayload("\\\"sku\\\":\\\\s*\\\"" + TEST_PRODUCT_SKU + "\\\""), 200);
+
+            Assert.assertEquals("Category listing should serve updated name after regex invalidation",
+                    testName, getProductNameFromCategoryPage());
+            Assert.assertEquals("PDP should serve updated name after regex invalidation",
+                    testName, getProductNameFromPdp());
+
+        } finally {
+            updateProductName(TEST_PRODUCT_SKU, ORIGINAL_PRODUCT_NAME);
+            postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(TEST_PRODUCT_SKU), 200);
         }
     }
 }
