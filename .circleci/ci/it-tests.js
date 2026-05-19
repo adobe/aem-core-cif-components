@@ -109,9 +109,6 @@ try {
         excludedCategory = 'junit.category.IgnoreOnCloud';
     }
 
-    // TODO: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
-    let aemCifSdkApiVersion = "2025.09.02.1-SNAPSHOT";
-
     ci.dir(qpPath, () => {
         // Connect to QP
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
@@ -124,11 +121,11 @@ try {
         };
 
         if (AEM === 'classic') {
-            downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
+            downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip');
             extras += ` --install-file ${buildPath}/addon.zip`;
             extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM === 'lts') {
-            downloadArtifact('commerce-addon-aem-660-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
+            downloadArtifact('commerce-addon-aem-660-all', 'zip', 'addon.zip');
             extras += ` --install-file ${buildPath}/addon.zip`;
             extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM === 'addon') {
