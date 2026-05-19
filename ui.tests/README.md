@@ -27,12 +27,12 @@ mvn verify -Pui-tests-local-execution
     This version of ChromeDriver only supports Chrome version XX.
     ```
 
-    Try setting the `CHROMEDRIVER` environment variable to a version that matches your currently installed Chrome version. You can find matching versions at https://chromedriver.chromium.org/downloads.
+    Install a matching [ChromeDriver](https://googlechromelabs.github.io/chrome-for-testing/) on your `PATH`, or set `CHROMEDRIVER_PATH` to the binary location.
 
     Example:
 
     ```bash
-    CHROMEDRIVER=87.0.4280.20 mvn verify -Pui-tests-local-execution
+    CHROMEDRIVER_PATH=/usr/local/bin/chromedriver mvn verify -Pui-tests-local-execution
     ```
 
 ### Parameters
