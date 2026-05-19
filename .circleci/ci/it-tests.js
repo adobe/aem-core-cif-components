@@ -26,20 +26,96 @@ const qpPath = '/home/circleci/cq';
 const buildPath = '/home/circleci/build';
 const { TYPE, BROWSER, AEM } = process.env;
 
+const CORE_BUNDLE = 'com.adobe.commerce.cif.core-cif-components-core';
+const ADDON_BUNDLE = 'com.adobe.cq.cif.commerce-addon-bundle';
+const AEM_READY_TIMEOUT_MS = 360000;
+
+// Wait for AEM HTTP, commerce add-on (classic/LTS), then install and activate project bundles.
+const prepareAemForCifTests = () => {
+    const needAddon = AEM === 'classic' || AEM === 'lts';
+    const deadline = Date.now() + AEM_READY_TIMEOUT_MS;
+    let attempt = 0;
+    let projectBundlesInstalled = false;
+
+    const getBundle = (bundlesJson, symbolicName) => {
+        const parsed = JSON.parse(bundlesJson);
+        const bundles = Array.isArray(parsed) ? parsed : (parsed.data || []);
+        return bundles.find((entry) => entry.symbolicName === symbolicName || entry.name === symbolicName);
+    };
+
+    const isActive = (bundle) => bundle && (bundle.state === 'Active' || bundle.stateRaw === 32);
+
+    while (Date.now() < deadline) {
+        attempt++;
+        try {
+            const loginStatus = ci.sh(
+                'curl -sf -o /dev/null -w "%{http_code}" -u admin:admin http://localhost:4502/libs/granite/core/content/login.html',
+                true,
+                false
+            );
+            if (loginStatus !== '200') {
+                throw new Error(`login page returned HTTP ${loginStatus}`);
+            }
+
+            const bundlesJson = ci.sh('curl -sf -u admin:admin http://localhost:4502/system/console/bundles.json', true, false);
+
+            if (needAddon && !isActive(getBundle(bundlesJson, ADDON_BUNDLE))) {
+                throw new Error('commerce add-on bundle not Active');
+            }
+
+            if (!projectBundlesInstalled) {
+                const installJar = (moduleKey) => {
+                    const jarPath = ci.resolveModuleArtifactPath(config.modules[moduleKey]);
+                    ci.sh(
+                        `curl -sf -u admin:admin -F action=install -F bundlestart=1 -F bundlefile=@${jarPath} http://localhost:4502/system/console/bundles`,
+                        false,
+                        true
+                    );
+                };
+                installJar('core-cif-components-core');
+                installJar('core-cif-components-examples-bundle');
+                projectBundlesInstalled = true;
+                continue;
+            }
+
+            if (!isActive(getBundle(bundlesJson, CORE_BUNDLE))) {
+                throw new Error('core-cif-components-core not Active');
+            }
+
+            console.log(`AEM ready for CIF tests after ${attempt} attempt(s).`);
+            return;
+        } catch (error) {
+            console.log(`Waiting for AEM (attempt ${attempt}): ${error.message}`);
+            if (Date.now() >= deadline - 5000) {
+                break;
+            }
+            ci.sh('sleep 5', false, false);
+        }
+    }
+
+    throw new Error(`Timed out after ${AEM_READY_TIMEOUT_MS / 1000}s waiting for AEM to be ready.`);
+};
+
 try {
     ci.stage("Integration Tests");
     let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
-    let excludedCategory = AEM === 'classic' ? 'junit.category.IgnoreOn65' : 'junit.category.IgnoreOnCloud';
+    let excludedCategory;
+    if (AEM === 'classic') {
+        excludedCategory = 'junit.category.IgnoreOn65';
+    } else {
+        // LTS and cloud-ready: exclude @Category(IgnoreOnCloud) tests (same as master for LTS).
+        // IgnoreOnLts does not exist yet; add it when we have LTS-only @Category annotations.
+        excludedCategory = 'junit.category.IgnoreOnCloud';
+    }
 
     // TODO: Remove when https://jira.corp.adobe.com/browse/ARTFY-6646 is resolved
     let aemCifSdkApiVersion = "2025.09.02.1-SNAPSHOT";
 
-
     ci.dir(qpPath, () => {
         // Connect to QP
         ci.sh('./qp.sh -v bind --server-hostname localhost --server-port 55555');
-        
+
         // Download latest add-on release from artifactory
         let extras = '';
         const downloadArtifact = (artifactId, type, outputFileName, version = 'LATEST', classifier = '') => {
@@ -48,48 +124,51 @@ try {
         };
 
         if (AEM === 'classic') {
-            extras += ` --install-file ${buildPath}/addon.zip`;
             downloadArtifact('commerce-addon-aem-650-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
+            extras += ` --install-file ${buildPath}/addon.zip`;
             extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM === 'lts') {
-            extras += ` --install-file ${buildPath}/addon.zip`;
             downloadArtifact('commerce-addon-aem-660-all', 'zip', 'addon.zip', aemCifSdkApiVersion);
+            extras += ` --install-file ${buildPath}/addon.zip`;
             extras += ` --bundle com.adobe.cq:core.wcm.components.all:${wcmVersion}:zip`;
         } else if (AEM === 'addon') {
-            extras += ` --install-file ${buildPath}/addon.far`;
             downloadArtifact('cif-cloud-ready-feature-pkg', 'far', 'addon.far', 'LATEST', 'cq-commerce-addon-authorfar');
+            extras += ` --install-file ${buildPath}/addon.far`;
         }
 
         const maxMetaspace = '-XX:MaxMetaspaceSize=512m';
-        // Start CQ
+        // Start CQ (core and examples bundles are installed later via Felix when add-on is ready)
         ci.sh(`./qp.sh -v start --id author --runmode author --port 4502 --qs-jar /home/circleci/cq/author/cq-quickstart.jar \
             --bundle org.apache.sling:org.apache.sling.junit.core:1.0.23:jar \
             --bundle com.adobe.commerce.cif:magento-graphql:${magentoGraphqlVersion}:jar \
+            ${extras} \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.config:${wcmVersion}:zip \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.apps:${wcmVersion}:zip \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.content:${wcmVersion}:zip \
-            ${extras} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-apps'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-config'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-core'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-examples-bundle'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-examples-apps'])} \
+            ${ci.addQpFileDependency(config.modules['core-cif-components-apps'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-config'])} \
+            ${ci.addQpFileDependency(config.modules['core-cif-components-examples-apps'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-content'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])} \
             --vm-options \\\"-Xmx1536m ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec,output=tcpserver,port=6300\\\"`);
     });
 
+    prepareAemForCifTests();
 
-    // Temporary fix for integration & selenium test
+    // Configure GraphQL client for examples (allowInsecure on classic/LTS for http://localhost)
     const formData = {
         apply: true,
         factoryPid: 'com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl',
         action: 'ajaxConfigManager',
-        url: "http://localhost:4502/apps/cif-components-examples/graphql",
+        url: 'http://localhost:4502/apps/cif-components-examples/graphql',
         httpMethod: 'GET',
         propertylist: 'url,httpMethod'
     };
+    if (AEM === 'classic' || AEM === 'lts') {
+        formData.allowInsecure = 'true';
+        formData.propertylist = 'url,httpMethod,allowInsecure';
+    }
 
     ci.sh(`curl 'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~examples' \
         -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
@@ -98,8 +177,6 @@ try {
         --data-raw '${Object.entries(formData)
         .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
         .join('&')}'`);
-
-
 
     // Run integration tests
     if (TYPE === 'integration') {
@@ -112,19 +189,14 @@ try {
                 -Dsling.it.instances=1`);
         });
     }
-    
+
     // Run UI tests
     if (TYPE === 'selenium') {
-        // Get version of ChromeDriver
-        let chromedriver = ci.sh('chromedriver --version', true); // Returns something like ChromeDriver 80.0.3987.16 (320f6526c1632ad4f205ebce69b99a062ed78647-refs/branch-heads/3987@{#185})
-        chromedriver = chromedriver.split(' ');
-        chromedriver = chromedriver.length >= 2 ? chromedriver[1] : '';
-
         ci.dir('ui.tests', () => {
-            ci.sh(`CHROMEDRIVER=${chromedriver} mvn test -U -B -Pui-tests-local-execution -DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`);
+            ci.sh(`mvn test -U -B -Pui-tests-local-execution -DHEADLESS_BROWSER=true -DSELENIUM-BROWSER=${BROWSER}`);
         });
     }
-    
+
     // No coverage for UI tests
     if (TYPE !== 'selenium') {
         // Dump JaCoCo exec data via TCP while AEM is still running.
