@@ -28,11 +28,12 @@ const { TYPE, BROWSER, AEM } = process.env;
 
 const CORE_BUNDLE = 'com.adobe.commerce.cif.core-cif-components-core';
 const ADDON_BUNDLE = 'com.adobe.cq.cif.commerce-addon-bundle';
+const AEM_READY_TIMEOUT_MS = 360000;
 
 // Wait for AEM HTTP, commerce add-on (classic/LTS), then install and activate project bundles.
 const prepareAemForCifTests = () => {
     const needAddon = AEM === 'classic' || AEM === 'lts';
-    const deadline = Date.now() + 360000;
+    const deadline = Date.now() + AEM_READY_TIMEOUT_MS;
     let attempt = 0;
     let projectBundlesInstalled = false;
 
@@ -92,7 +93,7 @@ const prepareAemForCifTests = () => {
         }
     }
 
-    throw new Error('Timed out after 360s waiting for AEM to be ready.');
+    throw new Error(`Timed out after ${AEM_READY_TIMEOUT_MS / 1000}s waiting for AEM to be ready.`);
 };
 
 try {
@@ -102,9 +103,9 @@ try {
     let excludedCategory;
     if (AEM === 'classic') {
         excludedCategory = 'junit.category.IgnoreOn65';
-    } else if (AEM === 'lts') {
-        excludedCategory = 'junit.category.IgnoreOnLts';
     } else {
+        // LTS and cloud-ready: exclude @Category(IgnoreOnCloud) tests (same as master for LTS).
+        // IgnoreOnLts does not exist yet; add it when we have LTS-only @Category annotations.
         excludedCategory = 'junit.category.IgnoreOnCloud';
     }
 
