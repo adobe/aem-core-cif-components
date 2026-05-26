@@ -96,13 +96,56 @@ const prepareAemForCifTests = () => {
     throw new Error(`Timed out after ${AEM_READY_TIMEOUT_MS / 1000}s waiting for AEM to be ready.`);
 };
 
-// IT site commerce pages use GraphqlClientImpl~default (Catalog Service). Same COMMERCE_ENDPOINT as Maven ITs.
+// Mirrors it/site/ui.config/.../GraphqlClientImpl~default.cfg.json (url overridden from CI env).
+const IT_SITE_GRAPHQL_CACHE_CONFIGURATIONS = [
+    'cif-components-it-site/components/commerce/navigation:true:5:300',
+    'com.adobe.cq.commerce.core.search.services.SearchFilterService:true:10:300',
+    'cif-components-it-site/components/commerce/breadcrumb:true:1000:300',
+    'cif-components-it-site/components/commerce/product:true:50:1000',
+    'cif-components-it-site/components/commerce/productcollection:true:50:1000',
+    'cif-components-it-site/components/commerce/productlist:true:50:300'
+];
+
+const encodeOsgiFormBody = (formData) => {
+    const parts = [];
+    for (const [key, value] of Object.entries(formData)) {
+        if (Array.isArray(value)) {
+            for (const item of value) {
+                parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(item)}`);
+            }
+        } else {
+            parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+        }
+    }
+    return parts.join('&');
+};
+
+const postOsgiConfig = (configPath, formData) => {
+    ci.sh(`curl -sf 'http://localhost:4502/system/console/configMgr/${configPath}' \
+        -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+        -u 'admin:admin' \
+        --data-raw '${encodeOsgiFormBody(formData)}'`);
+};
+
+// IT site commerce pages use GraphqlClientImpl~default. Apply full IT ui.config (not url/httpMethod only).
 const configureItSiteGraphqlClient = () => {
     if (!COMMERCE_ENDPOINT) {
         console.log('Skipping GraphqlClientImpl~default: COMMERCE_ENDPOINT is not set');
         return;
     }
 
+    const propertyNames = [
+        'identifier',
+        'url',
+        'httpMethod',
+        'connectionTimeout',
+        'socketTimeout',
+        'maxHttpConnections',
+        'requestPoolTimeout',
+        'acceptSelfSignedCertificates',
+        'allowHttpProtocol',
+        'cacheConfigurations'
+    ];
     const formData = {
         apply: true,
         action: 'ajaxConfigManager',
@@ -110,20 +153,34 @@ const configureItSiteGraphqlClient = () => {
         identifier: 'default',
         url: COMMERCE_ENDPOINT,
         httpMethod: 'POST',
-        propertylist: 'identifier,url,httpMethod'
+        connectionTimeout: '5000',
+        socketTimeout: '5000',
+        maxHttpConnections: '20',
+        requestPoolTimeout: '2000',
+        acceptSelfSignedCertificates: 'true',
+        allowHttpProtocol: 'true',
+        cacheConfigurations: IT_SITE_GRAPHQL_CACHE_CONFIGURATIONS,
+        propertylist: propertyNames.join(',')
     };
     if (AEM === 'classic' || AEM === 'lts') {
         formData.allowInsecure = 'true';
-        formData.acceptSelfSignedCertificates = 'true';
-        formData.propertylist = 'identifier,url,httpMethod,allowInsecure,acceptSelfSignedCertificates';
+        propertyNames.push('allowInsecure');
+        formData.propertylist = propertyNames.join(',');
     }
 
-    ci.sh(`curl -sf 'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~default' \
-        -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
-        -u 'admin:admin' \
-        --data-raw '${Object.entries(formData)
-        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-        .join('&')}'`);
+    postOsgiConfig('com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~default', formData);
+};
+
+// Mirrors it/site/ui.config/.../UrlProviderImpl.cfg.json (CI ui.config package is not always applied).
+const configureItSiteUrlProvider = () => {
+    postOsgiConfig('com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl', {
+        apply: true,
+        action: 'ajaxConfigManager',
+        productPageUrlFormat: '{{page}}.html/{{url_path}}.html#{{variant_sku}}',
+        enableContextAwareProductUrls: 'true',
+        categoryPageUrlFormat: '{{page}}.html/{{url_path}}.html',
+        propertylist: 'productPageUrlFormat,enableContextAwareProductUrls,categoryPageUrlFormat'
+    });
 };
 
 // TEMP (SITES-40396): remove logItSiteCommerceOsgiConfig() call + function when UrlProvider root cause is fixed.
@@ -247,6 +304,7 @@ try {
         .join('&')}'`);
 
     configureItSiteGraphqlClient();
+    configureItSiteUrlProvider();
     logItSiteCommerceOsgiConfig();
 
     // Run integration tests

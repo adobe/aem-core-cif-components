@@ -103,7 +103,7 @@ Use the full GraphQL URL (`https://…/graphql`). Do not use `${COMMERCE_ENDPOIN
 
 ### CircleCI / local Quickstart
 
-After AEM is ready, `.circleci/ci/it-tests.js` applies the URL the same way as `GraphqlClientImpl~examples`: a Felix `configMgr` POST to `com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~default` with `url` and `httpMethod=POST` from the CircleCI `COMMERCE_ENDPOINT` env var (full `https://…/graphql` URL).
+After AEM is ready, `.circleci/ci/it-tests.js` applies IT site OSGi via Felix `configMgr` (same pattern as `GraphqlClientImpl~examples`): full `GraphqlClientImpl~default` settings from `ui.config` with `url` taken from CircleCI `COMMERCE_ENDPOINT`, plus `UrlProviderImpl` (`url_path`, context-aware). This is needed because the IT site `ui.config` content package is not always picked up on the pipeline AEM instance.
 
 Changing backends does not require a code change — only that pipeline variable.
 
