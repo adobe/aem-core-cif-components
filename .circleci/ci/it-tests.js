@@ -96,7 +96,15 @@ const prepareAemForCifTests = () => {
     throw new Error(`Timed out after ${AEM_READY_TIMEOUT_MS / 1000}s waiting for AEM to be ready.`);
 };
 
-// Mirrors it/site/ui.config/.../GraphqlClientImpl~default.cfg.json (url overridden from CI env).
+// ---------------------------------------------------------------------------
+// IT site OSGi bootstrap (see it/site/README.md — "CircleCI integration tests")
+//
+// ui.config is correct in Git but the embedded ui.config subpackage is not always
+// active on pipeline Quickstart before it/http runs. Without this block, AEM uses
+// CIF defaults (url_key URLs, no GraphQL caches). Values below must match:
+//   it/site/ui.config/.../GraphqlClientImpl~default.cfg.json
+//   it/site/ui.config/.../UrlProviderImpl.cfg.json
+// ---------------------------------------------------------------------------
 const IT_SITE_GRAPHQL_CACHE_CONFIGURATIONS = [
     'cif-components-it-site/components/commerce/navigation:true:5:300',
     'com.adobe.cq.commerce.core.search.services.SearchFilterService:true:10:300',
@@ -181,36 +189,6 @@ const configureItSiteUrlProvider = () => {
         categoryPageUrlFormat: '{{page}}.html/{{url_path}}.html',
         propertylist: 'productPageUrlFormat,enableContextAwareProductUrls,categoryPageUrlFormat'
     });
-};
-
-// TEMP (SITES-40396): remove logItSiteCommerceOsgiConfig() call + function when UrlProvider root cause is fixed.
-const logItSiteCommerceOsgiConfig = () => {
-    const dump = (label, configId) => {
-        try {
-            const json = ci.sh(
-                `curl -sf -u admin:admin 'http://localhost:4502/system/console/configMgr/${configId}.json'`,
-                true
-            );
-            console.log(`=== CIF IT OSGi debug [${label}] ${configId} ===`);
-            console.log(json);
-        } catch (e) {
-            console.log(`=== CIF IT OSGi debug [${label}] ${configId} — not available: ${e.message || e} ===`);
-        }
-    };
-    dump('UrlProviderImpl', 'com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl');
-    dump('GraphqlClientImpl~default', 'com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~default');
-    try {
-        const listing = ci.sh("curl -sf -u admin:admin 'http://localhost:4502/system/console/configMgr.json'", true);
-        const urlProviderLines = listing
-            .split('\n')
-            .filter(line => line.includes('UrlProvider') || line.includes('GraphqlClientImpl'));
-        if (urlProviderLines.length > 0) {
-            console.log('=== CIF IT OSGi debug [configMgr.json lines mentioning UrlProvider/GraphqlClient] ===');
-            console.log(urlProviderLines.join('\n'));
-        }
-    } catch (e) {
-        console.log(`=== CIF IT OSGi debug [configMgr.json listing] skipped: ${e.message || e} ===`);
-    }
 };
 
 try {
@@ -305,7 +283,6 @@ try {
 
     configureItSiteGraphqlClient();
     configureItSiteUrlProvider();
-    logItSiteCommerceOsgiConfig();
 
     // Run integration tests
     if (TYPE === 'integration') {

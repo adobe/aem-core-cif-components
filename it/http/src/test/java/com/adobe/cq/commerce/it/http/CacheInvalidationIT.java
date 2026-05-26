@@ -16,8 +16,6 @@
 package com.adobe.cq.commerce.it.http;
 
 import java.io.IOException;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -34,7 +32,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -84,14 +81,6 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     private static final long AEM_POLL_TIMEOUT_MS = resolveAemPollTimeoutMs();
 
     private static final long AEM_POLL_INTERVAL_MS = 1_000L;
-
-    // TEMP (SITES-40396): remove URL debug block when UrlProvider root cause is fixed.
-    private static final Set<String> URL_DEBUG_LOGGED_CATEGORY_PAGES = ConcurrentHashMap.newKeySet();
-
-    @BeforeClass
-    public static void logUrlProviderDiagnostics() {
-        ItSiteUrlDiagnostics.logOsgiConfiguration(adminAuthor);
-    }
 
     private static long resolveAemPollTimeoutMs() {
         String prop = System.getProperty("CIF_IT_AEM_POLL_TIMEOUT_MS");
@@ -303,29 +292,12 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     }
 
     /**
-     * Discovers the actual PDP URL this AEM instance expects for the given SKU by reading
-     * the product card's {@code href} on the category page. This sidesteps URL-format
-     * differences between AEM instances (e.g. context-aware vs leaf-only product URLs)
-     * because the category page itself emits whichever URL its URL provider is configured
-     * to produce. Returns the URL with {@code ?wcmmode=disabled} appended so the PDP
-     * renders in publish mode (avoids the "Product name" i18n placeholder in author mode).
-     *
-     * <p>
-     * TODO: Investigate why the pipeline AEM emits the short-form URL
-     * ({@code /product-page.html/<url_key>.html}) for product cards instead of the full
-     * context-aware form ({@code /product-page.html/<category_url_path>/<url_key>.html})
-     * that the local AEM produces. With {@code enableContextAwareProductUrls=true} in
-     * {@code UrlProviderImpl.cfg.json}, the full form is expected. Either the OSGi config
-     * isn't being applied on the pipeline, or the URL provider on that AEM version uses
-     * different formatting logic. Once that is resolved, the discovery step here can be
-     * dropped and the PDP URL hardcoded again.
+     * Discovers the PDP URL for the given SKU from the product card {@code href} on the category
+     * page so tests follow whatever {@link com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl}
+     * produces on this AEM instance. Appends {@code wcmmode=disabled} to avoid the author-mode
+     * "Product name" i18n placeholder on the PDP.
      */
     private String discoverPdpUrl(TestData data) throws ClientException {
-        if (URL_DEBUG_LOGGED_CATEGORY_PAGES.add(data.categoryPageUrl)) {
-            ItSiteUrlDiagnostics.logCategoryPageProductUrls(
-                adminAuthor, data.categoryPageUrl, data.productSku, data.categoryUrlPath);
-        }
-
         SlingHttpResponse response = adminAuthor.doGet(data.categoryPageUrl, 200);
         Document doc = Jsoup.parse(response.getContent());
         Elements items = doc.select(".productcollection__item[data-product-sku=" + data.productSku + "]");
@@ -338,12 +310,6 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             throw new AssertionError("Cannot derive PDP URL: product card for SKU "
                 + data.productSku + " has no href attribute");
         }
-
-        LOG.info("CIF IT URL debug: discoverPdpUrl sku={} categoryUrlPath={} href={} shape={}",
-            data.productSku,
-            data.categoryUrlPath,
-            href,
-            ItSiteUrlDiagnostics.classifyProductHref(href, data.categoryUrlPath));
 
         return href + (href.contains("?") ? "&" : "?") + "wcmmode=disabled";
     }
