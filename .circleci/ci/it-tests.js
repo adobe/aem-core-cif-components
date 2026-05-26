@@ -126,6 +126,36 @@ const configureItSiteGraphqlClient = () => {
         .join('&')}'`);
 };
 
+// TEMP (SITES-40396): remove logItSiteCommerceOsgiConfig() call + function when UrlProvider root cause is fixed.
+const logItSiteCommerceOsgiConfig = () => {
+    const dump = (label, configId) => {
+        try {
+            const json = ci.sh(
+                `curl -sf -u admin:admin 'http://localhost:4502/system/console/configMgr/${configId}.json'`,
+                true
+            );
+            console.log(`=== CIF IT OSGi debug [${label}] ${configId} ===`);
+            console.log(json);
+        } catch (e) {
+            console.log(`=== CIF IT OSGi debug [${label}] ${configId} — not available: ${e.message || e} ===`);
+        }
+    };
+    dump('UrlProviderImpl', 'com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl');
+    dump('GraphqlClientImpl~default', 'com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~default');
+    try {
+        const listing = ci.sh("curl -sf -u admin:admin 'http://localhost:4502/system/console/configMgr.json'", true);
+        const urlProviderLines = listing
+            .split('\n')
+            .filter(line => line.includes('UrlProvider') || line.includes('GraphqlClientImpl'));
+        if (urlProviderLines.length > 0) {
+            console.log('=== CIF IT OSGi debug [configMgr.json lines mentioning UrlProvider/GraphqlClient] ===');
+            console.log(urlProviderLines.join('\n'));
+        }
+    } catch (e) {
+        console.log(`=== CIF IT OSGi debug [configMgr.json listing] skipped: ${e.message || e} ===`);
+    }
+};
+
 try {
     ci.stage("Integration Tests");
     let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
@@ -217,6 +247,7 @@ try {
         .join('&')}'`);
 
     configureItSiteGraphqlClient();
+    logItSiteCommerceOsgiConfig();
 
     // Run integration tests
     if (TYPE === 'integration') {

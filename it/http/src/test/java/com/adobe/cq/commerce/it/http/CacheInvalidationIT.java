@@ -31,7 +31,11 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -81,6 +85,14 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     private static final long AEM_POLL_TIMEOUT_MS = resolveAemPollTimeoutMs();
 
     private static final long AEM_POLL_INTERVAL_MS = 1_000L;
+
+    // TEMP (SITES-40396): remove URL debug block when UrlProvider root cause is fixed.
+    private static final Set<String> URL_DEBUG_LOGGED_CATEGORY_PAGES = ConcurrentHashMap.newKeySet();
+
+    @BeforeClass
+    public static void logUrlProviderDiagnostics() {
+        ItSiteUrlDiagnostics.logOsgiConfiguration(adminAuthor);
+    }
 
     private static long resolveAemPollTimeoutMs() {
         String prop = System.getProperty("CIF_IT_AEM_POLL_TIMEOUT_MS");
@@ -310,6 +322,11 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      * dropped and the PDP URL hardcoded again.
      */
     private String discoverPdpUrl(TestData data) throws ClientException {
+        if (URL_DEBUG_LOGGED_CATEGORY_PAGES.add(data.categoryPageUrl)) {
+            ItSiteUrlDiagnostics.logCategoryPageProductUrls(
+                adminAuthor, data.categoryPageUrl, data.productSku, data.categoryUrlPath);
+        }
+
         SlingHttpResponse response = adminAuthor.doGet(data.categoryPageUrl, 200);
         Document doc = Jsoup.parse(response.getContent());
         Elements items = doc.select(".productcollection__item[data-product-sku=" + data.productSku + "]");
@@ -322,6 +339,13 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             throw new AssertionError("Cannot derive PDP URL: product card for SKU "
                 + data.productSku + " has no href attribute");
         }
+
+        LOG.info("CIF IT URL debug: discoverPdpUrl sku={} categoryUrlPath={} href={} shape={}",
+            data.productSku,
+            data.categoryUrlPath,
+            href,
+            ItSiteUrlDiagnostics.classifyProductHref(href, data.categoryUrlPath));
+
         return href + (href.contains("?") ? "&" : "?") + "wcmmode=disabled";
     }
 
