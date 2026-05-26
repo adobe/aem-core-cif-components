@@ -475,125 +475,40 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         }
     }
 
-    private void postCacheInvalidationAndLog(String label, String payload) throws ClientException {
-        LOG.info("Posting cache invalidation: {}", label);
-        SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT, payload, 200);
-        LOG.info("Cache invalidation '{}' completed with HTTP {}", label, response.getStatusLine().getStatusCode());
-    }
-
-    /**
-     * Reads the current product name from Magento REST (best-effort, for poll diagnostics).
-     */
-    private String fetchMagentoProductName(String sku) {
-        if (COMMERCE_ENDPOINT == null || INTEGRATION_TOKEN == null) {
-            return null;
-        }
-        try {
-            String url = commerceRestBase() + "/products/" + sku;
-            try (CloseableHttpClient client = HttpClients.createDefault()) {
-                HttpGet request = new HttpGet(url);
-                request.setHeader("Authorization", "Bearer " + INTEGRATION_TOKEN);
-                HttpResponse response = client.execute(request);
-                String body = EntityUtils.toString(response.getEntity());
-                if (response.getStatusLine().getStatusCode() != 200) {
-                    return null;
-                }
-                return OBJECT_MAPPER.readTree(body).path("name").asText(null);
-            }
-        } catch (Exception e) {
-            LOG.debug("Could not read Magento product {} via REST: {}", sku, e.toString());
-            return null;
-        }
-    }
-
-    /**
-     * Reads the current category name from Magento REST (best-effort, for poll diagnostics).
-     */
-    private String fetchMagentoCategoryName(int categoryId) {
-        if (COMMERCE_ENDPOINT == null || INTEGRATION_TOKEN == null) {
-            return null;
-        }
-        try {
-            String url = commerceRestBase() + "/categories/" + categoryId;
-            try (CloseableHttpClient client = HttpClients.createDefault()) {
-                HttpGet request = new HttpGet(url);
-                request.setHeader("Authorization", "Bearer " + INTEGRATION_TOKEN);
-                HttpResponse response = client.execute(request);
-                String body = EntityUtils.toString(response.getEntity());
-                if (response.getStatusLine().getStatusCode() != 200) {
-                    return null;
-                }
-                return OBJECT_MAPPER.readTree(body).path("name").asText(null);
-            }
-        } catch (Exception e) {
-            LOG.debug("Could not read Magento category {} via REST: {}", categoryId, e.toString());
-            return null;
-        }
-    }
-
     // ---- retry helpers for Catalog Service eventual-consistency lag --------------------
 
     /**
-     * Polls AEM's category title for up to 30 seconds, returning successfully once it matches
-     * {@code expected}. Used after a cache invalidation to absorb the Magento → Catalog
-     * Service sync lag (Magento REST writes don't appear in the GraphQL read store
-     * instantly; the gap can be a few hundred ms to several seconds under load).
+     * Polls AEM's category title until it matches {@code expected} or {@link #AEM_POLL_TIMEOUT_MS} elapses.
      */
     private void waitForCategoryTitleOnAem(TestData data, String expected) throws Exception {
-        LOG.info("Polling AEM category title at {} (timeout {} ms), expecting '{}'",
-            data.categoryPageUrl, AEM_POLL_TIMEOUT_MS, expected);
-        long started = System.currentTimeMillis();
-        long deadline = started + AEM_POLL_TIMEOUT_MS;
+        long deadline = System.currentTimeMillis() + AEM_POLL_TIMEOUT_MS;
         String last = null;
-        int attempt = 0;
         while (System.currentTimeMillis() < deadline) {
-            attempt++;
             last = getCategoryNameFromPage(data);
-            String magentoName = fetchMagentoCategoryName(data.categoryId);
-            LOG.info(
-                "Category title poll #{} (+{} ms): AEM='{}', Magento REST='{}', expected='{}'",
-                attempt, System.currentTimeMillis() - started, last, magentoName, expected);
             if (expected.equals(last)) {
                 return;
             }
             Thread.sleep(AEM_POLL_INTERVAL_MS);
         }
-        String magentoName = fetchMagentoCategoryName(data.categoryId);
-        Assert.assertEquals(
-            "Category title did not match expected value within " + AEM_POLL_TIMEOUT_MS
-                + "ms after invalidation (AEM last='" + last + "', Magento REST='" + magentoName
-                + "'). If Magento already shows the test name, Catalog Service sync or AEM GraphQL cache "
-                + "is likely still stale.",
-            expected, last);
+        Assert.assertEquals("Category title did not match expected value within " + AEM_POLL_TIMEOUT_MS
+            + "ms after invalidation", expected, last);
     }
 
     /**
-     * Polls the PDP breadcrumb for up to 30 seconds, returning successfully once it contains
-     * {@code expectedSubstring}.
+     * Polls the PDP breadcrumb until it contains {@code expectedSubstring} or the poll timeout elapses.
      */
     private void waitForCategoryNameInPdpBreadcrumb(TestData data, String expectedSubstring) throws Exception {
-        LOG.info("Polling PDP breadcrumb for category substring '{}' (timeout {} ms)", expectedSubstring,
-            AEM_POLL_TIMEOUT_MS);
-        long started = System.currentTimeMillis();
-        long deadline = started + AEM_POLL_TIMEOUT_MS;
+        long deadline = System.currentTimeMillis() + AEM_POLL_TIMEOUT_MS;
         String last = null;
-        int attempt = 0;
         while (System.currentTimeMillis() < deadline) {
-            attempt++;
             last = getPdpBreadcrumbText(data);
-            String magentoName = fetchMagentoCategoryName(data.categoryId);
-            LOG.info(
-                "PDP breadcrumb poll #{} (+{} ms): AEM='{}', Magento REST category='{}', expected substring='{}'",
-                attempt, System.currentTimeMillis() - started, last, magentoName, expectedSubstring);
             if (last != null && last.contains(expectedSubstring)) {
                 return;
             }
             Thread.sleep(AEM_POLL_INTERVAL_MS);
         }
-        String magentoName = fetchMagentoCategoryName(data.categoryId);
-        Assert.assertTrue(
-            "PDP breadcrumb did not contain '" + expectedSubstring + "' within " + AEM_POLL_TIMEOUT_MS
-                + "ms after invalidation (AEM last='" + last + "', Magento REST category='" + magentoName + "')",
+        Assert.assertTrue("PDP breadcrumb did not contain '" + expectedSubstring + "' within " + AEM_POLL_TIMEOUT_MS
+            + "ms after invalidation (last value: " + last + ")",
             last != null && last.contains(expectedSubstring));
     }
 
@@ -616,7 +531,6 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             String actualName = root.path("name").asText(null);
             Assert.assertEquals("Magento category " + categoryId + " did not reflect the expected name",
                 expectedName, actualName);
-            LOG.info("Magento REST confirms category {} name is '{}'", categoryId, actualName);
         }
     }
 
@@ -638,68 +552,44 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             String actualName = root.path("name").asText(null);
             Assert.assertEquals("Magento product " + sku + " did not reflect the expected name",
                 expectedName, actualName);
-            LOG.info("Magento REST confirms product {} name is '{}'", sku, actualName);
         }
     }
 
     /**
-     * Polls the product card name on the category listing for up to 30 seconds, returning
-     * successfully once it matches {@code expected}.
+     * Polls the product card name on the category listing until it matches {@code expected} or the poll
+     * timeout elapses.
      */
     private void waitForProductNameOnCategoryListing(TestData data, String expected) throws Exception {
-        LOG.info("Polling AEM category listing for SKU {} at {} (timeout {} ms), expecting '{}'",
-            data.productSku, data.categoryPageUrl, AEM_POLL_TIMEOUT_MS, expected);
-        long started = System.currentTimeMillis();
-        long deadline = started + AEM_POLL_TIMEOUT_MS;
+        long deadline = System.currentTimeMillis() + AEM_POLL_TIMEOUT_MS;
         String last = null;
-        int attempt = 0;
         while (System.currentTimeMillis() < deadline) {
-            attempt++;
             last = getProductNameFromCategoryPage(data);
-            String magentoName = fetchMagentoProductName(data.productSku);
-            LOG.info(
-                "Category listing poll #{} (+{} ms): AEM='{}', Magento REST='{}', expected='{}'",
-                attempt, System.currentTimeMillis() - started, last, magentoName, expected);
             if (expected.equals(last)) {
                 return;
             }
             Thread.sleep(AEM_POLL_INTERVAL_MS);
         }
-        String magentoName = fetchMagentoProductName(data.productSku);
         Assert.assertEquals(
             "Category-page product name did not match expected value within " + AEM_POLL_TIMEOUT_MS
-                + "ms after invalidation (AEM last='" + last + "', Magento REST='" + magentoName
-                + "'). If Magento REST already shows the test name, AEM likely invalidated its GraphQL cache "
-                + "but Catalog Service (GraphQL backend) has not synced yet.",
+                + "ms after invalidation",
             expected, last);
     }
 
     /**
-     * Polls the PDP product name for up to 30 seconds, returning successfully once it matches
-     * {@code expected}.
+     * Polls the PDP product name until it matches {@code expected} or the poll timeout elapses.
      */
     private void waitForProductNameOnPdp(TestData data, String expected) throws Exception {
-        LOG.info("Polling AEM PDP for SKU {} (timeout {} ms), expecting '{}'", data.productSku, AEM_POLL_TIMEOUT_MS,
-            expected);
-        long started = System.currentTimeMillis();
-        long deadline = started + AEM_POLL_TIMEOUT_MS;
+        long deadline = System.currentTimeMillis() + AEM_POLL_TIMEOUT_MS;
         String last = null;
-        int attempt = 0;
         while (System.currentTimeMillis() < deadline) {
-            attempt++;
             last = getProductNameFromPdp(data);
-            String magentoName = fetchMagentoProductName(data.productSku);
-            LOG.info("PDP poll #{} (+{} ms): AEM='{}', Magento REST='{}', expected='{}'",
-                attempt, System.currentTimeMillis() - started, last, magentoName, expected);
             if (expected.equals(last)) {
                 return;
             }
             Thread.sleep(AEM_POLL_INTERVAL_MS);
         }
-        String magentoName = fetchMagentoProductName(data.productSku);
         Assert.assertEquals(
-            "PDP product name did not match expected value within " + AEM_POLL_TIMEOUT_MS
-                + "ms after invalidation (AEM last='" + last + "', Magento REST='" + magentoName + "')",
+            "PDP product name did not match expected value within " + AEM_POLL_TIMEOUT_MS + "ms after invalidation",
             expected, last);
     }
 
@@ -768,7 +658,6 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         Assert.assertNotNull("PDP should render " + data.productSku + " with a name", originalNameOnPdp);
 
         String testName = "CIF-IT-" + data.productSku + "-" + System.currentTimeMillis();
-        LOG.info("Workflow productSkus: SKU {} — renaming Magento product to '{}'", data.productSku, testName);
         try (TemporaryProductName ignored = temporaryProductName(data, testName)) {
             verifyMagentoProductName(data.productSku, testName);
             Assert.assertEquals("Category listing should serve stale cached name before invalidation",
@@ -776,9 +665,8 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             Assert.assertEquals("PDP should serve stale cached name before invalidation",
                 originalNameOnPdp, getProductNameFromPdp(data));
 
-            postCacheInvalidationAndLog("productSkus " + data.productSku, productSkusPayload(data.productSku));
+            postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(data.productSku), 200);
 
-            // Poll to absorb Magento → Catalog Service eventual-consistency lag.
             waitForProductNameOnCategoryListing(data, testName);
             waitForProductNameOnPdp(data, testName);
 
@@ -796,7 +684,6 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             getPdpBreadcrumbText(data).contains(originalCategoryName));
 
         String testName = "CIF-IT-Cat-" + data.categoryId + "-" + System.currentTimeMillis();
-        LOG.info("Workflow categoryUids: category {} — renaming Magento category to '{}'", data.categoryId, testName);
         try (TemporaryCategoryName ignored = temporaryCategoryName(data, testName)) {
             verifyMagentoCategoryName(data.categoryId, testName);
             Assert.assertEquals("Category title should serve stale cached name before invalidation",
@@ -804,7 +691,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             Assert.assertTrue("PDP breadcrumb should still contain stale category name before invalidation",
                 getPdpBreadcrumbText(data).contains(originalCategoryName));
 
-            postCacheInvalidationAndLog("categoryUids " + data.categoryUid, categoryUidsPayload(data.categoryUid));
+            postJson(CACHE_INVALIDATION_ENDPOINT, categoryUidsPayload(data.categoryUid), 200);
 
             waitForCategoryTitleOnAem(data, testName);
             waitForCategoryNameInPdpBreadcrumb(data, testName);
@@ -823,7 +710,6 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         Assert.assertNotNull("PDP should render " + data.productSku + " with a name", originalNameOnPdp);
 
         String testName = "CIF-IT-CN-" + data.productSku + "-" + System.currentTimeMillis();
-        LOG.info("Workflow cacheNames: SKU {} — renaming Magento product to '{}'", data.productSku, testName);
         try (TemporaryProductName ignored = temporaryProductName(data, testName)) {
             verifyMagentoProductName(data.productSku, testName);
             Assert.assertEquals("Category listing should serve stale cached name before cache-name invalidation",
@@ -831,10 +717,11 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             Assert.assertEquals("PDP should serve stale cached name before cache-name invalidation",
                 originalNameOnPdp, getProductNameFromPdp(data));
 
-            postCacheInvalidationAndLog("cacheNames productlist+product",
+            postJson(CACHE_INVALIDATION_ENDPOINT,
                 cacheNamesPayload(
                     "cif-components-it-site/components/commerce/productlist",
-                    "cif-components-it-site/components/commerce/product"));
+                    "cif-components-it-site/components/commerce/product"),
+                200);
 
             waitForProductNameOnCategoryListing(data, testName);
             waitForProductNameOnPdp(data, testName);
@@ -858,8 +745,6 @@ public class CacheInvalidationIT extends ItSiteTestBase {
 
         String testProductName = "CIF-IT-AllP-" + data.productSku + "-" + System.currentTimeMillis();
         String testCategoryName = "CIF-IT-AllC-" + data.categoryId + "-" + System.currentTimeMillis();
-        LOG.info("Workflow invalidateAll: SKU {} -> '{}', category {} -> '{}'",
-            data.productSku, testProductName, data.categoryId, testCategoryName);
         try (TemporaryProductName ignoredProduct = temporaryProductName(data, testProductName);
             TemporaryCategoryName ignoredCategory = temporaryCategoryName(data, testCategoryName)) {
             verifyMagentoProductName(data.productSku, testProductName);
@@ -873,7 +758,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             Assert.assertTrue("PDP breadcrumb should still contain stale category name before invalidateAll",
                 getPdpBreadcrumbText(data).contains(originalCategoryName));
 
-            postCacheInvalidationAndLog("invalidateAll", invalidateAllPayload());
+            postJson(CACHE_INVALIDATION_ENDPOINT, invalidateAllPayload(), 200);
 
             waitForProductNameOnCategoryListing(data, testProductName);
             waitForProductNameOnPdp(data, testProductName);
@@ -894,7 +779,6 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         Assert.assertNotNull("PDP should render " + data.productSku + " with a name", originalNameOnPdp);
 
         String testName = "CIF-IT-RX-" + data.productSku + "-" + System.currentTimeMillis();
-        LOG.info("Workflow regexPatterns: SKU {} — renaming Magento product to '{}'", data.productSku, testName);
         try (TemporaryProductName ignored = temporaryProductName(data, testName)) {
             verifyMagentoProductName(data.productSku, testName);
             Assert.assertEquals("Category listing should serve stale cached name before regex invalidation",
@@ -902,8 +786,8 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             Assert.assertEquals("PDP should serve stale cached name before regex invalidation",
                 originalNameOnPdp, getProductNameFromPdp(data));
 
-            postCacheInvalidationAndLog("regexPatterns " + data.productSku,
-                regexPatternsPayload("\\\"sku\\\":\\\\s*\\\"" + data.productSku + "\\\""));
+            postJson(CACHE_INVALIDATION_ENDPOINT,
+                regexPatternsPayload("\\\"sku\\\":\\\\s*\\\"" + data.productSku + "\\\""), 200);
 
             waitForProductNameOnCategoryListing(data, testName);
             waitForProductNameOnPdp(data, testName);
