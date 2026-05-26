@@ -34,6 +34,8 @@ import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import junit.category.IgnoreOn65;
@@ -50,7 +52,7 @@ import junit.category.IgnoreOnLts;
  * <li><b>Full cache workflow</b> — updates Magento data via REST, confirms AEM serves stale cached
  * data, posts an invalidation request, then confirms AEM serves fresh data on both the category
  * listing and the product detail page. Requires {@code COMMERCE_ENDPOINT} (Magento base URL) and
- * {@code COMMERCE_INTEGRATION_TOKEN} to be set as system properties.</li>
+ * {@code COMMERCE_INTEGRATION_TOKEN} to be set as system properties or environment variables.</li>
  * </ol>
  *
  * <p>
@@ -71,7 +73,22 @@ import junit.category.IgnoreOnLts;
  */
 public class CacheInvalidationIT extends ItSiteTestBase {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CacheInvalidationIT.class);
+
     private static final String CACHE_INVALIDATION_ENDPOINT = "/bin/cif/invalidate-cache";
+
+    /** How long to poll AEM after cache invalidation (override with {@code -DCIF_IT_AEM_POLL_TIMEOUT_MS=60000}). */
+    private static final long AEM_POLL_TIMEOUT_MS = resolveAemPollTimeoutMs();
+
+    private static final long AEM_POLL_INTERVAL_MS = 1_000L;
+
+    private static long resolveAemPollTimeoutMs() {
+        String prop = System.getProperty("CIF_IT_AEM_POLL_TIMEOUT_MS");
+        if (prop != null && !prop.isEmpty()) {
+            return Long.parseLong(prop);
+        }
+        return 30_000L;
+    }
 
     // ---- per-environment test data --------------------------------------
 
@@ -126,8 +143,16 @@ public class CacheInvalidationIT extends ItSiteTestBase {
 
     // COMMERCE_ENDPOINT is the Magento base URL (without /graphql), e.g. https://mcprod.example.com
     // REST writes go to COMMERCE_ENDPOINT/rest/V1 — must point to a writable Magento instance
-    private static final String COMMERCE_ENDPOINT = System.getProperty("COMMERCE_ENDPOINT");
+    private static final String COMMERCE_ENDPOINT = resolveCommerceEndpoint();
     private static final String INTEGRATION_TOKEN = resolveIntegrationToken();
+
+    private static String resolveCommerceEndpoint() {
+        String prop = System.getProperty("COMMERCE_ENDPOINT");
+        if (prop != null && !prop.isEmpty()) {
+            return prop;
+        }
+        return System.getenv("COMMERCE_ENDPOINT");
+    }
 
     private static String resolveIntegrationToken() {
         String prop = System.getProperty("COMMERCE_INTEGRATION_TOKEN");
@@ -146,6 +171,29 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             base = base.substring(0, base.length() - "/graphql".length());
         }
         return base.replaceAll("/+$", "") + "/rest/V1";
+    }
+
+    /**
+     * Workflow tests write to Magento via REST; fail fast with a clear message when credentials
+     * are not configured. Servlet availability tests do not call this.
+     */
+    private static void requireCommerceCredentials() {
+        Assert.assertNotNull(
+            "Workflow tests require COMMERCE_ENDPOINT as a system property or environment variable "
+                + "(Magento base URL, e.g. https://mcprod.example.com). Pass -DCOMMERCE_ENDPOINT=… to Maven "
+                + "or export COMMERCE_ENDPOINT=….",
+            COMMERCE_ENDPOINT);
+        Assert.assertFalse(
+            "Workflow tests require a non-empty COMMERCE_ENDPOINT.",
+            COMMERCE_ENDPOINT.isEmpty());
+        Assert.assertNotNull(
+            "Workflow tests require COMMERCE_INTEGRATION_TOKEN as a system property or environment "
+                + "variable. Pass -DCOMMERCE_INTEGRATION_TOKEN=… to Maven or export "
+                + "COMMERCE_INTEGRATION_TOKEN=….",
+            INTEGRATION_TOKEN);
+        Assert.assertFalse(
+            "Workflow tests require a non-empty COMMERCE_INTEGRATION_TOKEN.",
+            INTEGRATION_TOKEN.isEmpty());
     }
 
     // ---- payload helpers ------------------------------------------------
@@ -244,10 +292,6 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     }
 
     /**
-     * Reads the product name from the PDP using the same selector as {@link ProductComponentIT},
-     * {@code .productFullDetail__productName > span}.
-     */
-    /**
      * Discovers the actual PDP URL this AEM instance expects for the given SKU by reading
      * the product card's {@code href} on the category page. This sidesteps URL-format
      * differences between AEM instances (e.g. context-aware vs leaf-only product URLs)
@@ -281,6 +325,10 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         return href + (href.contains("?") ? "&" : "?") + "wcmmode=disabled";
     }
 
+    /**
+     * Reads the product name from the PDP using the same selector as {@link ProductComponentIT},
+     * {@code .productFullDetail__productName > span}.
+     */
     private String getProductNameFromPdp(TestData data) throws ClientException {
         SlingHttpResponse response = adminAuthor.doGet(discoverPdpUrl(data), 200);
         Document doc = Jsoup.parse(response.getContent());
@@ -352,6 +400,137 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         }
     }
 
+    /**
+     * Restores the Magento product name on close so mutations are always paired with cleanup,
+     * including when a test fails or is interrupted between setup steps.
+     */
+    private final class TemporaryProductName implements AutoCloseable {
+        private final TestData data;
+
+        private TemporaryProductName(TestData data) {
+            this.data = data;
+        }
+
+        @Override
+        public void close() {
+            try {
+                updateProductName(data.productSku, data.originalProductName);
+            } catch (Throwable t) {
+                LOG.warn("Failed to restore Magento product name for SKU {}: {}", data.productSku, t.toString(), t);
+            }
+        }
+    }
+
+    /**
+     * Restores the Magento category name on close; see {@link TemporaryProductName}.
+     */
+    private final class TemporaryCategoryName implements AutoCloseable {
+        private final TestData data;
+
+        private TemporaryCategoryName(TestData data) {
+            this.data = data;
+        }
+
+        @Override
+        public void close() {
+            try {
+                updateCategoryName(data.categoryId, data.originalCategoryName);
+            } catch (Throwable t) {
+                LOG.warn("Failed to restore Magento category name for id {}: {}", data.categoryId, t.toString(), t);
+            }
+        }
+    }
+
+    private TemporaryProductName temporaryProductName(TestData data, String testName) throws IOException {
+        updateProductName(data.productSku, testName);
+        return new TemporaryProductName(data);
+    }
+
+    private TemporaryCategoryName temporaryCategoryName(TestData data, String testName) throws IOException {
+        updateCategoryName(data.categoryId, testName);
+        return new TemporaryCategoryName(data);
+    }
+
+    private void invalidateProductSkuQuietly(TestData data) {
+        try {
+            postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(data.productSku), 200);
+        } catch (Throwable t) {
+            LOG.warn("Failed to post product SKU cache invalidation for {}: {}", data.productSku, t.toString(), t);
+        }
+    }
+
+    private void invalidateCategoryUidQuietly(TestData data) {
+        try {
+            postJson(CACHE_INVALIDATION_ENDPOINT, categoryUidsPayload(data.categoryUid), 200);
+        } catch (Throwable t) {
+            LOG.warn("Failed to post category UID cache invalidation for {}: {}", data.categoryUid, t.toString(), t);
+        }
+    }
+
+    private void invalidateAllQuietly() {
+        try {
+            postJson(CACHE_INVALIDATION_ENDPOINT, invalidateAllPayload(), 200);
+        } catch (Throwable t) {
+            LOG.warn("Failed to post invalidate-all cache invalidation: {}", t.toString(), t);
+        }
+    }
+
+    private void postCacheInvalidationAndLog(String label, String payload) throws ClientException {
+        LOG.info("Posting cache invalidation: {}", label);
+        SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT, payload, 200);
+        LOG.info("Cache invalidation '{}' completed with HTTP {}", label, response.getStatusLine().getStatusCode());
+    }
+
+    /**
+     * Reads the current product name from Magento REST (best-effort, for poll diagnostics).
+     */
+    private String fetchMagentoProductName(String sku) {
+        if (COMMERCE_ENDPOINT == null || INTEGRATION_TOKEN == null) {
+            return null;
+        }
+        try {
+            String url = commerceRestBase() + "/products/" + sku;
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                HttpGet request = new HttpGet(url);
+                request.setHeader("Authorization", "Bearer " + INTEGRATION_TOKEN);
+                HttpResponse response = client.execute(request);
+                String body = EntityUtils.toString(response.getEntity());
+                if (response.getStatusLine().getStatusCode() != 200) {
+                    return null;
+                }
+                return OBJECT_MAPPER.readTree(body).path("name").asText(null);
+            }
+        } catch (Exception e) {
+            LOG.debug("Could not read Magento product {} via REST: {}", sku, e.toString());
+            return null;
+        }
+    }
+
+    /**
+     * Reads the current category name from Magento REST (best-effort, for poll diagnostics).
+     */
+    private String fetchMagentoCategoryName(int categoryId) {
+        if (COMMERCE_ENDPOINT == null || INTEGRATION_TOKEN == null) {
+            return null;
+        }
+        try {
+            String url = commerceRestBase() + "/categories/" + categoryId;
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                HttpGet request = new HttpGet(url);
+                request.setHeader("Authorization", "Bearer " + INTEGRATION_TOKEN);
+                HttpResponse response = client.execute(request);
+                String body = EntityUtils.toString(response.getEntity());
+                if (response.getStatusLine().getStatusCode() != 200) {
+                    return null;
+                }
+                return OBJECT_MAPPER.readTree(body).path("name").asText(null);
+            }
+        } catch (Exception e) {
+            LOG.debug("Could not read Magento category {} via REST: {}", categoryId, e.toString());
+            return null;
+        }
+    }
+
     // ---- retry helpers for Catalog Service eventual-consistency lag --------------------
 
     /**
@@ -361,16 +540,30 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      * instantly; the gap can be a few hundred ms to several seconds under load).
      */
     private void waitForCategoryTitleOnAem(TestData data, String expected) throws Exception {
-        long deadline = System.currentTimeMillis() + 30_000;
+        LOG.info("Polling AEM category title at {} (timeout {} ms), expecting '{}'",
+            data.categoryPageUrl, AEM_POLL_TIMEOUT_MS, expected);
+        long started = System.currentTimeMillis();
+        long deadline = started + AEM_POLL_TIMEOUT_MS;
         String last = null;
+        int attempt = 0;
         while (System.currentTimeMillis() < deadline) {
+            attempt++;
             last = getCategoryNameFromPage(data);
+            String magentoName = fetchMagentoCategoryName(data.categoryId);
+            LOG.info(
+                "Category title poll #{} (+{} ms): AEM='{}', Magento REST='{}', expected='{}'",
+                attempt, System.currentTimeMillis() - started, last, magentoName, expected);
             if (expected.equals(last)) {
                 return;
             }
-            Thread.sleep(1_000);
+            Thread.sleep(AEM_POLL_INTERVAL_MS);
         }
-        Assert.assertEquals("Category title did not match expected value within 30s after invalidation",
+        String magentoName = fetchMagentoCategoryName(data.categoryId);
+        Assert.assertEquals(
+            "Category title did not match expected value within " + AEM_POLL_TIMEOUT_MS
+                + "ms after invalidation (AEM last='" + last + "', Magento REST='" + magentoName
+                + "'). If Magento already shows the test name, Catalog Service sync or AEM GraphQL cache "
+                + "is likely still stale.",
             expected, last);
     }
 
@@ -379,17 +572,29 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      * {@code expectedSubstring}.
      */
     private void waitForCategoryNameInPdpBreadcrumb(TestData data, String expectedSubstring) throws Exception {
-        long deadline = System.currentTimeMillis() + 30_000;
+        LOG.info("Polling PDP breadcrumb for category substring '{}' (timeout {} ms)", expectedSubstring,
+            AEM_POLL_TIMEOUT_MS);
+        long started = System.currentTimeMillis();
+        long deadline = started + AEM_POLL_TIMEOUT_MS;
         String last = null;
+        int attempt = 0;
         while (System.currentTimeMillis() < deadline) {
+            attempt++;
             last = getPdpBreadcrumbText(data);
+            String magentoName = fetchMagentoCategoryName(data.categoryId);
+            LOG.info(
+                "PDP breadcrumb poll #{} (+{} ms): AEM='{}', Magento REST category='{}', expected substring='{}'",
+                attempt, System.currentTimeMillis() - started, last, magentoName, expectedSubstring);
             if (last != null && last.contains(expectedSubstring)) {
                 return;
             }
-            Thread.sleep(1_000);
+            Thread.sleep(AEM_POLL_INTERVAL_MS);
         }
-        Assert.assertTrue("PDP breadcrumb did not contain '" + expectedSubstring + "' within 30s after invalidation"
-            + " (last value: " + last + ")", last != null && last.contains(expectedSubstring));
+        String magentoName = fetchMagentoCategoryName(data.categoryId);
+        Assert.assertTrue(
+            "PDP breadcrumb did not contain '" + expectedSubstring + "' within " + AEM_POLL_TIMEOUT_MS
+                + "ms after invalidation (AEM last='" + last + "', Magento REST category='" + magentoName + "')",
+            last != null && last.contains(expectedSubstring));
     }
 
     /**
@@ -411,6 +616,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             String actualName = root.path("name").asText(null);
             Assert.assertEquals("Magento category " + categoryId + " did not reflect the expected name",
                 expectedName, actualName);
+            LOG.info("Magento REST confirms category {} name is '{}'", categoryId, actualName);
         }
     }
 
@@ -432,6 +638,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             String actualName = root.path("name").asText(null);
             Assert.assertEquals("Magento product " + sku + " did not reflect the expected name",
                 expectedName, actualName);
+            LOG.info("Magento REST confirms product {} name is '{}'", sku, actualName);
         }
     }
 
@@ -440,17 +647,30 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      * successfully once it matches {@code expected}.
      */
     private void waitForProductNameOnCategoryListing(TestData data, String expected) throws Exception {
-        long deadline = System.currentTimeMillis() + 30_000;
+        LOG.info("Polling AEM category listing for SKU {} at {} (timeout {} ms), expecting '{}'",
+            data.productSku, data.categoryPageUrl, AEM_POLL_TIMEOUT_MS, expected);
+        long started = System.currentTimeMillis();
+        long deadline = started + AEM_POLL_TIMEOUT_MS;
         String last = null;
+        int attempt = 0;
         while (System.currentTimeMillis() < deadline) {
+            attempt++;
             last = getProductNameFromCategoryPage(data);
+            String magentoName = fetchMagentoProductName(data.productSku);
+            LOG.info(
+                "Category listing poll #{} (+{} ms): AEM='{}', Magento REST='{}', expected='{}'",
+                attempt, System.currentTimeMillis() - started, last, magentoName, expected);
             if (expected.equals(last)) {
                 return;
             }
-            Thread.sleep(1_000);
+            Thread.sleep(AEM_POLL_INTERVAL_MS);
         }
+        String magentoName = fetchMagentoProductName(data.productSku);
         Assert.assertEquals(
-            "Category-page product name did not match expected value within 30s after invalidation",
+            "Category-page product name did not match expected value within " + AEM_POLL_TIMEOUT_MS
+                + "ms after invalidation (AEM last='" + last + "', Magento REST='" + magentoName
+                + "'). If Magento REST already shows the test name, AEM likely invalidated its GraphQL cache "
+                + "but Catalog Service (GraphQL backend) has not synced yet.",
             expected, last);
     }
 
@@ -459,17 +679,27 @@ public class CacheInvalidationIT extends ItSiteTestBase {
      * {@code expected}.
      */
     private void waitForProductNameOnPdp(TestData data, String expected) throws Exception {
-        long deadline = System.currentTimeMillis() + 30_000;
+        LOG.info("Polling AEM PDP for SKU {} (timeout {} ms), expecting '{}'", data.productSku, AEM_POLL_TIMEOUT_MS,
+            expected);
+        long started = System.currentTimeMillis();
+        long deadline = started + AEM_POLL_TIMEOUT_MS;
         String last = null;
+        int attempt = 0;
         while (System.currentTimeMillis() < deadline) {
+            attempt++;
             last = getProductNameFromPdp(data);
+            String magentoName = fetchMagentoProductName(data.productSku);
+            LOG.info("PDP poll #{} (+{} ms): AEM='{}', Magento REST='{}', expected='{}'",
+                attempt, System.currentTimeMillis() - started, last, magentoName, expected);
             if (expected.equals(last)) {
                 return;
             }
-            Thread.sleep(1_000);
+            Thread.sleep(AEM_POLL_INTERVAL_MS);
         }
+        String magentoName = fetchMagentoProductName(data.productSku);
         Assert.assertEquals(
-            "PDP product name did not match expected value within 30s after invalidation",
+            "PDP product name did not match expected value within " + AEM_POLL_TIMEOUT_MS
+                + "ms after invalidation (AEM last='" + last + "', Magento REST='" + magentoName + "')",
             expected, last);
     }
 
@@ -477,12 +707,10 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     // SERVLET AVAILABILITY TESTS — single set, no Magento writes
     // ============================================================================================
 
-    /** Servlet is reachable — any non-404 response confirms it is registered. */
+    /** Servlet is reachable — 200 (success) or 400 (bad request); 404/500 fail the test. */
     @Test
     public void testServletReachable() throws Exception {
-        SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT, invalidateAllPayload(), 200, 400, 500);
-        Assert.assertNotEquals("Cache invalidation servlet should be reachable (not 404)",
-            404, response.getStatusLine().getStatusCode());
+        postJson(CACHE_INVALIDATION_ENDPOINT, invalidateAllPayload(), 200, 400);
     }
 
     /** Servlet accepts the {@code productSkus} payload. */
@@ -532,6 +760,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     // ============================================================================================
 
     private void runProductSkusWorkflow(TestData data) throws Exception {
+        requireCommerceCredentials();
         assertPdpResolves(data);
         String originalNameOnCategory = getProductNameFromCategoryPage(data);
         Assert.assertNotNull("Category page should render product " + data.productSku, originalNameOnCategory);
@@ -539,27 +768,27 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         Assert.assertNotNull("PDP should render " + data.productSku + " with a name", originalNameOnPdp);
 
         String testName = "CIF-IT-" + data.productSku + "-" + System.currentTimeMillis();
-        updateProductName(data.productSku, testName);
-        verifyMagentoProductName(data.productSku, testName);
-        try {
+        LOG.info("Workflow productSkus: SKU {} — renaming Magento product to '{}'", data.productSku, testName);
+        try (TemporaryProductName ignored = temporaryProductName(data, testName)) {
+            verifyMagentoProductName(data.productSku, testName);
             Assert.assertEquals("Category listing should serve stale cached name before invalidation",
                 originalNameOnCategory, getProductNameFromCategoryPage(data));
             Assert.assertEquals("PDP should serve stale cached name before invalidation",
                 originalNameOnPdp, getProductNameFromPdp(data));
 
-            postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(data.productSku), 200);
+            postCacheInvalidationAndLog("productSkus " + data.productSku, productSkusPayload(data.productSku));
 
-            // Poll up to 30 s to absorb Magento → Catalog Service eventual-consistency lag.
+            // Poll to absorb Magento → Catalog Service eventual-consistency lag.
             waitForProductNameOnCategoryListing(data, testName);
             waitForProductNameOnPdp(data, testName);
 
         } finally {
-            updateProductName(data.productSku, data.originalProductName);
-            postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(data.productSku), 200);
+            invalidateProductSkuQuietly(data);
         }
     }
 
     private void runCategoryUidsWorkflow(TestData data) throws Exception {
+        requireCommerceCredentials();
         assertPdpResolves(data);
         String originalCategoryName = getCategoryNameFromPage(data);
         Assert.assertNotNull("Category page should render a category name", originalCategoryName);
@@ -567,27 +796,26 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             getPdpBreadcrumbText(data).contains(originalCategoryName));
 
         String testName = "CIF-IT-Cat-" + data.categoryId + "-" + System.currentTimeMillis();
-        updateCategoryName(data.categoryId, testName);
-        verifyMagentoCategoryName(data.categoryId, testName);
-        try {
+        LOG.info("Workflow categoryUids: category {} — renaming Magento category to '{}'", data.categoryId, testName);
+        try (TemporaryCategoryName ignored = temporaryCategoryName(data, testName)) {
+            verifyMagentoCategoryName(data.categoryId, testName);
             Assert.assertEquals("Category title should serve stale cached name before invalidation",
                 originalCategoryName, getCategoryNameFromPage(data));
             Assert.assertTrue("PDP breadcrumb should still contain stale category name before invalidation",
                 getPdpBreadcrumbText(data).contains(originalCategoryName));
 
-            postJson(CACHE_INVALIDATION_ENDPOINT, categoryUidsPayload(data.categoryUid), 200);
+            postCacheInvalidationAndLog("categoryUids " + data.categoryUid, categoryUidsPayload(data.categoryUid));
 
-            // Poll up to 30 s to absorb Magento → Catalog Service eventual-consistency lag.
             waitForCategoryTitleOnAem(data, testName);
             waitForCategoryNameInPdpBreadcrumb(data, testName);
 
         } finally {
-            updateCategoryName(data.categoryId, data.originalCategoryName);
-            postJson(CACHE_INVALIDATION_ENDPOINT, categoryUidsPayload(data.categoryUid), 200);
+            invalidateCategoryUidQuietly(data);
         }
     }
 
     private void runCacheNamesWorkflow(TestData data) throws Exception {
+        requireCommerceCredentials();
         assertPdpResolves(data);
         String originalNameOnCategory = getProductNameFromCategoryPage(data);
         Assert.assertNotNull("Category page should render product " + data.productSku, originalNameOnCategory);
@@ -595,32 +823,29 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         Assert.assertNotNull("PDP should render " + data.productSku + " with a name", originalNameOnPdp);
 
         String testName = "CIF-IT-CN-" + data.productSku + "-" + System.currentTimeMillis();
-        updateProductName(data.productSku, testName);
-        verifyMagentoProductName(data.productSku, testName);
-        try {
+        LOG.info("Workflow cacheNames: SKU {} — renaming Magento product to '{}'", data.productSku, testName);
+        try (TemporaryProductName ignored = temporaryProductName(data, testName)) {
+            verifyMagentoProductName(data.productSku, testName);
             Assert.assertEquals("Category listing should serve stale cached name before cache-name invalidation",
                 originalNameOnCategory, getProductNameFromCategoryPage(data));
             Assert.assertEquals("PDP should serve stale cached name before cache-name invalidation",
                 originalNameOnPdp, getProductNameFromPdp(data));
 
-            // Invalidate both productlist (category listing) and product (PDP) buckets.
-            postJson(CACHE_INVALIDATION_ENDPOINT,
+            postCacheInvalidationAndLog("cacheNames productlist+product",
                 cacheNamesPayload(
                     "cif-components-it-site/components/commerce/productlist",
-                    "cif-components-it-site/components/commerce/product"),
-                200);
+                    "cif-components-it-site/components/commerce/product"));
 
-            // Poll up to 30 s to absorb Magento → Catalog Service eventual-consistency lag.
             waitForProductNameOnCategoryListing(data, testName);
             waitForProductNameOnPdp(data, testName);
 
         } finally {
-            updateProductName(data.productSku, data.originalProductName);
-            postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(data.productSku), 200);
+            invalidateProductSkuQuietly(data);
         }
     }
 
     private void runInvalidateAllWorkflow(TestData data) throws Exception {
+        requireCommerceCredentials();
         assertPdpResolves(data);
         String originalProductOnCategory = getProductNameFromCategoryPage(data);
         Assert.assertNotNull("Category page should render product " + data.productSku, originalProductOnCategory);
@@ -633,11 +858,12 @@ public class CacheInvalidationIT extends ItSiteTestBase {
 
         String testProductName = "CIF-IT-AllP-" + data.productSku + "-" + System.currentTimeMillis();
         String testCategoryName = "CIF-IT-AllC-" + data.categoryId + "-" + System.currentTimeMillis();
-        updateProductName(data.productSku, testProductName);
-        updateCategoryName(data.categoryId, testCategoryName);
-        verifyMagentoProductName(data.productSku, testProductName);
-        verifyMagentoCategoryName(data.categoryId, testCategoryName);
-        try {
+        LOG.info("Workflow invalidateAll: SKU {} -> '{}', category {} -> '{}'",
+            data.productSku, testProductName, data.categoryId, testCategoryName);
+        try (TemporaryProductName ignoredProduct = temporaryProductName(data, testProductName);
+            TemporaryCategoryName ignoredCategory = temporaryCategoryName(data, testCategoryName)) {
+            verifyMagentoProductName(data.productSku, testProductName);
+            verifyMagentoCategoryName(data.categoryId, testCategoryName);
             Assert.assertEquals("Category listing should serve stale product name before invalidateAll",
                 originalProductOnCategory, getProductNameFromCategoryPage(data));
             Assert.assertEquals("PDP should serve stale product name before invalidateAll",
@@ -647,22 +873,20 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             Assert.assertTrue("PDP breadcrumb should still contain stale category name before invalidateAll",
                 getPdpBreadcrumbText(data).contains(originalCategoryName));
 
-            postJson(CACHE_INVALIDATION_ENDPOINT, invalidateAllPayload(), 200);
+            postCacheInvalidationAndLog("invalidateAll", invalidateAllPayload());
 
-            // Poll up to 30 s to absorb Magento → Catalog Service eventual-consistency lag.
             waitForProductNameOnCategoryListing(data, testProductName);
             waitForProductNameOnPdp(data, testProductName);
             waitForCategoryTitleOnAem(data, testCategoryName);
             waitForCategoryNameInPdpBreadcrumb(data, testCategoryName);
 
         } finally {
-            updateProductName(data.productSku, data.originalProductName);
-            updateCategoryName(data.categoryId, data.originalCategoryName);
-            postJson(CACHE_INVALIDATION_ENDPOINT, invalidateAllPayload(), 200);
+            invalidateAllQuietly();
         }
     }
 
     private void runRegexPatternsWorkflow(TestData data) throws Exception {
+        requireCommerceCredentials();
         assertPdpResolves(data);
         String originalNameOnCategory = getProductNameFromCategoryPage(data);
         Assert.assertNotNull("Category page should render product " + data.productSku, originalNameOnCategory);
@@ -670,30 +894,27 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         Assert.assertNotNull("PDP should render " + data.productSku + " with a name", originalNameOnPdp);
 
         String testName = "CIF-IT-RX-" + data.productSku + "-" + System.currentTimeMillis();
-        updateProductName(data.productSku, testName);
-        verifyMagentoProductName(data.productSku, testName);
-        try {
+        LOG.info("Workflow regexPatterns: SKU {} — renaming Magento product to '{}'", data.productSku, testName);
+        try (TemporaryProductName ignored = temporaryProductName(data, testName)) {
+            verifyMagentoProductName(data.productSku, testName);
             Assert.assertEquals("Category listing should serve stale cached name before regex invalidation",
                 originalNameOnCategory, getProductNameFromCategoryPage(data));
             Assert.assertEquals("PDP should serve stale cached name before regex invalidation",
                 originalNameOnPdp, getProductNameFromPdp(data));
 
-            // Regex matches any cached GraphQL JSON containing the product SKU.
-            postJson(CACHE_INVALIDATION_ENDPOINT,
-                regexPatternsPayload("\\\"sku\\\":\\\\s*\\\"" + data.productSku + "\\\""), 200);
+            postCacheInvalidationAndLog("regexPatterns " + data.productSku,
+                regexPatternsPayload("\\\"sku\\\":\\\\s*\\\"" + data.productSku + "\\\""));
 
-            // Poll up to 30 s to absorb Magento → Catalog Service eventual-consistency lag.
             waitForProductNameOnCategoryListing(data, testName);
             waitForProductNameOnPdp(data, testName);
 
         } finally {
-            updateProductName(data.productSku, data.originalProductName);
-            postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(data.productSku), 200);
+            invalidateProductSkuQuietly(data);
         }
     }
 
     // ============================================================================================
-    // CLASSIC / AEM 6.5 — Leather Belts (BLT-LEA-001)
+    // CLASSIC / AEM 6.5 — VT01 Penelope Peasant Blouse
     // ============================================================================================
 
     @Test
@@ -727,7 +948,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     }
 
     // ============================================================================================
-    // LTS — Metal Belts (BLT-MET-001)
+    // LTS — VP01 Selena Pants
     // ============================================================================================
 
     @Test
@@ -761,7 +982,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     }
 
     // ============================================================================================
-    // CLOUD — Fabric Belts (BLT-FAB-001)
+    // CLOUD — VA01 Dulcea Infinity Scarf
     // ============================================================================================
 
     @Test

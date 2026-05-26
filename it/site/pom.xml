@@ -349,29 +349,6 @@ Bundle-DocURL:
   <!-- P R O F I L E S                                                        -->
   <!-- ====================================================================== -->
   <profiles>
-    <!-- Development profile: install only the bundle -->
-    <profile>
-      <id>autoInstallBundle</id>
-      <activation>
-        <activeByDefault>false</activeByDefault>
-      </activation>
-      <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.apache.sling</groupId>
-              <artifactId>sling-maven-plugin</artifactId>
-              <executions>
-                <execution>
-                  <id>install-bundle</id>
-                  <goals><goal>install</goal></goals>
-                </execution>
-              </executions>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-      </build>
-    </profile>
     <profile>
       <id>autoInstallPackage</id>
       <activation>

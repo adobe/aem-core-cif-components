@@ -158,7 +158,7 @@ try {
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-apps'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-content'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])} \
-             ${itSitePackage} \
+            ${itSitePackage} \
             --vm-options \\\"-Xmx1536m ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec,output=tcpserver,port=6300\\\"`);
     });
 

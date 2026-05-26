@@ -15,4 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package junit.category;
 
+/**
+ * JUnit category for tests that must not run on AEM LTS. Annotate with
+ * {@code @Category(IgnoreOnLts.class)}; CI excludes this category when {@code AEM=lts}.
+ */
 public interface IgnoreOnLts {}
