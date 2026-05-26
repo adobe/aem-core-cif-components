@@ -16,6 +16,8 @@
 package com.adobe.cq.commerce.it.http;
 
 import java.io.IOException;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -31,9 +33,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

@@ -45,17 +45,14 @@ final class ItSiteUrlDiagnostics {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static final String URL_PROVIDER_PID =
-        "com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl";
+    private static final String URL_PROVIDER_PID = "com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl";
 
-    private static final String GRAPHQL_CLIENT_CONFIG_ID =
-        "com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~default";
+    private static final String GRAPHQL_CLIENT_CONFIG_ID = "com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~default";
 
     private static final Pattern PRODUCT_PAGE_SUFFIX = Pattern.compile(
         "product-page\\.html/([^#?]+)");
 
-    private ItSiteUrlDiagnostics() {
-    }
+    private ItSiteUrlDiagnostics() {}
 
     static void logOsgiConfiguration(CQClient client) {
         logConfigMgrJson(client, URL_PROVIDER_PID, "UrlProviderImpl");
