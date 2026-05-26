@@ -1,7 +1,7 @@
 {
   "identifier": "default",
   "httpMethod": "POST",
-  "url": "https://mcprod.catalogservice-commerce.fun/graphql",
+  "url" : "$[env:COMMERCE_ENDPOINT;default=]",
   "connectionTimeout": 5000,
   "socketTimeout": 5000,
   "maxHttpConnections": 20,

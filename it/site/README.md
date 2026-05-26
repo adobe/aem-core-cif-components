@@ -7,7 +7,7 @@ Integration-test site for **AEM CIF Core Components**, living inside the `aem-co
 * **ui.apps** — `/apps` code: components, clientlibs, HTL, etc.
 * **ui.apps.structure** — repository root filters for package validation (declared in `pom.xml`, no `src/main/content`).
 * **ui.content** — mutable content, templates under `/conf`, sample pages.
-* **ui.config** — OSGi configurations (cloud). GraphQL endpoint uses `${COMMERCE_ENDPOINT}`.
+* **ui.config** — OSGi configurations (cloud). GraphQL URL is set at runtime (see [GraphQL endpoint](#graphql-endpoint)).
 * **all** — container package embedding the site's `ui.apps`, `ui.content`, and `ui.config`.
 * **classic/all** (reactor profile **`classic`**) — 6.5 / AMS mixed package embedding site + classic overlays + CIF Core + WCM Core.
 
@@ -92,12 +92,30 @@ See `it/http/README.md` for override properties (`aem.host`, `aem.port`, `it.com
 
 ## GraphQL endpoint
 
-The cloud `ui.config` OSGi config uses `${COMMERCE_ENDPOINT}`. Set this:
+`GraphqlClientImpl~default` drives IT site commerce pages (`ui.config` / `classic/ui.config`). The package does **not** ship a Catalog Service URL — only OSGi interpolation and **`httpMethod: POST`**:
 
-* **Cloud Manager / AMS** — define the environment variable `COMMERCE_ENDPOINT` pointing to your `https://…/graphql` URL.
-* **Local AEM SDK** — set it in the OSGi console or add a dev-specific config override with a concrete URL.
+```json
+"httpMethod": "POST",
+"url": "$[env:COMMERCE_ENDPOINT;default=]"
+```
 
-The classic `classic/ui.config` ships with a placeholder URL (`https://hostname.com/graphql`); replace it via OSGi or an AMS environment variable once the instance is up.
+Use the full GraphQL URL (`https://…/graphql`). Do not use `${COMMERCE_ENDPOINT}` in `.cfg.json`; that syntax is for Cloud Manager deploy-time substitution, not AEM OSGi.
+
+### CircleCI / local Quickstart
+
+After AEM is ready, `.circleci/ci/it-tests.js` applies the URL the same way as `GraphqlClientImpl~examples`: a Felix `configMgr` POST to `com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~default` with `url` and `httpMethod=POST` from the CircleCI `COMMERCE_ENDPOINT` env var (full `https://…/graphql` URL).
+
+Changing backends does not require a code change — only that pipeline variable.
+
+### Local development
+
+* **Cloud SDK** — `export COMMERCE_ENDPOINT=https://…/graphql` before starting AEM, or set `url` in `/system/console/configMgr` for `GraphqlClientImpl~default`.
+* **AEM 6.5 / AMS** (`-Pclassic`) — `$[env:…]` is not applied on 6.5; use the CI curl step above or override the factory config in OSGi.
+* **AEM as a Cloud Service** — define `COMMERCE_ENDPOINT` in Cloud Manager; the `$[env:COMMERCE_ENDPOINT;default=]` placeholder is resolved on the AEM JVM.
+
+### HTTP integration tests
+
+The same `COMMERCE_ENDPOINT` is passed to Maven for `CacheInvalidationIT` (Magento REST). See `it/http/README.md` for overrides.
 
 ## ClientLibs
 

@@ -96,6 +96,36 @@ const prepareAemForCifTests = () => {
     throw new Error(`Timed out after ${AEM_READY_TIMEOUT_MS / 1000}s waiting for AEM to be ready.`);
 };
 
+// IT site commerce pages use GraphqlClientImpl~default (Catalog Service). Same COMMERCE_ENDPOINT as Maven ITs.
+const configureItSiteGraphqlClient = () => {
+    if (!COMMERCE_ENDPOINT) {
+        console.log('Skipping GraphqlClientImpl~default: COMMERCE_ENDPOINT is not set');
+        return;
+    }
+
+    const formData = {
+        apply: true,
+        action: 'ajaxConfigManager',
+        factoryPid: 'com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl',
+        identifier: 'default',
+        url: COMMERCE_ENDPOINT,
+        httpMethod: 'POST',
+        propertylist: 'identifier,url,httpMethod'
+    };
+    if (AEM === 'classic' || AEM === 'lts') {
+        formData.allowInsecure = 'true';
+        formData.acceptSelfSignedCertificates = 'true';
+        formData.propertylist = 'identifier,url,httpMethod,allowInsecure,acceptSelfSignedCertificates';
+    }
+
+    ci.sh(`curl -sf 'http://localhost:4502/system/console/configMgr/com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~default' \
+        -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+        -u 'admin:admin' \
+        --data-raw '${Object.entries(formData)
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join('&')}'`);
+};
+
 try {
     ci.stage("Integration Tests");
     let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
@@ -185,6 +215,8 @@ try {
         --data-raw '${Object.entries(formData)
         .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
         .join('&')}'`);
+
+    configureItSiteGraphqlClient();
 
     // Run integration tests
     if (TYPE === 'integration') {
