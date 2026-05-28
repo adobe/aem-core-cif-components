@@ -61,3 +61,4 @@ ui.tests/test-module/reports
 
 # GraphQL query logs
 bundles/core/src/test/resources/test-queries/graphql-requests.log
+/.claude/

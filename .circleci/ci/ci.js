@@ -124,23 +124,23 @@ module.exports = class CI {
         let configuration = {
             modules: {}
         };
-        
+
         let folders = [process.cwd()];
         process.stdout.write("Collecting project configuration");
         while(folders.length) {
             let folder = folders.shift();
             let files = fs.readdirSync(folder, { withFileTypes: true });
-        
+
             for(let file of files) {
                 if (file.isDirectory()) {
                     folders.push(path.resolve(folder, file.name));
                     continue;
                 }
-        
+
                 if (file.name !== 'pom.xml') {
                     continue;
                 }
-        
+
                 let pomPath = path.resolve(folder, file.name);
                 let metaData = this.sh('printf \'${project.groupId}|${project.artifactId}|${project.name}|${project.version}|${project.packaging}\' | mvn -f ' + pomPath + ' help:evaluate --non-recursive | grep -Ev "(Download|\\[)"', true, false).split('|');
                 configuration.modules[metaData[1]] = {
@@ -165,19 +165,19 @@ module.exports = class CI {
         return JSON.parse(configuration);
     }
 
-    addQpFileDependency(module) {
-        let output = '--install-file ';
-
+    resolveModuleArtifactPath(module) {
         let filename = `${module.artifactId}-${module.version}`;
-        if (module.packaging == 'content-package') { 
+        if (module.packaging == 'content-package') {
             filename += '.zip';
         } else if (module.packaging == 'bundle') {
             filename += '.jar';
         }
 
-        output += path.resolve(module.path, 'target', filename);
+        return path.resolve(module.path, 'target', filename);
+    }
 
-        return output;
+    addQpFileDependency(module) {
+        return '--install-file ' + this.resolveModuleArtifactPath(module);
     }
 
     parsePom() {

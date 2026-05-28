@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.DeniedHttpHeaders;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.utils.VersionHistoryUtils;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
@@ -138,6 +139,11 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
         if (page != null) {
             configurationResource = Objects.requireNonNull(page.adaptTo(Resource.class), "page is not a Resource");
+
+            // If the page is rendered from AEM version history preview, resolve back to the source resource.
+            if (VersionHistoryUtils.isVersionPreviewResource(configurationResource)) {
+                configurationResource = VersionHistoryUtils.resolveSourceResource(configurationResource);
+            }
 
             // If the page is an AEM Launch, we get the configuration from the production page
             if (LaunchUtils.isLaunchBasedPath(page.getPath())) {
