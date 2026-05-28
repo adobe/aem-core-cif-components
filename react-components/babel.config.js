@@ -41,15 +41,18 @@ module.exports = function(api) {
             ]
         },
         // ESM build for tree-shaking (SITES-40242)
+        // css-modules-transform pre-resolves CSS class names using the same localIdentName as
+        // webpack.config.js so consumers never see a CSS import — no webpack config changes needed
         esm: {
-            plugins,
+            plugins: [
+                ...plugins,
+                ['css-modules-transform', {
+                    generateScopedName: 'cmp-[folder]__[name]__[local]',
+                    extensions: ['.css'],
+                    keepImport: false
+                }]
+            ],
             presets: [...presets, ['@babel/preset-env', { modules: false, targets: { esmodules: true } }]],
-            ignore: testFileIgnore
-        },
-        // CJS build for subpath require() support
-        cjs: {
-            plugins,
-            presets: [...presets, ['@babel/preset-env', { modules: 'commonjs', targets: 'defaults' }]],
             ignore: testFileIgnore
         }
     };

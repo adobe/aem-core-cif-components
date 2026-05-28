@@ -29,28 +29,6 @@ module.exports = {
                 loader: ['babel-loader'],
             },
             {
-                test: /\.css$/,
-                include: (resourcePath) => {
-                    const normalized = resourcePath.replace(/\\/g, '/');
-                    return (
-                        normalized.includes('aem-core-cif-react-components') ||
-                        normalized.includes('react-components/dist') ||
-                        normalized.includes('peregrine')
-                    );
-                },
-                use: [
-                    MiniCssExtractPlugin.loader,
-                    {
-                        loader: 'css-loader',
-                        options: {
-                            modules: {
-                                localIdentName: 'cmp-[folder]__[name]__[local]',
-                            },
-                        },
-                    },
-                ],
-            },
-            {
                 test: /\.scss$/,
                 use: [
                     MiniCssExtractPlugin.loader,
