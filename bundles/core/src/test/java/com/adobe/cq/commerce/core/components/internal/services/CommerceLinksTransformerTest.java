@@ -27,6 +27,7 @@ import org.apache.http.osgi.services.HttpClientBuilderFactory;
 import org.apache.jackrabbit.commons.xml.ParsingContentHandler;
 import org.apache.jackrabbit.commons.xml.ToXmlContentHandler;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.rewriter.ProcessingContext;
 import org.apache.sling.rewriter.Transformer;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
@@ -50,6 +51,10 @@ import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -157,6 +162,44 @@ public class CommerceLinksTransformerTest {
         Path filePath = Paths.get(classLoader.getResource(TEST_HTML).toURI());
         String originalHtml = new String(Files.readAllBytes(filePath));
         assertTrue(transformedHtml.endsWith(originalHtml));
+    }
+
+    @Test
+    public void testTransformerAppliesResourceResolverMapping() throws Exception {
+        MockSlingHttpServletRequest mappedRequest = spy(context.request());
+        mappedRequest.setResource(context.resourceResolver().getResource(TEST_PAGE));
+
+        ResourceResolver resourceResolver = spy(context.resourceResolver());
+        doReturn(resourceResolver).when(mappedRequest).getResourceResolver();
+        doAnswer(invocation -> {
+            String rawUrl = invocation.getArgumentAt(1, String.class);
+            if ("/content/category-page.html/equipment.html".equals(rawUrl)) {
+                return "/equipment.html";
+            }
+            if ("/content/product-page.html/beaumont-summit-kit.html".equals(rawUrl)) {
+                return "/beaumont-summit-kit.html";
+            }
+            return rawUrl;
+        }).when(resourceResolver).map(eq(mappedRequest), anyString());
+
+        ProcessingContext mappedProcessingContext = mock(ProcessingContext.class);
+        when(mappedProcessingContext.getRequest()).thenReturn(mappedRequest);
+
+        Transformer transformer = transformerFactory.createTransformer();
+        transformer.init(mappedProcessingContext, null);
+
+        StringWriter writer = new StringWriter();
+        transformer.setContentHandler(new ToXmlContentHandler(writer));
+        ParsingContentHandler parsingContentHandler = new ParsingContentHandler(transformer);
+        parsingContentHandler.parse(this.getClass().getClassLoader().getResourceAsStream(TEST_HTML));
+
+        Document document = Jsoup.parse(writer.toString());
+        Elements anchors = document.select(ELEMENT_ANCHOR);
+
+        assertEquals("/equipment.html", anchors.get(2).attr(ATTR_HREF));
+        assertEquals("/beaumont-summit-kit.html", anchors.get(5).attr(ATTR_HREF));
+        assertEquals("/beaumont-summit-kit.html", anchors.get(12).attr(ATTR_HREF));
+        assertEquals("/equipment.html", anchors.get(13).attr(ATTR_HREF));
     }
 
     private void checkAnchor(Element anchor, String commerceIdentifier, String href) {
