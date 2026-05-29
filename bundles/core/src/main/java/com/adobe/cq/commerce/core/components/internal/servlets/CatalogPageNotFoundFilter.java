@@ -25,6 +25,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.resource.Resource;
@@ -54,6 +55,7 @@ import com.day.cq.wcm.api.PageManagerFactory;
     service = Filter.class,
     property = {
         EngineConstants.SLING_FILTER_SCOPE + "=" + EngineConstants.FILTER_SCOPE_REQUEST,
+        EngineConstants.SLING_FILTER_SCOPE + "=" + EngineConstants.FILTER_SCOPE_FORWARD,
         // as this is in REQUEST scope it is called for the resource before it got forwarded to jcr:content
         EngineConstants.SLING_FILTER_RESOURCETYPES + "=" + NameConstants.NT_PAGE,
         // but we also want to cover cases where the page content is requested directly
@@ -101,6 +103,18 @@ public class CatalogPageNotFoundFilter implements Filter {
 
         SlingHttpServletRequest slingRequest = (SlingHttpServletRequest) servletRequest;
         SlingHttpServletResponse slingResponse = (SlingHttpServletResponse) servletResponse;
+
+        // Skip content-tree reads: the filter validates page-level rendering requests only.
+        // Anything resolving to jcr:content or a descendant is either a raw data read
+        // (DefaultGetServlet) or a sub-component render, neither of which carries the
+        // SKU/category context required here.
+        String path = slingRequest.getResource().getPath();
+        String jcrContentSegment = "/" + JcrConstants.JCR_CONTENT;
+        if (path.endsWith(jcrContentSegment) || path.contains(jcrContentSegment + "/")) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
         PageManager pageManager = pageManagerFactory.getPageManager(slingRequest.getResourceResolver());
         Page currentPage = pageManager.getContainingPage(slingRequest.getResource());
 

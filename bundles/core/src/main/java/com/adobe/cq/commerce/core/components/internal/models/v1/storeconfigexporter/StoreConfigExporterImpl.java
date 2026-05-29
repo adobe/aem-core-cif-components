@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.utils.VersionHistoryUtils;
 import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.storeconfigexporter.StoreConfigExporter;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -124,6 +125,14 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     public String getStoreRootUrl() {
         if (storeRootPage == null) {
             storeRootPage = siteStructure.getLandingPage();
+            if (storeRootPage == null) {
+                Resource currentPageResource = currentPage != null ? currentPage.adaptTo(Resource.class) : null;
+                // Timeline preview pages live under /tmp/versionhistory and may not have a resolvable landing page.
+                // In that case, resolve the source /content page and reuse its site structure.
+                if (VersionHistoryUtils.isVersionPreviewResource(currentPageResource)) {
+                    storeRootPage = getStoreRootPageFromVersionHistorySource(currentPageResource);
+                }
+            }
         }
 
         if (storeRootPage == null) {
@@ -155,5 +164,22 @@ public class StoreConfigExporterImpl implements StoreConfigExporter {
     @Override
     public String getLanguage() {
         return language;
+    }
+
+    /**
+     * Resolves the landing page from the source /content page when the current page is rendered from
+     * AEM version history preview under /tmp/versionhistory.
+     *
+     * @param versionHistoryPageResource the version history page resource under /tmp/versionhistory
+     */
+    private Page getStoreRootPageFromVersionHistorySource(Resource versionHistoryPageResource) {
+        Resource sourcePageResource = VersionHistoryUtils.resolveSourceResource(versionHistoryPageResource);
+        Page sourcePage = sourcePageResource != null ? sourcePageResource.adaptTo(Page.class) : null;
+        if (sourcePage == null) {
+            return null;
+        }
+
+        SiteStructure sourceSiteStructure = sourcePage.adaptTo(SiteStructure.class);
+        return sourceSiteStructure != null ? sourceSiteStructure.getLandingPage() : null;
     }
 }

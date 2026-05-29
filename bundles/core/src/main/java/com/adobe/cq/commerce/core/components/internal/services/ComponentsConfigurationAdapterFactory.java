@@ -30,6 +30,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.internal.utils.VersionHistoryUtils;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.wcm.launches.utils.LaunchUtils;
 
@@ -69,6 +70,11 @@ public class ComponentsConfigurationAdapterFactory implements AdapterFactory {
                 LOG.debug("Service user permissions of {} are not sufficient to view resource at {}", serviceResolver.getUserID(),
                     resourcePath);
                 return null;
+            }
+
+            // If the adapted resource comes from version history preview, resolve it to the source content path.
+            if (VersionHistoryUtils.isVersionPreviewResource(resource)) {
+                resource = VersionHistoryUtils.resolveSourceResource(resource);
             }
 
             if (LaunchUtils.isLaunchBasedPath(resource.getPath())) {
