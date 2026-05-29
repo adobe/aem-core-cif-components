@@ -1,0 +1,9 @@
+{
+  "enableDispatcherCacheInvalidation": false,
+  "dispatcherBaseUrl": "http://localhost:80",
+  "dispatcherBasePathConfiguration": "/content/cif-components-it-site/([a-z]{2})/([a-z]{2}):/content/cif-components-it-site/$1/$2",
+  "dispatcherUrlPathConfiguration": [
+    "productUrlPath:/products/product-page.html/(.+):/p/$1",
+    "categoryUrlPath:/products/category-page.html/(.+):/c/$1"
+  ]
+}
