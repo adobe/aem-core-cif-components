@@ -11,7 +11,10 @@
   "main": "dist/index.js",
   "module": "dist/esm/index.js",
   "sideEffects": [
-    "**/*.css"
+    "**/*.css",
+    "**/apolloDevShim.js",
+    "./dist/index.js",
+    "./dist/esm/index.js"
   ],
   "files": [
     "dist",

@@ -13,6 +13,8 @@
  ~ See the License for the specific language governing permissions and
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+import './apolloDevShim';
+
 export { default as CommerceApp } from './components/App';
 export { default as AuthBar } from './components/AuthBar';
 export { default as Cart } from './components/Minicart';
