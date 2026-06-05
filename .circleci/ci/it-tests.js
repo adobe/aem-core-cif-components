@@ -24,7 +24,7 @@ const config = ci.restoreConfiguration();
 console.log(config);
 const qpPath = '/home/circleci/cq';
 const buildPath = '/home/circleci/build';
-const { TYPE, BROWSER, AEM } = process.env;
+const { TYPE, BROWSER, AEM, COMMERCE_ENDPOINT, COMMERCE_INTEGRATION_TOKEN } = process.env;
 
 const CORE_BUNDLE = 'com.adobe.commerce.cif.core-cif-components-core';
 const ADDON_BUNDLE = 'com.adobe.cq.cif.commerce-addon-bundle';
@@ -96,6 +96,101 @@ const prepareAemForCifTests = () => {
     throw new Error(`Timed out after ${AEM_READY_TIMEOUT_MS / 1000}s waiting for AEM to be ready.`);
 };
 
+// ---------------------------------------------------------------------------
+// IT site OSGi bootstrap (see it/site/README.md — "CircleCI integration tests")
+//
+// ui.config is correct in Git but the embedded ui.config subpackage is not always
+// active on pipeline Quickstart before it/http runs. Without this block, AEM uses
+// CIF defaults (url_key URLs, no GraphQL caches). Values below must match:
+//   it/site/ui.config/.../GraphqlClientImpl~default.cfg.json
+//   it/site/ui.config/.../UrlProviderImpl.cfg.json
+// ---------------------------------------------------------------------------
+const IT_SITE_GRAPHQL_CACHE_CONFIGURATIONS = [
+    'cif-components-it-site/components/commerce/navigation:true:5:300',
+    'com.adobe.cq.commerce.core.search.services.SearchFilterService:true:10:300',
+    'cif-components-it-site/components/commerce/breadcrumb:true:1000:300',
+    'cif-components-it-site/components/commerce/product:true:50:1000',
+    'cif-components-it-site/components/commerce/productcollection:true:50:1000',
+    'cif-components-it-site/components/commerce/productlist:true:50:300'
+];
+
+const encodeOsgiFormBody = (formData) => {
+    const parts = [];
+    for (const [key, value] of Object.entries(formData)) {
+        if (Array.isArray(value)) {
+            for (const item of value) {
+                parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(item)}`);
+            }
+        } else {
+            parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+        }
+    }
+    return parts.join('&');
+};
+
+const postOsgiConfig = (configPath, formData) => {
+    ci.sh(`curl -sf 'http://localhost:4502/system/console/configMgr/${configPath}' \
+        -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+        -u 'admin:admin' \
+        --data-raw '${encodeOsgiFormBody(formData)}'`);
+};
+
+// IT site commerce pages use GraphqlClientImpl~default. Apply full IT ui.config (not url/httpMethod only).
+const configureItSiteGraphqlClient = () => {
+    if (!COMMERCE_ENDPOINT) {
+        console.log('Skipping GraphqlClientImpl~default: COMMERCE_ENDPOINT is not set');
+        return;
+    }
+
+    const propertyNames = [
+        'identifier',
+        'url',
+        'httpMethod',
+        'connectionTimeout',
+        'socketTimeout',
+        'maxHttpConnections',
+        'requestPoolTimeout',
+        'acceptSelfSignedCertificates',
+        'allowHttpProtocol',
+        'cacheConfigurations'
+    ];
+    const formData = {
+        apply: true,
+        action: 'ajaxConfigManager',
+        factoryPid: 'com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl',
+        identifier: 'default',
+        url: COMMERCE_ENDPOINT,
+        httpMethod: 'POST',
+        connectionTimeout: '5000',
+        socketTimeout: '5000',
+        maxHttpConnections: '20',
+        requestPoolTimeout: '2000',
+        acceptSelfSignedCertificates: 'true',
+        allowHttpProtocol: 'true',
+        cacheConfigurations: IT_SITE_GRAPHQL_CACHE_CONFIGURATIONS,
+        propertylist: propertyNames.join(',')
+    };
+    if (AEM === 'classic' || AEM === 'lts') {
+        formData.allowInsecure = 'true';
+        propertyNames.push('allowInsecure');
+        formData.propertylist = propertyNames.join(',');
+    }
+
+    postOsgiConfig('com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl~default', formData);
+};
+
+// Mirrors it/site/ui.config/.../UrlProviderImpl.cfg.json (CI ui.config package is not always applied).
+const configureItSiteUrlProvider = () => {
+    postOsgiConfig('com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl', {
+        apply: true,
+        action: 'ajaxConfigManager',
+        productPageUrlFormat: '{{page}}.html/{{url_path}}.html#{{variant_sku}}',
+        enableContextAwareProductUrls: 'true',
+        categoryPageUrlFormat: '{{page}}.html/{{url_path}}.html',
+        propertylist: 'productPageUrlFormat,enableContextAwareProductUrls,categoryPageUrlFormat'
+    });
+};
+
 try {
     ci.stage("Integration Tests");
     let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
@@ -103,11 +198,21 @@ try {
     let excludedCategory;
     if (AEM === 'classic') {
         excludedCategory = 'junit.category.IgnoreOn65';
+    } else if (AEM === 'lts') {
+        excludedCategory = 'junit.category.IgnoreOnLts';
     } else {
-        // LTS and cloud-ready: exclude @Category(IgnoreOnCloud) tests (same as master for LTS).
-        // IgnoreOnLts does not exist yet; add it when we have LTS-only @Category annotations.
         excludedCategory = 'junit.category.IgnoreOnCloud';
     }
+
+    // Build it/site with the appropriate profile
+    ci.dir('it/site', () => {
+        const profile = (AEM === 'classic' || AEM === 'lts') ? ' -Pclassic' : '';
+        ci.sh(`mvn -B clean install${profile}`);
+    });
+
+    let itSitePackage = (AEM === 'classic' || AEM === 'lts')
+        ? ci.addQpFileDependency(config.modules['cif-components-it-site.all-classic'])
+        : ci.addQpFileDependency(config.modules['cif-components-it-site.all']);
 
     ci.dir(qpPath, () => {
         // Connect to QP
@@ -148,6 +253,7 @@ try {
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-apps'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-examples-content'])} \
             ${ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])} \
+            ${itSitePackage} \
             --vm-options \\\"-Xmx1536m ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec,output=tcpserver,port=6300\\\"`);
     });
 
@@ -175,15 +281,22 @@ try {
         .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
         .join('&')}'`);
 
+    configureItSiteGraphqlClient();
+    configureItSiteUrlProvider();
+
     // Run integration tests
     if (TYPE === 'integration') {
+        const commerceEndpoint = COMMERCE_ENDPOINT ? `-DCOMMERCE_ENDPOINT="${COMMERCE_ENDPOINT}"` : '';
+        const integrationToken = COMMERCE_INTEGRATION_TOKEN ? `-DCOMMERCE_INTEGRATION_TOKEN="${COMMERCE_INTEGRATION_TOKEN}"` : '';
         ci.dir('it/http', () => {
             ci.sh(`mvn clean verify -U -B \
                 -Ptest-all \
                 -Dexclude.category=${excludedCategory} \
                 -Dsling.it.instance.url.1=http://localhost:4502 \
                 -Dsling.it.instance.runmode.1=author \
-                -Dsling.it.instances=1`);
+                -Dsling.it.instances=1 \
+                ${commerceEndpoint} \
+                ${integrationToken}`);
         });
     }
 
