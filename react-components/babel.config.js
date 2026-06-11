@@ -14,6 +14,7 @@
  ~ limitations under the License.
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 // eslint-disable-next-line no-undef
+const testFileIgnore = ['**/__test__/**', '**/*.test.js', '**/*.spec.js'];
 const plugins = [
     /**
      * See:
@@ -29,7 +30,8 @@ module.exports = function(api) {
     const envConfigs = {
         development: {
             plugins,
-            presets: [...presets, ['@babel/preset-env', { modules: false, targets: 'last 2 Chrome versions' }]]
+            presets: [...presets, ['@babel/preset-env', { modules: false, targets: 'last 2 Chrome versions' }]],
+            ignore: testFileIgnore
         },
         test: {
             plugins: [...plugins, ['babel-plugin-dynamic-import-node'], ['@babel/plugin-proposal-class-properties']],
@@ -37,6 +39,21 @@ module.exports = function(api) {
             exclude: [
                 /node_modules\/(?!@magento\/)/
             ]
+        },
+        // ESM build for tree-shaking (SITES-40242)
+        // css-modules-transform pre-resolves CSS class names using the same localIdentName as
+        // webpack.config.js so consumers never see a CSS import — no webpack config changes needed
+        esm: {
+            plugins: [
+                ...plugins,
+                ['css-modules-transform', {
+                    generateScopedName: 'cmp-[folder]__[name]__[local]',
+                    extensions: ['.css'],
+                    keepImport: false
+                }]
+            ],
+            presets: [...presets, ['@babel/preset-env', { modules: false, targets: { esmodules: true } }]],
+            ignore: testFileIgnore
         }
     };
 
