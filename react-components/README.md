@@ -2,6 +2,42 @@
 
 The React Components project is the code base for all the CIF Core Components built using [React](https://reactjs.org/). The following components are exposed by this library:
 
+## Reducing bundle size
+
+This package supports tree-shaking — your storefront only bundles the components you actually import.
+
+**Named imports** (recommended):
+
+```javascript
+import { CommerceApp, Portal, ConfigContextProvider } from '@adobe/aem-core-cif-react-components';
+```
+
+**Direct import** for a single component:
+
+```javascript
+import GiftCartOptions from '@adobe/aem-core-cif-react-components/dist/esm/components/GiftCardOptions';
+```
+
+Paths under `dist/esm/` mirror the `src/` folder structure.
+
+**Tips:**
+
+- Use named imports — avoid `import *` or importing the whole package
+- Run a production build (`webpack -p` / `npm run prod`) so unused code is removed
+- Only import the components you use on each page
+- No webpack configuration changes are required
+
+## Deprecated components
+
+The following cart, checkout, and account components are deprecated.
+
+| Category | Deprecated |
+|----------|------------|
+| Cart & checkout | `Cart`, `CartTrigger`, `CartProvider`, `CartInitializer`, `useCartState`, `CheckoutProvider` |
+| Account & auth | `AuthBar`, `AccountContainer`, `AddressBook`, `ResetPassword`, `MyAccount`, `AccountLink`, `AccountDetails`, `UserContextProvider`, `useUserContext` |
+| Utility | `Trigger` |
+
+
 ## Components related to the shopping cart
 
 ### Cart

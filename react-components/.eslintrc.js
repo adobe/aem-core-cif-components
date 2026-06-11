@@ -40,6 +40,7 @@ module.exports = {
     globals: {
         Atomics: 'readonly',
         SharedArrayBuffer: 'readonly',
+        globalThis: 'readonly',
         process: true
     },
     parserOptions: {
