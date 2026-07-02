@@ -27,13 +27,13 @@ public class ToolRegistry {
     private final List<McpTool> tools = new ArrayList<>();
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    void bindTool(McpTool tool) {
+    public void bindTool(McpTool tool) {
         synchronized (tools) {
             tools.add(tool);
         }
     }
 
-    void unbindTool(McpTool tool) {
+    public void unbindTool(McpTool tool) {
         synchronized (tools) {
             tools.remove(tool);
         }
