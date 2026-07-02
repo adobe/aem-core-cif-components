@@ -28,7 +28,7 @@ public class JsonRpcTest {
     @Test
     public void parsesRequest() throws Exception {
         JsonRpc.Request r = JsonRpc.parse(mapper,
-                "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\",\"params\":{}}");
+            "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\",\"params\":{}}");
         assertEquals("2.0", r.jsonrpc);
         assertEquals("tools/list", r.method);
         assertEquals(1, r.id.asInt());
@@ -37,7 +37,7 @@ public class JsonRpcTest {
     @Test
     public void buildsErrorEnvelope() {
         ObjectNode err = JsonRpc.error(mapper.getNodeFactory().numberNode(7), JsonRpc.METHOD_NOT_FOUND,
-                "no such method");
+            "no such method");
         assertEquals("2.0", err.get("jsonrpc").asText());
         assertEquals(7, err.get("id").asInt());
         assertEquals(-32601, err.get("error").get("code").asInt());

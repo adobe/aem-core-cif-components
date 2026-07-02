@@ -27,8 +27,7 @@ public final class JsonRpc {
     public static final int INTERNAL_ERROR = -32603;
     public static final int TOOL_ERROR = -32000;
 
-    private JsonRpc() {
-    }
+    private JsonRpc() {}
 
     public static final class Request {
         public final String jsonrpc;
