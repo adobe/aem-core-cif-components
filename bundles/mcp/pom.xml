@@ -191,6 +191,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.adobe.commerce.cif</groupId>
+            <artifactId>graphql-client</artifactId>
+            <version>${graphql.client.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.adobe.cq</groupId>
             <artifactId>core.wcm.components.core</artifactId>
             <scope>provided</scope>
@@ -240,12 +246,6 @@
                     <artifactId>slf4j-simple</artifactId>
                 </exclusion>
             </exclusions>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.adobe.commerce.cif</groupId>
-            <artifactId>graphql-client</artifactId>
-            <version>${graphql.client.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
