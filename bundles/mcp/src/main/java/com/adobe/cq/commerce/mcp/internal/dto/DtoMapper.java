@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.mcp.internal.dto;
 
 import java.util.List;
+import java.util.function.Function;
 
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
@@ -58,26 +59,33 @@ public final class DtoMapper {
     }
 
     /**
-     * Maps a {@link CategoryInterface} to a compact DTO with the fields {@code uid}, {@code name} and {@code urlPath}. When
-     * {@code withChildren} is {@code true} and the category is a {@link CategoryTree} with children, a {@code children} array
-     * of the same DTO shape (without nested children) is added.
+     * Maps a {@link CategoryInterface} to a compact DTO with the fields {@code uid}, {@code name}, {@code urlPath} and, when
+     * {@code urlResolver} is supplied, {@code url} (the category / product-listing page link). When {@code withChildren} is
+     * {@code true} and the category is a {@link CategoryTree} with children, a {@code children} array of the same DTO shape
+     * (without nested children) is added; the {@code urlResolver} is applied to each child as well.
      *
      * @param mapper the Jackson object mapper used to create the resulting node
      * @param category the category to map
      * @param withChildren whether to include the immediate children of the category
+     * @param urlResolver resolves a category to its PLP link (built via CIF's {@code UrlProvider}), or {@code null} to omit the
+     *            {@code url} field
      * @return the mapped DTO
      */
-    public static ObjectNode category(ObjectMapper mapper, CategoryInterface category, boolean withChildren) {
+    public static ObjectNode category(ObjectMapper mapper, CategoryInterface category, boolean withChildren,
+        Function<CategoryInterface, String> urlResolver) {
         ObjectNode node = mapper.createObjectNode();
         node.put("uid", category.getUid() != null ? category.getUid().toString() : null);
         node.put("name", category.getName());
         node.put("urlPath", category.getUrlPath());
+        if (urlResolver != null) {
+            node.put("url", urlResolver.apply(category));
+        }
         if (withChildren && category instanceof CategoryTree) {
             List<CategoryTree> children = ((CategoryTree) category).getChildren();
             if (children != null) {
                 ArrayNode arr = node.putArray("children");
                 for (CategoryTree child : children) {
-                    arr.add(category(mapper, child, false));
+                    arr.add(category(mapper, child, false, urlResolver));
                 }
             }
         }

@@ -16,7 +16,10 @@
 package com.adobe.cq.commerce.mcp.internal.tools;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
+import com.adobe.cq.commerce.core.components.services.urls.CategoryUrlFormat;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.mcp.McpCallContext;
 import com.adobe.cq.commerce.mcp.McpTool;
@@ -32,6 +35,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 @Component(service = McpTool.class)
 public class BrowseCategoriesTool implements McpTool {
     private final ObjectMapper mapper = new ObjectMapper();
+
+    @Reference
+    UrlProvider urlProvider;
 
     @Override
     public String name() {
@@ -64,7 +70,16 @@ public class BrowseCategoriesTool implements McpTool {
         String uid = args.hasNonNull("uid") ? args.get("uid").asText() : null;
         CategoryInterface category = fetch(ctx, uid);
         ObjectNode out = mapper.createObjectNode();
-        out.set("category", category == null ? mapper.nullNode() : DtoMapper.category(mapper, category, true));
+        out.set("category", category == null ? mapper.nullNode()
+            : DtoMapper.category(mapper, category, true, cat -> plpUrl(ctx, cat)));
         return out;
+    }
+
+    /**
+     * Resolves the product-listing (category) page URL for the given category via CIF's {@link UrlProvider}, using the
+     * endpoint's own nav-root page so the provider resolves the store's configured catalog page.
+     */
+    private String plpUrl(StoreContext ctx, CategoryInterface category) {
+        return urlProvider.formatCategoryUrl(ctx.getRequest(), ctx.getLandingPage(), new CategoryUrlFormat.Params(category));
     }
 }

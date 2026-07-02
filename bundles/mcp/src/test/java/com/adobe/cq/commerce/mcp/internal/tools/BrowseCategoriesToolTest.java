@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.mcp.internal.tools;
 import org.junit.Test;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
@@ -25,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -40,14 +42,21 @@ public class BrowseCategoriesToolTest {
         StoreContext ctx = mock(StoreContext.class);
         when(ctx.getClient()).thenReturn(mock(MagentoGraphqlClient.class));
 
+        UrlProvider urlProvider = mock(UrlProvider.class);
+        when(urlProvider.formatCategoryUrl(any(), any(), any()))
+            .thenReturn("/content/venia/us/en/category-page.html/tops.html");
+
         BrowseCategoriesTool tool = new BrowseCategoriesTool() {
             @Override
             protected CategoryInterface fetch(StoreContext c, String uid) {
                 return cat;
             }
         };
+        tool.urlProvider = urlProvider;
+
         JsonNode out = tool.call(ctx, mapper.createObjectNode());
         assertEquals("Tops", out.get("category").get("name").asText());
+        assertEquals("/content/venia/us/en/category-page.html/tops.html", out.get("category").get("url").asText());
         assertEquals("browse_categories", tool.name());
     }
 }

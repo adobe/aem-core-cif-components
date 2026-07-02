@@ -84,10 +84,11 @@ public class DtoMapperTest {
         when(category.getName()).thenReturn("Tops");
         when(category.getUrlPath()).thenReturn("tops");
 
-        ObjectNode dto = DtoMapper.category(mapper, category, false);
+        ObjectNode dto = DtoMapper.category(mapper, category, false, c -> "/plp/" + c.getUrlPath());
         assertEquals("cat-1", dto.get("uid").asText());
         assertEquals("Tops", dto.get("name").asText());
         assertEquals("tops", dto.get("urlPath").asText());
+        assertEquals("/plp/tops", dto.get("url").asText());
         assertFalse(dto.has("children"));
     }
 
@@ -104,12 +105,14 @@ public class DtoMapperTest {
         when(parent.getUrlPath()).thenReturn("tops");
         when(parent.getChildren()).thenReturn(Collections.singletonList(child));
 
-        ObjectNode dto = DtoMapper.category(mapper, parent, true);
+        ObjectNode dto = DtoMapper.category(mapper, parent, true, c -> "/plp/" + c.getUrlPath());
+        assertEquals("/plp/tops", dto.get("url").asText());
         assertTrue(dto.has("children"));
         ArrayNode children = (ArrayNode) dto.get("children");
         assertEquals(1, children.size());
         assertEquals("cat-2", children.get(0).get("uid").asText());
         assertEquals("Blouses", children.get(0).get("name").asText());
+        assertEquals("/plp/tops/blouses", children.get(0).get("url").asText());
         assertFalse(children.get(0).has("children"));
     }
 
@@ -120,7 +123,8 @@ public class DtoMapperTest {
         when(category.getName()).thenReturn("Tops");
         when(category.getUrlPath()).thenReturn("tops");
 
-        ObjectNode dto = DtoMapper.category(mapper, category, false);
+        ObjectNode dto = DtoMapper.category(mapper, category, false, null);
         assertTrue(dto.get("uid").isNull());
+        assertFalse(dto.has("url"));
     }
 }
