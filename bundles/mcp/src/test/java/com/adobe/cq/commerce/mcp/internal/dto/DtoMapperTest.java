@@ -45,6 +45,7 @@ public class DtoMapperTest {
         when(item.getSKU()).thenReturn("VT01");
         when(item.getTitle()).thenReturn("Valeria Two-Layer Tank");
         when(item.getSlug()).thenReturn("valeria-tank");
+        when(item.getURL()).thenReturn("/content/venia/us/en/products/valeria-tank.html");
         when(item.getImageURL()).thenReturn("http://x/img.jpg");
         when(item.getImageAlt()).thenReturn("tank");
         when(item.getPriceRange()).thenReturn(price);
@@ -53,6 +54,7 @@ public class DtoMapperTest {
         assertEquals("VT01", dto.get("sku").asText());
         assertEquals("Valeria Two-Layer Tank", dto.get("name").asText());
         assertEquals("valeria-tank", dto.get("slug").asText());
+        assertEquals("/content/venia/us/en/products/valeria-tank.html", dto.get("url").asText());
         assertEquals("http://x/img.jpg", dto.get("imageUrl").asText());
         assertEquals("tank", dto.get("imageAlt").asText());
         assertEquals(19.99, dto.get("price").asDouble(), 0.001);

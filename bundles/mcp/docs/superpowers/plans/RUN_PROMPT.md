@@ -28,8 +28,8 @@ Both already exist in this repo (aem-core-cif-components).
 - Follow each task's TDD steps exactly: write the failing test, run it red, write the
   minimal implementation, run it green, then commit — one commit per task, using the
   commit messages the plan specifies.
-- BEFORE any code: create and switch to a feature branch `feature/cif-commerce-mcp`.
-  Never commit to main. Do not push and do not merge.
+- Work on the current `mcp` branch (do not create a new branch and do not switch away
+  from it). Never commit to main. Do not push and do not merge.
 
 ## Hard constraints
 - The code MUST be AEM 6.5 compatible, exactly like the other bundles in this repo:
@@ -72,5 +72,5 @@ Use curl for everything and capture the ACTUAL responses.
   build result, tests passed, bundle active state, and each endpoint check above.
   Be honest — if a check could not run, state that plainly; never claim a success you
   did not observe.
-- Leave all per-task commits on the feature/cif-commerce-mcp branch.
+- Leave all per-task commits on the `mcp` branch.
 ```

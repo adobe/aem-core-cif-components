@@ -33,9 +33,9 @@ public final class DtoMapper {
     private DtoMapper() {}
 
     /**
-     * Maps a {@link ProductListItem} to a compact DTO with the fields {@code sku}, {@code name}, {@code slug},
-     * {@code imageUrl}, {@code imageAlt}, {@code price} and {@code currency}. The price fields are omitted if the item has no
-     * price range.
+     * Maps a {@link ProductListItem} to a compact DTO with the fields {@code sku}, {@code name}, {@code slug}, {@code url}
+     * (the product detail page link, built by CIF's {@code UrlProvider}), {@code imageUrl}, {@code imageAlt}, {@code price} and
+     * {@code currency}. The price fields are omitted if the item has no price range.
      *
      * @param mapper the Jackson object mapper used to create the resulting node
      * @param item the product list item to map
@@ -46,6 +46,7 @@ public final class DtoMapper {
         node.put("sku", item.getSKU());
         node.put("name", item.getTitle());
         node.put("slug", item.getSlug());
+        node.put("url", item.getURL());
         node.put("imageUrl", item.getImageURL());
         node.put("imageAlt", item.getImageAlt());
         Price price = item.getPriceRange();
