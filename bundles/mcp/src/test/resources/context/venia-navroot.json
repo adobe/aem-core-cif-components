@@ -1,0 +1,18 @@
+{
+  "jcr:primaryType": "sling:Folder",
+  "store": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "sling:resourceType": "core/cif/components/structure/page/v3/page",
+      "navRoot": true
+    }
+  },
+  "store-products": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "sling:resourceType": "core/cif/components/structure/catalogpage/v3/catalogpage"
+    }
+  }
+}

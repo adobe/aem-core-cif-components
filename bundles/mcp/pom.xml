@@ -224,6 +224,30 @@
             </exclusions>
             <scope>test</scope>
         </dependency>
+        <!-- for testing we need the new ResourceTypeBasedResourcePicker -->
+        <dependency>
+            <groupId>org.apache.sling</groupId>
+            <artifactId>org.apache.sling.models.impl</artifactId>
+            <version>1.4.16</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.adobe.cq</groupId>
+            <artifactId>core.wcm.components.core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.adobe.commerce.cif</groupId>
+            <artifactId>graphql-client</artifactId>
+            <version>${graphql.client.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <developers>
