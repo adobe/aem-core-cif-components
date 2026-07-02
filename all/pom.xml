@@ -81,6 +81,12 @@
                             <filter>true</filter>
                             <target>/apps/core/cif/install</target>
                         </embedded>
+                        <embedded>
+                            <groupId>com.adobe.commerce.cif</groupId>
+                            <artifactId>core-cif-components-mcp</artifactId>
+                            <filter>true</filter>
+                            <target>/apps/core/cif/install</target>
+                        </embedded>
                     </embeddeds>
                     <subPackages>
                         <subPackage>
@@ -110,6 +116,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>core-cif-components-core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>core-cif-components-mcp</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

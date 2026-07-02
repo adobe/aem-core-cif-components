@@ -19,6 +19,7 @@ import javax.servlet.Servlet;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Reference;
 
 import com.adobe.cq.commerce.mcp.internal.JsonRpcDispatcher;
@@ -28,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component(
     service = Servlet.class,
+    configurationPolicy = ConfigurationPolicy.REQUIRE,
     property = {
         "sling.servlet.resourceTypes=cq:Page",
         "sling.servlet.selectors=mcp-authoring",
