@@ -51,4 +51,18 @@ public class ConfigureCatalogPageToolTest {
         Resource r = context.resourceResolver().getResource("/content/site/plp/jcr:content");
         assertEquals("MT==", r.getValueMap().get("category", String.class));
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsNonCifResourceType() throws Exception {
+        context.build().resource("/content/site/plainpage/jcr:content",
+            "sling:resourceType", "nt:unstructured").commit();
+
+        StoreContext ctx = mock(StoreContext.class);
+        SlingHttpServletRequest req = mock(SlingHttpServletRequest.class);
+        when(req.getResourceResolver()).thenReturn(context.resourceResolver());
+        when(ctx.getRequest()).thenReturn(req);
+
+        new ConfigureCatalogPageTool().call(ctx, mapper.readTree(
+            "{\"path\":\"/content/site/plainpage\",\"categoryUid\":\"MT==\"}"));
+    }
 }

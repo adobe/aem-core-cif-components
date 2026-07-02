@@ -64,4 +64,18 @@ public class ConfigureProductComponentToolTest {
         new ConfigureProductComponentTool().call(ctx, mapper.readTree(
             "{\"path\":\"/content/does/not/exist\",\"sku\":\"X\"}"));
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsNonCifResourceType() throws Exception {
+        context.build().resource("/content/site/jcr:content/root/text",
+            "sling:resourceType", "foundation/components/text").commit();
+
+        StoreContext ctx = mock(StoreContext.class);
+        SlingHttpServletRequest req = mock(SlingHttpServletRequest.class);
+        when(req.getResourceResolver()).thenReturn(context.resourceResolver());
+        when(ctx.getRequest()).thenReturn(req);
+
+        new ConfigureProductComponentTool().call(ctx, mapper.readTree(
+            "{\"path\":\"/content/site/jcr:content/root/text\",\"sku\":\"VT01\"}"));
+    }
 }

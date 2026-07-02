@@ -15,6 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.mcp.internal.tools;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -33,6 +36,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 @Component(service = McpTool.class)
 public class ConfigureProductComponentTool implements McpTool {
+
+    /**
+     * Known CIF product component resource types (see {@code ProductImpl.RESOURCE_TYPE} in v1/v2/v3 of
+     * {@code com.adobe.cq.commerce.core.components.internal.models.*.product}). Matching is done via
+     * {@link Resource#isResourceType(String)}, which follows {@code sling:resourceSuperType}, so proxied
+     * project components (e.g. Venia's {@code venia/components/...}) that super-type one of these are
+     * also accepted.
+     */
+    private static final List<String> CIF_PRODUCT_COMPONENT_TYPES = Arrays.asList(
+        "core/cif/components/commerce/product/v1/product",
+        "core/cif/components/commerce/product/v2/product",
+        "core/cif/components/commerce/product/v3/product");
+
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
@@ -73,6 +89,9 @@ public class ConfigureProductComponentTool implements McpTool {
         Resource target = resolver.getResource(path);
         if (target == null) {
             throw new IllegalArgumentException("resource not found: " + path);
+        }
+        if (CIF_PRODUCT_COMPONENT_TYPES.stream().noneMatch(target::isResourceType)) {
+            throw new IllegalArgumentException("resource is not a CIF product component: " + path);
         }
 
         ModifiableValueMap properties = target.adaptTo(ModifiableValueMap.class);

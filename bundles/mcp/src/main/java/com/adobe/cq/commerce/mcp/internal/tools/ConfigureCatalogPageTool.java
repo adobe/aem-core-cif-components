@@ -15,6 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.mcp.internal.tools;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -39,6 +42,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 @Component(service = McpTool.class)
 public class ConfigureCatalogPageTool implements McpTool {
     private static final String CATEGORY_PROPERTY = "category";
+
+    /**
+     * Known CIF catalog (PLP) page resource types (see {@code SiteStructure.RT_CATALOG_PAGE} and
+     * {@code RT_CATALOG_PAGE_V3}). Matching is done via {@link Resource#isResourceType(String)}, which
+     * follows {@code sling:resourceSuperType}, so proxied project components (e.g. Venia's
+     * {@code venia/components/...}) that super-type one of these are also accepted.
+     */
+    private static final List<String> CIF_CATALOG_PAGE_TYPES = Arrays.asList(
+        "core/cif/components/structure/catalogpage/v1/catalogpage",
+        "core/cif/components/structure/catalogpage/v3/catalogpage");
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -80,6 +93,9 @@ public class ConfigureCatalogPageTool implements McpTool {
         Resource content = resolver.getResource(path + "/jcr:content");
         if (content == null) {
             throw new IllegalArgumentException("page not found: " + path);
+        }
+        if (CIF_CATALOG_PAGE_TYPES.stream().noneMatch(content::isResourceType)) {
+            throw new IllegalArgumentException("resource is not a CIF catalog page: " + path);
         }
 
         ModifiableValueMap properties = content.adaptTo(ModifiableValueMap.class);
