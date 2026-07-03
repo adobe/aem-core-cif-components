@@ -20,9 +20,10 @@ import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRe
 import com.adobe.cq.commerce.magento.graphql.CategoryTreeQueryDefinition;
 
 /**
- * Minimal {@link AbstractCategoryRetriever} implementation used by the MCP {@code browse_categories} tool. The
- * GraphQL query is trimmed to the fields required by the tool's response DTO and its PLP link: uid, name, url_key,
- * url_path and the same fields for the immediate children.
+ * Minimal {@link AbstractCategoryRetriever} implementation used by the MCP category tools. The GraphQL query is
+ * trimmed to the fields required by the tools' response DTOs and their PLP links: uid, name, url_key, url_path and
+ * the same fields for the immediate children. Tools that need more (e.g. breadcrumbs) extend the query via
+ * {@link #extendCategoryQueryWith(java.util.function.Consumer)}.
  */
 public class McpCategoryRetriever extends AbstractCategoryRetriever {
 

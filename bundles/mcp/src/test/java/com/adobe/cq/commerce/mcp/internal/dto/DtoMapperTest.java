@@ -15,12 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.mcp.internal.dto;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.Test;
 
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.magento.graphql.Breadcrumb;
 import com.adobe.cq.commerce.magento.graphql.Cart;
 import com.adobe.cq.commerce.magento.graphql.CartItemInterface;
 import com.adobe.cq.commerce.magento.graphql.CartItemPrices;
@@ -179,5 +181,37 @@ public class DtoMapperTest {
         assertEquals(78.0, dto.get("grandTotal").asDouble(), 0.001);
         assertEquals("USD", dto.get("currency").asText());
         assertEquals(2.0, dto.get("totalQuantity").asDouble(), 0.001);
+    }
+
+    private Breadcrumb breadcrumb(String uid, String name, int level, String urlPath) {
+        Breadcrumb crumb = mock(Breadcrumb.class);
+        when(crumb.getCategoryUid()).thenReturn(new ID(uid));
+        when(crumb.getCategoryName()).thenReturn(name);
+        when(crumb.getCategoryLevel()).thenReturn(level);
+        when(crumb.getCategoryUrlPath()).thenReturn(urlPath);
+        return crumb;
+    }
+
+    @Test
+    public void mapsBreadcrumbsOrderedByLevelAscending() {
+        Breadcrumb level2 = breadcrumb("cat-2", "Tops", 2, "men/tops");
+        Breadcrumb level1 = breadcrumb("cat-1", "Men", 1, "men");
+
+        ArrayNode dto = DtoMapper.breadcrumbs(mapper, Arrays.asList(level2, level1));
+        assertEquals(2, dto.size());
+        assertEquals("cat-1", dto.get(0).get("uid").asText());
+        assertEquals("Men", dto.get(0).get("name").asText());
+        assertEquals(1, dto.get(0).get("level").asInt());
+        assertEquals("men", dto.get(0).get("urlPath").asText());
+        assertEquals("cat-2", dto.get(1).get("uid").asText());
+        assertEquals("Tops", dto.get(1).get("name").asText());
+        assertEquals(2, dto.get(1).get("level").asInt());
+        assertEquals("men/tops", dto.get(1).get("urlPath").asText());
+    }
+
+    @Test
+    public void mapsNullBreadcrumbsToEmptyArray() {
+        ArrayNode dto = DtoMapper.breadcrumbs(mapper, null);
+        assertEquals(0, dto.size());
     }
 }

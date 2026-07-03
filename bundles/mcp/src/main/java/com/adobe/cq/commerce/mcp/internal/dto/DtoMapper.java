@@ -15,11 +15,14 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.mcp.internal.dto;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.magento.graphql.Breadcrumb;
 import com.adobe.cq.commerce.magento.graphql.Cart;
 import com.adobe.cq.commerce.magento.graphql.CartItemInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
@@ -139,5 +142,30 @@ public final class DtoMapper {
         }
         node.put("totalQuantity", cart.getTotalQuantity());
         return node;
+    }
+
+    /**
+     * Maps a list of {@link Breadcrumb} to a compact DTO array with the fields {@code uid}, {@code name}, {@code level} and
+     * {@code urlPath}, ordered by ascending {@link Breadcrumb#getCategoryLevel()}.
+     *
+     * @param mapper the Jackson object mapper used to create the resulting node
+     * @param breadcrumbs the breadcrumbs to map, or {@code null}
+     * @return the mapped, level-ordered DTO array
+     */
+    public static ArrayNode breadcrumbs(ObjectMapper mapper, List<Breadcrumb> breadcrumbs) {
+        ArrayNode arr = mapper.createArrayNode();
+        if (breadcrumbs == null) {
+            return arr;
+        }
+        List<Breadcrumb> sorted = new ArrayList<>(breadcrumbs);
+        sorted.sort(Comparator.comparing(Breadcrumb::getCategoryLevel));
+        for (Breadcrumb crumb : sorted) {
+            ObjectNode node = arr.addObject();
+            node.put("uid", crumb.getCategoryUid() != null ? crumb.getCategoryUid().toString() : null);
+            node.put("name", crumb.getCategoryName());
+            node.put("level", crumb.getCategoryLevel());
+            node.put("urlPath", crumb.getCategoryUrlPath());
+        }
+        return arr;
     }
 }
