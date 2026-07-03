@@ -201,6 +201,12 @@
             <artifactId>core.wcm.components.core</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.adobe.aem</groupId>
+            <artifactId>aem-cif-sdk-api</artifactId>
+            <version>2025.09.02.00</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
