@@ -136,9 +136,12 @@ path or a resource that is not a CIF component/page they understand:
 
 | Tool | Args | Effect |
 |---|---|---|
-| `configure_product_component` | `{path, sku}` | sets `selection`/`selectionType` on a CIF product component |
-| `configure_catalog_page` | `{path, categoryUid}` | sets `category` on a CIF catalog (PLP) page's `jcr:content` |
+| `configure_product_component` | `{path, sku}` | pins a CIF product component to a SKU (`selection`/`selectionType`) |
+| `configure_productlist_component` | `{path, categoryUid}` | pins a CIF product list / carousel **component** to a category (its `category` manual selection) |
+| `configure_catalog_page` | `{path, categoryUid, showMainCategories?}` | binds a catalog (PLP) **page's** root category (`magentoRootCategoryId` + `magentoRootCategoryIdType=uid` + `showMainCategories`, default `false`) |
 | `tag_content_with_commerce` | `{path, sku?, categoryUid?, action?}` | sets `cq:products` / `cq:categories` on a DAM asset, page, or XF variation (`action`: `add` or `remove`) |
+
+> Note the distinction: `category` (a **component** property, read by `ProductListImpl`) vs `magentoRootCategoryId` (a **page** property, read by `SiteStructure`/`NavigationImpl`). Binding a *component* to a category → `configure_productlist_component`; scoping a *catalog page* to a root category → `configure_catalog_page`.
 
 `PDP`/`PLP` links are page-relative paths (as CIF's `UrlProvider` emits them); prepend
 scheme/host if you need absolute URLs.
