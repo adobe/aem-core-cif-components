@@ -44,13 +44,16 @@ public class PlaceOrderTool implements McpTool {
     @Override
     public String description() {
         return "Place the order for a cart that already has a shipping address, shipping method and payment method "
-            + "set. Creates a real order -- not reversible.";
+            + "set. Creates a real order -- not reversible. Requires confirm: true to actually place it -- without it, "
+            + "returns the cart for review only.";
     }
 
     @Override
     public ObjectNode inputSchema() {
         ObjectNode schema = mapper.createObjectNode().put("type", "object");
-        schema.putObject("properties").putObject("cart_id").put("type", "string");
+        ObjectNode properties = schema.putObject("properties");
+        properties.putObject("cart_id").put("type", "string");
+        properties.putObject("confirm").put("type", "boolean");
         schema.putArray("required").add("cart_id");
         return schema;
     }
@@ -70,10 +73,25 @@ public class PlaceOrderTool implements McpTool {
             throw new IllegalArgumentException("cart_id is required");
         }
 
+        // place_order creates a real, non-reversible order, so require an explicit confirm: true (like the
+        // set_shipping_*/set_payment_method steps) rather than placing on a single unconfirmed call.
+        boolean confirm = args.path("confirm").asBoolean(false);
+        if (!confirm) {
+            ObjectNode preview = mapper.createObjectNode();
+            preview.put("cart_id", cartId);
+            preview.put("confirmed", false);
+            preview.put("pending_order", true);
+            preview.put("message", "This places a real, non-reversible order for the cart. Confirm with the customer, "
+                + "then call place_order again with confirm: true.");
+            return preview;
+        }
+
         Order order = placeOrder(ctx, cartId);
 
         ObjectNode out = mapper.createObjectNode();
+        out.put("cart_id", cartId);
         out.put("order_number", order.getOrderNumber());
+        out.put("confirmed", true);
         return out;
     }
 }

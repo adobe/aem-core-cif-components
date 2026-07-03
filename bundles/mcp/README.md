@@ -117,15 +117,16 @@ the customer first. Call the same tool again with `confirm: true` to actually ap
 result includes a `confirmed` boolean so the caller always knows which case it got.
 `add_to_cart`/`view_cart`/`update_cart_item`/`clear_cart` don't need this — cart edits are freely
 reversible, unlike an address/shipping/payment choice that's about to feed into an order.
-`place_order` also doesn't take `confirm` — calling it *is* the final confirmation, there's no
-more-committed state after it to preview against.
+`place_order` **also requires `confirm: true`** — since it creates a real, non-reversible order it
+must not fire on a single unconfirmed call; without it the tool commits nothing and returns a
+`pending_order` preview.
 
 | Tool | Args | Result |
 |---|---|---|
 | `set_shipping_address` | `{cart_id, email, firstname, lastname, street, city, region, postcode, country_code, telephone, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_shipping_address:{...}, message}`. Confirmed: `{cart_id, confirmed:true, shipping_methods:[{carrier_code,carrier_title,method_code,method_title,price,currency}]}`. Also sets guest email and billing address (defaults to same-as-shipping) once confirmed. |
 | `set_shipping_method` | `{cart_id, carrier_code, method_code, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_shipping_method:{carrier_code,method_code}, message}`. Confirmed: `{cart_id, confirmed:true, payment_methods:[{code,title}]}` |
 | `set_payment_method` | `{cart_id, payment_method, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_payment_method, message}`. Confirmed: `{cart_id, confirmed:true, payment_method, ready_to_place_order:true}` |
-| `place_order` | `{cart_id}` | `{order_number}`. **Not idempotent, not reversible** — creates a real order. |
+| `place_order` | `{cart_id, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_order:true, message}` (nothing placed). Confirmed: `{cart_id, order_number, confirmed:true}`. **Not idempotent, not reversible** — creates a real order. |
 
 **Not yet supported:** customer login (guest checkout only), a separate billing address, any
 payment method beyond what the store already has configured — see "Known limitations" below.
