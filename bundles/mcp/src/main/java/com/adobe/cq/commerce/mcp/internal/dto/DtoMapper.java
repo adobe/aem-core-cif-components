@@ -20,8 +20,12 @@ import java.util.function.Function;
 
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.magento.graphql.Cart;
+import com.adobe.cq.commerce.magento.graphql.CartItemInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryInterface;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.Money;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -89,6 +93,51 @@ public final class DtoMapper {
                 }
             }
         }
+        return node;
+    }
+
+    /**
+     * Maps a {@link Cart} to a compact DTO with the fields {@code cart_id}, {@code items} (each with {@code uid}, {@code sku},
+     * {@code name}, {@code quantity}, {@code price}, {@code currency}, {@code rowTotal}), {@code grandTotal}, {@code currency}
+     * and {@code totalQuantity}.
+     *
+     * @param mapper the Jackson object mapper used to create the resulting node
+     * @param cart the cart to map
+     * @return the mapped DTO
+     */
+    public static ObjectNode cart(ObjectMapper mapper, Cart cart) {
+        ObjectNode node = mapper.createObjectNode();
+        node.put("cart_id", cart.getId() != null ? cart.getId().toString() : null);
+
+        ArrayNode items = node.putArray("items");
+        if (cart.getItems() != null) {
+            for (CartItemInterface item : cart.getItems()) {
+                ObjectNode itemNode = items.addObject();
+                itemNode.put("uid", item.getUid() != null ? item.getUid().toString() : null);
+                ProductInterface product = item.getProduct();
+                itemNode.put("sku", product != null ? product.getSku() : null);
+                itemNode.put("name", product != null ? product.getName() : null);
+                itemNode.put("quantity", item.getQuantity());
+                if (item.getPrices() != null) {
+                    Money price = item.getPrices().getPrice();
+                    if (price != null) {
+                        itemNode.put("price", price.getValue());
+                        itemNode.put("currency", price.getCurrency() != null ? price.getCurrency().toString() : null);
+                    }
+                    Money rowTotal = item.getPrices().getRowTotal();
+                    if (rowTotal != null) {
+                        itemNode.put("rowTotal", rowTotal.getValue());
+                    }
+                }
+            }
+        }
+
+        if (cart.getPrices() != null && cart.getPrices().getGrandTotal() != null) {
+            Money grandTotal = cart.getPrices().getGrandTotal();
+            node.put("grandTotal", grandTotal.getValue());
+            node.put("currency", grandTotal.getCurrency() != null ? grandTotal.getCurrency().toString() : null);
+        }
+        node.put("totalQuantity", cart.getTotalQuantity());
         return node;
     }
 }

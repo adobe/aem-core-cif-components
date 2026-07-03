@@ -50,8 +50,11 @@ bundles/mcp/
         │   ├── AbstractMcpServlet.java # transport: body-limit, nav-root gate, JSON-RPC I/O
         │   ├── ShopperMcpServlet.java  # selector "mcp"           (OPTIONAL policy)
         │   └── AuthoringMcpServlet.java# selector "mcp-authoring" (REQUIRE policy → author-only)
-        ├── dto/DtoMapper.java          # compact product/category DTOs (incl. PDP/PLP links)
-        └── tools/                      # the McpTool implementations (below)
+        ├── dto/DtoMapper.java          # compact product/category/cart DTOs (incl. PDP/PLP links)
+        └── tools/                      # the McpTool implementations (below), plus:
+            ├── CartMutationClient.java         # shared cart-mutation executor + field selection (see "Cart tools" below)
+            ├── ConfigurableOptionResolver.java  # resolves human-readable configurable options to option-value UIDs
+            └── BundleOptionResolver.java        # resolves human-readable bundle selections to the same kind of UID
 ```
 
 Related config outside this module:
@@ -73,6 +76,59 @@ Read tools (both endpoints); each result is a compact JSON DTO with a matching
 | `browse_categories` | `{uid?}` | `{category:{uid,name,urlPath,url,children:[…]}}` (`url` = PLP link, on category + children) |
 | `get_attributes` | `{}` | `{attributes:[{code,inputType}]}` |
 | `resolve_picker_selection` | `{skus:[…]}` | `{items:[{sku,name}]}` (authoring picker helper; read-only) |
+
+### Cart tools (shopper endpoint — guest cart, `writesContent() == false`)
+
+These mutate the **remote Magento cart**, not AEM content, so they stay on the anonymous
+shopper endpoint (same as an anonymous storefront visitor adding to cart) — do not confuse
+them with the write tools below, which mutate JCR content and are authoring-only. Cart state
+is client-threaded: `add_to_cart` returns a `cart_id`; pass it to every other cart tool.
+
+| Tool | Args | Result |
+|---|---|---|
+| `add_to_cart` | `{sku, quantity, cart_id?, options?, bundle_options?}` | cart DTO (below). Creates a guest cart if `cart_id` omitted. `options`/`bundle_options` select a configurable/bundle product's variant — see below. |
+| `view_cart` | `{cart_id}` | cart DTO |
+| `update_cart_item` | `{cart_id, uid, quantity}` | cart DTO. `quantity: 0` removes the line item. |
+| `clear_cart` | `{cart_id}` | cart DTO with `items: []` |
+
+Cart DTO shape: `{cart_id, items:[{uid,sku,name,quantity,price,currency,rowTotal}], grandTotal, currency, totalQuantity}`.
+
+**Configurable products** (size/color variants): pass human-readable option values in
+`add_to_cart`'s `options` argument, keyed by attribute code or label (case-insensitive), e.g.
+`{"fashion_color": "Peach", "fashion_size": "M"}` — not Magento's internal option-value IDs. If
+an option is missing or invalid, the error names the real attribute and its available values
+(e.g. `"Fashion Color must be one of: Peach, Khaki, Lilac, Rain"`), not Magento's generic "You
+need to choose options for your item."
+
+**Bundle products**: pass human-readable selections in `add_to_cart`'s `bundle_options`
+argument, keyed by each bundle item's title, e.g. `{"Necklace": "Carmina Necklace"}`. Same
+descriptive-error behavior as configurable options for missing/invalid selections.
+
+### Checkout tools (shopper endpoint, guest checkout — `writesContent() == false`)
+
+Mirror a real checkout wizard: each step returns what's valid for the next, so the agent never
+has to guess a carrier/method/payment code.
+
+**Confirm-before-commit:** `set_shipping_address`, `set_shipping_method` and `set_payment_method`
+all take an optional `confirm` boolean (default `false`). Without `confirm: true`, the tool
+commits nothing — it just echoes back what it *would* set (`pending_shipping_address` /
+`pending_shipping_method` / `pending_payment_method`) so the caller can review the details with
+the customer first. Call the same tool again with `confirm: true` to actually apply it. Every
+result includes a `confirmed` boolean so the caller always knows which case it got.
+`add_to_cart`/`view_cart`/`update_cart_item`/`clear_cart` don't need this — cart edits are freely
+reversible, unlike an address/shipping/payment choice that's about to feed into an order.
+`place_order` also doesn't take `confirm` — calling it *is* the final confirmation, there's no
+more-committed state after it to preview against.
+
+| Tool | Args | Result |
+|---|---|---|
+| `set_shipping_address` | `{cart_id, email, firstname, lastname, street, city, region, postcode, country_code, telephone, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_shipping_address:{...}, message}`. Confirmed: `{cart_id, confirmed:true, shipping_methods:[{carrier_code,carrier_title,method_code,method_title,price,currency}]}`. Also sets guest email and billing address (defaults to same-as-shipping) once confirmed. |
+| `set_shipping_method` | `{cart_id, carrier_code, method_code, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_shipping_method:{carrier_code,method_code}, message}`. Confirmed: `{cart_id, confirmed:true, payment_methods:[{code,title}]}` |
+| `set_payment_method` | `{cart_id, payment_method, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_payment_method, message}`. Confirmed: `{cart_id, confirmed:true, payment_method, ready_to_place_order:true}` |
+| `place_order` | `{cart_id}` | `{order_number}`. **Not idempotent, not reversible** — creates a real order. |
+
+**Not yet supported:** customer login (guest checkout only), a separate billing address, any
+payment method beyond what the store already has configured — see "Known limitations" below.
 
 Write tools (authoring endpoint only — `writesContent() == true`). They run under the
 **caller's** `ResourceResolver` (ACLs enforced) and **fail closed** on a non-`/content`
@@ -185,8 +241,19 @@ Confirm the bundle is `Active` at `/system/console/bundles.json` (symbolic name
 `-Pformat-code` profile (`mvn -pl bundles/mcp -Pformat-code process-classes`) before
 committing — the bare `formatter:format` goal ignores the project's Eclipse config.
 
-## Known limitations (v1)
+## Known limitations
 
-- No cart/checkout tools, and no MCP `resources`/`prompts` surface — tools only.
+- No MCP `resources`/`prompts` surface — tools only.
+- Cart tools support simple, configurable, **and bundle** products (see "Bundle products"
+  above). Downloadable, virtual, and grouped products are untested.
+- Checkout supports guest email/shipping/payment/order placement; no separate billing address
+  input (always same-as-shipping) and no payment method beyond what the store already has
+  configured.
+- No customer login — carts and checkout are guest-only; there is no authenticated/
+  customer-owned cart.
 - Shopper **commerce-token pass-through** is not yet implemented: the endpoint operates as a
-  guest (public catalog data). Deferred to v2 (see the design spec's open items).
+  guest (public catalog data). See `docs/superpowers/specs/2026-07-02-cif-commerce-mcp-design.md`
+  (original design) and `project_mcp_cart_checkout_flow` for the phased roadmap: guest cart
+  (shipped) → configurable products (shipped) → bundle products (shipped) → checkout/order
+  placement (shipped, payment is cash/COD-style via the store's existing `checkmo` method — no
+  payment gateway integration).

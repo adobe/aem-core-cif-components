@@ -21,7 +21,15 @@ import org.junit.Test;
 
 import com.adobe.cq.commerce.core.components.models.common.Price;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
+import com.adobe.cq.commerce.magento.graphql.Cart;
+import com.adobe.cq.commerce.magento.graphql.CartItemInterface;
+import com.adobe.cq.commerce.magento.graphql.CartItemPrices;
+import com.adobe.cq.commerce.magento.graphql.CartPrices;
 import com.adobe.cq.commerce.magento.graphql.CategoryTree;
+import com.adobe.cq.commerce.magento.graphql.CurrencyEnum;
+import com.adobe.cq.commerce.magento.graphql.Money;
+import com.adobe.cq.commerce.magento.graphql.ProductInterface;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -126,5 +134,50 @@ public class DtoMapperTest {
         ObjectNode dto = DtoMapper.category(mapper, category, false, null);
         assertTrue(dto.get("uid").isNull());
         assertFalse(dto.has("url"));
+    }
+
+    @Test
+    public void mapsCart() {
+        ProductInterface product = mock(ProductInterface.class);
+        when(product.getSku()).thenReturn("VSK05");
+        when(product.getName()).thenReturn("Agatha Skirt");
+
+        Money price = mock(Money.class);
+        when(price.getValue()).thenReturn(78.0);
+        when(price.getCurrency()).thenReturn(CurrencyEnum.USD);
+
+        CartItemPrices itemPrices = mock(CartItemPrices.class);
+        when(itemPrices.getPrice()).thenReturn(price);
+        when(itemPrices.getRowTotal()).thenReturn(price);
+
+        CartItemInterface item = mock(CartItemInterface.class);
+        when(item.getUid()).thenReturn(new ID("item-1"));
+        when(item.getProduct()).thenReturn(product);
+        when(item.getQuantity()).thenReturn(2.0);
+        when(item.getPrices()).thenReturn(itemPrices);
+
+        CartPrices cartPrices = mock(CartPrices.class);
+        when(cartPrices.getGrandTotal()).thenReturn(price);
+
+        Cart cart = mock(Cart.class);
+        when(cart.getId()).thenReturn(new ID("cart-1"));
+        when(cart.getItems()).thenReturn(Collections.singletonList(item));
+        when(cart.getPrices()).thenReturn(cartPrices);
+        when(cart.getTotalQuantity()).thenReturn(2.0);
+
+        ObjectNode dto = DtoMapper.cart(mapper, cart);
+        assertEquals("cart-1", dto.get("cart_id").asText());
+        assertEquals(1, dto.get("items").size());
+        JsonNode itemNode = dto.get("items").get(0);
+        assertEquals("item-1", itemNode.get("uid").asText());
+        assertEquals("VSK05", itemNode.get("sku").asText());
+        assertEquals("Agatha Skirt", itemNode.get("name").asText());
+        assertEquals(2.0, itemNode.get("quantity").asDouble(), 0.001);
+        assertEquals(78.0, itemNode.get("price").asDouble(), 0.001);
+        assertEquals("USD", itemNode.get("currency").asText());
+        assertEquals(78.0, itemNode.get("rowTotal").asDouble(), 0.001);
+        assertEquals(78.0, dto.get("grandTotal").asDouble(), 0.001);
+        assertEquals("USD", dto.get("currency").asText());
+        assertEquals(2.0, dto.get("totalQuantity").asDouble(), 0.001);
     }
 }
