@@ -201,4 +201,13 @@ public class ExplainPageResolutionToolTest {
                 mapper.createObjectNode().put("identifier", "productId1").put("type", "product")
                     .put("siteRoot", "/content/not-a-page")));
     }
+
+    @Test
+    public void failsClosedWhenNoSiteRootArgAndNullLandingPage() {
+        StoreContext ctx = ctxWithLandingPage(null);
+
+        assertThrows(IllegalArgumentException.class,
+            () -> new ExplainPageResolutionTool().call(ctx,
+                mapper.createObjectNode().put("identifier", "productId1").put("type", "product")));
+    }
 }

@@ -103,6 +103,10 @@ public class ExplainPageResolutionTool implements McpTool {
             searchRoot = ctx.getLandingPage();
         }
 
+        if (searchRoot == null) {
+            throw new IllegalArgumentException("could not resolve a site root page");
+        }
+
         SpecificPageRouting.Resolution resolution = specificPageRouting.resolveSpecificPage(searchRoot, identifier, type);
 
         ObjectNode out = mapper.createObjectNode();
