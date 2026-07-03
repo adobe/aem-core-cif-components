@@ -286,29 +286,29 @@ Expected: FAIL — compile error, `DtoMapper.cart(...)` does not exist yet.
 
 - [ ] **Step 3: Write minimal implementation**
 
-Add to `DtoMapper.java` (new imports: `Cart`, `CartItemInterface`, `ProductInterface`, `Money`):
+Add imports to `DtoMapper.java`: `Cart`, `CartItemInterface`, `Money`, `ProductInterface` (all `com.adobe.cq.commerce.magento.graphql.*`). Add the method:
 
 ```java
-    public static ObjectNode cart(ObjectMapper mapper, com.adobe.cq.commerce.magento.graphql.Cart cart) {
+    public static ObjectNode cart(ObjectMapper mapper, Cart cart) {
         ObjectNode node = mapper.createObjectNode();
         node.put("cart_id", cart.getId() != null ? cart.getId().toString() : null);
 
         ArrayNode items = node.putArray("items");
         if (cart.getItems() != null) {
-            for (com.adobe.cq.commerce.magento.graphql.CartItemInterface item : cart.getItems()) {
+            for (CartItemInterface item : cart.getItems()) {
                 ObjectNode itemNode = items.addObject();
                 itemNode.put("uid", item.getUid() != null ? item.getUid().toString() : null);
-                com.adobe.cq.commerce.magento.graphql.ProductInterface product = item.getProduct();
+                ProductInterface product = item.getProduct();
                 itemNode.put("sku", product != null ? product.getSku() : null);
                 itemNode.put("name", product != null ? product.getName() : null);
                 itemNode.put("quantity", item.getQuantity());
                 if (item.getPrices() != null) {
-                    com.adobe.cq.commerce.magento.graphql.Money price = item.getPrices().getPrice();
+                    Money price = item.getPrices().getPrice();
                     if (price != null) {
                         itemNode.put("price", price.getValue());
                         itemNode.put("currency", price.getCurrency() != null ? price.getCurrency().toString() : null);
                     }
-                    com.adobe.cq.commerce.magento.graphql.Money rowTotal = item.getPrices().getRowTotal();
+                    Money rowTotal = item.getPrices().getRowTotal();
                     if (rowTotal != null) {
                         itemNode.put("rowTotal", rowTotal.getValue());
                     }
@@ -317,7 +317,7 @@ Add to `DtoMapper.java` (new imports: `Cart`, `CartItemInterface`, `ProductInter
         }
 
         if (cart.getPrices() != null && cart.getPrices().getGrandTotal() != null) {
-            com.adobe.cq.commerce.magento.graphql.Money grandTotal = cart.getPrices().getGrandTotal();
+            Money grandTotal = cart.getPrices().getGrandTotal();
             node.put("grandTotal", grandTotal.getValue());
             node.put("currency", grandTotal.getCurrency() != null ? grandTotal.getCurrency().toString() : null);
         }
@@ -326,7 +326,7 @@ Add to `DtoMapper.java` (new imports: `Cart`, `CartItemInterface`, `ProductInter
     }
 ```
 
-(Fully-qualified names used inline to avoid guessing import ordering by hand — `mvn -Pformat-code clean compile` in Task 6's final cleanup step will sort them properly.)
+Verified against a real build: `mvn -Dtest=DtoMapperTest test` → 6/6 pass.
 
 - [ ] **Step 4: Run test to verify it passes**
 
