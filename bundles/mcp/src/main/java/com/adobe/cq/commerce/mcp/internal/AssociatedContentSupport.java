@@ -129,6 +129,35 @@ public final class AssociatedContentSupport {
         return out;
     }
 
+    /**
+     * Resolves the single content fragment matching {@code identifier} via the same {@code linkElement} lookup
+     * {@link #buildProductResult}/{@link #buildCategoryResult} use, taking the first hit ({@code withLimit(1)}).
+     *
+     * @param service the associated content service to query
+     * @param resolver the resolver to query with
+     * @param isCategory {@code true} to use the category content-fragment listing, {@code false} for product
+     * @param identifier the SKU or category UID to match
+     * @param contentFragmentModel optional CF model path to scope the match; {@code null}/blank to not scope
+     * @param linkElement optional model field name holding the identifier; {@code null}/blank to not scope
+     * @return the first matching content fragment, or {@code null} if none matched
+     */
+    public static ContentFragment resolveSingleContentFragment(AssociatedContentService service,
+        ResourceResolver resolver, boolean isCategory, String identifier, String contentFragmentModel,
+        String linkElement) {
+        CfParams cfParams = CfParams.of(identifier);
+        if (StringUtils.isNotBlank(contentFragmentModel)) {
+            cfParams = cfParams.model(contentFragmentModel);
+        }
+        if (StringUtils.isNotBlank(linkElement)) {
+            cfParams = cfParams.property(linkElement);
+        }
+        AssociatedContentQuery<ContentFragment> query = isCategory
+            ? service.listCategoryContentFragments(resolver, cfParams)
+            : service.listProductContentFragments(resolver, cfParams);
+        Iterator<ContentFragment> results = query.withLimit(1).execute();
+        return results.hasNext() ? results.next() : null;
+    }
+
     static String getExperienceFragmentsRoot(Page landingPage) {
         String landingPath = landingPage.getPath();
         if (landingPath.startsWith("/content/")) {
