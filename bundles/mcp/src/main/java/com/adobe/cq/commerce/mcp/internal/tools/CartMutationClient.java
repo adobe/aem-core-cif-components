@@ -21,7 +21,9 @@ import java.util.Map;
 
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
+import org.apache.sling.api.resource.Resource;
 
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -33,16 +35,21 @@ import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.adobe.cq.commerce.magento.graphql.gson.MutationDeserializer;
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
+import com.adobe.granite.ui.components.ds.ValueMapResource;
 
 /**
  * Executes Magento GraphQL mutations for cart tools. {@code MagentoGraphqlClient.execute} cannot be used for mutations:
- * its implementation hardcodes response deserialization to {@code Query.class}. This adapts the endpoint's own
- * resource to the raw {@link GraphqlClient} instead, using {@link MutationDeserializer#getGson()}.
+ * its implementation hardcodes response deserialization to {@code Query.class}. This resolves the raw {@link GraphqlClient}
+ * instead, using {@link MutationDeserializer#getGson()}. The endpoint's own resource is not directly adaptable to
+ * {@link GraphqlClient} (verified live: {@code resource.adaptTo(GraphqlClient.class)} returns {@code null} for the nav-root
+ * page resource) &mdash; {@code MagentoGraphqlClientImpl} resolves the CIF context-aware commerce config first and adapts a
+ * synthetic resource wrapping it instead, so this reproduces that same resolution using only public API
+ * ({@link ComponentsConfiguration}, {@link ValueMapResource}).
  */
 public class CartMutationClient {
 
     public Mutation execute(StoreContext ctx, MutationQueryDefinition definition) {
-        GraphqlClient graphqlClient = ctx.getResource().adaptTo(GraphqlClient.class);
+        GraphqlClient graphqlClient = resolveGraphqlClient(ctx.getResource());
         if (graphqlClient == null) {
             throw new IllegalStateException("GraphQL client not available for resource " + ctx.getResource().getPath());
         }
@@ -68,6 +75,20 @@ public class CartMutationClient {
         }
 
         return response.getData();
+    }
+
+    private GraphqlClient resolveGraphqlClient(Resource resource) {
+        GraphqlClient direct = resource.adaptTo(GraphqlClient.class);
+        if (direct != null) {
+            return direct;
+        }
+        ComponentsConfiguration configuration = resource.adaptTo(ComponentsConfiguration.class);
+        if (configuration == null || configuration.size() == 0) {
+            return null;
+        }
+        Resource configResource = new ValueMapResource(resource.getResourceResolver(), resource.getPath(),
+            resource.getResourceType(), configuration.getValueMap());
+        return configResource.adaptTo(GraphqlClient.class);
     }
 
     private List<Header> toHeaders(Map<String, String[]> headerMap) {

@@ -1146,8 +1146,20 @@ Expected: full `bundles/mcp` test suite passes, formatter makes no further code 
 
 ---
 
-## After this plan
+## After this plan — live verification results (2026-07-03)
 
-Per the design spec's open items — once these tools run against a real AEM + Magento instance:
-- Verify actual field names/shapes match what's written here (money flattening, error message wording for out-of-stock/invalid-cart cases) and adjust `DtoMapper.cart()`/tool code as needed. This is expected and fine — the spec explicitly deferred exact verification to real testing.
-- Confirm the `Store` header and any other context headers survive the `CartMutationClient` header-copying path correctly (test against a multi-store setup if available).
+Deployed to a running local AEM author instance and drove the full flow through the real `cif-shopper` `.mcp.json` endpoint against the real Magento backend.
+
+**Bug found and fixed:** `CartMutationClient`'s original `ctx.getResource().adaptTo(GraphqlClient.class)` returned `null` for the nav-root page resource — confirmed live with `add_to_cart` failing with "GraphQL client not available for resource /content/venia/us/en", while `view_cart` (which goes through the existing `MagentoGraphqlClient.execute()` path) worked fine on the exact same resource. Root cause: `MagentoGraphqlClientImpl` never adapts the raw page resource directly — it resolves the CIF context-aware commerce config first (`resource.adaptTo(ComponentsConfiguration.class)`), then builds a synthetic `ValueMapResource` wrapping that config, and only adapts *that* to `GraphqlClient`. Fixed by reproducing the same two-step resolution in `CartMutationClient` using only public API (`ComponentsConfiguration`, `com.adobe.granite.ui.components.ds.ValueMapResource`) — no `bundles/core` changes, staying within the module as decided.
+
+**Verified end-to-end after the fix:**
+- `add_to_cart` on a plain simple-product SKU (`VA13-GO-NA`, Carmina Necklace) — creates a cart, returns a real `cart_id`, correct DTO shape.
+- `add_to_cart` again with the same `cart_id` — Magento merges into the existing line (quantity 1→2, rowTotal 78→156), confirming cart-id threading works.
+- `view_cart` — matches actual cart state.
+- `update_cart_item` with `quantity: 5` — updates in place (rowTotal 390 = 78×5).
+- `update_cart_item` with `quantity: 0` — removes the line item (separate code path from `clear_cart`, verified independently).
+- `clear_cart` — removes all items, confirmed empty via a follow-up `view_cart`.
+
+**Also confirmed live:** trying to `add_to_cart` a *configurable* product SKU (e.g. `VSK05`, Agatha Skirt) correctly surfaces Magento's real error message verbatim ("You need to choose options for your item.") rather than crashing — validates the error-handling design. Configurable-product support (entered/selected options) is out of scope for this guest-cart-only phase; simple products only, as scoped.
+
+All field names/shapes from the original design held up as written — no DTO changes were needed, only the mutation execution path.

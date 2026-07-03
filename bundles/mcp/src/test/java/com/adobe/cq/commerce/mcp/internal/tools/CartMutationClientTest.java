@@ -21,6 +21,7 @@ import org.apache.sling.api.resource.Resource;
 import org.junit.Test;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
@@ -86,5 +87,20 @@ public class CartMutationClientTest {
         CartMutationClient client = new CartMutationClient();
         IllegalStateException ex = assertThrows(IllegalStateException.class, () -> client.execute(ctx, m -> m.createEmptyCart()));
         assertEquals("The cart isn't active.", ex.getMessage());
+    }
+
+    @Test
+    public void throwsWhenGraphqlClientCannotBeResolved() {
+        Resource resource = mock(Resource.class);
+        when(resource.getPath()).thenReturn("/content/venia/us/en");
+        when(resource.adaptTo(GraphqlClient.class)).thenReturn(null);
+        when(resource.adaptTo(ComponentsConfiguration.class)).thenReturn(ComponentsConfiguration.EMPTY);
+
+        StoreContext ctx = mock(StoreContext.class);
+        when(ctx.getResource()).thenReturn(resource);
+
+        CartMutationClient client = new CartMutationClient();
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> client.execute(ctx, m -> m.createEmptyCart()));
+        assertEquals("GraphQL client not available for resource /content/venia/us/en", ex.getMessage());
     }
 }
