@@ -664,3 +664,15 @@ Expected: a tool error naming the real attribute label and its available values 
 - [ ] **Step 5: Update the spec and this plan with what testing found**
 
 Add a "live verification results" section (same pattern as `2026-07-03-cif-shopper-cart.md`'s) documenting: the real attribute codes/labels this catalog uses, whether matching against attribute code vs. label worked as expected, and any field-name or behavior corrections needed. Fix `ConfigurableOptionResolver`/`AddToCartTool` if reality differs from what was assumed, re-run the full test suite, and commit the fix the same way Phase 1's `CartMutationClient` bug fix was committed.
+
+## Live verification results (2026-07-03)
+
+Deployed to the running local AEM author instance and drove the full flow against the real Magento backend. **No bugs found this time** — everything worked exactly as designed on the first try.
+
+- Real attribute codes for `VSK05` (Agatha Skirt), confirmed via a direct GraphQL query against `https://mcprod.catalogservice-commerce.fun/graphql`: `fashion_color` (label "Fashion Color"; values Peach, Khaki, Lilac, Rain) and `fashion_size` (label "Fashion Size"; values L, M, S, XS) — matches the `fashion_color`/`fashion_size` attribute codes already seen in `get_attributes` output during earlier phases, confirming the earlier guess in the spec's "open items" was correct.
+- `add_to_cart` with `{"sku":"VSK05","quantity":1,"options":{"fashion_color":"Peach","fashion_size":"M"}}` → succeeded, correct cart DTO returned (previously failed in Phase 1 with Magento's generic error).
+- `add_to_cart` with no `options` on the same SKU → `"Fashion Color is required. Available values: Peach, Khaki, Lilac, Rain"` — the descriptive error works exactly as designed, naming the option's human label (not the raw attribute code) and its real values.
+- `add_to_cart` with an invalid option value (`"fashion_color":"Purple"`) → `"Fashion Color must be one of: Peach, Khaki, Lilac, Rain"`.
+- `add_to_cart` on a simple product (`VA13-GO-NA`, no options) → still works unchanged, confirming the switch to the unified `addProductsToCart` mutation didn't regress simple-product support.
+
+Matching by attribute code (`fashion_color`) worked as the primary/expected input; matching by label was not separately exercised live in this pass (only unit-tested), but no issue is expected since it's the same code path.
