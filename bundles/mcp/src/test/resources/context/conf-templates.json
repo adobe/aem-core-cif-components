@@ -1,0 +1,145 @@
+{
+  "jcr:primaryType": "sling:Folder",
+  "testsite": {
+    "jcr:primaryType": "sling:Folder",
+    "settings": {
+      "jcr:primaryType": "sling:Folder",
+      "wcm": {
+        "jcr:primaryType": "sling:Folder",
+        "templates": {
+          "jcr:primaryType": "sling:Folder",
+          "product-page": {
+            "jcr:primaryType": "cq:Template",
+            "jcr:content": {
+              "jcr:primaryType": "cq:PageContent",
+              "jcr:title": "Product page",
+              "status": "enabled"
+            },
+            "initial": {
+              "jcr:primaryType": "cq:Page",
+              "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "jcr:title": "Product page",
+                "sling:resourceType": "venia/components/page",
+                "root": {
+                  "jcr:primaryType": "nt:unstructured",
+                  "sling:resourceType": "venia/components/container",
+                  "container": {
+                    "jcr:primaryType": "nt:unstructured",
+                    "sling:resourceType": "venia/components/container",
+                    "container": {
+                      "jcr:primaryType": "nt:unstructured",
+                      "sling:resourceType": "venia/components/container",
+                      "layout": "responsiveGrid",
+                      "product": {
+                        "jcr:primaryType": "nt:unstructured",
+                        "sling:resourceType": "venia/components/commerce/product",
+                        "sling:resourceSuperType": "core/cif/components/commerce/product/v3/product"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "category-page": {
+            "jcr:primaryType": "cq:Template",
+            "jcr:content": {
+              "jcr:primaryType": "cq:PageContent",
+              "jcr:title": "Category page",
+              "status": "enabled"
+            },
+            "initial": {
+              "jcr:primaryType": "cq:Page",
+              "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "jcr:title": "Category page",
+                "sling:resourceType": "venia/components/page",
+                "root": {
+                  "jcr:primaryType": "nt:unstructured",
+                  "sling:resourceType": "venia/components/container",
+                  "container": {
+                    "jcr:primaryType": "nt:unstructured",
+                    "sling:resourceType": "venia/components/container",
+                    "container": {
+                      "jcr:primaryType": "nt:unstructured",
+                      "sling:resourceType": "venia/components/container",
+                      "layout": "responsiveGrid",
+                      "productlist": {
+                        "jcr:primaryType": "nt:unstructured",
+                        "sling:resourceType": "venia/components/commerce/productlist",
+                        "sling:resourceSuperType": "core/cif/components/commerce/productlist/v2/productlist"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "catalog-page": {
+            "jcr:primaryType": "cq:Template",
+            "jcr:content": {
+              "jcr:primaryType": "cq:PageContent",
+              "jcr:title": "Catalog Page",
+              "status": "enabled"
+            },
+            "initial": {
+              "jcr:primaryType": "cq:Page",
+              "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "jcr:title": "Catalog Page",
+                "sling:resourceType": "venia/components/commerce/catalogpage",
+                "root": {
+                  "jcr:primaryType": "nt:unstructured",
+                  "sling:resourceType": "venia/components/container",
+                  "container": {
+                    "jcr:primaryType": "nt:unstructured",
+                    "sling:resourceType": "venia/components/container",
+                    "container": {
+                      "jcr:primaryType": "nt:unstructured",
+                      "sling:resourceType": "venia/components/container",
+                      "layout": "responsiveGrid"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "content-page": {
+            "jcr:primaryType": "cq:Template",
+            "jcr:content": {
+              "jcr:primaryType": "cq:PageContent",
+              "jcr:title": "Content page",
+              "status": "enabled"
+            },
+            "initial": {
+              "jcr:primaryType": "cq:Page",
+              "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "jcr:title": "Content page",
+                "sling:resourceType": "venia/components/page",
+                "root": {
+                  "jcr:primaryType": "nt:unstructured",
+                  "sling:resourceType": "venia/components/container",
+                  "container": {
+                    "jcr:primaryType": "nt:unstructured",
+                    "sling:resourceType": "venia/components/container",
+                    "container": {
+                      "jcr:primaryType": "nt:unstructured",
+                      "sling:resourceType": "venia/components/container",
+                      "layout": "responsiveGrid",
+                      "text": {
+                        "jcr:primaryType": "nt:unstructured",
+                        "sling:resourceType": "core/wcm/components/text/v2/text"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
