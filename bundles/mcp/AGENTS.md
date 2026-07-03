@@ -96,6 +96,14 @@ Test deps for aem-mock (provided already): `io.wcm.testing.aem-mock`,
 `org.apache.sling.models.impl`, `com.adobe.cq:core.wcm.components.core`, `graphql-client`.
 Mirror `bundles/core/pom.xml` when adding any of these.
 
+- `com.google.code.gson:gson:2.8.9` (**test** scope, not provided) — needed the first time a
+  test exercises real Gson (de)serialization, e.g. `MutationDeserializer.getGson()` /
+  `QueryDeserializer.getGson()`. `provided`-scope dependencies don't bring their own transitive
+  deps onto this module's classpath, so `gson` (a transitive dep of `magento-graphql`/
+  `graphql-client`) isn't there until declared directly. Mirrors `bundles/core/pom.xml`'s
+  existing test-scope `gson` dependency. Missing this fails at test *runtime* with
+  `NoClassDefFoundError: com/google/gson/internal/Excluder`, not at compile time.
+
 ---
 
 ## 3. How to add a new read tool
@@ -184,7 +192,128 @@ pattern from a concrete `bundles/core` retriever (e.g. `productteaser/ProductRet
 
 ---
 
+## 3b. How to add a cart/mutation tool (shopper endpoint, `writesContent() == false`)
+
+Cart tools (`add_to_cart`, `view_cart`, `update_cart_item`, `clear_cart`) mutate the **remote
+Magento cart**, not AEM JCR content — do not confuse this with §4 below. `writesContent()`
+stays `false` and the tool stays on the anonymous shopper endpoint, same as an anonymous
+storefront visitor adding to cart.
+
+**The one thing that will trip you up:** `MagentoGraphqlClient.execute(String)` (in
+`bundles/core`) **cannot be used for mutations.** Its implementation hardcodes response
+deserialization to `Query.class` (`MagentoGraphqlClientImpl.execute()` calls
+`graphqlClient.execute(request, Query.class, Error.class, options)`), so a mutation response
+(shaped by `Mutation.class`) silently fails to deserialize. Confirmed live, not just by reading
+the code — the symptom was a `GraphQL client not available for resource …` error even though the
+exact same resource worked fine for `view_cart`'s query.
+
+Use the existing **`CartMutationClient`** (`internal/tools/CartMutationClient.java`) for every
+mutation instead:
+
+```java
+private final CartMutationClient mutationClient = new CartMutationClient();
+
+protected Cart doSomething(StoreContext ctx, /* ... */) {
+    return mutationClient
+        .execute(ctx, m -> m.someMutation(args -> args.input(input), out -> out
+            .cart(CartMutationClient.cartFields())   // shared field selection, don't re-inline it
+            .userErrors(e -> e.code().message())))    // check this — see below
+        .getSomeMutation()
+        .getCart();
+}
+```
+
+`CartMutationClient` handles the two things a hand-rolled mutation call needs that
+`MagentoGraphqlClient` doesn't provide:
+1. Resolves the raw `GraphqlClient` correctly. The endpoint's own resource is **not** directly
+   adaptable to `GraphqlClient` (`resource.adaptTo(GraphqlClient.class)` returns `null` for a
+   nav-root page) — `MagentoGraphqlClientImpl` resolves the CIF context-aware commerce config
+   first (`resource.adaptTo(ComponentsConfiguration.class)`) and adapts a synthetic
+   `ValueMapResource` wrapping it instead. `CartMutationClient.resolveGraphqlClient()`
+   reproduces that using only public API — no `bundles/core` changes needed.
+2. Uses `MutationDeserializer.getGson()` (the mutation-side counterpart of the `QueryDeserializer`
+   `MagentoGraphqlClient` uses internally) so the `Mutation`-shaped response actually deserializes.
+
+**Prefer the unified `addProductsToCart` mutation** over type-specific ones
+(`addSimpleProductsToCart`, `addConfigurableProductsToCart`, …) — it accepts
+`CartItemInput.selectedOptions` and works for simple *and* configurable products through one
+code path (see `AddToCartTool`).
+
+**Check `user_errors` on the mutation output, not just top-level GraphQL errors.** Newer
+mutations like `addProductsToCart` report validation failures (e.g. "you need to choose
+options") via a `user_errors: [CartUserInputError]` field on the output type, separate from
+`CartMutationClient`'s top-level `response.getErrors()` check. Each tool's own mutation method
+must check `output.getUserErrors()` itself and throw if non-empty (see
+`AddToCartTool.addItem()`).
+
+**Cart field selection is shared, not re-inlined.** `CartMutationClient.cartFields()` returns
+the one `CartQueryDefinition` every cart tool's cart selection uses (`.id().totalQuantity()
+.items(...).prices(...)`), because it has to match `DtoMapper.cart()`'s mapping exactly. It works
+both for a plain query (`Query.cart(id, CartQueryDefinition)`, used by `view_cart`) and for a
+mutation's `cart(...)` output selection (used by the other three) — both take the same
+`CartQueryDefinition` type. If you add a field to `DtoMapper.cart()`, add it here once, not in
+four places.
+
+**Configurable-product option resolution** (`ConfigurableOptionResolver`): an agent supplies
+human-readable option values (e.g. `{"fashion_color": "Peach"}`), never Magento's internal
+option-value UIDs. The resolver fetches the product's `configurable_options` (extend
+`McpProductRetriever`'s query hook — `q.onConfigurableProduct(cp ->
+cp.configurableOptions(...))`) and matches case-insensitively against either the attribute code
+or its label. On a missing/invalid option it throws `IllegalArgumentException` naming the real
+attribute and its available values — this is a deliberate UX improvement over Magento's generic
+error, don't swallow it into a generic message.
+
+**Bundle products don't need a separate mutation — don't assume otherwise from the schema
+alone.** Magento has a dedicated `addBundleProductsToCart` mutation with its own
+`BundleOptionInput` shape (`int id, double quantity, List<String> value`), which looks like the
+obviously-intended path and was in fact the first implementation here. **Verified live that it's
+unnecessary**: a bundle choice's own `uid` field (query it via `q.onBundleProduct(bp ->
+bp.items(i -> i.title().required().options(o -> o.label().uid())))`) is a base64 string like
+`bundle/2/2/1` that works exactly like a configurable option-value UID in
+`CartItemInput.selectedOptions` — the same unified `addProductsToCart` mutation `add_to_cart`
+already uses for simple/configurable products handles bundles too. `BundleOptionResolver`
+mirrors `ConfigurableOptionResolver`'s shape (match a human label, e.g. `{"Necklace": "Carmina
+Necklace"}`, against the bundle item's `title` and each choice's `label`) but resolves straight
+to that `uid` — no `BundleOptionInput` construction, no separate mutation call, no
+`instanceof BundleProduct` branch in the tool itself (`AddToCartTool.call()` just concatenates
+both resolvers' `List<ID>` results before one `addItem()` call). If you're about to reach for a
+product-type-specific mutation because its dedicated input type looks like the "correct" one,
+check whether the polymorphic `uid` field on the type's options already solves it through the
+unified mutation first.
+
+**Resolvers are not a `DtoMapper` job.** `DtoMapper` formats an already-fetched GraphQL response
+into the tool's output DTO — it runs after a query/mutation succeeds. `*OptionResolver` classes
+solve the opposite problem: translating an agent-supplied human label into the opaque ID a
+mutation's *input* needs, before that mutation can be built at all. There's no GraphQL response
+to format yet at that point, so `DtoMapper` has no role in it.
+
+**Checkout mutations that feed into an order need a confirm-before-commit gate; cart-edit
+mutations don't.** `set_shipping_address`, `set_shipping_method`, `set_payment_method` each take
+an optional `confirm` boolean (default `false`, checked via `args.path("confirm").asBoolean(false)`).
+Without `confirm: true`, the tool must not call any mutation — it returns a `pending_*` preview
+object built purely from the validated input (no `CartMutationClient` call at all) plus
+`confirmed: false` and a `message` telling the caller to re-call with `confirm: true`. Only when
+`confirm` is `true` does it actually commit and return `confirmed: true` with the real result.
+`add_to_cart`/`view_cart`/`update_cart_item`/`clear_cart` deliberately do **not** have this gate —
+cart edits are cheap to undo (`update_cart_item` with `quantity: 0`, or `clear_cart`), but a
+shipping/payment choice is about to feed into a real order, which isn't undoable in the same way.
+`place_order` itself also has no `confirm` flag — calling it *is* the final confirmation; there's
+no further "would-be" state to preview once the order exists. See `SetShippingAddressTool`,
+`SetShippingMethodTool`, `SetPaymentMethodTool` for the exact pattern — all three shape it
+identically (validate required fields first regardless of `confirm`, branch on `confirm` next,
+preview branch never touches `CartMutationClient`).
+
+---
+
 ## 4. How to add a write tool (author-only) — READ THIS
+
+**This section is about JCR content writes only.** If your tool mutates the remote commerce
+backend (cart, and eventually checkout/orders) rather than AEM content, it does **not** belong
+here — see §3b above instead; it stays `writesContent() == false` and lives on the shopper
+endpoint. The `writesContent()` flag exists specifically to keep JCR content writes off the
+anonymous endpoint; a commerce-backend mutation is not what it guards against, and misclassifying
+one as `writesContent() == true` would incorrectly hide it from the shopper endpoint where it's
+supposed to live.
 
 Write tools are the security boundary that makes the anonymous shopper endpoint safe. Follow
 `ConfigureProductComponentTool` / `ConfigureCatalogPageTool` exactly.
@@ -286,6 +415,46 @@ Runtime checks after deploy:
   URL format may use either, and the fallback needs both to avoid a GraphQL round-trip.
 - **`AuthoringMcpServlet` won't activate without its config** — expected on publish (absent),
   and locally you must supply the `config.author` config (or a ConfigMgr entry).
+- **`MagentoGraphqlClient.execute()` cannot deserialize mutation responses** — hardcoded to
+  `Query.class`. Use `CartMutationClient` (§3b) for any mutation; this is the single most
+  time-costly mistake to make here (it fails at runtime, not compile time — the code compiles
+  fine and the response just comes back with everything null).
+- **A cart tool's endpoint resource is not directly `adaptTo(GraphqlClient.class)`-able.**
+  Confirmed live, contrary to what reading `MagentoGraphqlClientImpl`'s happy-path code alone
+  suggests. `CartMutationClient.resolveGraphqlClient()` is the fix — don't re-derive this from
+  scratch in a new tool, call it.
+- **Adding a `magento-graphql`/`graphql-client` test that exercises real (de)serialization
+  needs `gson` as an explicit test-scope dependency in `bundles/mcp/pom.xml`.** `provided`-scope
+  dependencies (`magento-graphql`, `graphql-client`) do not propagate *their own* transitive
+  dependencies to this module's classpath, so `gson` (needed by `MutationDeserializer.getGson()`
+  / `QueryDeserializer.getGson()`) isn't there unless declared directly — mirror
+  `bundles/core/pom.xml`'s `com.google.code.gson:gson:2.8.9` (test scope). Symptom if missing:
+  `NoClassDefFoundError: com/google/gson/internal/Excluder`, only at test *runtime*, not compile.
+- **Magento has no bulk/"empty cart" mutation.** `clear_cart` fetches items then calls
+  `removeItemFromCart` once per item (N+1 by necessity, not an oversight — don't try to
+  "optimize" this into a single call, the mutation doesn't exist).
+- **A JSON `null` value in an object argument is not the same as the key being absent —
+  Jackson's `NullNode.asText()` returns the *string* `"null"`, not Java `null`.** Found in
+  `add_to_cart`'s `options` handling: `{"options": {"fashion_color": null}}` used to be read as
+  the literal value `"null"` and fail option matching with a misleading error. Always check
+  `!entry.getValue().isNull()` before calling `.asText()` when iterating a JSON object's fields
+  into a `Map<String, String>`.
+- **`JsonNode.asInt()` truncates fractional numbers instead of rejecting them.** A `quantity` of
+  `0.5` silently becomes `0`; a `quantity` of `1.9` silently becomes `1`. Any integer threshold in
+  a tool's validation is vulnerable, not just a `0` sentinel: `update_cart_item` treats `0` as
+  "remove the item," so a truncated `0.5` gets misrouted into that branch instead of being
+  rejected; `add_to_cart` requires `>= 1`, so a truncated `1.9` silently passed as quantity `1`
+  before this was caught by review. Guard with `quantityNode.isIntegralNumber()` before calling
+  `.asInt()` in every tool that reads a quantity from JSON input, not just the one already fixed —
+  this bug was found once, fixed in one tool, and then found again in a sibling tool during the
+  next review pass.
+- **Cart reads must never be cacheable, even defensively.** `ViewCartTool` calls
+  `ctx.getClient().execute(query, HttpMethod.POST)` (not the cacheable default `execute(query)`)
+  specifically because cart contents mutate on every `add_to_cart`/`update_cart_item`/
+  `clear_cart` call and `CartMutationClient` has no cache-invalidation hook. No OSGi cache
+  config in this repo currently caches the `mcp`-selector resource type, so this isn't an active
+  bug today — but it's cheap insurance against a future config change silently reintroducing
+  stale-cart reads, and any new cart-reading tool should do the same.
 
 ---
 
@@ -294,8 +463,28 @@ Runtime checks after deploy:
 - Design & plan: `docs/superpowers/specs/2026-07-02-cif-commerce-mcp-design.md`,
   `docs/superpowers/plans/2026-07-02-cif-commerce-mcp.md`. Validation log: repo-root
   `VALIDATION.md`.
+- Cart tools (guest cart, simple + configurable products): design
+  `docs/superpowers/specs/2026-07-03-cif-shopper-cart-design.md`, plan
+  `docs/superpowers/plans/2026-07-03-cif-shopper-cart.md`; configurable-product follow-up design
+  `docs/superpowers/specs/2026-07-03-cif-shopper-configurable-cart-design.md`, plan
+  `docs/superpowers/plans/2026-07-03-cif-shopper-configurable-cart.md`. Bundle products +
+  checkout: `docs/superpowers/specs/2026-07-03-cif-shopper-bundle-and-checkout.md` (design, plan,
+  and live verification combined in one doc — includes the bundle-mutation-unification finding
+  above). All have a "live verification" section documenting what live testing against a running
+  AEM instance found beyond what the design assumed — read before touching cart/checkout tools.
 - Key CIF core types to study before extending: `SearchResultsService`, `SearchOptions`,
   `SearchResultsSet`, `SearchFilterService`, `FilterAttributeMetadata`,
   `AbstractProductRetriever`, `AbstractCategoryRetriever`, `UrlProvider`,
   `CategoryUrlFormat.Params`, `SiteStructure`, `ProductListItem` (+ `ProductListItemImpl`),
   `MagentoGraphqlClient`.
+- Key `magento-graphql` types for cart/mutation work: `Operations` (`.query`/`.mutation`
+  builders), `Mutation`/`MutationQueryDefinition`, `Cart`/`CartQueryDefinition`,
+  `CartItemInput`/`CartItemUpdateInput`, `ConfigurableProduct`/`ConfigurableProductOptions`/
+  `ConfigurableProductOptionsValues`, `BundleProduct`/`BundleItem`/`BundleItemOption`,
+  `CartUserInputError`, `MutationDeserializer`.
+- Key `magento-graphql` types for checkout: `SetGuestEmailOnCartInput`,
+  `SetShippingAddressesOnCartInput`/`ShippingAddressInput`/`CartAddressInput`,
+  `SetBillingAddressOnCartInput`/`BillingAddressInput` (has `sameAsShipping`),
+  `SetShippingMethodsOnCartInput`/`ShippingMethodInput`, `AvailableShippingMethod`,
+  `SetPaymentMethodOnCartInput`/`PaymentMethodInput`, `AvailablePaymentMethod`,
+  `PlaceOrderInput`/`PlaceOrderOutput`/`Order`.
