@@ -458,7 +458,7 @@ Java constants**):
 |---|---|---|---|
 | `get_product_associated_content(sku, …)` / `get_category_associated_content(categoryUid, …)` (T-19, was `get_associated_content`) | ✅ | 1 | Returns pages/assets/XFs/CFs referencing a SKU/category (one tool per identifier type) |
 | `tag_content_with_commerce(path, sku?, categoryUid?, action?)` (T-20, was `link_content_to_entity`) | ✅ | 2 | Sets/removes `cq:products`/`cq:categories` on a page/asset/XF variation |
-| `find_orphaned_commerce_content()` (T-21) | ▢ | 1 | Sweeps for content linked to a SKU/UID that no longer resolves (combine with `get_product`/`resolve_url_to_entity`) |
+| `find_orphaned_commerce_content()` (T-21) | ✅ | 1 | Sweeps for content linked to a SKU/UID that no longer resolves (combine with `get_product`/`resolve_url_to_entity`) |
 
 - **T-19 (shipped):** args `{sku|categoryUid, fragmentLocation?, contentFragmentModel?,
   linkElement?, limit?}`; result groups `experienceFragments`, `contentFragments`,
@@ -471,8 +471,12 @@ Java constants**):
   accepts only DAM assets (`dam:Asset` → metadata node), pages/XF variations (`cq:Page` →
   `jcr:content`), or a `cq:PageContent` node directly; **any other resource type throws**
   rather than being silently tagged.
-- **T-21 (planned):** run T-19's sweep, then resolve each identifier via the retrievers
-  (T-15) and flag the misses.
+- **T-21 (shipped):** `find_orphaned_commerce_content(root?, limit?)` (default `root=/content`,
+  `limit=200`) runs a reverse JCR-SQL2 scan for nodes carrying `cq:products`/`cq:categories`
+  (the `AssociatedContentService` has no enumeration API, only identifier-keyed lookups), then
+  resolves each tagged identifier via a fresh single-use retriever per identifier — the same
+  "null fetch or non-empty `getErrors()` means orphaned" check as `validate_content_bindings`
+  (T-15). Backed by `mcp/…/tools/FindOrphanedCommerceContentTool.java`.
 
 **Implementation note (updated):** the shipped tools consume the SDK `AssociatedContentService`
 directly (`aem-cif-sdk-api`). If a future 6.5-only packaging needs to drop that dependency,
@@ -518,17 +522,19 @@ resourceResolver.commit();
 
 | Tool | Status | Tier | Does |
 |---|---|---|---|
-| `get_commerce_content_fragment(identifier, type)` (T-22) | ◐ | 1 | Resolve a CF via `linkElement` match and return its fields |
+| `get_commerce_content_fragment(identifier, type)` (T-22) | ✅ | 1 | Resolve a CF via `linkElement` match and return its fields |
 | `update_commerce_content_fragment_field(fragmentPath, elementName, value, variation?)` (T-23) | ▢ | 3 | **The real editing capability** — sets a CF element's value. Draft-only; never auto-publishes |
 | `create_commerce_content_fragment(identifier, type, modelPath, fields)` (T-24) | ▢ | 3 | Creates a new CF under `parentPath`, seeds `linkElement` with the SKU/UID + other fields |
 
-- **T-22 (partial):** CF **discovery+read** is already covered by the shipped
+- **T-22 (shipped):** CF **discovery+read** was already covered by the shipped
   `get_product_associated_content` / `get_category_associated_content` tools — they return a
   `contentFragments:[…]` list and accept `contentFragmentModel?`/`linkElement?` to scope the
-  match (same `linkElement` logic as `findContentFragment()`). A dedicated
-  `get_commerce_content_fragment` returning `{modelPath, fragmentPath, fields}` for a single
-  CF is the remaining delta — decide whether it's worth a separate tool or a richer shape on
-  the associated-content result.
+  match (same `linkElement` logic as `findContentFragment()`). The dedicated
+  `get_commerce_content_fragment(identifier, type, contentFragmentModel?, linkElement?)` tool
+  now also ships as a standalone single-CF lookup, returning `{identifier, type, modelPath?,
+  fragmentPath?, fields}` (or `{identifier, type, resolves:false}` if no CF matches) — it calls
+  the same `AssociatedContentService` via `AssociatedContentSupport.resolveSingleContentFragment`.
+  Backed by `mcp/…/tools/GetCommerceContentFragmentTool.java`.
 - **Per-field-type concerns (T-23):** text/richtext via `setContent(value, "text/plain"|"text/html")`;
   number/date/boolean via `FragmentData.setValue(Object)` with the matching Java type —
   check `getDataType()`/`isTypeSupported(Class)` first to avoid `ContentFragmentException`.
@@ -566,9 +572,9 @@ always includes sub-categories). **First match wins; there is no explicit mappin
 
 | Tool | Status | Tier | Does |
 |---|---|---|---|
-| `list_catalog_pages(siteRoot)` (T-25) | ▢ | 1 | Every catalog page under a site + its root-category scope, in one call |
-| `explain_catalog_page_routing(identifier)` (T-26) | ▢ | 1 | Replays `getGenericPage` for a category, reports which page wins and why |
-| `detect_catalog_page_conflicts(siteRoot)` (T-27) | ▢ | 1 | Flags overlapping `urlPath` scopes (ambiguous) and categories with no matching page (dead links) |
+| `list_catalog_pages(siteRoot)` (T-25) | ✅ | 1 | Every catalog page under a site + its root-category scope, in one call |
+| `explain_catalog_page_routing(identifier)` (T-26) | ✅ | 1 | Replays `getGenericPage` for a category, reports which page wins and why |
+| `detect_catalog_page_conflicts(siteRoot)` (T-27) | ✅ | 1 | Flags overlapping `urlPath` scopes (ambiguous) and categories with no matching page (dead links) |
 | `configure_catalog_page` (T-28, was `configure_catalog_page_scope`) | ◐ | 2 | Property write of `magentoRootCategoryId` (+ `magentoRootCategoryIdType`, + `showMainCategories`) on the catalog page's `jcr:content` |
 
 > **T-28 is the shipped baseline write tool** `configure_catalog_page {path, categoryUid,
@@ -579,9 +585,18 @@ always includes sub-categories). **First match wins; there is no explicit mappin
 > idType option is the remaining delta; everything else is done, with post-write read-back
 > verification.
 
-- **T-25/26/27 implementation:** reuse `SiteStructure`/`SpecificPageStrategy` logic — read
-  `getCatalogPages()` order and each page's two scope properties; for `explain`, mirror the
-  `getGenericPage` first-match walk (generic-vs-`urlPath` branch).
+- **T-25/26/27 (shipped):** reuse `SiteStructure`/`SpecificPageStrategy` logic via the shared
+  `mcp/internal/CatalogPageRouting.java` helper — `list_catalog_pages(siteRoot?)` reads
+  `getCatalogPages()` order and each page's two scope properties (`{siteRoot,
+  catalogPages:[{path,rootCategoryId,idType,genericFallback}]}`); `explain_catalog_page_routing(urlPath,
+  siteRoot?)` mirrors the `getGenericPage` first-match walk with a full evaluation trace
+  (`{identifier, winningPage, reason, candidates:[{path,matched,why}]}`);
+  `detect_catalog_page_conflicts(siteRoot?)` is a **structural-only** comparison of the catalog
+  pages' own `urlPath`-typed scopes against each other (`{siteRoot, overlaps:[{pages:[…],scope,kind}]}`,
+  `kind` = `duplicate-scope`/`ancestor-descendant`) — it does **not** fetch the live category
+  tree, so dead-link detection (a category with no matching page) is out of scope for the
+  shipped tool. `siteRoot` is optional on all three (any page under `/content`; defaults to the
+  endpoint's own nav root). Backed by `mcp/…/tools/{List,ExplainCatalogPageRouting,DetectCatalogPageConflicts}Tool.java`.
 - **T-28 gotcha:** `idType` must be `"urlPath"` for the page to participate in path
   matching; any other value (including the shipped hardcoded `uid`) makes it a generic
   fallback regardless of `rootCategoryId`.
@@ -592,9 +607,10 @@ always includes sub-categories). **First match wins; there is no explicit mappin
 
 ## 8. Specific PDP/PLP binding tools (Tier 1 read / Tier 2 write / Tier 3 create)
 
-**Status: ▢ Planned (none shipped).** The deepest mechanism investigated and the one with
-the most confirmed real gotchas — prioritize the Tier 1 diagnostics alongside or before the
-Tier 2 writes. (Do not confuse this with §7's `configure_catalog_page`, which scopes a whole
+**Status: Tier 1 diagnostics (T-33–37) ✅ shipped; Tier 2 write tools (T-29–32) still ▢
+Planned.** The deepest mechanism investigated and the one with the most confirmed real
+gotchas — the Tier 1 diagnostics were prioritized alongside/before the Tier 2 writes, per the
+plan below. (Do not confuse this with §7's `configure_catalog_page`, which scopes a whole
 catalog page by root category; §8 binds *specific* descendant PDP/PLP pages.)
 
 ### 8.1 Mechanism (confirmed — `core/…/internal/services/SpecificPageStrategy.java`)
@@ -652,26 +668,48 @@ categoryUrlPath.equals(givenUrlPath)
 | `bind_page_to_category(page, categoryUid, urlPath, includesSubCategories)` (T-30) | ▢ | 2 | Sets `selectorFilter`(+`selectorFilterType`) + `includesSubCategories` on a category page |
 | `bind_product_page_to_category_tree(page, categoryUid, urlPath, includesSubCategories)` (T-31) | ▢ | 2 | Sets `useForCategories`+`includesSubCategories` on a product page (v2+) |
 | `unbind_specific_page(page)` (T-32) | ▢ | 2 | Clears the binding fields — no such affordance in the dialog today |
-| `explain_page_resolution(identifier, type)` (T-33) | ▢ | 1 | Replays the depth-first match, reports the winning page **and its tree depth** |
-| `list_specific_pages(siteRoot)` (T-34) | ▢ | 1 | Every page under a site with a non-empty binding field, and what it binds |
-| `detect_specific_page_conflicts(siteRoot)` (T-35) | ▢ | 1 | Flags identical-scope duplicates and structural shadowing risk (narrower binding at ≤ depth of a broader one) |
-| `validate_selector_filter_format(page)` (T-36) | ▢ | 1 | Catches malformed `uid\|urlPath` (missing pipe → ambiguous fallback) |
-| `check_specific_page_capability(page)` (T-37) | ▢ | 1 | Resolves component version; reports which binding fields exist (`useForCategories`/product-page `includesSubCategories` are v2+) |
+| `explain_page_resolution(identifier, type)` (T-33) | ✅ | 1 | Replays the depth-first match, reports the winning page **and its tree depth** |
+| `list_specific_pages(siteRoot)` (T-34) | ✅ | 1 | Every page under a site with a non-empty binding field, and what it binds |
+| `detect_specific_page_conflicts(siteRoot)` (T-35) | ✅ | 1 | Flags identical-scope duplicates and structural shadowing risk (narrower binding at ≤ depth of a broader one) |
+| `validate_selector_filter_format(page)` (T-36) | ✅ | 1 | Catches malformed `uid\|urlPath` (missing pipe → ambiguous fallback) |
+| `check_specific_page_capability(page)` (T-37) | ✅ | 1 | Resolves component version; reports which binding fields exist (`useForCategories`/product-page `includesSubCategories` are v2+) |
 
 - **Write tools (T-29–32):** Property write (§0.1), same fail-closed shape as the shipped
   `configure_*` tools. For category bindings, honor the `uid|urlPath` format and set
   `selectorFilterType` explicitly (don't rely on the default differing by version).
   `useForCategories` is multi-valued.
-- **Diagnostic tools (T-33–37):** mirror `SpecificPageStrategy.traverse`/`isSpecificPage`
+- **Diagnostic tools (T-33–37, shipped):** mirror `SpecificPageStrategy.traverse`/`isSpecificPage`
   (candidate = non-null `selectorFilter` **or** `useForCategories`) and the subtree
-  predicate above. **Priority:** build `explain_page_resolution` + `detect_specific_page_conflicts`
-  **before/with** the write tools, or an agent can construct the silent-shadowing bug.
+  predicate above, via the shared `mcp/internal/SpecificPageRouting.java` helper.
+  `explain_page_resolution(identifier, type, siteRoot?)` replays the depth-first walk
+  (`{identifier, type, winningPage, depth, candidates:[{path,depth,matched,why}]}`).
+  `list_specific_pages(siteRoot?)` returns `{siteRoot, specificPages:[{path, pageType,
+  selectorFilter?, selectorFilterType?, includesSubCategories?, useForCategories?}]}` (`pageType`
+  is a best-effort field-presence heuristic, not an authoritative read).
+  `detect_specific_page_conflicts(siteRoot?)` returns `{siteRoot, duplicates:[{scope,pages:[…]}],
+  shadowing:[{broader,narrower,reason}]}` — a structural-only comparison (no live category-tree
+  fetch) limited to comparable url-path scopes (category-page `selectorFilter` and product-page
+  `useForCategories`; a plain product-page SKU/URL-key `selectorFilter` has no subtree to
+  compare and is excluded). `validate_selector_filter_format(path)` returns `{path,
+  selectorFilterType, entries:[{raw,valid,uid?,urlPath?,issue?}]}`, flagging pipe-less entries.
+  `check_specific_page_capability(path)` resolves the structure-component version (v1/v2/v3, via
+  `Resource.isResourceType` so it follows `sling:resourceSuperType` — Venia proxies included) and
+  returns `{path, pageType, componentVersion, fields:{selectorFilter, selectorFilterType,
+  includesSubCategories, useForCategories}}` (booleans; `useForCategories` and product-page
+  `includesSubCategories` are `false` pre-v2). `siteRoot` on the four `siteRoot?`-taking tools
+  defaults to the endpoint's own nav root; `path` on the two page-scoped tools is required and
+  must resolve to a `cq:Page` under `/content`. Backed by
+  `mcp/…/tools/{ExplainPageResolution,ListSpecificPages,DetectSpecificPageConflicts,ValidateSelectorFilterFormat,CheckSpecificPageCapability}Tool.java`.
+  **Priority (realized):** the diagnostics shipped before/with the still-planned write tools, so
+  an agent has `explain_page_resolution` + `detect_specific_page_conflicts` on hand to catch the
+  silent-shadowing bug once T-29–32 land.
 
 ---
 
 ## 9. Page / PDP / PLP creation tools (Tier 3)
 
-**Status: ▢ Planned (none shipped).** **Mechanism** (confirmed via templates in
+**Status: Tier 1 discovery aid (T-43) ✅ shipped; Tier 3 creation tools (T-38–42) still ▢
+Planned.** **Mechanism** (confirmed via templates in
 `aem-cif-guides-venia`): the product-page and category-page editable templates
 **pre-populate `initial/jcr:content`** with a commerce component already placed inside the
 responsive grid, so a page created from them is immediately functional. The pre-placed nodes
@@ -703,7 +741,18 @@ are **Venia proxy components**, not the core types directly:
 | `create_specific_plp(parent, name, title, categoryUid, urlPath, includesSubCategories, template?)` (T-40) | ▢ | 3 | Category-page template + `bind_page_to_category` |
 | `create_specific_pdp_for_category_tree(parent, name, title, categoryUid, urlPath, includesSubCategories, template?)` (T-41) | ▢ | 3 | Product-page template + `bind_product_page_to_category_tree` |
 | `scaffold_catalog_section(parent, name, rootCategoryId, template?)` (T-42) | ▢ | 3 | Creates a whole catalog section (catalog page + example product/category children) wired to a root category |
-| `suggest_template_for_page_type(kind)` (T-43) | ▢ | 1 | Lists template candidates under `/conf/*/settings/wcm/templates/` matching a page-type signal |
+| `suggest_template_for_page_type(kind)` (T-43) | ✅ | 1 | Lists template candidates under `/conf/*/settings/wcm/templates/` matching a page-type signal |
+
+- **T-43 (shipped):** `suggest_template_for_page_type(kind)` (`kind` ∈ `product`/`category`/
+  `catalog`, required) scans every `/conf/*/settings/wcm/templates/*` and classifies each by its
+  pre-placed `initial/jcr:content/root/container/container` component, checked via
+  `Resource.isResourceType` against the known core `product`/`productlist` resource types (v1–v3;
+  follows `sling:resourceSuperType`, so Venia proxy components resolve correctly), falling back
+  to case-insensitive `jcr:title` matching (`"Product page"`/`"Category page"`/`"Catalog Page"`)
+  only when the `initial` grid itself can't be read. An empty grid with no children classifies as
+  `catalog`; a grid whose children include no recognized commerce component is omitted (not
+  treated as empty). Returns `{kind, templates:[{path,title,signal}]}` (`signal` = `resourceSuperType`
+  or `title`). Backed by `mcp/…/tools/SuggestTemplateForPageTypeTool.java`.
 
 **Guardrails (first tools that create content):**
 - Validate the resolved template's `initial` content actually contains the expected
@@ -784,29 +833,29 @@ name from the catalog ID, the shipped name is shown.
 | T-18 | `create_product_carousels` | §4 | 3 | ▢ |
 | T-19 | `get_product_associated_content` / `get_category_associated_content` | §5 Associated content | 1 | ✅ |
 | T-20 | `tag_content_with_commerce` | §5 | 2 | ✅ |
-| T-21 | `find_orphaned_commerce_content` | §5 | 1 | ▢ |
-| T-22 | `get_commerce_content_fragment` | §6 CF editing | 1 | ◐ (CF read folded into T-19 tools) |
+| T-21 | `find_orphaned_commerce_content` | §5 | 1 | ✅ |
+| T-22 | `get_commerce_content_fragment` | §6 CF editing | 1 | ✅ |
 | T-23 | `update_commerce_content_fragment_field` | §6 | 3 | ▢ |
 | T-24 | `create_commerce_content_fragment` | §6 | 3 | ▢ |
-| T-25 | `list_catalog_pages` | §7 Multi-catalog-page | 1 | ▢ |
-| T-26 | `explain_catalog_page_routing` | §7 | 1 | ▢ |
-| T-27 | `detect_catalog_page_conflicts` | §7 | 1 | ▢ |
+| T-25 | `list_catalog_pages` | §7 Multi-catalog-page | 1 | ✅ |
+| T-26 | `explain_catalog_page_routing` | §7 | 1 | ✅ |
+| T-27 | `detect_catalog_page_conflicts` | §7 | 1 | ✅ |
 | T-28 | `configure_catalog_page` | §7 | 2 | ◐ (idType hardcoded `uid`; adds `showMainCategories`) |
 | T-29 | `bind_page_to_products` | §8 Specific PDP/PLP | 2 | ▢ |
 | T-30 | `bind_page_to_category` | §8 | 2 | ▢ |
 | T-31 | `bind_product_page_to_category_tree` | §8 | 2 | ▢ |
 | T-32 | `unbind_specific_page` | §8 | 2 | ▢ |
-| T-33 | `explain_page_resolution` | §8 | 1 | ▢ |
-| T-34 | `list_specific_pages` | §8 | 1 | ▢ |
-| T-35 | `detect_specific_page_conflicts` | §8 | 1 | ▢ |
-| T-36 | `validate_selector_filter_format` | §8 | 1 | ▢ |
-| T-37 | `check_specific_page_capability` | §8 | 1 | ▢ |
+| T-33 | `explain_page_resolution` | §8 | 1 | ✅ |
+| T-34 | `list_specific_pages` | §8 | 1 | ✅ |
+| T-35 | `detect_specific_page_conflicts` | §8 | 1 | ✅ |
+| T-36 | `validate_selector_filter_format` | §8 | 1 | ✅ |
+| T-37 | `check_specific_page_capability` | §8 | 1 | ✅ |
 | T-38 | `create_catalog_page` | §9 Page creation | 3 | ▢ |
 | T-39 | `create_specific_pdp` | §9 | 3 | ▢ |
 | T-40 | `create_specific_plp` | §9 | 3 | ▢ |
 | T-41 | `create_specific_pdp_for_category_tree` | §9 | 3 | ▢ |
 | T-42 | `scaffold_catalog_section` | §9 | 3 | ▢ |
-| T-43 | `suggest_template_for_page_type` | §9 | 1 | ▢ |
+| T-43 | `suggest_template_for_page_type` | §9 | 1 | ✅ |
 | T-44 | `get_commerce_config` | §10 Deferred | 4 | ▢ |
 | T-45 | `validate_graphql_connectivity` | §10 | 4 | ▢ |
 | T-46 | `invalidate_cache` | §10 | 4 | ▢ |

@@ -83,10 +83,26 @@ Read tools (both endpoints); each result is a compact JSON DTO with a matching
 | `get_custom_attribute_metadata` | `{attributes:[{code, entityType?}]}` (`entityType` defaults to `catalog_product`) | `{items:[{code,attributeType,inputType,entityType,options:[{label,value}]}]}` |
 | `resolve_url_to_entity` | `{url}` | `{url, type, id, uid, canonicalUrl, relativeUrl, redirectCode}`, or `{url, resolves:false}` if the URL doesn't resolve |
 | `validate_content_bindings` | `{products?:[sku…], categories?:[uid…]}` (at least one non-empty) | `{products:[{sku,resolves}], categories:[{uid,resolves}]}` |
+| `find_orphaned_commerce_content` | `{root?, limit?}` (`root` defaults to `/content`, must be `/content` or under it; `limit` defaults to `200`) | `{root, scanned, orphans:[{path,identifier,identifierType,property}]}` (reverse scan for `cq:products`/`cq:categories` tags whose SKU/UID no longer resolves) |
+| `get_commerce_content_fragment` | `{identifier, type}` (`type` is `product`\|`category`) + optional `{contentFragmentModel?, linkElement?}` | `{identifier, type, modelPath?, fragmentPath?, fields}`, or `{identifier, type, resolves:false}` if no CF matches |
+| `list_catalog_pages` | `{siteRoot?}` (any page under `/content`; defaults to the endpoint's nav root) | `{siteRoot, catalogPages:[{path,rootCategoryId,idType,genericFallback}]}` (routing order, generic fallback last) |
+| `explain_catalog_page_routing` | `{urlPath, siteRoot?}` | `{identifier, winningPage, reason, candidates:[{path,matched,why}]}` (replays `getGenericPage`'s first-match walk) |
+| `detect_catalog_page_conflicts` | `{siteRoot?}` | `{siteRoot, overlaps:[{pages:[…],scope,kind}]}` (`kind` = `duplicate-scope`\|`ancestor-descendant`; structural only, no live category-tree fetch) |
+| `explain_page_resolution` | `{identifier, type, siteRoot?}` (`type` is `product`\|`category`) | `{identifier, type, winningPage, depth, candidates:[{path,depth,matched,why}]}` (replays the deepest-wins specific-page match) |
+| `list_specific_pages` | `{siteRoot?}` | `{siteRoot, specificPages:[{path,pageType,selectorFilter?,selectorFilterType?,includesSubCategories?,useForCategories?}]}` |
+| `detect_specific_page_conflicts` | `{siteRoot?}` | `{siteRoot, duplicates:[{scope,pages:[…]}], shadowing:[{broader,narrower,reason}]}` (structural only; url-path-scoped bindings only) |
+| `validate_selector_filter_format` | `{path}` | `{path, selectorFilterType, entries:[{raw,valid,uid?,urlPath?,issue?}]}` (flags entries missing the `uid\|urlPath` separator) |
+| `check_specific_page_capability` | `{path}` | `{path, pageType, componentVersion, fields:{selectorFilter,selectorFilterType,includesSubCategories,useForCategories}}` (booleans; `useForCategories`/product-page `includesSubCategories` are `false` pre-v2) |
+| `suggest_template_for_page_type` | `{kind}` (`kind` is `product`\|`category`\|`catalog`) | `{kind, templates:[{path,title,signal}]}` (`signal` = `resourceSuperType`\|`title`) |
 
 `get`/`list`-style tools above return empty collections for an identifier that no longer
 resolves; `resolve_category_details`/`resolve_url_to_entity` instead return an explicit
 `resolves:false`, and `validate_content_bindings` reports `resolves:false` per entry.
+`list_catalog_pages`/`explain_catalog_page_routing`/`detect_catalog_page_conflicts`/
+`explain_page_resolution`/`list_specific_pages`/`detect_specific_page_conflicts` all take an
+optional `siteRoot` (any page under `/content`; defaults to the endpoint's own nav root), while
+`validate_selector_filter_format`/`check_specific_page_capability` take a required `path` that
+must resolve to a `cq:Page` under `/content`.
 
 ### Cart tools (shopper endpoint — guest cart, `writesContent() == false`)
 
