@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.mcp.internal.tools;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,14 +40,19 @@ import com.shopify.graphql.support.ID;
 
 /**
  * MCP tool adding a SKU/quantity to a guest cart, creating the cart first if no cart id is supplied. Supports
- * configurable products via an optional {@code options} argument (e.g. {@code {"color": "Blue"}}), resolved to
- * Magento option-value UIDs by {@link ConfigurableOptionResolver}.
+ * configurable products via an optional {@code options} argument (e.g. {@code {"color": "Blue"}}), resolved by
+ * {@link ConfigurableOptionResolver}, and bundle products via {@code bundle_options} (e.g.
+ * {@code {"Necklace": "Carmina Necklace"}}), resolved by {@link BundleOptionResolver}. Both resolve to
+ * {@code CartItemInput.selectedOptions} UIDs and go through the same {@code addProductsToCart} mutation as simple
+ * products &mdash; verified live that a bundle choice's own {@code uid} works exactly like a configurable
+ * option-value UID, so no separate {@code addBundleProductsToCart} call is needed.
  */
 @Component(service = McpTool.class)
 public class AddToCartTool implements McpTool {
     private final ObjectMapper mapper = new ObjectMapper();
     private final CartMutationClient mutationClient = new CartMutationClient();
     private final ConfigurableOptionResolver optionResolver = new ConfigurableOptionResolver();
+    private final BundleOptionResolver bundleOptionResolver = new BundleOptionResolver();
 
     @Override
     public String name() {
@@ -56,7 +62,9 @@ public class AddToCartTool implements McpTool {
     @Override
     public String description() {
         return "Add a product to a guest cart, creating the cart first if no cart_id is supplied. For configurable "
-            + "products (e.g. size/color variants), supply an 'options' object such as {\"color\": \"Blue\"}.";
+            + "products (e.g. size/color variants), supply an 'options' object such as {\"color\": \"Blue\"}. For "
+            + "bundle products, supply a 'bundle_options' object keyed by each bundle item's title, such as "
+            + "{\"Necklace\": \"Carmina Necklace\"}.";
     }
 
     @Override
@@ -67,6 +75,7 @@ public class AddToCartTool implements McpTool {
         properties.putObject("quantity").put("type", "integer");
         properties.putObject("cart_id").put("type", "string");
         properties.putObject("options").put("type", "object");
+        properties.putObject("bundle_options").put("type", "object");
         schema.putArray("required").add("sku").add("quantity");
         return schema;
     }
@@ -74,10 +83,15 @@ public class AddToCartTool implements McpTool {
     protected ProductInterface fetchProduct(StoreContext ctx, String sku) {
         McpProductRetriever retriever = new McpProductRetriever(ctx.getClient());
         retriever.setIdentifier(sku);
-        retriever.extendProductQueryWith(q -> q.onConfigurableProduct(cp -> cp.configurableOptions(co -> co
-            .attributeCode()
-            .label()
-            .values(v -> v.label().uid()))));
+        retriever.extendProductQueryWith(q -> q
+            .onConfigurableProduct(cp -> cp.configurableOptions(co -> co
+                .attributeCode()
+                .label()
+                .values(v -> v.label().uid())))
+            .onBundleProduct(bp -> bp.items(i -> i
+                .title()
+                .required()
+                .options(o -> o.label().uid()))));
         return retriever.fetchProduct();
     }
 
@@ -92,15 +106,7 @@ public class AddToCartTool implements McpTool {
         }
         AddProductsToCartOutput output = mutationClient
             .execute(ctx, m -> m.addProductsToCart(cartId, Collections.singletonList(cartItem), out -> out
-                .cart(c -> c
-                    .id()
-                    .totalQuantity()
-                    .items(i -> i
-                        .uid()
-                        .quantity()
-                        .product(p -> p.sku().name())
-                        .prices(pr -> pr.price(mo -> mo.value().currency()).rowTotal(mo -> mo.value().currency())))
-                    .prices(cp -> cp.grandTotal(mo -> mo.value().currency())))
+                .cart(CartMutationClient.cartFields())
                 .userErrors(e -> e.code().message())))
             .getAddProductsToCart();
 
@@ -111,23 +117,31 @@ public class AddToCartTool implements McpTool {
         return output.getCart();
     }
 
+    private static Map<String, String> toStringMap(JsonNode objectNode) {
+        Map<String, String> result = new HashMap<>();
+        if (objectNode != null && objectNode.isObject()) {
+            objectNode.fields().forEachRemaining(entry -> {
+                if (!entry.getValue().isNull()) {
+                    result.put(entry.getKey(), entry.getValue().asText());
+                }
+            });
+        }
+        return result;
+    }
+
     @Override
     public JsonNode call(McpCallContext context, JsonNode args) {
         StoreContext ctx = (StoreContext) context;
         String sku = args.path("sku").asText(null);
         JsonNode quantityNode = args.get("quantity");
-        if (sku == null || quantityNode == null || quantityNode.asInt() < 1) {
-            throw new IllegalArgumentException("sku and a positive quantity are required");
-        }
-
-        Map<String, String> suppliedOptions = new HashMap<>();
-        JsonNode optionsNode = args.get("options");
-        if (optionsNode != null && optionsNode.isObject()) {
-            optionsNode.fields().forEachRemaining(entry -> suppliedOptions.put(entry.getKey(), entry.getValue().asText()));
+        if (sku == null || quantityNode == null || !quantityNode.isIntegralNumber() || quantityNode.asInt() < 1) {
+            throw new IllegalArgumentException("sku and a positive whole-number quantity are required");
         }
 
         ProductInterface product = fetchProduct(ctx, sku);
-        List<ID> selectedOptions = optionResolver.resolve(product, suppliedOptions);
+        List<ID> selectedOptions = new ArrayList<>();
+        selectedOptions.addAll(optionResolver.resolve(product, toStringMap(args.get("options"))));
+        selectedOptions.addAll(bundleOptionResolver.resolve(product, toStringMap(args.get("bundle_options"))));
 
         String cartId = args.path("cart_id").asText(null);
         if (cartId == null) {

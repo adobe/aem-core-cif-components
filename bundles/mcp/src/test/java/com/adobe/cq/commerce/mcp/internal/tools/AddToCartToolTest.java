@@ -20,6 +20,9 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.adobe.cq.commerce.magento.graphql.BundleItem;
+import com.adobe.cq.commerce.magento.graphql.BundleItemOption;
+import com.adobe.cq.commerce.magento.graphql.BundleProduct;
 import com.adobe.cq.commerce.magento.graphql.Cart;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProductOptions;
@@ -162,5 +165,118 @@ public class AddToCartToolTest {
         JsonNode args = mapper.createObjectNode().put("sku", "VSK05").put("quantity", 1).put("cart_id", "cart-1");
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> tool.call(mock(StoreContext.class), args));
         assertEquals("Color is required. Available values: Blue", ex.getMessage());
+    }
+
+    @Test
+    public void treatsJsonNullOptionValueAsMissingNotAsTheStringNull() {
+        ConfigurableProductOptionsValues blue = mock(ConfigurableProductOptionsValues.class);
+        when(blue.getLabel()).thenReturn("Blue");
+        ConfigurableProductOptions color = mock(ConfigurableProductOptions.class);
+        when(color.getAttributeCode()).thenReturn("fashion_color");
+        when(color.getLabel()).thenReturn("Color");
+        when(color.getValues()).thenReturn(Collections.singletonList(blue));
+        ConfigurableProduct configurableProduct = mock(ConfigurableProduct.class);
+        when(configurableProduct.getConfigurableOptions()).thenReturn(Collections.singletonList(color));
+
+        AddToCartTool tool = new AddToCartTool() {
+            @Override
+            protected ProductInterface fetchProduct(StoreContext ctx, String sku) {
+                return configurableProduct;
+            }
+
+            @Override
+            protected Cart addItem(StoreContext ctx, String cartId, String sku, double quantity, List<ID> selectedOptions) {
+                throw new AssertionError("should not add to cart when a required option is null");
+            }
+        };
+
+        com.fasterxml.jackson.databind.node.ObjectNode args = mapper.createObjectNode().put("sku", "VSK05").put("quantity", 1)
+            .put("cart_id", "cart-1");
+        args.putObject("options").putNull("fashion_color");
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> tool.call(mock(StoreContext.class), args));
+        assertEquals("Color is required. Available values: Blue", ex.getMessage());
+    }
+
+    @Test
+    public void resolvesBundleOptionsBeforeAddingItem() throws Exception {
+        Cart cart = mock(Cart.class);
+        when(cart.getId()).thenReturn(new ID("cart-1"));
+
+        BundleItemOption carmina = mock(BundleItemOption.class);
+        when(carmina.getLabel()).thenReturn("Carmina Necklace");
+        when(carmina.getUid()).thenReturn(new ID("bundle/2/2/1"));
+        BundleItem necklace = mock(BundleItem.class);
+        when(necklace.getTitle()).thenReturn("Necklace");
+        when(necklace.getRequired()).thenReturn(true);
+        when(necklace.getOptions()).thenReturn(Collections.singletonList(carmina));
+        BundleProduct bundleProduct = mock(BundleProduct.class);
+        when(bundleProduct.getItems()).thenReturn(Collections.singletonList(necklace));
+
+        AddToCartTool tool = new AddToCartTool() {
+            @Override
+            protected ProductInterface fetchProduct(StoreContext ctx, String sku) {
+                return bundleProduct;
+            }
+
+            @Override
+            protected Cart addItem(StoreContext ctx, String cartId, String sku, double quantity, List<ID> selectedOptions) {
+                assertEquals(Collections.singletonList(new ID("bundle/2/2/1")), selectedOptions);
+                return cart;
+            }
+        };
+
+        com.fasterxml.jackson.databind.node.ObjectNode args = mapper.createObjectNode().put("sku", "VA24").put("quantity", 1)
+            .put("cart_id", "cart-1");
+        args.putObject("bundle_options").put("Necklace", "Carmina Necklace");
+        JsonNode out = tool.call(mock(StoreContext.class), args);
+        assertEquals("cart-1", out.get("cart_id").asText());
+    }
+
+    @Test
+    public void throwsDescriptiveErrorWhenRequiredBundleOptionMissing() {
+        BundleItemOption carmina = mock(BundleItemOption.class);
+        when(carmina.getLabel()).thenReturn("Carmina Necklace");
+        BundleItem necklace = mock(BundleItem.class);
+        when(necklace.getTitle()).thenReturn("Necklace");
+        when(necklace.getRequired()).thenReturn(true);
+        when(necklace.getOptions()).thenReturn(Collections.singletonList(carmina));
+        BundleProduct bundleProduct = mock(BundleProduct.class);
+        when(bundleProduct.getItems()).thenReturn(Collections.singletonList(necklace));
+
+        AddToCartTool tool = new AddToCartTool() {
+            @Override
+            protected ProductInterface fetchProduct(StoreContext ctx, String sku) {
+                return bundleProduct;
+            }
+
+            @Override
+            protected Cart addItem(StoreContext ctx, String cartId, String sku, double quantity, List<ID> selectedOptions) {
+                throw new AssertionError("should not add to cart when a required bundle option is missing");
+            }
+        };
+
+        JsonNode args = mapper.createObjectNode().put("sku", "VA24").put("quantity", 1).put("cart_id", "cart-1");
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> tool.call(mock(StoreContext.class), args));
+        assertEquals("Necklace is required. Available values: Carmina Necklace", ex.getMessage());
+    }
+
+    @Test
+    public void rejectsFractionalQuantityInsteadOfSilentlyTruncating() {
+        ProductInterface simpleProduct = mock(ProductInterface.class);
+
+        AddToCartTool tool = new AddToCartTool() {
+            @Override
+            protected ProductInterface fetchProduct(StoreContext ctx, String sku) {
+                return simpleProduct;
+            }
+
+            @Override
+            protected Cart addItem(StoreContext ctx, String cartId, String sku, double quantity, List<ID> selectedOptions) {
+                throw new AssertionError("1.9 must not silently truncate to 1 and proceed");
+            }
+        };
+
+        JsonNode args = mapper.createObjectNode().put("sku", "VSK05").put("quantity", 1.9);
+        assertThrows(IllegalArgumentException.class, () -> tool.call(mock(StoreContext.class), args));
     }
 }

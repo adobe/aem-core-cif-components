@@ -676,3 +676,11 @@ Deployed to the running local AEM author instance and drove the full flow agains
 - `add_to_cart` on a simple product (`VA13-GO-NA`, no options) → still works unchanged, confirming the switch to the unified `addProductsToCart` mutation didn't regress simple-product support.
 
 Matching by attribute code (`fashion_color`) worked as the primary/expected input; matching by label was not separately exercised live in this pass (only unit-tested), but no issue is expected since it's the same code path.
+
+## Post-implementation code review (2026-07-03)
+
+A `--level high` code review (run across this plan + the base cart-tools plan together) found one real bug specific to this phase, fixed with a new test:
+
+- **`add_to_cart`'s `options` handling treated a JSON `null` value as the literal string `"null"`, not as an absent option.** `{"options": {"fashion_color": null}}` would previously fail with the misleading `"Fashion Color must be one of: Peach, Khaki, Lilac, Rain"` (as if `"null"` were an attempted, invalid value) instead of the correct `"Fashion Color is required. Available values: ..."`. Root cause: Jackson's `NullNode.asText()` returns the string `"null"`, not Java `null` — a JSON-parsing gotcha, not a logic error in `ConfigurableOptionResolver` itself. Fixed in `AddToCartTool.call()` by skipping any options-object entry where `entry.getValue().isNull()` before adding it to the supplied-options map, so it's treated the same as the key being absent entirely. Covered by `AddToCartToolTest.treatsJsonNullOptionValueAsMissingNotAsTheStringNull`.
+
+See the base cart-tools plan's own "Post-implementation code review" section for the other fixes from this same review pass (shared `CartMutationClient.cartFields()`, null-guard, non-cached cart reads, and the fractional-quantity fix in `UpdateCartItemTool`, which is base-plan scope even though it surfaced in the same review run).
