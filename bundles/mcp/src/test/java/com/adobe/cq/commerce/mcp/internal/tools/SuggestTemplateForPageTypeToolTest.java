@@ -29,6 +29,17 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+/**
+ * Note on {@code conf-templates.json}'s {@code product}/{@code productlist} pre-placed nodes: they declare
+ * {@code sling:resourceType} directly as the core CIF type (e.g.
+ * {@code core/cif/components/commerce/product/v3/product}), not as a Venia proxy
+ * ({@code venia/components/commerce/product}) with the core type as an {@code /apps}-registered super type. This
+ * is because the pinned aem-mock's {@code Resource#isResourceType(String)} matches by exact identity only and does
+ * not walk a proxy's super-type chain through {@code /apps} component definitions the way real AEM does -- see the
+ * same caveat documented on {@link CheckSpecificPageCapabilityTool} and on
+ * {@link SuggestTemplateForPageTypeTool}'s class javadoc ("aem-mock limitation"). The fixture therefore models the
+ * end state real AEM would resolve to, and the real Venia proxy path can only be re-verified live, post-deploy.
+ */
 public class SuggestTemplateForPageTypeToolTest {
 
     @Rule

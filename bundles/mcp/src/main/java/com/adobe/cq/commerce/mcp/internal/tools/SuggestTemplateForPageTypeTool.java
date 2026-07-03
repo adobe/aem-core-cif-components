@@ -40,15 +40,20 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * {@code initial} content via {@code PageManager.create(parentPath, name, templatePath, title)}.
  * <p>
  * <b>Signal, in priority order</b>: the pre-placed component under
- * {@code initial/jcr:content/root/container/container} (the responsive grid), classified by its own
- * {@code sling:resourceType} or (so Venia's proxy components -- e.g. {@code venia/components/commerce/product}
- * super-typing {@code core/cif/components/commerce/product/v3/product} -- match too) its declared
- * {@code sling:resourceSuperType}:
+ * {@code initial/jcr:content/root/container/container} (the responsive grid), classified via
+ * {@link Resource#isResourceType(String)} against the known CIF commerce resource types, checked per version (see
+ * {@code ProductImpl}/{@code ProductListImpl} {@code RESOURCE_TYPE} constants in {@code bundles/core}'s
+ * {@code v1}/{@code v2}/{@code v3} {@code …components.internal.models.*} packages -- those constants live in a
+ * non-exported internal package, so the literal strings are hardcoded and verified here instead of referenced).
+ * {@code isResourceType} follows a resource's {@code sling:resourceSuperType} chain -- including one registered on
+ * an {@code /apps} component definition, not just a node property -- so Venia's proxy components (e.g.
+ * {@code venia/components/commerce/product}, whose super-type {@code core/cif/components/commerce/product/v3/product}
+ * is declared on the {@code /apps} component, not on the {@code /conf} node itself) resolve correctly in real AEM:
  * <ul>
- * <li>{@code product}: a component matching {@code core/cif/components/commerce/product/*} (the PRODUCT component;
- * checked <em>after</em> ruling out {@code productlist}, since the literal string {@code "product"} is a prefix of
- * {@code "productlist"}'s resource type segment).</li>
- * <li>{@code category}: a component matching {@code core/cif/components/commerce/productlist/*}.</li>
+ * <li>{@code product}: a component matching {@code core/cif/components/commerce/product/v1/product},
+ * {@code .../v2/product}, or {@code .../v3/product}.</li>
+ * <li>{@code category}: a component matching {@code core/cif/components/commerce/productlist/v1/productlist} or
+ * {@code .../v2/productlist}.</li>
  * <li>{@code catalog}: the grid has no children at all (structural-only page, filled in later).</li>
  * </ul>
  * When the grid has children but none is a recognized commerce component (e.g. a plain WCM Core Components text
@@ -59,6 +64,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * fall back to matching the template's own {@code jcr:title} case-insensitively against the Venia convention
  * ({@code "Product page"}/{@code "Category page"}/{@code "Catalog Page"}) -- see catalog &sect;9's explicit
  * warning that title-matching is an inferred Venia convention, not a CIF standard.
+ * <p>
+ * <b>aem-mock limitation</b> (mirrors {@link CheckSpecificPageCapabilityTool}'s documented caveat): the pinned
+ * aem-mock's {@code isResourceType} matches by exact identity only -- it does not walk a resource's super-type
+ * chain through {@code /apps} component definitions the way real AEM does. The unit test fixture therefore sets
+ * the pre-placed component's {@code sling:resourceType} directly to the core type (as if the {@code /apps} proxy
+ * resolution had already happened), which is sufficient to exercise the identity-match case in-process; the real
+ * Venia proxy path (node {@code resourceType=venia/...}, {@code /apps} superType registered on the component
+ * definition) can only be verified against a live AEM instance.
  */
 @Component(service = McpTool.class)
 public class SuggestTemplateForPageTypeTool implements McpTool {
@@ -67,8 +80,23 @@ public class SuggestTemplateForPageTypeTool implements McpTool {
     private static final String TEMPLATES_SUFFIX = "settings/wcm/templates";
     private static final String INITIAL_GRID_PATH = "initial/jcr:content/root/container/container";
 
-    private static final String PRODUCT_RESOURCE_TYPE_SEGMENT = "core/cif/components/commerce/product/";
-    private static final String PRODUCTLIST_RESOURCE_TYPE_SEGMENT = "core/cif/components/commerce/productlist/";
+    /**
+     * CIF PRODUCT component resource types, by version (verified against {@code ProductImpl.RESOURCE_TYPE} in
+     * {@code bundles/core}'s {@code v1}/{@code v2}/{@code v3} {@code …models.*.product} packages).
+     */
+    private static final List<String> PRODUCT_RESOURCE_TYPES = Arrays.asList(
+        "core/cif/components/commerce/product/v1/product",
+        "core/cif/components/commerce/product/v2/product",
+        "core/cif/components/commerce/product/v3/product");
+
+    /**
+     * CIF PRODUCTLIST component resource types, by version (verified against {@code ProductListImpl.RESOURCE_TYPE}
+     * in {@code bundles/core}'s {@code v1}/{@code v2} {@code …models.*.productlist} packages -- there is no v3
+     * productlist).
+     */
+    private static final List<String> PRODUCTLIST_RESOURCE_TYPES = Arrays.asList(
+        "core/cif/components/commerce/productlist/v1/productlist",
+        "core/cif/components/commerce/productlist/v2/productlist");
 
     private static final List<String> VALID_KINDS = Arrays.asList("product", "category", "catalog");
 
@@ -153,13 +181,14 @@ public class SuggestTemplateForPageTypeTool implements McpTool {
 
         while (children.hasNext()) {
             Resource component = children.next();
-            // Check productlist BEFORE product: "core/cif/components/commerce/productlist/..." also starts with
-            // the literal prefix "core/cif/components/commerce/product" (minus the trailing slash), so testing
-            // product first would misclassify every category template as a product template.
-            if (matchesTypeSegment(component, PRODUCTLIST_RESOURCE_TYPE_SEGMENT)) {
+            // Check productlist BEFORE product: both families are matched via isResourceType against distinct,
+            // fully-versioned literal strings (e.g. ".../product/v3/product" vs. ".../productlist/v2/productlist"),
+            // so there is no prefix-collision risk here -- the ordering is kept for readability/symmetry with the
+            // rest of the tool, not because it is load-bearing.
+            if (matchesAnyType(component, PRODUCTLIST_RESOURCE_TYPES)) {
                 return new Signal("category", "resourceSuperType", title);
             }
-            if (matchesTypeSegment(component, PRODUCT_RESOURCE_TYPE_SEGMENT)) {
+            if (matchesAnyType(component, PRODUCT_RESOURCE_TYPES)) {
                 return new Signal("product", "resourceSuperType", title);
             }
         }
@@ -170,24 +199,23 @@ public class SuggestTemplateForPageTypeTool implements McpTool {
     }
 
     /**
-     * True if the component's own {@code sling:resourceType}, or its immediate {@code sling:resourceSuperType}
-     * (Venia's proxy components, e.g. {@code venia/components/commerce/product}, declare the real CIF type as
-     * their direct super type -- see catalog &sect;9's mapping table), starts with the given
-     * {@code core/cif/components/commerce/...} segment prefix. Prefix comparison (not
-     * {@link Resource#isResourceType(String)} against one exact type) is used because the CIF type itself is
-     * versioned ({@code v1}/{@code v2}/{@code v3}) and this only needs to know the commerce family, not the exact
-     * version. Reads the {@code sling:resourceSuperType} property directly, rather than relying on
-     * {@code ResourceResolver#getParentResourceType}, since that requires the type hierarchy to be registered as
-     * resources under a search path (e.g. {@code /apps}), which a plain {@code /conf} proxy's declared property
-     * does not require.
+     * True if the component resolves to any of the given CIF core resource types via
+     * {@link Resource#isResourceType(String)}. In real AEM this follows the full {@code sling:resourceSuperType}
+     * chain, including one registered on an {@code /apps} component definition -- so a Venia proxy component (node
+     * {@code sling:resourceType=venia/components/commerce/product}, with
+     * {@code core/cif/components/commerce/product/v3/product} declared as its super type on the {@code /apps}
+     * component, not as a property on this node) still matches. The pinned aem-mock's {@code isResourceType}
+     * only matches by exact identity (no {@code /apps} chain walk), so the unit test fixture sets the pre-placed
+     * node's {@code sling:resourceType} directly to the core type to exercise this path -- see the class
+     * javadoc's "aem-mock limitation" note, mirroring {@link CheckSpecificPageCapabilityTool}.
      */
-    private boolean matchesTypeSegment(Resource component, String segmentPrefix) {
-        String resourceType = component.getResourceType();
-        if (resourceType != null && resourceType.startsWith(segmentPrefix)) {
-            return true;
+    private boolean matchesAnyType(Resource component, List<String> coreResourceTypes) {
+        for (String coreResourceType : coreResourceTypes) {
+            if (component.isResourceType(coreResourceType)) {
+                return true;
+            }
         }
-        String superType = component.getValueMap().get("sling:resourceSuperType", String.class);
-        return superType != null && superType.startsWith(segmentPrefix);
+        return false;
     }
 
     private Signal classifyByTitle(String title) {
