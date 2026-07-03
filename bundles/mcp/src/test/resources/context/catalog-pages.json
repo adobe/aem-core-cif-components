@@ -1,0 +1,41 @@
+{
+  "jcr:primaryType": "sling:Folder",
+  "site": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "sling:resourceType": "core/cif/components/structure/page/v3/page",
+      "navRoot": true
+    },
+    "tops": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "core/cif/components/structure/catalogpage/v3/catalogpage",
+        "cq:cifCategoryPage": "/content/site/tops",
+        "magentoRootCategoryId": "venia-tops",
+        "magentoRootCategoryIdType": "urlPath"
+      }
+    },
+    "outlet": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "core/cif/components/structure/catalogpage/v3/catalogpage",
+        "cq:cifCategoryPage": "/content/site/outlet",
+        "magentoRootCategoryId": "MjA=",
+        "magentoRootCategoryIdType": "uid"
+      }
+    },
+    "bottoms": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "core/cif/components/structure/catalogpage/v3/catalogpage",
+        "cq:cifCategoryPage": "/content/site/bottoms",
+        "magentoRootCategoryId": "venia-bottoms",
+        "magentoRootCategoryIdType": "urlPath"
+      }
+    }
+  }
+}
