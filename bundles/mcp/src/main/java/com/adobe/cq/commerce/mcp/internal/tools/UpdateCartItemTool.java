@@ -21,7 +21,6 @@ import org.osgi.service.component.annotations.Component;
 
 import com.adobe.cq.commerce.magento.graphql.Cart;
 import com.adobe.cq.commerce.magento.graphql.CartItemUpdateInput;
-import com.adobe.cq.commerce.magento.graphql.CartQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.RemoveItemFromCartInput;
 import com.adobe.cq.commerce.magento.graphql.UpdateCartItemsInput;
 import com.adobe.cq.commerce.mcp.McpCallContext;
@@ -62,23 +61,11 @@ public class UpdateCartItemTool implements McpTool {
         return schema;
     }
 
-    private CartQueryDefinition cartFields() {
-        return c -> c
-            .id()
-            .totalQuantity()
-            .items(i -> i
-                .uid()
-                .quantity()
-                .product(p -> p.sku().name())
-                .prices(pr -> pr.price(m -> m.value().currency()).rowTotal(m -> m.value().currency())))
-            .prices(cp -> cp.grandTotal(m -> m.value().currency()));
-    }
-
     protected Cart updateQuantity(StoreContext ctx, String cartId, String uid, double quantity) {
         CartItemUpdateInput itemInput = new CartItemUpdateInput().setCartItemUid(new ID(uid)).setQuantity(quantity);
         UpdateCartItemsInput input = new UpdateCartItemsInput(cartId, Collections.singletonList(itemInput));
         return mutationClient
-            .execute(ctx, m -> m.updateCartItems(args -> args.input(input), out -> out.cart(cartFields())))
+            .execute(ctx, m -> m.updateCartItems(args -> args.input(input), out -> out.cart(CartMutationClient.cartFields())))
             .getUpdateCartItems()
             .getCart();
     }
@@ -86,7 +73,7 @@ public class UpdateCartItemTool implements McpTool {
     protected Cart removeItem(StoreContext ctx, String cartId, String uid) {
         RemoveItemFromCartInput input = new RemoveItemFromCartInput(cartId).setCartItemUid(new ID(uid));
         return mutationClient
-            .execute(ctx, m -> m.removeItemFromCart(args -> args.input(input), out -> out.cart(cartFields())))
+            .execute(ctx, m -> m.removeItemFromCart(args -> args.input(input), out -> out.cart(CartMutationClient.cartFields())))
             .getRemoveItemFromCart()
             .getCart();
     }
@@ -97,8 +84,9 @@ public class UpdateCartItemTool implements McpTool {
         String cartId = args.path("cart_id").asText(null);
         String uid = args.path("uid").asText(null);
         JsonNode quantityNode = args.get("quantity");
-        if (cartId == null || uid == null || quantityNode == null || quantityNode.asInt() < 0) {
-            throw new IllegalArgumentException("cart_id, uid and a non-negative quantity are required");
+        if (cartId == null || uid == null || quantityNode == null || !quantityNode.isIntegralNumber()
+            || quantityNode.asInt() < 0) {
+            throw new IllegalArgumentException("cart_id, uid and a non-negative whole-number quantity are required");
         }
         int quantity = quantityNode.asInt();
         Cart cart = quantity == 0 ? removeItem(ctx, cartId, uid) : updateQuantity(ctx, cartId, uid, quantity);

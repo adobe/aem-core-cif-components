@@ -29,6 +29,7 @@ import com.adobe.cq.commerce.graphql.client.GraphqlRequest;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.graphql.client.RequestOptions;
+import com.adobe.cq.commerce.magento.graphql.CartQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Mutation;
 import com.adobe.cq.commerce.magento.graphql.MutationQueryDefinition;
 import com.adobe.cq.commerce.magento.graphql.Operations;
@@ -48,10 +49,32 @@ import com.adobe.granite.ui.components.ds.ValueMapResource;
  */
 public class CartMutationClient {
 
+    /**
+     * The cart field selection every cart tool's response is mapped from
+     * ({@link com.adobe.cq.commerce.mcp.internal.dto.DtoMapper#cart}) &mdash; shared so
+     * {@code view_cart}, {@code add_to_cart}, {@code update_cart_item} and {@code clear_cart} request (and can only
+     * request) the exact same shape, whether the fields come from a plain {@code Query.cart(...)} or from a mutation's
+     * {@code cart(...)} output selection (both take a {@code CartQueryDefinition}).
+     */
+    public static CartQueryDefinition cartFields() {
+        return c -> c
+            .id()
+            .totalQuantity()
+            .items(i -> i
+                .uid()
+                .quantity()
+                .product(p -> p.sku().name())
+                .prices(pr -> pr.price(m -> m.value().currency()).rowTotal(m -> m.value().currency())))
+            .prices(cp -> cp.grandTotal(m -> m.value().currency()));
+    }
+
     public Mutation execute(StoreContext ctx, MutationQueryDefinition definition) {
         GraphqlClient graphqlClient = resolveGraphqlClient(ctx.getResource());
         if (graphqlClient == null) {
             throw new IllegalStateException("GraphQL client not available for resource " + ctx.getResource().getPath());
+        }
+        if (ctx.getClient() == null) {
+            throw new IllegalStateException("Commerce configuration not available for resource " + ctx.getResource().getPath());
         }
 
         String mutation = Operations.mutation(definition).toString();

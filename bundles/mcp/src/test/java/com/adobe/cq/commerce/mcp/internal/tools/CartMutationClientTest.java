@@ -37,6 +37,16 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+/**
+ * Unit tests cover the null/error-handling branches with mocks. The {@code ComponentsConfiguration}
+ * &rarr; {@code ValueMapResource} &rarr; {@code GraphqlClient} fallback path in
+ * {@link CartMutationClient#resolveGraphqlClient} &mdash; the path actually used in production &mdash;
+ * is not exercised here: sling-mock's {@code AemContext.registerAdapter} matches by type, not
+ * instance, so it cannot distinguish "the endpoint's own resource" from "the synthetic
+ * {@code ValueMapResource} built inside that method" to assert one fails and the other succeeds.
+ * That path is instead validated by live testing against a running AEM+Magento instance; see
+ * {@code docs/superpowers/plans/2026-07-03-cif-shopper-cart.md}'s "Live verification results".
+ */
 public class CartMutationClientTest {
 
     @Test
@@ -102,5 +112,21 @@ public class CartMutationClientTest {
         CartMutationClient client = new CartMutationClient();
         IllegalStateException ex = assertThrows(IllegalStateException.class, () -> client.execute(ctx, m -> m.createEmptyCart()));
         assertEquals("GraphQL client not available for resource /content/venia/us/en", ex.getMessage());
+    }
+
+    @Test
+    public void throwsWhenCommerceClientNotAvailable() {
+        Resource resource = mock(Resource.class);
+        when(resource.getPath()).thenReturn("/content/venia/us/en");
+        GraphqlClient graphqlClient = mock(GraphqlClient.class);
+        when(resource.adaptTo(GraphqlClient.class)).thenReturn(graphqlClient);
+
+        StoreContext ctx = mock(StoreContext.class);
+        when(ctx.getResource()).thenReturn(resource);
+        when(ctx.getClient()).thenReturn(null);
+
+        CartMutationClient client = new CartMutationClient();
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> client.execute(ctx, m -> m.createEmptyCart()));
+        assertEquals("Commerce configuration not available for resource /content/venia/us/en", ex.getMessage());
     }
 }

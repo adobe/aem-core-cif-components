@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.mcp.internal.tools;
 import org.osgi.service.component.annotations.Component;
 
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
+import com.adobe.cq.commerce.graphql.client.HttpMethod;
 import com.adobe.cq.commerce.magento.graphql.Cart;
 import com.adobe.cq.commerce.magento.graphql.Operations;
 import com.adobe.cq.commerce.magento.graphql.Query;
@@ -56,16 +57,11 @@ public class ViewCartTool implements McpTool {
     }
 
     protected Cart fetch(StoreContext ctx, String cartId) {
-        String query = Operations.query(q -> q.cart(cartId, c -> c
-            .id()
-            .totalQuantity()
-            .items(i -> i
-                .uid()
-                .quantity()
-                .product(p -> p.sku().name())
-                .prices(pr -> pr.price(m -> m.value().currency()).rowTotal(m -> m.value().currency())))
-            .prices(cp -> cp.grandTotal(m -> m.value().currency())))).toString();
-        GraphqlResponse<Query, Error> response = ctx.getClient().execute(query);
+        String query = Operations.query(q -> q.cart(cartId, CartMutationClient.cartFields())).toString();
+        // force POST (bypasses MagentoGraphqlClientImpl's GET-based response cache): cart contents mutate on every
+        // add/update/remove and must never be served stale, regardless of whether caching is ever enabled for this
+        // resource type
+        GraphqlResponse<Query, Error> response = ctx.getClient().execute(query, HttpMethod.POST);
         if (response.getErrors() != null && !response.getErrors().isEmpty()) {
             throw new IllegalArgumentException(response.getErrors().get(0).getMessage());
         }

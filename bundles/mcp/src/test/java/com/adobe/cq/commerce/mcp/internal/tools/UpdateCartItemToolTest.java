@@ -25,6 +25,7 @@ import com.shopify.graphql.support.ID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -80,5 +81,23 @@ public class UpdateCartItemToolTest {
         JsonNode out = tool.call(mock(StoreContext.class),
             mapper.createObjectNode().put("cart_id", "cart-1").put("uid", "item-1").put("quantity", 0));
         assertEquals("cart-1", out.get("cart_id").asText());
+    }
+
+    @Test
+    public void rejectsFractionalQuantityInsteadOfTruncatingToRemoval() {
+        UpdateCartItemTool tool = new UpdateCartItemTool() {
+            @Override
+            protected Cart updateQuantity(StoreContext ctx, String cartId, String uid, double quantity) {
+                throw new AssertionError("should not update on a rejected fractional quantity");
+            }
+
+            @Override
+            protected Cart removeItem(StoreContext ctx, String cartId, String uid) {
+                throw new AssertionError("0.5 must not truncate to 0 and silently remove the item");
+            }
+        };
+
+        JsonNode args = mapper.createObjectNode().put("cart_id", "cart-1").put("uid", "item-1").put("quantity", 0.5);
+        assertThrows(IllegalArgumentException.class, () -> tool.call(mock(StoreContext.class), args));
     }
 }

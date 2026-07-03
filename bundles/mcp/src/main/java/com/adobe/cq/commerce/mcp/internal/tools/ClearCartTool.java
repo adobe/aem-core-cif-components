@@ -64,15 +64,7 @@ public class ClearCartTool implements McpTool {
     protected Cart removeItem(StoreContext ctx, String cartId, String uid) {
         RemoveItemFromCartInput input = new RemoveItemFromCartInput(cartId).setCartItemUid(new ID(uid));
         return mutationClient
-            .execute(ctx, m -> m.removeItemFromCart(args -> args.input(input), out -> out.cart(c -> c
-                .id()
-                .totalQuantity()
-                .items(i -> i
-                    .uid()
-                    .quantity()
-                    .product(p -> p.sku().name())
-                    .prices(pr -> pr.price(mo -> mo.value().currency()).rowTotal(mo -> mo.value().currency())))
-                .prices(cp -> cp.grandTotal(mo -> mo.value().currency())))))
+            .execute(ctx, m -> m.removeItemFromCart(args -> args.input(input), out -> out.cart(CartMutationClient.cartFields())))
             .getRemoveItemFromCart()
             .getCart();
     }
