@@ -35,21 +35,41 @@ public class ConfigureCatalogPageToolTest {
     public final AemContext context = new AemContext();
     private final ObjectMapper mapper = new ObjectMapper();
 
-    @Test
-    public void setsCategoryBinding() throws Exception {
-        context.build().resource("/content/site/plp/jcr:content",
-            "sling:resourceType", "core/cif/components/structure/catalogpage/v3/catalogpage").commit();
-
+    private StoreContext ctxForResolver() {
         StoreContext ctx = mock(StoreContext.class);
         SlingHttpServletRequest req = mock(SlingHttpServletRequest.class);
         when(req.getResourceResolver()).thenReturn(context.resourceResolver());
         when(ctx.getRequest()).thenReturn(req);
+        return ctx;
+    }
 
-        JsonNode out = new ConfigureCatalogPageTool().call(ctx, mapper.readTree(
-            "{\"path\":\"/content/site/plp\",\"categoryUid\":\"MT==\"}"));
+    @Test
+    public void bindsRootCategory() throws Exception {
+        context.build().resource("/content/site/plp/jcr:content",
+            "sling:resourceType", "core/cif/components/structure/catalogpage/v3/catalogpage").commit();
+
+        JsonNode out = new ConfigureCatalogPageTool().call(ctxForResolver(), mapper.readTree(
+            "{\"path\":\"/content/site/plp\",\"categoryUid\":\"MjA=\"}"));
         assertTrue(out.get("updated").asBoolean());
+
         Resource r = context.resourceResolver().getResource("/content/site/plp/jcr:content");
-        assertEquals("MT==", r.getValueMap().get("category", String.class));
+        // The v3/v1 catalog page consumes magentoRootCategoryId (+ type), NOT the productlist "category" property.
+        assertEquals("MjA=", r.getValueMap().get("magentoRootCategoryId", String.class));
+        assertEquals("uid", r.getValueMap().get("magentoRootCategoryIdType", String.class));
+        // showMainCategories defaults to false so the bound root actually scopes the landing navigation.
+        assertEquals(Boolean.FALSE, r.getValueMap().get("showMainCategories", Boolean.class));
+    }
+
+    @Test
+    public void honorsShowMainCategoriesArg() throws Exception {
+        context.build().resource("/content/site/plp2/jcr:content",
+            "sling:resourceType", "core/cif/components/structure/catalogpage/v1/catalogpage").commit();
+
+        new ConfigureCatalogPageTool().call(ctxForResolver(), mapper.readTree(
+            "{\"path\":\"/content/site/plp2\",\"categoryUid\":\"MjA=\",\"showMainCategories\":true}"));
+
+        Resource r = context.resourceResolver().getResource("/content/site/plp2/jcr:content");
+        assertEquals(Boolean.TRUE, r.getValueMap().get("showMainCategories", Boolean.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -57,12 +77,7 @@ public class ConfigureCatalogPageToolTest {
         context.build().resource("/content/site/plainpage/jcr:content",
             "sling:resourceType", "nt:unstructured").commit();
 
-        StoreContext ctx = mock(StoreContext.class);
-        SlingHttpServletRequest req = mock(SlingHttpServletRequest.class);
-        when(req.getResourceResolver()).thenReturn(context.resourceResolver());
-        when(ctx.getRequest()).thenReturn(req);
-
-        new ConfigureCatalogPageTool().call(ctx, mapper.readTree(
-            "{\"path\":\"/content/site/plainpage\",\"categoryUid\":\"MT==\"}"));
+        new ConfigureCatalogPageTool().call(ctxForResolver(), mapper.readTree(
+            "{\"path\":\"/content/site/plainpage\",\"categoryUid\":\"MjA=\"}"));
     }
 }
