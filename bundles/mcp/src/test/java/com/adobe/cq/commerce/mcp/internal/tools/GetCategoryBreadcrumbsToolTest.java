@@ -56,7 +56,7 @@ public class GetCategoryBreadcrumbsToolTest {
         StoreContext ctx = mock(StoreContext.class);
         GetCategoryBreadcrumbsTool tool = new GetCategoryBreadcrumbsTool() {
             @Override
-            protected CategoryInterface fetch(StoreContext c, String uid, String urlPath) {
+            protected CategoryInterface fetch(StoreContext c, String identifier, String categoryIdType) {
                 return category;
             }
         };
@@ -84,5 +84,49 @@ public class GetCategoryBreadcrumbsToolTest {
         StoreContext ctx = mock(StoreContext.class);
         GetCategoryBreadcrumbsTool tool = new GetCategoryBreadcrumbsTool();
         assertThrows(IllegalArgumentException.class, () -> tool.call(ctx, mapper.createObjectNode()));
+    }
+
+    @Test
+    public void resolvesIdentifierAndCategoryIdTypeFromUrlPath() {
+        CategoryInterface category = mock(CategoryInterface.class);
+        when(category.getUid()).thenReturn(new ID("cat3"));
+
+        String[] captured = new String[2];
+        StoreContext ctx = mock(StoreContext.class);
+        GetCategoryBreadcrumbsTool tool = new GetCategoryBreadcrumbsTool() {
+            @Override
+            protected CategoryInterface fetch(StoreContext c, String identifier, String categoryIdType) {
+                captured[0] = identifier;
+                captured[1] = categoryIdType;
+                return category;
+            }
+        };
+
+        tool.call(ctx, mapper.createObjectNode().put("urlPath", "men/tops"));
+
+        assertEquals("men/tops", captured[0]);
+        assertEquals("urlPath", captured[1]);
+    }
+
+    @Test
+    public void resolvesIdentifierAndDefaultCategoryIdTypeFromUid() {
+        CategoryInterface category = mock(CategoryInterface.class);
+        when(category.getUid()).thenReturn(new ID("abc"));
+
+        String[] captured = new String[2];
+        StoreContext ctx = mock(StoreContext.class);
+        GetCategoryBreadcrumbsTool tool = new GetCategoryBreadcrumbsTool() {
+            @Override
+            protected CategoryInterface fetch(StoreContext c, String identifier, String categoryIdType) {
+                captured[0] = identifier;
+                captured[1] = categoryIdType;
+                return category;
+            }
+        };
+
+        tool.call(ctx, mapper.createObjectNode().put("uid", "abc"));
+
+        assertEquals("abc", captured[0]);
+        assertEquals(null, captured[1]);
     }
 }

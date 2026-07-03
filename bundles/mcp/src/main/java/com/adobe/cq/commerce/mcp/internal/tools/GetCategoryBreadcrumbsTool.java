@@ -55,16 +55,14 @@ public class GetCategoryBreadcrumbsTool implements McpTool {
         return schema;
     }
 
-    protected CategoryInterface fetch(StoreContext ctx, String uid, String urlPath) {
+    protected CategoryInterface fetch(StoreContext ctx, String identifier, String categoryIdType) {
         McpCategoryRetriever retriever = new McpCategoryRetriever(ctx.getClient());
         retriever.extendCategoryQueryWith(
             q -> q.breadcrumbs(b -> b.categoryUid().categoryName().categoryLevel().categoryUrlPath()));
-        if (StringUtils.isNotBlank(urlPath)) {
-            retriever.setCategoryIdType("urlPath");
-            retriever.setIdentifier(urlPath);
-        } else {
-            retriever.setIdentifier(uid);
+        if (StringUtils.isNotBlank(categoryIdType)) {
+            retriever.setCategoryIdType(categoryIdType);
         }
+        retriever.setIdentifier(identifier);
         return retriever.fetchCategory();
     }
 
@@ -77,7 +75,9 @@ public class GetCategoryBreadcrumbsTool implements McpTool {
             throw new IllegalArgumentException("either uid or urlPath is required");
         }
 
-        CategoryInterface category = fetch(ctx, uid, urlPath);
+        String identifier = StringUtils.isNotBlank(urlPath) ? urlPath : uid;
+        String categoryIdType = StringUtils.isNotBlank(urlPath) ? "urlPath" : null;
+        CategoryInterface category = fetch(ctx, identifier, categoryIdType);
 
         ObjectNode out = mapper.createObjectNode();
         out.put("uid", category != null && category.getUid() != null ? category.getUid().toString() : uid);
