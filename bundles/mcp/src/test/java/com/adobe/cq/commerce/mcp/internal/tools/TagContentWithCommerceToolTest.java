@@ -116,4 +116,20 @@ public class TagContentWithCommerceToolTest {
         new TagContentWithCommerceTool().call(ctx, mapper.readTree(
             "{\"path\":\"/content/site/jcr:content/root/text\",\"sku\":\"VP11\"}"));
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsGenericNodeThatMerelyHasJcrContentChild() throws Exception {
+        // Not a DAM asset, page, or experience-fragment variation — just an arbitrary node that happens to have a
+        // jcr:content child. Must fail closed on resource type rather than tag it.
+        context.create().resource("/content/generic-node", "jcr:primaryType", "nt:unstructured");
+        context.create().resource("/content/generic-node/jcr:content", "jcr:primaryType", "nt:unstructured");
+
+        StoreContext ctx = mock(StoreContext.class);
+        SlingHttpServletRequest req = mock(SlingHttpServletRequest.class);
+        when(req.getResourceResolver()).thenReturn(context.resourceResolver());
+        when(ctx.getRequest()).thenReturn(req);
+
+        new TagContentWithCommerceTool().call(ctx, mapper.readTree(
+            "{\"path\":\"/content/generic-node\",\"sku\":\"VP11\"}"));
+    }
 }

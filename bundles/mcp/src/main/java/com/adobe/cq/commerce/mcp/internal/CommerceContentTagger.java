@@ -37,6 +37,8 @@ public final class CommerceContentTagger {
 
     static final String PN_CQ_PRODUCTS_TYPE = "cq:productsType";
     static final String PRODUCT_TYPE_COMBINED_SKU = "combinedSku";
+    private static final String NT_PAGE = "cq:Page";
+    private static final String NT_PAGE_CONTENT = "cq:PageContent";
 
     public enum Action {
         ADD,
@@ -65,6 +67,8 @@ public final class CommerceContentTagger {
         }
 
         String primaryType = resource.getValueMap().get("jcr:primaryType", String.class);
+
+        // DAM asset -> tag its metadata node.
         if (DamConstants.NT_DAM_ASSET.equals(primaryType)) {
             Resource metadata = resource.getChild("jcr:content/metadata");
             if (metadata == null) {
@@ -73,16 +77,24 @@ public final class CommerceContentTagger {
             return metadata;
         }
 
-        if (resource.getName().equals("jcr:content")) {
-            return resource;
-        }
-
-        Resource jcrContent = resource.getChild("jcr:content");
-        if (jcrContent != null) {
+        // cq:Page (a regular page or an experience-fragment variation) -> tag its jcr:content.
+        if (NT_PAGE.equals(primaryType)) {
+            Resource jcrContent = resource.getChild("jcr:content");
+            if (jcrContent == null) {
+                throw new IllegalArgumentException("page has no jcr:content: " + path);
+            }
             return jcrContent;
         }
 
-        throw new IllegalArgumentException("unsupported commerce tag target: " + path);
+        // A page-content node addressed directly (the jcr:content of a page / XF variation).
+        if (NT_PAGE_CONTENT.equals(primaryType)) {
+            return resource;
+        }
+
+        // Fail closed: only DAM assets, pages, and experience-fragment variations may be tagged. In particular a
+        // node that merely has a jcr:content child (e.g. an arbitrary component or folder) is NOT a valid target.
+        throw new IllegalArgumentException(
+            "unsupported commerce tag target (expected a DAM asset, page, or experience fragment variation): " + path);
     }
 
     public static void apply(Resource target, String sku, String categoryUid, Action action) {
