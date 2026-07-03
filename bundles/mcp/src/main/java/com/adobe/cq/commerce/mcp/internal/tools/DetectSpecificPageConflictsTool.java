@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 
@@ -84,7 +83,9 @@ public class DetectSpecificPageConflictsTool implements McpTool {
             + "than a broader ancestor-scope page (shadowing risk under the deepest-wins resolution algorithm). "
             + "Structural comparison of the pages' own binding properties and tree positions only -- does not "
             + "fetch the live category tree. Optional siteRoot (any page under /content; defaults to the "
-            + "endpoint's own nav root).";
+            + "endpoint's own nav root). siteRoot in the result is the traversal root used (the arg if given, else "
+            + "the endpoint nav root). pageType is a best-effort field-presence heuristic (for parity with "
+            + "check_specific_page_capability).";
     }
 
     @Override
@@ -102,18 +103,8 @@ public class DetectSpecificPageConflictsTool implements McpTool {
 
         Page searchRoot;
         if (StringUtils.isNotBlank(siteRootArg)) {
-            if (!siteRootArg.startsWith("/content/") && !"/content".equals(siteRootArg)) {
-                throw new IllegalArgumentException("siteRoot must be under /content: " + siteRootArg);
-            }
             ResourceResolver resolver = ctx.getRequest().getResourceResolver();
-            Resource resource = resolver.getResource(siteRootArg);
-            if (resource == null) {
-                throw new IllegalArgumentException("siteRoot not found: " + siteRootArg);
-            }
-            searchRoot = resource.adaptTo(Page.class);
-            if (searchRoot == null) {
-                throw new IllegalArgumentException("siteRoot does not resolve to a page: " + siteRootArg);
-            }
+            searchRoot = PathArgs.resolvePage(resolver, "siteRoot", siteRootArg);
         } else {
             searchRoot = ctx.getLandingPage();
         }
@@ -190,11 +181,11 @@ public class DetectSpecificPageConflictsTool implements McpTool {
      */
     private List<ScopedPage> collectScopedPages(Page searchRoot) {
         List<ScopedPage> result = new ArrayList<>();
-        int rootDepth = depthOf(searchRoot);
+        int rootDepth = specificPageRouting.depthOf(searchRoot);
 
         for (Page page : specificPageRouting.specificPages(searchRoot)) {
             SpecificPageRouting.Binding binding = specificPageRouting.readBinding(page);
-            int depth = depthOf(page) - rootDepth;
+            int depth = specificPageRouting.depthOf(page) - rootDepth;
 
             for (String categoryUrlPath : binding.getUseForCategories()) {
                 result.add(new ScopedPage(page, categoryUrlPath, depth));
@@ -213,9 +204,5 @@ public class DetectSpecificPageConflictsTool implements McpTool {
         }
 
         return result;
-    }
-
-    private int depthOf(Page page) {
-        return page.getPath().split("/").length;
     }
 }

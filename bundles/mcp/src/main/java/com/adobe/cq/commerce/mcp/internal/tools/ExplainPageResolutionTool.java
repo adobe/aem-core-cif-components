@@ -16,7 +16,6 @@
 package com.adobe.cq.commerce.mcp.internal.tools;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 
@@ -50,7 +49,8 @@ public class ExplainPageResolutionTool implements McpTool {
     public String description() {
         return "Explain which specific PDP/PLP page wins for a product slug/url_key or category url_path, and its "
             + "tree depth, replaying the site's deepest-wins specific-page routing with a full evaluation trace. "
-            + "Optional siteRoot (any page under /content; defaults to the endpoint's own nav root).";
+            + "Optional siteRoot (any page under /content; defaults to the endpoint's own nav root). siteRoot in "
+            + "the result is the traversal root used (the arg if given, else the endpoint nav root).";
     }
 
     @Override
@@ -87,18 +87,8 @@ public class ExplainPageResolutionTool implements McpTool {
 
         Page searchRoot;
         if (StringUtils.isNotBlank(siteRootArg)) {
-            if (!siteRootArg.startsWith("/content/") && !"/content".equals(siteRootArg)) {
-                throw new IllegalArgumentException("siteRoot must be under /content: " + siteRootArg);
-            }
             ResourceResolver resolver = ctx.getRequest().getResourceResolver();
-            Resource resource = resolver.getResource(siteRootArg);
-            if (resource == null) {
-                throw new IllegalArgumentException("siteRoot not found: " + siteRootArg);
-            }
-            searchRoot = resource.adaptTo(Page.class);
-            if (searchRoot == null) {
-                throw new IllegalArgumentException("siteRoot does not resolve to a page: " + siteRootArg);
-            }
+            searchRoot = PathArgs.resolvePage(resolver, "siteRoot", siteRootArg);
         } else {
             searchRoot = ctx.getLandingPage();
         }

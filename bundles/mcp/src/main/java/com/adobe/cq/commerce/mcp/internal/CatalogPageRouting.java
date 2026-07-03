@@ -161,6 +161,9 @@ public final class CatalogPageRouting {
      * {@link SiteStructure#getCategoryPages()} in order and returns the first entry that is either generic, or
      * whose {@code urlPath} scope contains {@code categoryUrlPath} (equal to the scope, or a descendant of it).
      * First match wins; there is no explicit mapping table.
+     * <p>
+     * The oracle's secondary {@code matchesUrlKey(urlKey, identifier)} branch (a {@code uid}-scoped fallback match)
+     * is intentionally NOT replicated here; this diagnostic resolves by {@code url_path} only.
      *
      * @param site the site structure to resolve against
      * @param categoryUrlPath the category's {@code url_path} to resolve a winning catalog page for

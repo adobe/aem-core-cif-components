@@ -1,7 +1,7 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  ~ Copyright 2026 Adobe
  ~
- ~ Licensed under the License, Version 2.0 (the "License");
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
  ~ You may obtain a copy of the License at
  ~
@@ -18,7 +18,6 @@ package com.adobe.cq.commerce.mcp.internal.tools;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 
@@ -51,7 +50,9 @@ public class ListSpecificPagesTool implements McpTool {
     public String description() {
         return "List every descendant page under a site with a specific PDP/PLP binding (selectorFilter or "
             + "useForCategories), and what it binds. Optional siteRoot (any page under /content; defaults to the "
-            + "endpoint's own nav root).";
+            + "endpoint's own nav root). siteRoot in the result is the traversal root used (the arg if given, else "
+            + "the endpoint nav root). pageType is a best-effort field-presence heuristic (for parity with "
+            + "check_specific_page_capability).";
     }
 
     @Override
@@ -69,18 +70,8 @@ public class ListSpecificPagesTool implements McpTool {
 
         Page searchRoot;
         if (StringUtils.isNotBlank(siteRootArg)) {
-            if (!siteRootArg.startsWith("/content/") && !"/content".equals(siteRootArg)) {
-                throw new IllegalArgumentException("siteRoot must be under /content: " + siteRootArg);
-            }
             ResourceResolver resolver = ctx.getRequest().getResourceResolver();
-            Resource resource = resolver.getResource(siteRootArg);
-            if (resource == null) {
-                throw new IllegalArgumentException("siteRoot not found: " + siteRootArg);
-            }
-            searchRoot = resource.adaptTo(Page.class);
-            if (searchRoot == null) {
-                throw new IllegalArgumentException("siteRoot does not resolve to a page: " + siteRootArg);
-            }
+            searchRoot = PathArgs.resolvePage(resolver, "siteRoot", siteRootArg);
         } else {
             searchRoot = ctx.getLandingPage();
         }

@@ -16,7 +16,6 @@
 package com.adobe.cq.commerce.mcp.internal.tools;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
 
@@ -51,7 +50,8 @@ public class ExplainCatalogPageRoutingTool implements McpTool {
     public String description() {
         return "Explain which catalog (PLP) page wins for a category url_path, and why (generic fallback or "
             + "urlPath-scope match), replaying the site's first-match routing with a full evaluation trace. "
-            + "Optional siteRoot (any page under /content within the site; defaults to the endpoint's own nav root).";
+            + "Optional siteRoot (any page under /content within the site; defaults to the endpoint's own nav "
+            + "root). siteRoot in the result is the resolved store nav root.";
     }
 
     @Override
@@ -77,18 +77,8 @@ public class ExplainCatalogPageRoutingTool implements McpTool {
 
         Page siteRootPage;
         if (StringUtils.isNotBlank(siteRootArg)) {
-            if (!siteRootArg.startsWith("/content/") && !"/content".equals(siteRootArg)) {
-                throw new IllegalArgumentException("siteRoot must be under /content: " + siteRootArg);
-            }
             ResourceResolver resolver = ctx.getRequest().getResourceResolver();
-            Resource resource = resolver.getResource(siteRootArg);
-            if (resource == null) {
-                throw new IllegalArgumentException("siteRoot not found: " + siteRootArg);
-            }
-            siteRootPage = resource.adaptTo(Page.class);
-            if (siteRootPage == null) {
-                throw new IllegalArgumentException("siteRoot does not resolve to a page: " + siteRootArg);
-            }
+            siteRootPage = PathArgs.resolvePage(resolver, "siteRoot", siteRootArg);
         } else {
             siteRootPage = ctx.getLandingPage();
         }

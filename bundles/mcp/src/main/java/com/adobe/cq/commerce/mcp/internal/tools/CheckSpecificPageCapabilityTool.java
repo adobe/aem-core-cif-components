@@ -18,7 +18,6 @@ package com.adobe.cq.commerce.mcp.internal.tools;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
@@ -104,22 +103,8 @@ public class CheckSpecificPageCapabilityTool implements McpTool {
     public JsonNode call(McpCallContext context, JsonNode args) {
         StoreContext ctx = (StoreContext) context;
         String path = args.path("path").asText(null);
-        if (StringUtils.isBlank(path)) {
-            throw new IllegalArgumentException("path is required");
-        }
-        if (!path.startsWith("/content/") && !"/content".equals(path)) {
-            throw new IllegalArgumentException("path must be under /content: " + path);
-        }
-
         ResourceResolver resolver = ctx.getRequest().getResourceResolver();
-        Resource resource = resolver.getResource(path);
-        if (resource == null) {
-            throw new IllegalArgumentException("path not found: " + path);
-        }
-        Page page = resource.adaptTo(Page.class);
-        if (page == null) {
-            throw new IllegalArgumentException("path does not resolve to a page: " + path);
-        }
+        Page page = PathArgs.resolvePage(resolver, "path", path);
 
         Resource content = resolver.getResource(path + "/jcr:content");
         if (content == null) {

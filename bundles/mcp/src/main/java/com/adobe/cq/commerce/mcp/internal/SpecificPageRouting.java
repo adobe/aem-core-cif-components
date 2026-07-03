@@ -383,7 +383,16 @@ public final class SpecificPageRouting {
         return new Resolution(winningPage, winningDepth, trace);
     }
 
-    private int depthOf(Page page) {
+    /**
+     * Tree depth of {@code page}, by path-segment count (a page's direct child is one deeper than it). Exposed for
+     * callers that need to compute a depth relative to a search root the same way {@link
+     * #resolveSpecificPage(Page, String, String)} does internally (e.g. {@code detect_specific_page_conflicts},
+     * which computes {@code depthOf(page) - depthOf(searchRoot)}).
+     *
+     * @param page the page to compute the depth of
+     * @return the page's path-segment count
+     */
+    public int depthOf(Page page) {
         return page.getPath().split("/").length;
     }
 
