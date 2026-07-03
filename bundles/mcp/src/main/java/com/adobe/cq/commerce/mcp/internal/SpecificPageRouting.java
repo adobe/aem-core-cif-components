@@ -219,11 +219,16 @@ public final class SpecificPageRouting {
     }
 
     /**
-     * Lists every descendant of {@code searchRoot} that carries a non-empty {@code selectorFilter} or
+     * Lists every descendant of {@code searchRoot} that carries a present {@code selectorFilter} or
      * {@code useForCategories} binding (the oracle's {@code isSpecificPage} candidate check), in depth-first
      * order with descendants preceding ancestors — i.e. the same order {@code findFirst()} would consume in
      * {@link #resolveSpecificPage(Page, String, String)}. {@code searchRoot} itself is never included, matching
      * {@code SpecificPageStrategy.traverse}, which only visits {@code page.listChildren()} and below.
+     * <p>
+     * Matches the oracle's {@code isSpecificPage} exactly: a candidate qualifies when the property is
+     * <em>present</em> (non-{@code null}), regardless of array length — a page whose {@code selectorFilter} (or
+     * {@code useForCategories}) was cleared to {@code []} is still listed here, even though such a candidate can
+     * never {@link #resolveSpecificPage(Page, String, String) match} (it has no slugs/paths to compare against).
      *
      * @param searchRoot the page to search descendants of (typically a product-page or category-page root)
      * @return the ordered list of candidate specific pages
@@ -249,10 +254,14 @@ public final class SpecificPageRouting {
     }
 
     private boolean isSpecificPage(Page candidate) {
+        // Oracle-faithful (SpecificPageStrategy.isSpecificPage, bundles/core, line ~124-129): a candidate
+        // qualifies when the property is present (non-null), regardless of array length. A present-but-empty
+        // ([]) selectorFilter/useForCategories still counts as a candidate here, even though it can never match
+        // in resolveSpecificPage (an empty array has no slugs/paths to compare against).
         ValueMap properties = candidate.getProperties();
         String[] selectorFilter = properties.get(SELECTOR_FILTER_PROPERTY, String[].class);
         String[] useForCategories = properties.get(PN_USE_FOR_CATEGORIES, String[].class);
-        return (selectorFilter != null && selectorFilter.length > 0) || (useForCategories != null && useForCategories.length > 0);
+        return selectorFilter != null || useForCategories != null;
     }
 
     /**
@@ -382,6 +391,11 @@ public final class SpecificPageRouting {
         Binding binding = readBinding(candidate);
 
         if (PAGE_TYPE_PRODUCT.equals(type)) {
+            // Note: a product page's useForCategories scope is intentionally NOT consulted here. It is only
+            // ever evaluated under the PAGE_TYPE_CATEGORY branch below (see productPageMatchesUseForCategoriesScope
+            // in the test), because this helper flattens the oracle's two separate (urlPath, type) params into a
+            // single call, and useForCategories always represents a *category* url_path scope regardless of
+            // which page carries the binding. Do not expect it to fire when type="product".
             for (String slug : binding.getSelectorFilter()) {
                 if (slug.equals(urlPath)) {
                     return true;

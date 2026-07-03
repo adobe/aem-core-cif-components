@@ -172,12 +172,51 @@ public class SpecificPageRoutingTest {
         assertTrue(paths.contains("/content/site/product-page/sub-page-2"));
         assertTrue(paths.contains("/content/site/product-page/category-tree-page"));
         // the plain root and any non-bound page are excluded (isSpecificPage requires selectorFilter or
-        // useForCategories to be non-empty)
+        // useForCategories to be present, i.e. non-null; a page with neither property at all is not a candidate)
         assertFalse(paths.contains("/content/site/product-page"));
 
         // descendants precede ancestors: nested-page comes before its parent sub-page
         assertTrue(paths.indexOf("/content/site/product-page/sub-page/nested-page") < paths.indexOf(
             "/content/site/product-page/sub-page"));
+    }
+
+    @Test
+    public void specificPagesListsCandidateWithPresentButEmptySelectorFilter() {
+        load();
+
+        // Oracle-faithful (SpecificPageStrategy.isSpecificPage): a page whose selectorFilter was cleared to []
+        // is still a candidate because the property is present (non-null), regardless of length. This matters
+        // for the §8 listing/conflict tools (T-34/T-35), which must not silently under-report cleared bindings.
+        List<Page> pages = subject.specificPages(productPageRoot);
+        List<String> paths = new java.util.ArrayList<>();
+        for (Page page : pages) {
+            paths.add(page.getPath());
+        }
+
+        assertTrue(paths.contains("/content/site/product-page/cleared-filter-page"));
+    }
+
+    @Test
+    public void presentButEmptySelectorFilterCandidateNeverWinsResolution() {
+        load();
+
+        // An empty-array candidate is listed (see specificPagesListsCandidateWithPresentButEmptySelectorFilter)
+        // but has no slugs to compare against, so it can never MATCH -- resolution winners must be unchanged.
+        // "cleared-filter-page" is a shallower sibling of "sub-page"/"sub-page-2"; the deepest genuine match
+        // ("sub-page/nested-page" for "productId1.1") must still win.
+        SpecificPageRouting.Resolution resolution = subject.resolveSpecificPage(productPageRoot, "productId1.1", "product");
+
+        assertNotNull(resolution.getWinningPage());
+        assertEquals("/content/site/product-page/sub-page/nested-page", resolution.getWinningPage().getPath());
+
+        boolean clearedFilterPageMatched = resolution.getTrace().stream()
+            .anyMatch(candidate -> "/content/site/product-page/cleared-filter-page".equals(candidate.getPath()) && candidate.isMatched());
+        assertFalse(clearedFilterPageMatched);
+
+        // Also prove it never wins even when nothing else matches: with an unknown urlPath, the winner stays
+        // null instead of the empty-filter candidate spuriously "matching everything".
+        SpecificPageRouting.Resolution noMatch = subject.resolveSpecificPage(productPageRoot, "unknown-sku", "product");
+        assertNull(noMatch.getWinningPage());
     }
 
     @Test

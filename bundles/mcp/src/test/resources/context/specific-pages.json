@@ -47,6 +47,14 @@
           "useForCategories": ["women", "men/men-tops"],
           "includesSubCategories": true
         }
+      },
+      "cleared-filter-page": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "selectorFilter": []
+        }
       }
     },
     "category-page": {
