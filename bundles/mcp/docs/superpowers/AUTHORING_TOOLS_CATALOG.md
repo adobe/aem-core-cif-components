@@ -330,16 +330,16 @@ have no retriever and are raw typed queries.
 
 | Tool | Status | Style | Backing |
 |---|---|---|---|
-| `get_sort_options` | ▢ | raw query + datasource | `ProductSortFieldsDataSourceServlet` + `mgql.SortFields`/`SortField` |
+| `get_sort_options` | ✅ | raw query + datasource | `ProductSortFieldsDataSourceServlet` + `mgql.SortFields`/`SortField` |
 | `get_product_variants` (was `get_configurable_variants`) | ✅ | retriever (extend product) | `mgql.ConfigurableProductQuery.configurableOptions()/variants()` |
-| `get_product_relationships` | ▢ | retriever (extend product) | `mgql.ProductInterfaceQuery.productLinks()` |
-| `get_category_breadcrumbs` | ▢ | retriever (extend category) | `mgql.CategoryTreeQuery.breadcrumbs()` |
-| `get_custom_attribute_metadata` | ▢ | raw query | `mgql.QueryQuery.customAttributeMetadata(List<AttributeInput>, …)` |
-| `resolve_url_to_entity` | ▢ | raw query | `mgql.QueryQuery.urlResolver(String,…)` / `route(String,…)` |
-| `validate_content_bindings` | ▢ | retriever | `AbstractProductRetriever`/`AbstractCategoryRetriever` |
-| `resolve_category_details` | ▢ | retriever | `McpCategoryRetriever` + breadcrumbs |
+| `get_product_relationships` | ✅ | retriever (extend product) | `mgql.ProductInterfaceQuery.productLinks()` |
+| `get_category_breadcrumbs` | ✅ | retriever (extend category) | `mgql.CategoryTreeQuery.breadcrumbs()` |
+| `get_custom_attribute_metadata` | ✅ | raw query | `mgql.QueryQuery.customAttributeMetadata(List<AttributeInput>, …)` |
+| `resolve_url_to_entity` | ✅ | raw query | `mgql.QueryQuery.urlResolver(String,…)` / `route(String,…)` |
+| `validate_content_bindings` | ✅ | retriever | `AbstractProductRetriever`/`AbstractCategoryRetriever` |
+| `resolve_category_details` | ✅ | retriever | `McpCategoryRetriever` + breadcrumbs |
 
-### 3.1 `get_sort_options` (T-09) — ▢ Planned
+### 3.1 `get_sort_options` (T-09) — ✅ Shipped
 - **Backing:** `core/…/internal/servlets/ProductSortFieldsDataSourceServlet.java` runs
   `{products(filter:{}){sort_fields{default options{label value}}}}` and reads
   `getProducts().getSortFields()` → `mgql.SortFields.getDefault()` /
@@ -359,25 +359,25 @@ have no retriever and are raw typed queries.
 - **Gotcha:** there is **no singular `.variant()` accessor** — only the `variants` list
   (narrow via `configurableProductOptionsSelection(configurableOptionValueUids:[…])`).
 
-### 3.3 `get_product_relationships` (T-11) — ▢ Planned
+### 3.3 `get_product_relationships` (T-11) — ✅ Shipped
 - **Query:** `product_links{ link_type, linked_product_sku, linked_product_type,
   position, sku }` (`mgql.ProductInterface.getProductLinks()` → `ProductLinksInterface`).
 - **Gotcha:** `link_type` is a **plain String** (`"related"`/`"upsell"`/`"crosssell"`), not
   an enum — group/filter client-side.
 
-### 3.4 `get_category_breadcrumbs` (T-12) — ▢ Planned
+### 3.4 `get_category_breadcrumbs` (T-12) — ✅ Shipped
 - **Query:** extend the category retriever with
   `breadcrumbs{category_uid,category_name,category_level,category_url_path}`
   (`mgql.CategoryInterface.getBreadcrumbs()` → `mgql.Breadcrumb`). Order by `category_level`.
 
-### 3.5 `get_custom_attribute_metadata` (T-13) — ▢ Planned
+### 3.5 `get_custom_attribute_metadata` (T-13) — ✅ Shipped
 - **Query:** `customAttributeMetadata(attributes)` **requires** a `List<AttributeInput>`
   each `{attribute_code, entity_type}` (e.g. `catalog_product`). Read
   `CustomAttributeMetadata.getItems()` → `mgql.Attribute` (`attribute_code`,
   `attribute_type`, `input_type`, `entity_type`, `attribute_options{label,value}`).
 - **Style:** raw query (`Operations.query(q -> q.customAttributeMetadata(inputs, def))`).
 
-### 3.6 `resolve_url_to_entity` (T-14) — ▢ Planned
+### 3.6 `resolve_url_to_entity` (T-14) — ✅ Shipped
 - **Two options:** `urlResolver(url)` → `mgql.EntityUrl` (`type`→`UrlRewriteEntityTypeEnum`,
   `id`, `entity_uid`, `canonical_url`, `relative_url`, `redirect_code`) for a lightweight
   type+id lookup; **or** `route(url)` → `mgql.RoutableInterface` with
@@ -385,7 +385,7 @@ have no retriever and are raw typed queries.
   need the entity's sku/uid/url_key in the same call.
 - **Style:** raw query.
 
-### 3.7 `validate_content_bindings` (T-15) / 3.8 `resolve_category_details` (T-16) — ▢ Planned
+### 3.7 `validate_content_bindings` (T-15) / 3.8 `resolve_category_details` (T-16) — ✅ Shipped
 - **Backing:** the retriever pattern (§0.1 style 1). For each `(SKU|UID)` construct
   `McpProductRetriever`/`McpCategoryRetriever` (or the abstract base), `setIdentifier`,
   `fetchProduct()`/`fetchCategory()`, and treat a null/`getErrors()` result as
@@ -772,14 +772,14 @@ name from the catalog ID, the shipped name is shown.
 | T-06 | `configure_featuredcategorylist_component` | §2 | 2 | ▢ |
 | T-07 | `configure_product_visible_sections` | §2 | 2 | ▢ |
 | T-08 | `configure_page_commerce_links` | §2 | 2 | ◐ (markers via `tag_content_with_commerce`; nav-config pending) |
-| T-09 | `get_sort_options` | §3 Metadata reads | 1 | ▢ |
+| T-09 | `get_sort_options` | §3 Metadata reads | 1 | ✅ |
 | T-10 | `get_product_variants` | §3 | 1 | ✅ |
-| T-11 | `get_product_relationships` | §3 | 1 | ▢ |
-| T-12 | `get_category_breadcrumbs` | §3 | 1 | ▢ |
-| T-13 | `get_custom_attribute_metadata` | §3 | 1 | ▢ |
-| T-14 | `resolve_url_to_entity` | §3 | 1 | ▢ |
-| T-15 | `validate_content_bindings` | §3 | 1 | ▢ |
-| T-16 | `resolve_category_details` | §3 | 1 | ▢ |
+| T-11 | `get_product_relationships` | §3 | 1 | ✅ |
+| T-12 | `get_category_breadcrumbs` | §3 | 1 | ✅ |
+| T-13 | `get_custom_attribute_metadata` | §3 | 1 | ✅ |
+| T-14 | `resolve_url_to_entity` | §3 | 1 | ✅ |
+| T-15 | `validate_content_bindings` | §3 | 1 | ✅ |
+| T-16 | `resolve_category_details` | §3 | 1 | ✅ |
 | T-17 | `create_product_teasers` | §4 Bulk components | 3 | ▢ |
 | T-18 | `create_product_carousels` | §4 | 3 | ▢ |
 | T-19 | `get_product_associated_content` / `get_category_associated_content` | §5 Associated content | 1 | ✅ |

@@ -76,6 +76,17 @@ Read tools (both endpoints); each result is a compact JSON DTO with a matching
 | `browse_categories` | `{uid?}` | `{category:{uid,name,urlPath,url,children:[…]}}` (`url` = PLP link, on category + children) |
 | `get_attributes` | `{}` | `{attributes:[{code,inputType}]}` |
 | `resolve_picker_selection` | `{skus:[…]}` | `{items:[{sku,name}]}` (authoring picker helper; read-only) |
+| `get_sort_options` | `{}` | `{default, options:[{value,label}]}` (store's product-listing sort fields) |
+| `get_product_relationships` | `{sku, linkType?}` | `{sku, links:[{linkType,sku,linkedProductSku,linkedProductType,position}]}` (`linkType` filters to `related`/`upsell`/`crosssell`) |
+| `get_category_breadcrumbs` | `{uid?, urlPath?}` (one required) | `{uid, breadcrumbs:[{uid,name,level,urlPath}]}` (top-level ancestor first) |
+| `resolve_category_details` | `{uid, urlPath?}` | `{uid, name, urlPath, breadcrumbs:[…]}`, or `{uid, resolves:false}` if the category no longer resolves |
+| `get_custom_attribute_metadata` | `{attributes:[{code, entityType?}]}` (`entityType` defaults to `catalog_product`) | `{items:[{code,attributeType,inputType,entityType,options:[{label,value}]}]}` |
+| `resolve_url_to_entity` | `{url}` | `{url, type, id, uid, canonicalUrl, relativeUrl, redirectCode}`, or `{url, resolves:false}` if the URL doesn't resolve |
+| `validate_content_bindings` | `{products?:[sku…], categories?:[uid…]}` (at least one non-empty) | `{products:[{sku,resolves}], categories:[{uid,resolves}]}` |
+
+`get`/`list`-style tools above return empty collections for an identifier that no longer
+resolves; `resolve_category_details`/`resolve_url_to_entity` instead return an explicit
+`resolves:false`, and `validate_content_bindings` reports `resolves:false` per entry.
 
 ### Cart tools (shopper endpoint — guest cart, `writesContent() == false`)
 
