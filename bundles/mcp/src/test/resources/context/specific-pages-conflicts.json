@@ -1,0 +1,133 @@
+{
+  "jcr:primaryType": "sling:Folder",
+  "site": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "sling:resourceType": "core/cif/components/structure/page/v3/page",
+      "navRoot": true
+    },
+    "routing": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "core/cif/components/structure/page/v3/page"
+      },
+      "dup-cat-a": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "selectorFilter": "uid-a|men",
+          "selectorFilterType": "uidAndUrlPath"
+        }
+      },
+      "dup-cat-b": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "selectorFilter": "uid-b|men",
+          "selectorFilterType": "uidAndUrlPath"
+        }
+      },
+      "shadow-broad": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "selectorFilter": "uid-women|women",
+          "selectorFilterType": "uidAndUrlPath",
+          "includesSubCategories": true
+        }
+      },
+      "shadow-narrow": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "selectorFilter": "uid-women-tops|women/women-tops",
+          "selectorFilterType": "uidAndUrlPath"
+        }
+      },
+      "clean-parent": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "selectorFilter": "uid-kids|kids",
+          "selectorFilterType": "uidAndUrlPath",
+          "includesSubCategories": true
+        },
+        "clean-child": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "sling:resourceType": "core/cif/components/structure/page/v3/page",
+            "selectorFilter": "uid-kids-shoes|kids/kids-shoes",
+            "selectorFilterType": "uidAndUrlPath"
+          }
+        }
+      },
+      "dup-prod-a": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "useForCategories": ["accessories"]
+        }
+      },
+      "dup-prod-b": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "useForCategories": ["accessories"]
+        }
+      },
+      "self-nested-scopes": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "useForCategories": ["home", "home/home-decor"],
+          "includesSubCategories": true
+        }
+      }
+    },
+    "clean-site": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "core/cif/components/structure/page/v3/page"
+      },
+      "clean-a": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "selectorFilter": "uid-clean-a|shoes",
+          "selectorFilterType": "uidAndUrlPath",
+          "includesSubCategories": true
+        },
+        "clean-a-child": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "sling:resourceType": "core/cif/components/structure/page/v3/page",
+            "selectorFilter": "uid-clean-a-child|shoes/running",
+            "selectorFilterType": "uidAndUrlPath"
+          }
+        }
+      },
+      "clean-b": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "selectorFilter": "productSku1"
+        }
+      }
+    }
+  }
+}
