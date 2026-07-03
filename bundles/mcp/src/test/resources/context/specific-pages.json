@@ -1,0 +1,89 @@
+{
+  "jcr:primaryType": "sling:Folder",
+  "site": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "sling:resourceType": "core/cif/components/structure/page/v3/page",
+      "navRoot": true,
+      "cq:cifProductPage": "/content/site/product-page",
+      "cq:cifCategoryPage": "/content/site/category-page"
+    },
+    "product-page": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "core/cif/components/structure/page/v3/page"
+      },
+      "sub-page": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "selectorFilter": "productId1"
+        },
+        "nested-page": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "sling:resourceType": "core/cif/components/structure/page/v3/page",
+            "selectorFilter": "productId1.1"
+          }
+        }
+      },
+      "sub-page-2": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "selectorFilter": "productId2"
+        }
+      },
+      "category-tree-page": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "useForCategories": ["women", "men/men-tops"],
+          "includesSubCategories": true
+        }
+      }
+    },
+    "category-page": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "core/cif/components/structure/page/v3/page"
+      },
+      "sub-page": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "selectorFilter": "category-uid-1|men/tops",
+          "selectorFilterType": "uidAndUrlPath",
+          "includesSubCategories": true
+        },
+        "nested-page": {
+          "jcr:primaryType": "cq:Page",
+          "jcr:content": {
+            "jcr:primaryType": "cq:PageContent",
+            "sling:resourceType": "core/cif/components/structure/page/v3/page",
+            "selectorFilter": "category-uid-2|men/tops/sweaters",
+            "selectorFilterType": "uidAndUrlPath",
+            "includesSubCategories": true
+          }
+        }
+      },
+      "malformed-page": {
+        "jcr:primaryType": "cq:Page",
+        "jcr:content": {
+          "jcr:primaryType": "cq:PageContent",
+          "sling:resourceType": "core/cif/components/structure/page/v3/page",
+          "selectorFilter": ["category-uid-3|women/women-tops", "no-pipe-here"],
+          "selectorFilterType": "uidAndUrlPath"
+        }
+      }
+    }
+  }
+}
