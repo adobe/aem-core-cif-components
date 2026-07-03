@@ -89,6 +89,8 @@ would embed it and change the OSGi import surface). Precedents already in `pom.x
 
 - `com.adobe.cq:core.wcm.components.core` (provided) — needed because `ProductListItem`
   inherits `getTitle()`/`getURL()` from WCM Core Components' `ListItem`.
+- `com.adobe.aem:aem-cif-sdk-api` (provided) — `AssociatedContentService` / `AssociatedContentQuery`
+  used by associated-content MCP tools (not on the compile classpath via core alone).
 - `com.adobe.commerce.cif:graphql-client` (provided) — `GraphqlResponse` etc. used by the
   retrievers' compile surface.
 

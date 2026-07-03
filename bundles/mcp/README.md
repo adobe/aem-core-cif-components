@@ -67,6 +67,9 @@ Read tools (both endpoints); each result is a compact JSON DTO with a matching
 |---|---|---|
 | `search_products` | `{query?, page?, pageSize?, filters?}` | `{total, items:[{sku,name,slug,url,imageUrl,imageAlt,price,currency}]}` (`url` = PDP link) |
 | `get_product` | `{sku}` | `{sku,name,urlKey}` |
+| `get_product_variants` | `{sku}` | `{sku,name,urlKey,configurable,options:[…],variants:[…]}` |
+| `get_product_associated_content` | `{sku, fragmentLocation?, contentFragmentModel?, linkElement?, limit?}` | `{sku, experienceFragments:[…], contentFragments:[…], contentPages:[…], assets:[…]}` |
+| `get_category_associated_content` | `{categoryUid, fragmentLocation?, contentFragmentModel?, linkElement?, limit?}` | `{categoryUid, experienceFragments:[…], contentFragments:[…], contentPages:[…], assets:[…]}` |
 | `browse_categories` | `{uid?}` | `{category:{uid,name,urlPath,url,children:[…]}}` (`url` = PLP link, on category + children) |
 | `get_attributes` | `{}` | `{attributes:[{code,inputType}]}` |
 | `resolve_picker_selection` | `{skus:[…]}` | `{items:[{sku,name}]}` (authoring picker helper; read-only) |
@@ -79,6 +82,7 @@ path or a resource that is not a CIF component/page they understand:
 |---|---|---|
 | `configure_product_component` | `{path, sku}` | sets `selection`/`selectionType` on a CIF product component |
 | `configure_catalog_page` | `{path, categoryUid}` | sets `category` on a CIF catalog (PLP) page's `jcr:content` |
+| `tag_content_with_commerce` | `{path, sku?, categoryUid?, action?}` | sets `cq:products` / `cq:categories` on a DAM asset, page, or XF variation (`action`: `add` or `remove`) |
 
 `PDP`/`PLP` links are page-relative paths (as CIF's `UrlProvider` emits them); prepend
 scheme/host if you need absolute URLs.

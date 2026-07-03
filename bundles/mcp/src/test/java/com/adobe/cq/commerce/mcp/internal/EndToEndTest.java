@@ -19,7 +19,11 @@ import org.junit.Test;
 
 import com.adobe.cq.commerce.mcp.JsonRpc;
 import com.adobe.cq.commerce.mcp.internal.tools.ConfigureProductComponentTool;
+import com.adobe.cq.commerce.mcp.internal.tools.GetCategoryAssociatedContentTool;
+import com.adobe.cq.commerce.mcp.internal.tools.GetProductAssociatedContentTool;
+import com.adobe.cq.commerce.mcp.internal.tools.GetProductVariantsTool;
 import com.adobe.cq.commerce.mcp.internal.tools.SearchProductsTool;
+import com.adobe.cq.commerce.mcp.internal.tools.TagContentWithCommerceTool;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -41,17 +45,24 @@ public class EndToEndTest {
     public void writeToolHiddenFromShopperSelector() {
         ToolRegistry reg = new ToolRegistry();
         reg.bindTool(new SearchProductsTool());
+        reg.bindTool(new GetProductAssociatedContentTool());
+        reg.bindTool(new GetCategoryAssociatedContentTool());
+        reg.bindTool(new GetProductVariantsTool());
+        reg.bindTool(new TagContentWithCommerceTool());
         reg.bindTool(new ConfigureProductComponentTool());
         JsonRpcDispatcher d = new JsonRpcDispatcher(mapper, reg);
 
         JsonNode shopperTools = d.dispatch("mcp", null, listReq()).get("result").get("tools");
         boolean hasWrite = false;
-        for (JsonNode t : shopperTools)
-            if ("configure_product_component".equals(t.get("name").asText()))
+        for (JsonNode t : shopperTools) {
+            String name = t.get("name").asText();
+            if ("configure_product_component".equals(name) || "tag_content_with_commerce".equals(name)) {
                 hasWrite = true;
+            }
+        }
         assertFalse(hasWrite);
 
         JsonNode authorTools = d.dispatch("mcp-authoring", null, listReq()).get("result").get("tools");
-        assertEquals(2, authorTools.size());
+        assertEquals(6, authorTools.size());
     }
 }
