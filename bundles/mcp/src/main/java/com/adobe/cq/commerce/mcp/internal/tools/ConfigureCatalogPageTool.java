@@ -38,10 +38,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * page-level structural binding; to pin an individual product-list/carousel component to a category use
  * {@code configure_productlist_component} instead.
  * <p>
- * The category is written as a UID ({@code magentoRootCategoryIdType = "uid"}), matching the tool's
- * {@code categoryUid} argument. {@code showMainCategories} is also written (default {@code false}): unless it
- * is {@code false}, the configured root category does not scope the page's landing navigation. Writes run
- * under the caller's {@link ResourceResolver} so JCR ACLs are enforced.
+ * The category is written as a UID by default ({@code magentoRootCategoryIdType = "uid"}), matching the tool's
+ * {@code categoryUid} argument; passing {@code idType = "urlPath"} instead writes
+ * {@code magentoRootCategoryIdType = "urlPath"}, the special-cased value {@code SiteStructureImpl} /
+ * {@code SpecificPageStrategy} use to path-match this page against a category's {@code urlPath} scope (any other
+ * value is treated as a generic UID and cannot be path-matched). {@code showMainCategories} is also written
+ * (default {@code false}): unless it is {@code false}, the configured root category does not scope the page's
+ * landing navigation. Writes run under the caller's {@link ResourceResolver} so JCR ACLs are enforced.
  */
 @Component(service = McpTool.class)
 public class ConfigureCatalogPageTool implements McpTool {
@@ -51,6 +54,8 @@ public class ConfigureCatalogPageTool implements McpTool {
     private static final String ROOT_CATEGORY_PROPERTY = "magentoRootCategoryId";
     private static final String ROOT_CATEGORY_TYPE_PROPERTY = "magentoRootCategoryIdType";
     private static final String ROOT_CATEGORY_TYPE_UID = "uid";
+    private static final String ROOT_CATEGORY_TYPE_URL_PATH = "urlPath";
+    private static final List<String> VALID_ID_TYPES = Arrays.asList(ROOT_CATEGORY_TYPE_UID, ROOT_CATEGORY_TYPE_URL_PATH);
     private static final String SHOW_MAIN_CATEGORIES_PROPERTY = "showMainCategories";
 
     /**
@@ -73,9 +78,10 @@ public class ConfigureCatalogPageTool implements McpTool {
     @Override
     public String description() {
         return "Bind the root category of a CIF catalog (PLP) page by category UID, so the page's navigation is "
-            + "scoped to that category. Optional showMainCategories (default false): when false the navigation shows "
-            + "the children of the bound root category. Targets the catalog page; to pin a product-list component to a "
-            + "category use configure_productlist_component.";
+            + "scoped to that category. Optional idType (default uid; also accepts urlPath) selects whether "
+            + "categoryUid is stored as a generic UID or as a urlPath-matchable scope. Optional showMainCategories "
+            + "(default false): when false the navigation shows the children of the bound root category. Targets the "
+            + "catalog page; to pin a product-list component to a category use configure_productlist_component.";
     }
 
     @Override
@@ -89,6 +95,8 @@ public class ConfigureCatalogPageTool implements McpTool {
         ObjectNode properties = schema.putObject("properties");
         properties.putObject("path").put("type", "string");
         properties.putObject("categoryUid").put("type", "string");
+        ObjectNode idTypeSchema = properties.putObject("idType").put("type", "string");
+        idTypeSchema.putArray("enum").add(ROOT_CATEGORY_TYPE_UID).add(ROOT_CATEGORY_TYPE_URL_PATH);
         properties.putObject("showMainCategories").put("type", "boolean");
         schema.putArray("required").add("path").add("categoryUid");
         return schema;
@@ -99,9 +107,15 @@ public class ConfigureCatalogPageTool implements McpTool {
         StoreContext ctx = (StoreContext) context;
         String path = args.path("path").asText(null);
         String categoryUid = args.path("categoryUid").asText(null);
+        String idType = args.has("idType") && !args.path("idType").isNull()
+            ? args.path("idType").asText()
+            : ROOT_CATEGORY_TYPE_UID;
         boolean showMainCategories = args.path("showMainCategories").asBoolean(false);
         if (path == null || categoryUid == null || !path.startsWith("/content/")) {
             throw new IllegalArgumentException("path (under /content) and categoryUid are required");
+        }
+        if (!VALID_ID_TYPES.contains(idType)) {
+            throw new IllegalArgumentException("idType must be one of " + VALID_ID_TYPES + ": " + idType);
         }
 
         ResourceResolver resolver = ctx.getRequest().getResourceResolver();
@@ -117,19 +131,22 @@ public class ConfigureCatalogPageTool implements McpTool {
             throw new IllegalArgumentException("page not modifiable: " + path);
         }
         properties.put(ROOT_CATEGORY_PROPERTY, categoryUid);
-        properties.put(ROOT_CATEGORY_TYPE_PROPERTY, ROOT_CATEGORY_TYPE_UID);
+        properties.put(ROOT_CATEGORY_TYPE_PROPERTY, idType);
         properties.put(SHOW_MAIN_CATEGORIES_PROPERTY, showMainCategories);
         resolver.commit();
 
-        // Post-write verification: re-read the persisted root category so we never report success for a write
-        // that did not take (the property the v3/v1 catalog page actually consumes is magentoRootCategoryId).
+        // Post-write verification: re-read the persisted root category (+ type) so we never report success for a
+        // write that did not take (the properties the v3/v1 catalog page actually consumes are magentoRootCategoryId
+        // / magentoRootCategoryIdType).
         Resource persisted = resolver.getResource(path + "/jcr:content");
         boolean updated = persisted != null
-            && categoryUid.equals(persisted.getValueMap().get(ROOT_CATEGORY_PROPERTY, String.class));
+            && categoryUid.equals(persisted.getValueMap().get(ROOT_CATEGORY_PROPERTY, String.class))
+            && idType.equals(persisted.getValueMap().get(ROOT_CATEGORY_TYPE_PROPERTY, String.class));
 
         ObjectNode out = mapper.createObjectNode();
         out.put("path", path);
         out.put("categoryUid", categoryUid);
+        out.put("idType", idType);
         out.put("showMainCategories", showMainCategories);
         out.put("updated", updated);
         return out;

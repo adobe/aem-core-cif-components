@@ -80,4 +80,41 @@ public class ConfigureCatalogPageToolTest {
         new ConfigureCatalogPageTool().call(ctxForResolver(), mapper.readTree(
             "{\"path\":\"/content/site/plainpage\",\"categoryUid\":\"MjA=\"}"));
     }
+
+    @Test
+    public void honorsUrlPathIdType() throws Exception {
+        context.build().resource("/content/site/plp3/jcr:content",
+            "sling:resourceType", "core/cif/components/structure/catalogpage/v3/catalogpage").commit();
+
+        JsonNode out = new ConfigureCatalogPageTool().call(ctxForResolver(), mapper.readTree(
+            "{\"path\":\"/content/site/plp3\",\"categoryUid\":\"MjA=\",\"idType\":\"urlPath\"}"));
+        assertTrue(out.get("updated").asBoolean());
+        assertEquals("urlPath", out.get("idType").asText());
+
+        Resource r = context.resourceResolver().getResource("/content/site/plp3/jcr:content");
+        assertEquals("MjA=", r.getValueMap().get("magentoRootCategoryId", String.class));
+        assertEquals("urlPath", r.getValueMap().get("magentoRootCategoryIdType", String.class));
+    }
+
+    @Test
+    public void defaultsIdTypeToUidWhenOmitted() throws Exception {
+        context.build().resource("/content/site/plp4/jcr:content",
+            "sling:resourceType", "core/cif/components/structure/catalogpage/v1/catalogpage").commit();
+
+        JsonNode out = new ConfigureCatalogPageTool().call(ctxForResolver(), mapper.readTree(
+            "{\"path\":\"/content/site/plp4\",\"categoryUid\":\"MjA=\"}"));
+        assertEquals("uid", out.get("idType").asText());
+
+        Resource r = context.resourceResolver().getResource("/content/site/plp4/jcr:content");
+        assertEquals("uid", r.getValueMap().get("magentoRootCategoryIdType", String.class));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsInvalidIdType() throws Exception {
+        context.build().resource("/content/site/plp5/jcr:content",
+            "sling:resourceType", "core/cif/components/structure/catalogpage/v1/catalogpage").commit();
+
+        new ConfigureCatalogPageTool().call(ctxForResolver(), mapper.readTree(
+            "{\"path\":\"/content/site/plp5\",\"categoryUid\":\"MjA=\",\"idType\":\"foo\"}"));
+    }
 }
