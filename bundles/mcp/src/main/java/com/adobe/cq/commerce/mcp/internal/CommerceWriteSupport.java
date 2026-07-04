@@ -22,6 +22,8 @@ import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 
+import com.day.cq.wcm.api.Page;
+
 /**
  * Shared validate/adapt scaffold for MCP <em>write</em> tools (authoring-only, {@code writesContent() == true}).
  * <p>
@@ -67,6 +69,48 @@ public final class CommerceWriteSupport {
                 + "): " + path);
         }
         return target;
+    }
+
+    /**
+     * Resolves {@code path} to a CIF <strong>page's</strong> {@code jcr:content} resource, for write tools that
+     * operate on page-level fields (e.g. nav-config pagefields) rather than on a component instance.
+     * <p>
+     * Unlike {@link #resolveComponent}, which gates the resolved resource itself, this method requires {@code path}
+     * to adapt to {@link Page} (failing closed if it does not — e.g. it is a component resource, not a page), then
+     * gates the page's {@code jcr:content} resource (not the page resource itself) against
+     * {@code allowedContentTypes} via the same super-type-aware {@link Resource#isResourceType(String)}.
+     *
+     * @param resolver the caller's {@link ResourceResolver} (JCR ACLs enforced)
+     * @param argName the tool argument name {@code path} was read from, used in error messages
+     * @param path the page path to resolve; must be non-blank and under {@code /content/}
+     * @param allowedContentTypes the CIF structure-page resource-type literals this tool understands; at least one
+     *            must match the page's {@code jcr:content} resource, checked via {@code content.isResourceType(type)}
+     * @return the resolved page's {@code jcr:content} {@link Resource}
+     * @throws IllegalArgumentException if {@code path} is blank, not under {@code /content/}, does not resolve to
+     *             an existing resource, does not adapt to {@link Page}, or the page's {@code jcr:content} resource
+     *             is not one of {@code allowedContentTypes}
+     */
+    public static Resource resolvePageContent(ResourceResolver resolver, String argName, String path,
+        List<String> allowedContentTypes) {
+        if (StringUtils.isBlank(path) || !path.startsWith("/content/")) {
+            throw new IllegalArgumentException(argName + " (under /content) is required");
+        }
+
+        Resource target = resolver.getResource(path);
+        if (target == null) {
+            throw new IllegalArgumentException("resource not found: " + path);
+        }
+        Page page = target.adaptTo(Page.class);
+        if (page == null) {
+            throw new IllegalArgumentException(argName + " does not resolve to a page: " + path);
+        }
+        Resource content = page.getContentResource();
+        if (content == null || allowedContentTypes == null
+            || allowedContentTypes.stream().noneMatch(content::isResourceType)) {
+            throw new IllegalArgumentException("page is not one of the expected CIF structure-page types (" + argName
+                + "): " + path);
+        }
+        return content;
     }
 
     /**

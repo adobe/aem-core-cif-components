@@ -114,4 +114,52 @@ public class CommerceWriteSupportTest {
         CommerceWriteSupport.resolveComponent(context.resourceResolver(), "path",
             "/content/site/jcr:content/root/teaser", Collections.<String>emptyList());
     }
+
+    private static final List<String> ALLOWED_PAGE_TYPES = Arrays.asList(
+        "core/cif/components/structure/page/v3/page");
+
+    @Test
+    public void resolvePageContentResolvesPageOfAllowedType() throws Exception {
+        context.create().page("/content/site/structpage");
+        context.resourceResolver().getResource("/content/site/structpage/jcr:content")
+            .adaptTo(ModifiableValueMap.class)
+            .put("sling:resourceType", "core/cif/components/structure/page/v3/page");
+        context.resourceResolver().commit();
+
+        Resource content = CommerceWriteSupport.resolvePageContent(context.resourceResolver(), "path",
+            "/content/site/structpage", ALLOWED_PAGE_TYPES);
+
+        assertNotNull(content);
+        assertEquals("/content/site/structpage/jcr:content", content.getPath());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolvePageContentRejectsNonPageResource() {
+        // A component resource (not a cq:Page) must fail closed -- it does not adapt to Page.
+        context.build().resource("/content/site/jcr:content/root/teaser",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser").commit();
+
+        CommerceWriteSupport.resolvePageContent(context.resourceResolver(), "path",
+            "/content/site/jcr:content/root/teaser", ALLOWED_PAGE_TYPES);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolvePageContentRejectsWrongContentType() {
+        context.create().page("/content/site/plainpage");
+        // jcr:content keeps aem-mock's default resource type (not a CIF structure page type).
+
+        CommerceWriteSupport.resolvePageContent(context.resourceResolver(), "path",
+            "/content/site/plainpage", ALLOWED_PAGE_TYPES);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolvePageContentRejectsMissingResource() {
+        CommerceWriteSupport.resolvePageContent(context.resourceResolver(), "path", "/content/does/not/exist",
+            ALLOWED_PAGE_TYPES);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolvePageContentRejectsBlankPath() {
+        CommerceWriteSupport.resolvePageContent(context.resourceResolver(), "path", "  ", ALLOWED_PAGE_TYPES);
+    }
 }
