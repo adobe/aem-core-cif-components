@@ -767,8 +767,8 @@ categoryUrlPath.equals(givenUrlPath)
 
 ## 9. Page / PDP / PLP creation tools (Tier 3)
 
-**Status: Tier 1 discovery aid (T-43) ✅ shipped; Tier 3 creation tools (T-38–42) still ▢
-Planned.** **Mechanism** (confirmed via templates in
+**Status: ✅ ALL shipped** (Tier 1 discovery aid T-43 + Tier 3 creation tools T-38–42).
+**Mechanism** (confirmed via templates in
 `aem-cif-guides-venia`): the product-page and category-page editable templates
 **pre-populate `initial/jcr:content`** with a commerce component already placed inside the
 responsive grid, so a page created from them is immediately functional. The pre-placed nodes
@@ -795,11 +795,11 @@ are **Venia proxy components**, not the core types directly:
 
 | Tool | Status | Tier | Does |
 |---|---|---|---|
-| `create_catalog_page(parent, name, title, rootCategoryId, idType?, template?)` (T-38) | ▢ | 3 | Creates the page, then applies §7 `configure_catalog_page` |
-| `create_specific_pdp(parent, name, title, skusOrUrlKeys[], template?)` (T-39) | ▢ | 3 | Product-page template (component pre-placed) + §8 `bind_page_to_products` |
-| `create_specific_plp(parent, name, title, categoryUid, urlPath, includesSubCategories, template?)` (T-40) | ▢ | 3 | Category-page template + `bind_page_to_category` |
-| `create_specific_pdp_for_category_tree(parent, name, title, categoryUid, urlPath, includesSubCategories, template?)` (T-41) | ▢ | 3 | Product-page template + `bind_product_page_to_category_tree` |
-| `scaffold_catalog_section(parent, name, rootCategoryId, template?)` (T-42) | ▢ | 3 | Creates a whole catalog section (catalog page + example product/category children) wired to a root category |
+| `create_catalog_page(parent, name?, title, rootCategoryId, idType?, showMainCategories?, template?, dryRun?)` (T-38) | ✅ | 3 | Creates the page, then delegates to §7 `configure_catalog_page` |
+| `create_specific_pdp(parent, name?, title, skusOrUrlKeys[], template?, dryRun?)` (T-39) | ✅ | 3 | Product-page template (component pre-placed) + delegates to §8 `bind_page_to_products` |
+| `create_specific_plp(parent, name?, title, categoryUid, urlPath, includesSubCategories?, template?, dryRun?)` (T-40) | ✅ | 3 | Category-page template + delegates to `bind_page_to_category` |
+| `create_specific_pdp_for_category_tree(parent, name?, title, categoryUid, urlPath, includesSubCategories?, template?, dryRun?)` (T-41) | ✅ | 3 | Product-page template + delegates to `bind_product_page_to_category_tree` |
+| `scaffold_catalog_section(parent, name, title?, rootCategoryId, idType?, template?, dryRun?)` (T-42) | ✅ | 3 | Creates a whole catalog section (catalog page + example product/category children) wired to a root category |
 | `suggest_template_for_page_type(kind)` (T-43) | ✅ | 1 | Lists template candidates under `/conf/*/settings/wcm/templates/` matching a page-type signal |
 
 - **T-43 (shipped):** `suggest_template_for_page_type(kind)` (`kind` ∈ `product`/`category`/
@@ -813,12 +813,30 @@ are **Venia proxy components**, not the core types directly:
   treated as empty). Returns `{kind, templates:[{path,title,signal}]}` (`signal` = `resourceSuperType`
   or `title`). Backed by `mcp/…/tools/SuggestTemplateForPageTypeTool.java`.
 
-**Guardrails (first tools that create content):**
-- Validate the resolved template's `initial` content actually contains the expected
-  `product`/`productlist` resource (via `resourceSuperType`) **before** `PageManager.create`
-  — fail clearly rather than produce an empty-rendering page.
-- Consider a dry-run/preview mode and stricter parent-path validation (must be under a
-  recognized catalog/site structure) given the larger blast radius.
+- **T-38–T-42 (shipped):** all five are WRITE tools (`writesContent()==true`, authoring endpoint,
+  caller-resolver, fail-closed) sharing one pattern: validate parent (`PageCreationSupport.validatePageParent`
+  — non-blank, under `/content`, exists) + resolve/validate a template for the page kind
+  (`PageTemplateSupport.resolveTemplate(kind, explicit?)`, reusing T-43's classify so an empty-rendering /
+  wrong-kind template is rejected **before** create) → create the page via a `PageManager.create(parent, name,
+  template, title, false)` (**autoSave=false** — staged, not committed) → **delegate the binding to the
+  already-shipped configure/bind tool** for that page type (T-38→`configure_catalog_page`,
+  T-39→`bind_page_to_products`, T-40→`bind_page_to_category`, T-41→`bind_product_page_to_category_tree`),
+  whose own `commit()` flushes page+binding atomically; a binding failure `revert()`s the staged page (no
+  orphan), and the delegate's real-readback `updated==false` surfaces as an error. All support **`dryRun`**
+  (preview the would-be page path + template + binding, write nothing) and validate every required arg up
+  front so a dry run previews faithfully. The shared `PageManager.create` body lives in
+  `PageCreationSupport.createPage`. `scaffold_catalog_section` (T-42) composes T-38 (the bound catalog-page
+  section root) + unbound `example-product`/`example-category` child pages (graceful-skip if a kind's template
+  is absent, recorded in `skipped`; children reverted on failure while the already-committed catalog root
+  remains — a documented best-effort boundary). Result shapes: T-38 `{pagePath, template, rootCategoryId,
+  idType, dryRun}`; T-39 `{pagePath, template, boundSkus, dryRun}`; T-40/T-41 `{pagePath, template,
+  categoryUid, urlPath, dryRun}`; T-42 `{sectionPath, catalogPage, rootCategoryId, children:[{path,pageType}],
+  skipped:[{pageType,reason}], dryRun}`. No auto-publish. Backed by `mcp/…/tools/CreateCatalogPageTool.java`,
+  `CreateSpecificPdpTool.java`, `CreateSpecificPlpTool.java`, `CreateSpecificPdpForCategoryTreeTool.java`,
+  `ScaffoldCatalogSectionTool.java` + `PageCreationSupport`/`PageTemplateSupport`.
+- **aem-mock caveat:** the pinned aem-mock's `isResourceType` matches by identity only (no `/apps` proxy
+  super-type walk), so the delegated binding gates are unit-tested via canned core-typed pages behind a create
+  seam; the real Venia proxy path (and the scaffold atomicity boundary) are proven by **live validation**.
 
 ---
 
@@ -909,11 +927,11 @@ name from the catalog ID, the shipped name is shown.
 | T-35 | `detect_specific_page_conflicts` | §8 | 1 | ✅ |
 | T-36 | `validate_selector_filter_format` | §8 | 1 | ✅ |
 | T-37 | `check_specific_page_capability` | §8 | 1 | ✅ |
-| T-38 | `create_catalog_page` | §9 Page creation | 3 | ▢ |
-| T-39 | `create_specific_pdp` | §9 | 3 | ▢ |
-| T-40 | `create_specific_plp` | §9 | 3 | ▢ |
-| T-41 | `create_specific_pdp_for_category_tree` | §9 | 3 | ▢ |
-| T-42 | `scaffold_catalog_section` | §9 | 3 | ▢ |
+| T-38 | `create_catalog_page` | §9 Page creation | 3 | ✅ |
+| T-39 | `create_specific_pdp` | §9 | 3 | ✅ |
+| T-40 | `create_specific_plp` | §9 | 3 | ✅ |
+| T-41 | `create_specific_pdp_for_category_tree` | §9 | 3 | ✅ |
+| T-42 | `scaffold_catalog_section` | §9 | 3 | ✅ |
 | T-43 | `suggest_template_for_page_type` | §9 | 1 | ✅ |
 | T-44 | `get_commerce_config` | §10 Deferred | 4 | ▢ |
 | T-45 | `validate_graphql_connectivity` | §10 | 4 | ▢ |
