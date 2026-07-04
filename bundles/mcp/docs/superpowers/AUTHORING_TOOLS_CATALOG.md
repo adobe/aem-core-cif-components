@@ -99,7 +99,9 @@ below don't re-plan something that already exists).
 | Tool | Args | Does | Catalog ID |
 |---|---|---|---|
 | `configure_product_component` | `{path, sku}` | Bind a SKU to a `product` component (`selection` + `selectionType=combinedSku`; gated to product v1/v2/v3) | baseline |
-| `configure_productlist_component` | `{path, categoryUid}` | Pin a **product-list / carousel component** to a category (writes `category`; gated to productlist v1/v2 + productcarousel v1) | **◐ T-03 / T-02** |
+| `configure_productlist_component` | `{path, categoryUid?, showTitle?, showImage?, pageSize?, defaultSortField?, defaultSortOrder?, fragments?}` | Pin a **product-list / carousel component** to a category (writes `category`; gated to productlist v1/v2 + productcarousel v1) and, for product-list components, the rest of its dialog (`showTitle`/`showImage`/`pageSize`/`defaultSortField`/`defaultSortOrder`/`fragments`) | **✅ T-03** |
+| `configure_productcarousel_component` | `{path, selectionType?, product?, category?, productCount?}` | Configure a **product carousel's** selection: manual product list (`product[]`) or category + `productCount` | **✅ T-02** |
+| `configure_featuredcategorylist_component` | `{path, items, title?, titleType?, linkTarget?}` | Configure the `items` composite multifield (`categoryId`+`asset`) shared by the **featured-category-list and category-carousel** components, plus title fields | **✅ T-05 / T-06** |
 | `configure_catalog_page` | `{path, categoryUid, showMainCategories?}` | Scope a **catalog page's** root category (`magentoRootCategoryId` + `magentoRootCategoryIdType=uid` + `showMainCategories`, on `jcr:content`; gated to catalog page v1/v3) | **◐ T-28** |
 | `tag_content_with_commerce` | `{path, sku?, categoryUid?, action?}` | Set/remove `cq:products`/`cq:categories` on a DAM asset, page, or XF variation (`action`: `add`\|`remove`) | **✅ T-20** |
 
@@ -110,7 +112,8 @@ below don't re-plan something that already exists).
 > `SiteStructure`/`NavigationImpl` actually read. This makes it the shipped realization of
 > §7's `configure_catalog_page_scope` (T-28); see §7. Component-level category pinning
 > (`category`, read by `ProductListImpl`/`ProductCarouselImpl`) is the *separate*
-> `configure_productlist_component`. Keep page-vs-component category binding distinct.
+> `configure_productlist_component` (and, for carousel-specific selection fields,
+> `configure_productcarousel_component`). Keep page-vs-component category binding distinct.
 
 ### Out of scope for this catalog: shipped shopper cart & checkout tools
 
@@ -220,15 +223,19 @@ under `apps/commerce/<component>/<version>/<component>/_cq_dialog/.content.xml`.
 writes. This catalog's §2 tool names are aligned to that convention; the original
 research-draft names are kept in parentheses for traceability.
 
-**Granular-per-component vs. operation-generic (a real divergence to be aware of).** This
-catalog keeps **one tool per component dialog** (each covers that component's full field
-set). The shipped code so far took an **operation-generic** shortcut: the single
-`configure_productlist_component` writes just the `category` selection for *both* the
-productlist and productcarousel components. So the shipped tool partially satisfies two
-catalog entries (T-02 category mode, T-03) with one code path; the remaining per-component
-dialog fields are the unshipped delta. When implementing the rest of §2, decide per tool
-whether to extend the existing generic tool or add a dedicated one — but keep the
-`configure_<component>_component` naming either way.
+**Granular-per-component vs. operation-generic (a real divergence to be aware of, now
+resolved for §2).** This catalog originally called for **one tool per component dialog**
+(each covers that component's full field set). The shipped code took a hybrid path instead:
+`configure_productlist_component` covers the full productlist v1/v2 dialog (`category` +
+`showTitle`/`showImage`/`pageSize`/`defaultSortField`/`defaultSortOrder`/`fragments`) and
+also accepts `category`-only writes on productcarousel v1 (a harmless subset there); a
+**separate** `configure_productcarousel_component` covers the carousel's own
+selection fields (manual product list or category+`productCount`). Similarly,
+`configure_featuredcategorylist_component` is **one** tool gating **both**
+featuredcategorylist v1 and categorycarousel v1 (they share the same `FeaturedCategoryListImpl`
+model), rather than two per-component tools — so T-05 and T-06 are both satisfied by that
+single tool. All of §2's write tools are now shipped; naming follows
+`configure_<component>_component` throughout.
 
 Cross-cutting gotchas: product-picker fields store **combinedSku** unless noted;
 category-picker fields store **UIDs** unless a `urlPath` selectionId is set; several
@@ -238,11 +245,11 @@ cannot set them on the component node).
 | Tool (aligned name) | Status | Component (resourceType) | Backing model |
 |---|---|---|---|
 | `configure_productteaser_component` | ✅ | `…/productteaser/v1/productteaser` | `core/…/internal/models/v1/productteaser/ProductTeaserImpl.java` |
-| `configure_productcarousel_component` | ◐ (category mode shipped) | `…/productcarousel/v1/productcarousel` | `core/…/internal/models/v1/productcarousel/ProductCarouselImpl.java` |
-| `configure_productlist_component` | ✅/◐ (category shipped) | `…/productcollection/v2` **/** `…/productlist/v2` | `core/…/internal/models/v1/productcollection/ProductCollectionImpl.java`, `…/v2/productlist/ProductListImpl.java` |
+| `configure_productcarousel_component` | ✅ | `…/productcarousel/v1/productcarousel` | `core/…/internal/models/v1/productcarousel/ProductCarouselImpl.java` |
+| `configure_productlist_component` | ✅ | `…/productcollection/v2` **/** `…/productlist/v2` | `core/…/internal/models/v1/productcollection/ProductCollectionImpl.java`, `…/v2/productlist/ProductListImpl.java` |
 | `configure_relatedproducts_component` | ✅ | `…/relatedproducts/v1/relatedproducts` | `core/…/internal/models/v1/relatedproducts/RelatedProductsImpl.java` |
-| `configure_categorycarousel_component` | ▢ | `…/categorycarousel/v1/categorycarousel` | `core/…/internal/models/v1/categorylist/FeaturedCategoryListImpl.java` |
-| `configure_featuredcategorylist_component` | ▢ | `…/featuredcategorylist/v1/featuredcategorylist` | `FeaturedCategoryListImpl.java` (same model, both RTs) |
+| `configure_categorycarousel_component` | ✅ | `…/categorycarousel/v1/categorycarousel` | `core/…/internal/models/v1/categorylist/FeaturedCategoryListImpl.java` |
+| `configure_featuredcategorylist_component` | ✅ | `…/featuredcategorylist/v1/featuredcategorylist` | `FeaturedCategoryListImpl.java` (same model, both RTs) |
 | `configure_product_visible_sections` | ✅ | `…/product/v3/product` | `core/…/internal/models/v3/product/ProductImpl.java` |
 | `configure_page_commerce_links` | ◐ (nav-config shipped) | `…/structure/page/v3/page` | `core/…/internal/models/v3/page/PageImpl.java` |
 
@@ -253,32 +260,49 @@ cannot set them on the component node).
 - **Gotcha:** `enableAddToWishList` is **not** on this dialog (style/policy only —
   `PN_STYLE_ADD_TO_WISHLIST_ENABLED`); don't expose it as a settable arg.
 
-### 2.2 `configure_productcarousel_component` (T-02, was `configure_product_carousel`) — ◐ Partial
-- **Shipped:** category mode (`category` = single UID) is already writable via
-  `configure_productlist_component` (gated to productcarousel v1). The fields below are the
-  **unshipped delta** for a dedicated carousel tool.
+### 2.2 `configure_productcarousel_component` (T-02, was `configure_product_carousel`) — ✅ Shipped
+- **Shipped:** `configure_productcarousel_component {path, selectionType?, product?, category?,
+  productCount?}` — a manual list of product SKUs (`selectionType=product`, `product[]`
+  combinedSku-normalized) or a category with an optional product count
+  (`selectionType=category`, `category` + `productCount`), gated to productcarousel v1, with
+  post-write read-back verification. See
+  `mcp/…/tools/ConfigureProductCarouselComponentTool.java`. Category-only pinning (`category`
+  alone) remains additionally reachable via `configure_productlist_component`.
 - **Properties:** `selectionType` (`product`|`category`, defaults to `product` when blank),
   `product` (**flat multi-valued `String[]`** of combinedSkus — NOT child nodes),
-  `category` (**single UID**), `productCount` (`Long`, category mode), `enableAddToCart`,
-  `enableAddToWishList` (`"true"`/`"false"`), `id`.
+  `category` (**single UID**), `productCount` (**Integer**, category mode).
 - **Gotcha:** product mode reads `product[]`; category mode reads `category`+`productCount`.
-  Model tolerates a path-prefixed SKU and strips to last segment.
+  Model tolerates a path-prefixed SKU and strips to last segment. `enableAddToCart`/
+  `enableAddToWishList` are style/policy properties (read from `currentStyle`), not
+  component-instance dialog fields — intentionally not exposed by this tool.
 
-### 2.3 `configure_productlist_component` (T-03, was `configure_product_collection`) — ◐ Partial (SHIPPED subset)
-- **Shipped today:** `configure_productlist_component {path, categoryUid}` writes the
-  `category` manual-selection property (gated to productlist v1/v2 + productcarousel v1),
-  with post-write read-back verification. See `mcp/…/tools/ConfigureProductListComponentTool.java`.
-- **Unshipped delta — properties differ by component, do not conflate:**
-  - `productcollection/v2` dialog: `pageSize` (`PN_PAGE_SIZE`), `defaultSortField`
-    (`PN_DEFAULT_SORT_FIELD`), `defaultSortOrder` (`asc`|`desc`, `PN_DEFAULT_SORT_ORDER`), `id`.
-  - `productlist/v2` dialog: `category` (**single UID — SHIPPED**), `showTitle`, `showImage`
-    (`"true"`/`"false"`, default true), `fragments` (**composite multifield** → child
-    nodes `fragments/item0…` with unprefixed props `fragmentLocation`, `fragmentPage`,
-    `fragmentCssClass`), `id`.
-- **Gotcha:** `pageSize`/sort fields are **only** on `productcollection/v2`; `productlist/v2`'s
-  own dialog has none of them. `defaultSortField` values are **datasource-driven**
-  (`…/productcollection/sortfields`) and backend-specific — validate with `get_sort_options`
-  (T-09), don't hardcode.
+### 2.3 `configure_productlist_component` (T-03, was `configure_product_collection`) — ✅ Shipped
+- **Shipped:** `configure_productlist_component {path, categoryUid?, showTitle?, showImage?,
+  pageSize?, defaultSortField?, defaultSortOrder?, fragments?}` writes the `category`
+  manual-selection property (gated to productlist v1/v2 + productcarousel v1) **and**, for
+  productlist components — `ProductListImpl` extends `ProductCollectionImpl`, so both dialogs'
+  fields live on the same node — the rest of the dialog: `showTitle`/`showImage`, `pageSize`,
+  `defaultSortField`/`defaultSortOrder`, and the `fragments` composite multifield. All fields
+  besides `categoryUid` are harmless no-ops on productcarousel v1 (`ProductCarouselImpl` never
+  reads them). Post-write read-back verification included. See
+  `mcp/…/tools/ConfigureProductListComponentTool.java`.
+- **Properties (do not conflate the source dialogs, but both are writable through this one tool
+  on a productlist v1/v2 node):**
+  - From the `productcollection` dialog fields (inherited by `ProductListImpl`): `pageSize`
+    (`PN_PAGE_SIZE`, **Integer** — the interface javadoc on `ProductCollection.PN_PAGE_SIZE`
+    mislabels it "String"; the shipped tool writes/reads it as `Integer`), `defaultSortField`
+    (`PN_DEFAULT_SORT_FIELD`), `defaultSortOrder` (`asc`|`desc`, `PN_DEFAULT_SORT_ORDER`).
+  - From the `productlist/v2` dialog: `category` (**single UID**), `showTitle`, `showImage`
+    (**booleans**, default true — not `"true"`/`"false"` strings), `fragments` (**composite
+    multifield** → child nodes `fragments/item0…` with unprefixed props `fragmentLocation`
+    (string), `fragmentPage` (**Integer** page-cursor, not a path/URL), `fragmentCssClass`
+    (string)).
+- **Gotcha:** `pageSize`/`defaultSortField`/`defaultSortOrder` are **not** exclusive to a
+  `productcollection/v2` dialog — because `ProductListImpl extends ProductCollectionImpl`,
+  productlist v1/v2 inherits and legitimately reads/writes them too, which is why
+  `configure_productlist_component` can set them directly. `defaultSortField` values are
+  **datasource-driven** (`…/productcollection/sortfields`) and backend-specific — validate
+  with `get_sort_options` (T-09), don't hardcode.
 
 ### 2.4 `configure_relatedproducts_component` (T-04, was `configure_related_products`) — ✅ Shipped
 - **Properties:** `product` (**plain base SKU**, `selectionId="sku"` — unique among §2;
@@ -286,14 +310,22 @@ cannot set them on the component node).
 - **`relationType` values** (enum `RelatedProductsRetriever.RelationType`, stored as the
   enum name): `RELATED_PRODUCTS`, `UPSELL_PRODUCTS`, `CROSS_SELL_PRODUCTS`.
 
-### 2.5 `configure_categorycarousel_component` (T-05) / 2.6 `configure_featuredcategorylist_component` (T-06) — ▢ Planned
+### 2.5 `configure_categorycarousel_component` (T-05) / 2.6 `configure_featuredcategorylist_component` (T-06) — ✅ Shipped
+- **Shipped as one tool:** both catalog entries are satisfied by the single
+  `configure_featuredcategorylist_component {path, items, title?, titleType?, linkTarget?}`
+  tool, gated to **both** resource types (`featuredcategorylist/v1` and
+  `categorycarousel/v1`) — there is no separate `configure_categorycarousel_component` tool
+  name; T-05 and T-06 are the same code path. See
+  `mcp/…/tools/ConfigureFeaturedCategoryListComponentTool.java`.
 - **Same Sling model** (`FeaturedCategoryListImpl`, registered for both RTs). Both use an
   `items` **composite multifield** → child nodes `items/item0…` with unprefixed props
-  `categoryId` (**UID**) and `asset` (path under `/content/dam`).
-- **featuredcategorylist adds:** `jcr:title` (default `"Shop by category"`, empty hides
-  title), `titleType` (heading tag), `linkTarget`, `id`.
-- **Gotcha:** writing these means creating/replacing child nodes under `items/`, not a
-  flat property — heavier than a scalar set.
+  `categoryId` (**UID**, required) and `asset` (path under `/content/dam`, optional).
+- **featuredcategorylist adds:** `jcr:title`/`titleType`/`linkTarget` are also written by
+  the shipped tool (args `title`/`titleType`/`linkTarget`); they are harmless no-ops on
+  categorycarousel, which doesn't render a title.
+- **Gotcha:** writing `items` means creating/replacing child nodes under `items/` (via
+  `CommerceWriteSupport.writeComposite`), not a flat property — heavier than a scalar set;
+  post-write read-back verification confirms every item round-tripped.
 
 ### 2.7 `configure_product_visible_sections` (T-07) — ✅ Shipped
 - **Note:** operates on the same `product` component as the shipped
@@ -820,11 +852,11 @@ name from the catalog ID, the shipped name is shown.
 | — | `configure_product_component` | baseline write | 2 | ✅ |
 | — | `search_products` / `get_product` / `get_attributes` / `browse_categories` / `resolve_picker_selection` | baseline read | 1 | ✅ |
 | T-01 | `configure_productteaser_component` | §2 Component config | 2 | ✅ |
-| T-02 | `configure_productcarousel_component` | §2 | 2 | ◐ (category mode via `configure_productlist_component`) |
-| T-03 | `configure_productlist_component` | §2 | 2 | ◐ (category shipped; pageSize/sort/fragments pending) |
+| T-02 | `configure_productcarousel_component` | §2 | 2 | ✅ |
+| T-03 | `configure_productlist_component` | §2 | 2 | ✅ |
 | T-04 | `configure_relatedproducts_component` | §2 | 2 | ✅ |
-| T-05 | `configure_categorycarousel_component` | §2 | 2 | ▢ |
-| T-06 | `configure_featuredcategorylist_component` | §2 | 2 | ▢ |
+| T-05 | `configure_featuredcategorylist_component` (was `configure_categorycarousel_component`) | §2 | 2 | ✅ (one tool gates both featuredcategorylist v1 + categorycarousel v1, see T-06) |
+| T-06 | `configure_featuredcategorylist_component` | §2 | 2 | ✅ (same tool as T-05) |
 | T-07 | `configure_product_visible_sections` | §2 | 2 | ✅ |
 | T-08 | `configure_page_commerce_links` | §2 | 2 | ◐ (markers via `tag_content_with_commerce`; nav-config via `configure_page_commerce_links` — both shipped, as two tools) |
 | T-09 | `get_sort_options` | §3 Metadata reads | 1 | ✅ |
