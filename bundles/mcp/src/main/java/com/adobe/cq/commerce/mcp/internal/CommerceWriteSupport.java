@@ -146,4 +146,21 @@ public final class CommerceWriteSupport {
             map.put(propertyName, value);
         }
     }
+
+    /**
+     * Writes an optional multi-valued string property, clearing it instead of persisting a meaningless empty
+     * array: a {@code null} or empty {@code values} removes {@code propertyName} from {@code map} rather than
+     * storing it, so callers can pass an empty list to explicitly clear a previously-set value.
+     *
+     * @param map the {@link ModifiableValueMap} to update
+     * @param propertyName the property to set or remove
+     * @param values the values to write as a {@code String[]}; {@code null}/empty removes the property instead
+     */
+    public static void putOrRemoveArray(ModifiableValueMap map, String propertyName, List<String> values) {
+        if (values == null || values.isEmpty()) {
+            map.remove(propertyName);
+        } else {
+            map.put(propertyName, values.toArray(new String[0]));
+        }
+    }
 }

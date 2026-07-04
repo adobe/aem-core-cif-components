@@ -27,8 +27,10 @@ import org.junit.Test;
 
 import io.wcm.testing.mock.aem.junit.AemContext;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class CommerceWriteSupportTest {
 
@@ -188,5 +190,43 @@ public class CommerceWriteSupportTest {
         CommerceWriteSupport.putOrRemove(map, "cta", "  ");
 
         assertEquals(null, map.get("cta", String.class));
+    }
+
+    @Test
+    public void putOrRemoveArrayWritesNonEmptyList() {
+        context.build().resource("/content/site/jcr:content/root/teaser",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser").commit();
+        ModifiableValueMap map = CommerceWriteSupport.mutableMap(
+            context.resourceResolver().getResource("/content/site/jcr:content/root/teaser"), "path");
+
+        CommerceWriteSupport.putOrRemoveArray(map, "product", Arrays.asList("MJ01", "MJ02"));
+
+        assertArrayEquals(new String[] { "MJ01", "MJ02" }, map.get("product", String[].class));
+    }
+
+    @Test
+    public void putOrRemoveArrayRemovesEmptyList() {
+        context.build().resource("/content/site/jcr:content/root/teaser",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser",
+            "product", new String[] { "MJ01" }).commit();
+        ModifiableValueMap map = CommerceWriteSupport.mutableMap(
+            context.resourceResolver().getResource("/content/site/jcr:content/root/teaser"), "path");
+
+        CommerceWriteSupport.putOrRemoveArray(map, "product", Collections.<String>emptyList());
+
+        assertNull(map.get("product", String[].class));
+    }
+
+    @Test
+    public void putOrRemoveArrayRemovesNullList() {
+        context.build().resource("/content/site/jcr:content/root/teaser",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser",
+            "product", new String[] { "MJ01" }).commit();
+        ModifiableValueMap map = CommerceWriteSupport.mutableMap(
+            context.resourceResolver().getResource("/content/site/jcr:content/root/teaser"), "path");
+
+        CommerceWriteSupport.putOrRemoveArray(map, "product", null);
+
+        assertNull(map.get("product", String[].class));
     }
 }
