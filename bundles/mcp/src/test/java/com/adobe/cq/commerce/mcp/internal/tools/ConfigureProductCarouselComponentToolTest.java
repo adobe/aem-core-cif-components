@@ -140,4 +140,18 @@ public class ConfigureProductCarouselComponentToolTest {
         new ConfigureProductCarouselComponentTool().call(ctxForResolver(), mapper.readTree(
             "{\"selectionType\":\"product\"}"));
     }
+
+    @Test
+    public void skipsNullAndBlankProductEntries() throws Exception {
+        context.build().resource("/content/site/jcr:content/root/carousel6",
+            "sling:resourceType", "core/cif/components/commerce/productcarousel/v1/productcarousel").commit();
+
+        JsonNode out = new ConfigureProductCarouselComponentTool().call(ctxForResolver(), mapper.readTree(
+            "{\"path\":\"/content/site/jcr:content/root/carousel6\",\"selectionType\":\"product\","
+                + "\"product\":[null,\"MJ01\",\"\"]}"));
+
+        assertTrue(out.get("updated").asBoolean());
+        Resource r = context.resourceResolver().getResource("/content/site/jcr:content/root/carousel6");
+        assertArrayEquals(new String[] { "MJ01" }, r.getValueMap().get("product", String[].class));
+    }
 }

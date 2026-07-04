@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
@@ -33,7 +34,6 @@ import com.adobe.cq.commerce.mcp.internal.CommerceWriteSupport;
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -119,6 +119,11 @@ public class ConfigureProductCarouselComponentTool implements McpTool {
             throw new IllegalArgumentException("selectionType must be one of " + VALID_SELECTION_TYPES + ": " + selectionType);
         }
 
+        boolean hasSelectionType = args.has("selectionType");
+        boolean hasProduct = args.has("product");
+        boolean hasCategory = args.has("category");
+        boolean hasProductCount = args.has("productCount");
+
         ResourceResolver resolver = ctx.getRequest().getResourceResolver();
         Resource target = CommerceWriteSupport.resolveComponent(resolver, "path", path,
             CIF_PRODUCTCAROUSEL_COMPONENT_TYPES);
@@ -127,9 +132,12 @@ public class ConfigureProductCarouselComponentTool implements McpTool {
         CommerceWriteSupport.putOrRemove(properties, SELECTION_TYPE_PROPERTY, selectionType);
 
         JsonNode productNode = args.path("product");
+        List<String> normalizedSkus = new ArrayList<>();
         if (productNode.isArray()) {
-            List<String> normalizedSkus = new ArrayList<>();
-            for (JsonNode sku : (ArrayNode) productNode) {
+            for (JsonNode sku : productNode) {
+                if (sku.isNull() || StringUtils.isBlank(sku.asText())) {
+                    continue;
+                }
                 normalizedSkus.add(CombinedSku.parse(sku.asText()).toString());
             }
             CommerceWriteSupport.putOrRemoveArray(properties, PRODUCT_PROPERTY, normalizedSkus);
@@ -137,25 +145,50 @@ public class ConfigureProductCarouselComponentTool implements McpTool {
             CommerceWriteSupport.putOrRemoveArray(properties, PRODUCT_PROPERTY, null);
         }
 
-        CommerceWriteSupport.putOrRemove(properties, CATEGORY_PROPERTY, args.path("category").asText(null));
+        String category = args.path("category").asText(null);
+        CommerceWriteSupport.putOrRemove(properties, CATEGORY_PROPERTY, category);
 
         JsonNode productCountNode = args.path("productCount");
-        if (productCountNode.isIntegralNumber()) {
-            properties.put(PRODUCT_COUNT_PROPERTY, productCountNode.asInt());
+        Integer productCount = productCountNode.isIntegralNumber() ? Integer.valueOf(productCountNode.asInt()) : null;
+        if (productCount != null) {
+            properties.put(PRODUCT_COUNT_PROPERTY, productCount.intValue());
         } else {
             properties.remove(PRODUCT_COUNT_PROPERTY);
         }
 
         resolver.commit();
 
-        // Post-write verification: re-read the persisted resource so we never report success for a write that
-        // did not take (the resource-type check above already validated it consumes these properties).
+        // Post-write verification: re-read the persisted resource and confirm every property that was actually
+        // provided round-tripped, so we never report success for a write that did not take (the resource-type
+        // check above already validated it consumes these properties).
         Resource persisted = resolver.getResource(path);
-        boolean updated = persisted != null;
+        boolean updated = persisted != null
+            && (!hasSelectionType || stringMatches(persisted, SELECTION_TYPE_PROPERTY, selectionType))
+            && (!hasProduct || productMatches(persisted, normalizedSkus))
+            && (!hasCategory || stringMatches(persisted, CATEGORY_PROPERTY, category))
+            && (!hasProductCount || integerMatches(persisted, productCount));
 
         ObjectNode out = mapper.createObjectNode();
         out.put("path", path);
         out.put("updated", updated);
         return out;
+    }
+
+    private static boolean stringMatches(Resource persisted, String property, String expected) {
+        String actual = persisted.getValueMap().get(property, String.class);
+        return StringUtils.isBlank(expected) ? actual == null : expected.equals(actual);
+    }
+
+    private static boolean productMatches(Resource persisted, List<String> expected) {
+        String[] actual = persisted.getValueMap().get(PRODUCT_PROPERTY, String[].class);
+        if (expected == null || expected.isEmpty()) {
+            return actual == null;
+        }
+        return actual != null && expected.equals(Arrays.asList(actual));
+    }
+
+    private static boolean integerMatches(Resource persisted, Integer expected) {
+        Integer actual = persisted.getValueMap().get(PRODUCT_COUNT_PROPERTY, Integer.class);
+        return expected == null ? actual == null : expected.equals(actual);
     }
 }
