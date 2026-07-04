@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
@@ -80,6 +81,7 @@ public class UpdateCommerceContentFragmentFieldToolTest {
         FragmentData data = mock(FragmentData.class);
         when(data.getContentType()).thenReturn("text/plain");
         when(data.isTypeSupported(String.class)).thenReturn(true);
+        when(data.getValue()).thenReturn("New Headline"); // readback returns the persisted value
         when(el.getValue()).thenReturn(data);
         when(cf.getElement("headline")).thenReturn(el);
 
@@ -105,6 +107,7 @@ public class UpdateCommerceContentFragmentFieldToolTest {
         FragmentData data = mock(FragmentData.class);
         when(data.getContentType()).thenReturn("text/html");
         when(el.getValue()).thenReturn(data);
+        when(el.getContent()).thenReturn("<p>Hello</p>"); // richtext readback via getContent()
         when(cf.getElement("body")).thenReturn(el);
 
         JsonNode args = mapper.createObjectNode().put("fragmentPath", FRAGMENT_PATH).put("elementName", "body")
@@ -125,6 +128,7 @@ public class UpdateCommerceContentFragmentFieldToolTest {
         FragmentData data = mock(FragmentData.class);
         when(data.getContentType()).thenReturn("text/plain");
         when(data.isTypeSupported(String[].class)).thenReturn(true);
+        when(data.getValue()).thenReturn(new String[] { "summer", "sale" }); // readback of the persisted array
         when(el.getValue()).thenReturn(data);
         when(cf.getElement("tags")).thenReturn(el);
 
@@ -148,6 +152,7 @@ public class UpdateCommerceContentFragmentFieldToolTest {
         FragmentData vdata = mock(FragmentData.class);
         when(vdata.getContentType()).thenReturn("text/plain");
         when(vdata.isTypeSupported(String.class)).thenReturn(true);
+        when(vdata.getValue()).thenReturn("Summer Headline"); // variation readback
         when(variation.getValue()).thenReturn(vdata);
         when(el.getVariation("summer-promo")).thenReturn(variation);
         when(cf.getElement("headline")).thenReturn(el);
@@ -160,6 +165,7 @@ public class UpdateCommerceContentFragmentFieldToolTest {
         verify(variation).setValue(vdata);
         verify(el, never()).setValue(any(FragmentData.class));
         assertEquals("summer-promo", out.get("variation").asText());
+        assertTrue(out.get("updated").asBoolean());
     }
 
     @Test
@@ -208,6 +214,112 @@ public class UpdateCommerceContentFragmentFieldToolTest {
             "no-such-element").put("value", "x");
 
         assertThrows(IllegalArgumentException.class, () -> toolFor(cf).call(storeContext(), args));
+    }
+
+    @Test
+    public void throwsWhenScalarTypeUnsupported() throws Exception {
+        Resource resource = fragmentResource();
+        ContentFragment cf = mock(ContentFragment.class);
+        when(cf.adaptTo(Resource.class)).thenReturn(resource);
+        ContentElement el = mock(ContentElement.class);
+        FragmentData data = mock(FragmentData.class);
+        when(data.getContentType()).thenReturn("text/plain");
+        when(data.isTypeSupported(String.class)).thenReturn(false); // element rejects a string value
+        when(el.getValue()).thenReturn(data);
+        when(cf.getElement("count")).thenReturn(el);
+
+        JsonNode args = mapper.createObjectNode().put("fragmentPath", FRAGMENT_PATH).put("elementName", "count")
+            .put("value", "not-a-number");
+
+        assertThrows(IllegalArgumentException.class, () -> toolFor(cf).call(storeContext(), args));
+        verify(data, never()).setValue(any());
+        verify(el, never()).setValue(any(FragmentData.class));
+    }
+
+    @Test
+    public void throwsWhenMultiValueTypeUnsupported() throws Exception {
+        Resource resource = fragmentResource();
+        ContentFragment cf = mock(ContentFragment.class);
+        when(cf.adaptTo(Resource.class)).thenReturn(resource);
+        ContentElement el = mock(ContentElement.class);
+        FragmentData data = mock(FragmentData.class);
+        when(data.getContentType()).thenReturn("text/plain");
+        when(data.isTypeSupported(String[].class)).thenReturn(false); // single-value element rejects an array
+        when(el.getValue()).thenReturn(data);
+        when(cf.getElement("headline")).thenReturn(el);
+
+        ObjectNode args = mapper.createObjectNode();
+        args.put("fragmentPath", FRAGMENT_PATH).put("elementName", "headline");
+        args.putArray("value").add("a").add("b");
+
+        assertThrows(IllegalArgumentException.class, () -> toolFor(cf).call(storeContext(), args));
+        verify(data, never()).setValue(any());
+        verify(el, never()).setValue(any(FragmentData.class));
+    }
+
+    @Test
+    public void throwsWhenArraySentToRichtextElement() throws Exception {
+        Resource resource = fragmentResource();
+        ContentFragment cf = mock(ContentFragment.class);
+        when(cf.adaptTo(Resource.class)).thenReturn(resource);
+        ContentElement el = mock(ContentElement.class);
+        FragmentData data = mock(FragmentData.class);
+        when(data.getContentType()).thenReturn("text/html");
+        when(el.getValue()).thenReturn(data);
+        when(cf.getElement("body")).thenReturn(el);
+
+        ObjectNode args = mapper.createObjectNode();
+        args.put("fragmentPath", FRAGMENT_PATH).put("elementName", "body");
+        args.putArray("value").add("<p>a</p>").add("<p>b</p>");
+
+        assertThrows(IllegalArgumentException.class, () -> toolFor(cf).call(storeContext(), args));
+        verify(el, never()).setContent(anyString(), anyString());
+    }
+
+    @Test
+    public void reportsUpdatedFalseWhenReadbackMismatches() throws Exception {
+        Resource resource = fragmentResource();
+        ContentFragment cf = mock(ContentFragment.class);
+        when(cf.adaptTo(Resource.class)).thenReturn(resource);
+        ContentElement el = mock(ContentElement.class);
+        FragmentData data = mock(FragmentData.class);
+        when(data.getContentType()).thenReturn("text/plain");
+        when(data.isTypeSupported(String.class)).thenReturn(true);
+        when(data.getValue()).thenReturn("STALE VALUE"); // readback does NOT match what was written
+        when(el.getValue()).thenReturn(data);
+        when(cf.getElement("headline")).thenReturn(el);
+
+        JsonNode args = mapper.createObjectNode().put("fragmentPath", FRAGMENT_PATH).put("elementName", "headline")
+            .put("value", "New Headline");
+        JsonNode out = toolFor(cf).call(storeContext(), args);
+
+        // The write + commit happened, but the persisted value did not round-trip: updated must be false, not true.
+        verify(data).setValue("New Headline");
+        assertFalse(out.get("updated").asBoolean());
+    }
+
+    @Test
+    public void treatsExplicitMasterVariationAsBaseElement() throws Exception {
+        Resource resource = fragmentResource();
+        ContentFragment cf = mock(ContentFragment.class);
+        when(cf.adaptTo(Resource.class)).thenReturn(resource);
+        ContentElement el = mock(ContentElement.class);
+        FragmentData data = mock(FragmentData.class);
+        when(data.getContentType()).thenReturn("text/plain");
+        when(data.isTypeSupported(String.class)).thenReturn(true);
+        when(data.getValue()).thenReturn("Base Value");
+        when(el.getValue()).thenReturn(data);
+        when(cf.getElement("headline")).thenReturn(el);
+
+        JsonNode args = mapper.createObjectNode().put("fragmentPath", FRAGMENT_PATH).put("elementName", "headline")
+            .put("value", "Base Value").put("variation", "master");
+        JsonNode out = toolFor(cf).call(storeContext(), args);
+
+        // "master" is the base value, not a named variation: never look one up, write via the base element.
+        verify(el, never()).getVariation(anyString());
+        verify(el).setValue(data);
+        assertEquals("master", out.get("variation").asText());
+        assertTrue(out.get("updated").asBoolean());
     }
 
     @Test

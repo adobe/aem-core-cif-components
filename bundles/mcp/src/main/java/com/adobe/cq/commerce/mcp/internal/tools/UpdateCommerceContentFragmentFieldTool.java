@@ -16,6 +16,7 @@
 package com.adobe.cq.commerce.mcp.internal.tools;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -119,7 +120,9 @@ public class UpdateCommerceContentFragmentFieldTool implements McpTool {
             throw new IllegalArgumentException("unknown element: " + elementName);
         }
 
-        boolean useVariation = StringUtils.isNotBlank(variationName);
+        // An explicit variation of "master" is the base value, not a named variation (there is no variation
+        // literally named "master"); route it through the base-element path so it never fails as "unknown".
+        boolean useVariation = StringUtils.isNotBlank(variationName) && !MASTER.equalsIgnoreCase(variationName);
         ContentVariation variation = null;
         FragmentData targetData;
         if (useVariation) {
@@ -133,27 +136,34 @@ public class UpdateCommerceContentFragmentFieldTool implements McpTool {
         }
 
         boolean richtext = RICHTEXT_CONTENT_TYPE.equals(targetData.getContentType());
+        String expectedContent = null;
+        String expectedScalar = null;
+        String[] expectedArray = null;
         if (richtext) {
-            String html = valueNode.isTextual() ? valueNode.asText() : valueNode.toString();
+            if (valueNode.isArray()) {
+                throw new IllegalArgumentException("richtext element expects an HTML string, not an array: "
+                    + elementName);
+            }
+            expectedContent = valueNode.isTextual() ? valueNode.asText() : valueNode.toString();
             if (useVariation) {
-                variation.setContent(html, RICHTEXT_CONTENT_TYPE);
+                variation.setContent(expectedContent, RICHTEXT_CONTENT_TYPE);
             } else {
-                element.setContent(html, RICHTEXT_CONTENT_TYPE);
+                element.setContent(expectedContent, RICHTEXT_CONTENT_TYPE);
             }
         } else if (valueNode.isArray()) {
-            String[] values = toStringArray(valueNode);
             if (!targetData.isTypeSupported(String[].class)) {
                 throw new IllegalArgumentException("element does not support a multi-value (String[]) value: "
                     + elementName);
             }
-            targetData.setValue(values);
+            expectedArray = toStringArray(valueNode);
+            targetData.setValue(expectedArray);
             writeScalar(element, variation, useVariation, targetData);
         } else {
-            String scalarValue = valueNode.asText();
             if (!targetData.isTypeSupported(String.class)) {
                 throw new IllegalArgumentException("element does not support a string value: " + elementName);
             }
-            targetData.setValue(scalarValue);
+            expectedScalar = valueNode.asText();
+            targetData.setValue(expectedScalar);
             writeScalar(element, variation, useVariation, targetData);
         }
 
@@ -162,12 +172,47 @@ public class UpdateCommerceContentFragmentFieldTool implements McpTool {
         Resource resource = fragment.adaptTo(Resource.class);
         String resolvedPath = resource != null ? resource.getPath() : fragmentPath;
 
+        boolean updated = verifyWritten(fragment, elementName, useVariation ? variationName : null, richtext,
+            expectedContent, expectedArray, expectedScalar);
+
         ObjectNode out = mapper.createObjectNode();
         out.put("fragmentPath", resolvedPath);
         out.put("elementName", elementName);
         out.put("variation", useVariation ? variationName : MASTER);
-        out.put("updated", true);
+        out.put("updated", updated);
         return out;
+    }
+
+    /**
+     * Re-reads the just-written element (fresh from the fragment, after {@code commit()}) and confirms the value
+     * actually round-tripped, so {@code updated} reflects a real per-field readback rather than merely "no exception
+     * was thrown" (AGENTS.md 4). Richtext is read back via {@link ContentElement#getContent()}, scalar/multi-value
+     * via {@link FragmentData#getValue()}.
+     */
+    private boolean verifyWritten(ContentFragment fragment, String elementName, String variationName,
+        boolean richtext, String expectedContent, String[] expectedArray, String expectedScalar) {
+        ContentElement element = fragment.getElement(elementName);
+        if (element == null) {
+            return false;
+        }
+        boolean useVariation = variationName != null;
+        ContentVariation variation = useVariation ? element.getVariation(variationName) : null;
+        if (useVariation && variation == null) {
+            return false;
+        }
+        if (richtext) {
+            String content = useVariation ? variation.getContent() : element.getContent();
+            return expectedContent != null && expectedContent.equals(content);
+        }
+        FragmentData data = useVariation ? variation.getValue() : element.getValue();
+        if (data == null) {
+            return false;
+        }
+        Object actual = data.getValue();
+        if (expectedArray != null) {
+            return actual instanceof String[] && Arrays.equals(expectedArray, (String[]) actual);
+        }
+        return expectedScalar != null && actual != null && expectedScalar.equals(actual.toString());
     }
 
     private void writeScalar(ContentElement element, ContentVariation variation, boolean useVariation,
