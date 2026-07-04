@@ -17,7 +17,9 @@ package com.adobe.cq.commerce.mcp.internal;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
@@ -228,5 +230,93 @@ public class CommerceWriteSupportTest {
         CommerceWriteSupport.putOrRemoveArray(map, "product", null);
 
         assertNull(map.get("product", String[].class));
+    }
+
+    @Test
+    public void writeCompositeCreatesChildNodesWithProps() throws Exception {
+        context.build().resource("/content/site/jcr:content/root/list",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser").commit();
+        ResourceResolver resolver = context.resourceResolver();
+        Resource parent = resolver.getResource("/content/site/jcr:content/root/list");
+
+        Map<String, Object> item0 = new LinkedHashMap<String, Object>();
+        item0.put("categoryId", "MjA=");
+        Map<String, Object> item1 = new LinkedHashMap<String, Object>();
+        item1.put("categoryId", "Mjk=");
+        item1.put("asset", "/content/dam/x.jpg");
+
+        CommerceWriteSupport.writeComposite(resolver, parent, "items", Arrays.asList(item0, item1));
+        resolver.commit();
+
+        Resource items = resolver.getResource("/content/site/jcr:content/root/list/items");
+        assertNotNull(items);
+        assertEquals("MjA=", items.getChild("item0").getValueMap().get("categoryId", String.class));
+        assertEquals("Mjk=", items.getChild("item1").getValueMap().get("categoryId", String.class));
+        assertEquals("/content/dam/x.jpg", items.getChild("item1").getValueMap().get("asset", String.class));
+    }
+
+    @Test
+    public void writeCompositeClearsContainerWhenItemsEmpty() throws Exception {
+        context.build().resource("/content/site/jcr:content/root/list2",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser").commit();
+        ResourceResolver resolver = context.resourceResolver();
+        Resource parent = resolver.getResource("/content/site/jcr:content/root/list2");
+
+        Map<String, Object> item0 = new LinkedHashMap<String, Object>();
+        item0.put("categoryId", "MjA=");
+        CommerceWriteSupport.writeComposite(resolver, parent, "items", Arrays.asList(item0));
+        resolver.commit();
+        assertNotNull(resolver.getResource("/content/site/jcr:content/root/list2/items"));
+
+        CommerceWriteSupport.writeComposite(resolver, parent, "items", Collections.<Map<String, Object>>emptyList());
+        resolver.commit();
+
+        assertNull(resolver.getResource("/content/site/jcr:content/root/list2/items"));
+    }
+
+    @Test
+    public void writeCompositeClearsContainerWhenItemsNull() throws Exception {
+        context.build().resource("/content/site/jcr:content/root/list3",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser").commit();
+        ResourceResolver resolver = context.resourceResolver();
+        Resource parent = resolver.getResource("/content/site/jcr:content/root/list3");
+
+        Map<String, Object> item0 = new LinkedHashMap<String, Object>();
+        item0.put("categoryId", "MjA=");
+        CommerceWriteSupport.writeComposite(resolver, parent, "items", Arrays.asList(item0));
+        resolver.commit();
+
+        CommerceWriteSupport.writeComposite(resolver, parent, "items", null);
+        resolver.commit();
+
+        assertNull(resolver.getResource("/content/site/jcr:content/root/list3/items"));
+    }
+
+    @Test
+    public void writeCompositeReplacesPriorChildrenOnRewrite() throws Exception {
+        context.build().resource("/content/site/jcr:content/root/list4",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser").commit();
+        ResourceResolver resolver = context.resourceResolver();
+        Resource parent = resolver.getResource("/content/site/jcr:content/root/list4");
+
+        Map<String, Object> a = new LinkedHashMap<String, Object>();
+        a.put("categoryId", "AAA=");
+        Map<String, Object> b = new LinkedHashMap<String, Object>();
+        b.put("categoryId", "BBB=");
+        Map<String, Object> c = new LinkedHashMap<String, Object>();
+        c.put("categoryId", "CCC=");
+        CommerceWriteSupport.writeComposite(resolver, parent, "items", Arrays.asList(a, b, c));
+        resolver.commit();
+
+        Map<String, Object> d = new LinkedHashMap<String, Object>();
+        d.put("categoryId", "DDD=");
+        CommerceWriteSupport.writeComposite(resolver, parent, "items", Arrays.asList(d));
+        resolver.commit();
+
+        Resource items = resolver.getResource("/content/site/jcr:content/root/list4/items");
+        assertNotNull(items);
+        assertEquals("DDD=", items.getChild("item0").getValueMap().get("categoryId", String.class));
+        assertNull(items.getChild("item1"));
+        assertNull(items.getChild("item2"));
     }
 }

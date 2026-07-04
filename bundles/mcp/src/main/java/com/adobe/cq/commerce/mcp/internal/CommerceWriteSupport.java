@@ -15,10 +15,13 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.mcp.internal;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.ModifiableValueMap;
+import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 
@@ -161,6 +164,49 @@ public final class CommerceWriteSupport {
             map.remove(propertyName);
         } else {
             map.put(propertyName, values.toArray(new String[0]));
+        }
+    }
+
+    /**
+     * Rewrites a composite-multifield child node under {@code parent}: an existing {@code parent/childName} node
+     * (and its entire subtree) is removed first, then -- when {@code items} is non-empty -- a fresh
+     * {@code parent/childName} node (primary type {@code nt:unstructured}) is created with children named
+     * {@code item0, item1, …} (also {@code nt:unstructured}), each carrying the properties from the corresponding
+     * map in {@code items}, in list order.
+     * <p>
+     * This is the mechanism CIF composite multifields use on disk (e.g. featuredcategorylist/categorycarousel's
+     * {@code items}, productlist's {@code fragments}): a container node whose children are read back in child order
+     * by {@code resource.getChild(childName).getChildren()}, unlike a flat {@code String[]} property.
+     * <p>
+     * A {@code null} or empty {@code items} simply clears the container (no replacement node is created), so
+     * callers can pass an empty list to explicitly remove a previously-configured composite multifield.
+     *
+     * @param resolver the caller's {@link ResourceResolver} (JCR ACLs enforced); used to delete the prior node and
+     *            create the new container/children
+     * @param parent the resource under which {@code childName} lives (e.g. a component instance resource)
+     * @param childName the composite multifield's container node name (e.g. {@code items}, {@code fragments})
+     * @param items the ordered list of per-child property maps; {@code null}/empty clears the container
+     * @throws PersistenceException if resource creation/removal fails
+     */
+    public static void writeComposite(ResourceResolver resolver, Resource parent, String childName,
+        List<Map<String, Object>> items) throws PersistenceException {
+        Resource existing = parent.getChild(childName);
+        if (existing != null) {
+            resolver.delete(existing);
+        }
+
+        if (items == null || items.isEmpty()) {
+            return;
+        }
+
+        Map<String, Object> containerProps = new HashMap<String, Object>();
+        containerProps.put("jcr:primaryType", "nt:unstructured");
+        Resource container = resolver.create(parent, childName, containerProps);
+
+        for (int i = 0; i < items.size(); i++) {
+            Map<String, Object> childProps = new HashMap<String, Object>(items.get(i));
+            childProps.put("jcr:primaryType", "nt:unstructured");
+            resolver.create(container, "item" + i, childProps);
         }
     }
 }
