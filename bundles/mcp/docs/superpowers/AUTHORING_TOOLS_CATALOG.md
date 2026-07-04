@@ -266,7 +266,7 @@ cannot set them on the component node).
   combinedSku-normalized) or a category with an optional product count
   (`selectionType=category`, `category` + `productCount`), gated to productcarousel v1, with
   post-write read-back verification. See
-  `mcp/…/tools/ConfigureProductCarouselComponentTool.java`. Category-only pinning (`category`
+  `mcp/…/tools/authoring/ConfigureProductCarouselComponentTool.java`. Category-only pinning (`category`
   alone) remains additionally reachable via `configure_productlist_component`.
 - **Properties:** `selectionType` (`product`|`category`, defaults to `product` when blank),
   `product` (**flat multi-valued `String[]`** of combinedSkus — NOT child nodes),
@@ -285,7 +285,7 @@ cannot set them on the component node).
   `defaultSortField`/`defaultSortOrder`, and the `fragments` composite multifield. All fields
   besides `categoryUid` are harmless no-ops on productcarousel v1 (`ProductCarouselImpl` never
   reads them). Post-write read-back verification included. See
-  `mcp/…/tools/ConfigureProductListComponentTool.java`.
+  `mcp/…/tools/authoring/ConfigureProductListComponentTool.java`.
 - **Properties (do not conflate the source dialogs, but both are writable through this one tool
   on a productlist v1/v2 node):**
   - From the `productcollection` dialog fields (inherited by `ProductListImpl`): `pageSize`
@@ -316,7 +316,7 @@ cannot set them on the component node).
   tool, gated to **both** resource types (`featuredcategorylist/v1` and
   `categorycarousel/v1`) — there is no separate `configure_categorycarousel_component` tool
   name; T-05 and T-06 are the same code path. See
-  `mcp/…/tools/ConfigureFeaturedCategoryListComponentTool.java`.
+  `mcp/…/tools/authoring/ConfigureFeaturedCategoryListComponentTool.java`.
 - **Same Sling model** (`FeaturedCategoryListImpl`, registered for both RTs). Both use an
   `items` **composite multifield** → child nodes `items/item0…` with unprefixed props
   `categoryId` (**UID**, required) and `asset` (path under `/content/dam`, optional).
@@ -586,7 +586,7 @@ resourceResolver.commit();
   a genuinely incompatible type surfaces as `ContentFragmentException` → IAE (fail closed). Returns
   `{fragmentPath, elementName, variation, updated}` where `updated` is derived from a **real
   post-`commit()` readback** (`elementValueRoundTrips`), not a hardcoded literal. Backed by
-  `mcp/…/tools/UpdateCommerceContentFragmentFieldTool.java`.
+  `mcp/…/tools/authoring/UpdateCommerceContentFragmentFieldTool.java`.
 - **Variation policy (decided):** writes default to the element's **master** (base) value; passing
   `variation` routes to that **already-existing** named variation (an unknown variation → IAE, never
   auto-created), and an explicit `variation:"master"` is treated as the base path. Caveat: the lookup
@@ -601,7 +601,7 @@ resourceResolver.commit();
   `IllegalStateException` if a seed does not round-trip). `parentPath` defaults to `/content/dam`,
   the node name is derived uniquely from the identifier when not given, and `dryRun` previews the
   would-be path + seeded fields without writing. Backed by
-  `mcp/…/tools/CreateCommerceContentFragmentTool.java`.
+  `mcp/…/tools/authoring/CreateCommerceContentFragmentTool.java`.
 
 **Scope guardrail:** writes here behave like an author editing in the Assets UI — modify
 draft/master content, leave activation to the normal publish flow.
@@ -831,7 +831,7 @@ are **Venia proxy components**, not the core types directly:
   remains — a documented best-effort boundary). Result shapes: T-38 `{pagePath, template, rootCategoryId,
   idType, dryRun}`; T-39 `{pagePath, template, boundSkus, dryRun}`; T-40/T-41 `{pagePath, template,
   categoryUid, urlPath, dryRun}`; T-42 `{sectionPath, catalogPage, rootCategoryId, children:[{path,pageType}],
-  skipped:[{pageType,reason}], dryRun}`. No auto-publish. Backed by `mcp/…/tools/CreateCatalogPageTool.java`,
+  skipped:[{pageType,reason}], dryRun}`. No auto-publish. Backed by `mcp/…/tools/authoring/CreateCatalogPageTool.java`,
   `CreateSpecificPdpTool.java`, `CreateSpecificPlpTool.java`, `CreateSpecificPdpForCategoryTreeTool.java`,
   `ScaffoldCatalogSectionTool.java` + `PageCreationSupport`/`PageTemplateSupport`.
 - **aem-mock caveat:** the pinned aem-mock's `isResourceType` matches by identity only (no `/apps` proxy

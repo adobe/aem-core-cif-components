@@ -57,8 +57,11 @@ POST <navRoot>.mcp.json            POST <navRoot>.mcp-authoring.json
 
 - `com.adobe.cq.commerce.mcp` — **exported API only**: `JsonRpc`, `McpTool`,
   `McpCallContext`. Must **not** reference `…mcp.internal.*` (macker fails the build).
-- `com.adobe.cq.commerce.mcp.internal[.servlets|.tools|.dto]` — everything else. May freely
-  use the exported API. **New code almost always goes under `internal`.**
+- `com.adobe.cq.commerce.mcp.internal[.servlets|.tools|.tools.authoring|.dto]` — everything else.
+  May freely use the exported API. **New code almost always goes under `internal`.** Read tools live
+  in `internal.tools`; **authoring (write) tools (`writesContent() == true`) live in
+  `internal.tools.authoring`** — put a new write tool there (its test mirrors the package under
+  `src/test/java/…/internal/tools/authoring/`).
 
 See `README.md` for the full file tree.
 
