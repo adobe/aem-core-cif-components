@@ -117,16 +117,24 @@ the customer first. Call the same tool again with `confirm: true` to actually ap
 result includes a `confirmed` boolean so the caller always knows which case it got.
 `add_to_cart`/`view_cart`/`update_cart_item`/`clear_cart` don't need this — cart edits are freely
 reversible, unlike an address/shipping/payment choice that's about to feed into an order.
-`place_order` **also requires `confirm: true`** — since it creates a real, non-reversible order it
-must not fire on a single unconfirmed call; without it the tool commits nothing and returns a
-`pending_order` preview.
+`place_order` takes **no `confirm` argument** — calling it at all is the final, explicit
+confirmation, and it only ever returns `{order_number}`.
+
+**Order details, before and after placing:** `place_order` only returns `order_number` — there's
+no separate preview tool for what's about to be ordered, since `view_cart` (items/totals) plus the
+preceding `set_shipping_address`/`set_shipping_method`/`set_payment_method` responses (address,
+shipping method, payment method) already show it. To look an order back up **after** placing it —
+in a later session, with no cart around — use `get_order` instead: it queries Magento's
+`guestOrder` field directly by order number, email and last name, independent of any cart (a cart
+becomes inactive the instant it converts to an order, so it can't be used for this).
 
 | Tool | Args | Result |
 |---|---|---|
 | `set_shipping_address` | `{cart_id, email, firstname, lastname, street, city, region, postcode, country_code, telephone, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_shipping_address:{...}, message}`. Confirmed: `{cart_id, confirmed:true, shipping_methods:[{carrier_code,carrier_title,method_code,method_title,price,currency}]}`. Also sets guest email and billing address (defaults to same-as-shipping) once confirmed. |
 | `set_shipping_method` | `{cart_id, carrier_code, method_code, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_shipping_method:{carrier_code,method_code}, message}`. Confirmed: `{cart_id, confirmed:true, payment_methods:[{code,title}]}` |
 | `set_payment_method` | `{cart_id, payment_method, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_payment_method, message}`. Confirmed: `{cart_id, confirmed:true, payment_method, ready_to_place_order:true}` |
-| `place_order` | `{cart_id, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_order:true, message}` (nothing placed). Confirmed: `{cart_id, order_number, confirmed:true}`. **Not idempotent, not reversible** — creates a real order. |
+| `place_order` | `{cart_id}` | `{order_number}`. **Not idempotent, not reversible** — creates a real order. No `confirm` argument. |
+| `get_order` | `{order_number, email, lastname}` | `{order_number, status, order_date, shipping_method, payment_method, shipping_address, billing_address, items:[{sku,name,quantity}], grand_total, subtotal, shipping_total, currency}` — looks up an order **after** it's placed, any time, no cart needed |
 
 **Not yet supported:** customer login (guest checkout only), a separate billing address, any
 payment method beyond what the store already has configured — see "Known limitations" below.
