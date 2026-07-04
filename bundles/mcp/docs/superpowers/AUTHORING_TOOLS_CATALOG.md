@@ -102,7 +102,7 @@ below don't re-plan something that already exists).
 | `configure_productlist_component` | `{path, categoryUid?, showTitle?, showImage?, pageSize?, defaultSortField?, defaultSortOrder?, fragments?}` | Pin a **product-list / carousel component** to a category (writes `category`; gated to productlist v1/v2 + productcarousel v1) and, for product-list components, the rest of its dialog (`showTitle`/`showImage`/`pageSize`/`defaultSortField`/`defaultSortOrder`/`fragments`) | **✅ T-03** |
 | `configure_productcarousel_component` | `{path, selectionType?, product?, category?, productCount?}` | Configure a **product carousel's** selection: manual product list (`product[]`) or category + `productCount` | **✅ T-02** |
 | `configure_featuredcategorylist_component` | `{path, items, title?, titleType?, linkTarget?}` | Configure the `items` composite multifield (`categoryId`+`asset`) shared by the **featured-category-list and category-carousel** components, plus title fields | **✅ T-05 / T-06** |
-| `configure_catalog_page` | `{path, categoryUid, showMainCategories?}` | Scope a **catalog page's** root category (`magentoRootCategoryId` + `magentoRootCategoryIdType=uid` + `showMainCategories`, on `jcr:content`; gated to catalog page v1/v3) | **◐ T-28** |
+| `configure_catalog_page` | `{path, categoryUid, idType?, showMainCategories?}` | Scope a **catalog page's** root category (`magentoRootCategoryId` + `magentoRootCategoryIdType` [`uid`\|`urlPath`, default `uid`] + `showMainCategories`, on `jcr:content`; gated to catalog page v1/v3) | **✅ T-28** |
 | `tag_content_with_commerce` | `{path, sku?, categoryUid?, action?}` | Set/remove `cq:products`/`cq:categories` on a DAM asset, page, or XF variation (`action`: `add`\|`remove`) | **✅ T-20** |
 
 > **Correction to earlier draft:** the baseline previously described `configure_catalog_page`
@@ -613,15 +613,14 @@ always includes sub-categories). **First match wins; there is no explicit mappin
 | `list_catalog_pages(siteRoot)` (T-25) | ✅ | 1 | Every catalog page under a site + its root-category scope, in one call |
 | `explain_catalog_page_routing(identifier)` (T-26) | ✅ | 1 | Replays `getGenericPage` for a category, reports which page wins and why |
 | `detect_catalog_page_conflicts(siteRoot)` (T-27) | ✅ | 1 | Flags overlapping `urlPath` scopes (ambiguous) and categories with no matching page (dead links) |
-| `configure_catalog_page` (T-28, was `configure_catalog_page_scope`) | ◐ | 2 | Property write of `magentoRootCategoryId` (+ `magentoRootCategoryIdType`, + `showMainCategories`) on the catalog page's `jcr:content` |
+| `configure_catalog_page` (T-28, was `configure_catalog_page_scope`) | ✅ | 2 | Property write of `magentoRootCategoryId` (+ `magentoRootCategoryIdType`, + `showMainCategories`) on the catalog page's `jcr:content` |
 
 > **T-28 is the shipped baseline write tool** `configure_catalog_page {path, categoryUid,
-> showMainCategories?}` (see §0). **Shipped subset/deltas vs. this catalog entry:** the
-> shipped tool **hardcodes `magentoRootCategoryIdType=uid`** (it does not yet expose the
-> `urlPath` idType option T-28 originally called for) and **adds `showMainCategories`**
-> (default `false`), which the original T-28 signature didn't mention. Adding a `urlPath`
-> idType option is the remaining delta; everything else is done, with post-write read-back
-> verification.
+> idType?, showMainCategories?}` (see §0). **Shipped vs. this catalog entry:** the shipped
+> tool **adds `showMainCategories`** (default `false`), which the original T-28 signature
+> didn't mention. `idType` (default `uid`, also accepts `urlPath`) is supported, so
+> `magentoRootCategoryIdType` is no longer hardcoded — everything called for is done, with
+> post-write read-back verification.
 
 - **T-25/26/27 (shipped):** reuse `SiteStructure`/`SpecificPageStrategy` logic via the shared
   `mcp/internal/CatalogPageRouting.java` helper — `list_catalog_pages(siteRoot?)` reads
@@ -645,8 +644,8 @@ always includes sub-categories). **First match wins; there is no explicit mappin
 
 ## 8. Specific PDP/PLP binding tools (Tier 1 read / Tier 2 write / Tier 3 create)
 
-**Status: Tier 1 diagnostics (T-33–37) ✅ shipped; Tier 2 write tools (T-29–32) still ▢
-Planned.** The deepest mechanism investigated and the one with the most confirmed real
+**Status: Tier 1 diagnostics (T-33–37) ✅ shipped; Tier 2 write tools (T-29–32) ✅
+shipped.** The deepest mechanism investigated and the one with the most confirmed real
 gotchas — the Tier 1 diagnostics were prioritized alongside/before the Tier 2 writes, per the
 plan below. (Do not confuse this with §7's `configure_catalog_page`, which scopes a whole
 catalog page by root category; §8 binds *specific* descendant PDP/PLP pages.)
@@ -702,10 +701,10 @@ categoryUrlPath.equals(givenUrlPath)
 
 | Tool | Status | Tier | Does |
 |---|---|---|---|
-| `bind_page_to_products(page, skusOrUrlKeys[])` (T-29) | ▢ | 2 | Sets `selectorFilter` on a product page |
-| `bind_page_to_category(page, categoryUid, urlPath, includesSubCategories)` (T-30) | ▢ | 2 | Sets `selectorFilter`(+`selectorFilterType`) + `includesSubCategories` on a category page |
-| `bind_product_page_to_category_tree(page, categoryUid, urlPath, includesSubCategories)` (T-31) | ▢ | 2 | Sets `useForCategories`+`includesSubCategories` on a product page (v2+) |
-| `unbind_specific_page(page)` (T-32) | ▢ | 2 | Clears the binding fields — no such affordance in the dialog today |
+| `bind_page_to_products(page, skusOrUrlKeys[])` (T-29) | ✅ | 2 | Sets `selectorFilter` on a product page |
+| `bind_page_to_category(page, categoryUid, urlPath, includesSubCategories)` (T-30) | ✅ | 2 | Sets `selectorFilter`(+`selectorFilterType`) + `includesSubCategories` on a category page |
+| `bind_product_page_to_category_tree(page, categoryUid, urlPath, includesSubCategories)` (T-31) | ✅ | 2 | Sets `useForCategories`+`includesSubCategories` on a product page (v2+) |
+| `unbind_specific_page(page)` (T-32) | ✅ | 2 | Clears the binding fields — no such affordance in the dialog today |
 | `explain_page_resolution(identifier, type)` (T-33) | ✅ | 1 | Replays the depth-first match, reports the winning page **and its tree depth** |
 | `list_specific_pages(siteRoot)` (T-34) | ✅ | 1 | Every page under a site with a non-empty binding field, and what it binds |
 | `detect_specific_page_conflicts(siteRoot)` (T-35) | ✅ | 1 | Flags identical-scope duplicates and structural shadowing risk (narrower binding at ≤ depth of a broader one) |
@@ -878,11 +877,11 @@ name from the catalog ID, the shipped name is shown.
 | T-25 | `list_catalog_pages` | §7 Multi-catalog-page | 1 | ✅ |
 | T-26 | `explain_catalog_page_routing` | §7 | 1 | ✅ |
 | T-27 | `detect_catalog_page_conflicts` | §7 | 1 | ✅ |
-| T-28 | `configure_catalog_page` | §7 | 2 | ◐ (idType hardcoded `uid`; adds `showMainCategories`) |
-| T-29 | `bind_page_to_products` | §8 Specific PDP/PLP | 2 | ▢ |
-| T-30 | `bind_page_to_category` | §8 | 2 | ▢ |
-| T-31 | `bind_product_page_to_category_tree` | §8 | 2 | ▢ |
-| T-32 | `unbind_specific_page` | §8 | 2 | ▢ |
+| T-28 | `configure_catalog_page` | §7 | 2 | ✅ |
+| T-29 | `bind_page_to_products` | §8 Specific PDP/PLP | 2 | ✅ |
+| T-30 | `bind_page_to_category` | §8 | 2 | ✅ |
+| T-31 | `bind_product_page_to_category_tree` | §8 | 2 | ✅ |
+| T-32 | `unbind_specific_page` | §8 | 2 | ✅ |
 | T-33 | `explain_page_resolution` | §8 | 1 | ✅ |
 | T-34 | `list_specific_pages` | §8 | 1 | ✅ |
 | T-35 | `detect_specific_page_conflicts` | §8 | 1 | ✅ |
@@ -932,6 +931,5 @@ name from the catalog ID, the shipped name is shown.
    they live — now a three-way choice given that only `GraphQLProxyServlet` is provably
    Cloud-bound: extend `StoreContextResolver`, a separate Cloud-only module, or
    reimplement the config-agnostic readers in `bundles/mcp` and defer only the proxy tools.
-6. **§7 T-28 delta:** should `configure_catalog_page` grow a `urlPath` idType option (it
-   currently hardcodes `magentoRootCategoryIdType=uid`), or is UID-only sufficient for the
-   authoring flows in scope?
+6. **§7 T-28 delta — RESOLVED.** `configure_catalog_page` now exposes an optional `idType`
+   (`uid`\|`urlPath`, default `uid`), so `magentoRootCategoryIdType` is no longer hardcoded.

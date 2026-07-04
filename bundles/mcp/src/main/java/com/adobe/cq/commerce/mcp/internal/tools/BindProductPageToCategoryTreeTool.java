@@ -101,7 +101,8 @@ public class BindProductPageToCategoryTreeTool implements McpTool {
             + "whole category tree, by writing its useForCategories (plain urlPath, v2+ only) and "
             + "includesSubCategories properties. Note: the structure page type does not distinguish product vs. "
             + "category pages -- apply this tool only to a product page; use bind_page_to_category for a single "
-            + "category page's binding.";
+            + "category page's binding. (categoryUid is required for symmetry but is not persisted -- only urlPath "
+            + "is written to useForCategories.)";
     }
 
     @Override
