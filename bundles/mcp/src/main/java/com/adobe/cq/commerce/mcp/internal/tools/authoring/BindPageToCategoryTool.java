@@ -27,7 +27,6 @@ import org.osgi.service.component.annotations.Component;
 
 import com.adobe.cq.commerce.mcp.McpCallContext;
 import com.adobe.cq.commerce.mcp.McpTool;
-import com.adobe.cq.commerce.mcp.internal.CommerceWriteSupport;
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,7 +40,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * enforced.
  * <p>
  * This is the write counterpart of the shipped §8.1 specific-page diagnostics (backed by
- * {@code com.adobe.cq.commerce.mcp.internal.SpecificPageRouting}, which redeclares the binding-field constants from
+ * {@code com.adobe.cq.commerce.mcp.internal.tools.authoring.SpecificPageRouting}, which redeclares the binding-field constants from
  * the non-exported {@code SpecificPageStrategy}). For a <em>category</em> page, the single {@code selectorFilter}
  * entry is pipe-encoded as {@code categoryUid + "|" + urlPath} (the {@code uid|urlPath} format
  * {@code SpecificPageRouting.parseSelectorFilter} parses when {@code selectorFilterType == "uidAndUrlPath"}),

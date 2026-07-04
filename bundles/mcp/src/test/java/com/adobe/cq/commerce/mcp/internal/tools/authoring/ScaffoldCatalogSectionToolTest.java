@@ -52,7 +52,7 @@ import static org.mockito.Mockito.when;
  * {@code configure_catalog_page} gate can't pass in the pinned aem-mock -- it can't resolve Venia's proxy
  * super-typing; see {@code PageTemplateSupport}'s aem-mock caveat).</li>
  * <li>{@code createChildPage} -- materialises canned child pages and returns their paths, standing in for
- * {@link com.adobe.cq.commerce.mcp.internal.PageCreationSupport#createPage} (the pinned aem-mock's
+ * {@link com.adobe.cq.commerce.mcp.internal.tools.authoring.PageCreationSupport#createPage} (the pinned aem-mock's
  * {@code PageManager} works, but keeping the seam overridden mirrors the sibling create tools and keeps the test
  * independent of proxy resolution).</li>
  * </ul>

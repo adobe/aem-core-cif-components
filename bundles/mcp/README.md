@@ -19,8 +19,16 @@ returns `404`).
 
 | | Selector / URL | Tools | Instances | Auth |
 |---|---|---|---|---|
-| **Shopper (read)** | `POST <navRoot>.mcp.json` | read kernel | author **+** publish | anonymous (storefront parity) |
-| **Authoring (read+write)** | `POST <navRoot>.mcp-authoring.json` | read kernel **+** write tools | **author only** | AEM auth + JCR ACLs |
+| **Shopper (read)** | `POST <navRoot>.mcp.json` | storefront read kernel (catalog reads + guest cart/checkout) | author **+** publish | anonymous (storefront parity) |
+| **Authoring (read+write)** | `POST <navRoot>.mcp-authoring.json` | everything: storefront read kernel **+** authoring-only tools (write tools **+** authoring-oriented read/diagnostic tools) | **author only** | AEM auth + JCR ACLs |
+
+A tool is served by the shopper endpoint unless `McpTool.authoringOnly()` returns `true`
+(`ToolRegistry.forSelector`). `authoringOnly()` defaults to `writesContent()`, so every write tool
+is authoring-only automatically; authoring-oriented **read** tools (page-routing / specific-page
+diagnostics, template / content-fragment / associated-content inspection, orphaned-content scan,
+picker + content-binding validation) override it to `true` so they are not exposed to anonymous
+storefront callers. This is an explicit per-tool declaration, **not** inferred from the tool's Java
+package.
 
 `<navRoot>` is the store-root page CIF marks `navRoot=true`, e.g.
 `/content/venia/us/en`. Different nav-roots = different stores; the store/commerce context

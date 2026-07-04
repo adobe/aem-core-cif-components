@@ -26,7 +26,6 @@ import org.osgi.service.component.annotations.Component;
 
 import com.adobe.cq.commerce.mcp.McpCallContext;
 import com.adobe.cq.commerce.mcp.McpTool;
-import com.adobe.cq.commerce.mcp.internal.CommerceWriteSupport;
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,7 +38,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * ACLs are enforced.
  * <p>
  * This is the write counterpart of the shipped §8.1 specific-page diagnostics (backed by
- * {@code com.adobe.cq.commerce.mcp.internal.SpecificPageRouting}, which redeclares the binding-field constants from
+ * {@code com.adobe.cq.commerce.mcp.internal.tools.authoring.SpecificPageRouting}, which redeclares the binding-field constants from
  * the non-exported {@code SpecificPageStrategy}). For a <em>product</em> page, {@code selectorFilter} entries use
  * dialog {@code selectionId="slug"} — i.e. plain product SKUs/URL keys/slugs, never pipe-encoded
  * ({@code uid|urlPath}) and never {@code CombinedSku}-encoded. That pipe/combinedSku encoding only applies to

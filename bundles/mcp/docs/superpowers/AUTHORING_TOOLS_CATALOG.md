@@ -183,7 +183,7 @@ this is how store/config/headers context is injected. Any new tool that needs a
 > **Reuse-vs-reimplement decision (settled by shipped code):** for associated-content and
 > commerce-CF *reads*, the shipped tools depend on the **AEM CIF SDK**
 > `AssociatedContentService` / `AssociatedContentQuery` (`com.adobe.aem:aem-cif-sdk-api`,
-> `provided` scope; wrapped by `mcp/internal/AssociatedContentSupport.java`) rather than
+> `provided` scope; wrapped by `mcp/internal/tools/authoring/AssociatedContentSupport.java`) rather than
 > reimplementing the JCR-SQL2 in `bundles/mcp`. This resolves the open question the §5/§6
 > mechanism notes below originally raised — see those sections and §12 Open Q2.
 
@@ -486,7 +486,7 @@ Java constants**):
 > `bundles/mcp`. The shipped `get_product_associated_content` / `get_category_associated_content`
 > tools instead call the **AEM CIF SDK** `AssociatedContentService` /
 > `AssociatedContentQuery` (`com.adobe.aem:aem-cif-sdk-api`, `provided` scope), wrapped by
-> `mcp/internal/AssociatedContentSupport.java`. So T-19 is **✅ shipped** (split into a
+> `mcp/internal/tools/authoring/AssociatedContentSupport.java`. So T-19 is **✅ shipped** (split into a
 > product and a category tool), and the "reimplement JCR-SQL2" recommendation is
 > superseded — see §12 Open Q2 (now resolved). A future plan targeting AEM 6.5 without the
 > SDK on the classpath would need to revisit this, but the current shipped decision is
@@ -500,11 +500,11 @@ Java constants**):
 
 - **T-19 (shipped):** args `{sku|categoryUid, fragmentLocation?, contentFragmentModel?,
   linkElement?, limit?}`; result groups `experienceFragments`, `contentFragments`,
-  `contentPages`, `assets`. Backed by `mcp/…/tools/GetProductAssociatedContentTool.java` /
+  `contentPages`, `assets`. Backed by `mcp/…/tools/authoring/GetProductAssociatedContentTool.java` /
   `GetCategoryAssociatedContentTool.java` over `AssociatedContentSupport`.
 - **T-20 (shipped):** `tag_content_with_commerce` writes the **multi-valued** `cq:products`
   (combinedSku) / `cq:categories` (UID), plus `cq:productsType=combinedSku` for multi-SKU
-  DAM metadata, via `mcp/internal/CommerceContentTagger.java`. `action` is `add` (default)
+  DAM metadata, via `mcp/internal/tools/authoring/CommerceContentTagger.java`. `action` is `add` (default)
   or `remove`. **Fail-closed** (commit `f2a8639d`): `CommerceContentTagger.resolveTagTarget`
   accepts only DAM assets (`dam:Asset` → metadata node), pages/XF variations (`cq:Page` →
   `jcr:content`), or a `cq:PageContent` node directly; **any other resource type throws**
@@ -514,7 +514,7 @@ Java constants**):
   (the `AssociatedContentService` has no enumeration API, only identifier-keyed lookups), then
   resolves each tagged identifier via a fresh single-use retriever per identifier — the same
   "null fetch or non-empty `getErrors()` means orphaned" check as `validate_content_bindings`
-  (T-15). Backed by `mcp/…/tools/FindOrphanedCommerceContentTool.java`.
+  (T-15). Backed by `mcp/…/tools/authoring/FindOrphanedCommerceContentTool.java`.
 
 **Implementation note (updated):** the shipped tools consume the SDK `AssociatedContentService`
 directly (`aem-cif-sdk-api`). If a future 6.5-only packaging needs to drop that dependency,
@@ -572,7 +572,7 @@ resourceResolver.commit();
   now also ships as a standalone single-CF lookup, returning `{identifier, type, modelPath?,
   fragmentPath?, fields}` (or `{identifier, type, resolves:false}` if no CF matches) — it calls
   the same `AssociatedContentService` via `AssociatedContentSupport.resolveSingleContentFragment`.
-  Backed by `mcp/…/tools/GetCommerceContentFragmentTool.java`.
+  Backed by `mcp/…/tools/authoring/GetCommerceContentFragmentTool.java`.
 - **T-23 (shipped):** resolves an existing CF by `fragmentPath` (fail-closed via
   `CommerceWriteSupport.resolveContentFragment` — blank / not under `/content/dam` / not found /
   `adaptTo(ContentFragment.class)==null` → IAE) and sets one element's value. Richtext elements
@@ -645,7 +645,7 @@ always includes sub-categories). **First match wins; there is no explicit mappin
 > post-write read-back verification.
 
 - **T-25/26/27 (shipped):** reuse `SiteStructure`/`SpecificPageStrategy` logic via the shared
-  `mcp/internal/CatalogPageRouting.java` helper — `list_catalog_pages(siteRoot?)` reads
+  `mcp/internal/tools/authoring/CatalogPageRouting.java` helper — `list_catalog_pages(siteRoot?)` reads
   `getCatalogPages()` order and each page's two scope properties (`{siteRoot,
   catalogPages:[{path,rootCategoryId,idType,genericFallback}]}`); `explain_catalog_page_routing(urlPath,
   siteRoot?)` mirrors the `getGenericPage` first-match walk with a full evaluation trace
@@ -739,7 +739,7 @@ categoryUrlPath.equals(givenUrlPath)
   `useForCategories` is multi-valued.
 - **Diagnostic tools (T-33–37, shipped):** mirror `SpecificPageStrategy.traverse`/`isSpecificPage`
   (candidate = non-null `selectorFilter` **or** `useForCategories`) and the subtree
-  predicate above, via the shared `mcp/internal/SpecificPageRouting.java` helper.
+  predicate above, via the shared `mcp/internal/tools/authoring/SpecificPageRouting.java` helper.
   `explain_page_resolution(identifier, type, siteRoot?)` replays the depth-first walk
   (`{identifier, type, winningPage, depth, candidates:[{path,depth,matched,why}]}`).
   `list_specific_pages(siteRoot?)` returns `{siteRoot, specificPages:[{path, pageType,
@@ -811,7 +811,7 @@ are **Venia proxy components**, not the core types directly:
   only when the `initial` grid itself can't be read. An empty grid with no children classifies as
   `catalog`; a grid whose children include no recognized commerce component is omitted (not
   treated as empty). Returns `{kind, templates:[{path,title,signal}]}` (`signal` = `resourceSuperType`
-  or `title`). Backed by `mcp/…/tools/SuggestTemplateForPageTypeTool.java`.
+  or `title`). Backed by `mcp/…/tools/authoring/SuggestTemplateForPageTypeTool.java`.
 
 - **T-38–T-42 (shipped):** all five are WRITE tools (`writesContent()==true`, authoring endpoint,
   caller-resolver, fail-closed) sharing one pattern: validate parent (`PageCreationSupport.validatePageParent`
