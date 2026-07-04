@@ -443,8 +443,8 @@ properties below, then `commit()`. Neither component needs child nodes for the b
 
 | Tool | Status | Minimum viable node |
 |---|---|---|
-| `create_product_teasers(parentPage, skus[], ctaConfig)` (T-17) | ▢ | `sling:resourceType=…/productteaser/v1/productteaser` + `selection`=combinedSku (rest optional) |
-| `create_product_carousels(parentPage, categoryUid, displayConfig, count)` (T-18) | ▢ | `sling:resourceType=…/productcarousel/v1/productcarousel` + either `product`=`String[]` (selectionType defaults to `product`) **or** `selectionType=category`+`category`=UID (+optional `productCount`) |
+| `create_product_teasers(parentPage, skus[], ctaConfig)` (T-17) | ✅ Shipped | `sling:resourceType=…/productteaser/v1/productteaser` + `selection`=combinedSku (rest optional) |
+| `create_product_carousels(parentPage, categoryUid, displayConfig, count)` (T-18) | ✅ Shipped | `sling:resourceType=…/productcarousel/v1/productcarousel` + either `product`=`String[]` (selectionType defaults to `product`) **or** `selectionType=category`+`category`=UID (+optional `productCount`) |
 
 **Gotcha:** node name collisions under the grid — generate unique names
 (`productteaser`, `productteaser_1`, …) like the AEM editor does. `componentGroup` is
@@ -866,8 +866,8 @@ name from the catalog ID, the shipped name is shown.
 | T-14 | `resolve_url_to_entity` | §3 | 1 | ✅ |
 | T-15 | `validate_content_bindings` | §3 | 1 | ✅ |
 | T-16 | `resolve_category_details` | §3 | 1 | ✅ |
-| T-17 | `create_product_teasers` | §4 Bulk components | 3 | ▢ |
-| T-18 | `create_product_carousels` | §4 | 3 | ▢ |
+| T-17 | `create_product_teasers` | §4 Bulk components | 3 | ✅ |
+| T-18 | `create_product_carousels` | §4 | 3 | ✅ |
 | T-19 | `get_product_associated_content` / `get_category_associated_content` | §5 Associated content | 1 | ✅ |
 | T-20 | `tag_content_with_commerce` | §5 | 2 | ✅ |
 | T-21 | `find_orphaned_commerce_content` | §5 | 1 | ✅ |
