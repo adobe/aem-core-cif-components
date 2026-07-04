@@ -16,13 +16,18 @@
 package com.adobe.cq.commerce.mcp.internal;
 
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.day.cq.wcm.api.PageManager;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PageCreationSupportTest {
 
@@ -53,5 +58,29 @@ public class PageCreationSupportTest {
     public void rejectsMissingParent() {
         assertThrows(IllegalArgumentException.class,
             () -> PageCreationSupport.validatePageParent(context.resourceResolver(), "parent", "/content/does/not/exist"));
+    }
+
+    @Test
+    public void createPageStagesAPageFromATemplate() throws Exception {
+        // aem-mock provides a working PageManager; create() with a real template + parent stages a page under it.
+        context.load().json("/context/conf-templates.json", "/conf");
+        context.build().resource("/content/site/en", "jcr:primaryType", "cq:Page").commit();
+
+        String pagePath = PageCreationSupport.createPage(context.resourceResolver(), "/content/site/en", "shop",
+            "/conf/testsite/settings/wcm/templates/catalog-page", "Shop");
+
+        assertEquals("/content/site/en/shop", pagePath);
+        // The page is staged in the caller's resolver (createPage uses autoSave=false and does not commit).
+        assertNotNull(context.resourceResolver().getResource("/content/site/en/shop"));
+    }
+
+    @Test
+    public void createPageRejectsResolverWithNoPageManager() {
+        // Fail closed when the caller's resolver cannot provide a PageManager.
+        ResourceResolver resolver = mock(ResourceResolver.class);
+        when(resolver.adaptTo(PageManager.class)).thenReturn(null);
+
+        assertThrows(IllegalArgumentException.class,
+            () -> PageCreationSupport.createPage(resolver, "/content/site/en", "shop", "/some/template", "Shop"));
     }
 }

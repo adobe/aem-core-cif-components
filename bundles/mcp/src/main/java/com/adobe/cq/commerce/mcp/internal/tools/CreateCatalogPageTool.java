@@ -30,9 +30,6 @@ import com.adobe.cq.commerce.mcp.McpTool;
 import com.adobe.cq.commerce.mcp.internal.PageCreationSupport;
 import com.adobe.cq.commerce.mcp.internal.PageTemplateSupport;
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
-import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.PageManager;
-import com.day.cq.wcm.api.WCMException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -191,25 +188,6 @@ public class CreateCatalogPageTool implements McpTool {
     }
 
     /**
-     * Create seam over {@code PageManager.create} -- overridden in unit tests to observe the create args and return
-     * a canned core-typed page (the pinned aem-mock can't resolve Venia's proxy super-typing, so the delegated
-     * {@code configure_catalog_page}'s {@code isResourceType} gate needs a directly-core-typed {@code jcr:content}
-     * in-mock; the real Venia proxy path is proven live -- see {@link PageTemplateSupport}'s aem-mock caveat).
-     * <p>
-     * Uses the {@code autoSave=false} overload so the page is <strong>staged, not committed</strong>: the caller
-     * commits it together with the delegated binding (one atomic unit), and can {@code revert()} it if the binding
-     * fails -- so a rejected binding never leaves an orphaned, unbound page.
-     *
-     * @param resolver the caller's {@link ResourceResolver}
-     * @param parentPath the validated parent path the page is created under
-     * @param name the (already unique) child name of the new page
-     * @param templatePath the resolved {@code catalog} template path
-     * @param title the new page's {@code jcr:title}
-     * @return the path of the newly created (staged, uncommitted) page
-     * @throws IllegalArgumentException if the underlying {@code PageManager.create} fails (checked
-     *             {@code WCMException} translated to fail closed)
-     */
-    /**
      * Binding seam: delegates the root-category binding to the shipped {@code configure_catalog_page} tool. Extracted
      * as a {@code protected} seam so unit tests can assert the create tool surfaces a binding failure (an
      * {@code updated:false} readback -&gt; {@link IllegalStateException}) and reverts the staged page on a thrown
@@ -224,17 +202,25 @@ public class CreateCatalogPageTool implements McpTool {
         return new ConfigureCatalogPageTool().call(ctx, bindArgs);
     }
 
+    /**
+     * Create seam over {@link PageCreationSupport#createPage} -- overridden in unit tests to observe the create args
+     * and return a canned core-typed page (the pinned aem-mock can't resolve Venia's proxy super-typing, so the
+     * delegated {@code configure_catalog_page}'s {@code isResourceType} gate needs a directly-core-typed
+     * {@code jcr:content} in-mock; the real Venia proxy path is proven live -- see {@link PageTemplateSupport}'s
+     * aem-mock caveat). The shared body stages the page ({@code autoSave=false}) so the caller commits it together
+     * with the delegated binding (one atomic unit) and can {@code revert()} it if the binding fails.
+     *
+     * @param resolver the caller's {@link ResourceResolver}
+     * @param parentPath the validated parent path the page is created under
+     * @param name the (already unique) child name of the new page
+     * @param templatePath the resolved {@code catalog} template path
+     * @param title the new page's {@code jcr:title}
+     * @return the path of the newly created (staged, uncommitted) page
+     * @throws IllegalArgumentException if the underlying {@code PageManager.create} fails (checked
+     *             {@code WCMException} translated to fail closed)
+     */
     protected String createPage(ResourceResolver resolver, String parentPath, String name, String templatePath,
         String title) throws PersistenceException {
-        PageManager pageManager = resolver.adaptTo(PageManager.class);
-        if (pageManager == null) {
-            throw new IllegalArgumentException("cannot create page: no PageManager for the caller's resolver");
-        }
-        try {
-            Page page = pageManager.create(parentPath, name, templatePath, title, false);
-            return page.getPath();
-        } catch (WCMException e) {
-            throw new IllegalArgumentException("failed to create page under " + parentPath + ": " + e.getMessage(), e);
-        }
+        return PageCreationSupport.createPage(resolver, parentPath, name, templatePath, title);
     }
 }

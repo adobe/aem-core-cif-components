@@ -30,9 +30,6 @@ import com.adobe.cq.commerce.mcp.McpTool;
 import com.adobe.cq.commerce.mcp.internal.PageCreationSupport;
 import com.adobe.cq.commerce.mcp.internal.PageTemplateSupport;
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
-import com.day.cq.wcm.api.Page;
-import com.day.cq.wcm.api.PageManager;
-import com.day.cq.wcm.api.WCMException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -226,15 +223,6 @@ public class CreateSpecificPdpTool implements McpTool {
      */
     protected String createPage(ResourceResolver resolver, String parentPath, String name, String templatePath,
         String title) throws PersistenceException {
-        PageManager pageManager = resolver.adaptTo(PageManager.class);
-        if (pageManager == null) {
-            throw new IllegalArgumentException("cannot create page: no PageManager for the caller's resolver");
-        }
-        try {
-            Page page = pageManager.create(parentPath, name, templatePath, title, false);
-            return page.getPath();
-        } catch (WCMException e) {
-            throw new IllegalArgumentException("failed to create page under " + parentPath + ": " + e.getMessage(), e);
-        }
+        return PageCreationSupport.createPage(resolver, parentPath, name, templatePath, title);
     }
 }

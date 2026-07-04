@@ -16,20 +16,24 @@
 package com.adobe.cq.commerce.mcp.internal;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 
+import com.day.cq.wcm.api.Page;
+import com.day.cq.wcm.api.PageManager;
+import com.day.cq.wcm.api.WCMException;
+
 /**
- * Shared validation scaffold for MCP Tier-3 <em>page-creation</em> write tools ({@code writesContent() == true}) --
- * the strict parent-path validation those tools apply before {@code PageManager.create} (an approved Tier-3
- * guardrail given the larger blast radius of creating pages).
+ * Shared validation + page-create scaffold for MCP Tier-3 <em>page-creation</em> write tools
+ * ({@code writesContent() == true}) -- the strict parent-path validation those tools apply before
+ * {@code PageManager.create} (an approved Tier-3 guardrail given the larger blast radius of creating pages), plus the
+ * one {@link #createPage} body they all share.
  * <p>
- * The actual page create is intentionally <strong>not</strong> here: each creation tool puts
- * {@code PageManager.create} behind its own {@code protected createPage(...)} seam (real impl:
- * {@code resolver.adaptTo(PageManager.class).create(parentPath, name, templatePath, title)}, catching the checked
- * {@code com.day.cq.wcm.api.WCMException} and re-throwing {@link IllegalArgumentException}) so the create can be
- * observed/stubbed in unit tests without a Venia-proxy-resolving instance -- see the aem-mock caveat on
- * {@code PageTemplateSupport}. This class only factors out the parent validation shared across those tools.
+ * Each creation tool still keeps its own {@code protected createPage(...)} seam (which delegates here) so the create
+ * can be observed/stubbed in unit tests without a Venia-proxy-resolving instance -- see the aem-mock caveat on
+ * {@code PageTemplateSupport}. The shared body is factored here so it lives in one place rather than being duplicated
+ * across every creation tool.
  * <p>
  * This is a plain stateless helper, not an {@code McpTool} -- it is not an OSGi component and not discovered by
  * {@code ToolRegistry}.
@@ -37,6 +41,40 @@ import org.apache.sling.api.resource.ResourceResolver;
 public final class PageCreationSupport {
 
     private PageCreationSupport() {}
+
+    /**
+     * Creates a page via {@code PageManager.create} with {@code autoSave=false} (staged, <strong>not</strong>
+     * committed): the caller commits it together with any follow-on write (e.g. a delegated binding) as one unit, and
+     * can {@code revert()} it if that follow-on fails. This is the single shared body every Tier-3 page-creation tool's
+     * {@code createPage} seam delegates to.
+     * <p>
+     * Fails closed: an {@link IllegalArgumentException} is thrown if the caller's resolver has no {@code PageManager}
+     * or the underlying create fails (the checked {@code com.day.cq.wcm.api.WCMException} is translated).
+     *
+     * @param resolver the caller's {@link ResourceResolver} (JCR ACLs enforced)
+     * @param parentPath the (already validated) parent path the page is created under
+     * @param name the (already unique) child name of the new page
+     * @param templatePath the resolved template path (AEM copies its {@code initial} content into the new page)
+     * @param title the new page's {@code jcr:title}
+     * @return the path of the newly created (staged, uncommitted) page
+     * @throws PersistenceException never actually thrown by this body (declared to match the seam contract of tools
+     *             that derive names via {@code ResourceUtil} and share the checked signature)
+     * @throws IllegalArgumentException if the resolver has no {@code PageManager}, or the underlying
+     *             {@code PageManager.create} fails (checked {@code WCMException} translated to fail closed)
+     */
+    public static String createPage(ResourceResolver resolver, String parentPath, String name, String templatePath,
+        String title) throws PersistenceException {
+        PageManager pageManager = resolver.adaptTo(PageManager.class);
+        if (pageManager == null) {
+            throw new IllegalArgumentException("cannot create page: no PageManager for the caller's resolver");
+        }
+        try {
+            Page page = pageManager.create(parentPath, name, templatePath, title, false);
+            return page.getPath();
+        } catch (WCMException e) {
+            throw new IllegalArgumentException("failed to create page under " + parentPath + ": " + e.getMessage(), e);
+        }
+    }
 
     /**
      * Validates and resolves the parent a new page will be created under: fail closed
