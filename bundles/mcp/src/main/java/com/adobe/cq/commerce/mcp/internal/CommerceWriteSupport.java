@@ -169,6 +169,44 @@ public final class CommerceWriteSupport {
     }
 
     /**
+     * Resolves {@code path} to a writable <strong>container</strong> resource for Tier-3 node creation (e.g. a
+     * responsive grid a bulk-create tool stamps new component children under), failing closed on: a blank path, a
+     * path outside {@code /content/}, a non-existent resource, a resource that is itself a {@code cq:Page} (the
+     * caller must pass a container resource inside the page, e.g. the responsive grid, not the page itself), or a
+     * resource not adaptable to {@link ModifiableValueMap} (not a real writable JCR node).
+     * <p>
+     * Unlike {@link #resolveComponent}, which gates the resolved resource against a fixed list of CIF
+     * component/page resource types, this method has no resource-type allowlist -- any writable non-page container
+     * under {@code /content/} is accepted, since the container itself (e.g. a responsive grid) is not a CIF
+     * component.
+     *
+     * @param resolver the caller's {@link ResourceResolver} (JCR ACLs enforced)
+     * @param argName the tool argument name {@code path} was read from, used in error messages
+     * @param path the container resource path to resolve; must be non-blank and under {@code /content/}
+     * @return the resolved container {@link Resource}
+     * @throws IllegalArgumentException if {@code path} is blank, not under {@code /content/}, does not resolve to
+     *             an existing resource, is itself a {@code cq:Page}, or is not adaptable to {@link ModifiableValueMap}
+     */
+    public static Resource resolveContainer(ResourceResolver resolver, String argName, String path) {
+        if (StringUtils.isBlank(path) || !path.startsWith("/content/")) {
+            throw new IllegalArgumentException(argName + " (under /content) is required");
+        }
+
+        Resource container = resolver.getResource(path);
+        if (container == null) {
+            throw new IllegalArgumentException("resource not found: " + path);
+        }
+        if (container.adaptTo(Page.class) != null) {
+            throw new IllegalArgumentException(
+                argName + " must be a container resource inside a page, not the page itself: " + path);
+        }
+        if (container.adaptTo(ModifiableValueMap.class) == null) {
+            throw new IllegalArgumentException(argName + " resource not modifiable: " + path);
+        }
+        return container;
+    }
+
+    /**
      * Creates a new, uniquely-named child resource under {@code parent} (Tier-3 node creation, e.g. a bulk-created
      * productteaser/productcarousel component instance), computing a collision-free sibling name from
      * {@code baseName} via {@link ResourceUtil#createUniqueChildName(Resource, String)}.

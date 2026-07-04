@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.osgi.service.component.annotations.Component;
@@ -33,7 +32,6 @@ import com.adobe.cq.commerce.mcp.McpCallContext;
 import com.adobe.cq.commerce.mcp.McpTool;
 import com.adobe.cq.commerce.mcp.internal.CommerceWriteSupport;
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
-import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -121,7 +119,7 @@ public class CreateProductTeasersTool implements McpTool {
         }
 
         ResourceResolver resolver = ctx.getRequest().getResourceResolver();
-        Resource parent = resolveContainer(resolver, parentPath);
+        Resource parent = CommerceWriteSupport.resolveContainer(resolver, "parentPath", parentPath);
 
         String cta = args.path("cta").asText(null);
         String ctaText = args.path("ctaText").asText(null);
@@ -202,35 +200,5 @@ public class CreateProductTeasersTool implements McpTool {
             i++;
         } while (parent.getChild(candidate) != null || reserved.contains(candidate));
         return candidate;
-    }
-
-    /**
-     * Resolves {@code parentPath} to a writable container resource, failing closed on: a blank path, a path outside
-     * {@code /content/}, a non-existent resource, a resource not adaptable to {@link ModifiableValueMap} (not a
-     * real writable JCR node), or a resource that is itself a {@code cq:Page} (the author must pass a container
-     * resource inside the page, e.g. the responsive grid, not the page itself).
-     *
-     * @param resolver the caller's {@link ResourceResolver}
-     * @param parentPath the container resource path to resolve
-     * @return the resolved container {@link Resource}
-     * @throws IllegalArgumentException if any of the fail-closed checks above trip
-     */
-    private Resource resolveContainer(ResourceResolver resolver, String parentPath) {
-        if (StringUtils.isBlank(parentPath) || !parentPath.startsWith("/content/")) {
-            throw new IllegalArgumentException("parentPath (under /content) is required");
-        }
-
-        Resource parent = resolver.getResource(parentPath);
-        if (parent == null) {
-            throw new IllegalArgumentException("resource not found: " + parentPath);
-        }
-        if (parent.adaptTo(Page.class) != null) {
-            throw new IllegalArgumentException(
-                "parentPath must be a container resource inside a page, not the page itself: " + parentPath);
-        }
-        if (parent.adaptTo(ModifiableValueMap.class) == null) {
-            throw new IllegalArgumentException("parentPath resource not modifiable: " + parentPath);
-        }
-        return parent;
     }
 }

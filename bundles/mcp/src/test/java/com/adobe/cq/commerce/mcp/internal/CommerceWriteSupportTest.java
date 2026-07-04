@@ -357,6 +357,64 @@ public class CommerceWriteSupportTest {
     }
 
     @Test
+    public void resolveContainerResolvesWritableNonPageResource() {
+        context.build().resource("/content/site/jcr:content/root/grid", "jcr:primaryType", "nt:unstructured")
+            .commit();
+
+        Resource container = CommerceWriteSupport.resolveContainer(context.resourceResolver(), "parentPath",
+            "/content/site/jcr:content/root/grid");
+
+        assertNotNull(container);
+        assertEquals("/content/site/jcr:content/root/grid", container.getPath());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolveContainerRejectsBlankPath() {
+        CommerceWriteSupport.resolveContainer(context.resourceResolver(), "parentPath", "   ");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolveContainerRejectsNullPath() {
+        CommerceWriteSupport.resolveContainer(context.resourceResolver(), "parentPath", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolveContainerRejectsPathNotUnderContent() {
+        context.build().resource("/apps/site/grid", "jcr:primaryType", "nt:unstructured").commit();
+
+        CommerceWriteSupport.resolveContainer(context.resourceResolver(), "parentPath", "/apps/site/grid");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolveContainerRejectsMissingResource() {
+        CommerceWriteSupport.resolveContainer(context.resourceResolver(), "parentPath", "/content/does/not/exist");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolveContainerRejectsCqPage() throws Exception {
+        context.create().page("/content/site/apage");
+
+        CommerceWriteSupport.resolveContainer(context.resourceResolver(), "parentPath", "/content/site/apage");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolveContainerRejectsNonModifiableResource() {
+        // A synthetic non-JCR resource (no ModifiableValueMap adapter available) must fail closed, even though it
+        // is under /content and is not a Page.
+        Resource resource = new org.apache.sling.api.resource.SyntheticResource(context.resourceResolver(),
+            "/content/synthetic", "sling:nonexistent") {
+            @Override
+            public <AdapterType> AdapterType adaptTo(Class<AdapterType> type) {
+                return null;
+            }
+        };
+        ResourceResolver spyResolver = org.mockito.Mockito.spy(context.resourceResolver());
+        org.mockito.Mockito.doReturn(resource).when(spyResolver).getResource("/content/synthetic");
+
+        CommerceWriteSupport.resolveContainer(spyResolver, "parentPath", "/content/synthetic");
+    }
+
+    @Test
     public void writeCompositeReplacesPriorChildrenOnRewrite() throws Exception {
         context.build().resource("/content/site/jcr:content/root/list4",
             "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser").commit();
