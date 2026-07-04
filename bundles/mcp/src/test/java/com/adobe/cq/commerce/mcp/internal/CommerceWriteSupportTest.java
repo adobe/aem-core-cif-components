@@ -162,4 +162,31 @@ public class CommerceWriteSupportTest {
     public void resolvePageContentRejectsBlankPath() {
         CommerceWriteSupport.resolvePageContent(context.resourceResolver(), "path", "  ", ALLOWED_PAGE_TYPES);
     }
+
+    @Test
+    public void putOrRemoveWritesNonBlankValue() {
+        context.build().resource("/content/site/jcr:content/root/teaser",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser").commit();
+        ModifiableValueMap map = CommerceWriteSupport.mutableMap(
+            context.resourceResolver().getResource("/content/site/jcr:content/root/teaser"), "path");
+
+        CommerceWriteSupport.putOrRemove(map, "cta", "add-to-cart");
+
+        assertEquals("add-to-cart", map.get("cta", String.class));
+    }
+
+    @Test
+    public void putOrRemoveRemovesBlankValue() {
+        context.build().resource("/content/site/jcr:content/root/teaser",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser",
+            "cta", "add-to-cart").commit();
+        ModifiableValueMap map = CommerceWriteSupport.mutableMap(
+            context.resourceResolver().getResource("/content/site/jcr:content/root/teaser"), "path");
+
+        // Whitespace-only is never a meaningful commerce value -- it clears the property (isBlank semantics),
+        // same as null/empty.
+        CommerceWriteSupport.putOrRemove(map, "cta", "  ");
+
+        assertEquals(null, map.get("cta", String.class));
+    }
 }

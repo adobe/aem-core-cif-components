@@ -39,7 +39,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * <p>
  * Only {@code selection} (the model's {@code SELECTION_PROPERTY}, a combinedSku parsed via {@link CombinedSku})
  * is read by {@code ProductTeaserImpl}; it does not read a {@code selectionType} property, unlike the product
- * component, so this tool deliberately does not write one. {@code enableAddToCart}/{@code enableAddToWishList}
+ * carousel, so this tool deliberately does not write one. {@code enableAddToCart}/{@code enableAddToWishList}
  * are style/policy properties (read from {@code currentStyle}), not component-instance dialog fields, and are
  * intentionally not exposed here.
  */
@@ -109,10 +109,10 @@ public class ConfigureProductTeaserComponentTool implements McpTool {
 
         String selection = CombinedSku.parse(sku).toString();
         properties.put(SELECTION_PROPERTY, selection);
-        putOrRemove(properties, CTA_PROPERTY, args.path("cta").asText(null));
-        putOrRemove(properties, CTA_TEXT_PROPERTY, args.path("ctaText").asText(null));
-        putOrRemove(properties, LINK_TARGET_PROPERTY, args.path("linkTarget").asText(null));
-        putOrRemove(properties, ID_PROPERTY, args.path("id").asText(null));
+        CommerceWriteSupport.putOrRemove(properties, CTA_PROPERTY, args.path("cta").asText(null));
+        CommerceWriteSupport.putOrRemove(properties, CTA_TEXT_PROPERTY, args.path("ctaText").asText(null));
+        CommerceWriteSupport.putOrRemove(properties, LINK_TARGET_PROPERTY, args.path("linkTarget").asText(null));
+        CommerceWriteSupport.putOrRemove(properties, ID_PROPERTY, args.path("id").asText(null));
         resolver.commit();
 
         // Post-write verification: re-read the persisted value so we never report success for a write that did
@@ -125,14 +125,5 @@ public class ConfigureProductTeaserComponentTool implements McpTool {
         out.put("selection", selection);
         out.put("updated", updated);
         return out;
-    }
-
-    private void putOrRemove(ModifiableValueMap properties, String property, String value) {
-        if (StringUtils.isNotEmpty(value)) {
-            properties.put(property, value);
-        } else if (value != null) {
-            // Explicit empty string ("" for cta) clears the property rather than persisting an empty value.
-            properties.remove(property);
-        }
     }
 }

@@ -84,6 +84,22 @@ public class ConfigureProductTeaserComponentToolTest {
         assertEquals(null, r.getValueMap().get("selectionType", String.class));
     }
 
+    @Test
+    public void whitespaceOnlyOptionalClearsExistingValue() throws Exception {
+        // A whitespace-only optional value is never a meaningful commerce value -- it must clear the property
+        // (isBlank semantics), not persist " " (previously the case with the old isNotEmpty-based local helper).
+        context.build().resource("/content/site/jcr:content/root/teaser4",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser",
+            "cta", "add-to-cart").commit();
+
+        JsonNode out = new ConfigureProductTeaserComponentTool().call(ctxForResolver(), mapper.readTree(
+            "{\"path\":\"/content/site/jcr:content/root/teaser4\",\"sku\":\"MJ01\",\"cta\":\"  \"}"));
+
+        assertTrue(out.get("updated").asBoolean());
+        Resource r = context.resourceResolver().getResource("/content/site/jcr:content/root/teaser4");
+        assertEquals(null, r.getValueMap().get("cta", String.class));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void rejectsNonTeaserResourceType() throws Exception {
         // A non-CIF resource type must fail closed -- MANDATORY negative test for a write tool.

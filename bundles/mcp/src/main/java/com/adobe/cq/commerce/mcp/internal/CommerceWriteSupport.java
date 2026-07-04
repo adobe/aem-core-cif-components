@@ -129,4 +129,21 @@ public final class CommerceWriteSupport {
         }
         return properties;
     }
+
+    /**
+     * Writes an optional string property, clearing it instead of persisting a meaningless value: a blank
+     * (null/empty/whitespace-only) {@code value} removes {@code propertyName} from {@code map} rather than storing
+     * it, so callers can pass an empty string (or whitespace) to explicitly clear a previously-set value.
+     *
+     * @param map the {@link ModifiableValueMap} to update
+     * @param propertyName the property to set or remove
+     * @param value the value to write; {@link StringUtils#isBlank(CharSequence)} values remove the property instead
+     */
+    public static void putOrRemove(ModifiableValueMap map, String propertyName, String value) {
+        if (StringUtils.isBlank(value)) {
+            map.remove(propertyName);
+        } else {
+            map.put(propertyName, value);
+        }
+    }
 }

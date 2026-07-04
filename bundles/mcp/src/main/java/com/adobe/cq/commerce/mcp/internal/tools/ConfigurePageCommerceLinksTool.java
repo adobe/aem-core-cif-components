@@ -119,13 +119,13 @@ public class ConfigurePageCommerceLinksTool implements McpTool {
         String categoryPage = args.path("cifCategoryPage").asText(null);
         String searchResultsPage = args.path("cifSearchResultsPage").asText(null);
         if (hasProductPage) {
-            putOrRemove(properties, PRODUCT_PAGE_PROPERTY, productPage);
+            CommerceWriteSupport.putOrRemove(properties, PRODUCT_PAGE_PROPERTY, productPage);
         }
         if (hasCategoryPage) {
-            putOrRemove(properties, CATEGORY_PAGE_PROPERTY, categoryPage);
+            CommerceWriteSupport.putOrRemove(properties, CATEGORY_PAGE_PROPERTY, categoryPage);
         }
         if (hasSearchResultsPage) {
-            putOrRemove(properties, SEARCH_RESULTS_PAGE_PROPERTY, searchResultsPage);
+            CommerceWriteSupport.putOrRemove(properties, SEARCH_RESULTS_PAGE_PROPERTY, searchResultsPage);
         }
         resolver.commit();
 
@@ -141,14 +141,6 @@ public class ConfigurePageCommerceLinksTool implements McpTool {
         out.put("path", path);
         out.put("updated", updated);
         return out;
-    }
-
-    private static void putOrRemove(ModifiableValueMap properties, String property, String value) {
-        if (StringUtils.isBlank(value)) {
-            properties.remove(property);
-        } else {
-            properties.put(property, value);
-        }
     }
 
     private static boolean propertyMatches(Resource persisted, String property, String expected) {

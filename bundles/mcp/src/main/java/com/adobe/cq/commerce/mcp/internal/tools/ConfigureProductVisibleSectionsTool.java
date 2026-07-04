@@ -82,7 +82,8 @@ public class ConfigureProductVisibleSectionsTool implements McpTool {
     public String description() {
         return "Set which sections (title, price, sku, images, options, quantity, actions, description, details) "
             + "a CIF product component renders; an empty array clears the override and falls back to the "
-            + "style/policy default.";
+            + "style/policy default. The property is accepted on v1/v2/v3 product components, but the override "
+            + "only takes effect on v3; v1/v2 read all sections unconditionally and silently ignore it.";
     }
 
     @Override

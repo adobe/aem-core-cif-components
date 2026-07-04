@@ -112,11 +112,7 @@ public class ConfigureRelatedProductsComponentTool implements McpTool {
 
         properties.put(RELATION_TYPE_PROPERTY, relationType);
         String product = args.path("product").asText(null);
-        if (StringUtils.isBlank(product)) {
-            properties.remove(PRODUCT_PROPERTY);
-        } else {
-            properties.put(PRODUCT_PROPERTY, product);
-        }
+        CommerceWriteSupport.putOrRemove(properties, PRODUCT_PROPERTY, product);
         resolver.commit();
 
         // Post-write verification: re-read the persisted value so we never report success for a write that did
