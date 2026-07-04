@@ -605,4 +605,47 @@ public class CommerceWriteSupportTest {
 
         assertFalse(CommerceWriteSupport.elementValueRoundTrips(element, null, false, new String[] { "x" }));
     }
+
+    @Test
+    public void elementValueRoundTripsFalseWhenArrayMismatches() {
+        FragmentData data = dataOfArity(true);
+        when(data.getValue()).thenReturn(new String[] { "a" });
+        ContentElement element = elementWith(data);
+
+        assertFalse(CommerceWriteSupport.elementValueRoundTrips(element, null, false, new String[] { "a", "b" }));
+    }
+
+    @Test
+    public void elementValueRoundTripsHandlesNullEntryWithoutNpe() {
+        // A single written null entry compares equal only to a null read-back, and never throws on expected[0].
+        FragmentData nullData = dataOfArity(false);
+        when(nullData.getValue()).thenReturn(null);
+        assertTrue(CommerceWriteSupport.elementValueRoundTrips(elementWith(nullData), null, false,
+            new String[] { null }));
+
+        FragmentData nonNullData = dataOfArity(false);
+        when(nonNullData.getValue()).thenReturn("something");
+        assertFalse(CommerceWriteSupport.elementValueRoundTrips(elementWith(nonNullData), null, false,
+            new String[] { null }));
+    }
+
+    @Test
+    public void elementValueRoundTripsReadsBackNamedVariation() {
+        FragmentData vdata = dataOfArity(false);
+        when(vdata.getValue()).thenReturn("v");
+        ContentVariation variation = mock(ContentVariation.class);
+        when(variation.getValue()).thenReturn(vdata);
+        ContentElement element = mock(ContentElement.class);
+
+        assertTrue(CommerceWriteSupport.elementValueRoundTrips(element, variation, true, new String[] { "v" }));
+        // the base element value is never consulted on the variation path
+        verify(element, org.mockito.Mockito.never()).getValue();
+    }
+
+    @Test
+    public void elementValueRoundTripsFalseWhenVariationNull() {
+        ContentElement element = mock(ContentElement.class);
+
+        assertFalse(CommerceWriteSupport.elementValueRoundTrips(element, null, true, new String[] { "v" }));
+    }
 }

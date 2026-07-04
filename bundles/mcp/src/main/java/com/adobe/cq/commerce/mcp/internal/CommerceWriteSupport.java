@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.ModifiableValueMap;
@@ -386,7 +387,8 @@ public final class CommerceWriteSupport {
             String[] actualArray = actual instanceof String[] ? (String[]) actual : null;
             return actualArray != null && Arrays.equals(expected, actualArray);
         }
-        return expected.length == 1 && actual != null && expected[0].equals(actual.toString());
+        // Null-safe: a written null entry compares equal only to a null read-back (never NPE on expected[0]).
+        return expected.length == 1 && Objects.equals(expected[0], actual == null ? null : actual.toString());
     }
 
     private static boolean isMultiValue(FragmentData data) {
