@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +33,7 @@ public class PlaceOrderToolTest {
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
-    public void returnsOrderNumber() throws Exception {
+    public void placesOrderWhenConfirmed() throws Exception {
         Order order = mock(Order.class);
         when(order.getOrderNumber()).thenReturn("000000123");
 
@@ -44,10 +45,27 @@ public class PlaceOrderToolTest {
             }
         };
 
-        JsonNode out = tool.call(mock(StoreContext.class), mapper.createObjectNode().put("cart_id", "cart-1"));
+        JsonNode out = tool.call(mock(StoreContext.class),
+            mapper.createObjectNode().put("cart_id", "cart-1").put("confirm", true));
         assertEquals("000000123", out.get("order_number").asText());
+        assertTrue(out.get("confirmed").asBoolean());
         assertEquals("place_order", tool.name());
         assertFalse(tool.writesContent());
+    }
+
+    @Test
+    public void doesNotPlaceOrderWithoutConfirm() throws Exception {
+        // Without confirm: true the tool must NOT place the order — placeOrder() must never be called.
+        PlaceOrderTool tool = new PlaceOrderTool() {
+            @Override
+            protected Order placeOrder(StoreContext ctx, String cartId) {
+                throw new AssertionError("place_order must not place an order without confirm: true");
+            }
+        };
+
+        JsonNode out = tool.call(mock(StoreContext.class), mapper.createObjectNode().put("cart_id", "cart-1"));
+        assertFalse(out.get("confirmed").asBoolean());
+        assertFalse(out.has("order_number"));
     }
 
     @Test

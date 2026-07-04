@@ -70,6 +70,9 @@ Read tools (both endpoints); each result is a compact JSON DTO with a matching
 |---|---|---|
 | `search_products` | `{query?, page?, pageSize?, filters?}` | `{total, items:[{sku,name,slug,url,imageUrl,imageAlt,price,currency}]}` (`url` = PDP link) |
 | `get_product` | `{sku}` | `{sku,name,urlKey}` |
+| `get_product_variants` | `{sku}` | `{sku,name,urlKey,configurable,options:[…],variants:[…]}` |
+| `get_product_associated_content` | `{sku, fragmentLocation?, contentFragmentModel?, linkElement?, limit?}` | `{sku, experienceFragments:[…], contentFragments:[…], contentPages:[…], assets:[…]}` |
+| `get_category_associated_content` | `{categoryUid, fragmentLocation?, contentFragmentModel?, linkElement?, limit?}` | `{categoryUid, experienceFragments:[…], contentFragments:[…], contentPages:[…], assets:[…]}` |
 | `browse_categories` | `{uid?}` | `{category:{uid,name,urlPath,url,children:[…]}}` (`url` = PLP link, on category + children) |
 | `get_attributes` | `{}` | `{attributes:[{code,inputType}]}` |
 | `resolve_picker_selection` | `{skus:[…]}` | `{items:[{sku,name}]}` (authoring picker helper; read-only) |
@@ -114,15 +117,16 @@ the customer first. Call the same tool again with `confirm: true` to actually ap
 result includes a `confirmed` boolean so the caller always knows which case it got.
 `add_to_cart`/`view_cart`/`update_cart_item`/`clear_cart` don't need this — cart edits are freely
 reversible, unlike an address/shipping/payment choice that's about to feed into an order.
-`place_order` also doesn't take `confirm` — calling it *is* the final confirmation, there's no
-more-committed state after it to preview against.
+`place_order` **also requires `confirm: true`** — since it creates a real, non-reversible order it
+must not fire on a single unconfirmed call; without it the tool commits nothing and returns a
+`pending_order` preview.
 
 | Tool | Args | Result |
 |---|---|---|
 | `set_shipping_address` | `{cart_id, email, firstname, lastname, street, city, region, postcode, country_code, telephone, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_shipping_address:{...}, message}`. Confirmed: `{cart_id, confirmed:true, shipping_methods:[{carrier_code,carrier_title,method_code,method_title,price,currency}]}`. Also sets guest email and billing address (defaults to same-as-shipping) once confirmed. |
 | `set_shipping_method` | `{cart_id, carrier_code, method_code, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_shipping_method:{carrier_code,method_code}, message}`. Confirmed: `{cart_id, confirmed:true, payment_methods:[{code,title}]}` |
 | `set_payment_method` | `{cart_id, payment_method, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_payment_method, message}`. Confirmed: `{cart_id, confirmed:true, payment_method, ready_to_place_order:true}` |
-| `place_order` | `{cart_id}` | `{order_number}`. **Not idempotent, not reversible** — creates a real order. |
+| `place_order` | `{cart_id, confirm?}` | Unconfirmed: `{cart_id, confirmed:false, pending_order:true, message}` (nothing placed). Confirmed: `{cart_id, order_number, confirmed:true}`. **Not idempotent, not reversible** — creates a real order. |
 
 **Not yet supported:** customer login (guest checkout only), a separate billing address, any
 payment method beyond what the store already has configured — see "Known limitations" below.
@@ -133,8 +137,12 @@ path or a resource that is not a CIF component/page they understand:
 
 | Tool | Args | Effect |
 |---|---|---|
-| `configure_product_component` | `{path, sku}` | sets `selection`/`selectionType` on a CIF product component |
-| `configure_catalog_page` | `{path, categoryUid}` | sets `category` on a CIF catalog (PLP) page's `jcr:content` |
+| `configure_product_component` | `{path, sku}` | pins a CIF product component to a SKU (`selection`/`selectionType`) |
+| `configure_productlist_component` | `{path, categoryUid}` | pins a CIF product list / carousel **component** to a category (its `category` manual selection) |
+| `configure_catalog_page` | `{path, categoryUid, showMainCategories?}` | binds a catalog (PLP) **page's** root category (`magentoRootCategoryId` + `magentoRootCategoryIdType=uid` + `showMainCategories`, default `false`) |
+| `tag_content_with_commerce` | `{path, sku?, categoryUid?, action?}` | sets `cq:products` / `cq:categories` on a DAM asset, page, or XF variation (`action`: `add` or `remove`) |
+
+> Note the distinction: `category` (a **component** property, read by `ProductListImpl`) vs `magentoRootCategoryId` (a **page** property, read by `SiteStructure`/`NavigationImpl`). Binding a *component* to a category → `configure_productlist_component`; scoping a *catalog page* to a root category → `configure_catalog_page`.
 
 `PDP`/`PLP` links are page-relative paths (as CIF's `UrlProvider` emits them); prepend
 scheme/host if you need absolute URLs.

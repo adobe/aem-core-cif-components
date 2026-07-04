@@ -89,6 +89,8 @@ would embed it and change the OSGi import surface). Precedents already in `pom.x
 
 - `com.adobe.cq:core.wcm.components.core` (provided) — needed because `ProductListItem`
   inherits `getTitle()`/`getURL()` from WCM Core Components' `ListItem`.
+- `com.adobe.aem:aem-cif-sdk-api` (provided) — `AssociatedContentService` / `AssociatedContentQuery`
+  used by associated-content MCP tools (not on the compile classpath via core alone).
 - `com.adobe.commerce.cif:graphql-client` (provided) — `GraphqlResponse` etc. used by the
   retrievers' compile surface.
 
@@ -455,6 +457,15 @@ Runtime checks after deploy:
   config in this repo currently caches the `mcp`-selector resource type, so this isn't an active
   bug today — but it's cheap insurance against a future config change silently reintroducing
   stale-cart reads, and any new cart-reading tool should do the same.
+- **"Category binding" is two different things — don't conflate page vs component.** A *catalog
+  page* is scoped by `magentoRootCategoryId` (+ `magentoRootCategoryIdType`, + `showMainCategories`),
+  read by `SiteStructure`/`NavigationImpl` — that's `configure_catalog_page`, written on the page's
+  `jcr:content`. A *product-list / carousel component* is pinned by `category`, read by
+  `ProductListImpl`/`ProductCarouselImpl` — that's `configure_productlist_component`, written on the
+  component resource. Writing `category` on a catalog page node is a **silent no-op** (the original
+  `configure_catalog_page` bug). A unit test that only reads back the property it just wrote will NOT
+  catch this — validate the *consuming* property name against source, and prove consumption live
+  (render/nav), not just a write→readback.
 
 ---
 
