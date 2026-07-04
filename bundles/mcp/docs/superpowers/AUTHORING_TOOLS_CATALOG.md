@@ -561,8 +561,8 @@ resourceResolver.commit();
 | Tool | Status | Tier | Does |
 |---|---|---|---|
 | `get_commerce_content_fragment(identifier, type)` (T-22) | ✅ | 1 | Resolve a CF via `linkElement` match and return its fields |
-| `update_commerce_content_fragment_field(fragmentPath, elementName, value, variation?)` (T-23) | ▢ | 3 | **The real editing capability** — sets a CF element's value. Draft-only; never auto-publishes |
-| `create_commerce_content_fragment(identifier, type, modelPath, fields)` (T-24) | ▢ | 3 | Creates a new CF under `parentPath`, seeds `linkElement` with the SKU/UID + other fields |
+| `update_commerce_content_fragment_field(fragmentPath, elementName, value, variation?)` (T-23) | ✅ | 3 | **The real editing capability** — sets a CF element's value (master default, or an existing named variation). Draft-only; never auto-publishes |
+| `create_commerce_content_fragment(identifier, type, modelPath, linkElement, fields?, parentPath?, name?, title?, dryRun?)` (T-24) | ✅ | 3 | Creates a new CF from `modelPath` under `parentPath` (default `/content/dam`), seeds `linkElement` with the SKU/UID + other scalar fields. `dryRun` previews path+fields without writing |
 
 - **T-22 (shipped):** CF **discovery+read** was already covered by the shipped
   `get_product_associated_content` / `get_category_associated_content` tools — they return a
@@ -573,13 +573,28 @@ resourceResolver.commit();
   fragmentPath?, fields}` (or `{identifier, type, resolves:false}` if no CF matches) — it calls
   the same `AssociatedContentService` via `AssociatedContentSupport.resolveSingleContentFragment`.
   Backed by `mcp/…/tools/GetCommerceContentFragmentTool.java`.
-- **Per-field-type concerns (T-23):** text/richtext via `setContent(value, "text/plain"|"text/html")`;
-  number/date/boolean via `FragmentData.setValue(Object)` with the matching Java type —
-  check `getDataType()`/`isTypeSupported(Class)` first to avoid `ContentFragmentException`.
-  product/category reference fields are multi-value (`String[]`).
-- **Variation gotcha:** the lookup query (§5) only matches the **master** variation — a
-  write to a non-master variation will be invisible to the read tools. Resolve the
-  variation-handling policy (open question 3) before finalizing T-23's signature.
+- **T-23 (shipped):** resolves an existing CF by `fragmentPath` (fail-closed via
+  `CommerceWriteSupport.resolveContentFragment` — blank / not under `/content/dam` / not found /
+  `adaptTo(ContentFragment.class)==null` → IAE) and sets one element's value. Richtext elements
+  (`FragmentData.getContentType()==text/html`) are written via `setContent(value, "text/html")`;
+  scalar/multi-value elements via `FragmentData.setValue(...)` **type-gated** with
+  `isTypeSupported(String.class|String[].class)` (a JSON array writes a `String[]`; an array sent
+  to a richtext element is rejected). Returns `{fragmentPath, elementName, variation, updated}`
+  where `updated` is derived from a **real post-`commit()` readback**, not a hardcoded literal.
+  Backed by `mcp/…/tools/UpdateCommerceContentFragmentFieldTool.java`.
+- **Variation policy (decided):** writes default to the element's **master** (base) value; passing
+  `variation` routes to that **already-existing** named variation (an unknown variation → IAE, never
+  auto-created), and an explicit `variation:"master"` is treated as the base path. Caveat: the lookup
+  query (§5) / `get_commerce_content_fragment` only match the **master** variation, so a write to a
+  non-master variation is invisible to the read tools — surfaced in T-23's `description()`.
+- **T-24 (shipped):** creates a new CF via `modelResource.adaptTo(FragmentTemplate.class)
+  .createFragment(parent, name, title)` (behind a test seam), seeds `linkElement`=identifier + each
+  `fields` entry as **scalar strings only** (type-gated; richtext/multi-value seed values are
+  rejected — use T-23 afterwards for those), then `commit()` + a real readback (fails closed with
+  `IllegalStateException` if a seed does not round-trip). `parentPath` defaults to `/content/dam`,
+  the node name is derived uniquely from the identifier when not given, and `dryRun` previews the
+  would-be path + seeded fields without writing. Backed by
+  `mcp/…/tools/CreateCommerceContentFragmentTool.java`.
 
 **Scope guardrail:** writes here behave like an author editing in the Assets UI — modify
 draft/master content, leave activation to the normal publish flow.
@@ -872,8 +887,8 @@ name from the catalog ID, the shipped name is shown.
 | T-20 | `tag_content_with_commerce` | §5 | 2 | ✅ |
 | T-21 | `find_orphaned_commerce_content` | §5 | 1 | ✅ |
 | T-22 | `get_commerce_content_fragment` | §6 CF editing | 1 | ✅ |
-| T-23 | `update_commerce_content_fragment_field` | §6 | 3 | ▢ |
-| T-24 | `create_commerce_content_fragment` | §6 | 3 | ▢ |
+| T-23 | `update_commerce_content_fragment_field` | §6 | 3 | ✅ |
+| T-24 | `create_commerce_content_fragment` | §6 | 3 | ✅ |
 | T-25 | `list_catalog_pages` | §7 Multi-catalog-page | 1 | ✅ |
 | T-26 | `explain_catalog_page_routing` | §7 | 1 | ✅ |
 | T-27 | `detect_catalog_page_conflicts` | §7 | 1 | ✅ |
