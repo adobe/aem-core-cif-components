@@ -562,7 +562,7 @@ resourceResolver.commit();
 |---|---|---|---|
 | `get_commerce_content_fragment(identifier, type)` (T-22) | ✅ | 1 | Resolve a CF via `linkElement` match and return its fields |
 | `update_commerce_content_fragment_field(fragmentPath, elementName, value, variation?)` (T-23) | ✅ | 3 | **The real editing capability** — sets a CF element's value (master default, or an existing named variation). Draft-only; never auto-publishes |
-| `create_commerce_content_fragment(identifier, type, modelPath, linkElement, fields?, parentPath?, name?, title?, dryRun?)` (T-24) | ✅ | 3 | Creates a new CF from `modelPath` under `parentPath` (default `/content/dam`), seeds `linkElement` with the SKU/UID + other scalar fields. `dryRun` previews path+fields without writing |
+| `create_commerce_content_fragment(identifier, type, modelPath, linkElement, fields?, parentPath?, name?, title?, dryRun?)` (T-24) | ✅ | 3 | Creates a new CF from `modelPath` under `parentPath` (default `/content/dam`), seeds `linkElement` with the SKU/UID + other fields (incl. multi-value fields like the commerce `sku`). `dryRun` previews path+fields without writing |
 
 - **T-22 (shipped):** CF **discovery+read** was already covered by the shipped
   `get_product_associated_content` / `get_category_associated_content` tools — they return a
@@ -577,11 +577,16 @@ resourceResolver.commit();
   `CommerceWriteSupport.resolveContentFragment` — blank / not under `/content/dam` / not found /
   `adaptTo(ContentFragment.class)==null` → IAE) and sets one element's value. Richtext elements
   (`FragmentData.getContentType()==text/html`) are written via `setContent(value, "text/html")`;
-  scalar/multi-value elements via `FragmentData.setValue(...)` **type-gated** with
-  `isTypeSupported(String.class|String[].class)` (a JSON array writes a `String[]`; an array sent
-  to a richtext element is rejected). Returns `{fragmentPath, elementName, variation, updated}`
-  where `updated` is derived from a **real post-`commit()` readback**, not a hardcoded literal.
-  Backed by `mcp/…/tools/UpdateCommerceContentFragmentFieldTool.java`.
+  every other element via the shared, **arity-aware** `CommerceWriteSupport.applyElementValue`,
+  which picks the write shape from the element's own `DataType.isMultiValue()` (NOT
+  `isTypeSupported`, which false-negatives for CIF custom types like the `product-reference` `sku`
+  field): a multi-value element receives a `String[]` (a scalar is wrapped as a single-element
+  array, a JSON array is written as-is), a single-value element receives a `String` (an array of
+  length ≠ 1 is rejected; an array sent to a richtext element is rejected). `setValue` is wrapped so
+  a genuinely incompatible type surfaces as `ContentFragmentException` → IAE (fail closed). Returns
+  `{fragmentPath, elementName, variation, updated}` where `updated` is derived from a **real
+  post-`commit()` readback** (`elementValueRoundTrips`), not a hardcoded literal. Backed by
+  `mcp/…/tools/UpdateCommerceContentFragmentFieldTool.java`.
 - **Variation policy (decided):** writes default to the element's **master** (base) value; passing
   `variation` routes to that **already-existing** named variation (an unknown variation → IAE, never
   auto-created), and an explicit `variation:"master"` is treated as the base path. Caveat: the lookup
@@ -589,8 +594,10 @@ resourceResolver.commit();
   non-master variation is invisible to the read tools — surfaced in T-23's `description()`.
 - **T-24 (shipped):** creates a new CF via `modelResource.adaptTo(FragmentTemplate.class)
   .createFragment(parent, name, title)` (behind a test seam), seeds `linkElement`=identifier + each
-  `fields` entry as **scalar strings only** (type-gated; richtext/multi-value seed values are
-  rejected — use T-23 afterwards for those), then `commit()` + a real readback (fails closed with
+  `fields` entry via the same shared, **arity-aware** `CommerceWriteSupport.applyElementValue` T-23
+  uses — so a multi-value `linkElement` such as the commerce `product-reference` `sku` field is
+  supported (the scalar identifier is written as a single-element `String[]`), a single-value
+  element as text. Then `commit()` + a real readback (`elementValueRoundTrips`; fails closed with
   `IllegalStateException` if a seed does not round-trip). `parentPath` defaults to `/content/dam`,
   the node name is derived uniquely from the identifier when not given, and `dryRun` previews the
   would-be path + seeded fields without writing. Backed by
