@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.mcp.internal;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,11 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceUtil;
 
+import com.adobe.cq.dam.cfm.ContentElement;
 import com.adobe.cq.dam.cfm.ContentFragment;
+import com.adobe.cq.dam.cfm.ContentFragmentException;
+import com.adobe.cq.dam.cfm.ContentVariation;
+import com.adobe.cq.dam.cfm.FragmentData;
 import com.day.cq.dam.api.DamConstants;
 import com.day.cq.wcm.api.Page;
 
@@ -308,5 +313,83 @@ public final class CommerceWriteSupport {
             childProps.put("jcr:primaryType", "nt:unstructured");
             resolver.create(container, "item" + i, childProps);
         }
+    }
+
+    /**
+     * Applies {@code values} to a content-fragment {@code element}'s master (base) value, or to an existing named
+     * variation when {@code useVariation} is {@code true}, choosing the arity from the <strong>element's own data
+     * type</strong> ({@link com.adobe.cq.dam.cfm.DataType#isMultiValue()}) rather than from the caller's value shape:
+     * a multi-value
+     * element receives the whole {@code String[]}; a single-value element receives its single {@code String} (an
+     * array whose length is not exactly 1 is rejected for a single-value element).
+     * <p>
+     * {@link FragmentData#isTypeSupported(Class)} is intentionally <strong>not</strong> consulted: it false-negatives
+     * for CIF custom data types (e.g. the {@code product-reference} SKU field) whose {@code setValue(String[])}
+     * nevertheless persists correctly. A genuinely incompatible value instead surfaces as a
+     * {@link ContentFragmentException}, which is translated to {@link IllegalArgumentException} so callers fail
+     * closed. This method does not {@code commit()} and does not read back — the caller must commit and then verify
+     * the round-trip with {@link #elementValueRoundTrips}.
+     *
+     * @param element the target content-fragment element (its master value is written when {@code useVariation} is
+     *            {@code false})
+     * @param variation the target named variation (only used, and required non-null, when {@code useVariation} is
+     *            {@code true})
+     * @param useVariation whether to write the named {@code variation} instead of the element's master value
+     * @param values the value(s) to write; must be non-empty
+     * @throws IllegalArgumentException if a single-value element is given other than exactly one value, or the CF API
+     *             rejects the value type
+     */
+    public static void applyElementValue(ContentElement element, ContentVariation variation, boolean useVariation,
+        String[] values) {
+        try {
+            FragmentData data = useVariation ? variation.getValue() : element.getValue();
+            if (isMultiValue(data)) {
+                data.setValue(values);
+            } else {
+                if (values.length != 1) {
+                    throw new IllegalArgumentException(
+                        "single-value element expects exactly one value: " + element.getName());
+                }
+                data.setValue(values[0]);
+            }
+            if (useVariation) {
+                variation.setValue(data);
+            } else {
+                element.setValue(data);
+            }
+        } catch (ContentFragmentException e) {
+            throw new IllegalArgumentException("element does not accept the given value: " + element.getName(), e);
+        }
+    }
+
+    /**
+     * Re-reads {@code element}'s current master (base) value, or a named variation's value, and reports whether it
+     * equals {@code expected} — arity-aware, mirroring {@link #applyElementValue}: a multi-value element is compared
+     * as {@code String[]}, a single-value element as its single stringified value. Write tools call this after
+     * {@code commit()} (with a freshly re-resolved element) so {@code updated}/success reflects a real per-field
+     * readback rather than merely "no exception was thrown" (AGENTS.md 4).
+     *
+     * @param element the freshly re-resolved content-fragment element
+     * @param variation the freshly re-resolved named variation (only used when {@code useVariation} is {@code true})
+     * @param useVariation whether the value was written to {@code variation} rather than the element's master value
+     * @param expected the value(s) that were written
+     * @return {@code true} iff the persisted value equals {@code expected}
+     */
+    public static boolean elementValueRoundTrips(ContentElement element, ContentVariation variation,
+        boolean useVariation, String[] expected) {
+        FragmentData data = useVariation ? (variation == null ? null : variation.getValue()) : element.getValue();
+        if (data == null) {
+            return false;
+        }
+        Object actual = data.getValue();
+        if (isMultiValue(data)) {
+            String[] actualArray = actual instanceof String[] ? (String[]) actual : null;
+            return actualArray != null && Arrays.equals(expected, actualArray);
+        }
+        return expected.length == 1 && actual != null && expected[0].equals(actual.toString());
+    }
+
+    private static boolean isMultiValue(FragmentData data) {
+        return data != null && data.getDataType() != null && data.getDataType().isMultiValue();
     }
 }

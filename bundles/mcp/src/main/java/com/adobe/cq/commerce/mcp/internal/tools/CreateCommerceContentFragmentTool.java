@@ -27,11 +27,11 @@ import org.osgi.service.component.annotations.Component;
 
 import com.adobe.cq.commerce.mcp.McpCallContext;
 import com.adobe.cq.commerce.mcp.McpTool;
+import com.adobe.cq.commerce.mcp.internal.CommerceWriteSupport;
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
 import com.adobe.cq.dam.cfm.ContentElement;
 import com.adobe.cq.dam.cfm.ContentFragment;
 import com.adobe.cq.dam.cfm.ContentFragmentException;
-import com.adobe.cq.dam.cfm.FragmentData;
 import com.adobe.cq.dam.cfm.FragmentTemplate;
 import com.day.cq.dam.api.DamConstants;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -48,8 +48,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * an already-existing fragment): it creates the fragment from a model resource (the {@code modelPath}, which must
  * adapt to a {@link FragmentTemplate}), then seeds the {@code linkElement} model field with the {@code identifier}
  * so the resulting fragment is discoverable by SKU/category-UID match the same way
- * {@code get_commerce_content_fragment} resolves it. Only master (base) values are written; scalar fields are
- * type-gated via {@link FragmentData#isTypeSupported(Class)}.
+ * {@code get_commerce_content_fragment} resolves it. Only master (base) values are written; each seed is applied by
+ * the element's own arity via {@link CommerceWriteSupport#applyElementValue} (single-value as text, multi-value as a
+ * single-element list), so a multi-value {@code linkElement} such as the commerce {@code sku} field is supported.
  * <p>
  * Supports {@code dryRun} (default {@code false}): when {@code true}, the would-be fragment path and the list of
  * fields that would be seeded are computed and returned, but nothing is created or committed.
@@ -74,11 +75,10 @@ public class CreateCommerceContentFragmentTool implements McpTool {
     public String description() {
         return "Create a new commerce content fragment from a CF model under a DAM folder and seed its linkElement "
             + "with a product SKU or category UID (plus optional extra fields), so the fragment is discoverable by "
-            + "get_commerce_content_fragment. Seeded values are written as plain text to the master value only: "
-            + "linkElement and each fields entry must target a String-typed element (a richtext or multi-value "
-            + "element is rejected -- use update_commerce_content_fragment_field afterwards for those). Supports "
-            + "dryRun to preview the fragment path and seeded fields without persisting anything. Never "
-            + "auto-publishes -- ends at commit().";
+            + "get_commerce_content_fragment. Seeds the master value only, applying each seed by the element's own "
+            + "type: a single-value element takes the value as text, a multi-value element (e.g. the commerce sku "
+            + "product-reference field) takes it as a single-element list. Supports dryRun to preview the fragment "
+            + "path and seeded fields without persisting anything. Never auto-publishes -- ends at commit().";
     }
 
     @Override
@@ -209,41 +209,32 @@ public class CreateCommerceContentFragmentTool implements McpTool {
     }
 
     /**
-     * Seeds a single element's master (base) value on the just-created fragment, type-gating the scalar write via
-     * {@link FragmentData#isTypeSupported(Class)} (mirroring {@code update_commerce_content_fragment_field}).
+     * Seeds a single element's master (base) value on the just-created fragment via the shared, arity-aware
+     * {@link CommerceWriteSupport#applyElementValue}: a multi-value element (e.g. the commerce {@code sku}
+     * product-reference field) receives the value as a single-element {@code String[]}, a single-value element as a
+     * plain {@code String}. Fails closed if the element is unknown or the CF API rejects the value.
      *
-     * @throws IllegalArgumentException if the element is unknown or does not accept a string value
+     * @throws IllegalArgumentException if the element is unknown, or does not accept the value
      */
-    private void seedElement(ContentFragment fragment, String elementName, String value)
-        throws ContentFragmentException {
+    private void seedElement(ContentFragment fragment, String elementName, String value) {
         ContentElement element = fragment.getElement(elementName);
         if (element == null) {
             throw new IllegalArgumentException("unknown element on model: " + elementName);
         }
-        FragmentData data = element.getValue();
-        if (data == null || !data.isTypeSupported(String.class)) {
-            throw new IllegalArgumentException("element does not support a string value: " + elementName);
-        }
-        data.setValue(value);
-        element.setValue(data);
+        CommerceWriteSupport.applyElementValue(element, null, false, new String[] { value });
     }
 
     /**
      * Re-reads a just-seeded element (fresh from the fragment, after {@code commit()}) and confirms the value
-     * actually round-tripped, so success reflects a real per-field readback rather than merely "no exception was
-     * thrown".
+     * actually round-tripped via the shared arity-aware {@link CommerceWriteSupport#elementValueRoundTrips}, so
+     * success reflects a real per-field readback rather than merely "no exception was thrown".
      */
     private boolean readBack(ContentFragment fragment, String elementName, String expected) {
         ContentElement element = fragment.getElement(elementName);
         if (element == null) {
             return false;
         }
-        FragmentData data = element.getValue();
-        if (data == null) {
-            return false;
-        }
-        Object actual = data.getValue();
-        return actual != null && expected.equals(actual.toString());
+        return CommerceWriteSupport.elementValueRoundTrips(element, null, false, new String[] { expected });
     }
 
     /**

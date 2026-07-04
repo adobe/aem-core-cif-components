@@ -16,7 +16,6 @@
 package com.adobe.cq.commerce.mcp.internal.tools;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -135,36 +134,30 @@ public class UpdateCommerceContentFragmentFieldTool implements McpTool {
             targetData = element.getValue();
         }
 
+        // Richtext elements take HTML via setContent; every other element goes through the shared, arity-aware
+        // value writer (multi-value -> String[], single-value -> String), which is driven by the ELEMENT's own data
+        // type rather than the JSON value shape -- so a JSON array or a scalar can both target a multi-value element.
         boolean richtext = RICHTEXT_CONTENT_TYPE.equals(targetData.getContentType());
         String expectedContent = null;
-        String expectedScalar = null;
-        String[] expectedArray = null;
+        String[] expectedValues = null;
         if (richtext) {
             if (valueNode.isArray()) {
                 throw new IllegalArgumentException("richtext element expects an HTML string, not an array: "
                     + elementName);
             }
             expectedContent = valueNode.isTextual() ? valueNode.asText() : valueNode.toString();
-            if (useVariation) {
-                variation.setContent(expectedContent, RICHTEXT_CONTENT_TYPE);
-            } else {
-                element.setContent(expectedContent, RICHTEXT_CONTENT_TYPE);
+            try {
+                if (useVariation) {
+                    variation.setContent(expectedContent, RICHTEXT_CONTENT_TYPE);
+                } else {
+                    element.setContent(expectedContent, RICHTEXT_CONTENT_TYPE);
+                }
+            } catch (ContentFragmentException e) {
+                throw new IllegalArgumentException("element does not accept a richtext value: " + elementName, e);
             }
-        } else if (valueNode.isArray()) {
-            if (!targetData.isTypeSupported(String[].class)) {
-                throw new IllegalArgumentException("element does not support a multi-value (String[]) value: "
-                    + elementName);
-            }
-            expectedArray = toStringArray(valueNode);
-            targetData.setValue(expectedArray);
-            writeScalar(element, variation, useVariation, targetData);
         } else {
-            if (!targetData.isTypeSupported(String.class)) {
-                throw new IllegalArgumentException("element does not support a string value: " + elementName);
-            }
-            expectedScalar = valueNode.asText();
-            targetData.setValue(expectedScalar);
-            writeScalar(element, variation, useVariation, targetData);
+            expectedValues = toValues(valueNode);
+            CommerceWriteSupport.applyElementValue(element, variation, useVariation, expectedValues);
         }
 
         resolver.commit();
@@ -173,7 +166,7 @@ public class UpdateCommerceContentFragmentFieldTool implements McpTool {
         String resolvedPath = resource != null ? resource.getPath() : fragmentPath;
 
         boolean updated = verifyWritten(fragment, elementName, useVariation ? variationName : null, richtext,
-            expectedContent, expectedArray, expectedScalar);
+            expectedContent, expectedValues);
 
         ObjectNode out = mapper.createObjectNode();
         out.put("fragmentPath", resolvedPath);
@@ -186,11 +179,11 @@ public class UpdateCommerceContentFragmentFieldTool implements McpTool {
     /**
      * Re-reads the just-written element (fresh from the fragment, after {@code commit()}) and confirms the value
      * actually round-tripped, so {@code updated} reflects a real per-field readback rather than merely "no exception
-     * was thrown" (AGENTS.md 4). Richtext is read back via {@link ContentElement#getContent()}, scalar/multi-value
-     * via {@link FragmentData#getValue()}.
+     * was thrown" (AGENTS.md 4). Richtext is read back via {@link ContentElement#getContent()}; every other value via
+     * the shared arity-aware {@link CommerceWriteSupport#elementValueRoundTrips}.
      */
     private boolean verifyWritten(ContentFragment fragment, String elementName, String variationName,
-        boolean richtext, String expectedContent, String[] expectedArray, String expectedScalar) {
+        boolean richtext, String expectedContent, String[] expectedValues) {
         ContentElement element = fragment.getElement(elementName);
         if (element == null) {
             return false;
@@ -204,32 +197,24 @@ public class UpdateCommerceContentFragmentFieldTool implements McpTool {
             String content = useVariation ? variation.getContent() : element.getContent();
             return expectedContent != null && expectedContent.equals(content);
         }
-        FragmentData data = useVariation ? variation.getValue() : element.getValue();
-        if (data == null) {
-            return false;
-        }
-        Object actual = data.getValue();
-        if (expectedArray != null) {
-            return actual instanceof String[] && Arrays.equals(expectedArray, (String[]) actual);
-        }
-        return expectedScalar != null && actual != null && expectedScalar.equals(actual.toString());
+        return CommerceWriteSupport.elementValueRoundTrips(element, variation, useVariation, expectedValues);
     }
 
-    private void writeScalar(ContentElement element, ContentVariation variation, boolean useVariation,
-        FragmentData data) throws ContentFragmentException {
-        if (useVariation) {
-            variation.setValue(data);
-        } else {
-            element.setValue(data);
+    /**
+     * Normalizes the JSON {@code value} into the string value(s) to write: a JSON array yields one entry per item
+     * (a JSON {@code null} item becomes a {@code null} entry, not the literal {@code "null"}); a JSON scalar yields a
+     * single-element array. The element's arity (single vs multi) is decided later by
+     * {@link CommerceWriteSupport#applyElementValue}, not here.
+     */
+    private String[] toValues(JsonNode valueNode) {
+        if (valueNode.isArray()) {
+            List<String> values = new ArrayList<String>();
+            for (JsonNode item : valueNode) {
+                values.add(item.isNull() ? null : item.asText());
+            }
+            return values.toArray(new String[0]);
         }
-    }
-
-    private String[] toStringArray(JsonNode arrayNode) {
-        List<String> values = new ArrayList<String>();
-        for (JsonNode item : arrayNode) {
-            values.add(item.isNull() ? null : item.asText());
-        }
-        return values.toArray(new String[0]);
+        return new String[] { valueNode.asText() };
     }
 
     /**

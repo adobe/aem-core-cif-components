@@ -27,14 +27,26 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.dam.cfm.ContentElement;
+import com.adobe.cq.dam.cfm.ContentFragmentException;
+import com.adobe.cq.dam.cfm.ContentVariation;
+import com.adobe.cq.dam.cfm.DataType;
+import com.adobe.cq.dam.cfm.FragmentData;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CommerceWriteSupportTest {
 
@@ -474,5 +486,123 @@ public class CommerceWriteSupportTest {
         assertEquals("DDD=", items.getChild("item0").getValueMap().get("categoryId", String.class));
         assertNull(items.getChild("item1"));
         assertNull(items.getChild("item2"));
+    }
+
+    // --- applyElementValue / elementValueRoundTrips (content-fragment element writes) --------------------------
+
+    private ContentElement elementWith(FragmentData data) {
+        ContentElement element = mock(ContentElement.class);
+        when(element.getValue()).thenReturn(data);
+        when(element.getName()).thenReturn("field");
+        return element;
+    }
+
+    private FragmentData dataOfArity(boolean multiValue) {
+        FragmentData data = mock(FragmentData.class);
+        DataType dataType = mock(DataType.class);
+        when(dataType.isMultiValue()).thenReturn(multiValue);
+        when(data.getDataType()).thenReturn(dataType);
+        return data;
+    }
+
+    @Test
+    public void applyElementValueWritesScalarToSingleValueElement() throws Exception {
+        FragmentData data = dataOfArity(false);
+        ContentElement element = elementWith(data);
+
+        CommerceWriteSupport.applyElementValue(element, null, false, new String[] { "hello" });
+
+        verify(data).setValue("hello");
+        verify(element).setValue(data);
+    }
+
+    @Test
+    public void applyElementValueWritesArrayToMultiValueElement() throws Exception {
+        FragmentData data = dataOfArity(true);
+        ContentElement element = elementWith(data);
+
+        CommerceWriteSupport.applyElementValue(element, null, false, new String[] { "a", "b" });
+
+        verify(data).setValue(new String[] { "a", "b" });
+        verify(element).setValue(data);
+    }
+
+    @Test
+    public void applyElementValueWrapsScalarAsArrayForMultiValueElement() throws Exception {
+        FragmentData data = dataOfArity(true);
+        ContentElement element = elementWith(data);
+
+        CommerceWriteSupport.applyElementValue(element, null, false, new String[] { "VT01" });
+
+        // a multi-value element receives a String[], never a bare String -- this is the product-reference sku case
+        verify(data).setValue(new String[] { "VT01" });
+    }
+
+    @Test
+    public void applyElementValueRejectsMultipleValuesForSingleValueElement() {
+        FragmentData data = dataOfArity(false);
+        ContentElement element = elementWith(data);
+
+        assertThrows(IllegalArgumentException.class,
+            () -> CommerceWriteSupport.applyElementValue(element, null, false, new String[] { "a", "b" }));
+    }
+
+    @Test
+    public void applyElementValueTranslatesContentFragmentExceptionToIllegalArgument() throws Exception {
+        FragmentData data = dataOfArity(false);
+        doThrow(new ContentFragmentException("nope")).when(data).setValue(any());
+        ContentElement element = elementWith(data);
+
+        assertThrows(IllegalArgumentException.class,
+            () -> CommerceWriteSupport.applyElementValue(element, null, false, new String[] { "x" }));
+    }
+
+    @Test
+    public void applyElementValueWritesToNamedVariation() throws Exception {
+        FragmentData vdata = dataOfArity(false);
+        ContentVariation variation = mock(ContentVariation.class);
+        when(variation.getValue()).thenReturn(vdata);
+        ContentElement element = mock(ContentElement.class);
+        when(element.getName()).thenReturn("field");
+
+        CommerceWriteSupport.applyElementValue(element, variation, true, new String[] { "v" });
+
+        verify(vdata).setValue("v");
+        verify(variation).setValue(vdata);
+        verify(element, org.mockito.Mockito.never()).setValue(any(FragmentData.class));
+    }
+
+    @Test
+    public void elementValueRoundTripsTrueWhenScalarMatches() {
+        FragmentData data = dataOfArity(false);
+        when(data.getValue()).thenReturn("hello");
+        ContentElement element = elementWith(data);
+
+        assertTrue(CommerceWriteSupport.elementValueRoundTrips(element, null, false, new String[] { "hello" }));
+    }
+
+    @Test
+    public void elementValueRoundTripsFalseWhenScalarMismatches() {
+        FragmentData data = dataOfArity(false);
+        when(data.getValue()).thenReturn("stale");
+        ContentElement element = elementWith(data);
+
+        assertFalse(CommerceWriteSupport.elementValueRoundTrips(element, null, false, new String[] { "hello" }));
+    }
+
+    @Test
+    public void elementValueRoundTripsTrueWhenArrayMatches() {
+        FragmentData data = dataOfArity(true);
+        when(data.getValue()).thenReturn(new String[] { "a", "b" });
+        ContentElement element = elementWith(data);
+
+        assertTrue(CommerceWriteSupport.elementValueRoundTrips(element, null, false, new String[] { "a", "b" }));
+    }
+
+    @Test
+    public void elementValueRoundTripsFalseWhenDataNull() {
+        ContentElement element = elementWith(null);
+
+        assertFalse(CommerceWriteSupport.elementValueRoundTrips(element, null, false, new String[] { "x" }));
     }
 }

@@ -26,12 +26,14 @@ import org.junit.Test;
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
 import com.adobe.cq.dam.cfm.ContentElement;
 import com.adobe.cq.dam.cfm.ContentFragment;
+import com.adobe.cq.dam.cfm.DataType;
 import com.adobe.cq.dam.cfm.FragmentData;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
@@ -76,7 +78,6 @@ public class CreateCommerceContentFragmentToolTest {
             final String name = (String) invocation.getArguments()[0];
             ContentElement el = mock(ContentElement.class);
             FragmentData data = mock(FragmentData.class);
-            when(data.isTypeSupported(String.class)).thenReturn(true);
             when(data.getValue()).thenAnswer(i -> store.get(name));
             org.mockito.Mockito.doAnswer(i -> {
                 store.put(name, i.getArguments()[0]);
@@ -376,7 +377,6 @@ public class CreateCommerceContentFragmentToolTest {
         when(cf.getName()).thenReturn("vsk-01");
         ContentElement el = mock(ContentElement.class);
         FragmentData data = mock(FragmentData.class);
-        when(data.isTypeSupported(String.class)).thenReturn(true);
         when(data.getValue()).thenReturn("STALE"); // readback never matches the seeded value
         when(el.getValue()).thenReturn(data);
         when(el.getName()).thenReturn("sku");
@@ -388,6 +388,45 @@ public class CreateCommerceContentFragmentToolTest {
 
         // seed wrote, commit happened, but the persisted value did not round-trip -> fail closed
         assertThrows(IllegalStateException.class, () -> plainTool(cf).call(storeContext(), args));
+    }
+
+    @Test
+    public void seedsMultiValueLinkElementAsSingleEntryArray() throws Exception {
+        // The commerce sku (product-reference) linkElement is multi-value: a scalar identifier must be seeded as a
+        // single-element String[] so it persists (this is the case live validation exposed on the Venia model).
+        seedParentAndModel();
+        final Map<String, Object> store = new HashMap<String, Object>();
+        ContentFragment cf = mock(ContentFragment.class);
+        when(cf.adaptTo(Resource.class)).thenReturn(fragmentResourceAt("/content/dam/commerce/vsk-01"));
+        when(cf.getName()).thenReturn("vsk-01");
+        when(cf.getElement(org.mockito.Mockito.anyString())).thenAnswer(invocation -> {
+            final String name = (String) invocation.getArguments()[0];
+            ContentElement el = mock(ContentElement.class);
+            FragmentData data = mock(FragmentData.class);
+            DataType dataType = mock(DataType.class);
+            when(dataType.isMultiValue()).thenReturn(true); // multi-value element (e.g. product-reference)
+            when(data.getDataType()).thenReturn(dataType);
+            when(data.getValue()).thenAnswer(i -> store.get(name));
+            org.mockito.Mockito.doAnswer(i -> {
+                store.put(name, i.getArguments()[0]);
+                return null;
+            }).when(data).setValue(org.mockito.Mockito.any());
+            when(el.getValue()).thenReturn(data);
+            when(el.getName()).thenReturn(name);
+            return el;
+        });
+
+        ObjectNode args = mapper.createObjectNode();
+        args.put("identifier", "VSK-01").put("type", "product").put("modelPath", MODEL_PATH)
+            .put("linkElement", "sku").put("parentPath", PARENT_PATH);
+
+        JsonNode out = plainTool(cf).call(storeContext(), args);
+
+        // seeded as a single-element String[], not a scalar String, so a multi-value element round-trips
+        Object stored = store.get("sku");
+        assertTrue("expected a String[] to be seeded, got " + stored, stored instanceof String[]);
+        assertArrayEquals(new String[] { "VSK-01" }, (String[]) stored);
+        assertTrue(out.get("seeded").toString().contains("sku"));
     }
 
     @Test
