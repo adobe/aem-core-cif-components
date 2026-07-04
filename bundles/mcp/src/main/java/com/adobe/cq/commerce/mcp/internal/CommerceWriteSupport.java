@@ -24,6 +24,7 @@ import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
+import org.apache.sling.api.resource.ResourceUtil;
 
 import com.day.cq.wcm.api.Page;
 
@@ -165,6 +166,37 @@ public final class CommerceWriteSupport {
         } else {
             map.put(propertyName, values.toArray(new String[0]));
         }
+    }
+
+    /**
+     * Creates a new, uniquely-named child resource under {@code parent} (Tier-3 node creation, e.g. a bulk-created
+     * productteaser/productcarousel component instance), computing a collision-free sibling name from
+     * {@code baseName} via {@link ResourceUtil#createUniqueChildName(Resource, String)}.
+     * <p>
+     * {@code jcr:primaryType} is forced to {@code nt:unstructured} in the written properties when the caller did not
+     * already supply one, matching every other node this bundle creates (see {@link #writeComposite}). The caller
+     * is responsible for {@link ResourceResolver#commit()} — this method only stages the create.
+     *
+     * @param resolver the caller's {@link ResourceResolver} (JCR ACLs enforced); used to compute the unique name and
+     *            create the child
+     * @param parent the container resource the new child is created under
+     * @param baseName the preferred child name; a numeric suffix is appended if it already exists under
+     *            {@code parent}
+     * @param props the properties to write on the new child (e.g. {@code sling:resourceType}, {@code selection});
+     *            not mutated -- a defensive copy is made before {@code jcr:primaryType} is added
+     * @return the newly created, uncommitted {@link Resource}
+     * @throws PersistenceException if a unique name cannot be computed or resource creation fails
+     */
+    public static Resource createChild(ResourceResolver resolver, Resource parent, String baseName,
+        Map<String, Object> props) throws PersistenceException {
+        String uniqueName = ResourceUtil.createUniqueChildName(parent, baseName);
+
+        Map<String, Object> childProps = new HashMap<String, Object>(props);
+        if (!childProps.containsKey("jcr:primaryType")) {
+            childProps.put("jcr:primaryType", "nt:unstructured");
+        }
+
+        return resolver.create(parent, uniqueName, childProps);
     }
 
     /**

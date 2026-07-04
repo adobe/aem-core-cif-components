@@ -31,8 +31,10 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class CommerceWriteSupportTest {
 
@@ -290,6 +292,68 @@ public class CommerceWriteSupportTest {
         resolver.commit();
 
         assertNull(resolver.getResource("/content/site/jcr:content/root/list3/items"));
+    }
+
+    @Test
+    public void createChildCreatesUniquelyNamedChildWithProps() throws Exception {
+        context.build().resource("/content/site/jcr:content/root/grid",
+            "jcr:primaryType", "nt:unstructured").commit();
+        ResourceResolver resolver = context.resourceResolver();
+        Resource parent = resolver.getResource("/content/site/jcr:content/root/grid");
+
+        Map<String, Object> props = new LinkedHashMap<String, Object>();
+        props.put("sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser");
+        props.put("selection", "MJ01");
+
+        Resource created = CommerceWriteSupport.createChild(resolver, parent, "productteaser", props);
+        resolver.commit();
+
+        assertNotNull(created);
+        assertEquals("productteaser", created.getName());
+        assertEquals("/content/site/jcr:content/root/grid/productteaser", created.getPath());
+        assertEquals("nt:unstructured", created.getValueMap().get("jcr:primaryType", String.class));
+        assertEquals("core/cif/components/commerce/productteaser/v1/productteaser",
+            created.getValueMap().get("sling:resourceType", String.class));
+        assertEquals("MJ01", created.getValueMap().get("selection", String.class));
+    }
+
+    @Test
+    public void createChildYieldsDistinctNameOnSecondCallWithSameBase() throws Exception {
+        context.build().resource("/content/site/jcr:content/root/grid2",
+            "jcr:primaryType", "nt:unstructured").commit();
+        ResourceResolver resolver = context.resourceResolver();
+        Resource parent = resolver.getResource("/content/site/jcr:content/root/grid2");
+
+        Map<String, Object> props1 = new LinkedHashMap<String, Object>();
+        props1.put("selection", "MJ01");
+        Resource first = CommerceWriteSupport.createChild(resolver, parent, "productteaser", props1);
+        resolver.commit();
+
+        Map<String, Object> props2 = new LinkedHashMap<String, Object>();
+        props2.put("selection", "MJ02");
+        Resource second = CommerceWriteSupport.createChild(resolver, parent, "productteaser", props2);
+        resolver.commit();
+
+        assertEquals("productteaser", first.getName());
+        assertNotEquals(first.getName(), second.getName());
+        assertNotEquals(first.getPath(), second.getPath());
+        assertEquals("MJ02", second.getValueMap().get("selection", String.class));
+    }
+
+    @Test
+    public void createChildDoesNotCommit() throws Exception {
+        context.build().resource("/content/site/jcr:content/root/grid3",
+            "jcr:primaryType", "nt:unstructured").commit();
+        ResourceResolver resolver = context.resourceResolver();
+        Resource parent = resolver.getResource("/content/site/jcr:content/root/grid3");
+
+        Map<String, Object> props = new LinkedHashMap<String, Object>();
+        props.put("selection", "MJ01");
+        CommerceWriteSupport.createChild(resolver, parent, "productteaser", props);
+
+        // createChild must leave the commit to the caller -- the resolver still has pending,
+        // uncommitted changes after the call returns.
+        assertTrue(resolver.hasChanges());
     }
 
     @Test
