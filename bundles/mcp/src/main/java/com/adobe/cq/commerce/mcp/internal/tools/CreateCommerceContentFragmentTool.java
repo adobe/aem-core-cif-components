@@ -73,9 +73,12 @@ public class CreateCommerceContentFragmentTool implements McpTool {
     @Override
     public String description() {
         return "Create a new commerce content fragment from a CF model under a DAM folder and seed its linkElement "
-            + "with a product SKU or category UID (plus optional extra scalar fields), so the fragment is "
-            + "discoverable by get_commerce_content_fragment. Supports dryRun to preview the fragment path and "
-            + "seeded fields without persisting anything. Never auto-publishes -- ends at commit().";
+            + "with a product SKU or category UID (plus optional extra fields), so the fragment is discoverable by "
+            + "get_commerce_content_fragment. Seeded values are written as plain text to the master value only: "
+            + "linkElement and each fields entry must target a String-typed element (a richtext or multi-value "
+            + "element is rejected -- use update_commerce_content_fragment_field afterwards for those). Supports "
+            + "dryRun to preview the fragment path and seeded fields without persisting anything. Never "
+            + "auto-publishes -- ends at commit().";
     }
 
     @Override
