@@ -1,0 +1,117 @@
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~ Copyright 2026 Adobe
+ ~
+ ~ Licensed under the Apache License, Version 2.0 (the "License");
+ ~ you may not use this file except in compliance with the License.
+ ~ You may obtain a copy of the License at
+ ~
+ ~     http://www.apache.org/licenses/LICENSE-2.0
+ ~
+ ~ Unless required by applicable law or agreed to in writing, software
+ ~ distributed under the License is distributed on an "AS IS" BASIS,
+ ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ~ See the License for the specific language governing permissions and
+ ~ limitations under the License.
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+package com.adobe.cq.commerce.mcp.internal;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.sling.api.resource.ModifiableValueMap;
+import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
+import org.junit.Rule;
+import org.junit.Test;
+
+import io.wcm.testing.mock.aem.junit.AemContext;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+public class CommerceWriteSupportTest {
+
+    private static final List<String> ALLOWED_TYPES = Arrays.asList(
+        "core/cif/components/commerce/productteaser/v1/productteaser");
+
+    @Rule
+    public final AemContext context = new AemContext();
+
+    @Test
+    public void resolvesResourceOfAllowedType() {
+        context.build().resource("/content/site/jcr:content/root/teaser",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser").commit();
+
+        ResourceResolver resolver = context.resourceResolver();
+        Resource resolved = CommerceWriteSupport.resolveComponent(resolver, "path",
+            "/content/site/jcr:content/root/teaser", ALLOWED_TYPES);
+
+        assertNotNull(resolved);
+        assertEquals("/content/site/jcr:content/root/teaser", resolved.getPath());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsDisallowedResourceType() {
+        context.build().resource("/content/site/jcr:content/root/text",
+            "sling:resourceType", "core/wcm/components/text/v2/text").commit();
+
+        CommerceWriteSupport.resolveComponent(context.resourceResolver(), "path",
+            "/content/site/jcr:content/root/text", ALLOWED_TYPES);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsPathNotUnderContent() {
+        CommerceWriteSupport.resolveComponent(context.resourceResolver(), "path", "/etc/somewhere", ALLOWED_TYPES);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsBlankPath() {
+        CommerceWriteSupport.resolveComponent(context.resourceResolver(), "path", "   ", ALLOWED_TYPES);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsNullPath() {
+        CommerceWriteSupport.resolveComponent(context.resourceResolver(), "path", null, ALLOWED_TYPES);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void rejectsMissingResource() {
+        CommerceWriteSupport.resolveComponent(context.resourceResolver(), "path", "/content/does/not/exist",
+            ALLOWED_TYPES);
+    }
+
+    @Test
+    public void mutableMapAdaptsModifiableResource() {
+        context.build().resource("/content/site/jcr:content/root/teaser",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser").commit();
+        Resource resource = context.resourceResolver().getResource("/content/site/jcr:content/root/teaser");
+
+        ModifiableValueMap map = CommerceWriteSupport.mutableMap(resource, "path");
+
+        assertNotNull(map);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void mutableMapRejectsNonAdaptableResource() {
+        // A synthetic non-JCR resource (no ModifiableValueMap adapter available) must fail closed.
+        Resource resource = new org.apache.sling.api.resource.SyntheticResource(context.resourceResolver(),
+            "/content/synthetic", "sling:nonexistent") {
+            @Override
+            public <AdapterType> AdapterType adaptTo(Class<AdapterType> type) {
+                return null;
+            }
+        };
+
+        CommerceWriteSupport.mutableMap(resource, "path");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolveComponentRejectsEmptyAllowedTypesList() {
+        context.build().resource("/content/site/jcr:content/root/teaser",
+            "sling:resourceType", "core/cif/components/commerce/productteaser/v1/productteaser").commit();
+
+        CommerceWriteSupport.resolveComponent(context.resourceResolver(), "path",
+            "/content/site/jcr:content/root/teaser", Collections.<String>emptyList());
+    }
+}
