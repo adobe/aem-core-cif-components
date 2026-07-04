@@ -285,6 +285,59 @@ public class ScaffoldCatalogSectionToolTest {
     }
 
     @Test
+    public void keepsCommittedCatalogRootWhenChildCreateFails() throws Exception {
+        // Proves the documented atomicity boundary: the catalog root is committed by its delegate BEFORE the children
+        // are staged, so a child failure reverts only the (staged) children -- the committed root survives.
+        loadTemplates();
+        context.build().resource("/content/site/en", "jcr:primaryType", "cq:Page").commit();
+        final ResourceResolver resolver = context.resourceResolver();
+
+        ScaffoldCatalogSectionTool tool = new RecordingScaffoldTool() {
+            @Override
+            protected JsonNode createCatalogRoot(McpCallContext c, ObjectNode args) {
+                // Materialise AND COMMIT the root, exactly as the real create_catalog_page delegate does.
+                JsonNode result = super.createCatalogRoot(c, args);
+                try {
+                    resolver.commit();
+                } catch (org.apache.sling.api.resource.PersistenceException e) {
+                    throw new IllegalStateException(e);
+                }
+                return result;
+            }
+
+            @Override
+            protected String createChildPage(ResourceResolver r, String parentPath, String name, String templatePath,
+                String title) {
+                throw new IllegalStateException("child create blew up");
+            }
+        };
+
+        assertThrows(IllegalStateException.class, () -> tool.call(ctx(), mapper.readTree(
+            "{\"parent\":\"/content/site/en\",\"name\":\"shop\",\"title\":\"Shop\",\"rootCategoryId\":\"MjA=\"}")));
+
+        // The already-committed catalog root is NOT discarded by the children's revert().
+        assertNotNull(resolver.getResource("/content/site/en/shop"));
+    }
+
+    @Test
+    public void forwardsExplicitTemplateToCatalogRootWhileChildrenAutoDiscover() throws Exception {
+        loadTemplates();
+        context.build().resource("/content/site/en", "jcr:primaryType", "cq:Page").commit();
+
+        RecordingScaffoldTool tool = new RecordingScaffoldTool();
+        JsonNode out = tool.call(ctx(), mapper.readTree(
+            "{\"parent\":\"/content/site/en\",\"name\":\"shop\",\"title\":\"Shop\",\"rootCategoryId\":\"MjA=\","
+                + "\"template\":\"/conf/testsite/settings/wcm/templates/catalog-page\"}"));
+
+        // The explicit template (a catalog template) is forwarded only to the catalog-root delegate...
+        assertEquals("/conf/testsite/settings/wcm/templates/catalog-page",
+            tool.capturedCatalogArgs.get("template").asText());
+        // ...while the example children still auto-discover their own product/category templates (both created).
+        assertEquals(2, out.get("children").size());
+        assertEquals(0, out.get("skipped").size());
+    }
+
+    @Test
     public void rejectsParentNotUnderContent() {
         loadTemplates();
         context.build().resource("/conf/site/en", "jcr:primaryType", "cq:Page").commit();

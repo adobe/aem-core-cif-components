@@ -184,10 +184,8 @@ public class ScaffoldCatalogSectionTool implements McpTool {
         if (dryRun) {
             // Section root does not exist, so its would-be children are simply the base names (no siblings to
             // disambiguate). Resolve templates only to record availability; create/commit nothing.
-            previewChild(resolver, sectionPath, KIND_PRODUCT, EXAMPLE_PRODUCT_NAME, explicitTemplate, children,
-                skipped);
-            previewChild(resolver, sectionPath, KIND_CATEGORY, EXAMPLE_CATEGORY_NAME, explicitTemplate, children,
-                skipped);
+            previewChild(resolver, sectionPath, KIND_PRODUCT, EXAMPLE_PRODUCT_NAME, children, skipped);
+            previewChild(resolver, sectionPath, KIND_CATEGORY, EXAMPLE_CATEGORY_NAME, children, skipped);
             return out;
         }
 
@@ -235,7 +233,7 @@ public class ScaffoldCatalogSectionTool implements McpTool {
      * section root does not exist yet in a dry run, so the child name is simply the base name.
      */
     private void previewChild(ResourceResolver resolver, String sectionPath, String kind, String baseName,
-        String explicitTemplate, ArrayNode children, ArrayNode skipped) {
+        ArrayNode children, ArrayNode skipped) {
         try {
             // Auto-discover a template of this kind; an explicit template is a catalog template (for the root) and
             // must not be forced onto a product/category child.
