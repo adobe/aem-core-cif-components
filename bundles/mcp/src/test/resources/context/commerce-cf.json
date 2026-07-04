@@ -1,0 +1,22 @@
+{
+  "jcr:primaryType": "sling:Folder",
+  "dam": {
+    "jcr:primaryType": "sling:Folder",
+    "vsk01-details": {
+      "jcr:primaryType": "dam:Asset",
+      "jcr:content": {
+        "jcr:primaryType": "dam:AssetContent",
+        "data": {
+          "jcr:primaryType": "nt:unstructured",
+          "cq:model": "/conf/venia/settings/dam/cfm/models/product",
+          "master": {
+            "jcr:primaryType": "nt:unstructured",
+            "linkElement": "VSK01",
+            "headline": "Bellona Details",
+            "tags": ["summer", "sale"]
+          }
+        }
+      }
+    }
+  }
+}

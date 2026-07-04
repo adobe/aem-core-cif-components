@@ -1,0 +1,44 @@
+{
+  "jcr:primaryType": "sling:Folder",
+  "testsite": {
+    "jcr:primaryType": "sling:Folder",
+    "settings": {
+      "jcr:primaryType": "sling:Folder",
+      "wcm": {
+        "jcr:primaryType": "sling:Folder",
+        "templates": {
+          "jcr:primaryType": "sling:Folder",
+          "catalog-page": {
+            "jcr:primaryType": "cq:Template",
+            "jcr:content": {
+              "jcr:primaryType": "cq:PageContent",
+              "jcr:title": "Catalog Page",
+              "status": "enabled"
+            },
+            "initial": {
+              "jcr:primaryType": "cq:Page",
+              "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "jcr:title": "Catalog Page",
+                "sling:resourceType": "venia/components/commerce/catalogpage",
+                "root": {
+                  "jcr:primaryType": "nt:unstructured",
+                  "sling:resourceType": "venia/components/container",
+                  "container": {
+                    "jcr:primaryType": "nt:unstructured",
+                    "sling:resourceType": "venia/components/container",
+                    "container": {
+                      "jcr:primaryType": "nt:unstructured",
+                      "sling:resourceType": "venia/components/container",
+                      "layout": "responsiveGrid"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

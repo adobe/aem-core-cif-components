@@ -1,0 +1,55 @@
+{
+  "jcr:primaryType": "sling:Folder",
+  "site": {
+    "jcr:primaryType": "cq:Page",
+    "jcr:content": {
+      "jcr:primaryType": "cq:PageContent",
+      "sling:resourceType": "core/cif/components/structure/page/v3/page",
+      "navRoot": true
+    },
+    "product-page-v1": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "core/cif/components/structure/page/v1/page",
+        "selectorFilter": "productId1"
+      }
+    },
+    "product-page-v2": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "core/cif/components/structure/page/v2/page",
+        "useForCategories": ["men"],
+        "includesSubCategories": true
+      }
+    },
+    "category-page-v1": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "core/cif/components/structure/page/v1/page",
+        "selectorFilter": "category-uid-1|men/tops",
+        "selectorFilterType": "uidAndUrlPath",
+        "includesSubCategories": true
+      }
+    },
+    "category-page-v3": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "core/cif/components/structure/page/v3/page",
+        "selectorFilter": "men/tops",
+        "selectorFilterType": "urlPath",
+        "includesSubCategories": true
+      }
+    },
+    "not-a-structure-page": {
+      "jcr:primaryType": "cq:Page",
+      "jcr:content": {
+        "jcr:primaryType": "cq:PageContent",
+        "sling:resourceType": "core/wcm/components/page/v2/page"
+      }
+    }
+  }
+}

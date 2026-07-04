@@ -19,8 +19,16 @@ returns `404`).
 
 | | Selector / URL | Tools | Instances | Auth |
 |---|---|---|---|---|
-| **Shopper (read)** | `POST <navRoot>.mcp.json` | read kernel | author **+** publish | anonymous (storefront parity) |
-| **Authoring (read+write)** | `POST <navRoot>.mcp-authoring.json` | read kernel **+** write tools | **author only** | AEM auth + JCR ACLs |
+| **Shopper (read)** | `POST <navRoot>.mcp.json` | storefront read kernel (catalog reads + guest cart/checkout) | author **+** publish | anonymous (storefront parity) |
+| **Authoring (read+write)** | `POST <navRoot>.mcp-authoring.json` | everything: storefront read kernel **+** authoring-only tools (write tools **+** authoring-oriented read/diagnostic tools) | **author only** | AEM auth + JCR ACLs |
+
+A tool is served by the shopper endpoint unless `McpTool.authoringOnly()` returns `true`
+(`ToolRegistry.forSelector`). `authoringOnly()` defaults to `writesContent()`, so every write tool
+is authoring-only automatically; authoring-oriented **read** tools (page-routing / specific-page
+diagnostics, template / content-fragment / associated-content inspection, orphaned-content scan,
+picker + content-binding validation) override it to `true` so they are not exposed to anonymous
+storefront callers. This is an explicit per-tool declaration, **not** inferred from the tool's Java
+package.
 
 `<navRoot>` is the store-root page CIF marks `navRoot=true`, e.g.
 `/content/venia/us/en`. Different nav-roots = different stores; the store/commerce context
@@ -76,6 +84,33 @@ Read tools (both endpoints); each result is a compact JSON DTO with a matching
 | `browse_categories` | `{uid?}` | `{category:{uid,name,urlPath,url,children:[…]}}` (`url` = PLP link, on category + children) |
 | `get_attributes` | `{}` | `{attributes:[{code,inputType}]}` |
 | `resolve_picker_selection` | `{skus:[…]}` | `{items:[{sku,name}]}` (authoring picker helper; read-only) |
+| `get_sort_options` | `{}` | `{default, options:[{value,label}]}` (store's product-listing sort fields) |
+| `get_product_relationships` | `{sku, linkType?}` | `{sku, links:[{linkType,sku,linkedProductSku,linkedProductType,position}]}` (`linkType` filters to `related`/`upsell`/`crosssell`) |
+| `get_category_breadcrumbs` | `{uid?, urlPath?}` (one required) | `{uid, breadcrumbs:[{uid,name,level,urlPath}]}` (top-level ancestor first) |
+| `resolve_category_details` | `{uid, urlPath?}` | `{uid, name, urlPath, breadcrumbs:[…]}`, or `{uid, resolves:false}` if the category no longer resolves |
+| `get_custom_attribute_metadata` | `{attributes:[{code, entityType?}]}` (`entityType` defaults to `catalog_product`) | `{items:[{code,attributeType,inputType,entityType,options:[{label,value}]}]}` |
+| `resolve_url_to_entity` | `{url}` | `{url, type, id, uid, canonicalUrl, relativeUrl, redirectCode}`, or `{url, resolves:false}` if the URL doesn't resolve |
+| `validate_content_bindings` | `{products?:[sku…], categories?:[uid…]}` (at least one non-empty) | `{products:[{sku,resolves}], categories:[{uid,resolves}]}` |
+| `find_orphaned_commerce_content` | `{root?, limit?}` (`root` defaults to `/content`, must be `/content` or under it; `limit` defaults to `200`) | `{root, scanned, orphans:[{path,identifier,identifierType,property}]}` (reverse scan for `cq:products`/`cq:categories` tags whose SKU/UID no longer resolves) |
+| `get_commerce_content_fragment` | `{identifier, type}` (`type` is `product`\|`category`) + optional `{contentFragmentModel?, linkElement?}` | `{identifier, type, modelPath?, fragmentPath?, fields}`, or `{identifier, type, resolves:false}` if no CF matches |
+| `list_catalog_pages` | `{siteRoot?}` (any page under `/content`; defaults to the endpoint's nav root) | `{siteRoot, catalogPages:[{path,rootCategoryId,idType,genericFallback}]}` (routing order, generic fallback last) |
+| `explain_catalog_page_routing` | `{urlPath, siteRoot?}` | `{identifier, winningPage, reason, candidates:[{path,matched,why}]}` (replays `getGenericPage`'s first-match walk) |
+| `detect_catalog_page_conflicts` | `{siteRoot?}` | `{siteRoot, overlaps:[{pages:[…],scope,kind}]}` (`kind` = `duplicate-scope`\|`ancestor-descendant`; structural only, no live category-tree fetch) |
+| `explain_page_resolution` | `{identifier, type, siteRoot?}` (`type` is `product`\|`category`) | `{identifier, type, winningPage, depth, candidates:[{path,depth,matched,why}]}` (replays the deepest-wins specific-page match) |
+| `list_specific_pages` | `{siteRoot?}` | `{siteRoot, specificPages:[{path,pageType,selectorFilter?,selectorFilterType?,includesSubCategories?,useForCategories?}]}` |
+| `detect_specific_page_conflicts` | `{siteRoot?}` | `{siteRoot, duplicates:[{scope,pages:[…]}], shadowing:[{broader,narrower,reason}]}` (structural only; url-path-scoped bindings only) |
+| `validate_selector_filter_format` | `{path}` | `{path, selectorFilterType, entries:[{raw,valid,uid?,urlPath?,issue?}]}` (flags entries missing the `uid\|urlPath` separator) |
+| `check_specific_page_capability` | `{path}` | `{path, pageType, componentVersion, fields:{selectorFilter,selectorFilterType,includesSubCategories,useForCategories}}` (booleans; `useForCategories`/product-page `includesSubCategories` are `false` pre-v2) |
+| `suggest_template_for_page_type` | `{kind}` (`kind` is `product`\|`category`\|`catalog`) | `{kind, templates:[{path,title,signal}]}` (`signal` = `resourceSuperType`\|`title`) |
+
+`get`/`list`-style tools above return empty collections for an identifier that no longer
+resolves; `resolve_category_details`/`resolve_url_to_entity` instead return an explicit
+`resolves:false`, and `validate_content_bindings` reports `resolves:false` per entry.
+`list_catalog_pages`/`explain_catalog_page_routing`/`detect_catalog_page_conflicts`/
+`explain_page_resolution`/`list_specific_pages`/`detect_specific_page_conflicts` all take an
+optional `siteRoot` (any page under `/content`; defaults to the endpoint's own nav root), while
+`validate_selector_filter_format`/`check_specific_page_capability` take a required `path` that
+must resolve to a `cq:Page` under `/content`.
 
 ### Cart tools (shopper endpoint — guest cart, `writesContent() == false`)
 
@@ -146,9 +181,28 @@ path or a resource that is not a CIF component/page they understand:
 | Tool | Args | Effect |
 |---|---|---|
 | `configure_product_component` | `{path, sku}` | pins a CIF product component to a SKU (`selection`/`selectionType`) |
-| `configure_productlist_component` | `{path, categoryUid}` | pins a CIF product list / carousel **component** to a category (its `category` manual selection) |
-| `configure_catalog_page` | `{path, categoryUid, showMainCategories?}` | binds a catalog (PLP) **page's** root category (`magentoRootCategoryId` + `magentoRootCategoryIdType=uid` + `showMainCategories`, default `false`) |
+| `configure_productlist_component` | `{path, categoryUid?, showTitle?, showImage?, pageSize?, defaultSortField?, defaultSortOrder?, fragments?}` | pins a CIF product list / carousel **component** to a category (its `category` manual selection) and, for product-list components (`ProductListImpl` extends `ProductCollectionImpl`), the rest of its dialog: `showTitle`/`showImage` (booleans), `pageSize` (integer), `defaultSortField`/`defaultSortOrder` (`asc`\|`desc`), and `fragments` (array of `{fragmentLocation?, fragmentPage?, fragmentCssClass?}`, written as the `fragments/item0…` composite multifield). The productlist-specific properties are no-ops on a product carousel — only `categoryUid` has any effect there |
+| `configure_productcarousel_component` | `{path, selectionType?, product?, category?, productCount?}` | configures a CIF product carousel's selection: a manual list of product SKUs (`selectionType=product`, `product[]` combinedSku-normalized) or a category with an optional product count (`selectionType=category`, `category` + `productCount`) |
+| `configure_featuredcategorylist_component` | `{path, items, title?, titleType?, linkTarget?}` | configures the `items` composite multifield (`categoryId` + optional `asset` override per item, written as `items/item0…`) shared by CIF's featured-category-list and category-carousel components (same `FeaturedCategoryListImpl` model backs both resource types), plus `jcr:title`/`titleType`/`linkTarget` (no-ops on category-carousel, which doesn't render a title) |
+| `configure_catalog_page` | `{path, categoryUid, idType?, showMainCategories?}` | binds a catalog (PLP) **page's** root category (`magentoRootCategoryId` + `magentoRootCategoryIdType`, default `uid`, also accepts `urlPath` + `showMainCategories`, default `false`) |
+| `bind_page_to_products` | `{path, skusOrUrlKeys[]}` | binds a CIF structure **product page** as the dedicated PDP for a specific set of products by writing `selectorFilter` (plain SKUs/URL keys/slugs, not pipe-encoded); an empty array clears an existing binding |
+| `bind_page_to_category` | `{path, categoryUid, urlPath, includesSubCategories?}` | binds a CIF structure **category page** as the dedicated PLP for a specific category by writing `selectorFilter` (`categoryUid\|urlPath`, pipe-encoded), `selectorFilterType` (`uidAndUrlPath`), and `includesSubCategories` |
+| `bind_product_page_to_category_tree` | `{path, categoryUid, urlPath, includesSubCategories?}` | binds a CIF structure **product page** as the dedicated PDP for every product under a whole category/tree by writing `useForCategories` (plain `urlPath`, v2+ only) and `includesSubCategories`; `categoryUid` is required for symmetry with `bind_page_to_category` but is validated only, not persisted |
+| `unbind_specific_page` | `{path}` | clears a CIF structure page's specific-PDP/PLP binding by removing `selectorFilter`, `selectorFilterType`, `includesSubCategories`, and `useForCategories` from its `jcr:content`; idempotent |
+| `configure_productteaser_component` | `{path, sku, cta?, ctaText?, linkTarget?, id?}` | binds a SKU (base or `base#variant` combinedSku) plus optional CTA/link/id properties to a product teaser component (`selection`, `cta`, `ctaText`, `linkTarget`, `id`) |
+| `configure_relatedproducts_component` | `{path, relationType, product?}` | sets the relation type (`RELATED_PRODUCTS`\|`UPSELL_PRODUCTS`\|`CROSS_SELL_PRODUCTS`) and optional plain-SKU product override on a related-products component; omitting `product` removes it and falls back to the page-URL product |
+| `configure_product_visible_sections` | `{path, visibleSections[]}` | sets which sections (`title`\|`price`\|`sku`\|`images`\|`options`\|`quantity`\|`actions`\|`description`\|`details`) a product component renders; an empty array clears the override (falls back to the style/policy default). Effective on v3 product components only — accepted but ignored on v1/v2 |
+| `configure_page_commerce_links` | `{path, cifProductPage?, cifCategoryPage?, cifSearchResultsPage?}` | sets the nav-config pagefields on a CIF structure page's `jcr:content` so generic product/category/search-results links resolve to the given paths; pass `""` to clear a field. At least one of the three is required. Covers only these pagefields — `cq:products`/`cq:categories` markers are still `tag_content_with_commerce` |
 | `tag_content_with_commerce` | `{path, sku?, categoryUid?, action?}` | sets `cq:products` / `cq:categories` on a DAM asset, page, or XF variation (`action`: `add` or `remove`) |
+| `create_product_teasers` | `{parentPath, skus[], cta?, ctaText?, dryRun?}` | bulk-creates one product teaser component (`sling:resourceType=…/productteaser/v1/productteaser`) per SKU as a uniquely-named child of `parentPath`, sharing the optional `cta`/`ctaText`; `dryRun:true` previews the node paths/selections without creating anything |
+| `create_product_carousels` | `{parentPath, carousels[{selectionType?, product?, category?, productCount?}], dryRun?}` | bulk-creates one product carousel component (`sling:resourceType=…/productcarousel/v1/productcarousel`) per carousel spec as a uniquely-named child of `parentPath`, each spec mirroring `configure_productcarousel_component`'s shape (manual `product[]` or `category`+`productCount`); `dryRun:true` previews the node paths without creating anything |
+| `update_commerce_content_fragment_field` | `{fragmentPath, elementName, value, variation?}` | sets one element's value on an existing commerce content fragment under `/content/dam`. Richtext elements are written as HTML (`text/html`); every other element is written by its own arity — a multi-value element (e.g. the commerce `sku` product-reference field) takes a `String[]` (a scalar is wrapped as a single entry, a JSON array is written as-is), a single-value element takes a string. Writes the **master** value by default; `variation` targets an already-existing named variation (unknown → error, never auto-created). Returns `{fragmentPath, elementName, variation, updated}` (`updated` from a real post-commit readback). Never auto-publishes |
+| `create_commerce_content_fragment` | `{identifier, type, modelPath, linkElement, fields?, parentPath?, name?, title?, dryRun?}` | creates a new content fragment from `modelPath` (via `FragmentTemplate.createFragment`) under `parentPath` (default `/content/dam`), seeding `linkElement`=identifier + optional `fields` by each element's arity — so a multi-value `linkElement` such as the commerce `sku` field is supported (the identifier is stored as a single-element list). `dryRun:true` previews the fragment path + seeded fields without creating anything; never auto-publishes |
+| `create_catalog_page` | `{parent, name?, title, rootCategoryId, idType?, showMainCategories?, template?, dryRun?}` | creates a CIF catalog (PLP) page under `parent` from a `catalog` editable template (auto-discovered under `/conf` unless `template` given), then delegates the root-category binding to `configure_catalog_page`. Page create + binding commit atomically (page reverted if the binding fails). `dryRun:true` previews the page path + template. Never auto-publishes |
+| `create_specific_pdp` | `{parent, name?, title, skusOrUrlKeys[], template?, dryRun?}` | creates a CIF product page from a `product` template, then delegates to `bind_page_to_products` to bind it to the given SKUs/URL-keys. Atomic (page reverted on binding failure); `dryRun:true` previews. Never auto-publishes |
+| `create_specific_plp` | `{parent, name?, title, categoryUid, urlPath, includesSubCategories?, template?, dryRun?}` | creates a CIF category page from a `category` template, then delegates to `bind_page_to_category`. Atomic; `dryRun:true` previews. Never auto-publishes |
+| `create_specific_pdp_for_category_tree` | `{parent, name?, title, categoryUid, urlPath, includesSubCategories?, template?, dryRun?}` | creates a CIF product page from a `product` template, then delegates to `bind_product_page_to_category_tree` (writes `useForCategories`, v2+). Atomic; `dryRun:true` previews. Never auto-publishes |
+| `scaffold_catalog_section` | `{parent, name, title?, rootCategoryId, idType?, template?, dryRun?}` | scaffolds a whole catalog section: a catalog page (section root, bound to `rootCategoryId`, via `create_catalog_page`) plus minimal unbound `example-product`/`example-category` child pages an author fills in later (a child is skipped and recorded in `skipped` if its template is absent). Returns `{sectionPath, catalogPage, rootCategoryId, children, skipped, dryRun}`. `dryRun:true` previews the whole would-be tree. Never auto-publishes |
 
 > Note the distinction: `category` (a **component** property, read by `ProductListImpl`) vs `magentoRootCategoryId` (a **page** property, read by `SiteStructure`/`NavigationImpl`). Binding a *component* to a category → `configure_productlist_component`; scoping a *catalog page* to a root category → `configure_catalog_page`.
 

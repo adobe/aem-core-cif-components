@@ -50,6 +50,31 @@ public class ToolRegistryTest {
         };
     }
 
+    /** A read-only tool (writesContent==false) that nonetheless declares itself authoring-only. */
+    private McpTool authoringReadTool(String n) {
+        return new McpTool() {
+            public String name() {
+                return n;
+            }
+
+            public String description() {
+                return n;
+            }
+
+            public ObjectNode inputSchema() {
+                return new ObjectMapper().createObjectNode();
+            }
+
+            public boolean authoringOnly() {
+                return true;
+            }
+
+            public JsonNode call(McpCallContext c, JsonNode a) {
+                return a;
+            }
+        };
+    }
+
     @Test
     public void shopperSelectorHidesWriteTools() {
         ToolRegistry reg = new ToolRegistry();
@@ -62,5 +87,26 @@ public class ToolRegistryTest {
         assertEquals(2, reg.forSelector("mcp-authoring").size());
         assertNull(reg.byName("mcp", "configure_product_component"));
         assertNotNull(reg.byName("mcp-authoring", "configure_product_component"));
+    }
+
+    @Test
+    public void shopperSelectorHidesAuthoringOnlyReadTools() {
+        ToolRegistry reg = new ToolRegistry();
+        reg.bindTool(tool("search_products", false));
+        reg.bindTool(authoringReadTool("list_specific_pages")); // read-only, but authoring-only
+
+        List<McpTool> shopper = reg.forSelector("mcp");
+        assertEquals(1, shopper.size());
+        assertEquals("search_products", shopper.get(0).name());
+        assertNull(reg.byName("mcp", "list_specific_pages"));
+        // the authoring endpoint still serves it
+        assertEquals(2, reg.forSelector("mcp-authoring").size());
+        assertNotNull(reg.byName("mcp-authoring", "list_specific_pages"));
+    }
+
+    @Test
+    public void authoringOnlyDefaultsToWritesContent() {
+        assertTrue(tool("configure_product_component", true).authoringOnly());
+        assertFalse(tool("search_products", false).authoringOnly());
     }
 }

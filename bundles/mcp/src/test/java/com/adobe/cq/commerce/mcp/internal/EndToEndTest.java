@@ -18,12 +18,12 @@ package com.adobe.cq.commerce.mcp.internal;
 import org.junit.Test;
 
 import com.adobe.cq.commerce.mcp.JsonRpc;
-import com.adobe.cq.commerce.mcp.internal.tools.ConfigureProductComponentTool;
-import com.adobe.cq.commerce.mcp.internal.tools.GetCategoryAssociatedContentTool;
-import com.adobe.cq.commerce.mcp.internal.tools.GetProductAssociatedContentTool;
 import com.adobe.cq.commerce.mcp.internal.tools.GetProductVariantsTool;
 import com.adobe.cq.commerce.mcp.internal.tools.SearchProductsTool;
-import com.adobe.cq.commerce.mcp.internal.tools.TagContentWithCommerceTool;
+import com.adobe.cq.commerce.mcp.internal.tools.authoring.ConfigureProductComponentTool;
+import com.adobe.cq.commerce.mcp.internal.tools.authoring.GetCategoryAssociatedContentTool;
+import com.adobe.cq.commerce.mcp.internal.tools.authoring.GetProductAssociatedContentTool;
+import com.adobe.cq.commerce.mcp.internal.tools.authoring.TagContentWithCommerceTool;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

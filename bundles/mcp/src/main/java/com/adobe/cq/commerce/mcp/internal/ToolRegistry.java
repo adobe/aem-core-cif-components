@@ -42,7 +42,10 @@ public class ToolRegistry {
     public List<McpTool> forSelector(String selector) {
         boolean authoring = "mcp-authoring".equals(selector);
         synchronized (tools) {
-            return tools.stream().filter(t -> authoring || !t.writesContent()).collect(Collectors.toList());
+            // The shopper endpoint sees only non-authoring tools; the authoring endpoint sees everything.
+            // authoringOnly() defaults to writesContent(), so write tools stay excluded from the shopper endpoint as
+            // before, plus any read-only tool that explicitly declares itself authoring-only.
+            return tools.stream().filter(t -> authoring || !t.authoringOnly()).collect(Collectors.toList());
         }
     }
 
