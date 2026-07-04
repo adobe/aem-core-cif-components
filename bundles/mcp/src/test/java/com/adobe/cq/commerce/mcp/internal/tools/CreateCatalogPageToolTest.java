@@ -25,9 +25,11 @@ import org.apache.sling.api.resource.ResourceResolver;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.adobe.cq.commerce.mcp.McpCallContext;
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.junit.Assert.assertEquals;
@@ -69,7 +71,7 @@ public class CreateCatalogPageToolTest {
     }
 
     /** Records the create-seam invocation and materialises a canned core-typed catalog page in the mock JCR. */
-    private static final class RecordingCatalogPageTool extends CreateCatalogPageTool {
+    private static class RecordingCatalogPageTool extends CreateCatalogPageTool {
         String capturedParent;
         String capturedName;
         String capturedTemplate;
@@ -226,6 +228,81 @@ public class CreateCatalogPageToolTest {
         assertThrows(IllegalArgumentException.class, () -> new RecordingCatalogPageTool().call(ctx(), mapper.readTree(
             "{\"parent\":\"/content/site/en\",\"name\":\"shop\",\"title\":\"Shop\",\"rootCategoryId\":\"MjA=\","
                 + "\"template\":\"/conf/testsite/settings/wcm/templates/product-page\"}")));
+    }
+
+    @Test
+    public void rejectsInvalidIdType() {
+        loadTemplates();
+        context.build().resource("/content/site/en", "jcr:primaryType", "cq:Page").commit();
+
+        assertThrows(IllegalArgumentException.class, () -> new RecordingCatalogPageTool().call(ctx(), mapper.readTree(
+            "{\"parent\":\"/content/site/en\",\"name\":\"shop\",\"title\":\"Shop\",\"rootCategoryId\":\"MjA=\","
+                + "\"idType\":\"bogus\"}")));
+    }
+
+    @Test
+    public void rejectsInvalidIdTypeEvenOnDryRun() {
+        // dryRun must faithfully preview a real run: an invalid idType (which a real run rejects) must also fail here.
+        loadTemplates();
+        context.build().resource("/content/site/en", "jcr:primaryType", "cq:Page").commit();
+
+        assertThrows(IllegalArgumentException.class, () -> new RecordingCatalogPageTool().call(ctx(), mapper.readTree(
+            "{\"parent\":\"/content/site/en\",\"name\":\"shop\",\"title\":\"Shop\",\"rootCategoryId\":\"MjA=\","
+                + "\"idType\":\"bogus\",\"dryRun\":true}")));
+    }
+
+    @Test
+    public void dryRunDerivesNameWhenOmitted() throws Exception {
+        loadTemplates();
+        context.build().resource("/content/site/en", "jcr:primaryType", "cq:Page").commit();
+
+        JsonNode out = new RecordingCatalogPageTool().call(ctx(), mapper.readTree(
+            "{\"parent\":\"/content/site/en\",\"title\":\"My Shop\",\"rootCategoryId\":\"MjA=\",\"dryRun\":true}"));
+
+        // Even on dryRun the would-be path uses the real derived (non-blank) child name under the parent.
+        assertTrue(out.get("dryRun").asBoolean());
+        String pagePath = out.get("pagePath").asText();
+        assertTrue(pagePath, pagePath.startsWith("/content/site/en/") && pagePath.length() > "/content/site/en/".length());
+    }
+
+    @Test
+    public void surfacesBindingFailureWhenReadbackReportsNotUpdated() throws Exception {
+        // The delegate reports updated=false (write did not persist) WITHOUT throwing -> create must fail closed
+        // rather than report a successful create over a broken binding.
+        loadTemplates();
+        context.build().resource("/content/site/en", "jcr:primaryType", "cq:Page").commit();
+
+        CreateCatalogPageTool tool = new RecordingCatalogPageTool() {
+            @Override
+            protected JsonNode bindRootCategory(McpCallContext c, ObjectNode bindArgs) {
+                return mapper.createObjectNode().put("updated", false);
+            }
+        };
+
+        assertThrows(IllegalStateException.class, () -> tool.call(ctx(), mapper.readTree(
+            "{\"parent\":\"/content/site/en\",\"name\":\"shop\",\"title\":\"Shop\",\"rootCategoryId\":\"MjA=\"}")));
+    }
+
+    @Test
+    public void revertsStagedPageWhenBindingThrows() throws Exception {
+        // If the binding fails before its commit (e.g. the created page's type is rejected by the gate), the staged
+        // page must be reverted -- no orphaned, unbound page left behind.
+        loadTemplates();
+        context.build().resource("/content/site/en", "jcr:primaryType", "cq:Page").commit();
+
+        ResourceResolver spy = org.mockito.Mockito.spy(context.resourceResolver());
+        CreateCatalogPageTool tool = new RecordingCatalogPageTool() {
+            @Override
+            protected JsonNode bindRootCategory(McpCallContext c, ObjectNode bindArgs) {
+                throw new IllegalArgumentException("resource is not a CIF catalog page");
+            }
+        };
+
+        assertThrows(IllegalArgumentException.class, () -> tool.call(ctx(spy), mapper.readTree(
+            "{\"parent\":\"/content/site/en\",\"name\":\"shop\",\"title\":\"Shop\",\"rootCategoryId\":\"MjA=\"}")));
+
+        // The staged page create was rolled back.
+        org.mockito.Mockito.verify(spy).revert();
     }
 
     @Test

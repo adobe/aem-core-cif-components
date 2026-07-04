@@ -15,6 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.mcp.internal.tools;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.PersistenceException;
 import org.apache.sling.api.resource.Resource;
@@ -61,6 +64,8 @@ public class CreateCatalogPageTool implements McpTool {
 
     private static final String KIND_CATALOG = "catalog";
     private static final String DEFAULT_ID_TYPE = "uid";
+    // Must match ConfigureCatalogPageTool's accepted idType values (validated up front so dryRun previews faithfully).
+    private static final List<String> VALID_ID_TYPES = Arrays.asList("uid", "urlPath");
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -121,15 +126,25 @@ public class CreateCatalogPageTool implements McpTool {
         if (StringUtils.isBlank(rootCategoryId)) {
             throw new IllegalArgumentException("rootCategoryId is required");
         }
+        // Validate idType up front (before the dryRun branch) so a dry run previews exactly what a real run would do
+        // -- a real run would be rejected by the delegate, so the dry run must be too.
+        if (!VALID_ID_TYPES.contains(idType)) {
+            throw new IllegalArgumentException("idType must be one of " + VALID_ID_TYPES + ": " + idType);
+        }
 
         ResourceResolver resolver = ctx.getRequest().getResourceResolver();
         Resource parent = PageCreationSupport.validatePageParent(resolver, "parent", parentPath);
         Resource template = PageTemplateSupport.resolveTemplate(resolver, KIND_CATALOG, explicitTemplate);
         String templatePath = template.getPath();
 
-        String name = StringUtils.isNotBlank(explicitName)
-            ? explicitName
-            : ResourceUtil.createUniqueChildName(parent, title);
+        String name;
+        try {
+            name = StringUtils.isNotBlank(explicitName)
+                ? explicitName
+                : ResourceUtil.createUniqueChildName(parent, title);
+        } catch (PersistenceException e) {
+            throw new IllegalArgumentException("cannot derive a unique page name under " + parent.getPath(), e);
+        }
 
         ObjectNode out = mapper.createObjectNode();
         out.put("template", templatePath);
@@ -144,6 +159,9 @@ public class CreateCatalogPageTool implements McpTool {
             return out;
         }
 
+        // Stage the page (createPage does NOT commit); the delegated binding's commit() then flushes the page + the
+        // binding together as one unit. If the binding fails before its commit (e.g. the created page is not a catalog
+        // page, or a write error), revert() discards the staged page so we never leave an orphaned, unbound page.
         String pagePath = createPage(resolver, parent.getPath(), name, templatePath, title);
 
         // Delegate the root-category binding to the shipped configure_catalog_page tool (its own jcr:content resolve
@@ -153,7 +171,19 @@ public class CreateCatalogPageTool implements McpTool {
         bindArgs.put("categoryUid", rootCategoryId);
         bindArgs.put("idType", idType);
         bindArgs.put("showMainCategories", showMainCategories);
-        new ConfigureCatalogPageTool().call(ctx, bindArgs);
+        JsonNode bindResult;
+        try {
+            bindResult = bindRootCategory(ctx, bindArgs);
+        } catch (Exception e) {
+            resolver.revert();
+            throw e;
+        }
+        // The delegate does a real readback and reports updated=false (without throwing) when the write did not
+        // persist -- surface that as a failure rather than reporting a successful create over a broken binding.
+        if (!bindResult.path("updated").asBoolean(false)) {
+            throw new IllegalStateException("catalog page created but root-category binding did not persist: "
+                + pagePath);
+        }
 
         out.put("pagePath", pagePath);
         out.put("dryRun", false);
@@ -165,16 +195,35 @@ public class CreateCatalogPageTool implements McpTool {
      * a canned core-typed page (the pinned aem-mock can't resolve Venia's proxy super-typing, so the delegated
      * {@code configure_catalog_page}'s {@code isResourceType} gate needs a directly-core-typed {@code jcr:content}
      * in-mock; the real Venia proxy path is proven live -- see {@link PageTemplateSupport}'s aem-mock caveat).
+     * <p>
+     * Uses the {@code autoSave=false} overload so the page is <strong>staged, not committed</strong>: the caller
+     * commits it together with the delegated binding (one atomic unit), and can {@code revert()} it if the binding
+     * fails -- so a rejected binding never leaves an orphaned, unbound page.
      *
      * @param resolver the caller's {@link ResourceResolver}
      * @param parentPath the validated parent path the page is created under
      * @param name the (already unique) child name of the new page
      * @param templatePath the resolved {@code catalog} template path
      * @param title the new page's {@code jcr:title}
-     * @return the path of the newly created page
+     * @return the path of the newly created (staged, uncommitted) page
      * @throws IllegalArgumentException if the underlying {@code PageManager.create} fails (checked
      *             {@code WCMException} translated to fail closed)
      */
+    /**
+     * Binding seam: delegates the root-category binding to the shipped {@code configure_catalog_page} tool. Extracted
+     * as a {@code protected} seam so unit tests can assert the create tool surfaces a binding failure (an
+     * {@code updated:false} readback -&gt; {@link IllegalStateException}) and reverts the staged page on a thrown
+     * delegate error, without depending on the delegate's own in-mock behavior.
+     *
+     * @param ctx the caller's call context (the delegate runs under the same resolver / ACLs)
+     * @param bindArgs the delegate's arguments ({@code path}/{@code categoryUid}/{@code idType}/
+     *            {@code showMainCategories})
+     * @return the delegate's result node (carrying its real-readback {@code updated} flag)
+     */
+    protected JsonNode bindRootCategory(McpCallContext ctx, ObjectNode bindArgs) throws Exception {
+        return new ConfigureCatalogPageTool().call(ctx, bindArgs);
+    }
+
     protected String createPage(ResourceResolver resolver, String parentPath, String name, String templatePath,
         String title) throws PersistenceException {
         PageManager pageManager = resolver.adaptTo(PageManager.class);
@@ -182,7 +231,7 @@ public class CreateCatalogPageTool implements McpTool {
             throw new IllegalArgumentException("cannot create page: no PageManager for the caller's resolver");
         }
         try {
-            Page page = pageManager.create(parentPath, name, templatePath, title);
+            Page page = pageManager.create(parentPath, name, templatePath, title, false);
             return page.getPath();
         } catch (WCMException e) {
             throw new IllegalArgumentException("failed to create page under " + parentPath + ": " + e.getMessage(), e);
