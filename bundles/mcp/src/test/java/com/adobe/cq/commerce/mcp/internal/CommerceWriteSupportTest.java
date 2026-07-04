@@ -414,6 +414,40 @@ public class CommerceWriteSupportTest {
         CommerceWriteSupport.resolveContainer(spyResolver, "parentPath", "/content/synthetic");
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void resolveContentFragmentRejectsBlankPath() {
+        CommerceWriteSupport.resolveContentFragment(context.resourceResolver(), "fragmentPath", "   ");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolveContentFragmentRejectsNullPath() {
+        CommerceWriteSupport.resolveContentFragment(context.resourceResolver(), "fragmentPath", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolveContentFragmentRejectsPathNotUnderDam() {
+        context.build().resource("/content/site/notdam", "jcr:primaryType", "nt:unstructured").commit();
+
+        CommerceWriteSupport.resolveContentFragment(context.resourceResolver(), "fragmentPath", "/content/site/notdam");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolveContentFragmentRejectsMissingResource() {
+        CommerceWriteSupport.resolveContentFragment(context.resourceResolver(), "fragmentPath",
+            "/content/dam/does/not/exist");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void resolveContentFragmentRejectsNonContentFragmentAsset() {
+        // aem-mock does not register a ContentFragment adapter, so a plain DAM resource never adapts -- this
+        // exercises the same "non-CF asset -> null adaptTo" fail-closed gate that a real, non-CF dam:Asset would
+        // hit in production (the ContentFragment-adapt behavior itself is covered at the tool level via a seam,
+        // see UpdateCommerceContentFragmentFieldToolTest).
+        context.build().resource("/content/dam/notacf", "jcr:primaryType", "dam:Asset").commit();
+
+        CommerceWriteSupport.resolveContentFragment(context.resourceResolver(), "fragmentPath", "/content/dam/notacf");
+    }
+
     @Test
     public void writeCompositeReplacesPriorChildrenOnRewrite() throws Exception {
         context.build().resource("/content/site/jcr:content/root/list4",

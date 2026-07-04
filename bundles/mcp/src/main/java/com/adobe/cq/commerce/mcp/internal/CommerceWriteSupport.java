@@ -26,6 +26,8 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.resource.ResourceUtil;
 
+import com.adobe.cq.dam.cfm.ContentFragment;
+import com.day.cq.dam.api.DamConstants;
 import com.day.cq.wcm.api.Page;
 
 /**
@@ -204,6 +206,34 @@ public final class CommerceWriteSupport {
             throw new IllegalArgumentException(argName + " resource not modifiable: " + path);
         }
         return container;
+    }
+
+    /**
+     * Resolves {@code path} to its {@link Resource} under the caller's {@code resolver}, gated to a content
+     * fragment: the path must be non-blank, under {@code /content/dam} (see {@link DamConstants#MOUNTPOINT_ASSETS}),
+     * resolve to an existing resource, and adapt to {@link ContentFragment} (a DAM asset that is not a content
+     * fragment adapts to {@code null} and is rejected).
+     *
+     * @param resolver the caller's {@link ResourceResolver} (JCR ACLs enforced)
+     * @param argName the tool argument name {@code path} was read from, used in error messages
+     * @param path the content-fragment resource path to resolve; must be non-blank and under {@code /content/dam}
+     * @return the resolved content-fragment {@link Resource}
+     * @throws IllegalArgumentException if {@code path} is blank, not under {@code /content/dam}, does not resolve
+     *             to an existing resource, or does not adapt to {@link ContentFragment}
+     */
+    public static Resource resolveContentFragment(ResourceResolver resolver, String argName, String path) {
+        if (StringUtils.isBlank(path) || !path.startsWith(DamConstants.MOUNTPOINT_ASSETS + "/")) {
+            throw new IllegalArgumentException(argName + " (under " + DamConstants.MOUNTPOINT_ASSETS + ") is required");
+        }
+
+        Resource target = resolver.getResource(path);
+        if (target == null) {
+            throw new IllegalArgumentException("resource not found: " + path);
+        }
+        if (target.adaptTo(ContentFragment.class) == null) {
+            throw new IllegalArgumentException(argName + " is not a content fragment: " + path);
+        }
+        return target;
     }
 
     /**
