@@ -65,6 +65,11 @@ public class ValidateSelectorFilterFormatTool implements McpTool {
     }
 
     @Override
+    public boolean authoringOnly() {
+        return true; // authoring-oriented read tool -- not exposed on the anonymous shopper endpoint
+    }
+
+    @Override
     public JsonNode call(McpCallContext context, JsonNode args) {
         StoreContext ctx = (StoreContext) context;
         String path = args.path("path").asText(null);
