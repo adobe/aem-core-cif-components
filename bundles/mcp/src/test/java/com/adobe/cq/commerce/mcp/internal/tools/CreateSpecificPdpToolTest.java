@@ -223,6 +223,18 @@ public class CreateSpecificPdpToolTest {
     }
 
     @Test
+    public void rejectsEmptySkusOrUrlKeysEvenOnDryRun() {
+        // dryRun must faithfully preview a real run: a missing/empty required arg (which a real run rejects) must
+        // also be rejected here (required-arg validation precedes the dryRun branch).
+        loadTemplates();
+        context.build().resource("/content/site/en", "jcr:primaryType", "cq:Page").commit();
+
+        assertThrows(IllegalArgumentException.class, () -> new RecordingPdpTool().call(ctx(), mapper.readTree(
+            "{\"parent\":\"/content/site/en\",\"name\":\"my-shoe\",\"title\":\"My Shoe\",\"skusOrUrlKeys\":[],"
+                + "\"dryRun\":true}")));
+    }
+
+    @Test
     public void rejectsMissingTitle() {
         loadTemplates();
         context.build().resource("/content/site/en", "jcr:primaryType", "cq:Page").commit();
