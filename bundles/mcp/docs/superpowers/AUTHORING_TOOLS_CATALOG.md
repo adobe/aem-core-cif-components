@@ -237,16 +237,16 @@ cannot set them on the component node).
 
 | Tool (aligned name) | Status | Component (resourceType) | Backing model |
 |---|---|---|---|
-| `configure_productteaser_component` | ▢ | `…/productteaser/v1/productteaser` | `core/…/internal/models/v1/productteaser/ProductTeaserImpl.java` |
+| `configure_productteaser_component` | ✅ | `…/productteaser/v1/productteaser` | `core/…/internal/models/v1/productteaser/ProductTeaserImpl.java` |
 | `configure_productcarousel_component` | ◐ (category mode shipped) | `…/productcarousel/v1/productcarousel` | `core/…/internal/models/v1/productcarousel/ProductCarouselImpl.java` |
 | `configure_productlist_component` | ✅/◐ (category shipped) | `…/productcollection/v2` **/** `…/productlist/v2` | `core/…/internal/models/v1/productcollection/ProductCollectionImpl.java`, `…/v2/productlist/ProductListImpl.java` |
-| `configure_relatedproducts_component` | ▢ | `…/relatedproducts/v1/relatedproducts` | `core/…/internal/models/v1/relatedproducts/RelatedProductsImpl.java` |
+| `configure_relatedproducts_component` | ✅ | `…/relatedproducts/v1/relatedproducts` | `core/…/internal/models/v1/relatedproducts/RelatedProductsImpl.java` |
 | `configure_categorycarousel_component` | ▢ | `…/categorycarousel/v1/categorycarousel` | `core/…/internal/models/v1/categorylist/FeaturedCategoryListImpl.java` |
 | `configure_featuredcategorylist_component` | ▢ | `…/featuredcategorylist/v1/featuredcategorylist` | `FeaturedCategoryListImpl.java` (same model, both RTs) |
-| `configure_product_visible_sections` | ▢ | `…/product/v3/product` | `core/…/internal/models/v3/product/ProductImpl.java` |
-| `configure_page_commerce_links` | ◐ (markers shipped) | `…/structure/page/v3/page` | `core/…/internal/models/v3/page/PageImpl.java` |
+| `configure_product_visible_sections` | ✅ | `…/product/v3/product` | `core/…/internal/models/v3/product/ProductImpl.java` |
+| `configure_page_commerce_links` | ◐ (nav-config shipped) | `…/structure/page/v3/page` | `core/…/internal/models/v3/page/PageImpl.java` |
 
-### 2.1 `configure_productteaser_component` (T-01, was `configure_product_teaser`) — ▢ Planned
+### 2.1 `configure_productteaser_component` (T-01, was `configure_product_teaser`) — ✅ Shipped
 - **Properties:** `selection` (**combinedSku**, model `SELECTION_PROPERTY`, parsed via
   `CombinedSku.parse`), `cta` (`""`/`add-to-cart`/`details`), `ctaText`, `linkTarget`
   (`Link.PN_LINK_TARGET`), `id`.
@@ -280,7 +280,7 @@ cannot set them on the component node).
   (`…/productcollection/sortfields`) and backend-specific — validate with `get_sort_options`
   (T-09), don't hardcode.
 
-### 2.4 `configure_relatedproducts_component` (T-04, was `configure_related_products`) — ▢ Planned
+### 2.4 `configure_relatedproducts_component` (T-04, was `configure_related_products`) — ✅ Shipped
 - **Properties:** `product` (**plain base SKU**, `selectionId="sku"` — unique among §2;
   optional, falls back to page-URL product), `relationType`.
 - **`relationType` values** (enum `RelatedProductsRetriever.RelationType`, stored as the
@@ -295,7 +295,7 @@ cannot set them on the component node).
 - **Gotcha:** writing these means creating/replacing child nodes under `items/`, not a
   flat property — heavier than a scalar set.
 
-### 2.7 `configure_product_visible_sections` (T-07) — ▢ Planned
+### 2.7 `configure_product_visible_sections` (T-07) — ✅ Shipped
 - **Note:** operates on the same `product` component as the shipped
   `configure_product_component`, but a *different* concern (section visibility, not SKU
   binding), so it keeps its own operation-scoped name rather than colliding with
@@ -306,14 +306,20 @@ cannot set them on the component node).
 - **Gotcha:** if empty/absent, sections fall back to the style/policy default (all
   sections). Write the **lowercase** dialog tokens, not the uppercase model constants.
 
-### 2.8 `configure_page_commerce_links` (T-08) — ◐ Partial
-- **Shipped:** the `cq:products`/`cq:categories` marker part is already writable via
+### 2.8 `configure_page_commerce_links` (T-08) — ◐ Partial (both halves now shipped, as two tools)
+- **Shipped:** the `cq:products`/`cq:categories` marker part is writable via
   `tag_content_with_commerce {path, sku?/categoryUid?, action}` (it sets exactly these two
-  properties on a page's `jcr:content`). The **unshipped delta** is the nav-config
-  pagefields (`cq:cifProductPage`/`cq:cifCategoryPage`/`cq:cifSearchResultsPage`).
+  properties on a page's `jcr:content`). The nav-config pagefields
+  (`cq:cifProductPage`/`cq:cifCategoryPage`/`cq:cifSearchResultsPage`) are now **also
+  shipped**, via the dedicated `configure_page_commerce_links {path, cifProductPage?,
+  cifCategoryPage?, cifSearchResultsPage?}` tool — pass an empty string to clear a field;
+  at least one of the three is required. This catalog entry remains `◐` only because the
+  full T-08 scope is realized as **two** tools rather than the single one this entry
+  originally envisioned, not because any property is still unwritable.
 - **Properties (on the page's `jcr:content`):** `cq:products` (**combinedSku multi**),
-  `cq:categories` (**UID multi**), `cq:cifProductPage`, `cq:cifCategoryPage`,
-  `cq:cifSearchResultsPage` (content paths, pagefields).
+  `cq:categories` (**UID multi**) — via `tag_content_with_commerce`; `cq:cifProductPage`,
+  `cq:cifCategoryPage`, `cq:cifSearchResultsPage` (content paths, pagefields) — via
+  `configure_page_commerce_links`.
 - **Gotcha:** `cq:products`/`cq:categories` here are *associated-content markers* (read by
   the §5 mechanism), **not** the specific-page binding of §7/§8 — keep them distinct in
   any plan. Dialog fields are render-condition-gated by page type, but a write tool can
@@ -813,14 +819,14 @@ name from the catalog ID, the shipped name is shown.
 |---|---|---|---|---|
 | — | `configure_product_component` | baseline write | 2 | ✅ |
 | — | `search_products` / `get_product` / `get_attributes` / `browse_categories` / `resolve_picker_selection` | baseline read | 1 | ✅ |
-| T-01 | `configure_productteaser_component` | §2 Component config | 2 | ▢ |
+| T-01 | `configure_productteaser_component` | §2 Component config | 2 | ✅ |
 | T-02 | `configure_productcarousel_component` | §2 | 2 | ◐ (category mode via `configure_productlist_component`) |
 | T-03 | `configure_productlist_component` | §2 | 2 | ◐ (category shipped; pageSize/sort/fragments pending) |
-| T-04 | `configure_relatedproducts_component` | §2 | 2 | ▢ |
+| T-04 | `configure_relatedproducts_component` | §2 | 2 | ✅ |
 | T-05 | `configure_categorycarousel_component` | §2 | 2 | ▢ |
 | T-06 | `configure_featuredcategorylist_component` | §2 | 2 | ▢ |
-| T-07 | `configure_product_visible_sections` | §2 | 2 | ▢ |
-| T-08 | `configure_page_commerce_links` | §2 | 2 | ◐ (markers via `tag_content_with_commerce`; nav-config pending) |
+| T-07 | `configure_product_visible_sections` | §2 | 2 | ✅ |
+| T-08 | `configure_page_commerce_links` | §2 | 2 | ◐ (markers via `tag_content_with_commerce`; nav-config via `configure_page_commerce_links` — both shipped, as two tools) |
 | T-09 | `get_sort_options` | §3 Metadata reads | 1 | ✅ |
 | T-10 | `get_product_variants` | §3 | 1 | ✅ |
 | T-11 | `get_product_relationships` | §3 | 1 | ✅ |
