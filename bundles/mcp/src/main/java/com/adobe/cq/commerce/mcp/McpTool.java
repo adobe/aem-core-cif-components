@@ -47,5 +47,17 @@ public interface McpTool {
         return writesContent();
     }
 
+    /**
+     * Whether this tool is part of the guest commerce journey (cart / checkout / order placement or lookup) &mdash;
+     * it mutates or reads the remote commerce backend on behalf of a shopper, not AEM content. These tools are
+     * anonymous-shopper-only: served on the shopper endpoint (subject to {@link #authoringOnly()} as usual, which
+     * is {@code false} for all of them since they never write JCR content) and explicitly excluded from the
+     * authoring endpoint, which is for content authoring, not placing or inspecting real commerce orders on a
+     * shopper's behalf.
+     */
+    default boolean commerceJourney() {
+        return false;
+    }
+
     JsonNode call(McpCallContext ctx, JsonNode args) throws Exception;
 }

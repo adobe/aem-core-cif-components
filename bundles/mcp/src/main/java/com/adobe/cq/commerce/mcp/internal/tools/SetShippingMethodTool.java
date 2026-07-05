@@ -49,6 +49,11 @@ public class SetShippingMethodTool implements McpTool {
     }
 
     @Override
+    public boolean commerceJourney() {
+        return true;
+    }
+
+    @Override
     public String description() {
         return "Select a shipping method on a cart (carrier_code/method_code from set_shipping_address's result). "
             + "Requires confirm: true to actually apply it -- without it, returns the method for review only. "

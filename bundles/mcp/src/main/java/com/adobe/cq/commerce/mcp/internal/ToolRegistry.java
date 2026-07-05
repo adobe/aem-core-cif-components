@@ -42,10 +42,14 @@ public class ToolRegistry {
     public List<McpTool> forSelector(String selector) {
         boolean authoring = "mcp-authoring".equals(selector);
         synchronized (tools) {
-            // The shopper endpoint sees only non-authoring tools; the authoring endpoint sees everything.
-            // authoringOnly() defaults to writesContent(), so write tools stay excluded from the shopper endpoint as
-            // before, plus any read-only tool that explicitly declares itself authoring-only.
-            return tools.stream().filter(t -> authoring || !t.authoringOnly()).collect(Collectors.toList());
+            // The shopper endpoint sees only non-authoring tools (authoringOnly() defaults to writesContent(), so
+            // write tools are excluded there, plus any read-only tool that explicitly declares itself
+            // authoring-only). The authoring endpoint sees everything EXCEPT the guest commerce-journey tools
+            // (cart/checkout/order) -- those act on a shopper's behalf against the remote commerce backend, not on
+            // AEM content, and have no place behind AEM authentication.
+            return tools.stream()
+                .filter(t -> authoring ? !t.commerceJourney() : !t.authoringOnly())
+                .collect(Collectors.toList());
         }
     }
 

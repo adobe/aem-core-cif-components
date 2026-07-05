@@ -45,6 +45,11 @@ public class SetPaymentMethodTool implements McpTool {
     }
 
     @Override
+    public boolean commerceJourney() {
+        return true;
+    }
+
+    @Override
     public String description() {
         return "Select a payment method on a cart (code from set_shipping_method's result). Requires confirm: true "
             + "to actually apply it -- without it, returns the method for review only. Once confirmed the cart is "

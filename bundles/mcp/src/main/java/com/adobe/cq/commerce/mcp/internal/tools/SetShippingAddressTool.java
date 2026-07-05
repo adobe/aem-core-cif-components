@@ -54,6 +54,11 @@ public class SetShippingAddressTool implements McpTool {
     }
 
     @Override
+    public boolean commerceJourney() {
+        return true;
+    }
+
+    @Override
     public String description() {
         return "Set the guest email and shipping address on a cart (billing address defaults to the same address). "
             + "Requires confirm: true to actually apply it -- without it, returns the address for review only. "

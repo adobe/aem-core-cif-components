@@ -19,8 +19,8 @@ returns `404`).
 
 | | Selector / URL | Tools | Instances | Auth |
 |---|---|---|---|---|
-| **Shopper (read)** | `POST <navRoot>.mcp.json` | storefront read kernel (catalog reads + guest cart/checkout) | author **+** publish | anonymous (storefront parity) |
-| **Authoring (read+write)** | `POST <navRoot>.mcp-authoring.json` | everything: storefront read kernel **+** authoring-only tools (write tools **+** authoring-oriented read/diagnostic tools) | **author only** | AEM auth + JCR ACLs |
+| **Shopper (read)** | `POST <navRoot>.mcp.json` | catalog reads **+** guest cart/checkout journey | author **+** publish | anonymous (storefront parity) |
+| **Authoring (read+write)** | `POST <navRoot>.mcp-authoring.json` | catalog reads **+** authoring-only tools (write tools **+** authoring-oriented read/diagnostic tools) &mdash; **excludes** the guest cart/checkout journey | **author only** | AEM auth + JCR ACLs |
 
 A tool is served by the shopper endpoint unless `McpTool.authoringOnly()` returns `true`
 (`ToolRegistry.forSelector`). `authoringOnly()` defaults to `writesContent()`, so every write tool
@@ -29,6 +29,13 @@ diagnostics, template / content-fragment / associated-content inspection, orphan
 picker + content-binding validation) override it to `true` so they are not exposed to anonymous
 storefront callers. This is an explicit per-tool declaration, **not** inferred from the tool's Java
 package.
+
+Separately, a tool is served by the authoring endpoint unless `McpTool.commerceJourney()` returns
+`true`. The guest cart/checkout/order tools (below) mutate or read the **remote commerce backend**
+on a shopper's behalf, not AEM content — `writesContent()` is correctly `false` for all of them, so
+they stay visible on the anonymous shopper endpoint, but they have no place behind AEM
+authentication either: an authenticated authoring session has no business placing or inspecting a
+real commerce order, so `commerceJourney()` explicitly excludes them from `mcp-authoring`.
 
 `<navRoot>` is the store-root page CIF marks `navRoot=true`, e.g.
 `/content/venia/us/en`. Different nav-roots = different stores; the store/commerce context
@@ -112,12 +119,14 @@ optional `siteRoot` (any page under `/content`; defaults to the endpoint's own n
 `validate_selector_filter_format`/`check_specific_page_capability` take a required `path` that
 must resolve to a `cq:Page` under `/content`.
 
-### Cart tools (shopper endpoint — guest cart, `writesContent() == false`)
+### Cart tools (shopper endpoint only — guest cart, `writesContent() == false`, `commerceJourney() == true`)
 
 These mutate the **remote Magento cart**, not AEM content, so they stay on the anonymous
 shopper endpoint (same as an anonymous storefront visitor adding to cart) — do not confuse
-them with the write tools below, which mutate JCR content and are authoring-only. Cart state
-is client-threaded: `add_to_cart` returns a `cart_id`; pass it to every other cart tool.
+them with the write tools below, which mutate JCR content and are authoring-only. `commerceJourney()`
+keeps them off `mcp-authoring` too: they act on a shopper's cart, not on AEM content, so an
+authenticated authoring session has no reason to reach them. Cart state is client-threaded:
+`add_to_cart` returns a `cart_id`; pass it to every other cart tool.
 
 | Tool | Args | Result |
 |---|---|---|
@@ -139,7 +148,7 @@ need to choose options for your item."
 argument, keyed by each bundle item's title, e.g. `{"Necklace": "Carmina Necklace"}`. Same
 descriptive-error behavior as configurable options for missing/invalid selections.
 
-### Checkout tools (shopper endpoint, guest checkout — `writesContent() == false`)
+### Checkout tools (shopper endpoint only, guest checkout — `writesContent() == false`, `commerceJourney() == true`)
 
 Mirror a real checkout wizard: each step returns what's valid for the next, so the agent never
 has to guess a carrier/method/payment code.

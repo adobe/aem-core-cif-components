@@ -45,6 +45,11 @@ public class ClearCartTool implements McpTool {
     }
 
     @Override
+    public boolean commerceJourney() {
+        return true;
+    }
+
+    @Override
     public String description() {
         return "Remove every item from a guest cart.";
     }

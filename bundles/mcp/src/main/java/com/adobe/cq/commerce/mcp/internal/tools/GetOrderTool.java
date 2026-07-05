@@ -70,6 +70,11 @@ public class GetOrderTool implements McpTool {
     }
 
     @Override
+    public boolean commerceJourney() {
+        return true;
+    }
+
+    @Override
     public String description() {
         return "Look up a previously placed guest order by order number, email and last name. Works at any later "
             + "time, independent of any cart.";
