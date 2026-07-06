@@ -46,6 +46,9 @@ import com.adobe.granite.ui.components.ds.ValueMapResource;
  * page resource) &mdash; {@code MagentoGraphqlClientImpl} resolves the CIF context-aware commerce config first and adapts a
  * synthetic resource wrapping it instead, so this reproduces that same resolution using only public API
  * ({@link ComponentsConfiguration}, {@link ValueMapResource}).
+ * <p>
+ * {@link #resolveGraphqlClient} and {@link #toHeaders} are also reused by {@link GetOrderTool}, which needs the same
+ * raw {@link GraphqlClient} access for a query (Magento's {@code guestOrder}) that isn't a cart mutation either.
  */
 public class CartMutationClient {
 
@@ -100,7 +103,7 @@ public class CartMutationClient {
         return response.getData();
     }
 
-    private GraphqlClient resolveGraphqlClient(Resource resource) {
+    public static GraphqlClient resolveGraphqlClient(Resource resource) {
         GraphqlClient direct = resource.adaptTo(GraphqlClient.class);
         if (direct != null) {
             return direct;
@@ -114,7 +117,7 @@ public class CartMutationClient {
         return configResource.adaptTo(GraphqlClient.class);
     }
 
-    private List<Header> toHeaders(Map<String, String[]> headerMap) {
+    public static List<Header> toHeaders(Map<String, String[]> headerMap) {
         List<Header> headers = new ArrayList<>();
         if (headerMap != null) {
             for (Map.Entry<String, String[]> entry : headerMap.entrySet()) {

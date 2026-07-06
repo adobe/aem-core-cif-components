@@ -244,7 +244,9 @@ protected Cart doSomething(StoreContext ctx, /* ... */) {
    nav-root page) — `MagentoGraphqlClientImpl` resolves the CIF context-aware commerce config
    first (`resource.adaptTo(ComponentsConfiguration.class)`) and adapts a synthetic
    `ValueMapResource` wrapping it instead. `CartMutationClient.resolveGraphqlClient()`
-   reproduces that using only public API — no `bundles/core` changes needed.
+   reproduces that using only public API — no `bundles/core` changes needed. It's `public
+   static`, along with `toHeaders()`, so any tool needing the raw `GraphqlClient` (not just cart
+   mutations) can reuse it — see `GetOrderTool` below.
 2. Uses `MutationDeserializer.getGson()` (the mutation-side counterpart of the `QueryDeserializer`
    `MagentoGraphqlClient` uses internally) so the `Mutation`-shaped response actually deserializes.
 
@@ -316,6 +318,34 @@ no further "would-be" state to preview once the order exists. See `SetShippingAd
 `SetShippingMethodTool`, `SetPaymentMethodTool` for the exact pattern — all three shape it
 identically (validate required fields first regardless of `confirm`, branch on `confirm` next,
 preview branch never touches `CartMutationClient`).
+
+**The `magento-graphql` Java library can lag behind the live GraphQL schema — verify against the
+live endpoint before concluding a capability doesn't exist.** While designing order lookup, an
+initial `javap` inspection of `Query.class` in every locally available `magento-graphql` version
+(including the newest `11.2.2-magento244ee-SNAPSHOT`) found no `guestOrder` field, leading to the
+wrong conclusion that anonymous guest-order lookup wasn't possible in this schema at all. It
+turned out `guestOrder(input: {number, email, lastname})` *is* a real, documented, unauthenticated
+Adobe Commerce GraphQL query (confirmed by testing it directly against the live endpoint) — the
+Java client library (a code-generated typed query builder) simply hadn't been regenerated to
+include it. **The lesson: `javap`-inspecting the vendored library tells you what the typed builder
+supports, not what the live schema supports.** When a capability seems suspiciously absent, test a
+raw query directly against the live GraphQL endpoint (`curl` is fine for this) before designing
+around its absence. This only affects *new* capabilities being investigated — it can't silently
+break any already-shipped tool, since every existing tool's fields exist in both the live schema
+and the typed library (otherwise the code wouldn't compile).
+
+**When the typed builder doesn't have a field, hand-write the raw query — don't force-fit an
+unrelated typed class.** `GetOrderTool` needs `guestOrder`, which has no generated Java class at
+all. Rather than trying to coerce the response into an existing typed class like `CustomerOrder`
+(generated for a *different* query context — the Shopify-style codegen used here typically aliases
+response fields per query structure, so there's no guarantee a hand class built for one query
+shape deserializes correctly from a differently-shaped raw response), it sends a hand-written
+GraphQL query string via the raw `GraphqlClient` (`CartMutationClient.resolveGraphqlClient()`) and
+deserializes into a plain `com.google.gson.JsonObject`, reading fields off it directly. Use GraphQL
+**variables**, not string-interpolated values, when building a hand-written query with
+caller-supplied input (`order_number`/`email`/`lastname` here) — string-interpolating untrusted
+input into query text risks GraphQL injection, whereas `GraphqlRequest.setVariables(Map)` passes
+values through the request's `variables` field, encoded safely by the underlying JSON serialization.
 
 ---
 
@@ -478,6 +508,14 @@ Runtime checks after deploy:
   `configure_catalog_page` bug). A unit test that only reads back the property it just wrote will NOT
   catch this — validate the *consuming* property name against source, and prove consumption live
   (render/nav), not just a write→readback.
+- **`javap`-ing the vendored `magento-graphql` library only tells you what the typed Java builder
+  supports, not what the live GraphQL schema supports — the library can lag behind.** This led to
+  wrongly concluding anonymous guest-order lookup was impossible, when Magento's `guestOrder` query
+  actually exists and works unauthenticated; the Java library just hadn't been regenerated to
+  include it. Test a raw query directly against the live endpoint before designing around an
+  apparently-missing capability. See §3b's "the `magento-graphql` Java library can lag behind"
+  paragraph for the full story and `GetOrderTool` for the hand-written-query pattern this requires
+  when the typed builder has no matching method.
 
 ---
 
