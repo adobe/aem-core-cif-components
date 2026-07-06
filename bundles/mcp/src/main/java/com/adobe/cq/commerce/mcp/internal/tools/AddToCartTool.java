@@ -60,11 +60,6 @@ public class AddToCartTool implements McpTool {
     }
 
     @Override
-    public boolean commerceJourney() {
-        return true;
-    }
-
-    @Override
     public String description() {
         return "Add a product to a guest cart, creating the cart first if no cart_id is supplied. For configurable "
             + "products (e.g. size/color variants), supply an 'options' object such as {\"color\": \"Blue\"}. For "

@@ -75,31 +75,6 @@ public class ToolRegistryTest {
         };
     }
 
-    /** A guest commerce-journey tool (cart/checkout/order) -- shopper-only, excluded from authoring. */
-    private McpTool commerceTool(String n) {
-        return new McpTool() {
-            public String name() {
-                return n;
-            }
-
-            public String description() {
-                return n;
-            }
-
-            public ObjectNode inputSchema() {
-                return new ObjectMapper().createObjectNode();
-            }
-
-            public boolean commerceJourney() {
-                return true;
-            }
-
-            public JsonNode call(McpCallContext c, JsonNode a) {
-                return a;
-            }
-        };
-    }
-
     @Test
     public void shopperSelectorHidesWriteTools() {
         ToolRegistry reg = new ToolRegistry();
@@ -133,23 +108,5 @@ public class ToolRegistryTest {
     public void authoringOnlyDefaultsToWritesContent() {
         assertTrue(tool("configure_product_component", true).authoringOnly());
         assertFalse(tool("search_products", false).authoringOnly());
-    }
-
-    @Test
-    public void authoringSelectorHidesCommerceJourneyTools() {
-        ToolRegistry reg = new ToolRegistry();
-        reg.bindTool(tool("search_products", false));
-        reg.bindTool(commerceTool("place_order")); // shopper-only cart/checkout/order tool
-
-        // shopper sees both -- commerce-journey tools are not authoringOnly()
-        List<McpTool> shopper = reg.forSelector("mcp");
-        assertEquals(2, shopper.size());
-        assertNotNull(reg.byName("mcp", "place_order"));
-
-        // authoring sees the catalog-read tool but not the commerce-journey tool
-        List<McpTool> authoring = reg.forSelector("mcp-authoring");
-        assertEquals(1, authoring.size());
-        assertEquals("search_products", authoring.get(0).name());
-        assertNull(reg.byName("mcp-authoring", "place_order"));
     }
 }

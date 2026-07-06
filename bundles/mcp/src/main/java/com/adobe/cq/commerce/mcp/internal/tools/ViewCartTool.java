@@ -44,11 +44,6 @@ public class ViewCartTool implements McpTool {
     }
 
     @Override
-    public boolean commerceJourney() {
-        return true;
-    }
-
-    @Override
     public String description() {
         return "Fetch the current contents of a guest cart by cart id.";
     }

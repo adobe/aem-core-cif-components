@@ -46,11 +46,6 @@ public class UpdateCartItemTool implements McpTool {
     }
 
     @Override
-    public boolean commerceJourney() {
-        return true;
-    }
-
-    @Override
     public String description() {
         return "Update a cart line item's quantity (quantity 0 removes the item).";
     }

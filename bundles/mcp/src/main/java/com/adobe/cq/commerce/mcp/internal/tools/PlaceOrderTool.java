@@ -42,11 +42,6 @@ public class PlaceOrderTool implements McpTool {
     }
 
     @Override
-    public boolean commerceJourney() {
-        return true;
-    }
-
-    @Override
     public String description() {
         return "Place the order for a cart that already has a shipping address, shipping method and payment method "
             + "set. Creates a real order -- not reversible. Requires confirm: true to actually place it -- without it, "
