@@ -129,7 +129,8 @@ public class CreateCatalogPageTool implements McpTool {
 
         ResourceResolver resolver = ctx.getRequest().getResourceResolver();
         Resource parent = PageCreationSupport.validatePageParent(resolver, "parent", parentPath);
-        Resource template = PageTemplateSupport.resolveTemplate(resolver, KIND_CATALOG, explicitTemplate);
+        Resource template = PageTemplateSupport.resolveTemplate(resolver, KIND_CATALOG, explicitTemplate,
+            SiteAppsSupport.confPathFor(ctx.getLandingPage()));
         String templatePath = template.getPath();
 
         String name;

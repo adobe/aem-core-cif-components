@@ -154,6 +154,7 @@ public class ScaffoldCatalogSectionTool implements McpTool {
         }
 
         ResourceResolver resolver = ctx.getRequest().getResourceResolver();
+        String confPath = SiteAppsSupport.confPathFor(ctx.getLandingPage());
         Resource parent = PageCreationSupport.validatePageParent(resolver, "parent", parentPath);
 
         // Section root = the catalog page. Delegate to create_catalog_page (which binds rootCategoryId itself); in
@@ -182,8 +183,8 @@ public class ScaffoldCatalogSectionTool implements McpTool {
         if (dryRun) {
             // Section root does not exist, so its would-be children are simply the base names (no siblings to
             // disambiguate). Resolve templates only to record availability; create/commit nothing.
-            previewChild(resolver, sectionPath, KIND_PRODUCT, EXAMPLE_PRODUCT_NAME, children, skipped);
-            previewChild(resolver, sectionPath, KIND_CATEGORY, EXAMPLE_CATEGORY_NAME, children, skipped);
+            previewChild(resolver, confPath, sectionPath, KIND_PRODUCT, EXAMPLE_PRODUCT_NAME, children, skipped);
+            previewChild(resolver, confPath, sectionPath, KIND_CATEGORY, EXAMPLE_CATEGORY_NAME, children, skipped);
             return out;
         }
 
@@ -193,10 +194,10 @@ public class ScaffoldCatalogSectionTool implements McpTool {
             throw new IllegalStateException("catalog section root not found after create: " + sectionPath);
         }
         try {
-            createExampleChild(resolver, sectionRoot, KIND_PRODUCT, EXAMPLE_PRODUCT_NAME, EXAMPLE_PRODUCT_TITLE,
-                children, skipped);
-            createExampleChild(resolver, sectionRoot, KIND_CATEGORY, EXAMPLE_CATEGORY_NAME, EXAMPLE_CATEGORY_TITLE,
-                children, skipped);
+            createExampleChild(resolver, confPath, sectionRoot, KIND_PRODUCT, EXAMPLE_PRODUCT_NAME,
+                EXAMPLE_PRODUCT_TITLE, children, skipped);
+            createExampleChild(resolver, confPath, sectionRoot, KIND_CATEGORY, EXAMPLE_CATEGORY_NAME,
+                EXAMPLE_CATEGORY_TITLE, children, skipped);
             resolver.commit();
         } catch (RuntimeException e) {
             // Best-effort atomicity for the children: discard the staged children. The already-committed catalog root
@@ -212,11 +213,11 @@ public class ScaffoldCatalogSectionTool implements McpTool {
      * Creates one example child page under the section root, or records a graceful skip if no template of {@code kind}
      * can be resolved. Never binds the child (these are starting-point pages).
      */
-    private void createExampleChild(ResourceResolver resolver, Resource sectionRoot, String kind, String baseName,
-        String title, ArrayNode children, ArrayNode skipped) throws PersistenceException {
+    private void createExampleChild(ResourceResolver resolver, String confPath, Resource sectionRoot, String kind,
+        String baseName, String title, ArrayNode children, ArrayNode skipped) throws PersistenceException {
         Resource template;
         try {
-            template = PageTemplateSupport.resolveTemplate(resolver, kind, null);
+            template = PageTemplateSupport.resolveTemplate(resolver, kind, null, confPath);
         } catch (IllegalArgumentException e) {
             recordSkip(skipped, kind, e.getMessage());
             return;
@@ -230,12 +231,12 @@ public class ScaffoldCatalogSectionTool implements McpTool {
      * Computes one would-be child path for the dryRun preview (records a skip when the template is absent). The
      * section root does not exist yet in a dry run, so the child name is simply the base name.
      */
-    private void previewChild(ResourceResolver resolver, String sectionPath, String kind, String baseName,
-        ArrayNode children, ArrayNode skipped) {
+    private void previewChild(ResourceResolver resolver, String confPath, String sectionPath, String kind,
+        String baseName, ArrayNode children, ArrayNode skipped) {
         try {
             // Auto-discover a template of this kind; an explicit template is a catalog template (for the root) and
             // must not be forced onto a product/category child.
-            PageTemplateSupport.resolveTemplate(resolver, kind, null);
+            PageTemplateSupport.resolveTemplate(resolver, kind, null, confPath);
         } catch (IllegalArgumentException e) {
             recordSkip(skipped, kind, e.getMessage());
             return;

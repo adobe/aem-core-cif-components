@@ -17,6 +17,8 @@ package com.adobe.cq.commerce.mcp.internal.tools.authoring;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sling.api.resource.Resource;
@@ -84,6 +86,67 @@ public final class SiteAppsSupport {
             return null;
         }
         return "/apps/" + site + "/components";
+    }
+
+    /**
+     * Maps a core CIF component resource type (e.g. {@code core/cif/components/commerce/productteaser/v1/productteaser})
+     * to a site-specific <em>proxy</em> component under {@code /apps/<site>/components} whose
+     * {@code sling:resourceSuperType} chain resolves to that core type, returning the proxy's {@code /apps}-relative
+     * resource type so a created node references the site's proxy (picking up its policies/styles) rather than the
+     * shared core component. When no site apps root can be derived, the apps root does not resolve, or no proxy
+     * super-types the core type, the {@code coreResourceType} is returned unchanged (fail-open to a still-valid type).
+     * <p>
+     * The super-type chain is walked manually (via {@link #resolveComponentDefinition}) rather than through
+     * {@link Resource#isResourceType(String)}, because the pinned aem-mock matches {@code isResourceType} by identity
+     * only and does not follow {@code sling:resourceSuperType} the way real AEM does.
+     *
+     * @param resolver the caller's {@link ResourceResolver} (JCR ACLs enforced)
+     * @param landingPage the endpoint's nav-root page (from {@code StoreContext.getLandingPage()})
+     * @param coreResourceType the core CIF resource type to map
+     * @return the site proxy's {@code /apps}-relative resource type, or {@code coreResourceType} when no proxy applies
+     */
+    public static String resolveSiteResourceType(ResourceResolver resolver, Page landingPage, String coreResourceType) {
+        String appsComponents = appsComponentsPathFor(landingPage);
+        Resource root = (appsComponents == null || resolver == null) ? null : resolver.getResource(appsComponents);
+        if (root == null) {
+            return coreResourceType;
+        }
+        Deque<Resource> stack = new ArrayDeque<>();
+        stack.push(root);
+        while (!stack.isEmpty()) {
+            Resource current = stack.pop();
+            for (Resource child : current.getChildren()) {
+                if (!"cq:Component".equals(child.getValueMap().get("jcr:primaryType", String.class))) {
+                    stack.push(child); // component folder (sling:Folder etc.) -- recurse
+                    continue;
+                }
+                if (superTypeChainReaches(resolver, child, coreResourceType)) {
+                    return child.getPath().substring("/apps/".length());
+                }
+            }
+        }
+        return coreResourceType;
+    }
+
+    /**
+     * True if {@code component}'s {@code sling:resourceSuperType} chain reaches {@code coreResourceType}. Walks the
+     * chain manually, resolving each super-type to its {@code cq:Component} definition to read the next hop, and
+     * guards against cycles via a visited set.
+     */
+    private static boolean superTypeChainReaches(ResourceResolver resolver, Resource component, String coreResourceType) {
+        Set<String> visited = new HashSet<String>();
+        String superType = component.getValueMap().get("sling:resourceSuperType", String.class);
+        while (StringUtils.isNotBlank(superType) && visited.add(superType)) {
+            if (superType.equals(coreResourceType)) {
+                return true;
+            }
+            Resource superDefinition = resolveComponentDefinition(resolver, superType);
+            if (superDefinition == null) {
+                return false;
+            }
+            superType = superDefinition.getValueMap().get("sling:resourceSuperType", String.class);
+        }
+        return false;
     }
 
     /**

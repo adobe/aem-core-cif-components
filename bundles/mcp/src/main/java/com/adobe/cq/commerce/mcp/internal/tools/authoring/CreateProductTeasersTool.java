@@ -31,6 +31,7 @@ import com.adobe.cq.commerce.core.components.models.common.CombinedSku;
 import com.adobe.cq.commerce.mcp.McpCallContext;
 import com.adobe.cq.commerce.mcp.McpTool;
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
+import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -54,8 +55,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class CreateProductTeasersTool implements McpTool {
 
     /**
-     * CIF product teaser component resource type (v1 only, matches {@code ProductTeaserImpl.RESOURCE_TYPE}), used
-     * as the {@code sling:resourceType} of every node this tool creates.
+     * CIF product teaser core component resource type (v1 only, matches {@code ProductTeaserImpl.RESOURCE_TYPE}).
+     * Mapped to the site's own proxy (when one super-types it) via
+     * {@link SiteAppsSupport#resolveSiteResourceType(ResourceResolver, Page, String)} before being written, so a
+     * created node references the site's proxy component (picking up its policies/styles) rather than the shared
+     * core component; it falls back to this core type when no proxy applies.
      */
     private static final String PRODUCTTEASER_RESOURCE_TYPE = "core/cif/components/commerce/productteaser/v1/productteaser";
     private static final String BASE_CHILD_NAME = "productteaser";
@@ -119,6 +123,8 @@ public class CreateProductTeasersTool implements McpTool {
 
         ResourceResolver resolver = ctx.getRequest().getResourceResolver();
         Resource parent = CommerceWriteSupport.resolveContainer(resolver, "parentPath", parentPath);
+        String resourceType = SiteAppsSupport.resolveSiteResourceType(resolver, ctx.getLandingPage(),
+            PRODUCTTEASER_RESOURCE_TYPE);
 
         String cta = args.path("cta").asText(null);
         String ctaText = args.path("ctaText").asText(null);
@@ -147,7 +153,7 @@ public class CreateProductTeasersTool implements McpTool {
         for (String sku : skus) {
             String selection = CombinedSku.parse(sku).toString();
             Map<String, Object> props = new HashMap<String, Object>();
-            props.put("sling:resourceType", PRODUCTTEASER_RESOURCE_TYPE);
+            props.put("sling:resourceType", resourceType);
             props.put(SELECTION_PROPERTY, selection);
             if (StringUtils.isNotBlank(cta)) {
                 props.put(CTA_PROPERTY, cta);

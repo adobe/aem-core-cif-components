@@ -23,6 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
+import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.wcm.testing.mock.aem.junit.AemContext;
@@ -50,6 +51,18 @@ public class CreateProductTeasersToolTest {
 
     private void buildContainer(String path) {
         context.build().resource(path, "jcr:primaryType", "nt:unstructured").commit();
+    }
+
+    private Page landingPage(String path, String resourceType) {
+        context.build().resource(path, "jcr:primaryType", "cq:Page")
+            .resource("jcr:content", "jcr:primaryType", "cq:PageContent", "sling:resourceType", resourceType).commit();
+        return context.resourceResolver().getResource(path).adaptTo(Page.class);
+    }
+
+    private StoreContext ctxWithLandingPage(Page landing) {
+        StoreContext ctx = ctxForResolver();
+        when(ctx.getLandingPage()).thenReturn(landing);
+        return ctx;
     }
 
     @Test
@@ -189,6 +202,37 @@ public class CreateProductTeasersToolTest {
 
         new CreateProductTeasersTool().call(ctxForResolver(), mapper.readTree(
             "{\"parentPath\":\"/content/site/apage\",\"skus\":[\"MJ01\"]}"));
+    }
+
+    @Test
+    public void usesSiteProxyResourceTypeWhenLandingPageResolvesOne() throws Exception {
+        Page landing = landingPage("/content/mysite/us/en", "mysite/components/structure/page");
+        context.build().resource("/apps/mysite/components/commerce/productteaser",
+            "jcr:primaryType", "cq:Component",
+            "sling:resourceSuperType", "core/cif/components/commerce/productteaser/v1/productteaser").commit();
+        buildContainer("/content/mysite/us/en/jcr:content/root/proxygrid");
+
+        new CreateProductTeasersTool().call(ctxWithLandingPage(landing), mapper.readTree(
+            "{\"parentPath\":\"/content/mysite/us/en/jcr:content/root/proxygrid\",\"skus\":[\"MJ01\"]}"));
+
+        Resource parent = context.resourceResolver().getResource("/content/mysite/us/en/jcr:content/root/proxygrid");
+        Resource child = parent.listChildren().next();
+        assertEquals("mysite/components/commerce/productteaser",
+            child.getValueMap().get("sling:resourceType", String.class));
+    }
+
+    @Test
+    public void fallsBackToCoreResourceTypeWhenNoSiteProxyExists() throws Exception {
+        Page landing = landingPage("/content/mysite/us/en", "mysite/components/structure/page");
+        buildContainer("/content/mysite/us/en/jcr:content/root/nogrid");
+
+        new CreateProductTeasersTool().call(ctxWithLandingPage(landing), mapper.readTree(
+            "{\"parentPath\":\"/content/mysite/us/en/jcr:content/root/nogrid\",\"skus\":[\"MJ01\"]}"));
+
+        Resource parent = context.resourceResolver().getResource("/content/mysite/us/en/jcr:content/root/nogrid");
+        Resource child = parent.listChildren().next();
+        assertEquals("core/cif/components/commerce/productteaser/v1/productteaser",
+            child.getValueMap().get("sling:resourceType", String.class));
     }
 
     @Test

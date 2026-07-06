@@ -177,6 +177,69 @@ public class SiteAppsSupportTest {
         assertNull(SiteAppsSupport.resolveComponentDefinition(context.resourceResolver(), null));
     }
 
+    // --- resolveSiteResourceType ---
+
+    private static final String CORE_TEASER = "core/cif/components/commerce/productteaser/v1/productteaser";
+
+    private Page landingPage(String path, String resourceType) {
+        return pageWithContent(path, "jcr:primaryType", "cq:PageContent", "sling:resourceType", resourceType);
+    }
+
+    @Test
+    public void resolveSiteResourceTypeReturnsProxyWhenOneSuperTypesCore() {
+        Page landing = landingPage("/content/venia/us/en", "venia/components/structure/page");
+        context.build().resource("/apps/venia/components/commerce/productteaser",
+            "jcr:primaryType", "cq:Component", "sling:resourceSuperType", CORE_TEASER).commit();
+        assertEquals("venia/components/commerce/productteaser",
+            SiteAppsSupport.resolveSiteResourceType(context.resourceResolver(), landing, CORE_TEASER));
+    }
+
+    @Test
+    public void resolveSiteResourceTypeFollowsMultiHopSuperTypeChain() {
+        Page landing = landingPage("/content/venia/us/en", "venia/components/structure/page");
+        // proxy -> intermediate (outside the components root, resolved via the /apps search path) -> core
+        context.build().resource("/apps/venia/components/commerce/productteaser",
+            "jcr:primaryType", "cq:Component", "sling:resourceSuperType", "venia/base/productteaser").commit();
+        context.build().resource("/apps/venia/base/productteaser",
+            "jcr:primaryType", "cq:Component", "sling:resourceSuperType", CORE_TEASER).commit();
+        assertEquals("venia/components/commerce/productteaser",
+            SiteAppsSupport.resolveSiteResourceType(context.resourceResolver(), landing, CORE_TEASER));
+    }
+
+    @Test
+    public void resolveSiteResourceTypeFallsBackToCoreWhenNoProxySuperTypesIt() {
+        Page landing = landingPage("/content/venia/us/en", "venia/components/structure/page");
+        // a proxy exists but super-types an unrelated core component, so it must not match
+        context.build().resource("/apps/venia/components/commerce/other",
+            "jcr:primaryType", "cq:Component",
+            "sling:resourceSuperType", "core/cif/components/commerce/product/v1/product").commit();
+        assertEquals(CORE_TEASER,
+            SiteAppsSupport.resolveSiteResourceType(context.resourceResolver(), landing, CORE_TEASER));
+    }
+
+    @Test
+    public void resolveSiteResourceTypeFallsBackToCoreWhenAppsRootMissing() {
+        Page landing = landingPage("/content/venia/us/en", "venia/components/structure/page");
+        assertEquals(CORE_TEASER,
+            SiteAppsSupport.resolveSiteResourceType(context.resourceResolver(), landing, CORE_TEASER));
+    }
+
+    @Test
+    public void resolveSiteResourceTypeFallsBackToCoreForNullLandingPage() {
+        assertEquals(CORE_TEASER,
+            SiteAppsSupport.resolveSiteResourceType(context.resourceResolver(), null, CORE_TEASER));
+    }
+
+    @Test
+    public void resolveSiteResourceTypeFallsBackToCoreForCoreNamespaceLandingPage() {
+        Page landing = landingPage("/content/site/en", "core/cif/components/structure/page/v3/page");
+        context.build().resource("/apps/venia/components/commerce/productteaser",
+            "jcr:primaryType", "cq:Component", "sling:resourceSuperType", CORE_TEASER).commit();
+        // landing page carries no site-specific namespace (core) -> no apps root derivable -> core returned
+        assertEquals(CORE_TEASER,
+            SiteAppsSupport.resolveSiteResourceType(context.resourceResolver(), landing, CORE_TEASER));
+    }
+
     // --- toJcrValue ---
 
     @Test

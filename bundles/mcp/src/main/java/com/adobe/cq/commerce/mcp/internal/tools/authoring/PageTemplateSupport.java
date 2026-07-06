@@ -147,6 +147,27 @@ public final class PageTemplateSupport {
      *             or no template of {@code kind} can be auto-discovered
      */
     public static Resource resolveTemplate(ResourceResolver resolver, String kind, String explicitTemplatePath) {
+        return resolveTemplate(resolver, kind, explicitTemplatePath, null);
+    }
+
+    /**
+     * Site-scoped overload of {@link #resolveTemplate(ResourceResolver, String, String)}: when
+     * {@code explicitTemplatePath} is null/blank, auto-discovery scans {@code preferredConfPath} (the site's own
+     * {@code /conf/<site>}, from {@code SiteAppsSupport.confPathFor(landingPage)}) <em>first</em>, so a page is
+     * created from the site's own template rather than an unrelated same-kind template that happens to sort earlier
+     * in a global {@code /conf} scan; only if the site conf has no template of {@code kind} (or
+     * {@code preferredConfPath} is null/blank) does it fall back to the global {@code /conf/*} scan.
+     *
+     * @param resolver the caller's {@link ResourceResolver} (JCR ACLs enforced)
+     * @param kind one of {@link #VALID_KINDS}
+     * @param explicitTemplatePath an explicit template path, or {@code null}/blank to auto-discover
+     * @param preferredConfPath the site's {@code /conf/<site>} root to try first, or {@code null}/blank to skip
+     * @return the resolved template {@link Resource}
+     * @throws IllegalArgumentException if {@code kind} is invalid, an explicit path is missing or of the wrong kind,
+     *             or no template of {@code kind} can be auto-discovered
+     */
+    public static Resource resolveTemplate(ResourceResolver resolver, String kind, String explicitTemplatePath,
+        String preferredConfPath) {
         if (!VALID_KINDS.contains(kind)) {
             throw new IllegalArgumentException("kind must be one of " + VALID_KINDS + ": " + kind);
         }
@@ -163,23 +184,43 @@ public final class PageTemplateSupport {
             return template;
         }
 
+        if (StringUtils.isNotBlank(preferredConfPath)) {
+            Resource preferred = firstTemplateOfKind(resolver.getResource(preferredConfPath), kind);
+            if (preferred != null) {
+                return preferred;
+            }
+        }
+
         Resource confRoot = resolver.getResource(TEMPLATES_QUERY_ROOT);
         if (confRoot != null) {
             for (Resource configRoot : confRoot.getChildren()) {
-                Resource templatesFolder = configRoot.getChild(TEMPLATES_SUFFIX);
-                if (templatesFolder == null) {
-                    continue;
-                }
-                for (Resource template : templatesFolder.getChildren()) {
-                    Classification classification = classify(template);
-                    if (classification != null && kind.equals(classification.getKind())) {
-                        return template;
-                    }
+                Resource template = firstTemplateOfKind(configRoot, kind);
+                if (template != null) {
+                    return template;
                 }
             }
         }
         throw new IllegalArgumentException(
             "no " + kind + " template found under /conf/*/settings/wcm/templates; pass template explicitly");
+    }
+
+    /**
+     * Scans one {@code /conf/<config>} root's {@code settings/wcm/templates} folder and returns the first template
+     * whose {@link #classify(Resource)} kind equals {@code kind}, or {@code null} when {@code configRoot} is null,
+     * carries no templates folder, or holds no template of that kind.
+     */
+    private static Resource firstTemplateOfKind(Resource configRoot, String kind) {
+        Resource templatesFolder = configRoot == null ? null : configRoot.getChild(TEMPLATES_SUFFIX);
+        if (templatesFolder == null) {
+            return null;
+        }
+        for (Resource template : templatesFolder.getChildren()) {
+            Classification classification = classify(template);
+            if (classification != null && kind.equals(classification.getKind())) {
+                return template;
+            }
+        }
+        return null;
     }
 
     /**

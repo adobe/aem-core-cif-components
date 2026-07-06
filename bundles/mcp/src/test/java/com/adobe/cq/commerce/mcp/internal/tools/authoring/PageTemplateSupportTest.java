@@ -45,6 +45,22 @@ public class PageTemplateSupportTest {
             .getResource("/conf/testsite/settings/wcm/templates/" + name);
     }
 
+    /**
+     * Builds an empty-grid catalog template at {@code path} (its {@code initial} grid exists but holds no child, so
+     * {@link PageTemplateSupport#classify(Resource)} reports {@code catalog}), used to stand up a second site's own
+     * catalog template alongside {@code testsite}'s for the {@code preferredConfPath} prioritization tests.
+     */
+    private void buildCatalogTemplate(String path) {
+        context.build()
+            .resource(path, "jcr:primaryType", "cq:Template")
+            .resource("jcr:content", "jcr:primaryType", "cq:PageContent", "jcr:title", "Catalog Page")
+            .commit();
+        context.build()
+            .resource(path + "/initial/jcr:content/root/container/container",
+                "jcr:primaryType", "nt:unstructured", "layout", "responsiveGrid")
+            .commit();
+    }
+
     @Test
     public void classifiesProductTemplateByComponent() {
         PageTemplateSupport.Classification c = PageTemplateSupport.classify(template("product-page"));
@@ -136,4 +152,46 @@ public class PageTemplateSupportTest {
         assertThrows(IllegalArgumentException.class,
             () -> PageTemplateSupport.resolveTemplate(context.resourceResolver(), "catalog", null));
     }
+
+    @Test
+    public void resolveTemplatePrefersSiteScopedConfPath() {
+        context.load().json("/context/conf-templates.json", "/conf");
+        // A second site with its own catalog template, so "catalog" now matches under both /conf roots.
+        buildCatalogTemplate("/conf/othersite/settings/wcm/templates/catalog-page");
+
+        // Pointing preferredConfPath at each site returns that site's own template. The global scan can only
+        // return one of the two deterministically, so this pair proves prioritization regardless of iteration order.
+        Resource fromOther = PageTemplateSupport.resolveTemplate(
+            context.resourceResolver(), "catalog", null, "/conf/othersite");
+        assertEquals("/conf/othersite/settings/wcm/templates/catalog-page", fromOther.getPath());
+
+        Resource fromTest = PageTemplateSupport.resolveTemplate(
+            context.resourceResolver(), "catalog", null, "/conf/testsite");
+        assertEquals("/conf/testsite/settings/wcm/templates/catalog-page", fromTest.getPath());
+    }
+
+    @Test
+    public void resolveTemplateFallsBackToGlobalScanWhenPreferredConfHasNoKind() {
+        context.load().json("/context/conf-templates.json", "/conf");
+        // preferredConfPath is a site with NO catalog template -> auto-discovery falls back to the global /conf scan,
+        // which finds testsite's catalog-page.
+        context.build()
+            .resource("/conf/nocatalog/settings/wcm/templates/content-page/jcr:content",
+                "jcr:primaryType", "cq:PageContent", "jcr:title", "Content page")
+            .commit();
+
+        Resource resolved = PageTemplateSupport.resolveTemplate(
+            context.resourceResolver(), "catalog", null, "/conf/nocatalog");
+        assertEquals("/conf/testsite/settings/wcm/templates/catalog-page", resolved.getPath());
+    }
+
+    @Test
+    public void resolveTemplateBlankPreferredConfPathIsIgnored() {
+        context.load().json("/context/conf-templates.json", "/conf");
+        // A blank preferredConfPath is a no-op: auto-discovery goes straight to the global scan.
+        Resource resolved = PageTemplateSupport.resolveTemplate(
+            context.resourceResolver(), "catalog", null, "  ");
+        assertEquals("/conf/testsite/settings/wcm/templates/catalog-page", resolved.getPath());
+    }
+
 }

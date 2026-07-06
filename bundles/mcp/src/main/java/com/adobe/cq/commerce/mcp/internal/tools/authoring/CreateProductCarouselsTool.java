@@ -32,6 +32,7 @@ import com.adobe.cq.commerce.core.components.models.common.CombinedSku;
 import com.adobe.cq.commerce.mcp.McpCallContext;
 import com.adobe.cq.commerce.mcp.McpTool;
 import com.adobe.cq.commerce.mcp.internal.StoreContext;
+import com.day.cq.wcm.api.Page;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -59,8 +60,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class CreateProductCarouselsTool implements McpTool {
 
     /**
-     * CIF product carousel component resource type (v1 only, matches {@code ProductCarouselImpl.RESOURCE_TYPE}),
-     * used as the {@code sling:resourceType} of every node this tool creates.
+     * CIF product carousel core component resource type (v1 only, matches {@code ProductCarouselImpl.RESOURCE_TYPE}).
+     * Mapped to the site's own proxy (when one super-types it) via
+     * {@link SiteAppsSupport#resolveSiteResourceType(ResourceResolver, Page, String)} before being written, so a
+     * created node references the site's proxy component (picking up its policies/styles) rather than the shared
+     * core component; it falls back to this core type when no proxy applies.
      */
     private static final String PRODUCTCAROUSEL_RESOURCE_TYPE = "core/cif/components/commerce/productcarousel/v1/productcarousel";
     private static final String BASE_CHILD_NAME = "productcarousel";
@@ -133,13 +137,15 @@ public class CreateProductCarouselsTool implements McpTool {
             throw new IllegalArgumentException("carousels is required and must be a non-empty array");
         }
 
-        List<Map<String, Object>> specs = new ArrayList<Map<String, Object>>();
-        for (JsonNode carouselNode : carouselsNode) {
-            specs.add(toProps(carouselNode));
-        }
-
         ResourceResolver resolver = ctx.getRequest().getResourceResolver();
         Resource parent = CommerceWriteSupport.resolveContainer(resolver, "parentPath", parentPath);
+        String resourceType = SiteAppsSupport.resolveSiteResourceType(resolver, ctx.getLandingPage(),
+            PRODUCTCAROUSEL_RESOURCE_TYPE);
+
+        List<Map<String, Object>> specs = new ArrayList<Map<String, Object>>();
+        for (JsonNode carouselNode : carouselsNode) {
+            specs.add(toProps(carouselNode, resourceType));
+        }
 
         ObjectNode out = mapper.createObjectNode();
         out.put("parentPath", parentPath);
@@ -171,8 +177,8 @@ public class CreateProductCarouselsTool implements McpTool {
         // not take.
         for (JsonNode item : created) {
             Resource persisted = resolver.getResource(item.get("path").asText());
-            if (persisted == null || !PRODUCTCAROUSEL_RESOURCE_TYPE
-                .equals(persisted.getValueMap().get("sling:resourceType", String.class))) {
+            if (persisted == null
+                || !resourceType.equals(persisted.getValueMap().get("sling:resourceType", String.class))) {
                 throw new IllegalStateException("failed to verify created product carousel: " + item.get("path").asText());
             }
         }
@@ -187,16 +193,17 @@ public class CreateProductCarouselsTool implements McpTool {
      * must not silently truncate, per the same pitfall documented for {@code quantity} handling in AGENTS.md §8).
      *
      * @param carouselNode one element of the {@code carousels} array
+     * @param resourceType the (already site-proxy-resolved) {@code sling:resourceType} to write on the new child
      * @return the properties to write on the new child, including {@code sling:resourceType}
      */
-    private Map<String, Object> toProps(JsonNode carouselNode) {
+    private Map<String, Object> toProps(JsonNode carouselNode, String resourceType) {
         String selectionType = carouselNode.path("selectionType").asText(null);
         if (selectionType != null && !VALID_SELECTION_TYPES.contains(selectionType)) {
             throw new IllegalArgumentException("selectionType must be one of " + VALID_SELECTION_TYPES + ": " + selectionType);
         }
 
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put("sling:resourceType", PRODUCTCAROUSEL_RESOURCE_TYPE);
+        props.put("sling:resourceType", resourceType);
 
         if (StringUtils.isNotBlank(selectionType)) {
             props.put(SELECTION_TYPE_PROPERTY, selectionType);

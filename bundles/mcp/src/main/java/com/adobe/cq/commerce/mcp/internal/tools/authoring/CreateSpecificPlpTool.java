@@ -117,7 +117,8 @@ public class CreateSpecificPlpTool implements McpTool {
 
         ResourceResolver resolver = ctx.getRequest().getResourceResolver();
         Resource parent = PageCreationSupport.validatePageParent(resolver, "parent", parentPath);
-        Resource template = PageTemplateSupport.resolveTemplate(resolver, KIND_CATEGORY, explicitTemplate);
+        Resource template = PageTemplateSupport.resolveTemplate(resolver, KIND_CATEGORY, explicitTemplate,
+            SiteAppsSupport.confPathFor(ctx.getLandingPage()));
         String templatePath = template.getPath();
 
         String name;

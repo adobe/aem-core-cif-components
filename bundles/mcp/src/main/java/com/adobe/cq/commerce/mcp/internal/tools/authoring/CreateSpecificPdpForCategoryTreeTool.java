@@ -125,7 +125,8 @@ public class CreateSpecificPdpForCategoryTreeTool implements McpTool {
 
         ResourceResolver resolver = ctx.getRequest().getResourceResolver();
         Resource parent = PageCreationSupport.validatePageParent(resolver, "parent", parentPath);
-        Resource template = PageTemplateSupport.resolveTemplate(resolver, KIND_PRODUCT, explicitTemplate);
+        Resource template = PageTemplateSupport.resolveTemplate(resolver, KIND_PRODUCT, explicitTemplate,
+            SiteAppsSupport.confPathFor(ctx.getLandingPage()));
         String templatePath = template.getPath();
 
         String name;
