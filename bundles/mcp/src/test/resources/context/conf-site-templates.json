@@ -1,0 +1,63 @@
+{
+  "jcr:primaryType": "sling:Folder",
+  "mysite": {
+    "jcr:primaryType": "sling:Folder",
+    "settings": {
+      "jcr:primaryType": "sling:Folder",
+      "wcm": {
+        "jcr:primaryType": "sling:Folder",
+        "templates": {
+          "jcr:primaryType": "sling:Folder",
+          "landing-page": {
+            "jcr:primaryType": "cq:Template",
+            "jcr:content": {
+              "jcr:primaryType": "cq:PageContent",
+              "jcr:title": "Landing page",
+              "jcr:description": "Generic landing page",
+              "status": "enabled",
+              "allowedPaths": ["/content/mysite(/.*)?"]
+            },
+            "structure": {
+              "jcr:primaryType": "cq:Page",
+              "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "root": {
+                  "jcr:primaryType": "nt:unstructured",
+                  "sling:resourceType": "mysite/components/container",
+                  "editable": false,
+                  "container": {
+                    "jcr:primaryType": "nt:unstructured",
+                    "sling:resourceType": "mysite/components/container",
+                    "editable": true
+                  }
+                }
+              }
+            },
+            "initial": {
+              "jcr:primaryType": "cq:Page",
+              "jcr:content": {
+                "jcr:primaryType": "cq:PageContent",
+                "sling:resourceType": "mysite/components/page",
+                "root": {
+                  "jcr:primaryType": "nt:unstructured",
+                  "sling:resourceType": "mysite/components/container"
+                }
+              }
+            }
+          },
+          "disabled-page": {
+            "jcr:primaryType": "cq:Template",
+            "jcr:content": {
+              "jcr:primaryType": "cq:PageContent",
+              "jcr:title": "Disabled page",
+              "status": "disabled"
+            }
+          },
+          "no-content": {
+            "jcr:primaryType": "cq:Template"
+          }
+        }
+      }
+    }
+  }
+}
