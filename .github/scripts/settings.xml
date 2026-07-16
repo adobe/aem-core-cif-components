@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2026 Adobe
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    GitHub Actions counterpart to .circleci/settings.xml, forked verbatim so the GitHub
+    Actions workflows don't reach into .circleci. Keep the two in sync until .circleci
+    is retired.
+-->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+    <profiles>
+        <profile>
+            <id>artifactory-cloud</id>
+
+            <properties>
+                <releaseRepository-Id>maven-adobe-cif-release</releaseRepository-Id>
+                <releaseRepository-Name>maven-adobe-cif-release</releaseRepository-Name>
+                <releaseRepository-URL>https://artifactory-uw2.adobeitc.com/artifactory/maven-adobe-cif-release</releaseRepository-URL>
+                
+                <snapshotRepository-Id>maven-adobe-cif-snapshot</snapshotRepository-Id>
+                <snapshotRepository-Name>maven-adobe-cif-snapshot</snapshotRepository-Name>
+                <snapshotRepository-URL>https://artifactory-uw2.adobeitc.com/artifactory/maven-adobe-cif-snapshot</snapshotRepository-URL>
+            </properties>
+
+            <repositories>
+                <repository>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>maven-adobe-cif-release</id>
+                    <name>maven-adobe-cif-release</name>
+                    <url>https://artifactory-uw2.adobeitc.com/artifactory/maven-adobe-cif-release</url>
+                </repository>
+                <repository>
+                    <snapshots />
+                    <id>maven-adobe-cif-snapshot</id>
+                    <name>maven-adobe-cif-snapshot</name>
+                    <url>https://artifactory-uw2.adobeitc.com/artifactory/maven-adobe-cif-snapshot</url>
+                </repository>
+            </repositories>
+
+            <pluginRepositories>
+                <pluginRepository>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                    <id>maven-adobe-cif-release</id>
+                    <name>maven-adobe-cif-release</name>
+                    <url>https://artifactory-uw2.adobeitc.com/artifactory/maven-adobe-cif-release</url>
+                </pluginRepository>
+                <pluginRepository>
+                    <snapshots />
+                    <id>maven-adobe-cif-snapshot</id>
+                    <name>maven-adobe-cif-snapshot</name>
+                    <url>https://artifactory-uw2.adobeitc.com/artifactory/maven-adobe-cif-snapshot</url>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+
+        <profile>
+            <id>central</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <gpg.executable>gpg</gpg.executable>
+                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+            </properties>
+        </profile>
+    </profiles>
+
+    <servers>
+        <server>
+            <id>central</id>
+            <username>${env.MAVEN_CENTRAL_USERNAME}</username>
+            <password>${env.MAVEN_CENTRAL_PASSWORD}</password>
+        </server>
+        <server>
+            <id>maven-adobe-cif-release</id>
+            <username>${env.ARTIFACTORY_CLOUD_USER}</username>
+            <password>${env.ARTIFACTORY_CLOUD_PASS}</password>
+        </server>
+        <server>
+            <id>maven-adobe-cif-snapshot</id>
+            <username>${env.ARTIFACTORY_CLOUD_USER}</username>
+            <password>${env.ARTIFACTORY_CLOUD_PASS}</password>
+        </server>
+    </servers>
+
+</settings>

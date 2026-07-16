@@ -1,0 +1,418 @@
+# GitHub Actions counterpart to .circleci/config.yml's "build-and-release" workflow
+# (build-java-11/8, karma, jest*, integration-test-*, selenium-chrome-*).
+#
+# This is additive: .circleci/config.yml keeps running as-is. All CI/build/deploy
+# scripting for this workflow lives under .github/scripts (ci.js, build.js, it-tests.js,
+# settings.xml) as forks of the .circleci/ci/*.js and .circleci/settings.xml originals, so
+# the two pipelines stay independent of each other rather than one reaching into the
+# other's folder. Only the integration/selenium orchestration (it-tests.js) has an actual
+# behavioral difference from its CircleCI counterpart (hardcoded `localhost` networking +
+# /home/circleci paths there vs. parameterized here); ci.js and build.js are otherwise
+# unchanged copies.
+#
+# Required secrets (see PR description for the full list / setup notes):
+#   ARTIFACTORY_CLOUD_USER, ARTIFACTORY_CLOUD_PASS  - private Adobe registry + Maven repo auth
+
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Open a tmate SSH session into the test-aem runner after the integration/selenium step (like CircleCI''s "rerun with SSH")'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  build:
+    name: build (jdk ${{ matrix.java }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # '21' is new coverage: even CircleCI's build-java-* jobs never test the reactor
+        # build under JDK 21, only the AEM quickstart/qp images for lts/addon do.
+        java: ['11', '8', '21']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+
+      - name: Debug context
+        run: |
+          echo "runner: ${{ runner.os }}/${{ runner.arch }}"
+          echo "ref: ${{ github.ref }}  sha: ${{ github.sha }}"
+          java -version
+          mvn -v
+          node -v
+          npm -v
+
+      # Forked verbatim from .circleci/ci/build.js - collects module metadata, runs
+      # `mvn clean install`, copies surefire XML into test-results/junit.
+      - name: Build
+        run: node .github/scripts/build.js
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-jdk${{ matrix.java }}
+          path: test-results/junit
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # Publishes a Checks-tab entry with pass/fail/skip counts and inline annotations,
+      # the closest GitHub Actions equivalent to CircleCI's "Tests" insights tab.
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Unit Tests (jdk ${{ matrix.java }})
+          path: test-results/junit/*.xml
+          reporter: java-junit
+          fail-on-error: false
+
+      # Only the JDK 11 build's output feeds the integration/selenium jobs below
+      # (mirrors CircleCI's persist_to_workspace, which only build-java-11 does).
+      - name: Upload build output
+        if: matrix.java == '11'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          retention-days: 3
+          path: |
+            configuration.json
+            bundles/core/target
+            ui.apps/target/*.zip
+            ui.config/target/*.zip
+            extensions/product-recs/bundle/target
+            extensions/product-recs/content/target/*.zip
+            examples/bundle/target
+            examples/ui.apps/target/*.zip
+            examples/ui.config/target/*.zip
+            examples/ui.content/target/*.zip
+            it/content/target/*.zip
+
+      - name: Upload coverage to Codecov
+        if: matrix.java == '11'
+        uses: codecov/codecov-action@v4
+        with:
+          flags: unittests
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  karma:
+    name: karma (ui.apps)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '16.17.1'
+
+      - name: Debug context
+        run: |
+          node -v
+          npm -v
+          google-chrome --version || true
+          firefox --version || true
+
+      - name: Provision
+        working-directory: ./ui.apps
+        run: |
+          npm install
+          npm run webpack:dev
+
+      - name: Run Unit Tests (Karma)
+        working-directory: ./ui.apps
+        run: npm test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: karma-junit
+          path: ui.apps/karma-junit
+          if-no-files-found: ignore
+
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Unit Tests (karma)
+          path: ui.apps/karma-junit/*.xml
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          flags: karma
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  jest:
+    name: jest (react-components)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '16.20.0'
+
+      - name: Provision
+        working-directory: ./react-components
+        run: npm ci --legacy-peer-deps
+
+      - name: Run Unit Tests (Jest)
+        working-directory: ./react-components
+        run: npm run ci
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jest-test-results
+          path: react-components/test-results
+          if-no-files-found: ignore
+
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Unit Tests (jest react-components)
+          path: react-components/test-results/*.xml
+          reporter: jest-junit
+          fail-on-error: false
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          flags: jest
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  jest-extension-product-recs:
+    name: jest (extensions/product-recs)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '16.17.1'
+
+      - name: Provision (Core)
+        working-directory: ./react-components
+        run: |
+          npm install
+          npm run webpack:dev
+          npm link
+
+      - name: Provision (Extension)
+        working-directory: ./extensions/product-recs/react-components
+        run: |
+          npm install
+          npm link @adobe/aem-core-cif-react-components --legacy-peer-deps
+
+      - name: Run Unit Tests (Jest)
+        working-directory: ./extensions/product-recs/react-components
+        run: npm run ci
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jest-product-recs-test-results
+          path: extensions/product-recs/react-components/test-results
+          if-no-files-found: ignore
+
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Unit Tests (jest extensions/product-recs)
+          path: extensions/product-recs/react-components/test-results/*.xml
+          reporter: jest-junit
+          fail-on-error: false
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          flags: jest
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  jest-extension-experience-platform-connector:
+    name: jest (extensions/experience-platform-connector)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '16.17.1'
+
+      - name: Provision (Extension)
+        working-directory: ./extensions/experience-platform-connector
+        run: npm install --legacy-peer-deps
+
+      - name: Run Unit Tests (Jest)
+        working-directory: ./extensions/experience-platform-connector
+        run: npm run ci
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jest-epc-test-results
+          path: extensions/experience-platform-connector/test-results
+          if-no-files-found: ignore
+
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Unit Tests (jest extensions/experience-platform-connector)
+          path: extensions/experience-platform-connector/test-results/*.xml
+          reporter: jest-junit
+          fail-on-error: false
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          flags: jest
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  # Mirrors integration-test-{655,660,cloudready-with-addon} and
+  # selenium-chrome-{655,660,cloudready-with-addon} from .circleci/config.yml as a single
+  # matrix job instead of 6 near-duplicated ones. Each combination pulls the same private
+  # Adobe images CircleCI uses: a "qp" image as the job container (ships the AEM quickstart
+  # jar + qp.sh control CLI baked in at /home/circleci/cq) and an "aem" image as a service
+  # container (runs the actual AEM instance CircleCI reaches at `localhost` because its
+  # docker executor shares one network namespace across primary/secondary containers).
+  #
+  # GitHub Actions does NOT share a network namespace between a job container and its
+  # services - the job container reaches a service by its service name (`aem`), not
+  # `localhost`. That's the one behavioral difference from CircleCI, and it's the reason
+  # this uses .github/scripts/it-tests.js (AEM_HOST=aem) instead of the CircleCI script.
+  #
+  # NOTE: not yet run against the real private images/QP protocol - see PR description
+  # for what to watch for on the first live run (git/curl availability in the qp image,
+  # JACOCO_AGENT/JACOCO_VERSION being baked into the image env, exact qp.sh behavior).
+  test-aem:
+    name: ${{ matrix.type }} (${{ matrix.aem }})
+    needs:
+      - build
+      - karma
+      - jest
+      - jest-extension-product-recs
+      - jest-extension-experience-platform-connector
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [integration, selenium]
+        include:
+          - aem: classic
+            qp_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
+            aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.24.0-openjdk11
+          - aem: lts
+            qp_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.7-openjdk21
+            aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-lts:6.6.2-openjdk21
+          - aem: addon
+            qp_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.7-openjdk21
+            aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:26125-openjdk21
+    env:
+      AEM: ${{ matrix.aem }}
+      TYPE: ${{ matrix.type }}
+      BROWSER: chrome
+      AEM_HOST: aem
+    container:
+      image: ${{ matrix.qp_image }}
+      credentials:
+        username: ${{ secrets.ARTIFACTORY_CLOUD_USER }}
+        password: ${{ secrets.ARTIFACTORY_CLOUD_PASS }}
+    services:
+      aem:
+        image: ${{ matrix.aem_image }}
+        credentials:
+          username: ${{ secrets.ARTIFACTORY_CLOUD_USER }}
+          password: ${{ secrets.ARTIFACTORY_CLOUD_PASS }}
+    steps:
+      - name: Debug context
+        run: |
+          echo "matrix: aem=${{ matrix.aem }} type=${{ matrix.type }}"
+          id
+          java -version || true
+          which git curl || true
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-output
+
+      - name: Integration/UI tests
+        run: node .github/scripts/it-tests.js
+
+      # GitHub Actions equivalent of CircleCI's "Rerun job with SSH": opens a tmate SSH
+      # session into this runner while the `aem` service container is still up, so you can
+      # reach it (curl/qp.sh/etc.) the same way the test step just did. Opt-in only, via
+      # workflow_dispatch, so it never blocks a normal push/PR run.
+      - name: Debug via SSH (tmate)
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.debug_enabled
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+        timeout-minutes: 30
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.type }}-${{ matrix.aem }}-reports
+          if-no-files-found: ignore
+          path: |
+            it/http/target/failsafe-reports
+            ui.tests/test-module/reports
+            logs
+            bundles/core/target/site/jacoco
+            extensions/product-recs/bundle/target/site/jacoco
+            examples/bundle/target/site/jacoco
+
+      # Same Checks-tab reporting as the other jobs; only one of these two globs matches
+      # per matrix.type (integration -> failsafe-reports, selenium -> ui.tests reports).
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Tests (${{ matrix.type }} ${{ matrix.aem }})
+          path: 'it/http/target/failsafe-reports/*.xml,ui.tests/test-module/reports/**/*.xml'
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Upload coverage to Codecov
+        if: matrix.type == 'integration'
+        uses: codecov/codecov-action@v4
+        with:
+          flags: integration
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
