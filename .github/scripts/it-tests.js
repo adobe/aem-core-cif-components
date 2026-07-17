@@ -29,6 +29,8 @@
 // This script (and its ci.js/settings.xml helpers) live entirely under .github/scripts
 // so the GitHub Actions and CircleCI pipelines stay independent of each other.
 
+const path = require('path');
+
 const ci = new (require('./ci.js'))();
 
 ci.context();
@@ -41,6 +43,16 @@ const qpPath = '/home/circleci/cq'; // baked into the qp Docker image itself, no
 const buildPath = process.env.GITHUB_WORKSPACE || process.cwd();
 const AEM_HOST = process.env.AEM_HOST || 'localhost'; // GH Actions service name (default: aem)
 const { TYPE, BROWSER, AEM, COMMERCE_ENDPOINT, COMMERCE_INTEGRATION_TOKEN } = process.env;
+
+// configuration.json's module paths were recorded by the "build" job, a plain (non-container)
+// job whose workspace root is /home/runner/work/<owner>/<repo>. This script runs in test-aem, a
+// `container:` job, where GitHub Actions mounts the workspace at /__w/<owner>/<repo> instead - a
+// different absolute path. Re-base every module path onto this job's actual buildPath before
+// resolving artifact files, or install-file/qp.sh get a path that doesn't exist here.
+const reactorRoot = config.modules['core-cif-components-reactor'].path;
+const localizeModule = module => ({ ...module, path: path.resolve(buildPath, path.relative(reactorRoot, module.path)) });
+const resolveModuleArtifactPath = moduleKey => ci.resolveModuleArtifactPath(localizeModule(config.modules[moduleKey]));
+const addQpFileDependency = moduleKey => ci.addQpFileDependency(localizeModule(config.modules[moduleKey]));
 
 const CORE_BUNDLE = 'com.adobe.commerce.cif.core-cif-components-core';
 const ADDON_BUNDLE = 'com.adobe.cq.cif.commerce-addon-bundle';
@@ -81,7 +93,7 @@ const prepareAemForCifTests = () => {
 
             if (!projectBundlesInstalled) {
                 const installJar = (moduleKey) => {
-                    const jarPath = ci.resolveModuleArtifactPath(config.modules[moduleKey]);
+                    const jarPath = resolveModuleArtifactPath(moduleKey);
                     ci.sh(
                         `curl -sf -u admin:admin -F action=install -F bundlestart=1 -F bundlefile=@${jarPath} http://${AEM_HOST}:4502/system/console/bundles`,
                         false,
@@ -220,6 +232,17 @@ try {
         excludedCategory = 'junit.category.IgnoreOnCloud';
     }
 
+    // it/site builds as its own standalone reactor (not part of the main one), and
+    // it/site/ui.apps has a `provided` dependency on core-cif-components-core. On CircleCI
+    // this resolves because save_cache/restore_cache share the same ~/.m2 populated by the
+    // build-java-11 job. GitHub Actions' test-aem job runs in a fresh container with no
+    // such shared cache - download-artifact only brought over bundles/core/target as raw
+    // files, not an installed ~/.m2 entry - so install it explicitly before building it/site.
+    const coreModule = config.modules['core-cif-components-core'];
+    ci.sh(`mvn install:install-file -Dfile=${resolveModuleArtifactPath('core-cif-components-core')} \
+        -DgroupId=${coreModule.groupId} -DartifactId=${coreModule.artifactId} \
+        -Dversion=${coreModule.version} -Dpackaging=jar`);
+
     // Build it/site with the appropriate profile
     ci.dir('it/site', () => {
         const profile = (AEM === 'classic' || AEM === 'lts') ? ' -Pclassic' : '';
@@ -227,8 +250,8 @@ try {
     });
 
     let itSitePackage = (AEM === 'classic' || AEM === 'lts')
-        ? ci.addQpFileDependency(config.modules['cif-components-it-site.all-classic'])
-        : ci.addQpFileDependency(config.modules['cif-components-it-site.all']);
+        ? addQpFileDependency('cif-components-it-site.all-classic')
+        : addQpFileDependency('cif-components-it-site.all');
 
     ci.dir(qpPath, () => {
         // Connect to QP (running in the `aem` service container on GH Actions,
@@ -264,12 +287,12 @@ try {
             --bundle com.adobe.cq:core.wcm.components.examples.ui.config:${wcmVersion}:zip \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.apps:${wcmVersion}:zip \
             --bundle com.adobe.cq:core.wcm.components.examples.ui.content:${wcmVersion}:zip \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-config'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-apps'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-examples-config'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-examples-apps'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-examples-content'])} \
-            ${ci.addQpFileDependency(config.modules['core-cif-components-it-tests-content'])} \
+            ${addQpFileDependency('core-cif-components-config')} \
+            ${addQpFileDependency('core-cif-components-apps')} \
+            ${addQpFileDependency('core-cif-components-examples-config')} \
+            ${addQpFileDependency('core-cif-components-examples-apps')} \
+            ${addQpFileDependency('core-cif-components-examples-content')} \
+            ${addQpFileDependency('core-cif-components-it-tests-content')} \
             ${itSitePackage} \
             --vm-options \\\"-Xmx1536m ${maxMetaspace} -Djava.awt.headless=true -javaagent:${process.env.JACOCO_AGENT}=destfile=crx-quickstart/jacoco-it.exec,output=tcpserver,port=6300\\\"`);
     });
