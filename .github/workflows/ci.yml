@@ -371,8 +371,14 @@ jobs:
       # install-file/download-maven-plugin calls in it-tests.js) re-download their entire
       # dependency tree from scratch on every run. Shared across all matrix.aem/type
       # combinations - they all need the same underlying dependencies.
-      - name: Cache Maven repository
-        uses: actions/cache@v4
+      #
+      # Split into restore/save (instead of the combined actions/cache@v4) because the
+      # combined action's save step only runs if the job succeeds - while this job is still
+      # failing for unrelated reasons, a plain actions/cache@v4 would never persist anything,
+      # even after re-downloading the entire dependency tree. actions/cache/save with
+      # if: always() below saves whatever got downloaded regardless of outcome.
+      - name: Restore Maven repository cache
+        uses: actions/cache/restore@v4
         with:
           path: /home/circleci/.m2/repository
           key: test-aem-m2-${{ hashFiles('**/pom.xml') }}
@@ -396,6 +402,15 @@ jobs:
         with:
           limit-access-to-actor: true
         timeout-minutes: 30
+
+      # Saves the cache even if the job above failed, so a failing run still leaves behind
+      # whatever it managed to download for the next attempt (see restore step's comment).
+      - name: Save Maven repository cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: /home/circleci/.m2/repository
+          key: test-aem-m2-${{ hashFiles('**/pom.xml') }}
 
       - name: Upload test results
         if: always()
