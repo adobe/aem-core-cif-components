@@ -3,12 +3,15 @@
 #
 # This is additive: .circleci/config.yml keeps running as-is. All CI/build/deploy
 # scripting for this workflow lives under .github/scripts (ci.js, build.js, it-tests.js,
-# settings.xml) as forks of the .circleci/ci/*.js and .circleci/settings.xml originals, so
-# the two pipelines stay independent of each other rather than one reaching into the
-# other's folder. Only the integration/selenium orchestration (it-tests.js) has an actual
-# behavioral difference from its CircleCI counterpart (hardcoded `localhost` networking +
-# /home/circleci paths there vs. parameterized here); ci.js and build.js are otherwise
-# unchanged copies.
+# settings.xml, run-containerized-test.sh) as forks of the .circleci/ci/*.js and
+# .circleci/settings.xml originals, so the two pipelines stay independent of each other
+# rather than one reaching into the other's folder. it-tests.js differs from its CircleCI
+# counterpart in scoping a couple of `mvn` calls to avoid full-reactor resolution (see its
+# own comments) and re-basing configuration.json's module paths onto this job's actual
+# workspace path; ci.js and build.js are otherwise unchanged copies. Networking is back to
+# matching CircleCI exactly (AEM_HOST defaults to `localhost`) now that the test-aem job
+# runs both containers with --network host via run-containerized-test.sh - see that job's
+# own comment for why.
 #
 # Required secrets (see PR description for the full list / setup notes):
 #   ARTIFACTORY_CLOUD_USER, ARTIFACTORY_CLOUD_PASS  - private Adobe registry + Maven repo auth
@@ -302,14 +305,15 @@ jobs:
   # container (runs the actual AEM instance CircleCI reaches at `localhost` because its
   # docker executor shares one network namespace across primary/secondary containers).
   #
-  # GitHub Actions does NOT share a network namespace between a job container and its
-  # services - the job container reaches a service by its service name (`aem`), not
-  # `localhost`. That's the one behavioral difference from CircleCI, and it's the reason
-  # this uses .github/scripts/it-tests.js (AEM_HOST=aem) instead of the CircleCI script.
-  #
-  # NOTE: not yet run against the real private images/QP protocol - see PR description
-  # for what to watch for on the first live run (git/curl availability in the qp image,
-  # JACOCO_AGENT/JACOCO_VERSION being baked into the image env, exact qp.sh behavior).
+  # GitHub Actions' `container:` + `services:` keys cannot be used here: QuickProvider's RMI
+  # protocol advertises "localhost" as its own callback address, which only works if the qp
+  # and aem containers share one network namespace (--network host), exactly like CircleCI's
+  # machine executor. Combining --network host with a `services:` container crashes the
+  # runner before the job even starts ("Error: Value cannot be null. (Parameter
+  # 'ContainerId')"). So this job runs directly on the bare runner and drives both
+  # containers itself via run-containerized-test.sh, which sidesteps GitHub Actions'
+  # service-container orchestration entirely. (aem-cif-guides-venia hit and solved this
+  # exact problem first - see its .github/ci/run-containerized-test.sh.)
   test-aem:
     name: ${{ matrix.type }} (${{ matrix.aem }})
     needs:
@@ -337,45 +341,23 @@ jobs:
       AEM: ${{ matrix.aem }}
       TYPE: ${{ matrix.type }}
       BROWSER: chrome
-      AEM_HOST: aem
-      # container.credentials/services.credentials below only authenticate the runner's
-      # docker pull of the private qp/aem images - they are NOT exposed to job steps. This
-      # script's Maven calls (settings.xml's ${env.ARTIFACTORY_CLOUD_USER}/_PASS) need the
-      # same values available as actual env vars, so they're repeated here explicitly.
+      QP_IMAGE: ${{ matrix.qp_image }}
+      AEM_IMAGE: ${{ matrix.aem_image }}
       ARTIFACTORY_CLOUD_USER: ${{ secrets.ARTIFACTORY_CLOUD_USER }}
       ARTIFACTORY_CLOUD_PASS: ${{ secrets.ARTIFACTORY_CLOUD_PASS }}
-    container:
-      image: ${{ matrix.qp_image }}
-      credentials:
-        username: ${{ secrets.ARTIFACTORY_CLOUD_USER }}
-        password: ${{ secrets.ARTIFACTORY_CLOUD_PASS }}
-    services:
-      aem:
-        image: ${{ matrix.aem_image }}
-        credentials:
-          username: ${{ secrets.ARTIFACTORY_CLOUD_USER }}
-          password: ${{ secrets.ARTIFACTORY_CLOUD_PASS }}
-        # The quick-provider RMI server started inside this image exports its remote object
-        # stub using its own self-view of its address, which defaults to `localhost` when
-        # unset. That's harmless on CircleCI (shared network namespace - localhost reaches
-        # every container in the job), but on GitHub Actions this service is only reachable
-        # from the qp container by its service name (`aem`), never `localhost`. Force the
-        # RMI hostname it advertises via JAVA_TOOL_OPTIONS, which every JVM started in this
-        # container picks up silently, including the quick-provider server's.
-        env:
-          JAVA_TOOL_OPTIONS: -Djava.rmi.server.hostname=aem
     steps:
       - name: Debug context
         run: |
           echo "matrix: aem=${{ matrix.aem }} type=${{ matrix.type }}"
           id
-          java -version || true
-          which git curl || true
+          docker --version
 
       - uses: actions/checkout@v4
 
-      # test-aem's container starts with an empty ~/.m2 every run - no cache is shared with
-      # the build job (different container/runner), unlike CircleCI's restore_cache/save_cache
+      # This job's container is now the bare runner (see the job-level comment above), so
+      # ~/.m2 here is /root/.m2 - run-containerized-test.sh runs the qp container as
+      # --user root so it can write into the bind-mounted workspace. No cache is shared
+      # with the build job (different runner), unlike CircleCI's restore_cache/save_cache
       # working off the same key. Without this, it/site's standalone build (and the various
       # install-file/download-maven-plugin calls in it-tests.js) re-download their entire
       # dependency tree from scratch on every run. Shared across all matrix.aem/type
@@ -389,7 +371,7 @@ jobs:
       - name: Restore Maven repository cache
         uses: actions/cache/restore@v4
         with:
-          path: /home/circleci/.m2/repository
+          path: /root/.m2/repository
           key: test-aem-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             test-aem-m2-
@@ -398,13 +380,19 @@ jobs:
         with:
           name: build-output
 
+      # Drives both the qp and aem containers directly (see job-level comment); the
+      # script's own trap dumps the aem container's logs into this step's output on exit,
+      # success or failure, so there's finally real visibility into it - unlike the
+      # `services:` approach, GitHub Actions doesn't hide these from us anymore.
       - name: Integration/UI tests
-        run: node .github/scripts/it-tests.js
+        run: bash .github/scripts/run-containerized-test.sh
 
       # GitHub Actions equivalent of CircleCI's "Rerun job with SSH": opens a tmate SSH
-      # session into this runner while the `aem` service container is still up, so you can
-      # reach it (curl/qp.sh/etc.) the same way the test step just did. Opt-in only, via
-      # workflow_dispatch, so it never blocks a normal push/PR run.
+      # session into this runner. Opt-in only, via workflow_dispatch, so it never blocks a
+      # normal push/PR run. Note: unlike the old services:-based setup, the aem container
+      # is torn down by run-containerized-test.sh's own cleanup trap as soon as that step
+      # exits, so this session can inspect the runner/workspace state but not a live AEM
+      # instance.
       - name: Debug via SSH (tmate)
         if: always() && github.event_name == 'workflow_dispatch' && inputs.debug_enabled
         uses: mxschmitt/action-tmate@v3
@@ -418,7 +406,7 @@ jobs:
         if: always()
         uses: actions/cache/save@v4
         with:
-          path: /home/circleci/.m2/repository
+          path: /root/.m2/repository
           key: test-aem-m2-${{ hashFiles('**/pom.xml') }}
 
       - name: Upload test results

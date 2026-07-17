@@ -16,18 +16,22 @@
 'use strict';
 
 // GitHub Actions counterpart to .circleci/ci/it-tests.js. The two scripts must stay in
-// sync for anything other than networking/paths - if you change the AEM bootstrap, OSGi
-// config, or JaCoCo handling logic there, mirror it here.
+// sync - if you change the AEM bootstrap, OSGi config, or JaCoCo handling logic in one,
+// mirror it in the other.
 //
-// Why this is a separate file instead of editing the CircleCI one in place:
-// CircleCI's docker executor puts the job's primary container and its secondary/service
-// containers in the same network namespace, so the CircleCI script reaches AEM at
-// `localhost`. GitHub Actions' job-container + services model does not share a network
-// namespace - the job container reaches a service by its service name. That's the only
-// functional difference; everything below is otherwise identical to the CircleCI script.
+// Why this is a separate file instead of editing the CircleCI one in place: run-
+// containerized-test.sh (invoked by the test-aem job in ci.yml) runs both the qp and aem
+// containers with --network host, so networking here matches CircleCI exactly (AEM_HOST
+// defaults to `localhost`, see below) - this is NOT a networking fork. The actual
+// differences are: (1) a couple of `mvn` calls are scoped with -N to avoid resolving the
+// full 28-module reactor, needed because this job's container starts with an empty ~/.m2
+// (CircleCI's restore_cache keeps it warm); (2) configuration.json's module paths, which
+// were recorded on the "build" job's filesystem, get re-based onto this job's own
+// workspace path via localizeModule below, since the two jobs' checkout paths can differ.
 //
-// This script (and its ci.js/settings.xml helpers) live entirely under .github/scripts
-// so the GitHub Actions and CircleCI pipelines stay independent of each other.
+// This script (and its ci.js/settings.xml/run-containerized-test.sh helpers) live
+// entirely under .github/scripts so the GitHub Actions and CircleCI pipelines stay
+// independent of each other.
 
 const path = require('path');
 
@@ -41,14 +45,17 @@ console.log(config);
 
 const qpPath = '/home/circleci/cq'; // baked into the qp Docker image itself, not CI-specific
 const buildPath = process.env.GITHUB_WORKSPACE || process.cwd();
-const AEM_HOST = process.env.AEM_HOST || 'localhost'; // GH Actions service name (default: aem)
+// run-containerized-test.sh runs both containers with --network host, so localhost is
+// always correct here, exactly like CircleCI - this env var is just an escape hatch.
+const AEM_HOST = process.env.AEM_HOST || 'localhost';
 const { TYPE, BROWSER, AEM, COMMERCE_ENDPOINT, COMMERCE_INTEGRATION_TOKEN } = process.env;
 
-// configuration.json's module paths were recorded by the "build" job, a plain (non-container)
-// job whose workspace root is /home/runner/work/<owner>/<repo>. This script runs in test-aem, a
-// `container:` job, where GitHub Actions mounts the workspace at /__w/<owner>/<repo> instead - a
-// different absolute path. Re-base every module path onto this job's actual buildPath before
-// resolving artifact files, or install-file/qp.sh get a path that doesn't exist here.
+// configuration.json's module paths were recorded by the "build" job. run-containerized-
+// test.sh bind-mounts this job's own GITHUB_WORKSPACE at the identical path into the qp
+// container, so in practice these paths already match - but re-base defensively via
+// buildPath anyway rather than assume it, since a mismatch here (e.g. from a future change
+// to how either job is checked out) would silently point install-file/qp.sh at a path that
+// doesn't exist.
 const reactorRoot = config.modules['core-cif-components-reactor'].path;
 const localizeModule = module => ({ ...module, path: path.resolve(buildPath, path.relative(reactorRoot, module.path)) });
 const resolveModuleArtifactPath = moduleKey => ci.resolveModuleArtifactPath(localizeModule(config.modules[moduleKey]));
