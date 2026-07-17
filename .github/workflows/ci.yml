@@ -17,7 +17,6 @@ name: CI
 
 on:
   push:
-  pull_request:
   workflow_dispatch:
     inputs:
       debug_enabled:
@@ -339,6 +338,12 @@ jobs:
       TYPE: ${{ matrix.type }}
       BROWSER: chrome
       AEM_HOST: aem
+      # container.credentials/services.credentials below only authenticate the runner's
+      # docker pull of the private qp/aem images - they are NOT exposed to job steps. This
+      # script's Maven calls (settings.xml's ${env.ARTIFACTORY_CLOUD_USER}/_PASS) need the
+      # same values available as actual env vars, so they're repeated here explicitly.
+      ARTIFACTORY_CLOUD_USER: ${{ secrets.ARTIFACTORY_CLOUD_USER }}
+      ARTIFACTORY_CLOUD_PASS: ${{ secrets.ARTIFACTORY_CLOUD_PASS }}
     container:
       image: ${{ matrix.qp_image }}
       credentials:
