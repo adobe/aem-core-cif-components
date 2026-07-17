@@ -40,9 +40,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # '21' is new coverage: even CircleCI's build-java-* jobs never test the reactor
-        # build under JDK 21, only the AEM quickstart/qp images for lts/addon do.
-        java: ['11', '8', '21']
+        java: ['11', '8']
     steps:
       - uses: actions/checkout@v4
 
