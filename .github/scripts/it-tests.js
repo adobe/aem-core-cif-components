@@ -221,8 +221,13 @@ const configureItSiteUrlProvider = () => {
 
 try {
     ci.stage('Integration Tests');
-    let wcmVersion = ci.sh('mvn help:evaluate -Dexpression=core.wcm.components.version -q -DforceStdout', true);
-    let magentoGraphqlVersion = ci.sh('mvn help:evaluate -Dexpression=magento.graphql.version -q -DforceStdout', true);
+    // -N (non-recursive): without it, Maven resolves/builds the effective POM graph for the
+    // entire 28-module reactor just to evaluate one property, since these run from the repo
+    // root. On CircleCI this is cheap (restore_cache already warmed ~/.m2 from build-java-11);
+    // on GitHub Actions, test-aem's container starts with an empty ~/.m2, so an unscoped call
+    // here re-downloads/re-resolves the whole reactor from scratch.
+    let wcmVersion = ci.sh('mvn help:evaluate -N -Dexpression=core.wcm.components.version -q -DforceStdout', true);
+    let magentoGraphqlVersion = ci.sh('mvn help:evaluate -N -Dexpression=magento.graphql.version -q -DforceStdout', true);
     let excludedCategory;
     if (AEM === 'classic') {
         excludedCategory = 'junit.category.IgnoreOn65';
@@ -238,8 +243,12 @@ try {
     // build-java-11 job. GitHub Actions' test-aem job runs in a fresh container with no
     // such shared cache - download-artifact only brought over bundles/core/target as raw
     // files, not an installed ~/.m2 entry - so install it explicitly before building it/site.
+    // -N (non-recursive): this runs from the repo root (a 28-module aggregator); without -N,
+    // Maven resolves/builds the entire reactor's effective POM graph before running the
+    // install-file goal, which is slow (and can outright fail on other unrelated modules)
+    // when ~/.m2 starts empty, as it does in this container.
     const coreModule = config.modules['core-cif-components-core'];
-    ci.sh(`mvn install:install-file -Dfile=${resolveModuleArtifactPath('core-cif-components-core')} \
+    ci.sh(`mvn -N install:install-file -Dfile=${resolveModuleArtifactPath('core-cif-components-core')} \
         -DgroupId=${coreModule.groupId} -DartifactId=${coreModule.artifactId} \
         -Dversion=${coreModule.version} -Dpackaging=jar`);
 
