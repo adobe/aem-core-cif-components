@@ -355,6 +355,15 @@ jobs:
         credentials:
           username: ${{ secrets.ARTIFACTORY_CLOUD_USER }}
           password: ${{ secrets.ARTIFACTORY_CLOUD_PASS }}
+        # The quick-provider RMI server started inside this image exports its remote object
+        # stub using its own self-view of its address, which defaults to `localhost` when
+        # unset. That's harmless on CircleCI (shared network namespace - localhost reaches
+        # every container in the job), but on GitHub Actions this service is only reachable
+        # from the qp container by its service name (`aem`), never `localhost`. Force the
+        # RMI hostname it advertises via JAVA_TOOL_OPTIONS, which every JVM started in this
+        # container picks up silently, including the quick-provider server's.
+        env:
+          JAVA_TOOL_OPTIONS: -Djava.rmi.server.hostname=aem
     steps:
       - name: Debug context
         run: |
