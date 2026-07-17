@@ -345,6 +345,11 @@ jobs:
       AEM_IMAGE: ${{ matrix.aem_image }}
       ARTIFACTORY_CLOUD_USER: ${{ secrets.ARTIFACTORY_CLOUD_USER }}
       ARTIFACTORY_CLOUD_PASS: ${{ secrets.ARTIFACTORY_CLOUD_PASS }}
+      # Optional: it-tests.js already handles these being unset (skips configuring the
+      # examples GraphQL client against a live Commerce backend). Wiring them here only
+      # takes effect once matching repo secrets are actually created with real values.
+      COMMERCE_ENDPOINT: ${{ secrets.COMMERCE_ENDPOINT }}
+      COMMERCE_INTEGRATION_TOKEN: ${{ secrets.COMMERCE_INTEGRATION_TOKEN }}
     steps:
       - name: Debug context
         run: |
