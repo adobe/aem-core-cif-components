@@ -275,6 +275,11 @@ jobs:
         working-directory: ./extensions/experience-platform-connector
         run: npm run ci
 
+      # No "Publish test results" step here (unlike the other jest jobs): this package's
+      # `ci` script only runs lint + prettier:check, not jest, so no jest-junit XML is ever
+      # produced under test-results/. dorny/test-reporter errors out when its glob matches
+      # zero files, unlike CircleCI's store_test_results which silently no-ops on an empty
+      # directory - so adding it here would fail the job for no real reason.
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -282,15 +287,6 @@ jobs:
           name: jest-epc-test-results
           path: extensions/experience-platform-connector/test-results
           if-no-files-found: ignore
-
-      - name: Publish test results
-        if: always()
-        uses: dorny/test-reporter@v1
-        with:
-          name: Unit Tests (jest extensions/experience-platform-connector)
-          path: extensions/experience-platform-connector/test-results/*.xml
-          reporter: jest-junit
-          fail-on-error: false
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
