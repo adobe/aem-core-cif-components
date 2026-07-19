@@ -430,12 +430,17 @@ jobs:
 
       # Same Checks-tab reporting as the other jobs; only one of these two globs matches
       # per matrix.type (integration -> failsafe-reports, selenium -> ui.tests reports).
+      #
+      # TEST-*.xml, not *.xml: maven-failsafe-plugin also writes failsafe-summary.xml into
+      # this directory, a separate aggregate-counts file with no <testsuite> structure at
+      # all. dorny/test-reporter's JUnit parser crashes trying to read it as if it were a
+      # per-test report ("Cannot read properties of undefined (reading '$')").
       - name: Publish test results
         if: always()
         uses: dorny/test-reporter@v3
         with:
           name: Tests (${{ matrix.type }} ${{ matrix.aem }})
-          path: 'it/http/target/failsafe-reports/*.xml,ui.tests/test-module/reports/**/*.xml'
+          path: 'it/http/target/failsafe-reports/TEST-*.xml,ui.tests/test-module/reports/**/*.xml'
           reporter: java-junit
           fail-on-error: false
 
