@@ -16,8 +16,9 @@
 # limitations under the License.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Runs .github/scripts/it-tests.js inside the QuickProvider (qp) client image, against
-# an AEM server image started as a sibling container. Both containers use --network host
+# Runs run-integration-test.sh (which installs Chrome/chromedriver for selenium specs,
+# then runs it-tests.js) inside the QuickProvider (qp) client image, against an AEM server
+# image started as a sibling container. Both containers use --network host
 # so that "localhost" means the same thing to both - required because QuickProvider's RMI
 # protocol advertises "localhost" as its own callback address (see aem-cif-guides-venia's
 # .github/ci/run-containerized-test.sh, which hit and solved this exact problem first).
@@ -58,4 +59,4 @@ docker run --rm --network host --user root \
     -e COMMERCE_ENDPOINT -e COMMERCE_INTEGRATION_TOKEN \
     -e GITHUB_WORKSPACE \
     -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" -w "${GITHUB_WORKSPACE}" \
-    "${QP_IMAGE}" node .github/scripts/it-tests.js
+    "${QP_IMAGE}" bash .github/scripts/run-integration-test.sh
