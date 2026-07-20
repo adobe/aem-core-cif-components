@@ -52,14 +52,13 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: maven
 
+      # Confirms matrix.java actually resolved to the intended JDK. node/npm aren't
+      # printed here: frontend-maven-plugin downloads its own pinned Node per module
+      # rather than using the system one, so the system version isn't actually in play.
       - name: Debug context
         run: |
-          echo "runner: ${{ runner.os }}/${{ runner.arch }}"
-          echo "ref: ${{ github.ref }}  sha: ${{ github.sha }}"
           java -version
           mvn -v
-          node -v
-          npm -v
 
       # Forked verbatim from .circleci/ci/build.js - collects module metadata, runs
       # `mvn clean install`, copies surefire XML into test-results/junit.
@@ -351,12 +350,6 @@ jobs:
       COMMERCE_ENDPOINT: ${{ secrets.COMMERCE_ENDPOINT }}
       COMMERCE_INTEGRATION_TOKEN: ${{ secrets.COMMERCE_INTEGRATION_TOKEN }}
     steps:
-      - name: Debug context
-        run: |
-          echo "matrix: aem=${{ matrix.aem }} type=${{ matrix.type }}"
-          id
-          docker --version
-
       - uses: actions/checkout@v4
 
       # These steps run directly on the bare runner (they're not `uses:` inside the qp
