@@ -406,9 +406,14 @@ jobs:
 
       # GitHub has no native "Tests" tab; renders a CircleCI-style report (overview table,
       # plus stack trace + captured server log per failed test) into this job's Summary
-      # page. Ported from aem-cif-guides-venia's .github/ci/test-summary.py. Needs only
-      # contents: read, unlike dorny/test-reporter's checks: write - complementary to it,
-      # not a replacement, since dorny still gives the Checks-tab/PR status view.
+      # page. Ported from aem-cif-guides-venia's .github/ci/test-summary.py.
+      #
+      # This job used to also have a dorny/test-reporter (Checks-tab) step, matching the
+      # other jobs in this file, but it wasn't reliably creating check runs here (likely
+      # a GITHUB_TOKEN permission restriction - e.g. fork PRs force checks: write down to
+      # read regardless of this workflow's permissions block) - removed in favor of just
+      # this Job Summary, matching venia's own integration/selenium jobs, which never had
+      # a Checks-tab step to begin with.
       - name: Render test results to job summary
         if: always()
         run: |
@@ -452,22 +457,6 @@ jobs:
             bundles/core/target/site/jacoco
             extensions/product-recs/bundle/target/site/jacoco
             examples/bundle/target/site/jacoco
-
-      # Same Checks-tab reporting as the other jobs; only one of these two globs matches
-      # per matrix.type (integration -> failsafe-reports, selenium -> ui.tests reports).
-      #
-      # TEST-*.xml, not *.xml: maven-failsafe-plugin also writes failsafe-summary.xml into
-      # this directory, a separate aggregate-counts file with no <testsuite> structure at
-      # all. dorny/test-reporter's JUnit parser crashes trying to read it as if it were a
-      # per-test report ("Cannot read properties of undefined (reading '$')").
-      - name: Publish test results
-        if: always()
-        uses: dorny/test-reporter@v3
-        with:
-          name: Tests (${{ matrix.type }} ${{ matrix.aem }})
-          path: 'it/http/target/failsafe-reports/TEST-*.xml,ui.tests/test-module/reports/**/*.xml'
-          reporter: java-junit
-          fail-on-error: false
 
       - name: Upload coverage to Codecov
         if: matrix.type == 'integration'
