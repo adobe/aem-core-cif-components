@@ -74,27 +74,23 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      # Publishes a Checks-tab entry with pass/fail/skip counts and inline annotations,
-      # the closest GitHub Actions equivalent to CircleCI's "Tests" insights tab.
-      # list-tests/list-suites/list-files: failed - these three are independent controls
-      # at each level of the report (individual tests, suites, result files); setting only
-      # list-tests still listed every fully-passing suite/file in full. Set all three to
-      # failed so a suite/file/test that fully passed doesn't show up in the report at all -
-      # only genuine failures do. collapsed: always keeps the report collapsed (click to
-      # expand) regardless of pass/fail, overriding the action's own default of auto (which
-      # auto-expands on failure).
+      # Publishes a Checks-tab entry with pass/fail/skip counts, the closest GitHub Actions
+      # equivalent to CircleCI's "Tests" insights tab. Switched from dorny/test-reporter:
+      # its list-tests/list-suites/list-files "failed" settings don't suppress the always-
+      # present per-suite/file summary table (a structural limitation, not a config
+      # mistake), and list-tests itself has a long-standing unfixed upstream bug (dorny/
+      # test-reporter#142) where it doesn't reliably filter passed tests out at all.
+      # skip_success_summary here does what those couldn't: the summary table is skipped
+      # entirely when everything passes, and only appears when there's a real failure to
+      # show. Proven for this exact purpose in aem-cif-guides-venia's own ci.yml.
       - name: Publish test results
         if: always()
-        uses: dorny/test-reporter@v3
+        uses: mikepenz/action-junit-report@v5
         with:
-          name: Unit Tests (jdk ${{ matrix.java }})
-          path: test-results/junit/*.xml
-          reporter: java-junit
-          fail-on-error: false
-          list-tests: failed
-          list-suites: failed
-          list-files: failed
-          collapsed: always
+          check_name: Unit Tests (jdk ${{ matrix.java }})
+          report_paths: test-results/junit/*.xml
+          skip_success_summary: true
+          fail_on_failure: false
 
       # Only the JDK 11 build's output feeds the integration/selenium jobs below
       # (mirrors CircleCI's persist_to_workspace, which only build-java-11 does).
@@ -155,16 +151,12 @@ jobs:
 
       - name: Publish test results
         if: always()
-        uses: dorny/test-reporter@v3
+        uses: mikepenz/action-junit-report@v5
         with:
-          name: Unit Tests (karma)
-          path: ui.apps/karma-junit/*.xml
-          reporter: java-junit
-          fail-on-error: false
-          list-tests: failed
-          list-suites: failed
-          list-files: failed
-          collapsed: always
+          check_name: Unit Tests (karma)
+          report_paths: ui.apps/karma-junit/*.xml
+          skip_success_summary: true
+          fail_on_failure: false
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
@@ -201,16 +193,12 @@ jobs:
 
       - name: Publish test results
         if: always()
-        uses: dorny/test-reporter@v3
+        uses: mikepenz/action-junit-report@v5
         with:
-          name: Unit Tests (jest react-components)
-          path: react-components/test-results/*.xml
-          reporter: jest-junit
-          fail-on-error: false
-          list-tests: failed
-          list-suites: failed
-          list-files: failed
-          collapsed: always
+          check_name: Unit Tests (jest react-components)
+          report_paths: react-components/test-results/*.xml
+          skip_success_summary: true
+          fail_on_failure: false
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
@@ -256,16 +244,12 @@ jobs:
 
       - name: Publish test results
         if: always()
-        uses: dorny/test-reporter@v3
+        uses: mikepenz/action-junit-report@v5
         with:
-          name: Unit Tests (jest extensions/product-recs)
-          path: extensions/product-recs/react-components/test-results/*.xml
-          reporter: jest-junit
-          fail-on-error: false
-          list-tests: failed
-          list-suites: failed
-          list-files: failed
-          collapsed: always
+          check_name: Unit Tests (jest extensions/product-recs)
+          report_paths: extensions/product-recs/react-components/test-results/*.xml
+          skip_success_summary: true
+          fail_on_failure: false
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
@@ -294,9 +278,9 @@ jobs:
 
       # No "Publish test results" step here (unlike the other jest jobs): this package's
       # `ci` script only runs lint + prettier:check, not jest, so no jest-junit XML is ever
-      # produced under test-results/. dorny/test-reporter errors out when its glob matches
-      # zero files, unlike CircleCI's store_test_results which silently no-ops on an empty
-      # directory - so adding it here would fail the job for no real reason.
+      # produced under test-results/ - unlike CircleCI's store_test_results, which silently
+      # no-ops on an empty directory, a report-parsing action here would have nothing to
+      # read and no real reason to run.
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v5
@@ -417,33 +401,40 @@ jobs:
         run: bash .github/scripts/run-containerized-test.sh
 
       # Report files were written by the qp container running as --user root; make them
-      # readable by this (unprivileged) runner user before dorny/test-reporter reads them.
+      # readable by this (unprivileged) runner user before mikepenz/action-junit-report
+      # reads them.
       - name: Fix report file permissions
         if: always()
         run: sudo chmod -R a+rX it/http/target/failsafe-reports ui.tests/test-module/reports 2>/dev/null || true
 
-      # Same Checks-tab reporting as the other jobs, for consistency. This previously wasn't
-      # reliably creating check runs here (likely a GITHUB_TOKEN permission restriction -
-      # e.g. fork PRs force checks: write down to read regardless of this workflow's
-      # permissions block), and was replaced with a custom Job Summary script for a while -
-      # re-added here anyway so every job in this file uses the same mechanism; whether the
-      # check run itself appears depends on the same permission conditions as the other jobs.
+      # Same Checks-tab reporting as the other jobs, for consistency (see the build job's
+      # Publish test results step for why mikepenz/action-junit-report over dorny/test-
+      # reporter). Split into two type-gated steps instead of one multi-path glob, since
+      # mikepenz/action-junit-report's report_paths multi-pattern syntax isn't clearly
+      # documented - only one of these ever has matching files per matrix.type anyway,
+      # so there's no real downside to keeping them separate and unambiguous.
       #
       # TEST-*.xml, not *.xml: maven-failsafe-plugin also writes failsafe-summary.xml into
       # this directory, a separate aggregate-counts file with no <testsuite> structure at
-      # all, which dorny/test-reporter's JUnit parser can't read as a per-test report.
-      - name: Publish test results
-        if: always()
-        uses: dorny/test-reporter@v3
+      # all - keep the same safe glob dorny/test-reporter needed, since this action's own
+      # tolerance for that file is unverified.
+      - name: Publish integration test results
+        if: always() && matrix.type == 'integration'
+        uses: mikepenz/action-junit-report@v5
         with:
-          name: Tests (${{ matrix.type }} ${{ matrix.aem }})
-          path: 'it/http/target/failsafe-reports/TEST-*.xml,ui.tests/test-module/reports/**/*.xml'
-          reporter: java-junit
-          fail-on-error: false
-          list-tests: failed
-          list-suites: failed
-          list-files: failed
-          collapsed: always
+          check_name: Tests (${{ matrix.type }} ${{ matrix.aem }})
+          report_paths: it/http/target/failsafe-reports/TEST-*.xml
+          skip_success_summary: true
+          fail_on_failure: false
+
+      - name: Publish selenium test results
+        if: always() && matrix.type == 'selenium'
+        uses: mikepenz/action-junit-report@v5
+        with:
+          check_name: Tests (${{ matrix.type }} ${{ matrix.aem }})
+          report_paths: ui.tests/test-module/reports/**/*.xml
+          skip_success_summary: true
+          fail_on_failure: false
 
       # Saves the cache even if the job above failed, so a failing run still leaves behind
       # whatever it managed to download for the next attempt (see restore step's comment).
