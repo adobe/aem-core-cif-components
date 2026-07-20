@@ -386,7 +386,7 @@ jobs:
       # CACHE_VERSION - it never falls back across a version bump, matching CircleCI.
       - name: Restore Maven repository cache
         id: restore-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: ~/.m2/repository
           key: test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-${{ hashFiles('**/pom.xml') }}
@@ -446,7 +446,7 @@ jobs:
       # whatever it managed to download for the next attempt (see restore step's comment).
       - name: Save Maven repository cache
         if: always()
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: ~/.m2/repository
           key: test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-${{ hashFiles('**/pom.xml') }}
