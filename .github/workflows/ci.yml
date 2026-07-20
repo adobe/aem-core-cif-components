@@ -404,6 +404,19 @@ jobs:
       - name: Integration/UI tests
         run: bash .github/scripts/run-containerized-test.sh
 
+      # GitHub has no native "Tests" tab; renders a CircleCI-style report (overview table,
+      # plus stack trace + captured server log per failed test) into this job's Summary
+      # page. Ported from aem-cif-guides-venia's .github/ci/test-summary.py. Needs only
+      # contents: read, unlike dorny/test-reporter's checks: write - complementary to it,
+      # not a replacement, since dorny still gives the Checks-tab/PR status view.
+      - name: Render test results to job summary
+        if: always()
+        run: |
+          # Report files were written by the qp container running as --user root; make
+          # them readable by this (unprivileged) runner user.
+          sudo chmod -R a+rX it/http/target/failsafe-reports ui.tests/test-module/reports 2>/dev/null || true
+          python3 .github/scripts/test-summary.py
+
       # GitHub Actions equivalent of CircleCI's "Rerun job with SSH": opens a tmate SSH
       # session into this runner. Opt-in only, via workflow_dispatch, so it never blocks a
       # normal push/PR run. Note: unlike the old services:-based setup, the aem container
