@@ -76,10 +76,13 @@ jobs:
 
       # Publishes a Checks-tab entry with pass/fail/skip counts and inline annotations,
       # the closest GitHub Actions equivalent to CircleCI's "Tests" insights tab.
-      # list-tests: failed - only individual failing tests get their own expandable entry;
-      # passing ones aren't listed one-by-one. collapsed: always keeps the report collapsed
-      # (click to expand) regardless of pass/fail - overriding the action's own default of
-      # auto, which would auto-expand on failure.
+      # list-tests/list-suites/list-files: failed - these three are independent controls
+      # at each level of the report (individual tests, suites, result files); setting only
+      # list-tests still listed every fully-passing suite/file in full. Set all three to
+      # failed so a suite/file/test that fully passed doesn't show up in the report at all -
+      # only genuine failures do. collapsed: always keeps the report collapsed (click to
+      # expand) regardless of pass/fail, overriding the action's own default of auto (which
+      # auto-expands on failure).
       - name: Publish test results
         if: always()
         uses: dorny/test-reporter@v3
@@ -89,6 +92,8 @@ jobs:
           reporter: java-junit
           fail-on-error: false
           list-tests: failed
+          list-suites: failed
+          list-files: failed
           collapsed: always
 
       # Only the JDK 11 build's output feeds the integration/selenium jobs below
@@ -157,6 +162,8 @@ jobs:
           reporter: java-junit
           fail-on-error: false
           list-tests: failed
+          list-suites: failed
+          list-files: failed
           collapsed: always
 
       - name: Upload coverage to Codecov
@@ -201,6 +208,8 @@ jobs:
           reporter: jest-junit
           fail-on-error: false
           list-tests: failed
+          list-suites: failed
+          list-files: failed
           collapsed: always
 
       - name: Upload coverage to Codecov
@@ -254,6 +263,8 @@ jobs:
           reporter: jest-junit
           fail-on-error: false
           list-tests: failed
+          list-suites: failed
+          list-files: failed
           collapsed: always
 
       - name: Upload coverage to Codecov
@@ -430,6 +441,8 @@ jobs:
           reporter: java-junit
           fail-on-error: false
           list-tests: failed
+          list-suites: failed
+          list-files: failed
           collapsed: always
 
       # Saves the cache even if the job above failed, so a failing run still leaves behind
