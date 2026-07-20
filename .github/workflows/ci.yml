@@ -44,9 +44,9 @@ jobs:
       matrix:
         java: ['11', '8']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
@@ -108,7 +108,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: matrix.java == '11'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           flags: unittests
           fail_ci_if_error: false
@@ -118,9 +118,9 @@ jobs:
     name: karma (ui.apps)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '16.17.1'
 
@@ -159,7 +159,7 @@ jobs:
           fail-on-error: false
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           flags: karma
           fail_ci_if_error: false
@@ -169,9 +169,9 @@ jobs:
     name: jest (react-components)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '16.20.0'
 
@@ -201,7 +201,7 @@ jobs:
           fail-on-error: false
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           flags: jest
           fail_ci_if_error: false
@@ -211,9 +211,9 @@ jobs:
     name: jest (extensions/product-recs)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '16.17.1'
 
@@ -252,7 +252,7 @@ jobs:
           fail-on-error: false
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           flags: jest
           fail_ci_if_error: false
@@ -262,9 +262,9 @@ jobs:
     name: jest (extensions/experience-platform-connector)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '16.17.1'
 
@@ -290,7 +290,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           flags: jest
           fail_ci_if_error: false
@@ -350,7 +350,7 @@ jobs:
       COMMERCE_ENDPOINT: ${{ secrets.COMMERCE_ENDPOINT }}
       COMMERCE_INTEGRATION_TOKEN: ${{ secrets.COMMERCE_INTEGRATION_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # These steps run directly on the bare runner (they're not `uses:` inside the qp
       # container), so this path is the runner's own ~/.m2/repository - the same directory
@@ -466,7 +466,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: matrix.type == 'integration'
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           flags: integration
           fail_ci_if_error: false
