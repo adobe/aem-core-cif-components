@@ -76,6 +76,10 @@ jobs:
 
       # Publishes a Checks-tab entry with pass/fail/skip counts and inline annotations,
       # the closest GitHub Actions equivalent to CircleCI's "Tests" insights tab.
+      # list-tests: failed - only individual failing tests get their own expandable entry;
+      # passing ones aren't listed one-by-one. collapsed: always keeps the report collapsed
+      # (click to expand) regardless of pass/fail - overriding the action's own default of
+      # auto, which would auto-expand on failure.
       - name: Publish test results
         if: always()
         uses: dorny/test-reporter@v3
@@ -84,6 +88,8 @@ jobs:
           path: test-results/junit/*.xml
           reporter: java-junit
           fail-on-error: false
+          list-tests: failed
+          collapsed: always
 
       # Only the JDK 11 build's output feeds the integration/selenium jobs below
       # (mirrors CircleCI's persist_to_workspace, which only build-java-11 does).
@@ -150,6 +156,8 @@ jobs:
           path: ui.apps/karma-junit/*.xml
           reporter: java-junit
           fail-on-error: false
+          list-tests: failed
+          collapsed: always
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
@@ -192,6 +200,8 @@ jobs:
           path: react-components/test-results/*.xml
           reporter: jest-junit
           fail-on-error: false
+          list-tests: failed
+          collapsed: always
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
@@ -243,6 +253,8 @@ jobs:
           path: extensions/product-recs/react-components/test-results/*.xml
           reporter: jest-junit
           fail-on-error: false
+          list-tests: failed
+          collapsed: always
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6
@@ -393,23 +405,32 @@ jobs:
       - name: Integration/UI tests
         run: bash .github/scripts/run-containerized-test.sh
 
-      # GitHub has no native "Tests" tab; renders a CircleCI-style report (overview table,
-      # plus stack trace + captured server log per failed test) into this job's Summary
-      # page. Ported from aem-cif-guides-venia's .github/ci/test-summary.py.
-      #
-      # This job used to also have a dorny/test-reporter (Checks-tab) step, matching the
-      # other jobs in this file, but it wasn't reliably creating check runs here (likely
-      # a GITHUB_TOKEN permission restriction - e.g. fork PRs force checks: write down to
-      # read regardless of this workflow's permissions block) - removed in favor of just
-      # this Job Summary, matching venia's own integration/selenium jobs, which never had
-      # a Checks-tab step to begin with.
-      - name: Render test results to job summary
+      # Report files were written by the qp container running as --user root; make them
+      # readable by this (unprivileged) runner user before dorny/test-reporter reads them.
+      - name: Fix report file permissions
         if: always()
-        run: |
-          # Report files were written by the qp container running as --user root; make
-          # them readable by this (unprivileged) runner user.
-          sudo chmod -R a+rX it/http/target/failsafe-reports ui.tests/test-module/reports 2>/dev/null || true
-          python3 .github/scripts/test-summary.py
+        run: sudo chmod -R a+rX it/http/target/failsafe-reports ui.tests/test-module/reports 2>/dev/null || true
+
+      # Same Checks-tab reporting as the other jobs, for consistency. This previously wasn't
+      # reliably creating check runs here (likely a GITHUB_TOKEN permission restriction -
+      # e.g. fork PRs force checks: write down to read regardless of this workflow's
+      # permissions block), and was replaced with a custom Job Summary script for a while -
+      # re-added here anyway so every job in this file uses the same mechanism; whether the
+      # check run itself appears depends on the same permission conditions as the other jobs.
+      #
+      # TEST-*.xml, not *.xml: maven-failsafe-plugin also writes failsafe-summary.xml into
+      # this directory, a separate aggregate-counts file with no <testsuite> structure at
+      # all, which dorny/test-reporter's JUnit parser can't read as a per-test report.
+      - name: Publish test results
+        if: always()
+        uses: dorny/test-reporter@v3
+        with:
+          name: Tests (${{ matrix.type }} ${{ matrix.aem }})
+          path: 'it/http/target/failsafe-reports/TEST-*.xml,ui.tests/test-module/reports/**/*.xml'
+          reporter: java-junit
+          fail-on-error: false
+          list-tests: failed
+          collapsed: always
 
       # Saves the cache even if the job above failed, so a failing run still leaves behind
       # whatever it managed to download for the next attempt (see restore step's comment).
