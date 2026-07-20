@@ -27,6 +27,10 @@
 # --network host with a `services:` container crashes the runner before the job even
 # starts ("Error: Value cannot be null. (Parameter 'ContainerId')"). So this script
 # drives both containers directly via the Docker CLI on the bare runner instead.
+#
+# KEEP_AEM_CONTAINER=true skips removing the aem container on exit, so a later tmate SSH
+# step in the same job can `docker exec` into it while it's still running, instead of only
+# being able to inspect the runner/workspace after it's already gone.
 
 set -euo pipefail
 
@@ -40,12 +44,19 @@ registry="${QP_IMAGE%%/*}"
 echo "${ARTIFACTORY_CLOUD_PASS}" | docker login "${registry}" -u "${ARTIFACTORY_CLOUD_USER}" --password-stdin
 
 aem_container="aem-${GITHUB_RUN_ID:-local}-${GITHUB_JOB:-job}"
+echo "aem_container=${aem_container}" >> "${GITHUB_ENV:-/dev/null}"
 
 cleanup() {
     echo "::group::aem service container logs (${aem_container})"
     docker logs "${aem_container}" || true
     echo "::endgroup::"
-    docker rm -f "${aem_container}" >/dev/null 2>&1 || true
+    if [[ "${KEEP_AEM_CONTAINER:-false}" == "true" ]]; then
+        echo "KEEP_AEM_CONTAINER=true - leaving ${aem_container} running for the SSH debug"
+        echo "session later in this job. From inside it: docker exec -it ${aem_container} bash"
+        echo "(a later step force-removes it once that session ends)."
+    else
+        docker rm -f "${aem_container}" >/dev/null 2>&1 || true
+    fi
 }
 trap cleanup EXIT
 

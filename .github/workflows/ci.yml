@@ -23,7 +23,7 @@ on:
   workflow_dispatch:
     inputs:
       debug_enabled:
-        description: 'Open a tmate SSH session into the test-aem runner after the integration/selenium step (like CircleCI''s "rerun with SSH")'
+        description: 'Open a tmate SSH session into the test-aem runner at the end of the job (like CircleCI''s "rerun with SSH") - also keeps the aem container running so you can docker exec into it'
         type: boolean
         default: false
 
@@ -342,6 +342,10 @@ jobs:
       # takes effect once matching repo secrets are actually created with real values.
       COMMERCE_ENDPOINT: ${{ secrets.COMMERCE_ENDPOINT }}
       COMMERCE_INTEGRATION_TOKEN: ${{ secrets.COMMERCE_INTEGRATION_TOKEN }}
+      # Tells run-containerized-test.sh to leave the aem container running (instead of its
+      # usual docker rm -f) so the "Debug via SSH" step at the end of this job can
+      # docker exec into it while it's still up.
+      KEEP_AEM_CONTAINER: ${{ inputs.debug_enabled }}
     steps:
       - uses: actions/checkout@v5
 
@@ -407,19 +411,6 @@ jobs:
           sudo chmod -R a+rX it/http/target/failsafe-reports ui.tests/test-module/reports 2>/dev/null || true
           python3 .github/scripts/test-summary.py
 
-      # GitHub Actions equivalent of CircleCI's "Rerun job with SSH": opens a tmate SSH
-      # session into this runner. Opt-in only, via workflow_dispatch, so it never blocks a
-      # normal push/PR run. Note: unlike the old services:-based setup, the aem container
-      # is torn down by run-containerized-test.sh's own cleanup trap as soon as that step
-      # exits, so this session can inspect the runner/workspace state but not a live AEM
-      # instance.
-      - name: Debug via SSH (tmate)
-        if: always() && github.event_name == 'workflow_dispatch' && inputs.debug_enabled
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
-        timeout-minutes: 30
-
       # Saves the cache even if the job above failed, so a failing run still leaves behind
       # whatever it managed to download for the next attempt (see restore step's comment).
       - name: Save Maven repository cache
@@ -450,3 +441,24 @@ jobs:
           flags: integration
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      # GitHub Actions equivalent of CircleCI's "Rerun job with SSH": opens a tmate SSH
+      # session into this runner. Opt-in only, via workflow_dispatch, so it never blocks a
+      # normal push/PR run. Placed last, after cache/artifact/coverage steps, so those
+      # always complete before this potentially-long, open-ended pause - not blocked by
+      # or lost to it if the session runs the full 30 minutes or the job gets cancelled
+      # mid-session. With KEEP_AEM_CONTAINER=true (set above from this same input), the
+      # aem container is still running at this point: `docker exec -it $aem_container bash`
+      # to get inside it.
+      - name: Debug via SSH (tmate)
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.debug_enabled
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+        timeout-minutes: 30
+
+      # Force-remove the aem container left running for the SSH session above (a no-op if
+      # KEEP_AEM_CONTAINER wasn't set, since run-containerized-test.sh already removed it).
+      - name: Clean up debug AEM container
+        if: always()
+        run: docker rm -f "${aem_container:-}" >/dev/null 2>&1 || true
