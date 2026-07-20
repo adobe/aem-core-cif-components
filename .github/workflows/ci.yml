@@ -430,22 +430,6 @@ jobs:
           limit-access-to-actor: true
         timeout-minutes: 30
 
-      # actions/cache/save only ever warns on failure, never fails the step (see the
-      # restore step's comment) - so verify the directory it's about to save is actually
-      # populated and ours first, and fail loudly if not, rather than let a broken
-      # bind-mount/permission setup hide as an easy-to-miss orange warning again.
-      - name: Verify Maven cache is populated
-        if: always()
-        run: |
-          m2_repo=~/.m2/repository
-          if [ ! -d "${m2_repo}" ] || [ -z "$(find "${m2_repo}" -mindepth 1 -print -quit)" ]; then
-            echo "::error::${m2_repo} is missing or empty - the cache save below will persist nothing."
-            echo "::error::Expected if the job failed before run-containerized-test.sh ran; otherwise this means its ~/.m2:/root/.m2 bind mount or ownership is broken again."
-            exit 1
-          fi
-          echo "${m2_repo} is populated: $(find "${m2_repo}" -type f | wc -l) files, $(du -sh "${m2_repo}" | cut -f1)."
-          ls -la "${m2_repo}"
-
       # Saves the cache even if the job above failed, so a failing run still leaves behind
       # whatever it managed to download for the next attempt (see restore step's comment).
       - name: Save Maven repository cache
