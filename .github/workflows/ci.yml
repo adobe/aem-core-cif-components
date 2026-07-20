@@ -46,7 +46,15 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v5
+      # Pinned to v4, not v5: v5.5.0 generates a settings.xml that force-disables Maven's
+      # interactive mode, with no opt-out. ci.js's collectConfiguration() (used by
+      # build.js below, unchanged from CircleCI's original) relies on that interactive
+      # mode - it pipes `printf '${project.groupId}|...'` into `mvn help:evaluate` (no
+      # -Dexpression flag) specifically to grab it via the interactive prompt reading
+      # from stdin. With that disabled, Maven never reads the prompt, produces zero
+      # output, and the whole build fails immediately on the very first pom.xml. Revisit
+      # only alongside rewriting ci.js's Maven-invocation mechanism, not by re-bumping this.
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
