@@ -60,14 +60,6 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: maven
 
-      # Confirms matrix.java actually resolved to the intended JDK. node/npm aren't
-      # printed here: frontend-maven-plugin downloads its own pinned Node per module
-      # rather than using the system one, so the system version isn't actually in play.
-      - name: Debug context
-        run: |
-          java -version
-          mvn -v
-
       # Forked verbatim from .circleci/ci/build.js - collects module metadata, runs
       # `mvn clean install`, copies surefire XML into test-results/junit.
       - name: Build
@@ -131,13 +123,6 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: '16.17.1'
-
-      - name: Debug context
-        run: |
-          node -v
-          npm -v
-          google-chrome --version || true
-          firefox --version || true
 
       - name: Provision
         working-directory: ./ui.apps
