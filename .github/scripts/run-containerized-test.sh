@@ -53,10 +53,20 @@ docker pull "${AEM_IMAGE}"
 docker run -d --network host --name "${aem_container}" "${AEM_IMAGE}"
 
 docker pull "${QP_IMAGE}"
+# Bind-mount the host's own ~/.m2 to the container's /root/.m2 (it runs as --user root)
+# so Maven's downloads actually land on the runner's filesystem, at a path the
+# actions/cache steps (which run directly on the runner, not in this container) can
+# read/write. Without this mount, /root/.m2/repository only ever exists inside the
+# container's own ephemeral layer - gone the instant --rm removes it - while the *host's*
+# /root is the real root user's home (mode 700), which the cache steps (running as the
+# unprivileged default runner user) can't access at all: "EACCES: permission denied,
+# lstat '/root/.m2/repository'".
+mkdir -p "${HOME}/.m2"
 docker run --rm --network host --user root \
     -e AEM -e TYPE -e BROWSER \
     -e ARTIFACTORY_CLOUD_USER -e ARTIFACTORY_CLOUD_PASS \
     -e COMMERCE_ENDPOINT -e COMMERCE_INTEGRATION_TOKEN \
     -e GITHUB_WORKSPACE \
     -v "${GITHUB_WORKSPACE}:${GITHUB_WORKSPACE}" -w "${GITHUB_WORKSPACE}" \
+    -v "${HOME}/.m2:/root/.m2" \
     "${QP_IMAGE}" bash .github/scripts/run-integration-test.sh

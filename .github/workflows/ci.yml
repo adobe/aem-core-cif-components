@@ -359,27 +359,48 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      # This job's container is now the bare runner (see the job-level comment above), so
-      # ~/.m2 here is /root/.m2 - run-containerized-test.sh runs the qp container as
-      # --user root so it can write into the bind-mounted workspace. No cache is shared
-      # with the build job (different runner), unlike CircleCI's restore_cache/save_cache
-      # working off the same key. Without this, it/site's standalone build (and the various
-      # install-file/download-maven-plugin calls in it-tests.js) re-download their entire
-      # dependency tree from scratch on every run. Shared across all matrix.aem/type
-      # combinations - they all need the same underlying dependencies.
+      # These steps run directly on the bare runner (they're not `uses:` inside the qp
+      # container), so this path is the runner's own ~/.m2/repository - the same directory
+      # run-containerized-test.sh bind-mounts into the qp container's /root/.m2, since that
+      # container runs as --user root. (Caching /root/.m2/repository directly, without that
+      # bind mount, doesn't work: it's either the container's own ephemeral layer - gone the
+      # moment --rm removes it - or the *host's* actual /root, which the unprivileged
+      # default runner user can't access at all.) No cache is shared with the build job
+      # (different runner), unlike CircleCI's restore_cache/save_cache working off the same
+      # key. Without this, it/site's standalone build (and the various install-file/
+      # download-maven-plugin calls in it-tests.js) re-download their entire dependency tree
+      # from scratch on every run. Shared across all matrix.aem/type combinations - they all
+      # need the same underlying dependencies.
       #
       # Split into restore/save (instead of the combined actions/cache@v4) because the
       # combined action's save step only runs if the job succeeds - while this job is still
       # failing for unrelated reasons, a plain actions/cache@v4 would never persist anything,
       # even after re-downloading the entire dependency tree. actions/cache/save with
       # if: always() below saves whatever got downloaded regardless of outcome.
+      #
+      # CACHE_VERSION mirrors CircleCI's `{{ .Environment.CACHE_VERSION }}` prefix in
+      # maven-repo-*: a manually-bumped repository/organization Variable (Settings > Secrets
+      # and variables > Actions > Variables), not something defined here, so it can be
+      # changed later to force a fresh cache lineage without a code change. Defaults to '1'
+      # until that Variable is created. restore-keys stays scoped to the same
+      # CACHE_VERSION - it never falls back across a version bump, matching CircleCI.
       - name: Restore Maven repository cache
+        id: restore-cache
         uses: actions/cache/restore@v4
         with:
-          path: /root/.m2/repository
-          key: test-aem-m2-${{ hashFiles('**/pom.xml') }}
+          path: ~/.m2/repository
+          key: test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            test-aem-m2-
+            test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-
+
+      # actions/cache only ever warns on a real error (a flaky cache backend shouldn't
+      # break unrelated CI) - it never fails the step, so a broken cache (like the EACCES
+      # bug this path/mount setup used to have) can silently hide as an easy-to-miss
+      # orange warning while the job stays green. cache-hit is only true on an exact key
+      # match (not a restore-keys fallback), so this is purely informational, not a
+      # failure condition - a miss is normal on the first run or after a pom.xml change.
+      - name: Report cache restore outcome
+        run: echo "cache-hit=${{ steps.restore-cache.outputs.cache-hit }}"
 
       - uses: actions/download-artifact@v6
         with:
@@ -405,14 +426,30 @@ jobs:
           limit-access-to-actor: true
         timeout-minutes: 30
 
+      # actions/cache/save only ever warns on failure, never fails the step (see the
+      # restore step's comment) - so verify the directory it's about to save is actually
+      # populated and ours first, and fail loudly if not, rather than let a broken
+      # bind-mount/permission setup hide as an easy-to-miss orange warning again.
+      - name: Verify Maven cache is populated
+        if: always()
+        run: |
+          m2_repo=~/.m2/repository
+          if [ ! -d "${m2_repo}" ] || [ -z "$(find "${m2_repo}" -mindepth 1 -print -quit)" ]; then
+            echo "::error::${m2_repo} is missing or empty - the cache save below will persist nothing."
+            echo "::error::Expected if the job failed before run-containerized-test.sh ran; otherwise this means its ~/.m2:/root/.m2 bind mount or ownership is broken again."
+            exit 1
+          fi
+          echo "${m2_repo} is populated: $(find "${m2_repo}" -type f | wc -l) files, $(du -sh "${m2_repo}" | cut -f1)."
+          ls -la "${m2_repo}"
+
       # Saves the cache even if the job above failed, so a failing run still leaves behind
       # whatever it managed to download for the next attempt (see restore step's comment).
       - name: Save Maven repository cache
         if: always()
         uses: actions/cache/save@v4
         with:
-          path: /root/.m2/repository
-          key: test-aem-m2-${{ hashFiles('**/pom.xml') }}
+          path: ~/.m2/repository
+          key: test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-${{ hashFiles('**/pom.xml') }}
 
       - name: Upload test results
         if: always()
