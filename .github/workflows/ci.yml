@@ -385,22 +385,12 @@ jobs:
       # until that Variable is created. restore-keys stays scoped to the same
       # CACHE_VERSION - it never falls back across a version bump, matching CircleCI.
       - name: Restore Maven repository cache
-        id: restore-cache
         uses: actions/cache/restore@v5
         with:
           path: ~/.m2/repository
           key: test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-
-
-      # actions/cache only ever warns on a real error (a flaky cache backend shouldn't
-      # break unrelated CI) - it never fails the step, so a broken cache (like the EACCES
-      # bug this path/mount setup used to have) can silently hide as an easy-to-miss
-      # orange warning while the job stays green. cache-hit is only true on an exact key
-      # match (not a restore-keys fallback), so this is purely informational, not a
-      # failure condition - a miss is normal on the first run or after a pom.xml change.
-      - name: Report cache restore outcome
-        run: echo "cache-hit=${{ steps.restore-cache.outputs.cache-hit }}"
 
       - uses: actions/download-artifact@v6
         with:
