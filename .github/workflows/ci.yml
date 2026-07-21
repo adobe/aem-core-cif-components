@@ -83,8 +83,11 @@ jobs:
       # skip_success_summary here does what those couldn't: the summary table is skipped
       # entirely when everything passes, and only appears when there's a real failure to
       # show. Proven for this exact purpose in aem-cif-guides-venia's own ci.yml.
+      #
+      # if: failure() (not always()): skip this step entirely on a passing run - no check
+      # run gets created at all - only run it when there's an actual failure to report.
       - name: Publish test results
-        if: always()
+        if: failure()
         uses: mikepenz/action-junit-report@v5
         with:
           check_name: Unit Tests (jdk ${{ matrix.java }})
@@ -149,8 +152,10 @@ jobs:
           path: ui.apps/karma-junit
           if-no-files-found: ignore
 
+      # if: failure() (not always()): skip this step entirely on a passing run - only
+      # run it (and thus only create a check run) when there's an actual failure.
       - name: Publish test results
-        if: always()
+        if: failure()
         uses: mikepenz/action-junit-report@v5
         with:
           check_name: Unit Tests (karma)
@@ -191,8 +196,10 @@ jobs:
           path: react-components/test-results
           if-no-files-found: ignore
 
+      # if: failure() (not always()): skip this step entirely on a passing run - only
+      # run it (and thus only create a check run) when there's an actual failure.
       - name: Publish test results
-        if: always()
+        if: failure()
         uses: mikepenz/action-junit-report@v5
         with:
           check_name: Unit Tests (jest react-components)
@@ -242,8 +249,10 @@ jobs:
           path: extensions/product-recs/react-components/test-results
           if-no-files-found: ignore
 
+      # if: failure() (not always()): skip this step entirely on a passing run - only
+      # run it (and thus only create a check run) when there's an actual failure.
       - name: Publish test results
-        if: always()
+        if: failure()
         uses: mikepenz/action-junit-report@v5
         with:
           check_name: Unit Tests (jest extensions/product-recs)
@@ -418,8 +427,15 @@ jobs:
       # this directory, a separate aggregate-counts file with no <testsuite> structure at
       # all - keep the same safe glob dorny/test-reporter needed, since this action's own
       # tolerance for that file is unverified.
+      #
+      # if: failure() (not always()): skip these steps entirely on a passing run - only
+      # run them (and thus only create a check run) when there's an actual failure. A
+      # prior step failing (e.g. Integration/UI tests) still marks the job as failed here
+      # even though Fix report file permissions (an always()-gated step) ran successfully
+      # in between - failure() checks the accumulated job status, not just the step right
+      # before it.
       - name: Publish integration test results
-        if: always() && matrix.type == 'integration'
+        if: failure() && matrix.type == 'integration'
         uses: mikepenz/action-junit-report@v5
         with:
           check_name: Tests (${{ matrix.type }} ${{ matrix.aem }})
@@ -428,7 +444,7 @@ jobs:
           fail_on_failure: false
 
       - name: Publish selenium test results
-        if: always() && matrix.type == 'selenium'
+        if: failure() && matrix.type == 'selenium'
         uses: mikepenz/action-junit-report@v5
         with:
           check_name: Tests (${{ matrix.type }} ${{ matrix.aem }})
