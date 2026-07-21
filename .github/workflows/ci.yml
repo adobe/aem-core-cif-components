@@ -67,7 +67,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: test-results-jdk${{ matrix.java }}
           path: test-results/junit
@@ -99,7 +99,7 @@ jobs:
       # (mirrors CircleCI's persist_to_workspace, which only build-java-11 does).
       - name: Upload build output
         if: matrix.java == '11'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: build-output
           retention-days: 3
@@ -146,7 +146,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: karma-junit
           path: ui.apps/karma-junit
@@ -190,7 +190,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: jest-test-results
           path: react-components/test-results
@@ -243,7 +243,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: jest-product-recs-test-results
           path: extensions/product-recs/react-components/test-results
@@ -292,7 +292,7 @@ jobs:
       # read and no real reason to run.
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: jest-epc-test-results
           path: extensions/experience-platform-connector/test-results
@@ -398,7 +398,7 @@ jobs:
           restore-keys: |
             test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: build-output
 
@@ -463,7 +463,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.type }}-${{ matrix.aem }}-reports
           if-no-files-found: ignore
