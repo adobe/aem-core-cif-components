@@ -1,17 +1,13 @@
-# GitHub Actions counterpart to .circleci/config.yml's "build-and-release" workflow
-# (build-java-11/8, karma, jest*, integration-test-*, selenium-chrome-*).
+# CI workflow: builds the project on JDK 8 and 11, runs the JS unit tests (karma, jest x3),
+# then runs the AEM integration and selenium suites against three AEM flavors (classic, lts,
+# addon).
 #
-# This is additive: .circleci/config.yml keeps running as-is. All CI/build/deploy
-# scripting for this workflow lives under .github/scripts (ci.js, build.js, it-tests.js,
-# settings.xml, run-containerized-test.sh) as forks of the .circleci/ci/*.js and
-# .circleci/settings.xml originals, so the two pipelines stay independent of each other
-# rather than one reaching into the other's folder. it-tests.js differs from its CircleCI
-# counterpart in scoping a couple of `mvn` calls to avoid full-reactor resolution (see its
-# own comments) and re-basing configuration.json's module paths onto this job's actual
-# workspace path; ci.js and build.js are otherwise unchanged copies. Networking is back to
-# matching CircleCI exactly (AEM_HOST defaults to `localhost`) now that the test-aem job
-# runs both containers with --network host via run-containerized-test.sh - see that job's
-# own comment for why.
+# All CI/build/deploy scripting for this workflow lives under .github/scripts (ci.js,
+# build.js, it-tests.js, settings.xml, run-containerized-test.sh). it-tests.js scopes a
+# couple of `mvn` calls to avoid full-reactor resolution (see its own comments) and re-bases
+# configuration.json's module paths onto this job's actual workspace path. The test-aem job
+# runs both the qp and aem containers with --network host via run-containerized-test.sh, so
+# AEM_HOST defaults to `localhost` - see that job's own comment for why.
 #
 # Required secrets (see PR description for the full list / setup notes):
 #   ARTIFACTORY_CLOUD_USER, ARTIFACTORY_CLOUD_PASS  - private Adobe registry + Maven repo auth
@@ -23,7 +19,7 @@ on:
   workflow_dispatch:
     inputs:
       debug_enabled:
-        description: 'Open a tmate SSH session into the test-aem runner at the end of the job (like CircleCI''s "rerun with SSH") - also keeps the aem container running so you can docker exec into it'
+        description: 'Open a tmate SSH session into the test-aem runner at the end of the job - also keeps the aem container running so you can docker exec into it'
         type: boolean
         default: false
 
@@ -48,7 +44,7 @@ jobs:
 
       # Pinned to v4, not v5: v5.5.0 generates a settings.xml that force-disables Maven's
       # interactive mode, with no opt-out. ci.js's collectConfiguration() (used by
-      # build.js below, unchanged from CircleCI's original) relies on that interactive
+      # build.js below) relies on that interactive
       # mode - it pipes `printf '${project.groupId}|...'` into `mvn help:evaluate` (no
       # -Dexpression flag) specifically to grab it via the interactive prompt reading
       # from stdin. With that disabled, Maven never reads the prompt, produces zero
@@ -60,8 +56,8 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: maven
 
-      # Forked verbatim from .circleci/ci/build.js - collects module metadata, runs
-      # `mvn clean install`, copies surefire XML into test-results/junit.
+      # Collects module metadata, runs `mvn clean install`, copies surefire XML into
+      # test-results/junit.
       - name: Build
         run: node .github/scripts/build.js
 
@@ -74,8 +70,8 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      # Publishes a Checks-tab entry with pass/fail/skip counts, the closest GitHub Actions
-      # equivalent to CircleCI's "Tests" insights tab. Switched from dorny/test-reporter:
+      # Publishes a Checks-tab entry with pass/fail/skip counts - a per-run test summary in
+      # the GitHub Checks tab. Switched from dorny/test-reporter:
       # its list-tests/list-suites/list-files "failed" settings don't suppress the always-
       # present per-suite/file summary table (a structural limitation, not a config
       # mistake), and list-tests itself has a long-standing unfixed upstream bug (dorny/
@@ -95,8 +91,8 @@ jobs:
           skip_success_summary: true
           fail_on_failure: false
 
-      # Only the JDK 11 build's output feeds the integration/selenium jobs below
-      # (mirrors CircleCI's persist_to_workspace, which only build-java-11 does).
+      # Only the JDK 11 build's output feeds the integration/selenium jobs below, so only
+      # this matrix leg uploads the build-output artifact.
       - name: Upload build output
         if: matrix.java == '11'
         uses: actions/upload-artifact@v6
@@ -287,8 +283,7 @@ jobs:
 
       # No "Publish test results" step here (unlike the other jest jobs): this package's
       # `ci` script only runs lint + prettier:check, not jest, so no jest-junit XML is ever
-      # produced under test-results/ - unlike CircleCI's store_test_results, which silently
-      # no-ops on an empty directory, a report-parsing action here would have nothing to
+      # produced under test-results/. A report-parsing action here would have nothing to
       # read and no real reason to run.
       - name: Upload test results
         if: always()
@@ -305,23 +300,20 @@ jobs:
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  # Mirrors integration-test-{655,660,cloudready-with-addon} and
-  # selenium-chrome-{655,660,cloudready-with-addon} from .circleci/config.yml as a single
-  # matrix job instead of 6 near-duplicated ones. Each combination pulls the same private
-  # Adobe images CircleCI uses: a "qp" image as the job container (ships the AEM quickstart
-  # jar + qp.sh control CLI baked in at /home/circleci/cq) and an "aem" image as a service
-  # container (runs the actual AEM instance CircleCI reaches at `localhost` because its
-  # docker executor shares one network namespace across primary/secondary containers).
+  # Runs the integration and selenium suites as a single matrix job across three AEM
+  # flavors (classic, lts, addon). Each combination pulls two private Adobe images: a "qp"
+  # image as the job container (ships the AEM quickstart jar + qp.sh control CLI baked in at
+  # /home/circleci/cq) and an "aem" image (runs the actual AEM instance, reached at
+  # `localhost` because both containers share one network namespace).
   #
   # GitHub Actions' `container:` + `services:` keys cannot be used here: QuickProvider's RMI
   # protocol advertises "localhost" as its own callback address, which only works if the qp
-  # and aem containers share one network namespace (--network host), exactly like CircleCI's
-  # machine executor. Combining --network host with a `services:` container crashes the
-  # runner before the job even starts ("Error: Value cannot be null. (Parameter
-  # 'ContainerId')"). So this job runs directly on the bare runner and drives both
-  # containers itself via run-containerized-test.sh, which sidesteps GitHub Actions'
-  # service-container orchestration entirely. (aem-cif-guides-venia hit and solved this
-  # exact problem first - see its .github/ci/run-containerized-test.sh.)
+  # and aem containers share one network namespace (--network host). Combining --network
+  # host with a `services:` container crashes the runner before the job even starts
+  # ("Error: Value cannot be null. (Parameter 'ContainerId')"). So this job runs directly on
+  # the bare runner and drives both containers itself via run-containerized-test.sh, which
+  # sidesteps GitHub Actions' service-container orchestration entirely. (aem-cif-guides-venia
+  # hit and solved this same problem first - see its .github/ci/run-containerized-test.sh.)
   test-aem:
     name: ${{ matrix.type }} (${{ matrix.aem }})
     needs:
@@ -371,9 +363,9 @@ jobs:
       # container runs as --user root. (Caching /root/.m2/repository directly, without that
       # bind mount, doesn't work: it's either the container's own ephemeral layer - gone the
       # moment --rm removes it - or the *host's* actual /root, which the unprivileged
-      # default runner user can't access at all.) No cache is shared with the build job
-      # (different runner), unlike CircleCI's restore_cache/save_cache working off the same
-      # key. Without this, it/site's standalone build (and the various install-file/
+      # default runner user can't access at all.) No cache is shared with the build job,
+      # which runs on a different runner. Without this, it/site's standalone build (and the
+      # various install-file/
       # download-maven-plugin calls in it-tests.js) re-download their entire dependency tree
       # from scratch on every run. Shared across all matrix.aem/type combinations - they all
       # need the same underlying dependencies.
@@ -384,12 +376,11 @@ jobs:
       # even after re-downloading the entire dependency tree. actions/cache/save with
       # if: always() below saves whatever got downloaded regardless of outcome.
       #
-      # CACHE_VERSION mirrors CircleCI's `{{ .Environment.CACHE_VERSION }}` prefix in
-      # maven-repo-*: a manually-bumped repository/organization Variable (Settings > Secrets
-      # and variables > Actions > Variables), not something defined here, so it can be
-      # changed later to force a fresh cache lineage without a code change. Defaults to '1'
-      # until that Variable is created. restore-keys stays scoped to the same
-      # CACHE_VERSION - it never falls back across a version bump, matching CircleCI.
+      # CACHE_VERSION is a manually-bumped repository/organization Variable (Settings >
+      # Secrets and variables > Actions > Variables), not something defined here, so it can
+      # be changed later to force a fresh cache lineage without a code change. Defaults to
+      # '1' until that Variable is created. restore-keys stays scoped to the same
+      # CACHE_VERSION - it never falls back across a version bump.
       - name: Restore Maven repository cache
         uses: actions/cache/restore@v5
         with:
@@ -483,8 +474,8 @@ jobs:
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      # GitHub Actions equivalent of CircleCI's "Rerun job with SSH": opens a tmate SSH
-      # session into this runner. Opt-in only, via workflow_dispatch, so it never blocks a
+      # Opens a tmate SSH session into this runner for interactive debugging - opt-in only,
+      # via workflow_dispatch, so it never blocks a
       # normal push/PR run. Placed last, after cache/artifact/coverage steps, so those
       # always complete before this potentially-long, open-ended pause - not blocked by
       # or lost to it if the session runs the full 30 minutes or the job gets cancelled

@@ -16,10 +16,11 @@
 # limitations under the License.
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Installs a matched Chrome + chromedriver pair as system binaries inside the qp
-# container before running selenium specs. On CircleCI, the browser-tools/install-
-# browser-tools orb did this for the same job; the qp image itself doesn't ship
-# them. wdio.conf.local.js ("DO NOT MODIFY") resolves chromedriver via
+# Ensures a matched Chrome + chromedriver pair exists as system binaries inside the qp
+# container before running selenium specs. The qp image already ships google-chrome
+# but not chromedriver, so in practice only chromedriver gets installed (matched to the
+# image's own Chrome version); the Chrome apt install runs only if a future image drops
+# it. wdio.conf.local.js ("DO NOT MODIFY") resolves chromedriver via
 # `command -v chromedriver`, not an npm module, so this - not adding a chromedriver
 # npm dependency - is the actual fix.
 #
@@ -28,7 +29,11 @@
 
 set -euo pipefail
 
-if ! command -v google-chrome >/dev/null 2>&1 || ! command -v chromedriver >/dev/null 2>&1; then
+# Only install Chrome if the image doesn't already ship it. The qp image already carries
+# a google-chrome, so an apt-get install here would just upgrade it - wasting a ~134 MB
+# download to replace a browser that already works. Honor whatever Chrome is present and
+# only match chromedriver to it below. This block runs only if a future image drops Chrome.
+if ! command -v google-chrome >/dev/null 2>&1; then
     if command -v apt-get >/dev/null 2>&1; then
         # The base image may already have an unsigned google-chrome apt source configured,
         # which makes apt-get update fail before we get a chance to install the signing key
@@ -41,15 +46,18 @@ if ! command -v google-chrome >/dev/null 2>&1 || ! command -v chromedriver >/dev
         sudo apt-get update
         sudo apt-get install -y google-chrome-stable
     fi
+fi
 
-    if ! command -v chromedriver >/dev/null 2>&1; then
-        chrome_version="$(google-chrome --version | awk '{print $3}' | cut -d. -f1)"
-        driver_version="$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${chrome_version}")"
-        curl -sSL "https://storage.googleapis.com/chrome-for-testing-public/${driver_version}/linux64/chromedriver-linux64.zip" -o /tmp/chromedriver.zip
-        sudo unzip -o /tmp/chromedriver.zip -d /tmp
-        sudo mv /tmp/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
-        sudo chmod +x /usr/local/bin/chromedriver
-    fi
+# Install a chromedriver matching whatever Chrome is present - the image's own version if
+# the block above was skipped, or the freshly installed stable otherwise. The qp image
+# ships Chrome but not chromedriver, so this is normally the only part that actually runs.
+if ! command -v chromedriver >/dev/null 2>&1; then
+    chrome_version="$(google-chrome --version | awk '{print $3}' | cut -d. -f1)"
+    driver_version="$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${chrome_version}")"
+    curl -sSL "https://storage.googleapis.com/chrome-for-testing-public/${driver_version}/linux64/chromedriver-linux64.zip" -o /tmp/chromedriver.zip
+    sudo unzip -o /tmp/chromedriver.zip -d /tmp
+    sudo mv /tmp/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
+    sudo chmod +x /usr/local/bin/chromedriver
 fi
 
 # run-containerized-test.sh runs this container as root (needed to write into the

@@ -1,11 +1,9 @@
-# GitHub Actions counterpart to the `release` and `deploy-queries` jobs in
-# .circleci/config.yml. Triggered the same way: only by the release tag `mvn
-# release:prepare` creates, never by branch pushes.
+# Release workflow: runs the `release` and `deploy-queries` jobs. Triggered only by the
+# release tag `mvn release:prepare` creates, never by branch pushes.
 #
-# Like the CircleCI jobs, `release` and `deploy-queries` each run their own full
-# `mvn clean deploy` / `mvn clean verify` rather than reusing a prior build - the
-# `build` job here is a gate (must pass before either runs), not an artifact source,
-# matching CircleCI's `requires: build-java-11` semantics exactly.
+# `release` and `deploy-queries` each run their own full `mvn clean deploy` /
+# `mvn clean verify` rather than reusing a prior build - the `build` job here is a gate
+# (must pass before either runs), not an artifact source.
 #
 # Required secrets:
 #   ARTIFACTORY_CLOUD_USER, ARTIFACTORY_CLOUD_PASS  - Adobe Artifactory (.github/scripts/settings.xml)
@@ -69,7 +67,7 @@ jobs:
 
       - name: Release
         # Only performs a 'mvn deploy' after the 'mvn release:prepare' because the tag is
-        # already checked out (same rationale as the CircleCI 'release' job).
+        # already checked out.
         run: |
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
           mvn -B -s .github/scripts/settings.xml clean deploy -P release-sign-artifacts,adobe-public -Dskip-it

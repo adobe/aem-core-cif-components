@@ -15,23 +15,17 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-// GitHub Actions counterpart to .circleci/ci/it-tests.js. The two scripts must stay in
-// sync - if you change the AEM bootstrap, OSGi config, or JaCoCo handling logic in one,
-// mirror it in the other.
+// Integration/UI test orchestration for the test-aem job in ci.yml: bootstraps AEM,
+// applies the IT-site OSGi config, deploys packages via QuickProvider, and runs the
+// integration (it/http) or selenium (ui.tests) suites depending on TYPE.
 //
-// Why this is a separate file instead of editing the CircleCI one in place: run-
-// containerized-test.sh (invoked by the test-aem job in ci.yml) runs both the qp and aem
-// containers with --network host, so networking here matches CircleCI exactly (AEM_HOST
-// defaults to `localhost`, see below) - this is NOT a networking fork. The actual
-// differences are: (1) a couple of `mvn` calls are scoped with -N to avoid resolving the
-// full 28-module reactor, needed because this job's container starts with an empty ~/.m2
-// (CircleCI's restore_cache keeps it warm); (2) configuration.json's module paths, which
-// were recorded on the "build" job's filesystem, get re-based onto this job's own
-// workspace path via localizeModule below, since the two jobs' checkout paths can differ.
-//
-// This script (and its ci.js/settings.xml/run-containerized-test.sh helpers) live
-// entirely under .github/scripts so the GitHub Actions and CircleCI pipelines stay
-// independent of each other.
+// run-containerized-test.sh (which invokes this) runs both the qp and aem containers with
+// --network host, so `localhost` resolves to the same host for both and AEM_HOST defaults
+// to `localhost` (see below). A couple of `mvn` calls are scoped with -N to avoid
+// resolving the full 28-module reactor, needed because this job's container starts with an
+// empty ~/.m2. configuration.json's module paths, recorded on the "build" job's
+// filesystem, are re-based onto this job's own workspace path via localizeModule below,
+// since the two jobs' checkout paths can differ.
 
 const path = require('path');
 
@@ -46,7 +40,7 @@ console.log(config);
 const qpPath = '/home/circleci/cq'; // baked into the qp Docker image itself, not CI-specific
 const buildPath = process.env.GITHUB_WORKSPACE || process.cwd();
 // run-containerized-test.sh runs both containers with --network host, so localhost is
-// always correct here, exactly like CircleCI - this env var is just an escape hatch.
+// always correct here - this env var is just an escape hatch.
 const AEM_HOST = process.env.AEM_HOST || 'localhost';
 const { TYPE, BROWSER, AEM, COMMERCE_ENDPOINT, COMMERCE_INTEGRATION_TOKEN } = process.env;
 
@@ -132,7 +126,7 @@ const prepareAemForCifTests = () => {
 };
 
 // ---------------------------------------------------------------------------
-// IT site OSGi bootstrap (see it/site/README.md — "CircleCI integration tests")
+// IT site OSGi bootstrap (see it/site/README.md — integration tests section)
 //
 // ui.config is correct in Git but the embedded ui.config subpackage is not always
 // active on pipeline Quickstart before it/http runs. Without this block, AEM uses
@@ -230,9 +224,8 @@ try {
     ci.stage('Integration Tests');
     // -N (non-recursive): without it, Maven resolves/builds the effective POM graph for the
     // entire 28-module reactor just to evaluate one property, since these run from the repo
-    // root. On CircleCI this is cheap (restore_cache already warmed ~/.m2 from build-java-11);
-    // on GitHub Actions, test-aem's container starts with an empty ~/.m2, so an unscoped call
-    // here re-downloads/re-resolves the whole reactor from scratch.
+    // root. test-aem's container starts with an empty ~/.m2, so an unscoped call here would
+    // re-download/re-resolve the whole reactor from scratch.
     let wcmVersion = ci.sh('mvn help:evaluate -N -Dexpression=core.wcm.components.version -q -DforceStdout', true);
     let magentoGraphqlVersion = ci.sh('mvn help:evaluate -N -Dexpression=magento.graphql.version -q -DforceStdout', true);
     let excludedCategory;
@@ -245,11 +238,10 @@ try {
     }
 
     // it/site builds as its own standalone reactor (not part of the main one), and
-    // it/site/ui.apps has a `provided` dependency on core-cif-components-core. On CircleCI
-    // this resolves because save_cache/restore_cache share the same ~/.m2 populated by the
-    // build-java-11 job. GitHub Actions' test-aem job runs in a fresh container with no
-    // such shared cache - download-artifact only brought over bundles/core/target as raw
-    // files, not an installed ~/.m2 entry - so install it explicitly before building it/site.
+    // it/site/ui.apps has a `provided` dependency on core-cif-components-core. The test-aem
+    // job runs in a fresh container with no shared ~/.m2 - download-artifact only brought
+    // over bundles/core/target as raw files, not an installed ~/.m2 entry - so install it
+    // explicitly before building it/site.
     // -N (non-recursive): this runs from the repo root (a 28-module aggregator); without -N,
     // Maven resolves/builds the entire reactor's effective POM graph before running the
     // install-file goal, which is slow (and can outright fail on other unrelated modules)
@@ -270,8 +262,8 @@ try {
         : addQpFileDependency('cif-components-it-site.all');
 
     ci.dir(qpPath, () => {
-        // Connect to QP (running in the `aem` service container on GH Actions,
-        // vs. the secondary container reachable at `localhost` on CircleCI)
+        // Connect to the AEM instance (running in the `aem` container, reachable at
+        // `localhost` because both containers share the host network namespace)
         ci.sh(`./qp.sh -v bind --server-hostname ${AEM_HOST} --server-port 55555`);
 
         // Download latest add-on release from artifactory

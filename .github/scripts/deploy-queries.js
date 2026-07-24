@@ -15,15 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-// GitHub Actions counterpart to .circleci/ci/deploy-queries.js. Only the checkout
-// transport differs: the CircleCI job clones over HTTPS but authenticates the later
-// `git push` via an SSH deploy key added through `add_ssh_keys` (relying on a git
-// `insteadOf` rewrite baked into the CircleCI image). GitHub Actions sets up the deploy
-// key via webfactory/ssh-agent in release.yml, so this clones over SSH directly instead
-// of depending on that rewrite. Everything else is identical to the CircleCI script.
-//
-// This script (and its ci.js helper) live entirely under .github/scripts so the GitHub
-// Actions and CircleCI pipelines stay independent of each other.
+// Regenerates and pushes the GraphQL query definitions to
+// adobe/commerce-cif-graphql-integration-reference (run by the deploy-queries job in
+// release.yml). The SSH deploy key is provided via webfactory/ssh-agent in release.yml,
+// so this clones over SSH directly.
 
 const { readFileSync, writeFileSync } = require('fs');
 

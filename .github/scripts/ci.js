@@ -15,8 +15,9 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-// GitHub Actions counterpart to .circleci/ci/ci.js, forked verbatim so the GitHub Actions
-// scripts don't reach into .circleci. Keep the two in sync until .circleci is retired.
+// Shared CI helper for the GitHub Actions build/test/deploy scripts (build.js, it-tests.js,
+// deploy-queries.js): thin wrappers over child_process for staged shell steps, POM parsing,
+// and configuration.json handling.
 
 const e = require('child_process');
 const fs = require('fs');

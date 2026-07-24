@@ -15,9 +15,8 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
-// GitHub Actions counterpart to .circleci/ci/build.js, forked verbatim so the GitHub
-// Actions scripts don't reach into .circleci. Keep the two in sync until .circleci is
-// retired.
+// Build entry point for the GitHub Actions `build` job: collects module metadata via
+// ci.js, runs `mvn clean install`, and copies the surefire XML into test-results/junit.
 
 const ci = new (require('./ci.js'))();
 const path = require('path');
