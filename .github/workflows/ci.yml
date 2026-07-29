@@ -35,6 +35,7 @@ jobs:
   build:
     name: build (jdk ${{ matrix.java }})
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -123,6 +124,7 @@ jobs:
   karma:
     name: karma (ui.apps)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
 
@@ -169,6 +171,7 @@ jobs:
   jest:
     name: jest (react-components)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
 
@@ -213,6 +216,7 @@ jobs:
   jest-extension-product-recs:
     name: jest (extensions/product-recs)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
 
@@ -266,6 +270,7 @@ jobs:
   jest-extension-experience-platform-connector:
     name: jest (extensions/experience-platform-connector)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
 
@@ -323,6 +328,7 @@ jobs:
       - jest-extension-product-recs
       - jest-extension-experience-platform-connector
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
