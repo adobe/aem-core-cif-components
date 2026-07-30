@@ -66,6 +66,6 @@
   "dependencies": {
     "@adobe/magento-storefront-events-sdk": "1.1.16",
     "@babel/polyfill": "^7.8.3",
-    "dompurify": "^3.1.6"
+    "dompurify": "^3.2.6"
   }
 }
