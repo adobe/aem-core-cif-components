@@ -153,7 +153,7 @@ jobs:
       # that timing and started failing, while Firefox 152 passed. Pinning keeps
       # the run reproducible instead of tracking whatever "latest" ships.
       - browser-tools/install-browser-tools:
-          firefox-version: "153.0"
+          firefox-version: "152.0"
           # Chrome was not the failing browser (it passed at both 150 and 151).
           # To pin it, set the full Chrome-for-Testing build string below, e.g.
           # chrome-version: "150.0.7258.66"  <-- replace with a real 150.x build
