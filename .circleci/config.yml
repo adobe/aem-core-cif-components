@@ -148,7 +148,15 @@ jobs:
       - image: cimg/node:16.17.1-browsers
     steps:
       - checkout
-      - browser-tools/install-browser-tools
+      # Pin the browser versions used for the Karma unit tests. The tests are
+      # sensitive to browser script/DOMContentLoaded timing; Firefox 153 changed
+      # that timing and started failing, while Firefox 152 passed. Pinning keeps
+      # the run reproducible instead of tracking whatever "latest" ships.
+      - browser-tools/install-browser-tools:
+          firefox-version: "152.0"
+          # Chrome was not the failing browser (it passed at both 150 and 151).
+          # To pin it, set the full Chrome-for-Testing build string below, e.g.
+          # chrome-version: "150.0.7258.66"  <-- replace with a real 150.x build
       - run:
           name: Provision
           command: |
