@@ -56,7 +56,7 @@ ci.dir(repo, () => {
     }
 
     const tagName = `components-queries-${version}`;
-    ci.gitImpersonate('GitHub Actions', 'no-reply@adobe.com', () => {
+    ci.gitImpersonate('GitHub-Actions', 'no-reply@adobe.com', () => {
         if (doCommit) {
             // Commit and push changes
             ci.sh(`git commit -m "releng - Update Queries for CIF Core Components v${version}"`);

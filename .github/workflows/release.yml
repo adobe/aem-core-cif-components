@@ -17,7 +17,8 @@ name: Release
 on:
   push:
     tags:
-      - 'core-cif-components-reactor-*'
+      # equivalent of CircleCI's only: /^core-cif-components-reactor-\d+\.\d+\.\d+$/ filter.
+      - 'core-cif-components-reactor-[0-9]+.[0-9]+.[0-9]+'
 
 permissions:
   contents: read
