@@ -71,26 +71,17 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      # Publishes a Checks-tab entry with pass/fail/skip counts - a per-run test summary in
-      # the GitHub Checks tab. Switched from dorny/test-reporter:
-      # its list-tests/list-suites/list-files "failed" settings don't suppress the always-
-      # present per-suite/file summary table (a structural limitation, not a config
-      # mistake), and list-tests itself has a long-standing unfixed upstream bug (dorny/
-      # test-reporter#142) where it doesn't reliably filter passed tests out at all.
-      # skip_success_summary here does what those couldn't: the summary table is skipped
-      # entirely when everything passes, and only appears when there's a real failure to
-      # show. Proven for this exact purpose in aem-cif-guides-venia's own ci.yml.
-      #
-      # Runs on every outcome so the Checks tab always shows a pass/fail/skip summary, like
-      # CircleCI's Tests insights tab did. skip_success_summary keeps a passing run's check
-      # lightweight (just the counts, no per-test table) - the table only appears on failure.
+      # Publishes a Checks-tab entry on every run (if: always()), like CircleCI's Tests
+      # insights tab. detailed_summary + include_passed list every test case (name, result,
+      # failure message/stack trace) rather than just pass/fail/skip counts.
       - name: Publish test results
         if: always()
         uses: mikepenz/action-junit-report@v5
         with:
           check_name: Unit Tests (jdk ${{ matrix.java }})
           report_paths: test-results/junit/*.xml
-          skip_success_summary: true
+          detailed_summary: true
+          include_passed: true
           fail_on_failure: false
 
       # Only the JDK 11 build's output feeds the integration/selenium jobs below, so only
@@ -158,7 +149,8 @@ jobs:
         with:
           check_name: Unit Tests (karma)
           report_paths: ui.apps/karma-junit/*.xml
-          skip_success_summary: true
+          detailed_summary: true
+          include_passed: true
           fail_on_failure: false
 
       - name: Upload coverage to Codecov
@@ -202,7 +194,8 @@ jobs:
         with:
           check_name: Unit Tests (jest react-components)
           report_paths: react-components/test-results/*.xml
-          skip_success_summary: true
+          detailed_summary: true
+          include_passed: true
           fail_on_failure: false
 
       - name: Upload coverage to Codecov
@@ -255,7 +248,8 @@ jobs:
         with:
           check_name: Unit Tests (jest extensions/product-recs)
           report_paths: extensions/product-recs/react-components/test-results/*.xml
-          skip_success_summary: true
+          detailed_summary: true
+          include_passed: true
           fail_on_failure: false
 
       - name: Upload coverage to Codecov
@@ -434,7 +428,8 @@ jobs:
         with:
           check_name: Tests (${{ matrix.type }} ${{ matrix.aem }})
           report_paths: it/http/target/failsafe-reports/TEST-*.xml
-          skip_success_summary: true
+          detailed_summary: true
+          include_passed: true
           fail_on_failure: false
 
       - name: Publish selenium test results
@@ -443,7 +438,8 @@ jobs:
         with:
           check_name: Tests (${{ matrix.type }} ${{ matrix.aem }})
           report_paths: ui.tests/test-module/reports/**/*.xml
-          skip_success_summary: true
+          detailed_summary: true
+          include_passed: true
           fail_on_failure: false
 
       # Saves the cache even if the job above failed, so a failing run still leaves behind
