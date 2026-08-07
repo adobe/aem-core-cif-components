@@ -333,6 +333,9 @@ jobs:
       fail-fast: false
       matrix:
         type: [integration, selenium]
+        # Keep `aem` here, not only in `include:` below - otherwise include's entries
+        # overwrite each other and silently collapse all 6 legs down to just 2.
+        aem: [classic, lts, addon]
         include:
           - aem: classic
             qp_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
