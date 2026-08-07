@@ -81,10 +81,11 @@ jobs:
       # entirely when everything passes, and only appears when there's a real failure to
       # show. Proven for this exact purpose in aem-cif-guides-venia's own ci.yml.
       #
-      # if: failure() (not always()): skip this step entirely on a passing run - no check
-      # run gets created at all - only run it when there's an actual failure to report.
+      # Runs on every outcome so the Checks tab always shows a pass/fail/skip summary, like
+      # CircleCI's Tests insights tab did. skip_success_summary keeps a passing run's check
+      # lightweight (just the counts, no per-test table) - the table only appears on failure.
       - name: Publish test results
-        if: failure()
+        if: always()
         uses: mikepenz/action-junit-report@v5
         with:
           check_name: Unit Tests (jdk ${{ matrix.java }})
@@ -150,10 +151,9 @@ jobs:
           path: ui.apps/karma-junit
           if-no-files-found: ignore
 
-      # if: failure() (not always()): skip this step entirely on a passing run - only
-      # run it (and thus only create a check run) when there's an actual failure.
+      # Runs on every outcome - see the build job's Publish test results step for why.
       - name: Publish test results
-        if: failure()
+        if: always()
         uses: mikepenz/action-junit-report@v5
         with:
           check_name: Unit Tests (karma)
@@ -195,10 +195,9 @@ jobs:
           path: react-components/test-results
           if-no-files-found: ignore
 
-      # if: failure() (not always()): skip this step entirely on a passing run - only
-      # run it (and thus only create a check run) when there's an actual failure.
+      # Runs on every outcome - see the build job's Publish test results step for why.
       - name: Publish test results
-        if: failure()
+        if: always()
         uses: mikepenz/action-junit-report@v5
         with:
           check_name: Unit Tests (jest react-components)
@@ -249,10 +248,9 @@ jobs:
           path: extensions/product-recs/react-components/test-results
           if-no-files-found: ignore
 
-      # if: failure() (not always()): skip this step entirely on a passing run - only
-      # run it (and thus only create a check run) when there's an actual failure.
+      # Runs on every outcome - see the build job's Publish test results step for why.
       - name: Publish test results
-        if: failure()
+        if: always()
         uses: mikepenz/action-junit-report@v5
         with:
           check_name: Unit Tests (jest extensions/product-recs)
@@ -428,14 +426,10 @@ jobs:
       # all - keep the same safe glob dorny/test-reporter needed, since this action's own
       # tolerance for that file is unverified.
       #
-      # if: failure() (not always()): skip these steps entirely on a passing run - only
-      # run them (and thus only create a check run) when there's an actual failure. A
-      # prior step failing (e.g. Integration/UI tests) still marks the job as failed here
-      # even though Fix report file permissions (an always()-gated step) ran successfully
-      # in between - failure() checks the accumulated job status, not just the step right
-      # before it.
+      # Runs on every outcome so the Checks tab always shows a pass/fail/skip summary, like
+      # CircleCI's Tests insights tab did - see the build job's Publish test results step.
       - name: Publish integration test results
-        if: failure() && matrix.type == 'integration'
+        if: always() && matrix.type == 'integration'
         uses: mikepenz/action-junit-report@v5
         with:
           check_name: Tests (${{ matrix.type }} ${{ matrix.aem }})
@@ -444,7 +438,7 @@ jobs:
           fail_on_failure: false
 
       - name: Publish selenium test results
-        if: failure() && matrix.type == 'selenium'
+        if: always() && matrix.type == 'selenium'
         uses: mikepenz/action-junit-report@v5
         with:
           check_name: Tests (${{ matrix.type }} ${{ matrix.aem }})
