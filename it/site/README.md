@@ -101,9 +101,9 @@ See `it/http/README.md` for override properties (`aem.host`, `aem.port`, `it.com
 
 Use the full GraphQL URL (`https://…/graphql`). Do not use `${COMMERCE_ENDPOINT}` in `.cfg.json`; that syntax is for Cloud Manager deploy-time substitution, not AEM OSGi.
 
-### CircleCI / local Quickstart
+### CI / local Quickstart
 
-After AEM is ready, `.circleci/ci/it-tests.js` applies IT site OSGi via Felix `configMgr` (same pattern as `GraphqlClientImpl~examples`): full `GraphqlClientImpl~default` settings from `ui.config` with `url` taken from CircleCI `COMMERCE_ENDPOINT`, plus `UrlProviderImpl` (`url_path`, context-aware). This is needed because the IT site `ui.config` content package is not always picked up on the pipeline AEM instance.
+After AEM is ready, `.github/scripts/it-tests.js` applies IT site OSGi via Felix `configMgr` (same pattern as `GraphqlClientImpl~examples`): full `GraphqlClientImpl~default` settings from `ui.config` with `url` taken from the `COMMERCE_ENDPOINT` CI variable, plus `UrlProviderImpl` (`url_path`, context-aware). This is needed because the IT site `ui.config` content package is not always picked up on the pipeline AEM instance.
 
 Changing backends does not require a code change — only that pipeline variable.
 

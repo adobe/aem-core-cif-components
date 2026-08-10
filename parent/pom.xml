@@ -331,7 +331,6 @@
                         <!-- Jenkins configuration file -->
                         <exclude>Jenkinsfile</exclude>
                         <exclude>**/.github/**</exclude>
-                        <exclude>.circleci/*</exclude>
                         <!-- Clientlib files -->
                         <exclude>**/js.txt</exclude>
                         <exclude>**/css.txt</exclude>

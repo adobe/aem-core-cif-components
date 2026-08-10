@@ -71,8 +71,8 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      # Publishes a Checks-tab entry on every run (if: always()), like CircleCI's Tests
-      # insights tab. detailed_summary + include_passed put a full per-test table in the job
+      # Publishes a Checks-tab entry on every run (if: always()) as a per-run test summary.
+      # detailed_summary + include_passed put a full per-test table in the job
       # summary (Actions run overview page, below the job graph). group_suite rolls that
       # table up per test class/suite instead of one row per test method, so a job with
       # hundreds of tests doesn't turn that page into a very long scroll.
@@ -426,8 +426,8 @@ jobs:
       # all - keep the same safe glob dorny/test-reporter needed, since this action's own
       # tolerance for that file is unverified.
       #
-      # Runs on every outcome so the Checks tab always shows a pass/fail/skip summary, like
-      # CircleCI's Tests insights tab did - see the build job's Publish test results step.
+      # Runs on every outcome so the Checks tab always shows a pass/fail/skip summary -
+      # see the build job's Publish test results step.
       - name: Publish integration test results
         if: always() && matrix.type == 'integration'
         uses: mikepenz/action-junit-report@v5
