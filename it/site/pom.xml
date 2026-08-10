@@ -44,7 +44,6 @@
   <properties>
     <!-- aem.host, aem.port, aem.publish.*, sling.*, vault.*, magento.graphql.version,
          core.wcm.components.version are all inherited from core-cif-components-parent. -->
-    <core.cif.components.version>2.18.5-SNAPSHOT</core.cif.components.version>
     <aem.cif.sdk.api>2025.09.02.00</aem.cif.sdk.api>
     <aem.sdk.api>2026.3.25194.20260330T181734Z-260300</aem.sdk.api>
     <bnd.version>6.4.0</bnd.version>
