@@ -318,7 +318,8 @@ jobs:
   # sidesteps GitHub Actions' service-container orchestration entirely. (aem-cif-guides-venia
   # hit and solved this same problem first - see its .github/ci/run-containerized-test.sh.)
   test-aem:
-    name: ${{ matrix.type }} (${{ matrix.aem }})
+    # Reproduce CircleCI's job names: integration-test-655 / selenium-chrome-cloudready-with-addon.
+    name: ${{ matrix.type == 'integration' && 'integration-test' || 'selenium-chrome' }}-${{ matrix.label }}
     needs:
       - build
       - karma
@@ -336,12 +337,15 @@ jobs:
         aem: [classic, lts, addon]
         include:
           - aem: classic
+            label: '655'
             qp_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
             aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.24.0-openjdk11
           - aem: lts
+            label: '660'
             qp_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.7-openjdk21
             aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-lts:6.6.2-openjdk21
           - aem: addon
+            label: 'cloudready-with-addon'
             qp_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.7-openjdk21
             aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:26125-openjdk21
     env:
@@ -432,7 +436,7 @@ jobs:
         if: always() && matrix.type == 'integration'
         uses: mikepenz/action-junit-report@v5
         with:
-          check_name: Tests (${{ matrix.type }} ${{ matrix.aem }})
+          check_name: Tests (${{ matrix.type == 'integration' && 'integration-test' || 'selenium-chrome' }}-${{ matrix.label }})
           report_paths: it/http/target/failsafe-reports/TEST-*.xml
           detailed_summary: true
           include_passed: true
@@ -443,7 +447,7 @@ jobs:
         if: always() && matrix.type == 'selenium'
         uses: mikepenz/action-junit-report@v5
         with:
-          check_name: Tests (${{ matrix.type }} ${{ matrix.aem }})
+          check_name: Tests (${{ matrix.type == 'integration' && 'integration-test' || 'selenium-chrome' }}-${{ matrix.label }})
           report_paths: ui.tests/test-module/reports/**/*.xml
           detailed_summary: true
           include_passed: true
