@@ -1,5 +1,5 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ~ Copyright 2022 Adobe
+ ~ Copyright 2026 Adobe
  ~
  ~ Licensed under the Apache License, Version 2.0 (the "License");
  ~ you may not use this file except in compliance with the License.
@@ -15,6 +15,11 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 'use strict';
 
+// Regenerates and pushes the GraphQL query definitions to
+// adobe/commerce-cif-graphql-integration-reference (run by the deploy-queries job in
+// release.yml). The SSH deploy key is provided via webfactory/ssh-agent in release.yml,
+// so this clones over SSH directly.
+
 const { readFileSync, writeFileSync } = require('fs');
 
 const ci = new (require('./ci.js'))();
@@ -27,8 +32,8 @@ ci.stage('Push changes to reference repo');
 // Parse POM to get version
 const { version } = ci.parsePom();
 
-// Checkout public rep
-ci.checkout(`https://github.com/adobe/${repo}.git`);
+// Checkout public repo over SSH (deploy key is already loaded into the ssh-agent)
+ci.checkout(`git@github.com:adobe/${repo}.git`);
 
 // Commit and push
 ci.dir(repo, () => {
@@ -51,7 +56,7 @@ ci.dir(repo, () => {
     }
 
     const tagName = `components-queries-${version}`;
-    ci.gitImpersonate('CircleCI', 'no-reply@adobe.com', () => {
+    ci.gitImpersonate('GitHub-Actions', 'no-reply@adobe.com', () => {
         if (doCommit) {
             // Commit and push changes
             ci.sh(`git commit -m "releng - Update Queries for CIF Core Components v${version}"`);

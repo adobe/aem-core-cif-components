@@ -1,0 +1,507 @@
+# CI workflow: builds the project on JDK 8 and 11, runs the JS unit tests (karma, jest x3),
+# then runs the AEM integration and selenium suites against three AEM flavors (classic, lts,
+# addon).
+#
+# All CI/build/deploy scripting for this workflow lives under .github/scripts (ci.js,
+# build.js, it-tests.js, settings.xml, run-containerized-test.sh). it-tests.js scopes a
+# couple of `mvn` calls to avoid full-reactor resolution (see its own comments) and re-bases
+# configuration.json's module paths onto this job's actual workspace path. The test-aem job
+# runs both the qp and aem containers with --network host via run-containerized-test.sh, so
+# AEM_HOST defaults to `localhost` - see that job's own comment for why.
+#
+# Required secrets (see PR description for the full list / setup notes):
+#   ARTIFACTORY_CLOUD_USER, ARTIFACTORY_CLOUD_PASS  - private Adobe registry + Maven repo auth
+
+name: CI
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Open a tmate SSH session into the test-aem runner at the end of the job - also keeps the aem container running so you can docker exec into it'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  build:
+    name: build (jdk ${{ matrix.java }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        java: ['11', '8']
+    steps:
+      - uses: actions/checkout@v5
+
+      # Pinned to v4, not v5: v5.5.0 generates a settings.xml that force-disables Maven's
+      # interactive mode, with no opt-out. ci.js's collectConfiguration() (used by
+      # build.js below) relies on that interactive
+      # mode - it pipes `printf '${project.groupId}|...'` into `mvn help:evaluate` (no
+      # -Dexpression flag) specifically to grab it via the interactive prompt reading
+      # from stdin. With that disabled, Maven never reads the prompt, produces zero
+      # output, and the whole build fails immediately on the very first pom.xml. Revisit
+      # only alongside rewriting ci.js's Maven-invocation mechanism, not by re-bumping this.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+
+      # Collects module metadata, runs `mvn clean install`, copies surefire XML into
+      # test-results/junit.
+      - name: Build
+        run: node .github/scripts/build.js
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-results-jdk${{ matrix.java }}
+          path: test-results/junit
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # Publishes a Checks-tab entry on every run (if: always()) as a per-run test summary.
+      # detailed_summary + include_passed put a full per-test table in the job
+      # summary (Actions run overview page, below the job graph). group_suite rolls that
+      # table up per test class/suite instead of one row per test method, so a job with
+      # hundreds of tests doesn't turn that page into a very long scroll.
+      - name: Publish test results
+        if: always()
+        uses: mikepenz/action-junit-report@v5
+        with:
+          check_name: Unit Tests (jdk ${{ matrix.java }})
+          report_paths: test-results/junit/*.xml
+          detailed_summary: true
+          include_passed: true
+          group_suite: true
+          fail_on_failure: false
+
+      # Only the JDK 11 build's output feeds the integration/selenium jobs below, so only
+      # this matrix leg uploads the build-output artifact.
+      - name: Upload build output
+        if: matrix.java == '11'
+        uses: actions/upload-artifact@v6
+        with:
+          name: build-output
+          retention-days: 3
+          path: |
+            configuration.json
+            bundles/core/target
+            ui.apps/target/*.zip
+            ui.config/target/*.zip
+            extensions/product-recs/bundle/target
+            extensions/product-recs/content/target/*.zip
+            examples/bundle/target
+            examples/ui.apps/target/*.zip
+            examples/ui.config/target/*.zip
+            examples/ui.content/target/*.zip
+            it/content/target/*.zip
+
+      - name: Upload coverage to Codecov
+        if: matrix.java == '11'
+        uses: codecov/codecov-action@v6
+        with:
+          flags: unittests
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  karma:
+    name: karma (ui.apps)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '16.17.1'
+
+      - name: Provision
+        working-directory: ./ui.apps
+        run: |
+          npm install
+          npm run webpack:dev
+
+      - name: Run Unit Tests (Karma)
+        working-directory: ./ui.apps
+        run: npm test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: karma-junit
+          path: ui.apps/karma-junit
+          if-no-files-found: ignore
+
+      # Runs on every outcome - see the build job's Publish test results step for why.
+      - name: Publish test results
+        if: always()
+        uses: mikepenz/action-junit-report@v5
+        with:
+          check_name: Unit Tests (karma)
+          report_paths: ui.apps/karma-junit/*.xml
+          detailed_summary: true
+          include_passed: true
+          group_suite: true
+          fail_on_failure: false
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v6
+        with:
+          flags: karma
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  jest:
+    name: jest (react-components)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '16.20.0'
+
+      - name: Provision
+        working-directory: ./react-components
+        run: npm ci --legacy-peer-deps
+
+      - name: Run Unit Tests (Jest)
+        working-directory: ./react-components
+        run: npm run ci
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: jest-test-results
+          path: react-components/test-results
+          if-no-files-found: ignore
+
+      # Runs on every outcome - see the build job's Publish test results step for why.
+      - name: Publish test results
+        if: always()
+        uses: mikepenz/action-junit-report@v5
+        with:
+          check_name: Unit Tests (jest react-components)
+          report_paths: react-components/test-results/*.xml
+          detailed_summary: true
+          include_passed: true
+          group_suite: true
+          fail_on_failure: false
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v6
+        with:
+          flags: jest
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  jest-extension-product-recs:
+    name: jest (extensions/product-recs)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '16.17.1'
+
+      - name: Provision (Core)
+        working-directory: ./react-components
+        run: |
+          npm install
+          npm run webpack:dev
+          npm link
+
+      - name: Provision (Extension)
+        working-directory: ./extensions/product-recs/react-components
+        run: |
+          npm install
+          npm link @adobe/aem-core-cif-react-components --legacy-peer-deps
+
+      - name: Run Unit Tests (Jest)
+        working-directory: ./extensions/product-recs/react-components
+        run: npm run ci
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: jest-product-recs-test-results
+          path: extensions/product-recs/react-components/test-results
+          if-no-files-found: ignore
+
+      # Runs on every outcome - see the build job's Publish test results step for why.
+      - name: Publish test results
+        if: always()
+        uses: mikepenz/action-junit-report@v5
+        with:
+          check_name: Unit Tests (jest extensions/product-recs)
+          report_paths: extensions/product-recs/react-components/test-results/*.xml
+          detailed_summary: true
+          include_passed: true
+          group_suite: true
+          fail_on_failure: false
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v6
+        with:
+          flags: jest
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  jest-extension-experience-platform-connector:
+    name: jest (extensions/experience-platform-connector)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '16.17.1'
+
+      - name: Provision (Extension)
+        working-directory: ./extensions/experience-platform-connector
+        run: npm install --legacy-peer-deps
+
+      - name: Run Unit Tests (Jest)
+        working-directory: ./extensions/experience-platform-connector
+        run: npm run ci
+
+      # No "Publish test results" step here (unlike the other jest jobs): this package's
+      # `ci` script only runs lint + prettier:check, not jest, so no jest-junit XML is ever
+      # produced under test-results/. A report-parsing action here would have nothing to
+      # read and no real reason to run.
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: jest-epc-test-results
+          path: extensions/experience-platform-connector/test-results
+          if-no-files-found: ignore
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v6
+        with:
+          flags: jest
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  # Runs the integration and selenium suites as a single matrix job across three AEM
+  # flavors (classic, lts, addon). Each combination pulls two private Adobe images: a "qp"
+  # image as the job container (ships the AEM quickstart jar + qp.sh control CLI baked in at
+  # /home/circleci/cq) and an "aem" image (runs the actual AEM instance, reached at
+  # `localhost` because both containers share one network namespace).
+  #
+  # GitHub Actions' `container:` + `services:` keys cannot be used here: QuickProvider's RMI
+  # protocol advertises "localhost" as its own callback address, which only works if the qp
+  # and aem containers share one network namespace (--network host). Combining --network
+  # host with a `services:` container crashes the runner before the job even starts
+  # ("Error: Value cannot be null. (Parameter 'ContainerId')"). So this job runs directly on
+  # the bare runner and drives both containers itself via run-containerized-test.sh, which
+  # sidesteps GitHub Actions' service-container orchestration entirely. (aem-cif-guides-venia
+  # hit and solved this same problem first - see its .github/ci/run-containerized-test.sh.)
+  test-aem:
+    # Reproduce CircleCI's job names: integration-test-655 / selenium-chrome-cloudready-with-addon.
+    name: ${{ matrix.type == 'integration' && 'integration-test' || 'selenium-chrome' }}-${{ matrix.label }}
+    needs:
+      - build
+      - karma
+      - jest
+      - jest-extension-product-recs
+      - jest-extension-experience-platform-connector
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [integration, selenium]
+        # Keep `aem` here, not only in `include:` below - otherwise include's entries
+        # overwrite each other and silently collapse all 6 legs down to just 2.
+        aem: [classic, lts, addon]
+        include:
+          - aem: classic
+            label: '655'
+            qp_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
+            aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.24.0-openjdk11
+          - aem: lts
+            label: '660'
+            qp_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.7-openjdk21
+            aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-lts:6.6.2-openjdk21
+          - aem: addon
+            label: 'cloudready-with-addon'
+            qp_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.7-openjdk21
+            aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:26125-openjdk21
+    env:
+      AEM: ${{ matrix.aem }}
+      TYPE: ${{ matrix.type }}
+      BROWSER: chrome
+      QP_IMAGE: ${{ matrix.qp_image }}
+      AEM_IMAGE: ${{ matrix.aem_image }}
+      ARTIFACTORY_CLOUD_USER: ${{ secrets.ARTIFACTORY_CLOUD_USER }}
+      ARTIFACTORY_CLOUD_PASS: ${{ secrets.ARTIFACTORY_CLOUD_PASS }}
+      # Optional: it-tests.js already handles these being unset (skips configuring the
+      # examples GraphQL client against a live Commerce backend). Wiring them here only
+      # takes effect once matching repo secrets are actually created with real values.
+      COMMERCE_ENDPOINT: ${{ secrets.COMMERCE_ENDPOINT }}
+      COMMERCE_INTEGRATION_TOKEN: ${{ secrets.COMMERCE_INTEGRATION_TOKEN }}
+      # Tells run-containerized-test.sh to leave the aem container running (instead of its
+      # usual docker rm -f) so the "Debug via SSH" step at the end of this job can
+      # docker exec into it while it's still up.
+      KEEP_AEM_CONTAINER: ${{ inputs.debug_enabled }}
+    steps:
+      - uses: actions/checkout@v5
+
+      # These steps run directly on the bare runner (they're not `uses:` inside the qp
+      # container), so this path is the runner's own ~/.m2/repository - the same directory
+      # run-containerized-test.sh bind-mounts into the qp container's /root/.m2, since that
+      # container runs as --user root. (Caching /root/.m2/repository directly, without that
+      # bind mount, doesn't work: it's either the container's own ephemeral layer - gone the
+      # moment --rm removes it - or the *host's* actual /root, which the unprivileged
+      # default runner user can't access at all.) No cache is shared with the build job,
+      # which runs on a different runner. Without this, it/site's standalone build (and the
+      # various install-file/
+      # download-maven-plugin calls in it-tests.js) re-download their entire dependency tree
+      # from scratch on every run. Shared across all matrix.aem/type combinations - they all
+      # need the same underlying dependencies.
+      #
+      # Split into restore/save (instead of the combined actions/cache@v4) because the
+      # combined action's save step only runs if the job succeeds - while this job is still
+      # failing for unrelated reasons, a plain actions/cache@v4 would never persist anything,
+      # even after re-downloading the entire dependency tree. actions/cache/save with
+      # if: always() below saves whatever got downloaded regardless of outcome.
+      #
+      # CACHE_VERSION is a manually-bumped repository/organization Variable (Settings >
+      # Secrets and variables > Actions > Variables), not something defined here, so it can
+      # be changed later to force a fresh cache lineage without a code change. Defaults to
+      # '1' until that Variable is created. restore-keys stays scoped to the same
+      # CACHE_VERSION - it never falls back across a version bump.
+      - name: Restore Maven repository cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ~/.m2/repository
+          key: test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: build-output
+
+      # Drives both the qp and aem containers directly (see job-level comment); the
+      # script's own trap dumps the aem container's logs into this step's output on exit,
+      # success or failure, so there's finally real visibility into it - unlike the
+      # `services:` approach, GitHub Actions doesn't hide these from us anymore.
+      - name: Integration/UI tests
+        run: bash .github/scripts/run-containerized-test.sh
+
+      # Report files were written by the qp container running as --user root; make them
+      # readable by this (unprivileged) runner user before mikepenz/action-junit-report
+      # reads them.
+      - name: Fix report file permissions
+        if: always()
+        run: sudo chmod -R a+rX it/http/target/failsafe-reports ui.tests/test-module/reports 2>/dev/null || true
+
+      # Same Checks-tab reporting as the other jobs, for consistency (see the build job's
+      # Publish test results step for why mikepenz/action-junit-report over dorny/test-
+      # reporter). Split into two type-gated steps instead of one multi-path glob, since
+      # mikepenz/action-junit-report's report_paths multi-pattern syntax isn't clearly
+      # documented - only one of these ever has matching files per matrix.type anyway,
+      # so there's no real downside to keeping them separate and unambiguous.
+      #
+      # TEST-*.xml, not *.xml: maven-failsafe-plugin also writes failsafe-summary.xml into
+      # this directory, a separate aggregate-counts file with no <testsuite> structure at
+      # all - keep the same safe glob dorny/test-reporter needed, since this action's own
+      # tolerance for that file is unverified.
+      #
+      # Runs on every outcome so the Checks tab always shows a pass/fail/skip summary -
+      # see the build job's Publish test results step.
+      - name: Publish integration test results
+        if: always() && matrix.type == 'integration'
+        uses: mikepenz/action-junit-report@v5
+        with:
+          check_name: Tests (${{ matrix.type == 'integration' && 'integration-test' || 'selenium-chrome' }}-${{ matrix.label }})
+          report_paths: it/http/target/failsafe-reports/TEST-*.xml
+          detailed_summary: true
+          include_passed: true
+          group_suite: true
+          fail_on_failure: false
+
+      - name: Publish selenium test results
+        if: always() && matrix.type == 'selenium'
+        uses: mikepenz/action-junit-report@v5
+        with:
+          check_name: Tests (${{ matrix.type == 'integration' && 'integration-test' || 'selenium-chrome' }}-${{ matrix.label }})
+          report_paths: ui.tests/test-module/reports/**/*.xml
+          detailed_summary: true
+          include_passed: true
+          group_suite: true
+          fail_on_failure: false
+
+      # Saves the cache even if the job above failed, so a failing run still leaves behind
+      # whatever it managed to download for the next attempt (see restore step's comment).
+      - name: Save Maven repository cache
+        if: always()
+        uses: actions/cache/save@v5
+        with:
+          path: ~/.m2/repository
+          key: test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-${{ hashFiles('**/pom.xml') }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ matrix.type }}-${{ matrix.aem }}-reports
+          if-no-files-found: ignore
+          path: |
+            it/http/target/failsafe-reports
+            ui.tests/test-module/reports
+            logs
+            bundles/core/target/site/jacoco
+            extensions/product-recs/bundle/target/site/jacoco
+            examples/bundle/target/site/jacoco
+
+      - name: Upload coverage to Codecov
+        if: matrix.type == 'integration'
+        uses: codecov/codecov-action@v6
+        with:
+          flags: integration
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      # Opens a tmate SSH session into this runner for interactive debugging - opt-in only,
+      # via workflow_dispatch, so it never blocks a
+      # normal push/PR run. Placed last, after cache/artifact/coverage steps, so those
+      # always complete before this potentially-long, open-ended pause - not blocked by
+      # or lost to it if the session runs the full 30 minutes or the job gets cancelled
+      # mid-session. With KEEP_AEM_CONTAINER=true (set above from this same input), the
+      # aem container is still running at this point: `docker exec -it $aem_container bash`
+      # to get inside it.
+      - name: Debug via SSH (tmate)
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.debug_enabled
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
+        timeout-minutes: 30
+
+      # Force-remove the aem container left running for the SSH session above (a no-op if
+      # KEEP_AEM_CONTAINER wasn't set, since run-containerized-test.sh already removed it).
+      - name: Clean up debug AEM container
+        if: always()
+        run: docker rm -f "${aem_container:-}" >/dev/null 2>&1 || true

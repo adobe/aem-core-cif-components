@@ -2,7 +2,7 @@
 
 Use this when you want a **fresh** AEM Commerce project with the same IDs as this module, then apply the same trims and additions so the next iteration matches **`it/site`** without rediscovering steps.
 
-**Context:** This module lives inside the `aem-core-cif-components` monorepo at `it/site/`. Its reactor pom inherits from **`core-cif-components-parent`** (version `2.18.3-SNAPSHOT`, relativePath `../../parent/pom.xml`). If you need to recreate this as a **standalone** project outside the monorepo, the archetype command in step 1 is your starting point; for embedding inside the monorepo again, follow the same steps and then re-parent as described in step 6.
+**Context:** This module lives inside the `aem-core-cif-components` monorepo at `it/site/`. Its reactor pom inherits from **`core-cif-components-parent`** (relativePath `../../parent/pom.xml`; check that file's `<version>` for the current value — do not hardcode it here, see step 6b on why). If you need to recreate this as a **standalone** project outside the monorepo, the archetype command in step 1 is your starting point; for embedding inside the monorepo again, follow the same steps and then re-parent as described in step 6.
 
 ---
 
@@ -128,7 +128,7 @@ The reactor pom must inherit from **`core-cif-components-parent`**:
 <parent>
   <groupId>com.adobe.commerce.cif</groupId>
   <artifactId>core-cif-components-parent</artifactId>
-  <version>2.18.3-SNAPSHOT</version>
+  <version><!-- match parent/pom.xml's current <version> --></version>
   <relativePath>../../parent/pom.xml</relativePath>
 </parent>
 ```
@@ -177,7 +177,7 @@ Drop `<groupId>` and `<version>` from the reactor pom (both inherited). Properti
 </plugin>
 ```
 
-All child poms' `<parent><version>` must match the monorepo version (`2.18.3-SNAPSHOT`), not the archetype-generated `1.0.0-SNAPSHOT`.
+All child poms' `<parent><version>` must match `parent/pom.xml`'s current monorepo version, not the archetype-generated `1.0.0-SNAPSHOT`. This value can't be inherited automatically (Maven requires a literal `<parent><version>`), so it must be kept in sync by hand — bump it alongside every monorepo release, the same way every other module's `<parent><version>` is bumped. (This module went stale for exactly this reason once already — see the fixed occurrences of a leftover `2.18.3-SNAPSHOT` in this file's history.)
 
 **Version compatibility — WCM Core vs CIF Core (critical):** `core-cif-components-apps` declares a vault dependency on a minimum `core.wcm.components.content` version. If `core.wcm.components.version` is lower than what CIF requires, Package Manager will refuse to install CIF apps on AEM 6.5. Always check the CIF release notes or inspect the vault `properties.xml` of the `core-cif-components-apps-*.zip` artifact for its `dependencies` entry. Example: CIF Core **2.18.2** requires WCM Core **≥ 2.29.0**.
 
