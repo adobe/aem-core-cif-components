@@ -25,7 +25,10 @@
   </parent>
 
   <artifactId>cif-components-it-site</artifactId>
-  <version>2.18.7-SNAPSHOT</version>
+  <!-- Independent version for the it/site test site, deliberately decoupled from the CIF release
+       version so the profile-gated classic/* modules (which the release plugin never rewrites)
+       stay consistent. Do not bump this on release. -->
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>CIF IT Site</name>
   <description>CIF IT Site — integration-test site for AEM CIF Core Components</description>
@@ -460,6 +463,16 @@ Bundle-DocURL:
         <version>${core.wcm.components.version}</version>
       </dependency>
       <!-- CIF Core Components -->
+      <!-- Compile-time only (the bundle is provided by the AEM runtime, not embedded). Managed
+           centrally here so the whole it/site test site pins a single CIF Core version. it/site is
+           a standalone reactor decoupled from the CIF release reactor, so THIS is the one line to
+           bump when retargeting the test site at a newer CIF Core version. -->
+      <dependency>
+        <groupId>com.adobe.commerce.cif</groupId>
+        <artifactId>core-cif-components-core</artifactId>
+        <version>2.18.7-SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
       <!-- CIF SDK API -->
       <dependency>
         <groupId>com.adobe.aem</groupId>
