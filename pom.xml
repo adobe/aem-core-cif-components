@@ -64,9 +64,16 @@
             <modules>
                 <module>it/content</module>
                 <module>it/http</module>
-                <module>it/site</module>
                 <module>ui.tests</module>
             </modules>
+            <!-- it/site is intentionally NOT a reactor module. It builds as its own standalone
+                 reactor (see .github/scripts/it-tests.js) and is versioned independently at
+                 1.0.0-SNAPSHOT. Keeping it out of the reactor stops mvn release:prepare from
+                 bumping its version (autoVersionSubmodules=true would otherwise force it to the
+                 release version and strand the profile-gated it/site/classic/* modules, which the
+                 release plugin never rewrites). Its only coupling to the CIF release is the
+                 provided-scope core-cif-components-core dependency, managed centrally in
+                 it/site/pom.xml and bumped manually when retargeting the test site. -->
         </profile>
     </profiles>
 
