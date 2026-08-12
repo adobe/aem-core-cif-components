@@ -42,6 +42,7 @@ import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerComponent;
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureImpl;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.UrlFormatBase;
+import com.adobe.cq.commerce.core.components.internal.utils.VersionHistoryUtils;
 import com.adobe.cq.commerce.core.components.models.breadcrumb.Breadcrumb;
 import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.navigation.Navigation;
@@ -106,23 +107,77 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
 
     @Override
     public Collection<NavigationItem> getItems() {
-        // Useful for the template editor
-        if (!currentPage.getPath().startsWith("/content")) {
+        BreadcrumbContext context = getBreadcrumbContext();
+        if (context == null) {
             return Collections.emptyList();
         }
 
         if (items == null) {
             items = new ArrayList<>();
             if (magentoGraphqlClient != null) {
-                Collection<NavigationItem> pageItems = breadcrumb.getItems();
-                for (NavigationItem item : pageItems) {
-                    if (!populateItems(item)) {
+                for (NavigationItem item : getPageItems(context)) {
+                    Page page = context.versionPreview ? item.getPage() : resolveSourcePage(item.getPage());
+                    if (page == null) {
+                        continue;
+                    }
+
+                    if (!populateItems(item, page, context)) {
                         break;
                     }
                 }
             }
         }
         return Collections.unmodifiableList(items);
+    }
+
+    private BreadcrumbContext getBreadcrumbContext() {
+        Resource currentPageResource = currentPage != null ? currentPage.adaptTo(Resource.class) : null;
+        boolean versionPreview = VersionHistoryUtils.isVersionPreviewResource(currentPageResource);
+        Page breadcrumbPage = versionPreview ? resolveSourcePage(currentPage) : currentPage;
+
+        // Useful for the template editor
+        if (breadcrumbPage == null || !breadcrumbPage.getPath().startsWith("/content")) {
+            return null;
+        }
+
+        SiteStructure effectiveSiteStructure = versionPreview ? breadcrumbPage.adaptTo(SiteStructure.class) : siteStructure;
+        if (effectiveSiteStructure == null) {
+            effectiveSiteStructure = siteStructure;
+        }
+
+        return new BreadcrumbContext(currentPageResource, breadcrumbPage, effectiveSiteStructure, versionPreview);
+    }
+
+    private Collection<NavigationItem> getPageItems(BreadcrumbContext context) {
+        return context.versionPreview ? getVersionPreviewItems(context) : breadcrumb.getItems();
+    }
+
+    private Collection<NavigationItem> getVersionPreviewItems(BreadcrumbContext context) {
+        Page sourceCurrentPage = context.breadcrumbPage;
+        int startLevel = properties.get(com.adobe.cq.wcm.core.components.models.Breadcrumb.PN_START_LEVEL,
+            currentStyle.get(com.adobe.cq.wcm.core.components.models.Breadcrumb.PN_START_LEVEL, 2));
+        Page firstIncludedSourcePage = sourceCurrentPage.getAbsoluteParent(startLevel);
+        if (firstIncludedSourcePage == null) {
+            return Collections.emptyList();
+        }
+
+        List<Page> pages = new ArrayList<>();
+        for (Page page = sourceCurrentPage; page != null; page = page.getParent()) {
+            pages.add(page);
+            if (StringUtils.equals(page.getPath(), firstIncludedSourcePage.getPath())) {
+                break;
+            }
+        }
+
+        Collections.reverse(pages);
+        return pages.stream()
+            .map(page -> newNavigationItem(
+                page,
+                getPageTitle(page),
+                toContextualUrl(context, page.getPath() + ".html"),
+                StringUtils.equals(page.getPath(), sourceCurrentPage.getPath()),
+                currentPage.getContentResource()))
+            .collect(Collectors.toList());
     }
 
     /**
@@ -134,21 +189,13 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
      * @param item
      * @return true if more original items should be considered for the breadcrumb, otherwise false
      */
-    private boolean populateItems(NavigationItem item) {
-        Page page = item.getPage();
+    private boolean populateItems(NavigationItem item, Page page, BreadcrumbContext context) {
         Resource contentResource;
-
-        // We build the breadcrumb based on the production version of the page structure
-        if (page != null && LaunchUtils.isLaunchBasedPath(page.getPath())) {
-            PageManager pageManager = page.getPageManager();
-            contentResource = LaunchUtils.getTargetResource(page.getContentResource(), null);
-            page = pageManager.getContainingPage(contentResource);
-        }
 
         contentResource = page != null ? page.getContentResource() : null;
 
         // If we encounter the catalog page and it's configured to show the main categories, we skip that page
-        if (siteStructure.isCatalogPage(page)) {
+        if (context.siteStructure.isCatalogPage(page)) {
             if (contentResource.getValueMap().get(Navigation.PN_SHOW_MAIN_CATEGORIES, Boolean.TRUE)) {
                 return true;
             }
@@ -160,7 +207,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         List<? extends CategoryInterface> categoriesBreadcrumbs = null;
         ProductInterface product = null;
 
-        if (siteStructure.isProductPage(page)) {
+        if (context.siteStructure.isProductPage(page)) {
             categoriesBreadcrumbs = fetchProductBreadcrumbs();
             product = retriever.fetchProduct();
             isProductPage = true;
@@ -168,12 +215,16 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             if (product == null) {
                 return false;
             }
-        } else if (siteStructure.isCategoryPage(page)) {
+        } else if (context.siteStructure.isCategoryPage(page)) {
             categoriesBreadcrumbs = fetchCategoryBreadcrumbs();
             isCategoryPage = true;
         } else {
             // we reached a content page
-            items.add(item);
+            String url = toContextualUrl(context, item.getURL());
+            String title = context.versionPreview ? getPageTitle(page) : item.getTitle();
+            items.add(url.equals(item.getURL()) && StringUtils.equals(title, item.getTitle()) ? item
+                : newNavigationItem(title, url,
+                    item.isActive()));
             return true;
         }
 
@@ -181,7 +232,7 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
             return false;
         }
 
-        SiteStructure.Entry siteStructureEntry = siteStructure.getEntry(page);
+        SiteStructure.Entry siteStructureEntry = context.siteStructure.getEntry(page);
 
         // A product can be in multiple categories so we select the "primary" category
         categoriesBreadcrumbs.sort(Comparator.comparing(CategoryInterface::getUrlPath).reversed());
@@ -210,12 +261,39 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         // We finally add the product if it's a product page
         if (isProductPage) {
             ProductUrlFormat.Params params = new ProductUrlFormat.Params(product);
-            String url = urlProvider.toProductUrl(request, currentPage, params);
+            String url = toContextualUrl(context, urlProvider.toProductUrl(request, currentPage, params));
             NavigationItemImpl productItem = newNavigationItem(product.getName(), url, true);
             items.add(productItem);
         }
 
         return false;
+    }
+
+    private Page resolveSourcePage(Page page) {
+        if (page == null) {
+            return null;
+        }
+
+        if (LaunchUtils.isLaunchBasedPath(page.getPath())) {
+            PageManager pageManager = page.getPageManager();
+            Resource launchSourceResource = LaunchUtils.getTargetResource(page.getContentResource(), null);
+            Page launchSourcePage = pageManager != null ? pageManager.getContainingPage(launchSourceResource) : null;
+            if (launchSourcePage != null) {
+                return launchSourcePage;
+            }
+        }
+
+        Resource pageResource = page.adaptTo(Resource.class);
+        if (VersionHistoryUtils.isVersionPreviewResource(pageResource)) {
+            PageManager pageManager = page.getPageManager();
+            Resource sourceResource = VersionHistoryUtils.resolveSourceResource(pageResource);
+            Page sourcePage = pageManager != null ? pageManager.getContainingPage(sourceResource) : null;
+            if (sourcePage != null) {
+                return sourcePage;
+            }
+        }
+
+        return page;
     }
 
     private boolean shouldIncludeInBreadcrumb(String breadcrumbUrlPath, Page catalogPage) {
@@ -255,7 +333,9 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
         params.setUid(uid.toString());
         params.setUrlKey(urlKey);
         params.setUrlPath(urlPath);
-        String url = urlProvider.toCategoryUrl(request, currentPage, params);
+        String url = VersionHistoryUtils.toVersionPreviewUrl(
+            currentPage != null ? currentPage.adaptTo(Resource.class) : null,
+            urlProvider.toCategoryUrl(request, currentPage, params));
         // if there is no category page, the url will contain the placeholder {{page}}
         if (!url.contains(PAGE_PLACEHOLDER)) {
             NavigationItemImpl categoryItem = newNavigationItem(name, url, isActive);
@@ -277,6 +357,34 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
 
     private NavigationItemImpl newNavigationItem(String name, String url, boolean isActive) {
         return new NavigationItemImpl(name, url, isActive, this.getId(), currentPage.getContentResource());
+    }
+
+    private NavigationItemImpl newNavigationItem(Page page, String name, String url, boolean isActive, Resource resource) {
+        return new NavigationItemImpl(page, name, url, isActive, this.getId(), resource);
+    }
+
+    private String toContextualUrl(BreadcrumbContext context, String url) {
+        return VersionHistoryUtils.toVersionPreviewUrl(context.currentPageResource, url);
+    }
+
+    private String getPageTitle(Page page) {
+        return StringUtils.defaultIfBlank(
+            page.getNavigationTitle(),
+            StringUtils.defaultIfBlank(page.getPageTitle(), StringUtils.defaultIfBlank(page.getTitle(), page.getName())));
+    }
+
+    private static final class BreadcrumbContext {
+        private final Resource currentPageResource;
+        private final Page breadcrumbPage;
+        private final SiteStructure siteStructure;
+        private final boolean versionPreview;
+
+        private BreadcrumbContext(Resource currentPageResource, Page breadcrumbPage, SiteStructure siteStructure, boolean versionPreview) {
+            this.currentPageResource = currentPageResource;
+            this.breadcrumbPage = breadcrumbPage;
+            this.siteStructure = siteStructure;
+            this.versionPreview = versionPreview;
+        }
     }
 
     @Override
