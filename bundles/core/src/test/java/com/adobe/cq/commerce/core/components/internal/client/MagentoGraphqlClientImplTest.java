@@ -52,6 +52,7 @@ import com.adobe.cq.commerce.core.testing.TestContext;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy;
 import com.adobe.cq.commerce.graphql.client.CachingStrategy.DataFetchingPolicy;
 import com.adobe.cq.commerce.graphql.client.GraphqlClient;
+import com.adobe.cq.commerce.graphql.client.GraphqlClientConfiguration;
 import com.adobe.cq.commerce.graphql.client.GraphqlRequestException;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.HttpMethod;
@@ -403,27 +404,10 @@ public class MagentoGraphqlClientImplTest {
         verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
     }
 
-    private void registerClientIpForwarding(String headerName, String headerValuePattern) {
-        context.registerInjectActivateService(new ForwardedHeadersConfigService(), ImmutableMap.of(
-            "enabled", true,
-            "clientIpEnabled", true,
-            "clientIpHeaderName", headerName,
-            "clientIpHeaderValuePattern", headerValuePattern));
-    }
-
-    private void registerClientIpForwarding(String headerName, String outboundHeaderName, String headerValuePattern) {
-        context.registerInjectActivateService(new ForwardedHeadersConfigService(), ImmutableMap.of(
-            "enabled", true,
-            "clientIpEnabled", true,
-            "clientIpHeaderName", headerName,
-            "clientIpOutboundHeaderName", outboundHeaderName,
-            "clientIpHeaderValuePattern", headerValuePattern));
-    }
-
-    private void registerGenericHeaderForwarding(String... headerNames) {
-        context.registerInjectActivateService(new ForwardedHeadersConfigService(), ImmutableMap.of(
-            "enabled", true,
-            "forwardedHeaderNames", headerNames));
+    private void registerCacheKeyExcludedHeaders(String... headerNames) {
+        GraphqlClientConfiguration configuration = Mockito.mock(GraphqlClientConfiguration.class);
+        when(configuration.cacheKeyExcludedHeaders()).thenReturn(headerNames);
+        when(graphqlClient.getConfiguration()).thenReturn(configuration);
     }
 
     private void registerComponentsConfigurationForPageA(ComponentsConfiguration configuration) {
@@ -435,133 +419,9 @@ public class MagentoGraphqlClientImplTest {
     }
 
     @Test
-    public void testClientIpForwardedFromConfiguredHeader() {
+    public void testHeaderNotForwardedWhenNotConfigured() {
         registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
-        registerClientIpForwarding("X-Forwarded-For", "^\\s*([0-9a-fA-F:.]+)");
-        context.request().addHeader("X-Forwarded-For", "203.0.113.25");
-
-        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
-        client.execute("{dummy}");
-
-        List<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader("Store", "my-store"));
-        headers.add(new BasicHeader("X-Adobe-Client-IP", "203.0.113.25"));
-
-        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
-        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
-    }
-
-    @Test
-    public void testLeftmostEntryTakenFromMultiHopXForwardedForHeader() {
-        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
-        registerClientIpForwarding("X-Forwarded-For", "^\\s*([0-9a-fA-F:.]+)");
-        // First entry is the original client; subsequent entries were appended by trusted hops (CDN, dispatcher)
-        context.request().addHeader("X-Forwarded-For", "203.0.113.25, 198.51.100.10, 192.0.2.5");
-
-        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
-        client.execute("{dummy}");
-
-        List<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader("Store", "my-store"));
-        headers.add(new BasicHeader("X-Adobe-Client-IP", "203.0.113.25"));
-
-        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
-        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
-    }
-
-    @Test
-    public void testClientIpExtractedFromDedicatedCdnHeader() {
-        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
-        // e.g. Cloudflare's dedicated single-value header instead of X-Forwarded-For
-        registerClientIpForwarding("CF-Connecting-IP", "^\\s*([0-9a-fA-F:.]+)");
-        context.request().addHeader("CF-Connecting-IP", "203.0.113.25");
-
-        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
-        client.execute("{dummy}");
-
-        List<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader("Store", "my-store"));
-        headers.add(new BasicHeader("X-Adobe-Client-IP", "203.0.113.25"));
-
-        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
-        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
-    }
-
-    @Test
-    public void testOutboundHeaderNameDefaultsToXAdobeClientIp() {
-        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
-        // No explicit outbound name or pattern: relies purely on the ForwardedHeadersConfig annotation's defaults
-        context.registerInjectActivateService(new ForwardedHeadersConfigService(), ImmutableMap.of(
-            "enabled", true,
-            "clientIpEnabled", true,
-            "clientIpHeaderName", "X-Forwarded-For"));
-        context.request().addHeader("X-Forwarded-For", "203.0.113.25");
-
-        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
-        client.execute("{dummy}");
-
-        List<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader("Store", "my-store"));
-        headers.add(new BasicHeader("X-Adobe-Client-IP", "203.0.113.25"));
-
-        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
-        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
-    }
-
-    @Test
-    public void testOutboundHeaderNameCanDifferFromIncomingHeaderName() {
-        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
-        // Read from the CDN's dedicated header, but forward to Commerce under a fixed, unrelated name
-        registerClientIpForwarding("CF-Connecting-IP", "X-Custom-Client-IP", "^\\s*([0-9a-fA-F:.]+)");
-        context.request().addHeader("CF-Connecting-IP", "203.0.113.25");
-
-        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
-        client.execute("{dummy}");
-
-        List<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader("Store", "my-store"));
-        headers.add(new BasicHeader("X-Custom-Client-IP", "203.0.113.25"));
-
-        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
-        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
-    }
-
-    @Test
-    public void testClientIpReadFromRemoteAddrForLocalTesting() {
-        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
-        // REMOTE_ADDR is only correct with no proxy/CDN in front of AEM, e.g. local development
-        registerClientIpForwarding("REMOTE_ADDR", "^\\s*([0-9a-fA-F:.]+)");
-        context.request().setRemoteAddr("127.0.0.1");
-
-        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
-        client.execute("{dummy}");
-
-        List<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader("Store", "my-store"));
-        headers.add(new BasicHeader("X-Adobe-Client-IP", "127.0.0.1"));
-
-        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
-        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
-    }
-
-    @Test
-    public void testMalformedClientIpHeaderIsIgnored() {
-        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
-        registerClientIpForwarding("X-Forwarded-For", "^\\s*([0-9a-fA-F:.]+)");
-        context.request().addHeader("X-Forwarded-For", "<script>alert(1)</script>");
-
-        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
-        client.execute("{dummy}");
-
-        List<Header> headers = Collections.singletonList(new BasicHeader("Store", "my-store"));
-        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
-        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
-    }
-
-    @Test
-    public void testClientIpForwardingDisabledByDefault() {
-        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
-        // No ForwardedHeadersConfigService registered/enabled: incoming header must not be forwarded
+        // No cacheKeyExcludedHeaders configured: the incoming header must not be forwarded
         context.request().addHeader("X-Forwarded-For", "203.0.113.25");
 
         MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
@@ -573,29 +433,63 @@ public class MagentoGraphqlClientImplTest {
     }
 
     @Test
-    public void testMasterSwitchDisablesForwardingEvenWhenClientIpAndGenericHeadersConfigured() {
+    public void testConfiguredHeaderNotForwardedWhenAbsentFromIncomingRequest() {
         registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
-        // Master "enabled" off: neither the client IP section nor the generic header list should apply
-        context.registerInjectActivateService(new ForwardedHeadersConfigService(), ImmutableMap.of(
-            "enabled", false,
-            "clientIpEnabled", true,
-            "clientIpHeaderName", "X-Forwarded-For",
-            "forwardedHeaderNames", new String[] { "X-Request-Id" }));
+        registerCacheKeyExcludedHeaders("X-Forwarded-For");
+        // Header configured for forwarding, but not present on the incoming request
+
+        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
+        client.execute("{dummy}");
+
+        List<Header> headers = Collections.singletonList(new BasicHeader("Store", "my-store"));
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
+    public void testMultipleCacheKeyExcludedHeadersForwardedTogether() {
+        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
+        registerCacheKeyExcludedHeaders("X-Forwarded-For", "X-Request-Id");
         context.request().addHeader("X-Forwarded-For", "203.0.113.25");
         context.request().addHeader("X-Request-Id", "abc-123");
 
         MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
         client.execute("{dummy}");
 
-        List<Header> headers = Collections.singletonList(new BasicHeader("Store", "my-store"));
+        List<Header> headers = new ArrayList<>();
+        headers.add(new BasicHeader("Store", "my-store"));
+        headers.add(new BasicHeader("X-Forwarded-For", "203.0.113.25"));
+        headers.add(new BasicHeader("X-Request-Id", "abc-123"));
+
         RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
         verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
     }
 
     @Test
-    public void testGenericHeaderForwardedAsIs() {
+    public void testConfiguredHttpHeaderTakesPrecedenceOverForwardedHeader() {
+        ValueMap configWithForwardedHeader = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
+            "my-store", "httpHeaders", new String[] { "X-Forwarded-For=configured-value" }));
+        ComponentsConfiguration configObject = new ComponentsConfiguration(configWithForwardedHeader);
+
+        registerComponentsConfigurationForPageA(configObject);
+        registerCacheKeyExcludedHeaders("X-Forwarded-For");
+        context.request().addHeader("X-Forwarded-For", "203.0.113.25");
+
+        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
+        client.execute("{dummy}");
+
+        List<Header> headers = new ArrayList<>();
+        headers.add(new BasicHeader("Store", "my-store"));
+        headers.add(new BasicHeader("X-Forwarded-For", "configured-value"));
+
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
+    public void testCacheKeyExcludedHeaderForwardedAsIs() {
         registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
-        registerGenericHeaderForwarding("X-Request-Id");
+        registerCacheKeyExcludedHeaders("X-Request-Id");
         context.request().addHeader("X-Request-Id", "abc-123");
 
         MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
@@ -610,9 +504,9 @@ public class MagentoGraphqlClientImplTest {
     }
 
     @Test
-    public void testDenylistedGenericHeaderIsIgnoredEvenIfConfigured() {
+    public void testDenylistedCacheKeyExcludedHeaderIsIgnoredEvenIfConfigured() {
         registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
-        registerGenericHeaderForwarding("Authorization", "X-Request-Id");
+        registerCacheKeyExcludedHeaders("Authorization", "X-Request-Id");
         context.request().addHeader("Authorization", "Bearer secret");
         context.request().addHeader("X-Request-Id", "abc-123");
 
@@ -622,50 +516,6 @@ public class MagentoGraphqlClientImplTest {
         List<Header> headers = new ArrayList<>();
         headers.add(new BasicHeader("Store", "my-store"));
         headers.add(new BasicHeader("X-Request-Id", "abc-123"));
-
-        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
-        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
-    }
-
-    @Test
-    public void testClientIpAndGenericHeadersForwardedTogether() {
-        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
-        context.registerInjectActivateService(new ForwardedHeadersConfigService(), ImmutableMap.of(
-            "enabled", true,
-            "clientIpEnabled", true,
-            "clientIpHeaderName", "X-Forwarded-For",
-            "forwardedHeaderNames", new String[] { "X-Request-Id" }));
-        context.request().addHeader("X-Forwarded-For", "203.0.113.25");
-        context.request().addHeader("X-Request-Id", "abc-123");
-
-        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
-        client.execute("{dummy}");
-
-        List<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader("Store", "my-store"));
-        headers.add(new BasicHeader("X-Adobe-Client-IP", "203.0.113.25"));
-        headers.add(new BasicHeader("X-Request-Id", "abc-123"));
-
-        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
-        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
-    }
-
-    @Test
-    public void testConfiguredHttpHeaderTakesPrecedenceOverClientIpHeader() {
-        ValueMap configWithClientIpHeader = new ValueMapDecorator(ImmutableMap.of("cq:graphqlClient", "default", "magentoStore",
-            "my-store", "httpHeaders", new String[] { "X-Adobe-Client-IP=configured-value" }));
-        ComponentsConfiguration configObject = new ComponentsConfiguration(configWithClientIpHeader);
-
-        registerComponentsConfigurationForPageA(configObject);
-        registerClientIpForwarding("X-Forwarded-For", "^\\s*([0-9a-fA-F:.]+)");
-        context.request().addHeader("X-Forwarded-For", "203.0.113.25");
-
-        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
-        client.execute("{dummy}");
-
-        List<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader("Store", "my-store"));
-        headers.add(new BasicHeader("X-Adobe-Client-IP", "configured-value"));
 
         RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
         verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));

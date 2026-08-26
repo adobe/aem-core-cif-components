@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -29,8 +28,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -44,7 +41,6 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.models.annotations.Model;
 import org.apache.sling.models.annotations.injectorspecific.InjectionStrategy;
-import org.apache.sling.models.annotations.injectorspecific.OSGiService;
 import org.apache.sling.models.annotations.injectorspecific.ScriptVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,11 +92,6 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     private Resource resource;
     @ScriptVariable(injectionStrategy = InjectionStrategy.OPTIONAL)
     private Page currentPage;
-    // Admin-configured forwarding of incoming request headers (generic headers, plus a dedicated client IP
-    // section) to the outbound Commerce request. Which header/source and how to parse the client IP differs per
-    // CDN/dispatcher (AEMaaCS vs. on-premise, and across CDN vendors), hence configuration, not hardcoded here.
-    @OSGiService(injectionStrategy = InjectionStrategy.OPTIONAL)
-    private ForwardedHeadersConfigService forwardedHeadersConfigService;
 
     private GraphqlClient graphqlClient;
     private RequestOptions requestOptions;
@@ -217,18 +208,8 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             httpMethod = HttpMethod.POST;
         }
 
-        // Headers carrying per-request metadata (client IP, forwarded tracing/correlation ids, ...) must not
-        // influence the GraphQL response cache key, since they do not affect the response itself.
-        Set<String> nonCacheKeyHeaderNames = new HashSet<>();
-
-        if (request != null && forwardedHeadersConfigService != null && forwardedHeadersConfigService.isEnabled()) {
-            // Checked separately from the generic forwarded headers below, since the client IP needs its own
-            // source pattern and outbound name rather than a plain same-name pass-through.
-            if (forwardedHeadersConfigService.isClientIpEnabled()) {
-                applyClientIpForwarding(request, forwardedHeadersConfigService, headers, nonCacheKeyHeaderNames);
-            }
-
-            applyGenericHeaderForwarding(request, forwardedHeadersConfigService, headers, nonCacheKeyHeaderNames);
+        if (request != null) {
+            forwardCacheKeyExcludedHeaders(request, headers);
         }
 
         this.httpHeaders = headers;
@@ -241,7 +222,6 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
                 .withCacheName(cacheName)
                 .withDataFetchingPolicy(DataFetchingPolicy.CACHE_FIRST))
             .withHeaders(headers.size() > 0 ? headers : null)
-            .withNonCacheKeyHeaderNames(nonCacheKeyHeaderNames)
             .withHttpMethod(httpMethod);
 
         if (request != null) {
@@ -386,82 +366,37 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     }
 
     /**
-     * Forwards the client IP using the dedicated source header/pattern/outbound name from
-     * {@link ForwardedHeadersConfig}, since the client IP needs more than a plain same-name pass-through: a source
-     * that may be {@code REMOTE_ADDR}, a value extraction pattern, and typically a different outbound name.
+     * Forwards, as-is under the same name, any incoming request header named in this instance's {@code GraphqlClient}
+     * connection's {@code cacheKeyExcludedHeaders()} (e.g. a client IP header set by the CDN/dispatcher in front of
+     * AEM) - so the caller doesn't need a second, separate configuration to know which headers to forward.
      */
-    private static void applyClientIpForwarding(SlingHttpServletRequest request, ForwardedHeadersConfigService config,
-        List<Header> headers, Set<String> nonCacheKeyHeaderNames) {
-        String outboundHeaderName = config.getClientIpOutboundHeaderName();
-        String value = readRequestValue(request, config.getClientIpHeaderName(), config.getClientIpHeaderValuePattern());
-        addForwardedHeader(outboundHeaderName, value, headers, nonCacheKeyHeaderNames);
-    }
-
-    /**
-     * Forwards each configured generic header (e.g. a tracing/correlation id) as-is, under the same name, with no
-     * value extraction pattern. Kept separate from client IP forwarding above so each stays simple to read.
-     */
-    private static void applyGenericHeaderForwarding(SlingHttpServletRequest request, ForwardedHeadersConfigService config,
-        List<Header> headers, Set<String> nonCacheKeyHeaderNames) {
-        for (String headerName : config.getForwardedHeaderNames()) {
-            String value = readRequestValue(request, headerName, null);
-            addForwardedHeader(headerName, value, headers, nonCacheKeyHeaderNames);
-        }
-    }
-
-    /**
-     * Adds {@code value} to {@code headers} under {@code outboundHeaderName} and marks it as excluded from the
-     * response cache key, unless the value is missing, the name is denylisted, or a header with that name is
-     * already present (a statically configured header always takes precedence).
-     */
-    private static void addForwardedHeader(String outboundHeaderName, String value, List<Header> headers,
-        Set<String> nonCacheKeyHeaderNames) {
-        if (value == null) {
+    private void forwardCacheKeyExcludedHeaders(SlingHttpServletRequest request, List<Header> headers) {
+        if (graphqlClient == null) {
             return;
         }
-        if (DENIED_HEADERS.contains(outboundHeaderName.toLowerCase(Locale.ROOT))) {
-            LOGGER.warn("Ignoring denylisted outbound header '{}' configured for forwarding", outboundHeaderName);
+        GraphqlClientConfiguration configuration = graphqlClient.getConfiguration();
+        if (configuration == null) {
             return;
         }
-        if (headers.stream().noneMatch(header -> header.getName().equalsIgnoreCase(outboundHeaderName))) {
-            headers.add(new BasicHeader(outboundHeaderName, value));
-            nonCacheKeyHeaderNames.add(outboundHeaderName);
-        }
-    }
 
-    /**
-     * Reads the value to forward from the configured source: either the direct TCP connection IP
-     * ({@code REMOTE_ADDR}), or the named incoming header, optionally parsed with a pattern. A {@code null}
-     * pattern means the header's raw value is forwarded as-is. Which source to read, and how to parse it, is
-     * configuration ({@link ForwardedHeadersConfig}) rather than hardcoded here, since different CDNs/dispatchers
-     * in front of AEM (AEMaaCS vs. on-premise, and across CDN vendors) expose values like the client IP
-     * differently.
-     */
-    private static String readRequestValue(SlingHttpServletRequest request, String headerName, Pattern headerValuePattern) {
-        if (StringUtils.isBlank(headerName)) {
-            return null;
+        String[] headerNames = configuration.cacheKeyExcludedHeaders();
+        if (headerNames == null) {
+            return;
         }
 
-        if (ForwardedHeadersConfigService.REMOTE_ADDR.equalsIgnoreCase(headerName)) {
-            return StringUtils.trimToNull(request.getRemoteAddr());
+        for (String headerName : headerNames) {
+            String value = StringUtils.trimToNull(request.getHeader(headerName));
+            if (value == null) {
+                continue;
+            }
+            if (DENIED_HEADERS.contains(headerName.toLowerCase(Locale.ROOT))) {
+                LOGGER.warn("Ignoring denylisted header '{}' configured for forwarding", headerName);
+                continue;
+            }
+            if (headers.stream().noneMatch(header -> header.getName().equalsIgnoreCase(headerName))) {
+                headers.add(new BasicHeader(headerName, value));
+            }
         }
-
-        String headerValue = StringUtils.trimToNull(request.getHeader(headerName));
-        if (headerValue == null) {
-            return null;
-        }
-
-        if (headerValuePattern == null) {
-            return headerValue;
-        }
-
-        Matcher matcher = headerValuePattern.matcher(headerValue);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-
-        LOGGER.warn("Could not extract a value from header '{}' using the configured pattern", headerName);
-        return null;
     }
 
     private static Long getTimeWarpEpoch(SlingHttpServletRequest request) {
