@@ -17,6 +17,13 @@ Product (v2)
 ====
 The version 2 of the product component extends the v1 product component by extending the v1 GraphQL query with the `staged` field introduced in Magento 2.4.2 Enterprise Edition (EE). This hence requires that the Magento backend is at least version 2.4.2 EE because the query with the `staged` field will be rejected by Magento versions not having this field in the GraphQL schema.
 
+The `staged` field is only available on Adobe Commerce (formerly Magento EE) and does not exist in the Magento Open Source GraphQL schema. Requesting it against Magento Open Source results in a GraphQL validation error that breaks the product detail page. To support Magento Open Source, set the `enableContentStaging` property to `false` on the CIF commerce configuration; the `staged` field is then omitted from the product and variant queries and the "Staged" badge is not shown.
+
+### CIF Commerce Configuration Properties
+The following property is read from the CIF commerce configuration (`ComponentsConfiguration`):
+
+1. `enableContentStaging` - when `true` (default), the `staged` field is added to the product and variant queries to drive the author-only "Staged" badge. Set to `false` for Magento Open Source backends, which do not support the `staged` field.
+
 ## BEM Description
 
 In addition to the elements documented for the version 1 of the product component, version 2 introduces this extra element to display a "staged" flag. Note that this is only relevant for AEM author instances.

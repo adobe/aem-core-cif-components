@@ -149,11 +149,11 @@ public class ProductListImplTest {
     private static final String PRODUCT_LIST_WITH_MULTIPLE_XF = "/content/pageA/jcr:content/root/responsivegrid/productlist_with_multiple_xf";
 
     private Resource productListResource;
-    private Resource pageResource;
+    protected Resource pageResource;
     protected ProductListImpl productListModel;
     private CategoryTree category;
     private Products products;
-    private GraphqlClient graphqlClient;
+    protected GraphqlClient graphqlClient;
 
     @Mock
     CloseableHttpClient httpClient;
