@@ -17,7 +17,6 @@ package com.adobe.cq.commerce.core.components.internal.models.v2.productlist;
 
 import java.util.List;
 
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.junit.Assert;
