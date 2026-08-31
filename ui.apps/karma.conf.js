@@ -50,6 +50,7 @@ module.exports = function(config) {
 
       'src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/index.js',
 
+      'test/setup.js',
       'test/**/*Test.js'
     ],
 
