@@ -57,7 +57,38 @@ public final class VersionHistoryUtils {
         return resource;
     }
 
+    /**
+     * Keeps generated URLs inside the current /tmp/versionhistory preview tree.
+     */
+    public static String toVersionPreviewUrl(Resource versionPreviewResource, String url) {
+        if (!isVersionPreviewResource(versionPreviewResource) || StringUtils.isBlank(url) || !StringUtils.startsWith(url, "/content/")) {
+            return url;
+        }
+
+        String sourceRelativePath = getSourceRelativePath(versionPreviewResource.getPath());
+        if (StringUtils.isBlank(sourceRelativePath)) {
+            return url;
+        }
+
+        String previewPath = versionPreviewResource.getPath();
+        if (!StringUtils.endsWith(previewPath, sourceRelativePath)) {
+            return url;
+        }
+
+        String previewRoot = StringUtils.substringBeforeLast(previewPath, sourceRelativePath);
+        return previewRoot + StringUtils.removeStart(url, "/content/");
+    }
+
     private static String getSourcePagePath(String path) {
+        String relativePath = getSourceRelativePath(path);
+        if (StringUtils.isBlank(relativePath)) {
+            return null;
+        }
+
+        return "/content/" + StringUtils.removeEnd(relativePath, "/");
+    }
+
+    private static String getSourceRelativePath(String path) {
         String suffix = StringUtils.substringAfter(path, VERSION_HISTORY_ROOT);
         if (StringUtils.isBlank(suffix)) {
             return null;
@@ -68,7 +99,6 @@ public final class VersionHistoryUtils {
             return null;
         }
 
-        String relativePath = suffix.substring(secondSlash + 1);
-        return "/content/" + StringUtils.removeEnd(relativePath, "/");
+        return StringUtils.removeEnd(suffix.substring(secondSlash + 1), "/");
     }
 }
