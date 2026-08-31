@@ -41,7 +41,7 @@ jobs:
       matrix:
         java: ['11', '8']
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       # Pinned to v4, not v5: v5.5.0 generates a settings.xml that force-disables Maven's
       # interactive mode, with no opt-out. ci.js's collectConfiguration() (used by
@@ -51,7 +51,7 @@ jobs:
       # from stdin. With that disabled, Maven never reads the prompt, produces zero
       # output, and the whole build fails immediately on the very first pom.xml. Revisit
       # only alongside rewriting ci.js's Maven-invocation mechanism, not by re-bumping this.
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
@@ -64,7 +64,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: test-results-jdk${{ matrix.java }}
           path: test-results/junit
@@ -78,7 +78,7 @@ jobs:
       # hundreds of tests doesn't turn that page into a very long scroll.
       - name: Publish test results
         if: always()
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3 # v5
         with:
           check_name: Unit Tests (jdk ${{ matrix.java }})
           report_paths: test-results/junit/*.xml
@@ -91,7 +91,7 @@ jobs:
       # this matrix leg uploads the build-output artifact.
       - name: Upload build output
         if: matrix.java == '11'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: build-output
           retention-days: 3
@@ -110,7 +110,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: matrix.java == '11'
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6
         with:
           flags: unittests
           fail_ci_if_error: false
@@ -121,9 +121,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: '16.17.1'
 
@@ -139,7 +139,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: karma-junit
           path: ui.apps/karma-junit
@@ -148,7 +148,7 @@ jobs:
       # Runs on every outcome - see the build job's Publish test results step for why.
       - name: Publish test results
         if: always()
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3 # v5
         with:
           check_name: Unit Tests (karma)
           report_paths: ui.apps/karma-junit/*.xml
@@ -158,7 +158,7 @@ jobs:
           fail_on_failure: false
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6
         with:
           flags: karma
           fail_ci_if_error: false
@@ -169,9 +169,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: '16.20.0'
 
@@ -185,7 +185,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: jest-test-results
           path: react-components/test-results
@@ -194,7 +194,7 @@ jobs:
       # Runs on every outcome - see the build job's Publish test results step for why.
       - name: Publish test results
         if: always()
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3 # v5
         with:
           check_name: Unit Tests (jest react-components)
           report_paths: react-components/test-results/*.xml
@@ -204,7 +204,7 @@ jobs:
           fail_on_failure: false
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6
         with:
           flags: jest
           fail_ci_if_error: false
@@ -215,9 +215,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: '16.17.1'
 
@@ -240,7 +240,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: jest-product-recs-test-results
           path: extensions/product-recs/react-components/test-results
@@ -249,7 +249,7 @@ jobs:
       # Runs on every outcome - see the build job's Publish test results step for why.
       - name: Publish test results
         if: always()
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3 # v5
         with:
           check_name: Unit Tests (jest extensions/product-recs)
           report_paths: extensions/product-recs/react-components/test-results/*.xml
@@ -259,7 +259,7 @@ jobs:
           fail_on_failure: false
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6
         with:
           flags: jest
           fail_ci_if_error: false
@@ -270,9 +270,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: '16.17.1'
 
@@ -290,14 +290,14 @@ jobs:
       # read and no real reason to run.
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: jest-epc-test-results
           path: extensions/experience-platform-connector/test-results
           if-no-files-found: ignore
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6
         with:
           flags: jest
           fail_ci_if_error: false
@@ -366,7 +366,7 @@ jobs:
       # docker exec into it while it's still up.
       KEEP_AEM_CONTAINER: ${{ inputs.debug_enabled }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       # These steps run directly on the bare runner (they're not `uses:` inside the qp
       # container), so this path is the runner's own ~/.m2/repository - the same directory
@@ -393,14 +393,14 @@ jobs:
       # '1' until that Variable is created. restore-keys stays scoped to the same
       # CACHE_VERSION - it never falls back across a version bump.
       - name: Restore Maven repository cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: ~/.m2/repository
           key: test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: build-output
 
@@ -434,7 +434,7 @@ jobs:
       # see the build job's Publish test results step.
       - name: Publish integration test results
         if: always() && matrix.type == 'integration'
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3 # v5
         with:
           check_name: Tests (${{ matrix.type == 'integration' && 'integration-test' || 'selenium-chrome' }}-${{ matrix.label }})
           report_paths: it/http/target/failsafe-reports/TEST-*.xml
@@ -445,7 +445,7 @@ jobs:
 
       - name: Publish selenium test results
         if: always() && matrix.type == 'selenium'
-        uses: mikepenz/action-junit-report@v5
+        uses: mikepenz/action-junit-report@3585e9575db828022551b4231f165eb59a0e74e3 # v5
         with:
           check_name: Tests (${{ matrix.type == 'integration' && 'integration-test' || 'selenium-chrome' }}-${{ matrix.label }})
           report_paths: ui.tests/test-module/reports/**/*.xml
@@ -458,14 +458,14 @@ jobs:
       # whatever it managed to download for the next attempt (see restore step's comment).
       - name: Save Maven repository cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: ~/.m2/repository
           key: test-aem-m2-${{ vars.CACHE_VERSION || '1' }}-${{ hashFiles('**/pom.xml') }}
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: ${{ matrix.type }}-${{ matrix.aem }}-reports
           if-no-files-found: ignore
@@ -479,7 +479,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: matrix.type == 'integration'
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6
         with:
           flags: integration
           fail_ci_if_error: false
@@ -495,7 +495,7 @@ jobs:
       # to get inside it.
       - name: Debug via SSH (tmate)
         if: always() && github.event_name == 'workflow_dispatch' && inputs.debug_enabled
-        uses: mxschmitt/action-tmate@v3
+        uses: mxschmitt/action-tmate@35b54afac29c97fb54faba5b513f8fbd1882f113 # v3
         with:
           limit-access-to-actor: true
         timeout-minutes: 30
