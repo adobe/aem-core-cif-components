@@ -209,6 +209,17 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         }
 
         this.httpHeaders = headers;
+
+        // Build the outbound header set: the custom/advertised headers above, plus any per-request passthrough
+        // headers forwarded from the incoming request (e.g. a client IP). Passthrough headers are intentionally
+        // kept out of this.httpHeaders, which is exported into the cacheable store-config <meta> tag - forwarding
+        // a per-user value (e.g. the end-user IP) there would leak it across consumers of a cached page.
+        List<Header> outboundHeaders = headers;
+        if (request != null) {
+            outboundHeaders = new ArrayList<>(headers);
+            forwardPassthroughHeaders(request, outboundHeaders);
+        }
+
         // In certain situations resource.getResourceType() returns an enforced resource type.
         // We prefer the resource type of the component proxy for the cache name.
         String cacheName = resource.getValueMap().get(ResourceResolver.PROPERTY_RESOURCE_TYPE, resource.getResourceType());
@@ -217,7 +228,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             .withCachingStrategy(new CachingStrategy()
                 .withCacheName(cacheName)
                 .withDataFetchingPolicy(DataFetchingPolicy.CACHE_FIRST))
-            .withHeaders(headers.size() > 0 ? headers : null)
+            .withHeaders(outboundHeaders.size() > 0 ? outboundHeaders : null)
             .withHttpMethod(httpMethod);
 
         if (request != null) {
@@ -359,6 +370,50 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         }
 
         return headers;
+    }
+
+    /**
+     * Adds to {@code outboundHeaders}, as-is under the same name, any incoming request header named in this instance's
+     * {@code GraphqlClient} connection's {@code passthroughHeaders()} (e.g. a client IP header set by the
+     * CDN/dispatcher in front of AEM) - so the caller doesn't need a second, separate configuration to know which
+     * headers to forward. The same list makes the client exclude these headers from its response cache key, so a
+     * per-request value does not fragment the cache. These are added only to the outbound request, never to
+     * {@link #httpHeaders} (the store-config export surface), so a per-user value is not embedded in cacheable page
+     * HTML.
+     */
+    private void forwardPassthroughHeaders(SlingHttpServletRequest request, List<Header> outboundHeaders) {
+        if (graphqlClient == null) {
+            return;
+        }
+        GraphqlClientConfiguration configuration = graphqlClient.getConfiguration();
+        if (configuration == null) {
+            return;
+        }
+
+        String[] headerNames = configuration.passthroughHeaders();
+        if (headerNames == null) {
+            return;
+        }
+
+        for (String configuredName : headerNames) {
+            // The OSGi config editor can produce empty entries in a String[]; ignore them, and tolerate
+            // incidental whitespace around a configured name so " X-Forwarded-For" still matches.
+            String headerName = StringUtils.trimToNull(configuredName);
+            if (headerName == null) {
+                continue;
+            }
+            String value = StringUtils.trimToNull(request.getHeader(headerName));
+            if (value == null) {
+                continue;
+            }
+            if (DENIED_HEADERS.contains(headerName.toLowerCase(Locale.ROOT))) {
+                LOGGER.warn("Ignoring denylisted header '{}' configured for forwarding", headerName);
+                continue;
+            }
+            if (outboundHeaders.stream().noneMatch(header -> header.getName().equalsIgnoreCase(headerName))) {
+                outboundHeaders.add(new BasicHeader(headerName, value));
+            }
+        }
     }
 
     private static Long getTimeWarpEpoch(SlingHttpServletRequest request) {
