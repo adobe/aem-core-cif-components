@@ -78,7 +78,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
             "enableUIDSupport", "true",
             "enableContentStaging", false));
         ComponentsConfiguration stagingDisabled = new ComponentsConfiguration(configMap);
-        when(pageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(stagingDisabled);
+        when(pageContentResource.adaptTo(ComponentsConfiguration.class)).thenReturn(stagingDisabled);
 
         Assert.assertFalse("staged must not be queried when content staging is disabled", executedQueriesContainStaged());
     }

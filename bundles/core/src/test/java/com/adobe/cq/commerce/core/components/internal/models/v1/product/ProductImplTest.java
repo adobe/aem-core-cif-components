@@ -113,6 +113,7 @@ public class ProductImplTest {
 
     protected Resource productResource;
     protected Resource pageResource;
+    protected Resource pageContentResource;
     protected GraphqlClient graphqlClient;
 
     protected ProductInterface product;
@@ -125,7 +126,8 @@ public class ProductImplTest {
         Page page = spy(context.currentPage(PAGE));
         pageResource = spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
-        when(page.getContentResource()).thenReturn(pageResource);
+        pageContentResource = spy(page.getContentResource());
+        when(page.getContentResource()).thenReturn(pageContentResource);
 
         httpClient = mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));
