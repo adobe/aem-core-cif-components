@@ -125,6 +125,7 @@ public class ProductImplTest {
         Page page = spy(context.currentPage(PAGE));
         pageResource = spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(page.getContentResource()).thenReturn(pageResource);
 
         httpClient = mock(CloseableHttpClient.class);
         context.registerService(HttpClientBuilderFactory.class, new MockHttpClientBuilderFactory(httpClient));

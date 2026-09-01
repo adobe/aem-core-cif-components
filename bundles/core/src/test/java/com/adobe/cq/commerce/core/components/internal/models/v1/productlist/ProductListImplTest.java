@@ -201,6 +201,7 @@ public class ProductListImplTest {
         // This is needed by the SearchResultsService used by the productlist component
         pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        when(page.getContentResource()).thenReturn(pageResource);
         when(productListResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         Function<Resource, ComponentsConfiguration> adapter = r -> r.getPath().equals(PAGE) ? MOCK_CONFIGURATION_OBJECT

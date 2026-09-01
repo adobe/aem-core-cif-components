@@ -52,10 +52,8 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     }
 
     private boolean isStagingEnabled() {
-        Resource contentResource = currentPage.adaptTo(Resource.class);
-        ComponentsConfiguration configProperties = contentResource != null
-            ? contentResource.adaptTo(ComponentsConfiguration.class)
-            : null;
+        Resource contentResource = currentPage.getContentResource();
+        ComponentsConfiguration configProperties = contentResource.adaptTo(ComponentsConfiguration.class);
         return configProperties != null ? configProperties.get(PN_ENABLE_STAGING, Boolean.TRUE) : Boolean.TRUE;
     }
 
