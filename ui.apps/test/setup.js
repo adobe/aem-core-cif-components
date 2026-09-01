@@ -17,11 +17,10 @@
 
 // Global test bootstrap: make sure window.CIF is initialized before any suite runs.
 // The common clientlib builds window.CIF on DOMContentLoaded, and newer browser
-// versions can run the suites before that event fires. So we import the clientlib
-// and fire DOMContentLoaded once, up front, so window.CIF is always ready first.
+// versions can run the suites before that event fires. The clientlib itself is
+// loaded as an explicit karma files entry (see karma.conf.js), so here we only
+// fire DOMContentLoaded once, up front, so window.CIF is always ready first.
 // This keeps the tests passing on newer browser versions (e.g. Firefox 153+).
-import '../src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/index.js';
-
 before(() => {
     window.document.dispatchEvent(new Event('DOMContentLoaded'));
 });
