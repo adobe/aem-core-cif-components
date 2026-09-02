@@ -25,13 +25,13 @@ not having this field in the GraphQL schema.
 The `staged` field is only available on Adobe Commerce (formerly Magento EE) and does not exist
 in the Magento Open Source GraphQL schema. Requesting it against Magento Open Source results in a
 GraphQL validation error that breaks the product list page. To support Magento Open Source, set the
-`enableContentStaging` property to `false` on the CIF commerce configuration (see below); the
+`commerceStaging` property to `false` on the CIF commerce configuration (see below); the
 `staged` field is then omitted from the query and the "Staged" badge is not shown.
 
 ### CIF Commerce Configuration Properties
 The following property is read from the CIF commerce configuration (`ComponentsConfiguration`):
 
-1. `enableContentStaging` - when `true` (default), the `staged` field is added to the category and
+1. `commerceStaging` - when `true` (default), the `staged` field is added to the category and
    product queries to drive the author-only "Staged" badge. Set to `false` for Magento Open Source
    backends, which do not support the `staged` field.
 

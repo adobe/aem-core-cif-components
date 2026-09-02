@@ -25,10 +25,12 @@ import org.apache.sling.api.resource.ValueMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.magento.graphql.DownloadableProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
 import com.adobe.cq.commerce.magento.graphql.SimpleProduct;
 import com.adobe.cq.commerce.magento.graphql.VirtualProduct;
+import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.designer.Designer;
 import com.day.cq.wcm.api.designer.Style;
 import com.day.cq.wcm.api.policies.ContentPolicy;
@@ -40,6 +42,13 @@ import com.drew.lang.annotations.Nullable;
 public class Utils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
+
+    /**
+     * Name of the boolean configuration property controlling whether the Adobe Commerce Content Staging {@code staged}
+     * field is requested. Defaults to {@code true} to keep existing Adobe Commerce deployments unchanged. Magento Open
+     * Source backends, which do not support the {@code staged} field, must set this to {@code false}.
+     */
+    public static final String PN_COMMERCE_STAGING = "commerceStaging";
 
     /**
      * Returns the {@link Style}/{@link ContentPolicy} of a given content {@link Resource} as ValueMap. It tries to get the
@@ -119,5 +128,19 @@ public class Utils {
      */
     public static String normalizeLinkTarget(String linkTarget) {
         return "_self".equals(linkTarget) ? null : linkTarget;
+    }
+
+    /**
+     * Returns {@code true} if the Adobe Commerce Content Staging {@code staged} field should be requested for the given
+     * page, based on the {@link #PN_COMMERCE_STAGING} property of the page's {@link ComponentsConfiguration}. Defaults to
+     * {@code true} when the property is not set or no configuration is available.
+     *
+     * @param currentPage the current page
+     * @return {@code true} if content staging is enabled, {@code false} otherwise
+     */
+    public static boolean isStagingEnabled(Page currentPage) {
+        Resource contentResource = currentPage.getContentResource();
+        ComponentsConfiguration configProperties = contentResource.adaptTo(ComponentsConfiguration.class);
+        return configProperties != null ? configProperties.get(PN_COMMERCE_STAGING, Boolean.TRUE) : Boolean.TRUE;
     }
 }

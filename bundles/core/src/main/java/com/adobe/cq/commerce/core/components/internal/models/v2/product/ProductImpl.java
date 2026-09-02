@@ -18,11 +18,10 @@ package com.adobe.cq.commerce.core.components.internal.models.v2.product;
 import javax.annotation.PostConstruct;
 
 import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.product.Product;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
 import com.adobe.cq.commerce.magento.graphql.ProductInterface;
@@ -35,26 +34,13 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/product/v2/product";
 
-    /**
-     * Name of the boolean configuration property controlling whether the Adobe Commerce Content Staging {@code staged}
-     * field is requested. Defaults to {@code true} to keep existing Adobe Commerce deployments unchanged. Magento Open
-     * Source backends, which do not support the {@code staged} field, must set this to {@code false}.
-     */
-    protected static final String PN_ENABLE_STAGING = "enableContentStaging";
-
     @PostConstruct
     protected void initModel() {
         super.initModel();
-        if (productRetriever != null && isStagingEnabled()) {
+        if (productRetriever != null && Utils.isStagingEnabled(currentPage)) {
             productRetriever.extendProductQueryWith(p -> p.staged());
             productRetriever.extendVariantQueryWith(v -> v.staged());
         }
-    }
-
-    private boolean isStagingEnabled() {
-        Resource contentResource = currentPage.getContentResource();
-        ComponentsConfiguration configProperties = contentResource.adaptTo(ComponentsConfiguration.class);
-        return configProperties != null ? configProperties.get(PN_ENABLE_STAGING, Boolean.TRUE) : Boolean.TRUE;
     }
 
     @Override

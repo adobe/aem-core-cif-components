@@ -18,11 +18,10 @@ package com.adobe.cq.commerce.core.components.internal.models.v2.productlist;
 import javax.annotation.PostConstruct;
 
 import org.apache.sling.api.SlingHttpServletRequest;
-import org.apache.sling.api.resource.Resource;
 import org.apache.sling.models.annotations.Model;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
-import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 
 @Model(
     adaptables = SlingHttpServletRequest.class,
@@ -33,26 +32,13 @@ public class ProductListImpl extends com.adobe.cq.commerce.core.components.inter
 
     public static final String RESOURCE_TYPE = "core/cif/components/commerce/productlist/v2/productlist";
 
-    /**
-     * Name of the boolean configuration property controlling whether the Adobe Commerce Content Staging {@code staged}
-     * field is requested. Defaults to {@code true} to keep existing Adobe Commerce deployments unchanged. Magento Open
-     * Source backends, which do not support the {@code staged} field, must set this to {@code false}.
-     */
-    protected static final String PN_ENABLE_STAGING = "enableContentStaging";
-
     @PostConstruct
     protected void initModel() {
         super.initModel();
-        if (categoryRetriever != null && isStagingEnabled()) {
+        if (categoryRetriever != null && Utils.isStagingEnabled(currentPage)) {
             categoryRetriever.extendCategoryQueryWith(c -> c.staged());
             categoryRetriever.extendProductQueryWith(p -> p.staged());
         }
-    }
-
-    private boolean isStagingEnabled() {
-        Resource contentResource = currentPage.getContentResource();
-        ComponentsConfiguration configProperties = contentResource.adaptTo(ComponentsConfiguration.class);
-        return configProperties != null ? configProperties.get(PN_ENABLE_STAGING, Boolean.TRUE) : Boolean.TRUE;
     }
 
     @Override

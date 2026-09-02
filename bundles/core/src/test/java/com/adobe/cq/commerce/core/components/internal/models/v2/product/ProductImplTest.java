@@ -57,7 +57,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
     }
 
     /**
-     * By default (no {@code enableContentStaging} configuration) the {@code staged} field is added to the product and
+     * By default (no {@code commerceStaging} configuration) the {@code staged} field is added to the product and
      * variant queries so that the author-only "Staged" badge keeps working on Adobe Commerce deployments.
      */
     @Test
@@ -66,7 +66,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
     }
 
     /**
-     * When {@code enableContentStaging} is set to {@code false} (e.g. for Magento Open Source backends that do not
+     * When {@code commerceStaging} is set to {@code false} (e.g. for Magento Open Source backends that do not
      * support the Content Staging {@code staged} field), the {@code staged} field must not be added to any query so
      * that the query stays schema-valid.
      */
@@ -76,7 +76,7 @@ public class ProductImplTest extends com.adobe.cq.commerce.core.components.inter
             "cq:graphqlClient", "default",
             "magentoStore", "my-store",
             "enableUIDSupport", "true",
-            "enableContentStaging", false));
+            "commerceStaging", false));
         ComponentsConfiguration stagingDisabled = new ComponentsConfiguration(configMap);
         when(pageContentResource.adaptTo(ComponentsConfiguration.class)).thenReturn(stagingDisabled);
 
