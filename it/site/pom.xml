@@ -20,15 +20,11 @@
   <parent>
     <groupId>com.adobe.commerce.cif</groupId>
     <artifactId>core-cif-components-parent</artifactId>
-    <version>2.18.7-SNAPSHOT</version>
+    <version>2.18.9-SNAPSHOT</version>
     <relativePath>../../parent/pom.xml</relativePath>
   </parent>
 
   <artifactId>cif-components-it-site</artifactId>
-  <!-- Independent version for the it/site test site, deliberately decoupled from the CIF release
-       version so the profile-gated classic/* modules (which the release plugin never rewrites)
-       stay consistent. Do not bump this on release. -->
-  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>CIF IT Site</name>
   <description>CIF IT Site — integration-test site for AEM CIF Core Components</description>
@@ -52,6 +48,7 @@
     <bnd.version>6.4.0</bnd.version>
     <componentGroupName>CIF IT Site</componentGroupName>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <maven.deploy.skip>true</maven.deploy.skip>
   </properties>
 
   <!-- ====================================================================== -->
@@ -463,14 +460,13 @@ Bundle-DocURL:
         <version>${core.wcm.components.version}</version>
       </dependency>
       <!-- CIF Core Components -->
-      <!-- Compile-time only (the bundle is provided by the AEM runtime, not embedded). Managed
-           centrally here so the whole it/site test site pins a single CIF Core version. it/site is
-           a standalone reactor decoupled from the CIF release reactor, so THIS is the one line to
-           bump when retargeting the test site at a newer CIF Core version. -->
+      <!-- Compile-time only (the bundle is provided by the AEM runtime, not embedded). it/site is
+           now part of the main reactor, so this always pins the core bundle built in this same
+           release. -->
       <dependency>
         <groupId>com.adobe.commerce.cif</groupId>
         <artifactId>core-cif-components-core</artifactId>
-        <version>2.18.4</version>
+        <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
       <!-- CIF SDK API -->

@@ -237,26 +237,9 @@ try {
         excludedCategory = 'junit.category.IgnoreOnCloud';
     }
 
-    // it/site builds as its own standalone reactor (not part of the main one), and
-    // it/site/ui.apps has a `provided` dependency on core-cif-components-core. The test-aem
-    // job runs in a fresh container with no shared ~/.m2 - download-artifact only brought
-    // over bundles/core/target as raw files, not an installed ~/.m2 entry - so install it
-    // explicitly before building it/site.
-    // -N (non-recursive): this runs from the repo root (a 28-module aggregator); without -N,
-    // Maven resolves/builds the entire reactor's effective POM graph before running the
-    // install-file goal, which is slow (and can outright fail on other unrelated modules)
-    // when ~/.m2 starts empty, as it does in this container.
-    const coreModule = config.modules['core-cif-components-core'];
-    ci.sh(`mvn -N install:install-file -Dfile=${resolveModuleArtifactPath('core-cif-components-core')} \
-        -DgroupId=${coreModule.groupId} -DartifactId=${coreModule.artifactId} \
-        -Dversion=${coreModule.version} -Dpackaging=jar`);
-
-    // Build it/site with the appropriate profile
-    ci.dir('it/site', () => {
-        const profile = (AEM === 'classic' || AEM === 'lts') ? ' -Pclassic' : '';
-        ci.sh(`mvn -B clean install${profile}`);
-    });
-
+    // it/site is now a regular reactor module, built (with -Pclassic) by the main `build`
+    // job alongside everything else; its zips are downloaded here via the build-output
+    // artifact, same as e.g. it/content, so no separate build/install step is needed.
     let itSitePackage = (AEM === 'classic' || AEM === 'lts')
         ? addQpFileDependency('cif-components-it-site.all-classic')
         : addQpFileDependency('cif-components-it-site.all');

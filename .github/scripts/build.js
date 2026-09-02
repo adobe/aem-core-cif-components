@@ -27,8 +27,10 @@ ci.stage('Project Configuration');
 const configuration = ci.collectConfiguration();
 console.log(configuration);
 
+// -Pclassic activates it/site/classic/* (needed by the test-aem job's classic/lts AEM
+// flavors); it's harmless for the addon flavor, which simply ignores the extra artifact.
 ci.stage('Build Project');
-ci.sh('mvn -B clean install');
+ci.sh('mvn -B clean install -Pintegration-tests,classic');
 
 ci.stage('Collect test results');
 const testFolder = path.resolve(process.cwd(), 'test-results/junit');

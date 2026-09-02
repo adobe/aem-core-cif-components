@@ -147,7 +147,9 @@
                     <scmCommentPrefix>@releng [maven-scm] :</scmCommentPrefix>
                     <preparationGoals>clean install exec:exec@npm-version exec:exec@git-add exec:exec@git-commit</preparationGoals>
                     <goals>deploy</goals>
-                    <releaseProfiles>release</releaseProfiles>
+                    <!-- "classic" activates it/site's profile-gated classic/* modules so
+                         autoVersionSubmodules bumps their versions too during release:prepare. -->
+                    <releaseProfiles>release,classic</releaseProfiles>
                     <projectVersionPolicyId>OddEvenVersionPolicy</projectVersionPolicyId>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <pushChanges>false</pushChanges>
