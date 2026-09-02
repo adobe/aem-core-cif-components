@@ -20,6 +20,7 @@ import javax.annotation.PostConstruct;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 
 @Model(
@@ -34,7 +35,7 @@ public class ProductListImpl extends com.adobe.cq.commerce.core.components.inter
     @PostConstruct
     protected void initModel() {
         super.initModel();
-        if (categoryRetriever != null) {
+        if (categoryRetriever != null && Utils.isStagingEnabled(currentPage)) {
             categoryRetriever.extendCategoryQueryWith(c -> c.staged());
             categoryRetriever.extendProductQueryWith(p -> p.staged());
         }

@@ -149,11 +149,12 @@ public class ProductListImplTest {
     private static final String PRODUCT_LIST_WITH_MULTIPLE_XF = "/content/pageA/jcr:content/root/responsivegrid/productlist_with_multiple_xf";
 
     private Resource productListResource;
-    private Resource pageResource;
+    protected Resource pageResource;
+    protected Resource pageContentResource;
     protected ProductListImpl productListModel;
     private CategoryTree category;
     private Products products;
-    private GraphqlClient graphqlClient;
+    protected GraphqlClient graphqlClient;
 
     @Mock
     CloseableHttpClient httpClient;
@@ -201,6 +202,8 @@ public class ProductListImplTest {
         // This is needed by the SearchResultsService used by the productlist component
         pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+        pageContentResource = Mockito.spy(page.getContentResource());
+        when(page.getContentResource()).thenReturn(pageContentResource);
         when(productListResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
 
         Function<Resource, ComponentsConfiguration> adapter = r -> r.getPath().equals(PAGE) ? MOCK_CONFIGURATION_OBJECT
