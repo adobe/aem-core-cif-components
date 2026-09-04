@@ -237,9 +237,10 @@ try {
         excludedCategory = 'junit.category.IgnoreOnCloud';
     }
 
-    // it/site is now a regular reactor module, built (with -Pclassic) by the main `build`
-    // job alongside everything else; its zips are downloaded here via the build-output
-    // artifact, same as e.g. it/content, so no separate build/install step is needed.
+    // it/site is now a regular reactor module, built by the main `build` job alongside
+    // everything else (its classic/* modules included, via the default-active classic profile);
+    // its zips are downloaded here via the build-output artifact, same as e.g. it/content, so no
+    // separate build/install step is needed.
     let itSitePackage = (AEM === 'classic' || AEM === 'lts')
         ? addQpFileDependency('cif-components-it-site.all-classic')
         : addQpFileDependency('cif-components-it-site.all');

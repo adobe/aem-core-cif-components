@@ -109,7 +109,6 @@ jobs:
             it/content/target/*.zip
             it/site/all/target/*.zip
             it/site/classic/all/target/*.zip
-            it/site/ui.apps/target/*.zip
 
       - name: Upload coverage to Codecov
         if: matrix.java == '11'

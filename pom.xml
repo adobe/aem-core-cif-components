@@ -69,8 +69,9 @@
             </modules>
             <!-- it/site is a regular reactor module, versioned uniformly with the rest of the
                  project (see it/site/pom.xml). It is never deployed to Maven Central
-                 (maven.deploy.skip=true there); the profile-gated it/site/classic/* modules are
-                 kept in sync at release time via parent/pom.xml's releaseProfiles. -->
+                 (maven.deploy.skip=true there). Its classic/* submodules live in an it/site
+                 "classic" profile that is active by default (-Dskip-classic to opt out), so they
+                 stay in the reactor and are version-bumped in lockstep by release:prepare. -->
         </profile>
     </profiles>
 

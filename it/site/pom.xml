@@ -417,9 +417,18 @@ Bundle-DocURL:
         </pluginManagement>
       </build>
     </profile>
-    <!-- Classic (AEM 6.5 / AMS) profile -->
+    <!-- Classic (AEM 6.5 / AMS) profile. Active by default (mirroring the root reactor's
+         integration-tests profile) so the classic/* modules are always part of the reactor and
+         get their versions bumped in lockstep with the rest of it/site by release:prepare's
+         autoVersionSubmodules. Opt out with -Dskip-classic (e.g. when building only for the AEM
+         Cloud SDK, which does not use these modules). -->
     <profile>
       <id>classic</id>
+      <activation>
+        <property>
+          <name>!skip-classic</name>
+        </property>
+      </activation>
       <modules>
         <module>classic/ui.config</module>
         <module>classic/ui.content</module>
