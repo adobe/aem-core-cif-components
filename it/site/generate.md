@@ -16,7 +16,7 @@ it/site/
 ├── ui.apps.structure/               # structure package; filters in pom.xml only
 ├── ui.config/
 ├── ui.content/
-├── classic/                         # built only with -Pclassic
+├── classic/                         # built by default; skip with -Dskip-classic
 │   ├── ui.config/                   # osgiconfig-classic OSGi for 6.x CIF GraphQL
 │   ├── ui.content/                  # commerce cloud config + /var/commerce/products/…
 │   └── all/                         # mixed classic "all": site + classic overlays (+ optional WCM Core)
@@ -293,8 +293,8 @@ If the installed WCM Core is lower than what the installed CIF apps require, Pac
 ### 7.6 Deploy and verify on AEM 6.5
 
 ```bash
-# 1. Build everything including classic modules (from it/site/ or monorepo root)
-mvn clean install -Pclassic
+# 1. Build everything including classic modules (from it/site/ or monorepo root; classic is default)
+mvn clean install
 
 # 2. Upload to AEM 6.5 Package Manager UI:
 #    classic/all/target/cif-components-it-site.all-classic-*.zip
@@ -344,16 +344,16 @@ The archetype omits the `cif-components-it-site.site` line — without it the `c
 
 ## 9. Verify
 
-**Cloud reactor (from `it/site/`):**
+**Full reactor incl. classic (from `it/site/`):**
 
 ```bash
 mvn clean install
 ```
 
-**Including classic:**
+**Cloud only (skip the classic AEM 6.5 / AMS modules):**
 
 ```bash
-mvn clean install -Pclassic
+mvn clean install -Dskip-classic
 ```
 
 **From the monorepo root (integration-tests profile):**
@@ -362,11 +362,11 @@ mvn clean install -Pclassic
 mvn clean install -pl it/site -am
 ```
 
-**Local install (AEM Cloud SDK):** `mvn clean install -PautoInstallSinglePackage` — do **not** add `-Pclassic` for Cloud SDK.
+**Local install (AEM Cloud SDK):** `mvn clean install -PautoInstallSinglePackage -Dskip-classic` — pass `-Dskip-classic` so the classic (AEM 6.5) package is not built or installed onto the Cloud SDK.
 
 **Local install (AEM 6.5):** build first, then upload directly:
 ```bash
-mvn clean install -Pclassic
+mvn clean install
 # Upload classic/all/target/cif-components-it-site.all-classic-*.zip via AEM Package Manager UI
 ```
 
