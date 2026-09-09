@@ -107,6 +107,8 @@ jobs:
             examples/ui.config/target/*.zip
             examples/ui.content/target/*.zip
             it/content/target/*.zip
+            it/site/all/target/*.zip
+            it/site/classic/all/target/*.zip
 
       - name: Upload coverage to Codecov
         if: matrix.java == '11'
