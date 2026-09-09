@@ -62,11 +62,11 @@ After all three steps, open `http://localhost:4502/content/cif-components-it-sit
 ### From `it/site/` directly
 
 ```bash
-# Cloud only
+# Cloud + classic (AEM 6.5 / AMS) — both build by default
 mvn clean install
 
-# Cloud + classic (AEM 6.5 / AMS)
-mvn clean install -Pclassic
+# Cloud only (skip the classic AEM 6.5 / AMS modules)
+mvn clean install -Dskip-classic
 ```
 
 ### From the monorepo root
@@ -110,7 +110,7 @@ Changing backends does not require a code change — only that pipeline variable
 ### Local development
 
 * **Cloud SDK** — `export COMMERCE_ENDPOINT=https://…/graphql` before starting AEM, or set `url` in `/system/console/configMgr` for `GraphqlClientImpl~default`.
-* **AEM 6.5 / AMS** (`-Pclassic`) — `$[env:…]` is not applied on 6.5; use the CI curl step above or override the factory config in OSGi.
+* **AEM 6.5 / AMS** (classic) — `$[env:…]` is not applied on 6.5; use the CI curl step above or override the factory config in OSGi.
 * **AEM as a Cloud Service** — define `COMMERCE_ENDPOINT` in Cloud Manager; the `$[env:COMMERCE_ENDPOINT;default=]` placeholder is resolved on the AEM JVM.
 
 ### HTTP integration tests
