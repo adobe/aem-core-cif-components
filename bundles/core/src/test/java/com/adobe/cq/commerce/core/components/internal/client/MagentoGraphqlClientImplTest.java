@@ -71,9 +71,11 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -406,10 +408,11 @@ public class MagentoGraphqlClientImplTest {
         verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
     }
 
-    private void registerPassthroughHeaders(String... headerNames) {
+    private GraphqlClientConfiguration registerPassthroughHeaders(String... headerNames) {
         GraphqlClientConfiguration configuration = Mockito.mock(GraphqlClientConfiguration.class);
         when(configuration.passthroughHeaders()).thenReturn(headerNames);
         when(graphqlClient.getConfiguration()).thenReturn(configuration);
+        return configuration;
     }
 
     private void registerComponentsConfigurationForPageA(ComponentsConfiguration configuration) {
@@ -550,7 +553,7 @@ public class MagentoGraphqlClientImplTest {
     }
 
     @Test
-    public void testCacheKeyExcludedHeaderForwardedAsIs() {
+    public void testPassthroughHeaderForwardedAsIs() {
         registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
         registerPassthroughHeaders("X-Request-Id");
         context.request().addHeader("X-Request-Id", "abc-123");
@@ -567,7 +570,7 @@ public class MagentoGraphqlClientImplTest {
     }
 
     @Test
-    public void testDenylistedCacheKeyExcludedHeaderIsIgnoredEvenIfConfigured() {
+    public void testDenylistedPassthroughHeaderIsIgnoredEvenIfConfigured() {
         registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
         registerPassthroughHeaders("Authorization", "X-Request-Id");
         context.request().addHeader("Authorization", "Bearer secret");
@@ -580,6 +583,100 @@ public class MagentoGraphqlClientImplTest {
         headers.add(new BasicHeader("Store", "my-store"));
         headers.add(new BasicHeader("X-Request-Id", "abc-123"));
 
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
+    public void testPassthroughHeadersSupportDetection() {
+        assertTrue(MagentoGraphqlClientImpl.isPassthroughHeadersSupported(GraphqlClientConfiguration.class));
+        assertFalse(MagentoGraphqlClientImpl.isPassthroughHeadersSupported(Object.class));
+        assertTrue(MagentoGraphqlClientImpl.PASSTHROUGH_HEADERS_SUPPORTED);
+    }
+
+    @Test
+    public void testBlankPassthroughHeaderEntriesAreSkipped() {
+        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
+        registerPassthroughHeaders("", "   ", null, "X-Forwarded-For");
+        context.request().addHeader("X-Forwarded-For", "203.0.113.25");
+
+        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
+        client.execute("{dummy}");
+
+        List<Header> headers = new ArrayList<>();
+        headers.add(new BasicHeader("Store", "my-store"));
+        headers.add(new BasicHeader("X-Forwarded-For", "203.0.113.25"));
+
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
+    public void testPassthroughHeaderNotForwardedWithoutRequest() {
+        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
+        registerPassthroughHeaders("X-Forwarded-For");
+        context.request().addHeader("X-Forwarded-For", "203.0.113.25");
+
+        // A client created from a resource only (e.g. background jobs) has no incoming request to forward from
+        Resource resource = context.resourceResolver().getResource(PRODUCT_COMPONENT_PATH);
+        MagentoGraphqlClient client = resource.adaptTo(MagentoGraphqlClient.class);
+        client.execute("{dummy}");
+
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(),
+            Mockito.argThat(new RequestOptionsMatcher(Collections.singletonList(new BasicHeader("Store", "my-store")), null)));
+        verify(graphqlClient, Mockito.never()).getConfiguration();
+    }
+
+    @Test
+    public void testGraphqlClientStaticHeaderTakesPrecedenceOverForwardedHeader() {
+        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
+        GraphqlClientConfiguration configuration = registerPassthroughHeaders("X-Forwarded-For", "X-Request-Id");
+        // The GraphqlClient sends its own static headers itself, so the forwarded ones must not duplicate them
+        when(configuration.httpHeaders()).thenReturn(new String[] { "x-forwarded-for: static-value", "invalid", "Blank: " });
+        context.request().addHeader("X-Forwarded-For", "203.0.113.25");
+        context.request().addHeader("X-Request-Id", "abc-123");
+
+        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
+        client.execute("{dummy}");
+
+        List<Header> headers = new ArrayList<>();
+        headers.add(new BasicHeader("Store", "my-store"));
+        headers.add(new BasicHeader("X-Request-Id", "abc-123"));
+
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
+    public void testRepeatedPassthroughHeaderValuesAreCombined() {
+        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
+        registerPassthroughHeaders("X-Forwarded-For");
+        context.request().addHeader("X-Forwarded-For", "203.0.113.25");
+        context.request().addHeader("X-Forwarded-For", " ");
+        context.request().addHeader("X-Forwarded-For", "198.51.100.7");
+
+        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
+        client.execute("{dummy}");
+
+        List<Header> headers = new ArrayList<>();
+        headers.add(new BasicHeader("Store", "my-store"));
+        headers.add(new BasicHeader("X-Forwarded-For", "203.0.113.25, 198.51.100.7"));
+
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
+    public void testCookieHeaderIsNeverForwarded() {
+        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
+        registerPassthroughHeaders("Cookie", "User-Agent");
+        context.request().addHeader("Cookie", "login-token=secret");
+        context.request().addHeader("User-Agent", "Mozilla/5.0");
+
+        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
+        client.execute("{dummy}");
+
+        List<Header> headers = Collections.singletonList(new BasicHeader("Store", "my-store"));
         RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
         verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
     }

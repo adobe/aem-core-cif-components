@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -85,6 +87,9 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     private static final Set<String> DENIED_HEADERS = DeniedHttpHeaders.DENYLIST.stream()
         .map(headerName -> headerName.toLowerCase(Locale.ROOT))
         .collect(Collectors.toSet());
+    // Headers that are never forwarded from the incoming request, in addition to the DeniedHttpHeaders denylist
+    private static final Set<String> PASSTHROUGH_DENIED_HEADERS = Collections.singleton("cookie");
+    static final boolean PASSTHROUGH_HEADERS_SUPPORTED = isPassthroughHeadersSupported(GraphqlClientConfiguration.class);
     private static final String LOCAL_CACHE_ATTR = MagentoGraphqlClient.class.getName() + ".LocalCache";
     private static final String BACKEND_CALL_DURATION_ATTRIBUTE = "com.adobe.cif.backendCallDurationInMs";
 
@@ -379,10 +384,11 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
      * headers to forward. The same list makes the client exclude these headers from its response cache key, so a
      * per-request value does not fragment the cache. These are added only to the outbound request, never to
      * {@link #httpHeaders} (the store-config export surface), so a per-user value is not embedded in cacheable page
-     * HTML.
+     * HTML. A header already set statically, either by the CIF context-aware configuration or by the
+     * {@code GraphqlClient} connection's own {@code httpHeaders()}, always takes precedence and is not forwarded.
      */
     private void forwardPassthroughHeaders(SlingHttpServletRequest request, List<Header> outboundHeaders) {
-        if (graphqlClient == null) {
+        if (!PASSTHROUGH_HEADERS_SUPPORTED) {
             return;
         }
         GraphqlClientConfiguration configuration = graphqlClient.getConfiguration();
@@ -391,10 +397,11 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         }
 
         String[] headerNames = configuration.passthroughHeaders();
-        if (headerNames == null) {
+        if (headerNames == null || headerNames.length == 0) {
             return;
         }
 
+        Set<String> alreadySetHeaderNames = getAlreadySetHeaderNames(configuration, outboundHeaders);
         for (String configuredName : headerNames) {
             // The OSGi config editor can produce empty entries in a String[]; ignore them, and tolerate
             // incidental whitespace around a configured name so " X-Forwarded-For" still matches.
@@ -402,17 +409,74 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             if (headerName == null) {
                 continue;
             }
-            String value = StringUtils.trimToNull(request.getHeader(headerName));
-            if (value == null) {
+            String normalizedName = headerName.toLowerCase(Locale.ROOT);
+            if (DENIED_HEADERS.contains(normalizedName) || PASSTHROUGH_DENIED_HEADERS.contains(normalizedName)) {
+                LOGGER.debug("Ignoring denylisted header '{}' configured for forwarding", headerName);
                 continue;
             }
-            if (DENIED_HEADERS.contains(headerName.toLowerCase(Locale.ROOT))) {
-                LOGGER.warn("Ignoring denylisted header '{}' configured for forwarding", headerName);
+            if (alreadySetHeaderNames.contains(normalizedName)) {
                 continue;
             }
-            if (outboundHeaders.stream().noneMatch(header -> header.getName().equalsIgnoreCase(headerName))) {
+            String value = getCombinedHeaderValue(request, headerName);
+            if (value != null) {
                 outboundHeaders.add(new BasicHeader(headerName, value));
+                alreadySetHeaderNames.add(normalizedName);
             }
+        }
+    }
+
+    private static Set<String> getAlreadySetHeaderNames(GraphqlClientConfiguration configuration, List<Header> outboundHeaders) {
+        Set<String> names = new HashSet<>();
+        for (Header header : outboundHeaders) {
+            names.add(header.getName().toLowerCase(Locale.ROOT));
+        }
+        String[] clientHeaders = configuration.httpHeaders();
+        if (clientHeaders != null) {
+            for (String clientHeader : clientHeaders) {
+                // Same "name:value" parsing as the GraphqlClient itself
+                String[] parts = StringUtils.split(clientHeader, ":", 2);
+                if (parts != null && parts.length == 2 && StringUtils.isNoneBlank(parts[0], parts[1])) {
+                    names.add(parts[0].trim().toLowerCase(Locale.ROOT));
+                }
+            }
+        }
+        return names;
+    }
+
+    /**
+     * Returns all values of the given request header combined into a single comma-separated value (RFC 7230, section
+     * 3.2.2), so that repeated header lines (e.g. multiple X-Forwarded-For lines) are not lost. Returns {@code null}
+     * if the header is absent or blank.
+     */
+    private static String getCombinedHeaderValue(SlingHttpServletRequest request, String headerName) {
+        Enumeration<String> values = request.getHeaders(headerName);
+        if (values == null) {
+            return StringUtils.trimToNull(request.getHeader(headerName));
+        }
+        List<String> nonBlankValues = new ArrayList<>();
+        while (values.hasMoreElements()) {
+            String value = StringUtils.trimToNull(values.nextElement());
+            if (value != null) {
+                nonBlankValues.add(value);
+            }
+        }
+        return nonBlankValues.isEmpty() ? null : String.join(", ", nonBlankValues);
+    }
+
+    /**
+     * Checks whether the given {@code GraphqlClientConfiguration} type declares {@code passthroughHeaders()}, which is
+     * only available as of graphql-client 1.11.0. The bundle imports the graphql-client API package with a lower bound
+     * that predates this method, so it may be wired to an older graphql-client at runtime; the method must then never
+     * be called, otherwise a {@link NoSuchMethodError} is thrown.
+     */
+    static boolean isPassthroughHeadersSupported(Class<?> configurationType) {
+        try {
+            configurationType.getMethod("passthroughHeaders");
+            return true;
+        } catch (NoSuchMethodException e) {
+            LOGGER.info("Forwarding of request headers to the GraphQL backend requires graphql-client 1.11.0 or newer, "
+                + "request header forwarding is disabled");
+            return false;
         }
     }
 

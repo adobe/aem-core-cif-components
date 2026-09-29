@@ -90,6 +90,12 @@
                             com.adobe.cq.dam.cfm.content;version="[1.1.0,2)",
                             javax.annotation;version=0.0.0,
                             com.adobe.cq.commerce.magento.graphql;version="[9.1,12)",
+                            <!-- Keep supporting graphql-client 1.10.x (package 1.13), although we compile against 1.11.0.
+                            The only newer API used, GraphqlClientConfiguration#passthroughHeaders(), is guarded at runtime
+                            by MagentoGraphqlClientImpl#PASSTHROUGH_HEADERS_SUPPORTED. Any other newer graphql-client API
+                            must be guarded the same way, as the build no longer enforces it. Remove this range once the
+                            minimum supported graphql-client version is raised to 1.11.0 or newer. -->
+                            com.adobe.cq.commerce.graphql.client;version="[1.13,2)",
                             !org.apache.sling.sitemap.*,
                             !com.adobe.aem.wcm.seo.*,
                             *

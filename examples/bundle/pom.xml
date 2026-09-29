@@ -86,6 +86,9 @@
                         <_metatypeannotations>*</_metatypeannotations>
                         <Import-Package>
                             javax.annotation;version=0.0.0,
+                            <!-- Only graphql-client APIs available since 1.10.x (package 1.13) are used, keep supporting it
+                            although we compile against a newer version -->
+                            com.adobe.cq.commerce.graphql.client;version="[1.13,2)",
                             *
 </Import-Package>
                         <Embed-Dependency>
