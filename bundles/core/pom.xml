@@ -583,7 +583,7 @@
         <dependency>
             <groupId>com.adobe.aem</groupId>
             <artifactId>aem-cif-sdk-api</artifactId>
-            <version>2025.09.02.00</version>
+            <version>2026.09.28.00</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
