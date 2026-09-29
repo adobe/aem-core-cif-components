@@ -29,6 +29,7 @@ import javax.servlet.http.Cookie;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
+import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.resource.ValueMap;
@@ -632,7 +633,7 @@ public class MagentoGraphqlClientImplTest {
         registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
         GraphqlClientConfiguration configuration = registerPassthroughHeaders("X-Forwarded-For", "X-Request-Id");
         // The GraphqlClient sends its own static headers itself, so the forwarded ones must not duplicate them
-        when(configuration.httpHeaders()).thenReturn(new String[] { "x-forwarded-for: static-value", "invalid", "Blank: " });
+        when(configuration.httpHeaders()).thenReturn(new String[] { "x-forwarded-for: static-value", "invalid", "Blank: ", null });
         context.request().addHeader("X-Forwarded-For", "203.0.113.25");
         context.request().addHeader("X-Request-Id", "abc-123");
 
@@ -661,6 +662,43 @@ public class MagentoGraphqlClientImplTest {
         List<Header> headers = new ArrayList<>();
         headers.add(new BasicHeader("Store", "my-store"));
         headers.add(new BasicHeader("X-Forwarded-For", "203.0.113.25, 198.51.100.7"));
+
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
+    public void testPassthroughHeaderConfiguredTwiceIsForwardedOnce() {
+        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
+        registerPassthroughHeaders("X-Forwarded-For", " x-forwarded-for ");
+        context.request().addHeader("X-Forwarded-For", "203.0.113.25");
+
+        MagentoGraphqlClient client = context.request().adaptTo(MagentoGraphqlClient.class);
+        client.execute("{dummy}");
+
+        List<Header> headers = new ArrayList<>();
+        headers.add(new BasicHeader("Store", "my-store"));
+        headers.add(new BasicHeader("X-Forwarded-For", "203.0.113.25"));
+
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
+    public void testPassthroughHeaderFallsBackToSingleValueWhenHeadersNotAccessible() {
+        registerComponentsConfigurationForPageA(MOCK_CONFIGURATION_OBJECT);
+        registerPassthroughHeaders("X-Forwarded-For");
+        context.request().addHeader("X-Forwarded-For", "203.0.113.25");
+        // The servlet spec allows getHeaders() to return null if the container does not allow access to it
+        SlingHttpServletRequest request = spy(context.request());
+        Mockito.doReturn(null).when(request).getHeaders("X-Forwarded-For");
+
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(context.currentResource(), null, request);
+        client.execute("{dummy}");
+
+        List<Header> headers = new ArrayList<>();
+        headers.add(new BasicHeader("Store", "my-store"));
+        headers.add(new BasicHeader("X-Forwarded-For", "203.0.113.25"));
 
         RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
         verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
