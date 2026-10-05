@@ -19,15 +19,22 @@ import org.apache.sling.api.resource.Resource;
 
 import com.adobe.cq.commerce.core.components.internal.datalayer.DataLayerListItem;
 import com.adobe.cq.wcm.core.components.models.NavigationItem;
+import com.day.cq.wcm.api.Page;
 
 public class NavigationItemImpl extends DataLayerListItem implements NavigationItem {
 
     protected String title;
     protected String url;
     protected boolean isActive;
+    protected Page page;
 
     public NavigationItemImpl(String title, String url, boolean isActive, String parentId, Resource resource) {
+        this(null, title, url, isActive, parentId, resource);
+    }
+
+    public NavigationItemImpl(Page page, String title, String url, boolean isActive, String parentId, Resource resource) {
         super(parentId, resource);
+        this.page = page;
         this.title = title;
         this.url = url;
         this.isActive = isActive;
@@ -46,6 +53,11 @@ public class NavigationItemImpl extends DataLayerListItem implements NavigationI
     @Override
     public boolean isActive() {
         return isActive;
+    }
+
+    @Override
+    public Page getPage() {
+        return page;
     }
 
     // DataLayer methods

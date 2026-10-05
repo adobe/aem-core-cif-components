@@ -95,6 +95,13 @@ public class VersionHistoryUtilsTest {
     }
 
     @Test
+    public void testToVersionPreviewUrlMapsContentUrlToPreviewUrl() {
+        Resource resource = context.create().resource(VERSION_HISTORY_ROOT + "/hash/version/site/page");
+        String previewUrl = VersionHistoryUtils.toVersionPreviewUrl(resource, "/content/site/other-page.html");
+        Assert.assertEquals(VERSION_HISTORY_ROOT + "/hash/version/site/other-page.html", previewUrl);
+    }
+
+    @Test
     public void testIsVersionHistoryResource() {
         Resource versionResource = context.create().resource(VERSION_HISTORY_ROOT + "/hash/version/site/page");
         Resource contentResource = context.create().resource("/content/site/page");
