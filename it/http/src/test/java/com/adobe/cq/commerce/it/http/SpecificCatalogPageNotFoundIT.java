@@ -16,17 +16,23 @@
 package com.adobe.cq.commerce.it.http;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import org.apache.sling.testing.clients.ClientException;
 import org.apache.sling.testing.clients.SlingHttpResponse;
 import org.apache.sling.testing.clients.osgi.OsgiConsoleClient;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.http.HttpStatus.SC_MOVED_TEMPORARILY;
 
@@ -46,7 +52,10 @@ import static org.apache.http.HttpStatus.SC_MOVED_TEMPORARILY;
  */
 public class SpecificCatalogPageNotFoundIT extends ItSiteTestBase {
 
+    private static final Logger LOG = LoggerFactory.getLogger(SpecificCatalogPageNotFoundIT.class);
+
     private static final String SPECIFIC_PAGE_STRATEGY_PID = "com.adobe.cq.commerce.core.components.internal.services.SpecificPageStrategy";
+    private static final int DIAGNOSTIC_EXCERPT_LIMIT = 1500;
 
     private static final String MISSING_PRODUCT = "cif-it-specific-page-missing-product";
     private static final String MISSING_CATEGORY = "cif-it-specific-page-missing-category";
@@ -61,8 +70,8 @@ public class SpecificCatalogPageNotFoundIT extends ItSiteTestBase {
 
     private static final String TITLE_SELECTOR = ".cmp-title__text";
 
-    @BeforeClass
-    public static void enableSpecificPageForwarding() throws ClientException, InterruptedException, TimeoutException {
+    @Before
+    public void enableSpecificPageForwarding() throws ClientException, InterruptedException, TimeoutException {
         updateSpecificPageStrategy(false);
     }
 
@@ -92,18 +101,54 @@ public class SpecificCatalogPageNotFoundIT extends ItSiteTestBase {
     }
 
     private void assertSpecificPageRendered(String url, String expectedTitle) throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(url + "?wcmmode=preview", 200);
-        Document doc = Jsoup.parse(response.getContent());
-        Assert.assertEquals("Request should be forwarded to the specific page " + url, 1,
-                doc.select(TITLE_SELECTOR + ":containsOwn(" + expectedTitle + ")").size());
+        String previewUrl = url + "?wcmmode=preview";
+        SlingHttpResponse response = adminAuthor.doGet(previewUrl, 200);
+        String responseContent = response.getContent();
+        Document doc = Jsoup.parse(responseContent);
+        List<String> titleTexts = doc.select(TITLE_SELECTOR).stream().map(Element::text).collect(Collectors.toList());
+        int markerCount = doc.select(TITLE_SELECTOR + ":containsOwn(" + expectedTitle + ")").size();
+
+        LOG.info("Specific page preview url={}, status={}, documentTitle={}, titleTexts={}, expectedMarkerFound={}",
+                previewUrl, response.getStatusLine().getStatusCode(), doc.title(), titleTexts, markerCount > 0);
+        if (markerCount != 1) {
+            LOG.warn("Specific page preview marker assertion failed for url={}; identityExcerpt={}", previewUrl,
+                    getIdentityExcerpt(doc, responseContent));
+        }
+
+        Assert.assertEquals("Request should be forwarded to the specific page " + url + "; expectedTitle="
+                + expectedTitle + "; documentTitle=" + doc.title() + "; observedTitleTexts=" + titleTexts, 1,
+                markerCount);
     }
 
     private static void updateSpecificPageStrategy(boolean generateSpecificPageUrls)
             throws ClientException, InterruptedException, TimeoutException {
+        LOG.info("Updating OSGi configuration pid={}, generateSpecificPageUrls={}", SPECIFIC_PAGE_STRATEGY_PID,
+                generateSpecificPageUrls);
         OsgiConsoleClient osgiClient = adminAuthor.adaptTo(OsgiConsoleClient.class);
+        String desiredValue = Boolean.toString(generateSpecificPageUrls);
         osgiClient.waitEditConfiguration(30, SPECIFIC_PAGE_STRATEGY_PID, null,
-                Collections.<String, Object> singletonMap("generateSpecificPageUrls", generateSpecificPageUrls),
+                Collections.<String, Object> singletonMap("generateSpecificPageUrls", desiredValue),
                 SC_MOVED_TEMPORARILY);
         Thread.sleep(2000);
+        Map<String, Object> configuration = osgiClient.getConfiguration(SPECIFIC_PAGE_STRATEGY_PID);
+        Object actualValue = configuration.get("generateSpecificPageUrls");
+        LOG.info("Updated OSGi configuration pid={}, desiredGenerateSpecificPageUrls={}, readBackValue={}, config={}",
+                SPECIFIC_PAGE_STRATEGY_PID, desiredValue, actualValue, configuration);
+        Assert.assertEquals("OSGi configuration was not applied for pid " + SPECIFIC_PAGE_STRATEGY_PID, desiredValue,
+                String.valueOf(actualValue));
+    }
+
+    private static String getIdentityExcerpt(Document doc, String responseContent) {
+        for (Element script : doc.select("script")) {
+            String scriptContent = script.data();
+            if (scriptContent.contains("\"dc:title\"") || scriptContent.contains("\"repo:path\"")) {
+                return truncate(scriptContent);
+            }
+        }
+        return truncate(responseContent);
+    }
+
+    private static String truncate(String value) {
+        return value.substring(0, Math.min(value.length(), DIAGNOSTIC_EXCERPT_LIMIT));
     }
 }

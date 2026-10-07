@@ -18,6 +18,7 @@ package com.adobe.cq.commerce.core.components.internal.servlets;
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 
 import org.apache.sling.api.resource.Resource;
@@ -36,8 +37,12 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static com.adobe.cq.commerce.core.testing.TestContext.newAemContext;
 import static org.apache.sling.hamcrest.ResourceMatchers.path;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 
@@ -47,7 +52,9 @@ public class SpecificPageFilterFactoryTest {
     public final AemContext context = newAemContext("/context/jcr-page-filter.json");
 
     private final SpecificPageFilterFactory filter = new SpecificPageFilterFactory();
-    private final MockRequestDispatcherFactory requestDispatcherFactory = spy(new MockRequestDispatcherFactory());
+    private final RequestDispatcher requestDispatcher = mock(RequestDispatcher.class);
+    private final MockRequestDispatcherFactory requestDispatcherFactory = spy(
+        new MockRequestDispatcherFactory(requestDispatcher));
     @Mock
     private FilterChain chain;
 
@@ -64,9 +71,17 @@ public class SpecificPageFilterFactoryTest {
     public void testSpecificProductPage() throws IOException, ServletException {
         context.currentResource("/content/product-page");
         context.requestPathInfo().setSuffix("/productId1.html");
+        doAnswer(invocation -> {
+            assertEquals(Boolean.TRUE,
+                context.request().getAttribute(SpecificPageFilterFactory.SPECIFIC_PAGE_FORWARD_ATTRIBUTE));
+            return null;
+        }).when(requestDispatcher).forward(context.request(), null);
+
         filter.doFilter(context.request(), null, chain);
 
-        Mockito.verify(requestDispatcherFactory).getRequestDispatcher(argThat(path("/content/product-page/sub-page/jcr:content")), any());
+        Mockito.verify(requestDispatcherFactory)
+            .getRequestDispatcher(argThat(path("/content/product-page/sub-page/jcr:content")), any());
+        assertNull(context.request().getAttribute(SpecificPageFilterFactory.SPECIFIC_PAGE_FORWARD_ATTRIBUTE));
         Mockito.verify(chain, never()).doFilter(context.request(), null);
     }
 
@@ -76,8 +91,8 @@ public class SpecificPageFilterFactoryTest {
         context.requestPathInfo().setSuffix("/men/tops.html");
         filter.doFilter(context.request(), null, chain);
 
-        Mockito.verify(requestDispatcherFactory).getRequestDispatcher(argThat(path(
-            "/content/category-page/sub-page-with-urlpath/jcr:content")), any());
+        Mockito.verify(requestDispatcherFactory)
+            .getRequestDispatcher(argThat(path("/content/category-page/sub-page-with-urlpath/jcr:content")), any());
         Mockito.verify(chain, never()).doFilter(context.request(), null);
     }
 

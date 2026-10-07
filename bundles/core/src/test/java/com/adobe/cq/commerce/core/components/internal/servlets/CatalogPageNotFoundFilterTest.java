@@ -121,7 +121,8 @@ public class CatalogPageNotFoundFilterTest {
 
     /**
      * AEM mocks resolve {@code currentPage} to the page's {@code jcr:content} resource; the production filter must
-     * still validate catalog pages when the request resource is the {@code cq:Page} node (REQUEST scope before forward).
+     * still validate catalog pages when the request resource is the {@code cq:Page} node (REQUEST scope before
+     * forward).
      */
     private void currentPageAsPageResource(String pagePath) {
         aemContext.currentPage(pagePath);
@@ -200,6 +201,34 @@ public class CatalogPageNotFoundFilterTest {
         verify(contentModelFinder, never()).findProductComponentModel(any(), any());
         verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
         assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void testForwardedJcrContentReturns404ForMissingProduct() throws ServletException, IOException {
+        aemContext.currentResource("/content/venia/us/en/products/product-page/jcr:content");
+        request.setAttribute(SpecificPageFilterFactory.SPECIFIC_PAGE_FORWARD_ATTRIBUTE, Boolean.TRUE);
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
+
+        subject.doFilter(request, response, filterChain);
+
+        verify(filterChain, never()).doFilter(request, response);
+        verify(contentModelFinder).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void testForwardedJcrContentReturns404ForMissingCategory() throws ServletException, IOException {
+        aemContext.currentResource("/content/venia/us/en/products/category-page/jcr:content");
+        request.setAttribute(SpecificPageFilterFactory.SPECIFIC_PAGE_FORWARD_ATTRIBUTE, Boolean.TRUE);
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
+
+        subject.doFilter(request, response, filterChain);
+
+        verify(filterChain, never()).doFilter(request, response);
+        verify(contentModelFinder, never()).findProductComponentModel(any(), any());
+        verify(contentModelFinder).findProductListComponentModel(any(), any());
+        assertEquals(404, response.getStatus());
     }
 
     @Test
