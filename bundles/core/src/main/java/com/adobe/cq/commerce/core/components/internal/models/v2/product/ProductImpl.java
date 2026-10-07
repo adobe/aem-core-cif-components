@@ -20,6 +20,7 @@ import javax.annotation.PostConstruct;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.models.annotations.Model;
 
+import com.adobe.cq.commerce.core.components.internal.models.v1.Utils;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.magento.graphql.ConfigurableProduct;
 import com.adobe.cq.commerce.magento.graphql.GroupedProduct;
@@ -36,7 +37,7 @@ public class ProductImpl extends com.adobe.cq.commerce.core.components.internal.
     @PostConstruct
     protected void initModel() {
         super.initModel();
-        if (productRetriever != null) {
+        if (productRetriever != null && Utils.isStagingEnabled(currentPage)) {
             productRetriever.extendProductQueryWith(p -> p.staged());
             productRetriever.extendVariantQueryWith(v -> v.staged());
         }

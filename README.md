@@ -87,6 +87,15 @@ Starting with 2.3.2, Adobe Commerce supports cache-able GraphQL requests and sta
 
 -   For client-side components: [CommerceGraphqlApi.js](https://github.com/adobe/aem-core-cif-components/blob/master/ui.apps/src/main/content/jcr_root/apps/core/cif/clientlibs/common/js/CommerceGraphqlApi.js)
 
+### Forwarding request headers to Adobe Commerce
+
+Server-side GraphQL requests can forward selected headers of the incoming request to Adobe Commerce, for example the end-user IP in `X-Forwarded-For`. List the header names in the `passthroughHeaders` property of the `com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl` OSGi configuration, e.g. `"passthroughHeaders": ["X-Forwarded-For"]`. These headers are excluded from the GraphQL response cache key.
+
+-   Requires graphql-client 1.11.0 or newer (CIF Add-On 2026.09.24.00 or newer). With older versions the configuration is ignored and CIF works as before.
+-   Headers set statically in the GraphQL client or CIF configuration take precedence. Denylisted headers (e.g. `Authorization`, `Host`, `User-Agent`, `Store`) and `Cookie` are never forwarded.
+-   Only requests made while rendering a page forward headers. Background requests, such as sitemap generation or cache invalidation, do not.
+-   Make sure the CDN in front of AEM overwrites the forwarded header, so it cannot be spoofed by visitors.
+
 ## Installation
 
 1. Clone this repository.
