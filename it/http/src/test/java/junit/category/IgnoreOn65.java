@@ -15,5 +15,4 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package junit.category;
 
-public interface IgnoreOn65 {
-}
+public interface IgnoreOn65 {}

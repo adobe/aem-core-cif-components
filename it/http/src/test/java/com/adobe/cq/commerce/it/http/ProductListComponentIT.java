@@ -44,32 +44,27 @@ public class ProductListComponentIT extends CommerceTestBase {
     @Category({ IgnoreOnCloud.class })
     public void testProductListPageWithSampleData65() throws Exception {
         String pagePath = COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html/outdoor.html";
-        testProductListPageWithSampleData(pagePath,
-                ImmutableMap.of(doc -> doc.select("title").first().html(), "Meta title for Outdoor Collection",
-                        doc -> doc.select("meta[name=keywords]").first().attr("content"),
-                        "Meta keywords for Outdoor Collection",
-                        doc -> doc.select("meta[name=description]").first().attr("content"),
-                        "Meta description for Outdoor Collection",
-                        // 6.5.8 uses the externalizer author link to create the canonical link
-                        doc -> doc.select("link[rel=canonical]").first().attr("href"), pagePath));
+        testProductListPageWithSampleData(pagePath, ImmutableMap.of(
+            doc -> doc.select("title").first().html(), "Meta title for Outdoor Collection",
+            doc -> doc.select("meta[name=keywords]").first().attr("content"), "Meta keywords for Outdoor Collection",
+            doc -> doc.select("meta[name=description]").first().attr("content"), "Meta description for Outdoor Collection",
+            // 6.5.8 uses the externalizer author link to create the canonical link
+            doc -> doc.select("link[rel=canonical]").first().attr("href"), pagePath));
     }
 
     @Test
     @Category({ IgnoreOn65.class })
     public void testProductListPageWithSampleDataCloud() throws Exception {
         String pagePath = COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html/outdoor.html";
-        testProductListPageWithSampleData(pagePath,
-                ImmutableMap.of(doc -> doc.select("title").first().html(), "Meta title for Outdoor Collection",
-                        doc -> doc.select("meta[name=keywords]").first().attr("content"),
-                        "Meta keywords for Outdoor Collection",
-                        doc -> doc.select("meta[name=description]").first().attr("content"),
-                        "Meta description for Outdoor Collection",
-                        // without mapping rules we expect the SitemapLinkExternalizer to return the path as is
-                        doc -> doc.select("link[rel=canonical]").first().attr("href"), pagePath));
+        testProductListPageWithSampleData(pagePath, ImmutableMap.of(
+            doc -> doc.select("title").first().html(), "Meta title for Outdoor Collection",
+            doc -> doc.select("meta[name=keywords]").first().attr("content"), "Meta keywords for Outdoor Collection",
+            doc -> doc.select("meta[name=description]").first().attr("content"), "Meta description for Outdoor Collection",
+            // without mapping rules we expect the SitemapLinkExternalizer to return the path as is
+            doc -> doc.select("link[rel=canonical]").first().attr("href"), pagePath));
     }
 
-    private void testProductListPageWithSampleData(String pagePath,
-            Map<Function<Document, String>, String> expectedMeta) throws Exception {
+    private void testProductListPageWithSampleData(String pagePath, Map<Function<Document, String>, String> expectedMeta) throws Exception {
         SlingHttpResponse response = adminAuthor.doGet(pagePath, 200);
         Document doc = Jsoup.parse(response.getContent());
 
@@ -98,17 +93,17 @@ public class ProductListComponentIT extends CommerceTestBase {
 
         // Verify product items datalayer attributes
         elements = doc.select(PRODUCTLIST_SELECTOR + ".productcollection__items > .productcollection__item");
-        result = OBJECT_MAPPER.readTree(elements.stream().map(e -> e.attr("data-cmp-data-layer"))
-                .map(e -> e.replaceAll(",\\s*\"repo:modifyDate\":\\s*\"[\\d\\w:-]+\"", ""))
-                .collect(Collectors.joining(",", "[", "]")));
+        result = OBJECT_MAPPER.readTree(elements.stream()
+            .map(e -> e.attr("data-cmp-data-layer"))
+            .map(e -> e.replaceAll(",\\s*\"repo:modifyDate\":\\s*\"[\\d\\w:-]+\"", ""))
+            .collect(Collectors.joining(",", "[", "]")));
         expected = OBJECT_MAPPER.readTree(getResource("datalayer/outdoor-productlist-items.json"));
         assertEquals(expected, result);
     }
 
     @Test
     public void testProductListPageWithManualSelection() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/manual-productlist.html",
-                200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/manual-productlist.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Verify category title
@@ -118,8 +113,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
     @Test
     public void testProductListPageWithPlaceholderData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html",
-                200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Verify category name
@@ -137,8 +131,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
     @Test
     public void testProductListBreadcrumbWithSampleData() throws ClientException {
-        SlingHttpResponse response = adminAuthor
-                .doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html/outdoor.html", 200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html/outdoor.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Component Library > Commerce > Outdoor > Collection
@@ -148,8 +141,7 @@ public class ProductListComponentIT extends CommerceTestBase {
 
     @Test
     public void testProductListBreadcrumbWithPlaceholderData() throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html",
-                200);
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html", 200);
         Document doc = Jsoup.parse(response.getContent());
 
         // Component Library > Commerce
@@ -159,11 +151,9 @@ public class ProductListComponentIT extends CommerceTestBase {
 
     @Test
     public void testCategoryNotFound() throws ClientException {
-        SlingHttpResponse response = adminAuthor
-                .doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html?wcmmode=disabled");
+        SlingHttpResponse response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html?wcmmode=disabled");
         assertEquals(404, response.getStatusLine().getStatusCode());
-        response = adminAuthor.doGet(
-                COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html/unknown-category.html?wcmmode=disabled");
+        response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist.html/unknown-category.html?wcmmode=disabled");
         assertEquals(404, response.getStatusLine().getStatusCode());
     }
 }

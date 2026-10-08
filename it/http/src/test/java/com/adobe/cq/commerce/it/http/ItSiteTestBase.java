@@ -35,10 +35,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Base class for integration tests targeting the CIF IT Site at {@code /content/cif-components-it-site}.
+ * Base class for integration tests targeting the CIF IT Site
+ * at {@code /content/cif-components-it-site}.
  *
- * Provides shared client setup and request utilities (page HTML, JSON model, GraphQL) so individual test classes stay
- * focused on assertions.
+ * Provides shared client setup and request utilities (page HTML, JSON model,
+ * GraphQL) so individual test classes stay focused on assertions.
  */
 public class ItSiteTestBase {
 
@@ -62,8 +63,7 @@ public class ItSiteTestBase {
     /**
      * Fetches a page and returns its HTML parsed as a Jsoup Document.
      *
-     * @param pagePath
-     *            JCR path without extension, e.g. {@code /content/cif-components-it-site/us/en}
+     * @param pagePath JCR path without extension, e.g. {@code /content/cif-components-it-site/us/en}
      */
     protected Document getPage(String pagePath) throws ClientException {
         SlingHttpResponse response = adminAuthor.doGet(pagePath + ".html", 200);
@@ -73,8 +73,7 @@ public class ItSiteTestBase {
     /**
      * Fetches a Sling model JSON export and returns the parsed JsonNode.
      *
-     * @param modelPath
-     *            full path including extension, e.g. {@code /content/.../master.model.json}
+     * @param modelPath full path including extension, e.g. {@code /content/.../master.model.json}
      */
     protected JsonNode getJson(String modelPath) throws Exception {
         SlingHttpResponse response = adminAuthor.doGet(modelPath, 200);
@@ -84,8 +83,7 @@ public class ItSiteTestBase {
     /**
      * Executes a GraphQL query against the IT site endpoint and returns the parsed response.
      *
-     * @param query
-     *            raw GraphQL query string, e.g. {@code {storeConfig{store_code}}}
+     * @param query raw GraphQL query string, e.g. {@code {storeConfig{store_code}}}
      */
     protected JsonNode executeGraphql(String query) throws Exception {
         String encoded = URLEncoder.encode(query, StandardCharsets.UTF_8.name());
@@ -96,12 +94,9 @@ public class ItSiteTestBase {
     /**
      * Posts a JSON body to the given path and returns the parsed response.
      *
-     * @param path
-     *            JCR/servlet path, e.g. {@code /bin/cif/invalidate-cache}
-     * @param jsonBody
-     *            raw JSON string to send as request body
-     * @param expectedStatus
-     *            HTTP status codes to accept (vararg — pass none to skip status check)
+     * @param path JCR/servlet path, e.g. {@code /bin/cif/invalidate-cache}
+     * @param jsonBody raw JSON string to send as request body
+     * @param expectedStatus HTTP status codes to accept (vararg — pass none to skip status check)
      */
     protected SlingHttpResponse postJson(String path, String jsonBody, int... expectedStatus) throws ClientException {
         StringEntity entity = new StringEntity(jsonBody, ContentType.APPLICATION_JSON);

@@ -49,16 +49,17 @@ import junit.category.IgnoreOnLts;
  * Tests fall into two tiers:
  * <ol>
  * <li><b>Servlet availability</b> — verifies each payload type is accepted (no Magento writes).</li>
- * <li><b>Full cache workflow</b> — updates Magento data via REST, confirms AEM serves stale cached data, posts an
- * invalidation request, then confirms AEM serves fresh data on both the category listing and the product detail page.
- * Requires {@code COMMERCE_ENDPOINT} (Magento base URL) and {@code COMMERCE_INTEGRATION_TOKEN} to be set as system
- * properties or environment variables.</li>
+ * <li><b>Full cache workflow</b> — updates Magento data via REST, confirms AEM serves stale cached
+ * data, posts an invalidation request, then confirms AEM serves fresh data on both the category
+ * listing and the product detail page. Requires {@code COMMERCE_ENDPOINT} (Magento base URL) and
+ * {@code COMMERCE_INTEGRATION_TOKEN} to be set as system properties or environment variables.</li>
  * </ol>
  *
  * <p>
- * Workflow tests run against three independent product/category pairs — one per AEM target (Classic/6.5, LTS, Cloud) —
- * selected by JUnit category. This mirrors the Venia reference implementation and prevents cross-environment Magento
- * state conflicts when tests run back-to-back against a shared Magento backend.
+ * Workflow tests run against three independent product/category pairs — one per AEM target
+ * (Classic/6.5, LTS, Cloud) — selected by JUnit category. This mirrors the Venia reference
+ * implementation and prevents cross-environment Magento state conflicts when tests run
+ * back-to-back against a shared Magento backend.
  *
  * <p>
  * Prerequisites:
@@ -92,9 +93,9 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     // ---- per-environment test data --------------------------------------
 
     /**
-     * Immutable holder for a single environment's product + category test fixture. Each fixture targets a different
-     * Magento product/category so concurrent or back-to-back test runs against a shared Magento backend do not corrupt
-     * each other's state.
+     * Immutable holder for a single environment's product + category test fixture.
+     * Each fixture targets a different Magento product/category so concurrent or back-to-back
+     * test runs against a shared Magento backend do not corrupt each other's state.
      */
     private static final class TestData {
         final String productSku;
@@ -105,8 +106,8 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         final String originalCategoryName;
         final String categoryPageUrl;
 
-        TestData(String productSku, String originalProductName, String categoryUid, int categoryId,
-                String categoryUrlPath, String originalCategoryName) {
+        TestData(String productSku, String originalProductName,
+                 String categoryUid, int categoryId, String categoryUrlPath, String originalCategoryName) {
             this.productSku = productSku;
             this.originalProductName = originalProductName;
             this.categoryUid = categoryUid;
@@ -124,16 +125,19 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     // configured to build product URLs.
 
     // Classic / AEM 6.5 — Blouses & Shirts
-    private static final TestData CLASSIC = new TestData("VT01", "Penelope Peasant Blouse", "MjM=", 23,
-            "venia-tops/venia-blouses", "Blouses & Shirts");
+    private static final TestData CLASSIC = new TestData(
+        "VT01", "Penelope Peasant Blouse",
+        "MjM=", 23, "venia-tops/venia-blouses", "Blouses & Shirts");
 
     // LTS — Pants & Shorts
-    private static final TestData LTS = new TestData("VP01", "Selena Pants", "MzI=", 32, "venia-bottoms/venia-pants",
-            "Pants & Shorts");
+    private static final TestData LTS = new TestData(
+        "VP01", "Selena Pants",
+        "MzI=", 32, "venia-bottoms/venia-pants", "Pants & Shorts");
 
     // Cloud — Scarves
-    private static final TestData CLOUD = new TestData("VA01", "Dulcea Infinity Scarf", "MTQ=", 14,
-            "venia-accessories/venia-scarves", "Scarves");
+    private static final TestData CLOUD = new TestData(
+        "VA01", "Dulcea Infinity Scarf",
+        "MTQ=", 14, "venia-accessories/venia-scarves", "Scarves");
 
     // ---- Magento REST connection ----------------------------------------
 
@@ -170,19 +174,26 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     }
 
     /**
-     * Workflow tests write to Magento via REST; fail fast with a clear message when credentials are not configured.
-     * Servlet availability tests do not call this.
+     * Workflow tests write to Magento via REST; fail fast with a clear message when credentials
+     * are not configured. Servlet availability tests do not call this.
      */
     private static void requireCommerceCredentials() {
-        Assert.assertNotNull("Workflow tests require COMMERCE_ENDPOINT as a system property or environment variable "
+        Assert.assertNotNull(
+            "Workflow tests require COMMERCE_ENDPOINT as a system property or environment variable "
                 + "(Magento base URL, e.g. https://mcprod.example.com). Pass -DCOMMERCE_ENDPOINT=… to Maven "
-                + "or export COMMERCE_ENDPOINT=….", COMMERCE_ENDPOINT);
-        Assert.assertFalse("Workflow tests require a non-empty COMMERCE_ENDPOINT.", COMMERCE_ENDPOINT.isEmpty());
-        Assert.assertNotNull("Workflow tests require COMMERCE_INTEGRATION_TOKEN as a system property or environment "
-                + "variable. Pass -DCOMMERCE_INTEGRATION_TOKEN=… to Maven or export " + "COMMERCE_INTEGRATION_TOKEN=….",
-                INTEGRATION_TOKEN);
-        Assert.assertFalse("Workflow tests require a non-empty COMMERCE_INTEGRATION_TOKEN.",
-                INTEGRATION_TOKEN.isEmpty());
+                + "or export COMMERCE_ENDPOINT=….",
+            COMMERCE_ENDPOINT);
+        Assert.assertFalse(
+            "Workflow tests require a non-empty COMMERCE_ENDPOINT.",
+            COMMERCE_ENDPOINT.isEmpty());
+        Assert.assertNotNull(
+            "Workflow tests require COMMERCE_INTEGRATION_TOKEN as a system property or environment "
+                + "variable. Pass -DCOMMERCE_INTEGRATION_TOKEN=… to Maven or export "
+                + "COMMERCE_INTEGRATION_TOKEN=….",
+            INTEGRATION_TOKEN);
+        Assert.assertFalse(
+            "Workflow tests require a non-empty COMMERCE_INTEGRATION_TOKEN.",
+            INTEGRATION_TOKEN.isEmpty());
     }
 
     // ---- payload helpers ------------------------------------------------
@@ -238,8 +249,9 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     // ---- page / REST helpers --------------------------------------------
 
     /**
-     * Reads the product name for {@code data.productSku} from the product collection on the category page. Tries the
-     * title span first, then the {@code title} attribute, then the data-layer JSON as a final fallback.
+     * Reads the product name for {@code data.productSku} from the product collection on the
+     * category page. Tries the title span first, then the {@code title} attribute, then the
+     * data-layer JSON as a final fallback.
      */
     private String getProductNameFromCategoryPage(TestData data) throws ClientException {
         SlingHttpResponse response = adminAuthor.doGet(data.categoryPageUrl, 200);
@@ -280,22 +292,23 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     }
 
     /**
-     * Discovers the PDP URL for the given SKU from the product card {@code href} on the category page so tests follow
-     * whatever {@link com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl} produces on this AEM
-     * instance. Appends {@code wcmmode=disabled} to avoid the author-mode "Product name" i18n placeholder on the PDP.
+     * Discovers the PDP URL for the given SKU from the product card {@code href} on the category
+     * page so tests follow whatever {@link com.adobe.cq.commerce.core.components.internal.services.UrlProviderImpl}
+     * produces on this AEM instance. Appends {@code wcmmode=disabled} to avoid the author-mode
+     * "Product name" i18n placeholder on the PDP.
      */
     private String discoverPdpUrl(TestData data) throws ClientException {
         SlingHttpResponse response = adminAuthor.doGet(data.categoryPageUrl, 200);
         Document doc = Jsoup.parse(response.getContent());
         Elements items = doc.select(".productcollection__item[data-product-sku=" + data.productSku + "]");
         if (items.isEmpty()) {
-            throw new AssertionError("Cannot derive PDP URL: product card for SKU " + data.productSku + " not found on "
-                    + data.categoryPageUrl);
+            throw new AssertionError("Cannot derive PDP URL: product card for SKU "
+                + data.productSku + " not found on " + data.categoryPageUrl);
         }
         String href = items.first().attr("href");
         if (href == null || href.isEmpty()) {
-            throw new AssertionError(
-                    "Cannot derive PDP URL: product card for SKU " + data.productSku + " has no href attribute");
+            throw new AssertionError("Cannot derive PDP URL: product card for SKU "
+                + data.productSku + " has no href attribute");
         }
 
         return href + (href.contains("?") ? "&" : "?") + "wcmmode=disabled";
@@ -313,21 +326,25 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     }
 
     /**
-     * Verifies the PDP actually resolves to a real product (not the {@code "Product name"} i18n placeholder that AEM
-     * renders when the product context isn't loaded). Fails the test fast with a setup-vs-cache-invalidation
-     * disambiguating message so future failures aren't misdiagnosed as cache-invalidation problems.
+     * Verifies the PDP actually resolves to a real product (not the {@code "Product name"}
+     * i18n placeholder that AEM renders when the product context isn't loaded). Fails the
+     * test fast with a setup-vs-cache-invalidation disambiguating message so future
+     * failures aren't misdiagnosed as cache-invalidation problems.
      */
     private void assertPdpResolves(TestData data) throws ClientException {
         String name = getProductNameFromPdp(data);
-        Assert.assertNotEquals("PDP for SKU " + data.productSku + " did not resolve the product — got the "
+        Assert.assertNotEquals(
+            "PDP for SKU " + data.productSku + " did not resolve the product — got the "
                 + "'Product name' i18n placeholder. This is an AEM URL-routing / WCM-mode "
-                + "issue, not a cache invalidation failure.", "Product name", name);
+                + "issue, not a cache invalidation failure.",
+            "Product name", name);
     }
 
     /**
-     * Concatenates every breadcrumb item on the PDP. Used to verify the leaf category name appears in the product page
-     * breadcrumb after a category cache invalidation. Works only when {@code data.categoryUrlPath} is 2 segments deep
-     * (the IT site breadcrumb is configured with {@code structureDepth=2} and skips deeper leaves).
+     * Concatenates every breadcrumb item on the PDP. Used to verify the leaf category name
+     * appears in the product page breadcrumb after a category cache invalidation. Works only
+     * when {@code data.categoryUrlPath} is 2 segments deep (the IT site breadcrumb is
+     * configured with {@code structureDepth=2} and skips deeper leaves).
      */
     private String getPdpBreadcrumbText(TestData data) throws ClientException {
         SlingHttpResponse response = adminAuthor.doGet(discoverPdpUrl(data), 200);
@@ -352,8 +369,8 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
             HttpResponse response = client.execute(request);
             EntityUtils.consume(response.getEntity());
-            Assert.assertEquals("Magento product update (PUT /products/" + sku + ") should return 200", 200,
-                    response.getStatusLine().getStatusCode());
+            Assert.assertEquals("Magento product update (PUT /products/" + sku + ") should return 200",
+                200, response.getStatusLine().getStatusCode());
         }
     }
 
@@ -367,14 +384,14 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
             HttpResponse response = client.execute(request);
             EntityUtils.consume(response.getEntity());
-            Assert.assertEquals("Magento category update (PUT /categories/" + categoryId + ") should return 200", 200,
-                    response.getStatusLine().getStatusCode());
+            Assert.assertEquals("Magento category update (PUT /categories/" + categoryId + ") should return 200",
+                200, response.getStatusLine().getStatusCode());
         }
     }
 
     /**
-     * Restores the Magento product name on close so mutations are always paired with cleanup, including when a test
-     * fails or is interrupted between setup steps.
+     * Restores the Magento product name on close so mutations are always paired with cleanup,
+     * including when a test fails or is interrupted between setup steps.
      */
     private final class TemporaryProductName implements AutoCloseable {
         private final TestData data;
@@ -462,9 +479,8 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             }
             Thread.sleep(AEM_POLL_INTERVAL_MS);
         }
-        Assert.assertEquals(
-                "Category title did not match expected value within " + AEM_POLL_TIMEOUT_MS + "ms after invalidation",
-                expected, last);
+        Assert.assertEquals("Category title did not match expected value within " + AEM_POLL_TIMEOUT_MS
+            + "ms after invalidation", expected, last);
     }
 
     /**
@@ -480,16 +496,16 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             }
             Thread.sleep(AEM_POLL_INTERVAL_MS);
         }
-        Assert.assertTrue(
-                "PDP breadcrumb did not contain '" + expectedSubstring + "' within " + AEM_POLL_TIMEOUT_MS
-                        + "ms after invalidation (last value: " + last + ")",
-                last != null && last.contains(expectedSubstring));
+        Assert.assertTrue("PDP breadcrumb did not contain '" + expectedSubstring + "' within " + AEM_POLL_TIMEOUT_MS
+            + "ms after invalidation (last value: " + last + ")",
+            last != null && last.contains(expectedSubstring));
     }
 
     /**
-     * Confirms Magento itself reflects the updated category name via REST GET. Run immediately after
-     * {@link #updateCategoryName(int, String)} so the test fails fast if the Magento write didn't actually take effect
-     * — distinguishes a Magento problem from an AEM cache problem in downstream assertions.
+     * Confirms Magento itself reflects the updated category name via REST GET. Run immediately
+     * after {@link #updateCategoryName(int, String)} so the test fails fast if the Magento
+     * write didn't actually take effect — distinguishes a Magento problem from an AEM cache
+     * problem in downstream assertions.
      */
     private void verifyMagentoCategoryName(int categoryId, String expectedName) throws IOException {
         String url = commerceRestBase() + "/categories/" + categoryId;
@@ -498,18 +514,19 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             request.setHeader("Authorization", "Bearer " + INTEGRATION_TOKEN);
             HttpResponse response = client.execute(request);
             String body = EntityUtils.toString(response.getEntity());
-            Assert.assertEquals("Magento GET /categories/" + categoryId + " should return 200", 200,
-                    response.getStatusLine().getStatusCode());
+            Assert.assertEquals("Magento GET /categories/" + categoryId + " should return 200",
+                200, response.getStatusLine().getStatusCode());
             JsonNode root = OBJECT_MAPPER.readTree(body);
             String actualName = root.path("name").asText(null);
-            Assert.assertEquals("Magento category " + categoryId + " did not reflect the expected name", expectedName,
-                    actualName);
+            Assert.assertEquals("Magento category " + categoryId + " did not reflect the expected name",
+                expectedName, actualName);
         }
     }
 
     /**
-     * Symmetric to {@link #verifyMagentoCategoryName(int, String)} — confirms Magento itself reflects the updated
-     * product name via REST GET. Run immediately after {@link #updateProductName(String, String)}.
+     * Symmetric to {@link #verifyMagentoCategoryName(int, String)} — confirms Magento itself
+     * reflects the updated product name via REST GET. Run immediately after
+     * {@link #updateProductName(String, String)}.
      */
     private void verifyMagentoProductName(String sku, String expectedName) throws IOException {
         String url = commerceRestBase() + "/products/" + sku;
@@ -518,18 +535,18 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             request.setHeader("Authorization", "Bearer " + INTEGRATION_TOKEN);
             HttpResponse response = client.execute(request);
             String body = EntityUtils.toString(response.getEntity());
-            Assert.assertEquals("Magento GET /products/" + sku + " should return 200", 200,
-                    response.getStatusLine().getStatusCode());
+            Assert.assertEquals("Magento GET /products/" + sku + " should return 200",
+                200, response.getStatusLine().getStatusCode());
             JsonNode root = OBJECT_MAPPER.readTree(body);
             String actualName = root.path("name").asText(null);
-            Assert.assertEquals("Magento product " + sku + " did not reflect the expected name", expectedName,
-                    actualName);
+            Assert.assertEquals("Magento product " + sku + " did not reflect the expected name",
+                expectedName, actualName);
         }
     }
 
     /**
-     * Polls the product card name on the category listing until it matches {@code expected} or the poll timeout
-     * elapses.
+     * Polls the product card name on the category listing until it matches {@code expected} or the poll
+     * timeout elapses.
      */
     private void waitForProductNameOnCategoryListing(TestData data, String expected) throws Exception {
         long deadline = System.currentTimeMillis() + AEM_POLL_TIMEOUT_MS;
@@ -541,8 +558,10 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             }
             Thread.sleep(AEM_POLL_INTERVAL_MS);
         }
-        Assert.assertEquals("Category-page product name did not match expected value within " + AEM_POLL_TIMEOUT_MS
-                + "ms after invalidation", expected, last);
+        Assert.assertEquals(
+            "Category-page product name did not match expected value within " + AEM_POLL_TIMEOUT_MS
+                + "ms after invalidation",
+            expected, last);
     }
 
     /**
@@ -559,8 +578,8 @@ public class CacheInvalidationIT extends ItSiteTestBase {
             Thread.sleep(AEM_POLL_INTERVAL_MS);
         }
         Assert.assertEquals(
-                "PDP product name did not match expected value within " + AEM_POLL_TIMEOUT_MS + "ms after invalidation",
-                expected, last);
+            "PDP product name did not match expected value within " + AEM_POLL_TIMEOUT_MS + "ms after invalidation",
+            expected, last);
     }
 
     // ============================================================================================
@@ -576,15 +595,16 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     /** Servlet accepts the {@code productSkus} payload. */
     @Test
     public void testInvalidateByProductSkus() throws Exception {
-        SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(CLASSIC.productSku), 200);
+        SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT,
+            productSkusPayload(CLASSIC.productSku), 200);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
     /** Servlet accepts the {@code categoryUids} payload. */
     @Test
     public void testInvalidateByCategoryUids() throws Exception {
-        SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT, categoryUidsPayload(CLASSIC.categoryUid),
-                200);
+        SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT,
+            categoryUidsPayload(CLASSIC.categoryUid), 200);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
@@ -592,9 +612,10 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     @Test
     public void testInvalidateByCacheNames() throws Exception {
         SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT,
-                cacheNamesPayload("cif-components-it-site/components/commerce/productlist",
-                        "cif-components-it-site/components/commerce/navigation"),
-                200);
+            cacheNamesPayload(
+                "cif-components-it-site/components/commerce/productlist",
+                "cif-components-it-site/components/commerce/navigation"),
+            200);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
@@ -602,7 +623,7 @@ public class CacheInvalidationIT extends ItSiteTestBase {
     @Test
     public void testInvalidateByRegexPatterns() throws Exception {
         SlingHttpResponse response = postJson(CACHE_INVALIDATION_ENDPOINT,
-                regexPatternsPayload("\\\"sku\\\":\\\\s*\\\"" + CLASSIC.productSku + "\\\""), 200);
+            regexPatternsPayload("\\\"sku\\\":\\\\s*\\\"" + CLASSIC.productSku + "\\\""), 200);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
@@ -629,9 +650,9 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         try (TemporaryProductName ignored = temporaryProductName(data, testName)) {
             verifyMagentoProductName(data.productSku, testName);
             Assert.assertEquals("Category listing should serve stale cached name before invalidation",
-                    originalNameOnCategory, getProductNameFromCategoryPage(data));
-            Assert.assertEquals("PDP should serve stale cached name before invalidation", originalNameOnPdp,
-                    getProductNameFromPdp(data));
+                originalNameOnCategory, getProductNameFromCategoryPage(data));
+            Assert.assertEquals("PDP should serve stale cached name before invalidation",
+                originalNameOnPdp, getProductNameFromPdp(data));
 
             postJson(CACHE_INVALIDATION_ENDPOINT, productSkusPayload(data.productSku), 200);
 
@@ -649,15 +670,15 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         String originalCategoryName = getCategoryNameFromPage(data);
         Assert.assertNotNull("Category page should render a category name", originalCategoryName);
         Assert.assertTrue("PDP breadcrumb should initially contain category '" + originalCategoryName + "'",
-                getPdpBreadcrumbText(data).contains(originalCategoryName));
+            getPdpBreadcrumbText(data).contains(originalCategoryName));
 
         String testName = "CIF-IT-Cat-" + data.categoryId + "-" + System.currentTimeMillis();
         try (TemporaryCategoryName ignored = temporaryCategoryName(data, testName)) {
             verifyMagentoCategoryName(data.categoryId, testName);
             Assert.assertEquals("Category title should serve stale cached name before invalidation",
-                    originalCategoryName, getCategoryNameFromPage(data));
+                originalCategoryName, getCategoryNameFromPage(data));
             Assert.assertTrue("PDP breadcrumb should still contain stale category name before invalidation",
-                    getPdpBreadcrumbText(data).contains(originalCategoryName));
+                getPdpBreadcrumbText(data).contains(originalCategoryName));
 
             postJson(CACHE_INVALIDATION_ENDPOINT, categoryUidsPayload(data.categoryUid), 200);
 
@@ -681,14 +702,15 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         try (TemporaryProductName ignored = temporaryProductName(data, testName)) {
             verifyMagentoProductName(data.productSku, testName);
             Assert.assertEquals("Category listing should serve stale cached name before cache-name invalidation",
-                    originalNameOnCategory, getProductNameFromCategoryPage(data));
-            Assert.assertEquals("PDP should serve stale cached name before cache-name invalidation", originalNameOnPdp,
-                    getProductNameFromPdp(data));
+                originalNameOnCategory, getProductNameFromCategoryPage(data));
+            Assert.assertEquals("PDP should serve stale cached name before cache-name invalidation",
+                originalNameOnPdp, getProductNameFromPdp(data));
 
             postJson(CACHE_INVALIDATION_ENDPOINT,
-                    cacheNamesPayload("cif-components-it-site/components/commerce/productlist",
-                            "cif-components-it-site/components/commerce/product"),
-                    200);
+                cacheNamesPayload(
+                    "cif-components-it-site/components/commerce/productlist",
+                    "cif-components-it-site/components/commerce/product"),
+                200);
 
             waitForProductNameOnCategoryListing(data, testName);
             waitForProductNameOnPdp(data, testName);
@@ -708,22 +730,22 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         String originalCategoryName = getCategoryNameFromPage(data);
         Assert.assertNotNull("Category page should render a category name", originalCategoryName);
         Assert.assertTrue("PDP breadcrumb should initially contain category '" + originalCategoryName + "'",
-                getPdpBreadcrumbText(data).contains(originalCategoryName));
+            getPdpBreadcrumbText(data).contains(originalCategoryName));
 
         String testProductName = "CIF-IT-AllP-" + data.productSku + "-" + System.currentTimeMillis();
         String testCategoryName = "CIF-IT-AllC-" + data.categoryId + "-" + System.currentTimeMillis();
         try (TemporaryProductName ignoredProduct = temporaryProductName(data, testProductName);
-                TemporaryCategoryName ignoredCategory = temporaryCategoryName(data, testCategoryName)) {
+            TemporaryCategoryName ignoredCategory = temporaryCategoryName(data, testCategoryName)) {
             verifyMagentoProductName(data.productSku, testProductName);
             verifyMagentoCategoryName(data.categoryId, testCategoryName);
             Assert.assertEquals("Category listing should serve stale product name before invalidateAll",
-                    originalProductOnCategory, getProductNameFromCategoryPage(data));
-            Assert.assertEquals("PDP should serve stale product name before invalidateAll", originalProductOnPdp,
-                    getProductNameFromPdp(data));
-            Assert.assertEquals("Category title should be stale before invalidateAll", originalCategoryName,
-                    getCategoryNameFromPage(data));
+                originalProductOnCategory, getProductNameFromCategoryPage(data));
+            Assert.assertEquals("PDP should serve stale product name before invalidateAll",
+                originalProductOnPdp, getProductNameFromPdp(data));
+            Assert.assertEquals("Category title should be stale before invalidateAll",
+                originalCategoryName, getCategoryNameFromPage(data));
             Assert.assertTrue("PDP breadcrumb should still contain stale category name before invalidateAll",
-                    getPdpBreadcrumbText(data).contains(originalCategoryName));
+                getPdpBreadcrumbText(data).contains(originalCategoryName));
 
             postJson(CACHE_INVALIDATION_ENDPOINT, invalidateAllPayload(), 200);
 
@@ -749,12 +771,12 @@ public class CacheInvalidationIT extends ItSiteTestBase {
         try (TemporaryProductName ignored = temporaryProductName(data, testName)) {
             verifyMagentoProductName(data.productSku, testName);
             Assert.assertEquals("Category listing should serve stale cached name before regex invalidation",
-                    originalNameOnCategory, getProductNameFromCategoryPage(data));
-            Assert.assertEquals("PDP should serve stale cached name before regex invalidation", originalNameOnPdp,
-                    getProductNameFromPdp(data));
+                originalNameOnCategory, getProductNameFromCategoryPage(data));
+            Assert.assertEquals("PDP should serve stale cached name before regex invalidation",
+                originalNameOnPdp, getProductNameFromPdp(data));
 
             postJson(CACHE_INVALIDATION_ENDPOINT,
-                    regexPatternsPayload("\\\"sku\\\":\\\\s*\\\"" + data.productSku + "\\\""), 200);
+                regexPatternsPayload("\\\"sku\\\":\\\\s*\\\"" + data.productSku + "\\\""), 200);
 
             waitForProductNameOnCategoryListing(data, testName);
             waitForProductNameOnPdp(data, testName);
