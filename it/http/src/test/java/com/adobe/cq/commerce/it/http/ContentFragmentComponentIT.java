@@ -47,7 +47,8 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
 
         while (!success && (System.currentTimeMillis() - startTime) < maxWaitTime) {
             try {
-                response = adminAuthor.doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html", 200);
+                response = adminAuthor
+                        .doGet(COMMERCE_LIBRARY_PATH + "/product/sample-product.html/chaz-kangeroo-hoodie.html", 200);
                 success = true;
             } catch (ClientException e) {
                 // Wait for a short period before retrying
@@ -68,7 +69,7 @@ public class ContentFragmentComponentIT extends CommerceTestBase {
 
         // Check the number of content fragment elements in the content fragment component
         Elements elements = doc.select(CONTENT_FRAGMENT_SELECTOR
-            + ".cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
+                + ".cmp-contentfragment > .cmp-contentfragment__elements > .cmp-contentfragment__element");
         Assert.assertEquals(1, elements.size());
     }
 }

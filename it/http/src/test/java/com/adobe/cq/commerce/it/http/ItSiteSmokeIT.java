@@ -30,29 +30,28 @@ public class ItSiteSmokeIT extends ItSiteTestBase {
     public void testHomePageLoads() throws ClientException {
         Document doc = getPage(IT_SITE_ROOT);
         Assert.assertTrue("Page h1 should contain 'CIF IT Site'",
-            doc.select("h1.cmp-title__text").first().text().contains("CIF IT Site"));
+                doc.select("h1.cmp-title__text").first().text().contains("CIF IT Site"));
     }
 
     @Test
     public void testNavigationRendered() throws ClientException {
         Document doc = getPage(IT_SITE_ROOT);
-        Assert.assertEquals("Navigation should have 6 first-level items",
-            6, doc.select("li.cmp-navigation__item--level-0").size());
+        Assert.assertEquals("Navigation should have 6 first-level items", 6,
+                doc.select("li.cmp-navigation__item--level-0").size());
     }
 
     @Test
     public void testCommerceNavigationConfigured() throws Exception {
         JsonNode navigation = getJson(HEADER_XF_MODEL).at("/:items/root/:items/navigation");
-        Assert.assertFalse("Navigation component should exist at the expected model path",
-            navigation.isMissingNode());
+        Assert.assertFalse("Navigation component should exist at the expected model path", navigation.isMissingNode());
         Assert.assertEquals("Navigation should be the CIF commerce navigation component",
-            "cif-components-it-site/components/commerce/navigation", navigation.get(":type").asText());
+                "cif-components-it-site/components/commerce/navigation", navigation.get(":type").asText());
     }
 
     @Test
     public void testCommerceGraphqlEndpointReachable() throws Exception {
         JsonNode json = executeGraphql("{storeConfig{store_code}}");
-        Assert.assertEquals("GraphQL endpoint should return store_code 'default'",
-            "default", json.at("/data/storeConfig/store_code").asText());
+        Assert.assertEquals("GraphQL endpoint should return store_code 'default'", "default",
+                json.at("/data/storeConfig/store_code").asText());
     }
 }

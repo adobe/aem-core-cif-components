@@ -37,9 +37,9 @@ public class ComponentJSONExporterIT extends CommerceTestBase {
 
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final CustomComparator jsonComparator = new CustomComparator(JSONCompareMode.STRICT,
-        new Customization("**.repo:modifyDate", (o1, o2) -> true));
-    private static final String[] componentKeys = new String[] { "categorycarousel", "featuredcategorylist", "productteaser",
-        "productcarousel", "relatedproducts", "teaser" };
+            new Customization("**.repo:modifyDate", (o1, o2) -> true));
+    private static final String[] componentKeys = new String[] { "categorycarousel", "featuredcategorylist",
+            "productteaser", "productcarousel", "relatedproducts", "teaser" };
 
     @Test
     public void testComponentsJsonOutput() throws ClientException, IOException, JSONException {
@@ -57,10 +57,8 @@ public class ComponentJSONExporterIT extends CommerceTestBase {
         }
     }
 
-    private String readResourceFile(String resourceFile)
-        throws IOException {
-        InputStream inputStream = ComponentJSONExporterIT.class.getResourceAsStream(
-            resourceFile);
+    private String readResourceFile(String resourceFile) throws IOException {
+        InputStream inputStream = ComponentJSONExporterIT.class.getResourceAsStream(resourceFile);
         StringBuilder resultStringBuilder = new StringBuilder();
         assert inputStream != null;
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {

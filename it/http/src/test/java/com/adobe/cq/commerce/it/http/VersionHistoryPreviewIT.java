@@ -37,7 +37,8 @@ public class VersionHistoryPreviewIT extends CommerceTestBase {
     private static final String VERSION_HISTORY_PAGE_SUFFIX = "/content/core-components-examples/library/commerce/productteaser";
     private static final String SOURCE_PRODUCT_TEASER_PAGE = VERSION_HISTORY_PAGE_SUFFIX;
     private static final String VERSION_HISTORY_SERVLET = "/mnt/overlay/wcm/core/content/sites/versionhistory/_jcr_content.txt";
-    private static final String PRODUCT_TEASER_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR + " .productteaser .item__name > span";
+    private static final String PRODUCT_TEASER_SELECTOR = CMP_EXAMPLES_DEMO_SELECTOR
+            + " .productteaser .item__name > span";
     private static final int VERSION_POLL_ATTEMPTS = 30;
     private static final long VERSION_POLL_DELAY_MS = 1000L;
     private String versionHistoryPagePath;
@@ -50,7 +51,8 @@ public class VersionHistoryPreviewIT extends CommerceTestBase {
         String versionId = waitForVersionId(SOURCE_PRODUCT_TEASER_PAGE, label);
         versionHistoryPagePath = determinePreviewUrl(versionId);
         versionHistoryVersionRoot = getVersionHistoryVersionRoot(versionHistoryPagePath);
-        assertTrue("Version preview URL should be a version history path", versionHistoryPagePath.contains(VERSION_HISTORY_ROOT));
+        assertTrue("Version preview URL should be a version history path",
+                versionHistoryPagePath.contains(VERSION_HISTORY_ROOT));
         assertTrue("Version preview URL should end with .html", versionHistoryPagePath.endsWith(".html"));
     }
 
@@ -70,10 +72,8 @@ public class VersionHistoryPreviewIT extends CommerceTestBase {
     }
 
     private String determinePreviewUrl(String versionId) throws ClientException {
-        UrlEncodedFormEntity formEntity = FormEntityBuilder.create()
-            .addParameter("wcmmode", "disabled")
-            .addParameter("versionId", versionId)
-            .build();
+        UrlEncodedFormEntity formEntity = FormEntityBuilder.create().addParameter("wcmmode", "disabled")
+                .addParameter("versionId", versionId).build();
         SlingHttpResponse response = adminAuthor.doPost(VERSION_HISTORY_SERVLET, formEntity, 200);
         return response.getContent().trim() + ".html";
     }
@@ -91,7 +91,8 @@ public class VersionHistoryPreviewIT extends CommerceTestBase {
     }
 
     private String getVersionIdByLabel(String pagePath, String label) throws ClientException {
-        SlingHttpResponse response = adminAuthor.doGet("/bin/wcm/versions.json?path=" + pagePath + "&showChildren=false", 200);
+        SlingHttpResponse response = adminAuthor
+                .doGet("/bin/wcm/versions.json?path=" + pagePath + "&showChildren=false", 200);
         JsonNode versions = JsonUtils.getJsonNodeFromString(response.getContent()).path("versions");
         if (versions == null || versions.size() == 0) {
             return null;

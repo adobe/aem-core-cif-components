@@ -72,23 +72,18 @@ public class CommerceTestBase {
         // Use the server's own URL so the mock endpoint is reachable regardless of which port AEM is on.
         URI serverUri = adminAuthor.getUrl();
         String graphqlMockUrl = serverUri.getScheme() + "://" + serverUri.getHost() + ":" + serverUri.getPort()
-            + "/apps/cif-components-examples/graphql";
+                + "/apps/cif-components-examples/graphql";
 
-        GraphqlOSGiConfig graphqlOsgiConfig = new GraphqlOSGiConfig()
-            .withIdentifier("examples")
-            .withUrl(graphqlMockUrl)
-            .withHttpMethod("GET")
-            .withAcceptSelfSignedCertificates(true)
-            .withAllowHttpProtocol(true);
+        GraphqlOSGiConfig graphqlOsgiConfig = new GraphqlOSGiConfig().withIdentifier("examples").withUrl(graphqlMockUrl)
+                .withHttpMethod("GET").withAcceptSelfSignedCertificates(true).withAllowHttpProtocol(true);
 
         updateOSGiConfiguration(adminAuthor, graphqlOsgiConfig.build(), GRAPHQL_CLIENT_BUNDLE,
-            GRAPHQL_CLIENT_FACTORY_PID + "~examples");
+                GRAPHQL_CLIENT_FACTORY_PID + "~examples");
         updateSlingAuthenticatorOSGiConfig(adminAuthor);
     }
 
-    protected static void updateOSGiConfiguration(CQClient client, Map<String, Object> config, String bundle, String factoryPID)
-        throws ClientException,
-        TimeoutException, InterruptedException {
+    protected static void updateOSGiConfiguration(CQClient client, Map<String, Object> config, String bundle,
+            String factoryPID) throws ClientException, TimeoutException, InterruptedException {
         final OsgiConsoleClient osgiClient = client.adaptTo(OsgiConsoleClient.class);
         Polling polling = new Polling(new Callable<Boolean>() {
             @Override
@@ -120,8 +115,8 @@ public class CommerceTestBase {
         Thread.sleep(2000);
     }
 
-    protected static void updateSlingAuthenticatorOSGiConfig(CQClient client) throws InterruptedException, ClientException,
-        TimeoutException {
+    protected static void updateSlingAuthenticatorOSGiConfig(CQClient client)
+            throws InterruptedException, ClientException, TimeoutException {
 
         // We keep all the parameters from the default config, we only add the path for the GraphQL servlet
 
@@ -129,14 +124,12 @@ public class CommerceTestBase {
         config.put("auth.sudo.cookie", "sling.sudo");
         config.put("auth.sudo.parameter", "sudo");
         config.put("auth.annonymous", "false");
-        config.put("sling.auth.requirements", new String[] {
-            "+/",
-            "-/libs/granite/core/content/login",
-            "-/etc.clientlibs",
-            "-/etc/clientlibs/granite",
-            "-/libs/dam/remoteassets/content/loginerror",
-            "-/apps/cif-components-examples/graphql" // We have to add this path so that the GraphQL servlet is reachable
-        });
+        config.put("sling.auth.requirements",
+                new String[] { "+/", "-/libs/granite/core/content/login", "-/etc.clientlibs",
+                        "-/etc/clientlibs/granite", "-/libs/dam/remoteassets/content/loginerror",
+                        "-/apps/cif-components-examples/graphql" // We have to add this path so that the GraphQL servlet
+                                                                 // is reachable
+                });
         config.put("sling.auth.anonymous.user", "");
         config.put("sling.auth.anonymous.password", "unmodified");
         config.put("auth.http", "preemptive");
@@ -144,13 +137,15 @@ public class CommerceTestBase {
         config.put("auth.uri.suffix", "/j_security_check");
 
         final OsgiConsoleClient osgiClient = client.adaptTo(OsgiConsoleClient.class);
-        osgiClient.waitEditConfiguration(30, "org.apache.sling.engine.impl.auth.SlingAuthenticator", null, config, SC_MOVED_TEMPORARILY);
+        osgiClient.waitEditConfiguration(30, "org.apache.sling.engine.impl.auth.SlingAuthenticator", null, config,
+                SC_MOVED_TEMPORARILY);
 
         // Wait a bit more so that other bundles can restart
         Thread.sleep(2000);
     }
 
     protected static String getResource(String filename) throws IOException {
-        return IOUtils.toString(CommerceTestBase.class.getClassLoader().getResourceAsStream(filename), StandardCharsets.UTF_8);
+        return IOUtils.toString(CommerceTestBase.class.getClassLoader().getResourceAsStream(filename),
+                StandardCharsets.UTF_8);
     }
 }

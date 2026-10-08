@@ -15,4 +15,5 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package junit.category;
 
-public interface IgnoreOnCloud {}
+public interface IgnoreOnCloud {
+}
