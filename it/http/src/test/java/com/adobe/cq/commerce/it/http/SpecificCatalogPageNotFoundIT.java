@@ -116,7 +116,7 @@ public class SpecificCatalogPageNotFoundIT extends ItSiteTestBase {
         }
 
         Assert.assertEquals("Request should be forwarded to the specific page " + url + "; expectedTitle="
-                + expectedTitle + "; documentTitle=" + doc.title() + "; observedTitleTexts=" + titleTexts, 1,
+                        + expectedTitle + "; documentTitle=" + doc.title() + "; observedTitleTexts=" + titleTexts, 1,
                 markerCount);
     }
 
