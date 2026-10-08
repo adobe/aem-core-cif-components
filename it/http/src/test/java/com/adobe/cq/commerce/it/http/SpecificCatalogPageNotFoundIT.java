@@ -61,9 +61,9 @@ public class SpecificCatalogPageNotFoundIT extends ItSiteTestBase {
     private static final String MISSING_CATEGORY = "cif-it-specific-page-missing-category";
 
     private static final String PRODUCT_PAGE_URL = IT_SITE_ROOT + "/products/product-page.html/" + MISSING_PRODUCT
-            + ".html";
+        + ".html";
     private static final String CATEGORY_PAGE_URL = IT_SITE_ROOT + "/products/category-page.html/" + MISSING_CATEGORY
-            + ".html";
+        + ".html";
 
     private static final String SPECIFIC_PRODUCT_PAGE_TITLE = "CIF IT specific product page";
     private static final String SPECIFIC_CATEGORY_PAGE_TITLE = "CIF IT specific category page";
@@ -109,33 +109,33 @@ public class SpecificCatalogPageNotFoundIT extends ItSiteTestBase {
         int markerCount = doc.select(TITLE_SELECTOR + ":containsOwn(" + expectedTitle + ")").size();
 
         LOG.info("Specific page preview url={}, status={}, documentTitle={}, titleTexts={}, expectedMarkerFound={}",
-                previewUrl, response.getStatusLine().getStatusCode(), doc.title(), titleTexts, markerCount > 0);
+            previewUrl, response.getStatusLine().getStatusCode(), doc.title(), titleTexts, markerCount > 0);
         if (markerCount != 1) {
             LOG.warn("Specific page preview marker assertion failed for url={}; identityExcerpt={}", previewUrl,
-                    getIdentityExcerpt(doc, responseContent));
+                getIdentityExcerpt(doc, responseContent));
         }
 
         Assert.assertEquals("Request should be forwarded to the specific page " + url + "; expectedTitle="
-                + expectedTitle + "; documentTitle=" + doc.title() + "; observedTitleTexts=" + titleTexts, 1,
-                markerCount);
+            + expectedTitle + "; documentTitle=" + doc.title() + "; observedTitleTexts=" + titleTexts, 1,
+            markerCount);
     }
 
     private static void updateSpecificPageStrategy(boolean generateSpecificPageUrls)
-            throws ClientException, InterruptedException, TimeoutException {
+        throws ClientException, InterruptedException, TimeoutException {
         LOG.info("Updating OSGi configuration pid={}, generateSpecificPageUrls={}", SPECIFIC_PAGE_STRATEGY_PID,
-                generateSpecificPageUrls);
+            generateSpecificPageUrls);
         OsgiConsoleClient osgiClient = adminAuthor.adaptTo(OsgiConsoleClient.class);
         String desiredValue = Boolean.toString(generateSpecificPageUrls);
         osgiClient.waitEditConfiguration(30, SPECIFIC_PAGE_STRATEGY_PID, null,
-                Collections.<String, Object> singletonMap("generateSpecificPageUrls", desiredValue),
-                SC_MOVED_TEMPORARILY);
+            Collections.<String, Object>singletonMap("generateSpecificPageUrls", desiredValue),
+            SC_MOVED_TEMPORARILY);
         Thread.sleep(2000);
         Map<String, Object> configuration = osgiClient.getConfiguration(SPECIFIC_PAGE_STRATEGY_PID);
         Object actualValue = configuration.get("generateSpecificPageUrls");
         LOG.info("Updated OSGi configuration pid={}, desiredGenerateSpecificPageUrls={}, readBackValue={}, config={}",
-                SPECIFIC_PAGE_STRATEGY_PID, desiredValue, actualValue, configuration);
+            SPECIFIC_PAGE_STRATEGY_PID, desiredValue, actualValue, configuration);
         Assert.assertEquals("OSGi configuration was not applied for pid " + SPECIFIC_PAGE_STRATEGY_PID, desiredValue,
-                String.valueOf(actualValue));
+            String.valueOf(actualValue));
     }
 
     private static String getIdentityExcerpt(Document doc, String responseContent) {
