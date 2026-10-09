@@ -203,6 +203,66 @@ public class CatalogPageNotFoundFilterTest {
     }
 
     @Test
+    public void testForwardedJcrContentReturns404ForMissingProduct() throws ServletException, IOException {
+        aemContext.currentResource("/content/venia/us/en/products/product-page/jcr:content");
+        request.setAttribute(SpecificPageFilterFactory.SPECIFIC_PAGE_FORWARD_ATTRIBUTE,
+            "/content/venia/us/en/products/product-page/jcr:content");
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
+
+        subject.doFilter(request, response, filterChain);
+
+        verify(filterChain, never()).doFilter(request, response);
+        verify(contentModelFinder).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void testForwardedJcrContentReturns404ForMissingCategory() throws ServletException, IOException {
+        aemContext.currentResource("/content/venia/us/en/products/category-page/jcr:content");
+        request.setAttribute(SpecificPageFilterFactory.SPECIFIC_PAGE_FORWARD_ATTRIBUTE,
+            "/content/venia/us/en/products/category-page/jcr:content");
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
+
+        subject.doFilter(request, response, filterChain);
+
+        verify(filterChain, never()).doFilter(request, response);
+        verify(contentModelFinder, never()).findProductComponentModel(any(), any());
+        verify(contentModelFinder).findProductListComponentModel(any(), any());
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void testForwardedJcrContentReturns200ForExistingProduct() throws ServletException, IOException {
+        aemContext.currentResource("/content/venia/us/en/products/product-page/jcr:content");
+        request.setAttribute(SpecificPageFilterFactory.SPECIFIC_PAGE_FORWARD_ATTRIBUTE,
+            "/content/venia/us/en/products/product-page/jcr:content");
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/beaumont-summit-kit.html");
+
+        subject.doFilter(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        verify(contentModelFinder).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void testForwardMarkerForDifferentPathPassesThrough() throws ServletException, IOException {
+        aemContext.currentResource("/content/venia/us/en/products/product-page/jcr:content/root");
+        request.setAttribute(SpecificPageFilterFactory.SPECIFIC_PAGE_FORWARD_ATTRIBUTE,
+            "/content/venia/us/en/products/product-page/jcr:content");
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
+
+        subject.doFilter(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+        verify(contentModelFinder, never()).findProductComponentModel(any(), any());
+        verify(contentModelFinder, never()).findProductListComponentModel(any(), any());
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
     public void testReturns404ForMissingProduct() throws ServletException, IOException {
         currentPageAsPageResource("/content/venia/us/en/products/product-page");
         ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
