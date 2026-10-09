@@ -27,6 +27,7 @@ import javax.servlet.ServletResponse;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.engine.EngineConstants;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Component;
@@ -60,9 +61,11 @@ import com.day.cq.wcm.api.PageManagerFactory;
         EngineConstants.SLING_FILTER_RESOURCETYPES + "="
             + com.adobe.cq.commerce.core.components.internal.models.v3.page.PageImpl.RESOURCE_TYPE,
         // limit to typical content rendering requests
-        EngineConstants.SLING_FILTER_EXTENSIONS + "=html", EngineConstants.SLING_FILTER_EXTENSIONS + "=json",
+        EngineConstants.SLING_FILTER_EXTENSIONS + "=html",
+        EngineConstants.SLING_FILTER_EXTENSIONS + "=json",
         // make sure the filter comes late but earlier then the CatalogPageNotFoundFilter
-        Constants.SERVICE_RANKING + ":Integer=-5000" })
+        Constants.SERVICE_RANKING + ":Integer=-5000"
+    })
 @Designate(ocd = SpecificPageFilterConfiguration.class, factory = true)
 public class SpecificPageFilterFactory implements Filter {
 
@@ -83,8 +86,8 @@ public class SpecificPageFilterFactory implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {}
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
-        throws IOException, ServletException {
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException,
+        ServletException {
         // Skip filter if deep linking is enabled
         if (specificPageStrategy.isGenerateSpecificPageUrlsEnabled()) {
             chain.doFilter(servletRequest, servletResponse);
@@ -116,17 +119,13 @@ public class SpecificPageFilterFactory implements Filter {
             return;
         }
 
-        RequestDispatcher dispatcher = slingRequest.getRequestDispatcher(specificPage.getContentResource());
-        Object previousForwardAttribute = slingRequest.getAttribute(SPECIFIC_PAGE_FORWARD_ATTRIBUTE);
-        slingRequest.setAttribute(SPECIFIC_PAGE_FORWARD_ATTRIBUTE, Boolean.TRUE);
+        Resource specificPageContent = specificPage.getContentResource();
+        RequestDispatcher dispatcher = slingRequest.getRequestDispatcher(specificPageContent);
+        slingRequest.setAttribute(SPECIFIC_PAGE_FORWARD_ATTRIBUTE, specificPageContent.getPath());
         try {
             dispatcher.forward(slingRequest, slingResponse);
         } finally {
-            if (previousForwardAttribute == null) {
-                slingRequest.removeAttribute(SPECIFIC_PAGE_FORWARD_ATTRIBUTE);
-            } else {
-                slingRequest.setAttribute(SPECIFIC_PAGE_FORWARD_ATTRIBUTE, previousForwardAttribute);
-            }
+            slingRequest.removeAttribute(SPECIFIC_PAGE_FORWARD_ATTRIBUTE);
         }
     }
 
