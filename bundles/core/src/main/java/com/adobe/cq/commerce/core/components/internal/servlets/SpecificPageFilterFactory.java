@@ -27,6 +27,7 @@ import javax.servlet.ServletResponse;
 
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
+import org.apache.sling.api.resource.Resource;
 import org.apache.sling.engine.EngineConstants;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Component;
@@ -67,6 +68,8 @@ import com.day.cq.wcm.api.PageManagerFactory;
     })
 @Designate(ocd = SpecificPageFilterConfiguration.class, factory = true)
 public class SpecificPageFilterFactory implements Filter {
+
+    static final String SPECIFIC_PAGE_FORWARD_ATTRIBUTE = SpecificPageFilterFactory.class.getName() + ".forward";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SpecificPageFilterFactory.class);
 
@@ -116,8 +119,14 @@ public class SpecificPageFilterFactory implements Filter {
             return;
         }
 
-        RequestDispatcher dispatcher = slingRequest.getRequestDispatcher(specificPage.getContentResource());
-        dispatcher.forward(slingRequest, slingResponse);
+        Resource specificPageContent = specificPage.getContentResource();
+        RequestDispatcher dispatcher = slingRequest.getRequestDispatcher(specificPageContent);
+        slingRequest.setAttribute(SPECIFIC_PAGE_FORWARD_ATTRIBUTE, specificPageContent.getPath());
+        try {
+            dispatcher.forward(slingRequest, slingResponse);
+        } finally {
+            slingRequest.removeAttribute(SPECIFIC_PAGE_FORWARD_ATTRIBUTE);
+        }
     }
 
     @Override
