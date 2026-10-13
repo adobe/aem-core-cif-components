@@ -329,6 +329,26 @@ public class MagentoGraphqlClientImplTest {
     }
 
     @Test
+    public void testLaunchPageWithoutLaunchRoot() throws Exception {
+        Resource launchRootContent = context.resourceResolver().getResource(LAUNCH_BASE_PATH + "/jcr:content");
+        context.resourceResolver().delete(launchRootContent);
+        context.resourceResolver().commit();
+
+        Page launchPage = spy(context.pageManager().getPage(LAUNCH_PAGE_A));
+        Resource launchPageResource = spy(launchPage.adaptTo(Resource.class));
+        when(launchPage.adaptTo(Resource.class)).thenReturn(launchPageResource);
+        when(launchPageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+
+        Resource launchProductResource = context.resourceResolver().getResource(LAUNCH_BASE_PATH + PRODUCT_COMPONENT_PATH);
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(launchProductResource, launchPage, null);
+        client.execute("{dummy}");
+
+        List<Header> headers = Collections.singletonList(new BasicHeader("Store", "my-store"));
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
     public void testVersionHistoryPathResolvesSourceConfiguration() {
         context.registerAdapter(Resource.class, ComponentsConfiguration.class, (Function<Resource, ComponentsConfiguration>) resource -> {
             if (resource.getPath().startsWith("/content/pageA")) {
