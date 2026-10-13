@@ -126,4 +126,15 @@ public class SiteNavigationTest {
         launchPage = context.pageManager().getPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/new-content-page");
         Assert.assertSame(launchPage, SiteNavigation.toLaunchProductionPage(launchPage));
     }
+
+    @Test
+    public void testNavigationWithLaunchWithoutLaunchRoot() throws Exception {
+        context.resourceResolver().delete(
+            context.resourceResolver().getResource("/content/launches/2020/09/14/mylaunch/jcr:content"));
+        context.resourceResolver().commit();
+        Page launchPage = context.pageManager().getPage("/content/launches/2020/09/14/mylaunch/content/venia/us/en/another-page");
+
+        Assert.assertSame(launchPage, SiteNavigation.toLaunchProductionPage(launchPage));
+        Assert.assertNull(SiteNavigation.getSearchResultsPage(launchPage));
+    }
 }

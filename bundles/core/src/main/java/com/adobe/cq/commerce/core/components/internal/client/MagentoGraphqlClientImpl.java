@@ -153,7 +153,9 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             // If the page is an AEM Launch, we get the configuration from the production page
             if (LaunchUtils.isLaunchBasedPath(page.getPath())) {
                 Resource launchResource = LaunchUtils.getLaunchResource(configurationResource);
-                launch = launchResource.adaptTo(Launch.class);
+                if (launchResource != null) {
+                    launch = launchResource.adaptTo(Launch.class);
+                }
             }
         } else {
             configurationResource = resource;

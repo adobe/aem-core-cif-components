@@ -290,6 +290,19 @@ public class BreadcrumbImplTest {
     }
 
     @Test
+    public void testLaunchPageWithoutLaunchRoot() throws Exception {
+        String launchPage = "/content/launches/2020/09/14/mylaunch/content/venia/us/en/another-page";
+        context.resourceResolver().delete(
+            context.resourceResolver().getResource("/content/launches/2020/09/14/mylaunch/jcr:content"));
+        context.resourceResolver().commit();
+        prepareModel(launchPage);
+
+        breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
+
+        assertThat(breadcrumbModel.getItems()).isNotNull();
+    }
+
+    @Test
     public void testCategoryPage() throws Exception {
         Utils.setupHttpResponse("graphql/magento-graphql-category-breadcrumb-result.json", httpClient, HttpStatus.SC_OK,
             "{categoryList(filters:{url_path");
