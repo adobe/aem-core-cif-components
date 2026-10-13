@@ -341,15 +341,15 @@ jobs:
           - aem: classic
             label: '655'
             qp_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.6-openjdk11
-            aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.24.0-openjdk11
+            aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem:6.5.25.0-openjdk11
           - aem: lts
             label: '660'
             qp_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.7-openjdk21
-            aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-lts:6.6.2-openjdk21
+            aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-lts:6.6.3-openjdk21
           - aem: addon
             label: 'cloudready-with-addon'
             qp_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-qp:6.4.7-openjdk21
-            aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:26125-openjdk21
+            aem_image: docker-adobe-cif-release.dr-uw2.adobeitc.com/circleci-aem-cloudready:27830-v2-openjdk21
     env:
       AEM: ${{ matrix.aem }}
       TYPE: ${{ matrix.type }}
