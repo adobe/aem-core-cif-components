@@ -4,8 +4,8 @@ See below for a full list of minimum system requirements for historical versions
 
 | CIF Core Components | AEM as a Cloud Service | AEM 6.4 | AEM 6.5 | AEM Commerce Add-On | Magento                    | Java  |
 |---------------------| ---------------------- | ------- | ------- |---------------------| -------------------------- | ----- |
-| 2.19.2              | Continual              |    -    | 6.5.18   | v2025.09.02.00 ¹    | 2.4.2 ee                   |   11 |
-| 2.19.0              | Continual              |    -    | 6.5.18   | v2025.09.02.00      | 2.4.2 ee                   |   11 |
+| 2.19.2              | Continual              |    -    | 6.5.18   | v2026.10.05.00 ¹    | 2.4.2 ee                   |   11 |
+| 2.19.0              | Continual              |    -    | 6.5.18   | v2026.09.24.00 ¹    | 2.4.2 ee                   |   11 |
 | 2.18.8              | Continual              |    -    | 6.5.18   | v2025.09.02.00      | 2.4.2 ee                   |   11 |
 | 2.18.4              | Continual              |    -    | 6.5.18   | v2025.09.02.00      | 2.4.2 ee                   |   11 |
 | 2.18.2              | Continual              |    -    | 6.5.18   | v2025.09.02.00      | 2.4.2 ee                   |   11 |
@@ -60,6 +60,6 @@ See below for a full list of minimum system requirements for historical versions
 | 0.2.0               | Continual              | 6.4.4.0 | 6.5.0   |         -           | 2.3.1 / 2.3.2              | 1.8  |
 | 0.1.0               | Continual              | 6.4.4.0 | 6.5.0   |         -           | 2.3.1                      | 1.8. |
 
-¹ `v2025.09.02.00` is the minimum Add-On version required by this release. The new *Enable Content Staging* option ([SITES-50354](https://jira.corp.adobe.com/browse/SITES-50354), introduced in 2.19.2) is provided by Add-On `v2026.10.05.00` or later. With an older Add-On, 2.19.2 keeps working and the option stays enabled (the default), so use the latest Add-On if you need to turn it off, e.g. for Magento Open Source.
+¹ The listed Add-On version is required for the full functionality of these releases: forwarding of the client IP and other request headers to Adobe Commerce ([SITES-49845](https://jira.corp.adobe.com/browse/SITES-49845), since 2.19.0) needs Add-On `v2026.09.24.00` or later, and the *Enable Content Staging* option ([SITES-50354](https://jira.corp.adobe.com/browse/SITES-50354), since 2.19.2) needs `v2026.10.05.00` or later. If these features are not used, the releases remain backwards compatible with Add-On `v2025.09.02.00`.
 
 <sup>\*</sup> With version 0.4.0 we drop support for Magento 2.3.1 and only support 2.3.2. For version 2.3.2 we currently require the following 4 Magento GraphQL patches ([#758](https://github.com/magento/graphql-ce/issues/758), [#665](https://github.com/magento/graphql-ce/pull/665), [#666](https://github.com/magento/graphql-ce/pull/666), [#906](https://github.com/magento/graphql-ce/pull/906)) installed on the Magento instance. Most of them will be included in upcomming Magento 2.3.3. release.
