@@ -15,8 +15,6 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.utils;
 
-import java.util.Optional;
-
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.StringUtils;
@@ -188,12 +186,19 @@ public class SiteNavigation {
      * @return The production version of the page if it is a Launch page, or the page itself.
      */
     public static Page toLaunchProductionPage(Page givenPage) {
-        return Optional.ofNullable(givenPage)
-            .map(page -> page.adaptTo(Resource.class))
-            .filter(resource -> LaunchUtils.isLaunchBasedPath(resource.getPath()))
-            .map(resource -> LaunchUtils.getTargetResource(resource, null))
-            .map(productionResource -> productionResource.adaptTo(Page.class))
-            .orElse(givenPage);
+        if (givenPage == null) {
+            return null;
+        }
+
+        Resource resource = givenPage.adaptTo(Resource.class);
+        if (resource == null || !LaunchUtils.isLaunchBasedPath(resource.getPath())
+            || LaunchUtils.getLaunchResource(resource) == null) {
+            return givenPage;
+        }
+
+        Resource productionResource = LaunchUtils.getTargetResource(resource, null);
+        Page productionPage = productionResource != null ? productionResource.adaptTo(Page.class) : null;
+        return productionPage != null ? productionPage : givenPage;
     }
 
     /**

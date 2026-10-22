@@ -77,7 +77,7 @@ public class ComponentsConfigurationAdapterFactory implements AdapterFactory {
                 resource = VersionHistoryUtils.resolveSourceResource(resource);
             }
 
-            if (LaunchUtils.isLaunchBasedPath(resource.getPath())) {
+            if (LaunchUtils.isLaunchBasedPath(resource.getPath()) && LaunchUtils.getLaunchResource(resource) != null) {
                 // In Launches we have to resolve the ComponentConfigurations from the production resource as there is still an issue
                 // with CA Configs not working properly in Launches in 6.5.x. Additionally, if the resource was created in the Launch
                 // it will not exist in production yet and so the returned target resource is null. Handle that by walking up the tree

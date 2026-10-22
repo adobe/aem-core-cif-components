@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.resource.ValueMap;
@@ -325,6 +326,38 @@ public class MagentoGraphqlClientImplTest {
         headers.add(new BasicHeader("Preview-Version", "1606809600")); // Tuesday, 1 December 2020 09:00:00 GMT+01:00
 
         RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, HttpMethod.POST);
+        verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
+    }
+
+    @Test
+    public void testLaunchPageWithoutLaunchRoot() throws Exception {
+        Resource launchRootContent = context.resourceResolver().getResource(LAUNCH_BASE_PATH + "/jcr:content");
+        context.resourceResolver().delete(launchRootContent);
+        context.resourceResolver().commit();
+
+        context.registerService(ServiceUserMapped.class, mock(ServiceUserMapped.class), ServiceUserMapped.SUBSERVICENAME,
+            "cif-components-configuration");
+        context.registerInjectActivateService(new ComponentsConfigurationAdapterFactory());
+        context.registerAdapter(Resource.class, ConfigurationBuilder.class, (Function<Resource, ConfigurationBuilder>) resource -> {
+            ConfigurationBuilder configBuilder = mock(ConfigurationBuilder.class);
+            when(configBuilder.name(anyString())).thenReturn(configBuilder);
+            when(configBuilder.asValueMap()).thenReturn(ValueMap.EMPTY);
+            return configBuilder;
+        });
+
+        Page launchPage = context.pageManager().getPage(LAUNCH_PAGE_A);
+        Resource launchPageResource = launchPage.adaptTo(Resource.class);
+        ModifiableValueMap properties = launchPageResource.adaptTo(ModifiableValueMap.class);
+        properties.put("cq:graphqlClient", "default");
+        launchPage.getContentResource().adaptTo(ModifiableValueMap.class).put("magentoStore", "my-store");
+        context.resourceResolver().commit();
+
+        Resource launchProductResource = context.resourceResolver().getResource(LAUNCH_BASE_PATH + PRODUCT_COMPONENT_PATH);
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(launchProductResource, launchPage, null);
+        client.execute("{dummy}");
+
+        List<Header> headers = Collections.singletonList(new BasicHeader("Store", "my-store"));
+        RequestOptionsMatcher matcher = new RequestOptionsMatcher(headers, null);
         verify(graphqlClient).execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.argThat(matcher));
     }
 

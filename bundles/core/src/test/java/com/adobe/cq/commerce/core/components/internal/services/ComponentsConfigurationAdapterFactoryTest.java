@@ -122,6 +122,19 @@ public class ComponentsConfigurationAdapterFactoryTest {
     }
 
     @Test
+    public void testAdaptFromResourceWithinLaunchWithoutLaunchRoot() throws Exception {
+        context.resourceResolver().delete(
+            context.resourceResolver().getResource("/content/launches/2020/09/14/mylaunch/jcr:content"));
+        context.resourceResolver().commit();
+        Resource resource = context.resourceResolver().getResource("/content/launches/2020/09/14/mylaunch/content/pageH");
+
+        ComponentsConfiguration configuration = resource.adaptTo(ComponentsConfiguration.class);
+
+        Assert.assertNotNull("Configuration is not null", configuration);
+        Assert.assertEquals("The configuration has no data in it", 0, configuration.size());
+    }
+
+    @Test
     public void testAdaptFromResourceWithinVersionHistory() {
         Resource versionHistoryResource = context.create().resource(VERSION_HISTORY_PAGE_H);
         ComponentsConfiguration configuration = versionHistoryResource.adaptTo(ComponentsConfiguration.class);
