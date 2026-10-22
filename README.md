@@ -67,7 +67,9 @@ The latest version of the AEM CIF Core Components, require the below minimum sys
 
 | CIF Core Components | AEM as a Cloud Service | AEM 6.5 | AEM Commerce Add-On | Adobe Commerce | Java  |
 |---------------------| ---------------------- | ------- |---------------------| -------------- | ----- |
-| 2.18.8              | Continual              | 6.5.18   | v2025.09.02.00      | 2.4.2 ee       |  11 |
+| 2.19.2              | Continual              | 6.5.18   | v2026.10.05.00 ¹    | 2.4.2 ee       |  11 |
+
+¹ The listed Add-On version is required for the full functionality of these releases: forwarding of the client IP and other request headers to Adobe Commerce ([SITES-49845](https://jira.corp.adobe.com/browse/SITES-49845), since 2.19.0) needs Add-On `v2026.09.24.00` or later, and the *Enable Content Staging* option ([SITES-50354](https://jira.corp.adobe.com/browse/SITES-50354), since 2.19.2) needs `v2026.10.05.00` or later. If these features are not used, the releases remain backwards compatible with Add-On `v2025.09.02.00`.
 
 For a list of requirements for previous versions, see [Historical System Requirements](VERSIONS.md).
 
