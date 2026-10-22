@@ -155,6 +155,8 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
                 Resource launchResource = LaunchUtils.getLaunchResource(configurationResource);
                 if (launchResource != null) {
                     launch = launchResource.adaptTo(Launch.class);
+                } else {
+                    LOGGER.debug("Launch resource not found for path in launch: {}", page.getPath());
                 }
             }
         } else {

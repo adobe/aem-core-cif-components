@@ -131,6 +131,7 @@ public class ComponentsConfigurationAdapterFactoryTest {
         ComponentsConfiguration configuration = resource.adaptTo(ComponentsConfiguration.class);
 
         Assert.assertNotNull("Configuration is not null", configuration);
+        Assert.assertEquals("The configuration has no data in it", 0, configuration.size());
     }
 
     @Test

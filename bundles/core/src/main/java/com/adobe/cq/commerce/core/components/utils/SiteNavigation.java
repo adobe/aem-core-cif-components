@@ -135,11 +135,9 @@ public class SiteNavigation {
                 // --> useful if the Launch does not contain the landing-page but does contain the (product|category|search) pages
                 if (genericPagePath != null) {
                     Resource launchResource = LaunchUtils.getLaunchResource(page.getContentResource());
-                    if (launchResource != null) {
-                        String genericPagePathInLaunch = launchResource.getPath() + genericPagePath;
-                        if (page.getPageManager().getPage(genericPagePathInLaunch) != null) {
-                            genericPagePath = genericPagePathInLaunch;
-                        }
+                    String genericPagePathInLaunch = launchResource.getPath() + genericPagePath;
+                    if (page.getPageManager().getPage(genericPagePathInLaunch) != null) {
+                        genericPagePath = genericPagePathInLaunch;
                     }
                 }
             }

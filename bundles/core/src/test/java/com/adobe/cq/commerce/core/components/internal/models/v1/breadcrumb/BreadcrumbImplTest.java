@@ -299,7 +299,7 @@ public class BreadcrumbImplTest {
 
         breadcrumbModel = context.request().adaptTo(BreadcrumbImpl.class);
 
-        assertThat(breadcrumbModel.getItems()).isNotNull();
+        assertThat(breadcrumbModel.getItems().stream().map(ListItem::getTitle)).containsExactly("en", "another-page");
     }
 
     @Test

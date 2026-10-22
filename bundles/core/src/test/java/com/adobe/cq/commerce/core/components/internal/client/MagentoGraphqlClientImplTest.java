@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.resource.ValueMap;
@@ -334,10 +335,22 @@ public class MagentoGraphqlClientImplTest {
         context.resourceResolver().delete(launchRootContent);
         context.resourceResolver().commit();
 
-        Page launchPage = spy(context.pageManager().getPage(LAUNCH_PAGE_A));
-        Resource launchPageResource = spy(launchPage.adaptTo(Resource.class));
-        when(launchPage.adaptTo(Resource.class)).thenReturn(launchPageResource);
-        when(launchPageResource.adaptTo(ComponentsConfiguration.class)).thenReturn(MOCK_CONFIGURATION_OBJECT);
+        context.registerService(ServiceUserMapped.class, mock(ServiceUserMapped.class), ServiceUserMapped.SUBSERVICENAME,
+            "cif-components-configuration");
+        context.registerInjectActivateService(new ComponentsConfigurationAdapterFactory());
+        context.registerAdapter(Resource.class, ConfigurationBuilder.class, (Function<Resource, ConfigurationBuilder>) resource -> {
+            ConfigurationBuilder configBuilder = mock(ConfigurationBuilder.class);
+            when(configBuilder.name(anyString())).thenReturn(configBuilder);
+            when(configBuilder.asValueMap()).thenReturn(ValueMap.EMPTY);
+            return configBuilder;
+        });
+
+        Page launchPage = context.pageManager().getPage(LAUNCH_PAGE_A);
+        Resource launchPageResource = launchPage.adaptTo(Resource.class);
+        ModifiableValueMap properties = launchPageResource.adaptTo(ModifiableValueMap.class);
+        properties.put("cq:graphqlClient", "default");
+        launchPage.getContentResource().adaptTo(ModifiableValueMap.class).put("magentoStore", "my-store");
+        context.resourceResolver().commit();
 
         Resource launchProductResource = context.resourceResolver().getResource(LAUNCH_BASE_PATH + PRODUCT_COMPONENT_PATH);
         MagentoGraphqlClient client = new MagentoGraphqlClientImpl(launchProductResource, launchPage, null);

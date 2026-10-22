@@ -140,13 +140,11 @@ public class BreadcrumbImpl extends DataLayerComponent implements Breadcrumb {
 
         // We build the breadcrumb based on the production version of the page structure
         if (page != null && LaunchUtils.isLaunchBasedPath(page.getPath())) {
-            Resource launchResource = LaunchUtils.getLaunchResource(page.getContentResource());
-            if (launchResource != null) {
+            Resource pageResource = page.adaptTo(Resource.class);
+            if (pageResource != null && LaunchUtils.getLaunchResource(pageResource) != null) {
                 PageManager pageManager = page.getPageManager();
-                contentResource = LaunchUtils.getTargetResource(page.getContentResource(), null);
-                if (contentResource != null) {
-                    page = pageManager.getContainingPage(contentResource);
-                }
+                contentResource = LaunchUtils.getTargetResource(pageResource, null);
+                page = contentResource != null ? pageManager.getContainingPage(contentResource) : null;
             }
         }
 
