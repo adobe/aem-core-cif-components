@@ -34,7 +34,8 @@ The following configuration properties are used:
 
 1. `./enableAddToCart` - displays the 'Add to Cart' button on the products (default `false`) 
 2. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`)
-3. `./type` - defines the default HTML heading element type (`h1` - `h6`) this component will use for its rendering
+3. `./productCount` - optional default maximum number of related products to display. If unset, all related products are displayed.
+4. `./type` - defines the default HTML heading element type (`h1` - `h6`) this component will use for its rendering
 
 ### Edit Dialog Properties
 
@@ -48,7 +49,8 @@ to the `type` value defined by the component's policy. The property of the polic
 5. `./enableAddToWishList` - displays the 'Add to Wish List' button on the products (default `false`)
 6. `./product` - an optional product SKU defining the product for which we want to display the related products. If empty, the component will use the URL selector to find the product.
 7. `./relationType` - a mandatory relation type, defining the relation between the product and the "related" products. In Magento, there are 3 possible types for this relation: `related_products`, `upsell_products`, and `crosssell_products`.
-8. `./id` - defines the component HTML ID attribute
+8. `./productCount` - an optional maximum number of related products to display. This value overrides the component policy; if neither is set, all related products are displayed.
+9. `./id` - defines the component HTML ID attribute
 
 ## BEM Description
 

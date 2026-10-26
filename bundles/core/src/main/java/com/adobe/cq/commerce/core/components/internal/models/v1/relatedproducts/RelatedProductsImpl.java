@@ -65,6 +65,7 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(RelatedProductsImpl.class);
 
     protected static final String PN_PRODUCT = "product";
+    protected static final String PN_PRODUCT_COUNT = "productCount";
     protected static final String PN_RELATION_TYPE = "relationType";
 
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
@@ -77,6 +78,7 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     private ValueMap properties;
 
     private RelatedProductsRetriever productsRetriever;
+    private Integer productCount;
     private RelationType relationType;
     private String productSku;
 
@@ -97,6 +99,10 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     private void configureProductsRetriever() {
         String relationTypeProperty = properties.get(PN_RELATION_TYPE, String.class);
         String product = properties.get(PN_PRODUCT, String.class);
+        productCount = properties.get(PN_PRODUCT_COUNT, Integer.class);
+        if (productCount == null) {
+            productCount = currentStyle.get(PN_PRODUCT_COUNT, Integer.class);
+        }
 
         relationType = relationTypeProperty != null ? RelationType.valueOf(relationTypeProperty) : RelationType.RELATED_PRODUCTS;
         productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, relationType);
@@ -132,7 +138,7 @@ public class RelatedProductsImpl extends ProductCarouselBase {
                 LOGGER.error("Failed to instantiate product " + (product != null ? product.getSku() : null), e);
             }
         }
-        return carouselProductList;
+        return productCount == null ? carouselProductList : carouselProductList.stream().limit(productCount).collect(Collectors.toList());
     }
 
     @Override

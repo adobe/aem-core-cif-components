@@ -15,6 +15,16 @@
                     <selectionType jcr:primaryType="nt:unstructured" sling:hideResource="true"/>
                     <productsConfig jcr:primaryType="nt:unstructured" sling:hideResource="true"/>
                     <categoryConfig jcr:primaryType="nt:unstructured" sling:hideResource="true"/>
+                    <productCount jcr:primaryType="nt:unstructured"
+                        sling:orderBefore="id"
+                        sling:resourceType="granite/ui/components/coral/foundation/form/numberfield"
+                        fieldDescription="The maximum number of related products displayed."
+                        fieldLabel="Maximum number of products"
+                        max="50"
+                        min="1"
+                        name="./productCount"
+                        step="1"
+                        typeHint="Long"/>
                     <content jcr:primaryType="nt:unstructured"
                         sling:orderBefore="id"
                         sling:resourceType="commerce/gui/components/common/cifproductfield" 
