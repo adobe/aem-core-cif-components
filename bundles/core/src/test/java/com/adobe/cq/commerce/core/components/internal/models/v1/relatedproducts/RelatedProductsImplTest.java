@@ -16,6 +16,8 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts;
 
 import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.Map;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
@@ -41,6 +44,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.datalayer.ProductData;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
@@ -218,6 +222,45 @@ public class RelatedProductsImplTest {
         verify(clientSpy, times(1)).execute(captor.capture());
         Assert.assertFalse(captor.getValue().contains("pageSize"));
         Assert.assertFalse(captor.getValue().contains("currentPage"));
+    }
+
+    @Test
+    public void testProductLimitIsAppliedAfterInvalidProductsAreSkipped() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 2, null);
+        RelatedProductsRetriever retriever = mock(RelatedProductsRetriever.class);
+        when(retriever.fetchProducts()).thenReturn(Arrays.asList(null, products.get(0), products.get(1), products.get(2)));
+        Whitebox.setInternalState(relatedProducts, "productsRetriever", retriever);
+
+        assertProductLimit(2);
+    }
+
+    @Test
+    public void testConfiguredProductWithNoRelatedProducts() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 2, null);
+        RelatedProductsRetriever retriever = mock(RelatedProductsRetriever.class);
+        when(retriever.fetchProducts()).thenReturn(Collections.emptyList());
+        Whitebox.setInternalState(relatedProducts, "productsRetriever", retriever);
+
+        Assert.assertTrue(relatedProducts.getProducts().isEmpty());
+        Assert.assertTrue(relatedProducts.getProductCommerceIdentifiers().isEmpty());
+        Assert.assertTrue(relatedProducts.getProductIdentifiers().isEmpty());
+    }
+
+    @Test
+    public void testLimitedProductIdentifiersDataLayer() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 2, null);
+        ConfigurationBuilder mockConfigBuilder = mock(ConfigurationBuilder.class);
+        Utils.addDataLayerConfig(mockConfigBuilder, true);
+        context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
+
+        List<ProductListItem> identifiers = relatedProducts.getProductIdentifiers();
+        Assert.assertEquals(2, identifiers.size());
+        for (int i = 0; i < identifiers.size(); i++) {
+            ProductData data = (ProductData) identifiers.get(i).getData();
+            Assert.assertNotNull(data);
+            Assert.assertEquals(products.get(i).getSku(), data.getSKU());
+            Assert.assertEquals("core/cif/components/commerce/productlistitem", data.getType());
+        }
     }
 
     @Test
