@@ -131,16 +131,16 @@ public class RelatedProductsImplTest {
         setUp(relationType, jsonResponsePath, addSlugInSelector, null, null);
     }
 
-    private void setUp(RelationType relationType, String jsonResponsePath, boolean addSlugInSelector, Integer componentProductCount,
-        Integer policyProductCount) throws Exception {
+    private void setUp(RelationType relationType, String jsonResponsePath, boolean addSlugInSelector, Integer componentMaximumProductCount,
+        Integer policyMaximumProductCount) throws Exception {
         Page page = context.currentPage(PAGE);
         String resourcePath = RESOURCES_PATHS.get(relationType);
         context.currentResource(resourcePath);
         Resource resource = context.resourceResolver().getResource(resourcePath);
-        if (componentProductCount != null) {
-            resource.adaptTo(ModifiableValueMap.class).put(RelatedProductsImpl.PN_PRODUCT_COUNT, componentProductCount);
+        if (componentMaximumProductCount != null) {
+            resource.adaptTo(ModifiableValueMap.class).put(RelatedProductsImpl.PN_PRODUCT_COUNT, componentMaximumProductCount);
         }
-        when(style.get(RelatedProductsImpl.PN_PRODUCT_COUNT, Integer.class)).thenReturn(policyProductCount);
+        when(style.get(RelatedProductsImpl.PN_PRODUCT_COUNT, Integer.class)).thenReturn(policyMaximumProductCount);
         relatedProductsResource = Mockito.spy(resource);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable

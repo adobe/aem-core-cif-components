@@ -78,7 +78,7 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     private ValueMap properties;
 
     private RelatedProductsRetriever productsRetriever;
-    private Integer productCount;
+    private Integer maximumProductCount;
     private RelationType relationType;
     private String productSku;
 
@@ -99,9 +99,9 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     private void configureProductsRetriever() {
         String relationTypeProperty = properties.get(PN_RELATION_TYPE, String.class);
         String product = properties.get(PN_PRODUCT, String.class);
-        productCount = properties.get(PN_PRODUCT_COUNT, Integer.class);
-        if (productCount == null) {
-            productCount = currentStyle.get(PN_PRODUCT_COUNT, Integer.class);
+        maximumProductCount = properties.get(PN_PRODUCT_COUNT, Integer.class);
+        if (maximumProductCount == null) {
+            maximumProductCount = currentStyle.get(PN_PRODUCT_COUNT, Integer.class);
         }
 
         relationType = relationTypeProperty != null ? RelationType.valueOf(relationTypeProperty) : RelationType.RELATED_PRODUCTS;
@@ -138,7 +138,8 @@ public class RelatedProductsImpl extends ProductCarouselBase {
                 LOGGER.error("Failed to instantiate product " + (product != null ? product.getSku() : null), e);
             }
         }
-        return productCount == null ? carouselProductList : carouselProductList.stream().limit(productCount).collect(Collectors.toList());
+        return maximumProductCount == null ? carouselProductList
+            : carouselProductList.stream().limit(maximumProductCount).collect(Collectors.toList());
     }
 
     @Override
