@@ -16,6 +16,8 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts;
 
 import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Currency;
 import java.util.HashMap;
 import java.util.List;
@@ -25,10 +27,12 @@ import java.util.Map;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.osgi.services.HttpClientBuilderFactory;
+import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.scripting.SlingBindings;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
+import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.servlethelpers.MockRequestPathInfo;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,6 +44,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.datalayer.ProductData;
 import com.adobe.cq.commerce.core.components.internal.models.v1.relatedproducts.RelatedProductsRetriever.RelationType;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractProductsRetriever;
@@ -64,6 +69,7 @@ import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class RelatedProductsImplTest {
@@ -82,6 +88,7 @@ public class RelatedProductsImplTest {
 
     private static final String PRODUCT_PAGE = "/content/product-page";
     private static final String PAGE = "/content/pageA";
+    private static final int AVAILABLE_PRODUCT_COUNT = 3;
 
     private static final Map<RelationType, String> RESOURCES_PATHS = new HashMap<>();
     static {
@@ -104,6 +111,7 @@ public class RelatedProductsImplTest {
     private List<ProductInterface> products;
     private CloseableHttpClient httpClient;
     private GraphqlClient graphqlClient;
+    private Style style;
 
     @Before
     public void setUp() throws Exception {
@@ -114,17 +122,27 @@ public class RelatedProductsImplTest {
         Utils.registerGraphqlClient(context, graphqlClient, null);
 
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
-        Style style = mock(Style.class);
+        style = mock(Style.class);
         when(style.get(Mockito.anyString(), Mockito.anyInt())).then(i -> i.getArgumentAt(1, Object.class));
         when(style.get(Title.PN_DESIGN_DEFAULT_TYPE, String.class)).thenReturn("h3");
         slingBindings.put(WCMBindingsConstants.NAME_CURRENT_STYLE, style);
     }
 
     private void setUp(RelationType relationType, String jsonResponsePath, boolean addSlugInSelector) throws Exception {
+        setUp(relationType, jsonResponsePath, addSlugInSelector, null, null);
+    }
+
+    private void setUp(RelationType relationType, String jsonResponsePath, boolean addSlugInSelector, Integer componentMaximumProductCount,
+        Integer policyMaximumProductCount) throws Exception {
         Page page = context.currentPage(PAGE);
         String resourcePath = RESOURCES_PATHS.get(relationType);
         context.currentResource(resourcePath);
-        relatedProductsResource = Mockito.spy(context.resourceResolver().getResource(resourcePath));
+        Resource resource = context.resourceResolver().getResource(resourcePath);
+        if (componentMaximumProductCount != null) {
+            resource.adaptTo(ModifiableValueMap.class).put(RelatedProductsImpl.PN_PRODUCT_COUNT, componentMaximumProductCount.longValue());
+        }
+        when(style.get(RelatedProductsImpl.PN_PRODUCT_COUNT, Integer.class)).thenReturn(policyMaximumProductCount);
+        relatedProductsResource = Mockito.spy(resource);
 
         // This sets the page attribute injected in the models with @Inject or @ScriptVariable
         SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
@@ -161,7 +179,101 @@ public class RelatedProductsImplTest {
     public void testRelatedProducts() throws Exception {
         setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false);
         assertProducts();
+        assertProductLimit(AVAILABLE_PRODUCT_COUNT);
         Assert.assertEquals("h2", relatedProducts.getTitleType()); // titleType is coming from resource
+    }
+
+    @Test
+    public void testComponentProductLimit() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 2, null);
+        assertProductLimit(2);
+    }
+
+    @Test
+    public void testPolicyProductLimit() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, null, 2);
+        assertProductLimit(2);
+    }
+
+    @Test
+    public void testComponentProductLimitOverridesPolicy() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 1, 2);
+        assertProductLimit(1);
+    }
+
+    @Test
+    public void testNegativeComponentProductLimit() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, -1, null);
+        assertProductLimit(1);
+    }
+
+    @Test
+    public void testZeroPolicyProductLimit() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, null, 0);
+        assertProductLimit(1);
+    }
+
+    @Test
+    public void testZeroComponentProductLimitOverridesPolicy() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 0, 2);
+        assertProductLimit(1);
+    }
+
+    @Test
+    public void testProductLimitLargerThanAvailableProducts() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 50, null);
+        assertProductLimit(AVAILABLE_PRODUCT_COUNT);
+    }
+
+    @Test
+    public void testProductsBeyondLimitAreNotProcessed() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 2, null);
+        ProductInterface thirdProduct = mock(ProductInterface.class);
+        RelatedProductsRetriever retriever = mock(RelatedProductsRetriever.class);
+        when(retriever.fetchProducts()).thenReturn(Arrays.asList(products.get(0), products.get(1), thirdProduct));
+        Whitebox.setInternalState(relatedProducts, "productsRetriever", retriever);
+
+        assertProductLimit(2);
+        verifyZeroInteractions(thirdProduct);
+    }
+
+    @Test
+    public void testProductLimitIsAppliedAfterInvalidProductsAreSkipped() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 2, null);
+        RelatedProductsRetriever retriever = mock(RelatedProductsRetriever.class);
+        when(retriever.fetchProducts()).thenReturn(Arrays.asList(null, products.get(0), products.get(1), products.get(2)));
+        Whitebox.setInternalState(relatedProducts, "productsRetriever", retriever);
+
+        assertProductLimit(2);
+    }
+
+    @Test
+    public void testConfiguredProductWithNoRelatedProducts() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 2, null);
+        RelatedProductsRetriever retriever = mock(RelatedProductsRetriever.class);
+        when(retriever.fetchProducts()).thenReturn(Collections.emptyList());
+        Whitebox.setInternalState(relatedProducts, "productsRetriever", retriever);
+
+        Assert.assertTrue(relatedProducts.getProducts().isEmpty());
+        Assert.assertTrue(relatedProducts.getProductCommerceIdentifiers().isEmpty());
+        Assert.assertTrue(relatedProducts.getProductIdentifiers().isEmpty());
+    }
+
+    @Test
+    public void testLimitedProductIdentifiersDataLayer() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 2, null);
+        ConfigurationBuilder mockConfigBuilder = mock(ConfigurationBuilder.class);
+        Utils.addDataLayerConfig(mockConfigBuilder, true);
+        context.registerAdapter(Resource.class, ConfigurationBuilder.class, mockConfigBuilder);
+
+        List<ProductListItem> identifiers = relatedProducts.getProductIdentifiers();
+        Assert.assertEquals(2, identifiers.size());
+        for (int i = 0; i < identifiers.size(); i++) {
+            ProductData data = (ProductData) identifiers.get(i).getData();
+            Assert.assertNotNull(data);
+            Assert.assertEquals(products.get(i).getSku(), data.getSKU());
+            Assert.assertEquals("core/cif/components/commerce/productlistitem", data.getType());
+        }
     }
 
     @Test
@@ -244,6 +356,12 @@ public class RelatedProductsImplTest {
     }
 
     @Test
+    public void testJsonExportRespectsProductLimit() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 2, null);
+        Utils.testJSONExport(relatedProducts, "/exporter/related-products-limited.json");
+    }
+
+    @Test
     public void testJsonExportForUpsellProducts() throws Exception {
         setUp(RelationType.UPSELL_PRODUCTS, "graphql/magento-graphql-upsellproducts-result.json", true);
         Utils.testJSONExport(relatedProducts, "/exporter/upsell-products.json");
@@ -270,6 +388,20 @@ public class RelatedProductsImplTest {
             Assert.assertEquals(priceFormatter.format(amount.getValue()), item.getPriceRange().getFormattedFinalPrice());
 
             Assert.assertEquals(product.getThumbnail().getUrl(), item.getImageURL());
+        }
+    }
+
+    private void assertProductLimit(int expectedProductCount) {
+        List<ProductListItem> items = relatedProducts.getProducts();
+        Assert.assertEquals(expectedProductCount, items.size());
+        Assert.assertEquals(expectedProductCount, relatedProducts.getProductCommerceIdentifiers().size());
+        Assert.assertEquals(expectedProductCount, relatedProducts.getProductIdentifiers().size());
+
+        for (int i = 0; i < expectedProductCount; i++) {
+            String expectedSku = products.get(i).getSku();
+            Assert.assertEquals(expectedSku, items.get(i).getSKU());
+            Assert.assertEquals(expectedSku, relatedProducts.getProductCommerceIdentifiers().get(i).getValue());
+            Assert.assertEquals(expectedSku, relatedProducts.getProductIdentifiers().get(i).getSKU());
         }
     }
 
