@@ -69,6 +69,7 @@ import static com.adobe.cq.commerce.core.testing.TestContext.buildAemContext;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class RelatedProductsImplTest {
@@ -138,7 +139,7 @@ public class RelatedProductsImplTest {
         context.currentResource(resourcePath);
         Resource resource = context.resourceResolver().getResource(resourcePath);
         if (componentMaximumProductCount != null) {
-            resource.adaptTo(ModifiableValueMap.class).put(RelatedProductsImpl.PN_PRODUCT_COUNT, componentMaximumProductCount);
+            resource.adaptTo(ModifiableValueMap.class).put(RelatedProductsImpl.PN_PRODUCT_COUNT, componentMaximumProductCount.longValue());
         }
         when(style.get(RelatedProductsImpl.PN_PRODUCT_COUNT, Integer.class)).thenReturn(policyMaximumProductCount);
         relatedProductsResource = Mockito.spy(resource);
@@ -201,27 +202,39 @@ public class RelatedProductsImplTest {
     }
 
     @Test
+    public void testNegativeComponentProductLimit() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, -1, null);
+        assertProductLimit(1);
+    }
+
+    @Test
+    public void testZeroPolicyProductLimit() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, null, 0);
+        assertProductLimit(1);
+    }
+
+    @Test
+    public void testZeroComponentProductLimitOverridesPolicy() throws Exception {
+        setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 0, 2);
+        assertProductLimit(1);
+    }
+
+    @Test
     public void testProductLimitLargerThanAvailableProducts() throws Exception {
         setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 50, null);
         assertProductLimit(AVAILABLE_PRODUCT_COUNT);
     }
 
     @Test
-    public void testProductLimitIsAppliedAfterFetching() throws Exception {
+    public void testProductsBeyondLimitAreNotProcessed() throws Exception {
         setUp(RelationType.RELATED_PRODUCTS, "graphql/magento-graphql-relatedproducts-result.json", false, 2, null);
-        AbstractProductsRetriever retriever = relatedProducts.getProductsRetriever();
-
-        MagentoGraphqlClient client = (MagentoGraphqlClient) Whitebox.getInternalState(retriever, "client");
-        MagentoGraphqlClient clientSpy = Mockito.spy(client);
-        Whitebox.setInternalState(retriever, "client", clientSpy);
+        ProductInterface thirdProduct = mock(ProductInterface.class);
+        RelatedProductsRetriever retriever = mock(RelatedProductsRetriever.class);
+        when(retriever.fetchProducts()).thenReturn(Arrays.asList(products.get(0), products.get(1), thirdProduct));
+        Whitebox.setInternalState(relatedProducts, "productsRetriever", retriever);
 
         assertProductLimit(2);
-        Assert.assertEquals(products.size(), retriever.fetchProducts().size());
-
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(clientSpy, times(1)).execute(captor.capture());
-        Assert.assertFalse(captor.getValue().contains("pageSize"));
-        Assert.assertFalse(captor.getValue().contains("currentPage"));
+        verifyZeroInteractions(thirdProduct);
     }
 
     @Test

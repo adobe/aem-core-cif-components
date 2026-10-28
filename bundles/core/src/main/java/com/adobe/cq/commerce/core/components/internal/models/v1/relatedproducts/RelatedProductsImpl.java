@@ -67,6 +67,7 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     protected static final String PN_PRODUCT = "product";
     protected static final String PN_PRODUCT_COUNT = "productCount";
     protected static final String PN_RELATION_TYPE = "relationType";
+    private static final int MIN_PRODUCT_COUNT = 1;
 
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -99,10 +100,11 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     private void configureProductsRetriever() {
         String relationTypeProperty = properties.get(PN_RELATION_TYPE, String.class);
         String product = properties.get(PN_PRODUCT, String.class);
-        maximumProductCount = properties.get(PN_PRODUCT_COUNT, Integer.class);
-        if (maximumProductCount == null) {
-            maximumProductCount = currentStyle.get(PN_PRODUCT_COUNT, Integer.class);
+        Integer productCount = properties.get(PN_PRODUCT_COUNT, Integer.class);
+        if (productCount == null) {
+            productCount = currentStyle.get(PN_PRODUCT_COUNT, Integer.class);
         }
+        maximumProductCount = productCount != null ? Math.max(MIN_PRODUCT_COUNT, productCount) : null;
 
         relationType = relationTypeProperty != null ? RelationType.valueOf(relationTypeProperty) : RelationType.RELATED_PRODUCTS;
         productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, relationType);
@@ -129,6 +131,9 @@ public class RelatedProductsImpl extends ProductCarouselBase {
 
         List<ProductListItem> carouselProductList = new ArrayList<>();
         for (ProductInterface product : products) {
+            if (maximumProductCount != null && carouselProductList.size() >= maximumProductCount) {
+                break;
+            }
             try {
                 ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), currentPage, request, urlProvider)
                     .product(product)
@@ -138,8 +143,7 @@ public class RelatedProductsImpl extends ProductCarouselBase {
                 LOGGER.error("Failed to instantiate product " + (product != null ? product.getSku() : null), e);
             }
         }
-        return maximumProductCount == null ? carouselProductList
-            : carouselProductList.stream().limit(maximumProductCount).collect(Collectors.toList());
+        return carouselProductList;
     }
 
     @Override
