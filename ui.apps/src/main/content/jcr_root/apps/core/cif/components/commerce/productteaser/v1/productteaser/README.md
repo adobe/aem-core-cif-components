@@ -47,6 +47,21 @@ The following properties are written to JCR for this component and are expected 
 4. `./linkTarget` - defines the link target of the links generated for the component.
 5. `./id` - defines the component HTML ID attribute.
 
+### Accessibility and Template Overrides
+
+The image and title remain separate links to preserve existing markup, styling, JavaScript hooks and mouse interaction.
+The core `productteaser.html` passes `titleLinked=true` to `imageTpl.actions`, because the core title template always renders a link.
+This adds `tabindex="-1"` and `aria-hidden="true"` to the image anchor, leaving the title as the single product-page link for keyboard and screen-reader navigation.
+The image remains clickable with a mouse.
+
+The image template's optional `titleLinked` parameter defaults to false when omitted.
+Custom main templates that omit it retain the previous image-link behavior, with neither attribute rendered.
+Pass `titleLinked=true` only when a separate, accessible title link is present.
+If an override of `title.html` removes the title link, also override `productteaser.html` to omit `titleLinked` or pass `titleLinked=false`; otherwise the product has no accessible image or title link.
+
+Both image and title links honor `./linkTarget`: `_blank` opens either link in a new tab, while the default `_self` is normalized by the model so neither anchor renders a `target` attribute.
+Projects such as Venia with their own main and title templates must opt in separately; reusing the core image template alone does not change their behavior.
+
 ## BEM Description
 
 ```

@@ -61,6 +61,14 @@ Components that are in technical preview may change in a none backward compatibl
 
 - [Product v3](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/product/v3/product) - Adobe Commerce EE only with version >= 2.4.4
 
+## Release Notes (Unreleased)
+
+Product Teaser v1 now avoids redundant product-page links for keyboard and screen-reader users while preserving both anchors and mouse interaction ([#684](https://github.com/adobe/aem-core-cif-components/issues/684), SITES-54715).
+Image and title links both honor the configured new-tab target.
+**Compatibility:** customers overriding only `title.html` to remove its link must also override the main template to omit or disable `titleLinked`, or retain an accessible linked title.
+Custom main templates that omit the new image-template parameter remain unchanged; Venia requires a separate opt-in.
+See the [Product Teaser accessibility and template override guidance](ui.apps/src/main/content/jcr_root/apps/core/cif/components/commerce/productteaser/v1/productteaser/README.md#accessibility-and-template-overrides).
+
 ## System Requirements
 
 The latest version of the AEM CIF Core Components, require the below minimum system requirements:
