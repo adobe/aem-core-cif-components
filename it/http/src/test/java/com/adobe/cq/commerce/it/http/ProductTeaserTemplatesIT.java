@@ -42,7 +42,8 @@ public class ProductTeaserTemplatesIT extends ItSiteTestBase {
         List<NameValuePair> properties = new ArrayList<>();
         properties.add(new BasicNameValuePair("sling:resourceType",
             "cif-components-it-site/components/commerce/productteaser"));
-        properties.add(new BasicNameValuePair("url", "/content/product.html"));
+        // Use an existing page so the link checker does not strip the anchors.
+        properties.add(new BasicNameValuePair("url", pagePath + ".html"));
         properties.add(new BasicNameValuePair("name", "Test Product"));
         properties.add(new BasicNameValuePair("image", "/content/dam/product.jpg"));
         properties.add(new BasicNameValuePair("imageAlt", "Test Product Image"));
@@ -84,7 +85,7 @@ public class ProductTeaserTemplatesIT extends ItSiteTestBase {
         Element image = images.first();
         Element title = titles.first();
         for (Element link : new Element[] { image, title }) {
-            Assert.assertEquals("/content/product.html", link.attr("href"));
+            Assert.assertEquals(pagePath + ".html", link.attr("href"));
             if (target == null) {
                 Assert.assertFalse(link.hasAttr("target"));
             } else {
