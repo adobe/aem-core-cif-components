@@ -65,7 +65,9 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(RelatedProductsImpl.class);
 
     protected static final String PN_PRODUCT = "product";
+    protected static final String PN_PRODUCT_COUNT = "productCount";
     protected static final String PN_RELATION_TYPE = "relationType";
+    private static final int MIN_PRODUCT_COUNT = 1;
 
     @Self(injectionStrategy = InjectionStrategy.OPTIONAL)
     private MagentoGraphqlClient magentoGraphqlClient;
@@ -77,6 +79,7 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     private ValueMap properties;
 
     private RelatedProductsRetriever productsRetriever;
+    private Integer maximumProductCount;
     private RelationType relationType;
     private String productSku;
 
@@ -97,6 +100,11 @@ public class RelatedProductsImpl extends ProductCarouselBase {
     private void configureProductsRetriever() {
         String relationTypeProperty = properties.get(PN_RELATION_TYPE, String.class);
         String product = properties.get(PN_PRODUCT, String.class);
+        Integer productCount = properties.get(PN_PRODUCT_COUNT, Integer.class);
+        if (productCount == null) {
+            productCount = currentStyle.get(PN_PRODUCT_COUNT, Integer.class);
+        }
+        maximumProductCount = productCount != null ? Math.max(MIN_PRODUCT_COUNT, productCount) : null;
 
         relationType = relationTypeProperty != null ? RelationType.valueOf(relationTypeProperty) : RelationType.RELATED_PRODUCTS;
         productsRetriever = new RelatedProductsRetriever(magentoGraphqlClient, relationType);
@@ -123,6 +131,9 @@ public class RelatedProductsImpl extends ProductCarouselBase {
 
         List<ProductListItem> carouselProductList = new ArrayList<>();
         for (ProductInterface product : products) {
+            if (maximumProductCount != null && carouselProductList.size() >= maximumProductCount) {
+                break;
+            }
             try {
                 ProductListItemImpl.Builder builder = new ProductListItemImpl.Builder(getId(), currentPage, request, urlProvider)
                     .product(product)
