@@ -25,6 +25,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.JcrConstants;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
@@ -36,20 +37,25 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.internal.services.CommerceComponentModelFinder;
 import com.adobe.cq.commerce.core.components.internal.services.site.SiteStructureFactory;
+import com.adobe.cq.commerce.core.components.internal.utils.GraphqlErrors;
 import com.adobe.cq.commerce.core.components.models.common.SiteStructure;
 import com.adobe.cq.commerce.core.components.models.product.Product;
 import com.adobe.cq.commerce.core.components.models.productlist.ProductList;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
+import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.NameConstants;
 import com.day.cq.wcm.api.Page;
 import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.PageManagerFactory;
+import com.day.cq.wcm.api.WCMMode;
 
 @Component(
     service = Filter.class,
@@ -72,6 +78,7 @@ import com.day.cq.wcm.api.PageManagerFactory;
         "sling.filter.resource.pattern=/content(/.+)?",
         Constants.SERVICE_RANKING + ":Integer=-6000"
     })
+@Designate(ocd = CatalogPageNotFoundFilterConfiguration.class)
 public class CatalogPageNotFoundFilter implements Filter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CatalogPageNotFoundFilter.class);
@@ -84,10 +91,13 @@ public class CatalogPageNotFoundFilter implements Filter {
     private SiteStructureFactory siteStructureFactory;
 
     private BundleContext bundleContext;
+    private volatile CatalogPageNotFoundFilterConfiguration configuration;
 
     @Activate
-    protected void activate(BundleContext bundleContext) {
+    @Modified
+    protected void activate(BundleContext bundleContext, CatalogPageNotFoundFilterConfiguration configuration) {
         this.bundleContext = bundleContext;
+        this.configuration = configuration;
     }
 
     @Override
@@ -124,13 +134,26 @@ public class CatalogPageNotFoundFilter implements Filter {
         if (currentPage != null) {
             SiteStructure siteStructure = siteStructureFactory.getSiteStructure(slingRequest, currentPage);
             boolean removeSlingScriptHelperFromBindings = false;
+            CatalogPageNotFoundFilterConfiguration config = configuration;
+            boolean checkBackendErrors = config.serviceUnavailableOnBackendError()
+                && WCMMode.fromRequest(slingRequest) == WCMMode.DISABLED;
 
             if (siteStructure.isProductPage(currentPage)) {
                 removeSlingScriptHelperFromBindings = addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
                 Product product = commerceModelFinder.findProductComponentModel(slingRequest, currentPage.getContentResource());
-                if (product != null && !product.getFound()) {
-                    slingResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
-                    return;
+                if (product != null) {
+                    boolean found = product.getFound();
+                    if (checkBackendErrors) {
+                        Error error = GraphqlErrors.getTransportError(product.getProductRetriever());
+                        if (error != null) {
+                            sendServiceUnavailable(slingResponse, currentPage, error, config);
+                            return;
+                        }
+                    }
+                    if (!found) {
+                        slingResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Product not found");
+                        return;
+                    }
                 }
             } else if (siteStructure.isCategoryPage(currentPage)) {
                 removeSlingScriptHelperFromBindings = addSlingScriptHelperIfNeeded(slingRequest, slingResponse);
@@ -139,7 +162,20 @@ public class CatalogPageNotFoundFilter implements Filter {
                     AbstractCategoryRetriever categoryRetriever = productList.getCategoryRetriever();
                     // since CIF-2916 the categoryRetriever is null when using the placeholder data, however the product list still
                     // returns the placeholder products and so we check additionally if the list is empty.
-                    if ((categoryRetriever == null || categoryRetriever.fetchCategory() == null) && productList.getProducts().isEmpty()) {
+                    boolean notFound = (categoryRetriever == null || categoryRetriever.fetchCategory() == null)
+                        && productList.getProducts().isEmpty();
+                    if (checkBackendErrors) {
+                        Error error = GraphqlErrors.getTransportError(categoryRetriever);
+                        if (error == null) {
+                            // Force the lazy search, including when the category itself exists.
+                            error = GraphqlErrors.getTransportError(productList.getSearchResultsSet());
+                        }
+                        if (error != null) {
+                            sendServiceUnavailable(slingResponse, currentPage, error, config);
+                            return;
+                        }
+                    }
+                    if (notFound) {
                         slingResponse.sendError(HttpServletResponse.SC_NOT_FOUND, "Category not found");
                         return;
                     }
@@ -160,6 +196,16 @@ public class CatalogPageNotFoundFilter implements Filter {
 
     @Override
     public void destroy() {}
+
+    private static void sendServiceUnavailable(SlingHttpServletResponse response, Page page, Error error,
+        CatalogPageNotFoundFilterConfiguration config) throws IOException {
+        LOGGER.warn("Commerce backend unavailable for catalog page {}: {}", page.getPath(),
+            StringUtils.replaceChars(error.getMessage(), "\r\n", "  "));
+        if (config.retryAfterSeconds() > 0) {
+            response.setIntHeader("Retry-After", config.retryAfterSeconds());
+        }
+        response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+    }
 
     /**
      * The {@link CommerceComponentModelFinder} uses

@@ -118,6 +118,10 @@ public interface SearchResultsSet {
 
     /**
      * Get the list of errors that occurred during the search.
+     * An empty result without errors represents genuine zero results; errors indicate that a query failed, including category lookup
+     * or filter metadata retrieval. An error whose category equals
+     * {@link com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient#RUNTIME_ERROR_CATEGORY} identifies a transport failure;
+     * other errors are GraphQL errors returned by the backend.
      *
      * @return the list of errors
      */

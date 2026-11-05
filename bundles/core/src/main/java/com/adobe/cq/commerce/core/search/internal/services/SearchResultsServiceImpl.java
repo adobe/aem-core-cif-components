@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.CategoryUrlParameterRetriever;
+import com.adobe.cq.commerce.core.components.internal.utils.GraphqlErrors;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
 import com.adobe.cq.commerce.core.components.services.urls.UrlProvider;
@@ -169,6 +170,7 @@ public class SearchResultsServiceImpl implements SearchResultsService {
 
         // Next we generate the graphql category query and actually query the commerce system
         CategoryInterface category = null;
+        List<Error> errors = new ArrayList<>();
 
         if (categoryRetriever != null || mutableSearchOptions.getCategoryUid().isPresent()) {
             // if a categoryRetriever is given or if a category uid filter is given, fetch the category and (re)set the uid filter
@@ -177,9 +179,11 @@ public class SearchResultsServiceImpl implements SearchResultsService {
                 categoryRetriever.setIdentifier(mutableSearchOptions.getCategoryUid().get());
             }
             category = categoryRetriever.fetchCategory();
+            errors.addAll(GraphqlErrors.getErrors(categoryRetriever));
             if (category == null) {
                 // category not found
                 LOGGER.debug("Category not found.");
+                searchResultsSet.setErrors(errors);
                 return new ImmutablePair<>(null, searchResultsSet);
             }
             if (category.getUid() != null) {
@@ -203,9 +207,9 @@ public class SearchResultsServiceImpl implements SearchResultsService {
             };
             categoryRetriever.setIdentifier(mutableSearchOptions.getAllFilters().get(CATEGORY_ID_FILTER));
             category = categoryRetriever.fetchCategory();
+            errors.addAll(GraphqlErrors.getErrors(categoryRetriever));
         }
 
-        List<Error> errors = new ArrayList<>();
         // We will use the search filter service to retrieve all of the potential available filters the commerce system
         // has available for querying against
         Pair<List<FilterAttributeMetadata>, List<Error>> filterAttributeInfo = searchFilterService

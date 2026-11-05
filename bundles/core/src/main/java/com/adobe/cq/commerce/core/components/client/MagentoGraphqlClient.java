@@ -47,6 +47,9 @@ public interface MagentoGraphqlClient {
     /**
      * A category string used for {@link Error} instances returned by the {@link MagentoGraphqlClient} implementation in case of a
      * {@link RuntimeException} being caught.
+     * It identifies transport failures, including non-200 HTTP responses, connection or socket timeouts, I/O errors and an open
+     * circuit breaker. Other categories identify GraphQL errors returned by the backend. Empty results without errors represent
+     * genuine zero results, whereas errors indicate query failure.
      */
     String RUNTIME_ERROR_CATEGORY = RuntimeException.class.getName();
 
