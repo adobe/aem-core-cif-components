@@ -15,6 +15,7 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.client;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +37,7 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.Cookie;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.SlingHttpServletRequest;
@@ -91,6 +93,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     private static final Set<String> PASSTHROUGH_DENIED_HEADERS = Collections.singleton("cookie");
     static final boolean PASSTHROUGH_HEADERS_SUPPORTED = isPassthroughHeadersSupported(GraphqlClientConfiguration.class);
     private static final String LOCAL_CACHE_ATTR = MagentoGraphqlClient.class.getName() + ".LocalCache";
+    private static final String FAILURE_CACHE_ATTR = MagentoGraphqlClient.class.getName() + ".FailureCache";
     private static final String BACKEND_CALL_DURATION_ATTRIBUTE = "com.adobe.cif.backendCallDurationInMs";
 
     private SlingHttpServletRequest request;
@@ -102,6 +105,8 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     private RequestOptions requestOptions;
     private List<Header> httpHeaders;
     private Map<String, GraphqlResponse<Query, Error>> localResponseCache;
+    // Transport failures of the current request, keyed by GraphQL client identifier and query
+    private Map<List<String>, GraphqlResponse<Query, Error>> failureCache;
     private AtomicLong existingDuration;
 
     public MagentoGraphqlClientImpl(Resource resource) {
@@ -247,6 +252,12 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
                 request.setAttribute(LOCAL_CACHE_ATTR, localResponseCache);
             }
 
+            failureCache = (Map<List<String>, GraphqlResponse<Query, Error>>) request.getAttribute(FAILURE_CACHE_ATTR);
+            if (failureCache == null) {
+                failureCache = new HashMap<>();
+                request.setAttribute(FAILURE_CACHE_ATTR, failureCache);
+            }
+
             // Initialize backend call duration attribute
             existingDuration = (AtomicLong) request.getAttribute(BACKEND_CALL_DURATION_ATTRIBUTE);
             if (existingDuration == null) {
@@ -269,57 +280,60 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             .withHttpMethod(httpMethod);
 
         if (httpMethod == HttpMethod.POST) {
-            // skip caching if POST is enforced by the caller
-            try {
-                GraphqlResponse<Query, Error> response = graphqlClient.execute(new GraphqlRequest(query), Query.class, Error.class,
-                    options);
-
-                // Add backend call duration to request attributes
-                if (existingDuration != null && response.getDuration() > 0) {
-                    existingDuration.addAndGet(response.getDuration());
-                }
-
-                return response;
-            } catch (RuntimeException ex) {
-                LOGGER.error("Failed to execute query: {}", query, ex);
-
-                // Add duration from GraphqlRequestException if available
-                if (existingDuration != null && ex instanceof GraphqlRequestException) {
-                    existingDuration.addAndGet(((GraphqlRequestException) ex).getDuration());
-                }
-
-                return newErrorResponse(ex);
-            }
+            // skip caching of successful responses if POST is enforced by the caller
+            return executeRemote(query, options, false);
         }
 
         return executeCached(query, options);
     }
 
     private GraphqlResponse<Query, Error> executeCached(String query, RequestOptions options) {
-        try {
-            if (localResponseCache != null) {
-                if (localResponseCache.containsKey(query)) {
-                    LOGGER.debug("Cache hit for query '{}'", query);
-                    return localResponseCache.get(query);
-                }
-
-                // fuzzy matching (a very simplified version of caching resolved graphql response objects)
-                // If a cache key (query) starts with the given query trimmed by any trailing curley brackets can assume
-                // that the cached response queried with the same filter the same fields. This only works if the queries
-                // we use define the queried fields always in the same order.
-                // Example: The query to resolve the sku from the url_key done by the UrlProvider can reuse the response
-                // from the query done by the product detail component. This helps any Commerce Content Fragment or
-                // Commerce Experience Fragment on a product detail page that is rendered after the product detail
-                // component to get the product identifier.
-                String fuzzyKey = StringUtils.removePattern(query, "\\}+$");
-                for (Map.Entry<String, GraphqlResponse<Query, Error>> entry : localResponseCache.entrySet()) {
-                    if (entry.getKey().startsWith(fuzzyKey)) {
-                        LOGGER.debug("Fuzzy cache hit for query '{}', return response of query '{}'", query, entry.getKey());
-                        return entry.getValue();
-                    }
-                }
+        if (localResponseCache != null) {
+            if (localResponseCache.containsKey(query)) {
+                LOGGER.debug("Cache hit for query '{}'", query);
+                return localResponseCache.get(query);
             }
 
+            // fuzzy matching (a very simplified version of caching resolved graphql response objects)
+            // If a cache key (query) starts with the given query trimmed by any trailing curley brackets can assume
+            // that the cached response queried with the same filter the same fields. This only works if the queries
+            // we use define the queried fields always in the same order.
+            // Example: The query to resolve the sku from the url_key done by the UrlProvider can reuse the response
+            // from the query done by the product detail component. This helps any Commerce Content Fragment or
+            // Commerce Experience Fragment on a product detail page that is rendered after the product detail
+            // component to get the product identifier.
+            String fuzzyKey = StringUtils.removePattern(query, "\\}+$");
+            for (Map.Entry<String, GraphqlResponse<Query, Error>> entry : localResponseCache.entrySet()) {
+                if (StringUtils.startsWith(entry.getKey(), fuzzyKey)) {
+                    LOGGER.debug("Fuzzy cache hit for query '{}', return response of query '{}'", query, entry.getKey());
+                    return entry.getValue();
+                }
+            }
+        }
+
+        return executeRemote(query, options, true);
+    }
+
+    /**
+     * Calls the GraphQL client, unless the same query already failed with a transport failure (e.g. a timeout) on the same
+     * GraphQL client with the same HTTP method in the current request. In that case the cached error response is returned,
+     * so a render waits for a failing backend at most once per query. Failures are looked up by exact match only, after the
+     * successful responses. The HTTP method is part of the key because GET and POST can take different routes to the
+     * backend (e.g. GET through a CDN).
+     */
+    private GraphqlResponse<Query, Error> executeRemote(String query, RequestOptions options, boolean cacheResponse) {
+        List<String> failureKey = failureCache != null && !isMutation(query)
+            ? Arrays.asList(graphqlClient.getIdentifier(), String.valueOf(options.getHttpMethod()), query)
+            : null;
+        if (failureKey != null) {
+            GraphqlResponse<Query, Error> failure = failureCache.get(failureKey);
+            if (failure != null) {
+                LOGGER.debug("Query already failed in this request, returning the cached error without calling the backend: {}", query);
+                return failure;
+            }
+        }
+
+        try {
             GraphqlRequest graphqlRequest = new GraphqlRequest(query);
             GraphqlResponse<Query, Error> response = graphqlClient.execute(graphqlRequest, Query.class, Error.class, options);
 
@@ -327,7 +341,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
                 existingDuration.addAndGet(response.getDuration());
             }
 
-            if (localResponseCache != null) {
+            if (cacheResponse && localResponseCache != null) {
                 localResponseCache.put(query, response);
             }
 
@@ -340,8 +354,30 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
                 existingDuration.addAndGet(((GraphqlRequestException) ex).getDuration());
             }
 
-            return newErrorResponse(ex);
+            GraphqlResponse<Query, Error> response = newErrorResponse(ex);
+            if (failureKey != null && isTransportFailure(ex)) {
+                failureCache.put(failureKey, response);
+            }
+            return response;
         }
+    }
+
+    /**
+     * A mutation that failed may have been applied anyway, so it must always be sent again.
+     */
+    static boolean isMutation(String query) {
+        return StringUtils.startsWith(StringUtils.trimToEmpty(query), "mutation");
+    }
+
+    /**
+     * Returns true for failures to send the request or to read the response (connect, pool and read timeouts, refused or reset
+     * connections): a {@link GraphqlRequestException} caused by an {@link IOException}. The cause chain is checked because the
+     * client cache wraps the failure, and the circuit breaker exceptions are not exported by the GraphQL client. HTTP status
+     * errors (no cause) and circuit breaker open errors (not caused by an {@link IOException}) are not transport failures.
+     */
+    static boolean isTransportFailure(Throwable throwable) {
+        int index = ExceptionUtils.indexOfType(throwable, GraphqlRequestException.class);
+        return index >= 0 && ExceptionUtils.indexOfType(throwable, IOException.class, index + 1) >= 0;
     }
 
     @Override
