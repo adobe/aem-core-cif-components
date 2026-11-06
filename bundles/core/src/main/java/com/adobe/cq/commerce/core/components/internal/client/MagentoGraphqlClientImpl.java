@@ -350,9 +350,10 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
         } catch (RuntimeException ex) {
             LOGGER.error("Failed to execute query: {}", query, ex);
 
-            // Add duration from GraphqlRequestException if available
-            if (existingDuration != null && ex instanceof GraphqlRequestException) {
-                existingDuration.addAndGet(((GraphqlRequestException) ex).getDuration());
+            // Add duration from GraphqlRequestException if available, also when the client cache wraps it
+            int index = ExceptionUtils.indexOfType(ex, GraphqlRequestException.class);
+            if (existingDuration != null && index >= 0) {
+                existingDuration.addAndGet(((GraphqlRequestException) ExceptionUtils.getThrowableList(ex).get(index)).getDuration());
             }
 
             GraphqlResponse<Query, Error> response = newErrorResponse(ex);
@@ -364,8 +365,8 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     }
 
     /**
-     * A mutation that failed may have been applied anyway, so it must always be sent again. Leading whitespace and comments
-     * are skipped, so a mutation after a comment line is detected too.
+     * Mutations are never remembered: each call is an intended side effect, so a remembered result must never replace it.
+     * Leading whitespace and comments are skipped, so a mutation after a comment line is detected too.
      */
     static boolean isMutation(String query) {
         return query != null && MUTATION.matcher(query).lookingAt();

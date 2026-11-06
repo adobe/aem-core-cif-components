@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpStatus;
@@ -43,7 +44,10 @@ import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -102,6 +106,41 @@ public class MagentoGraphqlClientImplFailureCacheTest {
     @Test
     public void testHttpStatusErrorNotCached() throws IOException {
         MagentoGraphqlClient client = createClient(null);
+        Utils.setupHttpResponse(null, httpClient, HttpStatus.SC_SERVICE_UNAVAILABLE);
+
+        client.execute(QUERY);
+        client.execute(QUERY);
+
+        verify(httpClient, times(2)).execute(any(HttpUriRequest.class), any(ResponseHandler.class));
+    }
+
+    @Test
+    public void testCircuitBreakerOpenNotCached() throws IOException {
+        MagentoGraphqlClient client = createClient(FAULT_TOLERANT);
+        when(httpClient.execute(any(HttpUriRequest.class), any(ResponseHandler.class)))
+            .thenThrow(new SocketTimeoutException("Read timed out"));
+
+        // send distinct failing queries until the circuit breaker opens
+        String openQuery = null;
+        for (int i = 0; i < 20 && openQuery == null; i++) {
+            String query = "{q" + i + "}";
+            if (client.execute(query).getErrors().get(0).getMessage().contains("circuit breaker open")) {
+                openQuery = query;
+            }
+        }
+        assertNotNull("The circuit breaker should open", openQuery);
+
+        // the timeouts before it are remembered, the breaker-open error is not
+        Map<List<String>, ?> failureCache = (Map<List<String>, ?>) context.request()
+            .getAttribute(MagentoGraphqlClient.class.getName() + ".FailureCache");
+        String breakerOpenQuery = openQuery;
+        assertFalse(failureCache.isEmpty());
+        assertTrue(failureCache.keySet().stream().noneMatch(key -> key.contains(breakerOpenQuery)));
+    }
+
+    @Test
+    public void testHttpStatusErrorFaultTolerantNotCached() throws IOException {
+        MagentoGraphqlClient client = createClient(FAULT_TOLERANT);
         Utils.setupHttpResponse(null, httpClient, HttpStatus.SC_SERVICE_UNAVAILABLE);
 
         client.execute(QUERY);

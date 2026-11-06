@@ -893,6 +893,7 @@ public class MagentoGraphqlClientImplTest {
     @Test
     public void testFailureCacheUncheckedExecutionException() {
         assertFailureCached(new UncheckedExecutionException(transportFailure(new IOException("Connection reset"))));
+        assertDurationAccumulation(100L, "The duration of a wrapped failure should be added");
     }
 
     /**
