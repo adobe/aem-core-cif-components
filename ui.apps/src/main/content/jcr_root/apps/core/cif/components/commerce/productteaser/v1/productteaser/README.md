@@ -58,9 +58,29 @@ The image template's optional `titleLinked` parameter defaults to false when omi
 Custom main templates that omit it retain the previous image-link behavior, with neither attribute rendered.
 Pass `titleLinked=true` only when a separate, accessible title link is present.
 If an override of `title.html` removes the title link, also override `productteaser.html` to omit `titleLinked` or pass `titleLinked=false`; otherwise the product has no accessible image or title link.
+Projects using the core templates through proxy components are also affected if they hide the title with CSS: `display:none` or `visibility:hidden` has the same effect as removing the title link.
+Use a visually-hidden (clip) style that keeps the title link accessible instead, or override `productteaser.html` to pass `titleLinked=false`.
+
+HTL ignores call arguments that a template does not declare.
+Overrides of only `image.html` that do not declare `titleLinked` therefore keep the previous behavior: nothing breaks, but they do not get the accessibility fix.
+To adopt the fix, declare the parameter and render the conditional attributes while preserving the override's existing image markup:
+
+```html
+<template data-sly-template.actions="${@ product, titleLinked}">
+    <a class="item__images" href="${product.url}" title="${product.name}" target="${product.linkTarget}"
+       tabindex="${titleLinked ? '-1' : null}" aria-hidden="${titleLinked ? 'true' : null}">
+        <img class="item__image" width="100%" height="100%" src="${product.image}" alt="${product.imageAlt}" />
+    </a>
+</template>
+```
 
 Both image and title links honor `./linkTarget`: `_blank` opens either link in a new tab, while the default `_self` is normalized by the model so neither anchor renders a `target` attribute.
+Existing teasers with "open in new tab" (`./linkTarget=_blank`) enabled now open the title link in a new tab as well.
+This is a visible behavior change on existing pages; the option was originally introduced for the CTA in [#904](https://github.com/adobe/aem-core-cif-components/pull/904), so authors may not expect it to affect the title.
 Projects such as Venia with their own main and title templates must opt in separately; reusing the core image template alone does not change their behavior.
+
+Automated tests using role-based queries such as `getByRole('link')` or `getByRole('img')` exclude `aria-hidden` elements by default.
+When `titleLinked=true`, this includes both the image anchor and its child image; adjust queries that previously expected them to be exposed.
 
 ## BEM Description
 
