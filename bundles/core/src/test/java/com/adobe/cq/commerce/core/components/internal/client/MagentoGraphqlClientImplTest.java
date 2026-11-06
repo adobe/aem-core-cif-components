@@ -15,6 +15,10 @@
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 package com.adobe.cq.commerce.core.components.internal.client;
 
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -28,15 +32,19 @@ import javax.servlet.http.Cookie;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
+import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.conn.ConnectionPoolTimeoutException;
 import org.apache.http.message.BasicHeader;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.SyntheticResource;
 import org.apache.sling.api.resource.ValueMap;
+import org.apache.sling.api.wrappers.SlingHttpServletRequestWrapper;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.serviceusermapping.ServiceUserMapped;
+import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -66,6 +74,9 @@ import com.adobe.cq.launches.api.Launch;
 import com.day.cq.wcm.api.Page;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.UncheckedExecutionException;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.MalformedJsonException;
 import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -83,6 +94,7 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -203,6 +215,21 @@ public class MagentoGraphqlClientImplTest {
 
         verify(graphqlClient, new AtMost(1)).execute(any(), any(), any(), any());
         assertSame(resp1, resp2);
+    }
+
+    /**
+     * A null query must return an error response, not throw, also when the request cache already holds responses.
+     */
+    @Test
+    public void testLocalCacheNullQuery() {
+        MagentoGraphqlClient client = createTestClient();
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(mock(GraphqlResponse.class))
+            .thenThrow(new NullPointerException("query is null"));
+
+        client.execute("{dummy}");
+        GraphqlResponse<?, ?> response = client.execute(null);
+
+        assertEquals(1, response.getErrors().size());
     }
 
     @Test
@@ -832,6 +859,210 @@ public class MagentoGraphqlClientImplTest {
         assertDurationAccumulation(400L, "Duration should be accumulated from both error calls");
     }
 
+    /**
+     * Read timeout (also what the circuit breaker throws for a read timeout): cached, the backend is called once.
+     */
+    @Test
+    public void testFailureCacheReadTimeout() {
+        assertFailureCached(transportFailure(new SocketTimeoutException("Read timed out")));
+    }
+
+    @Test
+    public void testFailureCacheConnectTimeout() {
+        assertFailureCached(transportFailure(new ConnectTimeoutException("Connect timed out")));
+    }
+
+    @Test
+    public void testFailureCacheConnectionRefused() {
+        assertFailureCached(transportFailure(new ConnectException("Connection refused")));
+    }
+
+    @Test
+    public void testFailureCacheConnectionReset() {
+        assertFailureCached(transportFailure(new SocketException("Connection reset")));
+    }
+
+    @Test
+    public void testFailureCachePoolTimeout() {
+        assertFailureCached(transportFailure(new ConnectionPoolTimeoutException("Timeout waiting for connection from pool")));
+    }
+
+    /**
+     * The GraphQL client cache (CACHE_FIRST) wraps the failure in an UncheckedExecutionException.
+     */
+    @Test
+    public void testFailureCacheUncheckedExecutionException() {
+        assertFailureCached(new UncheckedExecutionException(transportFailure(new IOException("Connection reset"))));
+        assertDurationAccumulation(100L, "The duration of a wrapped failure should be added");
+    }
+
+    /**
+     * Circuit breaker open: not cached, so a half-open breaker can let a later call through in the same request.
+     */
+    @Test
+    public void testFailureCacheIgnoresCircuitBreakerOpen() {
+        assertFailureNotCached(new GraphqlRequestException("Circuit breaker is open", new RuntimeException("CircuitBreakerOpenException")));
+    }
+
+    /**
+     * HTTP status errors (e.g. 503) have no cause: not cached.
+     */
+    @Test
+    public void testFailureCacheIgnoresHttpStatusError() {
+        assertFailureNotCached(new GraphqlRequestException("GraphQL service unavailable: 503", 100L));
+    }
+
+    /**
+     * JSON parse errors are thrown by Gson without a GraphqlRequestException, even though the cause is an IOException.
+     */
+    @Test
+    public void testFailureCacheIgnoresParseError() {
+        assertFailureNotCached(new JsonSyntaxException(new MalformedJsonException("Unterminated object")));
+    }
+
+    @Test
+    public void testFailureCacheIgnoresMutation() {
+        MagentoGraphqlClient client = createTestClient();
+        doThrow(transportFailure(new SocketTimeoutException())).when(graphqlClient).execute(any(), any(), any(), any());
+
+        client.execute(" mutation {createEmptyCart}");
+        client.execute(" mutation {createEmptyCart}");
+        client.execute("# create a cart\nmutation {createEmptyCart}");
+        client.execute("# create a cart\nmutation {createEmptyCart}");
+
+        verify(graphqlClient, times(4)).execute(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testIsMutation() {
+        assertTrue(MagentoGraphqlClientImpl.isMutation("mutation{createEmptyCart}"));
+        assertTrue(MagentoGraphqlClientImpl.isMutation(" mutation CreateCart {createEmptyCart}"));
+        assertTrue(MagentoGraphqlClientImpl.isMutation("# create a cart\n  # second comment\r\nmutation {createEmptyCart}"));
+        assertFalse(MagentoGraphqlClientImpl.isMutation("# mutation in a comment\n{products{items{sku}}}"));
+        assertFalse(MagentoGraphqlClientImpl.isMutation("{products{items{sku}}}"));
+        assertFalse(MagentoGraphqlClientImpl.isMutation("query {products(search:\"mutations\"){items{sku}}}"));
+        assertFalse(MagentoGraphqlClientImpl.isMutation(null));
+    }
+
+    /**
+     * Custom code that retries a failed query in the same request, also from another component, gets the remembered error.
+     */
+    @Test
+    public void testFailureCacheRetryInSameRequest() {
+        doThrow(transportFailure(new SocketTimeoutException())).when(graphqlClient).execute(any(), any(), any(), any());
+        MagentoGraphqlClient client = createTestClient();
+
+        GraphqlResponse<?, ?> first = client.execute("{dummy}");
+        assertSame(first, client.execute("{dummy}"));
+        assertSame(first, client.execute("{dummy}"));
+        assertSame(first, createTestClient().execute("{dummy}"));
+
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+    }
+
+    /**
+     * The failure cache lives in the request: the next request calls the backend again.
+     */
+    @Test
+    public void testFailureCacheNotSharedAcrossRequests() {
+        doThrow(transportFailure(new SocketTimeoutException())).when(graphqlClient).execute(any(), any(), any(), any());
+        createTestClient().execute("{dummy}");
+
+        MockSlingHttpServletRequest nextRequest = new MockSlingHttpServletRequest(context.resourceResolver(), context.bundleContext());
+        new MagentoGraphqlClientImpl(context.currentResource(), null, nextRequest).execute("{dummy}");
+
+        verify(graphqlClient, times(2)).execute(any(), any(), any(), any());
+    }
+
+    /**
+     * Failures are matched exactly: a query that would fuzzy match the failed one still calls the backend.
+     */
+    @Test
+    public void testFailureCacheNoFuzzyMatch() {
+        MagentoGraphqlClient client = createTestClient();
+        doThrow(transportFailure(new SocketTimeoutException())).when(graphqlClient).execute(any(), any(), any(), any());
+
+        client.execute("{products(filter:{sku:{eq:\"ABC\"}}){items{__typename,sku,name}}}");
+        client.execute("{products(filter:{sku:{eq:\"ABC\"}}){items{__typename,sku}}}");
+
+        verify(graphqlClient, times(2)).execute(any(), any(), any(), any());
+    }
+
+    /**
+     * A cached failure never hides a successful response: successful responses are looked up first.
+     */
+    @Test
+    public void testFailureCacheDoesNotHideSuccess() {
+        MagentoGraphqlClient client = createTestClient();
+        GraphqlResponse success = mock(GraphqlResponse.class);
+        when(graphqlClient.execute(any(), any(), any(), any())).thenThrow(transportFailure(new SocketTimeoutException()))
+            .thenReturn(success);
+
+        // the failed query is answered by the later successful response it fuzzy matches
+        client.execute("{products{items{sku}}}");
+        assertSame(success, client.execute("{products{items{sku,name}}}"));
+        assertSame(success, client.execute("{products{items{sku}}}"));
+
+        verify(graphqlClient, times(2)).execute(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testFailureCachePost() {
+        MagentoGraphqlClient client = createTestClient();
+        doThrow(transportFailure(new SocketTimeoutException())).when(graphqlClient).execute(any(), any(), any(), any());
+
+        GraphqlResponse<?, ?> resp1 = client.execute("{dummy}", HttpMethod.POST);
+        GraphqlResponse<?, ?> resp2 = client.execute("{dummy}", HttpMethod.POST);
+
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+        assertSame(resp1, resp2);
+    }
+
+    /**
+     * The same query on another GraphQL client (different identifier) is not affected by the failure.
+     */
+    @Test
+    public void testFailureCacheSeparatedByClient() {
+        doThrow(transportFailure(new SocketTimeoutException())).when(graphqlClient).execute(any(), any(), any(), any());
+
+        when(graphqlClient.getIdentifier()).thenReturn("default");
+        createTestClient().execute("{dummy}");
+        when(graphqlClient.getIdentifier()).thenReturn("other");
+        createTestClient().execute("{dummy}");
+
+        verify(graphqlClient, times(2)).execute(any(), any(), any(), any());
+    }
+
+    /**
+     * Request attributes are delegated by request wrappers, so the failure is shared with clients created for a wrapper.
+     */
+    @Test
+    public void testFailureCacheSharedWithRequestWrapper() {
+        context.currentPage("/content/pageD");
+        doThrow(transportFailure(new SocketTimeoutException())).when(graphqlClient).execute(any(), any(), any(), any());
+
+        new MagentoGraphqlClientImpl(context.currentResource(), null, context.request()).execute("{dummy}");
+        new MagentoGraphqlClientImpl(context.currentResource(), null, new SlingHttpServletRequestWrapper(context.request()))
+            .execute("{dummy}");
+
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+    }
+
+    /**
+     * Without a request (adapted from a resource only) nothing is cached.
+     */
+    @Test
+    public void testFailureCacheWithoutRequest() {
+        context.currentPage("/content/pageD");
+        MagentoGraphqlClient client = new MagentoGraphqlClientImpl(context.currentResource(), null, null);
+        doThrow(transportFailure(new SocketTimeoutException())).when(graphqlClient).execute(any(), any(), any(), any());
+
+        client.execute("{dummy}");
+        client.execute("{dummy}");
+
+        verify(graphqlClient, times(2)).execute(any(), any(), any(), any());
+    }
+
     // Helper methods for optimized duration testing
     private MagentoGraphqlClient createTestClient() {
         context.currentPage("/content/pageD");
@@ -856,6 +1087,34 @@ public class MagentoGraphqlClientImplTest {
         }
 
         stubbing.when(graphqlClient).execute(any(), any(), any(), any());
+    }
+
+    private static GraphqlRequestException transportFailure(IOException cause) {
+        return new GraphqlRequestException("Failed to send request", 100L, cause);
+    }
+
+    private void assertFailureCached(RuntimeException failure) {
+        MagentoGraphqlClient client = createTestClient();
+        doThrow(failure).when(graphqlClient).execute(any(), any(), any(), any());
+
+        GraphqlResponse<?, ?> resp1 = client.execute("{dummy}");
+        long duration = ((AtomicLong) context.request().getAttribute(BACKEND_CALL_DURATION_ATTRIBUTE)).get();
+        GraphqlResponse<?, ?> resp2 = client.execute("{dummy}");
+
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+        assertSame(resp1, resp2);
+        assertEquals(1, resp1.getErrors().size());
+        assertDurationAccumulation(duration, "A cached failure should not add a backend call duration");
+    }
+
+    private void assertFailureNotCached(RuntimeException failure) {
+        MagentoGraphqlClient client = createTestClient();
+        doThrow(failure).when(graphqlClient).execute(any(), any(), any(), any());
+
+        client.execute("{dummy}");
+        client.execute("{dummy}");
+
+        verify(graphqlClient, times(2)).execute(any(), any(), any(), any());
     }
 
     private void assertDurationAccumulation(long expectedDuration, String message) {
