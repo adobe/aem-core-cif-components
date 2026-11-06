@@ -157,44 +157,6 @@ to the `content-package-maven-plugin`.
 
 To connect the AEM CIF Core Components with your Adobe Commerce environment or a 3rd party commerce deployment follow the [configuration steps](https://experienceleague.adobe.com/docs/experience-manager-cloud-service/content/content-and-commerce/storefront/getting-started.html). For a multi store / site setup [additional steps](https://experienceleague.adobe.com/docs/experience-manager-cloud-service/content/content-and-commerce/storefront/administering/multi-store-setup.html) are needed to link an AEM site to a Adobe Commerce store view configuration.
 
-### Catalog pages during Commerce outages
-
-Product and category pages return **HTTP 503 (Service Unavailable)** when a fetched query reports a transport error with category `MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY`. This includes connection/socket timeouts, I/O errors, non-200 backend HTTP responses (including 429 and 5xx), and an open GraphQL client circuit breaker. A category page also checks its product search even when the category exists. A genuine missing product or category still returns 404; GraphQL-only errors keep their previous behavior, including 200 for a category pagination error such as `?page=999`. Empty results without errors are not an outage.
-
-This behavior applies only when `WCMMode.fromRequest(request)` is `DISABLED`: publish/preview services and author requests using `wcmmode=disabled`. Author **edit and preview WCM modes** keep their existing placeholder/empty-result behavior. The filter retains service ranking `-6000` and consumes the WCM mode initialized by upstream AEM request processing. The [HTTP integration tests](it/http/README.md) include disabled/edit/preview requests to verify this ordering on the deployed AEM version. Both AEM as a Cloud Service and AEM 6.5 are affected, including catalog `.model.json` requests used by headless/SPA clients. Direct content-tree reads are not catalog page rendering requests and remain excluded.
-
-Configure the OSGi PID `com.adobe.cq.commerce.core.components.internal.servlets.CatalogPageNotFoundFilter`:
-
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `serviceUnavailableOnBackendError` | Boolean | `true` | Return 503 for transport failures. Set to `false` to restore the previous filter behavior (404 for failed entity lookups, or an empty 200 category page), without eagerly fetching category product searches in the filter. |
-| `retryAfterSeconds` | Integer | `0` | Set a positive value to send `Retry-After` on 503 responses. Zero or negative values omit the header. |
-
-For example, a `com.adobe.cq.commerce.core.components.internal.servlets.CatalogPageNotFoundFilter.cfg.json` configuration can contain:
-
-```json
-{
-  "serviceUnavailableOnBackendError": true,
-  "retryAfterSeconds": 60
-}
-```
-
-Provide a custom **503 error page**, using a Sling error handler or dispatcher `ErrorDocument`, and preserve the 503 status rather than rewriting it to 200. Otherwise, visitors see the default Sling error page. Backend error details are not sent in the response; the filter writes one WARN per 503 with the page path and error message, without a stack trace. Existing GraphQL client error logging is unchanged. Projects that render their own in-page "temporarily unavailable" fallback will get the 503 error page instead; the kill switch allows keeping the previous behavior while adapting that fallback.
-
-Monitor these 5xx responses as temporary Commerce availability failures, not missing catalog content. Configure CDN **stale-if-error** where appropriate and the GraphQL client's **circuit breaker** to protect AEM and Commerce. Unlike the previously cached empty 200/404 responses, 503s should not become normal cached catalog pages. During 429/outage storms, this can increase traffic reaching AEM and Commerce; confirm dispatcher/CDN error caching, stale serving, retry and monitoring policies before rollout. Successful filter and rendering queries reuse the existing request-level response cache; no cache implementation changes are required.
-
-`SearchResultsSet.getErrors()` now includes failed category lookups as well as filter metadata/product search errors, so `hasErrors()` can return `true` where it previously returned `false`. Custom retrievers should initialize their errors when fetching data. Unavailable or uninitialized error lists fall back to previous status behavior rather than causing a 500. Non-catalog pages (for example content pages with teasers/carousels) still render normally; this change does not add page-level outage handling there.
-
-**Related follow-ups:** the Venia sample's separate `CatalogPageErrorFilter` (ranking `-4000`) still needs to be restricted to transport errors, or removed once Venia depends on a release containing this change. Its broader `hasErrors()` check can otherwise turn GraphQL-only errors into 503 before this filter runs. The corresponding Experience League guidance requires separate publication; this repository change does not update that external documentation.
-
-### Release notes (unreleased): SITES-54845
-
-- Commerce transport failures on catalog pages now return 503 instead of 404 or a cacheable empty 200, including on AEM 6.5 and for headless/SPA `.model.json` requests. Genuine missing entities and GraphQL-only error behavior are unchanged; author edit/preview modes are unaffected.
-- The new filter configuration enables the behavior by default, with a kill switch and optional positive `Retry-After`. Projects without a custom 503 handler see the default Sling error page; existing in-page unavailability fallbacks are bypassed unless the kill switch is used.
-- Monitoring will intentionally observe more 5xx responses during outages. Loss of cached empty-page shielding may increase AEM/Commerce traffic during 429/outage storms; use a GraphQL client circuit breaker and CDN stale-if-error.
-- Category lookup errors are now retained in `SearchResultsSet`, including category-ID searches, and may change custom `hasErrors()`-based handling. Public APIs and package versions are unchanged; error-contract changes are Javadoc-only.
-- Venia filter alignment and Experience League publication remain separate release dependencies. Backend HTTP status/retry hints, Commerce `extensions.category=internal` classification, non-catalog page status handling, GraphQL error-response caching and existing client stack-trace logging are not changed here.
-
 ## Customization
 
 For customizing CIF Core Components, we provide use cases and examples in our documentation at [Customizing CIF Core Components](https://experienceleague.adobe.com/docs/experience-manager-cloud-service/content/content-and-commerce/storefront/developing/customize-cif-components.html).

@@ -57,6 +57,53 @@ import com.day.cq.wcm.api.PageManager;
 import com.day.cq.wcm.api.PageManagerFactory;
 import com.day.cq.wcm.api.WCMMode;
 
+/**
+ * Validates product and category page rendering requests, including catalog {@code .model.json} requests and specific-page forwards.
+ * Direct content-tree reads and non-catalog pages are excluded.
+ *
+ * <p>
+ * With {@link CatalogPageNotFoundFilterConfiguration#serviceUnavailableOnBackendError()} enabled, transport failures are handled only
+ * when {@link WCMMode#fromRequest(javax.servlet.ServletRequest)} is {@link WCMMode#DISABLED}, including author requests with
+ * {@code wcmmode=disabled}. Author Edit and Preview WCM modes retain their existing behavior. The filter's service ranking is
+ * {@code -6000}; it consumes the WCM mode initialized by upstream AEM request processing.
+ *
+ * <p>
+ * A transport error has a category exactly equal to
+ * {@link com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient#RUNTIME_ERROR_CATEGORY}. This includes connection/socket
+ * timeouts, I/O errors, non-200 backend HTTP responses (including 429 and 5xx), and an open GraphQL client circuit breaker.
+ *
+ * <table>
+ * <caption>Catalog status decisions in disabled WCM mode with backend error handling enabled</caption>
+ * <tr>
+ * <th>Query outcome</th>
+ * <th>HTTP status</th>
+ * </tr>
+ * <tr>
+ * <td>Product or category lookup fails with a transport error</td>
+ * <td>503</td>
+ * </tr>
+ * <tr>
+ * <td>Category exists but its products query fails with a transport error</td>
+ * <td>503</td>
+ * </tr>
+ * <tr>
+ * <td>Filter-metadata query alone fails with a transport error, even if products succeed</td>
+ * <td>503</td>
+ * </tr>
+ * <tr>
+ * <td>Genuinely missing product or category without errors</td>
+ * <td>404</td>
+ * </tr>
+ * <tr>
+ * <td>GraphQL-only errors or successful results (including empty products)</td>
+ * <td>Unchanged</td>
+ * </tr>
+ * </table>
+ *
+ * <p>
+ * GraphQL-only pagination errors such as {@code page=999} retain the previous category status (200). Unavailable or uninitialized error
+ * lists fall back to the previous status behavior. A 503 response contains no backend details.
+ */
 @Component(
     service = Filter.class,
     property = {

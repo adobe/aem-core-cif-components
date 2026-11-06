@@ -75,6 +75,7 @@ import io.wcm.testing.mock.aem.junit.AemContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -627,6 +628,46 @@ public class CatalogPageNotFoundFilterTest {
         ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
         subject.doFilter(request, response, filterChain);
         assertEquals(503, response.getStatus());
+    }
+
+    @Test
+    public void testActualCategoryProductsHttpFailureReturns503() throws Exception {
+        Utils.setupHttpErrorResponse(httpClient, HttpStatus.SC_SERVICE_UNAVAILABLE, "pageSize:6");
+        currentPageAsPageResource("/content/venia/us/en/products/category-page");
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/men/tops-men/jackets-men.html");
+
+        subject.doFilter(request, response, filterChain);
+
+        assertEquals(503, response.getStatus());
+        verify(filterChain, never()).doFilter(any(), any());
+        List<GraphqlRequest> callsAfterFilter = backendCalls();
+        assertTrue(callsAfterFilter.stream().anyMatch(call -> call.getQuery().startsWith("{categoryList")));
+        assertTrue(callsAfterFilter.stream().anyMatch(call -> call.getQuery().startsWith("{products")));
+
+        ProductList productList = contentModelFinder.findProductListComponentModel(request,
+            aemContext.currentPage().getContentResource());
+        assertNotNull(productList.getCategoryRetriever().fetchCategory());
+        assertTrue(productList.getCategoryRetriever().getErrors().isEmpty());
+        assertTrue(productList.getProducts().isEmpty());
+        assertEquals(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY, productList.getSearchResultsSet().getErrors().get(0).getCategory());
+    }
+
+    @Test
+    public void testActualCategoryFilterMetadataHttpFailureReturns503WithProducts() throws Exception {
+        Utils.setupHttpErrorResponse(httpClient, HttpStatus.SC_SERVICE_UNAVAILABLE, "{customAttributeMetadata");
+        currentPageAsPageResource("/content/venia/us/en/products/category-page");
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/men/tops-men/jackets-men.html");
+
+        subject.doFilter(request, response, filterChain);
+
+        assertEquals(503, response.getStatus());
+        verify(filterChain, never()).doFilter(any(), any());
+        ProductList productList = contentModelFinder.findProductListComponentModel(request,
+            aemContext.currentPage().getContentResource());
+        assertNotNull(productList.getCategoryRetriever().fetchCategory());
+        assertTrue(productList.getCategoryRetriever().getErrors().isEmpty());
+        assertFalse(productList.getProducts().isEmpty());
+        assertEquals(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY, productList.getSearchResultsSet().getErrors().get(0).getCategory());
     }
 
     @Test
