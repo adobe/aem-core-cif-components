@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -94,6 +95,8 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     static final boolean PASSTHROUGH_HEADERS_SUPPORTED = isPassthroughHeadersSupported(GraphqlClientConfiguration.class);
     private static final String LOCAL_CACHE_ATTR = MagentoGraphqlClient.class.getName() + ".LocalCache";
     private static final String FAILURE_CACHE_ATTR = MagentoGraphqlClient.class.getName() + ".FailureCache";
+    // leading whitespace and # comment lines, then the mutation keyword
+    private static final Pattern MUTATION = Pattern.compile("(?:\\s|#[^\\n\\r]*+)*+mutation");
     private static final String BACKEND_CALL_DURATION_ATTRIBUTE = "com.adobe.cif.backendCallDurationInMs";
 
     private SlingHttpServletRequest request;
@@ -316,14 +319,12 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
     /**
      * Calls the GraphQL client, unless the same query already failed with a transport failure (e.g. a timeout) on the same
-     * GraphQL client with the same HTTP method in the current request. In that case the cached error response is returned,
-     * so a render waits for a failing backend at most once per query. Failures are looked up by exact match only, after the
-     * successful responses. The HTTP method is part of the key because GET and POST can take different routes to the
-     * backend (e.g. GET through a CDN).
+     * GraphQL client in the current request. In that case the cached error response is returned, so a render waits for a
+     * failing backend at most once per query. Failures are looked up by exact match only, after the successful responses.
      */
     private GraphqlResponse<Query, Error> executeRemote(String query, RequestOptions options, boolean cacheResponse) {
         List<String> failureKey = failureCache != null && !isMutation(query)
-            ? Arrays.asList(graphqlClient.getIdentifier(), String.valueOf(options.getHttpMethod()), query)
+            ? Arrays.asList(graphqlClient.getIdentifier(), query)
             : null;
         if (failureKey != null) {
             GraphqlResponse<Query, Error> failure = failureCache.get(failureKey);
@@ -363,10 +364,11 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     }
 
     /**
-     * A mutation that failed may have been applied anyway, so it must always be sent again.
+     * A mutation that failed may have been applied anyway, so it must always be sent again. Leading whitespace and comments
+     * are skipped, so a mutation after a comment line is detected too.
      */
     static boolean isMutation(String query) {
-        return StringUtils.startsWith(StringUtils.trimToEmpty(query), "mutation");
+        return query != null && MUTATION.matcher(query).lookingAt();
     }
 
     /**

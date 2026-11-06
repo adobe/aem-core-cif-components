@@ -16,6 +16,8 @@
 package com.adobe.cq.commerce.core.components.internal.client;
 
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +44,7 @@ import org.apache.sling.api.wrappers.SlingHttpServletRequestWrapper;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.serviceusermapping.ServiceUserMapped;
+import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -870,6 +873,16 @@ public class MagentoGraphqlClientImplTest {
     }
 
     @Test
+    public void testFailureCacheConnectionRefused() {
+        assertFailureCached(transportFailure(new ConnectException("Connection refused")));
+    }
+
+    @Test
+    public void testFailureCacheConnectionReset() {
+        assertFailureCached(transportFailure(new SocketException("Connection reset")));
+    }
+
+    @Test
     public void testFailureCachePoolTimeout() {
         assertFailureCached(transportFailure(new ConnectionPoolTimeoutException("Timeout waiting for connection from pool")));
     }
@@ -913,6 +926,49 @@ public class MagentoGraphqlClientImplTest {
 
         client.execute(" mutation {createEmptyCart}");
         client.execute(" mutation {createEmptyCart}");
+        client.execute("# create a cart\nmutation {createEmptyCart}");
+        client.execute("# create a cart\nmutation {createEmptyCart}");
+
+        verify(graphqlClient, times(4)).execute(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testIsMutation() {
+        assertTrue(MagentoGraphqlClientImpl.isMutation("mutation{createEmptyCart}"));
+        assertTrue(MagentoGraphqlClientImpl.isMutation(" mutation CreateCart {createEmptyCart}"));
+        assertTrue(MagentoGraphqlClientImpl.isMutation("# create a cart\n  # second comment\r\nmutation {createEmptyCart}"));
+        assertFalse(MagentoGraphqlClientImpl.isMutation("# mutation in a comment\n{products{items{sku}}}"));
+        assertFalse(MagentoGraphqlClientImpl.isMutation("{products{items{sku}}}"));
+        assertFalse(MagentoGraphqlClientImpl.isMutation("query {products(search:\"mutations\"){items{sku}}}"));
+        assertFalse(MagentoGraphqlClientImpl.isMutation(null));
+    }
+
+    /**
+     * Custom code that retries a failed query in the same request, also from another component, gets the remembered error.
+     */
+    @Test
+    public void testFailureCacheRetryInSameRequest() {
+        doThrow(transportFailure(new SocketTimeoutException())).when(graphqlClient).execute(any(), any(), any(), any());
+        MagentoGraphqlClient client = createTestClient();
+
+        GraphqlResponse<?, ?> first = client.execute("{dummy}");
+        assertSame(first, client.execute("{dummy}"));
+        assertSame(first, client.execute("{dummy}"));
+        assertSame(first, createTestClient().execute("{dummy}"));
+
+        verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+    }
+
+    /**
+     * The failure cache lives in the request: the next request calls the backend again.
+     */
+    @Test
+    public void testFailureCacheNotSharedAcrossRequests() {
+        doThrow(transportFailure(new SocketTimeoutException())).when(graphqlClient).execute(any(), any(), any(), any());
+        createTestClient().execute("{dummy}");
+
+        MockSlingHttpServletRequest nextRequest = new MockSlingHttpServletRequest(context.resourceResolver(), context.bundleContext());
+        new MagentoGraphqlClientImpl(context.currentResource(), null, nextRequest).execute("{dummy}");
 
         verify(graphqlClient, times(2)).execute(any(), any(), any(), any());
     }
@@ -959,20 +1015,6 @@ public class MagentoGraphqlClientImplTest {
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
         assertSame(resp1, resp2);
-    }
-
-    /**
-     * A POST failure does not block a GET of the same query, as GET and POST can take different routes to the backend.
-     */
-    @Test
-    public void testFailureCacheSeparatedByHttpMethod() {
-        MagentoGraphqlClient client = createTestClient();
-        doThrow(transportFailure(new SocketTimeoutException())).when(graphqlClient).execute(any(), any(), any(), any());
-
-        client.execute("{dummy}", HttpMethod.POST);
-        client.execute("{dummy}", HttpMethod.GET);
-
-        verify(graphqlClient, times(2)).execute(any(), any(), any(), any());
     }
 
     /**
