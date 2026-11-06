@@ -59,6 +59,9 @@ public abstract class AbstractRetriever {
 
     /**
      * Returns the errors encountered during the retrieval of GraphQL results.
+     * After fetching data, an empty result without errors represents genuine zero results; errors indicate that the query failed.
+     * An error whose category equals {@link MagentoGraphqlClient#RUNTIME_ERROR_CATEGORY} identifies a transport failure;
+     * other errors are GraphQL errors returned by the backend.
      *
      * @return list of errors
      *
