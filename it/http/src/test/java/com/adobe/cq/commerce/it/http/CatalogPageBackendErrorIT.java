@@ -50,8 +50,9 @@ public class CatalogPageBackendErrorIT extends CommerceTestBase {
         Map<String, Object> original = new HashMap<>(osgiClient.getConfiguration(EXAMPLES_CLIENT_PID));
         Map<String, Object> originalFilter = new HashMap<>(osgiClient.getConfiguration(FILTER_PID));
         Map<String, Object> filterConfig = new HashMap<>(originalFilter);
-        filterConfig.put("serviceUnavailableOnBackendError", true);
-        filterConfig.put("retryAfterSeconds", 60);
+        // The OSGi test client serializes only String and String[] configuration values.
+        filterConfig.put("serviceUnavailableOnBackendError", "true");
+        filterConfig.put("retryAfterSeconds", "60");
         Map<String, Object> unreachable = new HashMap<>(original);
         unreachable.put("url", "http://127.0.0.1:1/graphql");
         unreachable.put("allowHttpProtocol", "true");
@@ -59,6 +60,7 @@ public class CatalogPageBackendErrorIT extends CommerceTestBase {
         String suffix = "/cif-it-backend-outage-" + UUID.randomUUID() + ".html";
         try {
             updateOSGiConfiguration(adminAuthor, filterConfig, CORE_BUNDLE, FILTER_PID);
+            assertFilterConfiguration(osgiClient, "60");
             updateOSGiConfiguration(adminAuthor, unreachable, GRAPHQL_CLIENT_BUNDLE, EXAMPLES_CLIENT_PID);
             assertRetryAfter(PRODUCT_PAGE + ".html" + suffix + "?wcmmode=disabled", "60");
             assertRetryAfter(CATEGORY_PAGE + ".html" + suffix + "?wcmmode=disabled", "60");
@@ -72,8 +74,9 @@ public class CatalogPageBackendErrorIT extends CommerceTestBase {
             adminAuthor.doGet(CATEGORY_PAGE + ".html" + suffix + "?wcmmode=preview", 200);
 
             for (int seconds : new int[] { 0, -1 }) {
-                filterConfig.put("retryAfterSeconds", seconds);
+                filterConfig.put("retryAfterSeconds", Integer.toString(seconds));
                 updateOSGiConfiguration(adminAuthor, filterConfig, CORE_BUNDLE, FILTER_PID);
+                assertFilterConfiguration(osgiClient, Integer.toString(seconds));
                 assertRetryAfter(PRODUCT_PAGE + ".html" + suffix + "?wcmmode=disabled", null);
                 assertRetryAfter(CATEGORY_PAGE + ".html" + suffix + "?wcmmode=disabled", null);
             }
@@ -84,6 +87,12 @@ public class CatalogPageBackendErrorIT extends CommerceTestBase {
                 updateOSGiConfiguration(adminAuthor, originalFilter, CORE_BUNDLE, FILTER_PID);
             }
         }
+    }
+
+    private void assertFilterConfiguration(OsgiConsoleClient osgiClient, String expectedRetryAfter) throws Exception {
+        Map<String, Object> actual = osgiClient.getConfiguration(FILTER_PID);
+        assertEquals("Backend error handling configuration", "true", actual.get("serviceUnavailableOnBackendError"));
+        assertEquals("Retry-After configuration", expectedRetryAfter, actual.get("retryAfterSeconds"));
     }
 
     private void assertRetryAfter(String path, String expected) throws Exception {
