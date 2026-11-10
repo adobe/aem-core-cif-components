@@ -102,7 +102,8 @@ import com.day.cq.wcm.api.WCMMode;
  *
  * <p>
  * GraphQL-only pagination errors such as {@code page=999} retain the previous category status (200). Unavailable or uninitialized error
- * lists fall back to the previous status behavior. A 503 response contains no backend details.
+ * lists fall back to the previous status behavior. A 503 response contains no backend details. Positive Retry-After values are
+ * also applied by {@link CatalogPageErrorResponseFilter} during Sling error handling, which may reset the original response headers.
  */
 @Component(
     service = Filter.class,
@@ -193,7 +194,7 @@ public class CatalogPageNotFoundFilter implements Filter {
                     if (checkBackendErrors) {
                         Error error = GraphqlErrors.getTransportError(product.getProductRetriever());
                         if (error != null) {
-                            sendServiceUnavailable(slingResponse, currentPage, error, config);
+                            sendServiceUnavailable(slingRequest, slingResponse, currentPage, error, config);
                             return;
                         }
                     }
@@ -218,7 +219,7 @@ public class CatalogPageNotFoundFilter implements Filter {
                             error = GraphqlErrors.getTransportError(productList.getSearchResultsSet());
                         }
                         if (error != null) {
-                            sendServiceUnavailable(slingResponse, currentPage, error, config);
+                            sendServiceUnavailable(slingRequest, slingResponse, currentPage, error, config);
                             return;
                         }
                     }
@@ -244,11 +245,12 @@ public class CatalogPageNotFoundFilter implements Filter {
     @Override
     public void destroy() {}
 
-    private static void sendServiceUnavailable(SlingHttpServletResponse response, Page page, Error error,
-        CatalogPageNotFoundFilterConfiguration config) throws IOException {
+    private static void sendServiceUnavailable(SlingHttpServletRequest request, SlingHttpServletResponse response,
+        Page page, Error error, CatalogPageNotFoundFilterConfiguration config) throws IOException {
         LOGGER.warn("Commerce backend unavailable for catalog page {}: {}", page.getPath(),
             StringUtils.replaceChars(error.getMessage(), "\r\n", "  "));
         if (config.retryAfterSeconds() > 0) {
+            request.setAttribute(CatalogPageErrorResponseFilter.RETRY_AFTER_ATTRIBUTE, config.retryAfterSeconds());
             response.setIntHeader("Retry-After", config.retryAfterSeconds());
         }
         response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);

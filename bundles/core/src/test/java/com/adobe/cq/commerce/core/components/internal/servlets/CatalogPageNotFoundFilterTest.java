@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.servlet.FilterChain;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -551,6 +552,27 @@ public class CatalogPageNotFoundFilterTest {
         subject.doFilter(request, response, filterChain);
         assertEquals(503, response.getStatus());
         assertEquals("60", response.getHeader("Retry-After"));
+    }
+
+    @Test
+    public void testActualHttpFailureRetryAfterSurvivesErrorResponseReset() throws Exception {
+        configure(true, 60);
+        Utils.setupHttpErrorResponse(httpClient, 503, "{eq:\"does-not-exist\"}}");
+        currentPageAsPageResource("/content/venia/us/en/products/product-page");
+        ((MockRequestPathInfo) request.getRequestPathInfo()).setSuffix("/does-not-exist.html");
+        subject.doFilter(request, response, filterChain);
+        assertEquals(503, response.getStatus());
+
+        response.reset();
+        assertNull(response.getHeader("Retry-After"));
+        assertNull(request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE));
+        new CatalogPageErrorResponseFilter().doFilter(request, response, (errorRequest, errorResponse) -> {
+            errorRequest.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, 503);
+            response.setStatus(503);
+            assertEquals(503, response.getStatus());
+            assertEquals("60", response.getHeader("Retry-After"));
+        });
+        verify(filterChain, never()).doFilter(any(), any());
     }
 
     @Test

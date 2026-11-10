@@ -19,17 +19,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.http.Header;
+import org.apache.sling.testing.clients.SlingHttpResponse;
 import org.apache.sling.testing.clients.osgi.OsgiConsoleClient;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 /**
- * Verifies the request filter's status codes and upstream WCM mode initialization on a running AEM instance.
+ * Verifies catalog status codes, Retry-After through error rendering and upstream WCM mode initialization on a running
+ * AEM instance.
  */
 public class CatalogPageBackendErrorIT extends CommerceTestBase {
 
     private static final String PRODUCT_PAGE = COMMERCE_LIBRARY_PATH + "/product/sample-product";
     private static final String CATEGORY_PAGE = COMMERCE_LIBRARY_PATH + "/productlist/sample-productlist";
     private static final String EXAMPLES_CLIENT_PID = GRAPHQL_CLIENT_FACTORY_PID + "~examples";
+    private static final String FILTER_PID = "com.adobe.cq.commerce.core.components.internal.servlets.CatalogPageNotFoundFilter";
+    private static final String CORE_BUNDLE = "com.adobe.commerce.cif.core-cif-components-core";
 
     @Test
     public void testHealthyCatalogResponses() throws Exception {
@@ -41,25 +48,48 @@ public class CatalogPageBackendErrorIT extends CommerceTestBase {
     public void testUnreachableBackendAndAuthorModes() throws Exception {
         OsgiConsoleClient osgiClient = adminAuthor.adaptTo(OsgiConsoleClient.class);
         Map<String, Object> original = new HashMap<>(osgiClient.getConfiguration(EXAMPLES_CLIENT_PID));
+        Map<String, Object> originalFilter = new HashMap<>(osgiClient.getConfiguration(FILTER_PID));
+        Map<String, Object> filterConfig = new HashMap<>(originalFilter);
+        filterConfig.put("serviceUnavailableOnBackendError", true);
+        filterConfig.put("retryAfterSeconds", 60);
         Map<String, Object> unreachable = new HashMap<>(original);
         unreachable.put("url", "http://127.0.0.1:1/graphql");
         unreachable.put("allowHttpProtocol", "true");
         // Unique identifiers avoid previously cached healthy or missing-entity responses.
         String suffix = "/cif-it-backend-outage-" + UUID.randomUUID() + ".html";
         try {
+            updateOSGiConfiguration(adminAuthor, filterConfig, CORE_BUNDLE, FILTER_PID);
             updateOSGiConfiguration(adminAuthor, unreachable, GRAPHQL_CLIENT_BUNDLE, EXAMPLES_CLIENT_PID);
-            adminAuthor.doGet(PRODUCT_PAGE + ".html" + suffix + "?wcmmode=disabled", 503);
-            adminAuthor.doGet(CATEGORY_PAGE + ".html" + suffix + "?wcmmode=disabled", 503);
-            adminAuthor.doGet(PRODUCT_PAGE + ".model.json" + suffix + "?wcmmode=disabled", 503);
-            adminAuthor.doGet(CATEGORY_PAGE + ".model.json" + suffix + "?wcmmode=disabled", 503);
+            assertRetryAfter(PRODUCT_PAGE + ".html" + suffix + "?wcmmode=disabled", "60");
+            assertRetryAfter(CATEGORY_PAGE + ".html" + suffix + "?wcmmode=disabled", "60");
+            assertRetryAfter(PRODUCT_PAGE + ".model.json" + suffix + "?wcmmode=disabled", "60");
+            assertRetryAfter(CATEGORY_PAGE + ".model.json" + suffix + "?wcmmode=disabled", "60");
 
             // These requests also verify that WCMMode is already initialized before the -6000 filter runs.
             adminAuthor.doGet(PRODUCT_PAGE + ".html" + suffix + "?wcmmode=edit", 200);
             adminAuthor.doGet(PRODUCT_PAGE + ".html" + suffix + "?wcmmode=preview", 200);
             adminAuthor.doGet(CATEGORY_PAGE + ".html" + suffix + "?wcmmode=edit", 200);
             adminAuthor.doGet(CATEGORY_PAGE + ".html" + suffix + "?wcmmode=preview", 200);
+
+            for (int seconds : new int[] { 0, -1 }) {
+                filterConfig.put("retryAfterSeconds", seconds);
+                updateOSGiConfiguration(adminAuthor, filterConfig, CORE_BUNDLE, FILTER_PID);
+                assertRetryAfter(PRODUCT_PAGE + ".html" + suffix + "?wcmmode=disabled", null);
+                assertRetryAfter(CATEGORY_PAGE + ".html" + suffix + "?wcmmode=disabled", null);
+            }
         } finally {
-            updateOSGiConfiguration(adminAuthor, original, GRAPHQL_CLIENT_BUNDLE, EXAMPLES_CLIENT_PID);
+            try {
+                updateOSGiConfiguration(adminAuthor, original, GRAPHQL_CLIENT_BUNDLE, EXAMPLES_CLIENT_PID);
+            } finally {
+                updateOSGiConfiguration(adminAuthor, originalFilter, CORE_BUNDLE, FILTER_PID);
+            }
+        }
+    }
+
+    private void assertRetryAfter(String path, String expected) throws Exception {
+        try (SlingHttpResponse result = adminAuthor.doGet(path, 503)) {
+            Header header = result.getFirstHeader("Retry-After");
+            assertEquals(path, expected, header != null ? header.getValue() : null);
         }
     }
 }
