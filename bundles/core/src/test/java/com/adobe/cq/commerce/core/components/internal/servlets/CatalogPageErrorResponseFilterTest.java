@@ -49,8 +49,7 @@ public class CatalogPageErrorResponseFilterTest {
     }
 
     @Test
-    public void testMarkedServiceUnavailableResponse() throws Exception {
-        request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, 503);
+    public void testMarkedResponse() throws Exception {
         request.setAttribute(CatalogPageErrorResponseFilter.RETRY_AFTER_ATTRIBUTE, 60);
         subject.doFilter(request, response, chain);
         assertEquals("60", response.getHeader("Retry-After"));
@@ -58,18 +57,10 @@ public class CatalogPageErrorResponseFilterTest {
     }
 
     @Test
-    public void testUnmarkedServiceUnavailableResponse() throws Exception {
-        request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, 503);
+    public void testUnmarkedResponse() throws Exception {
         subject.doFilter(request, response, chain);
         assertNull(response.getHeader("Retry-After"));
         verify(chain).doFilter(request, response);
-    }
-
-    @Test
-    public void testUnmarkedOtherErrorStatus() throws Exception {
-        request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, 404);
-        subject.doFilter(request, response, chain);
-        assertNull(response.getHeader("Retry-After"));
     }
 
     @Test
@@ -90,14 +81,12 @@ public class CatalogPageErrorResponseFilterTest {
             assertEquals("60", response.getHeader("Retry-After"));
         });
         response.reset();
-        request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, 500);
         subject.doFilter(request, response, chain);
         assertNull(response.getHeader("Retry-After"));
     }
 
     @Test
     public void testNonpositiveRetryAfter() throws Exception {
-        request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, 503);
         for (int seconds : new int[] { 0, -1 }) {
             request.setAttribute(CatalogPageErrorResponseFilter.RETRY_AFTER_ATTRIBUTE, seconds);
             subject.doFilter(request, response, chain);
@@ -107,7 +96,6 @@ public class CatalogPageErrorResponseFilterTest {
 
     @Test
     public void testInvalidRetryAfterAttribute() throws Exception {
-        request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, 503);
         request.setAttribute(CatalogPageErrorResponseFilter.RETRY_AFTER_ATTRIBUTE, "60");
         subject.doFilter(request, response, chain);
         assertNull(response.getHeader("Retry-After"));
@@ -116,7 +104,6 @@ public class CatalogPageErrorResponseFilterTest {
     @Test
     public void testNonHttpResponse() throws Exception {
         ServletResponse nonHttpResponse = mock(ServletResponse.class);
-        request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, 503);
         request.setAttribute(CatalogPageErrorResponseFilter.RETRY_AFTER_ATTRIBUTE, 60);
         subject.doFilter(request, nonHttpResponse, chain);
         verify(chain).doFilter(request, nonHttpResponse);
