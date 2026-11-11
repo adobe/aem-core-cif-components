@@ -42,6 +42,7 @@ import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
+import com.adobe.cq.commerce.core.components.internal.services.CategoryUrlParameterRetriever;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithCategoryAndUrlKey;
 import com.adobe.cq.commerce.core.components.models.common.ProductListItem;
 import com.adobe.cq.commerce.core.components.models.retriever.AbstractCategoryRetriever;
@@ -565,5 +566,138 @@ public class SearchResultsServiceImplTest {
         ProductListItem item = items.get(0);
         // segments is the deepest url_key without any context given
         assertEquals("/content/product-page.html/segments/product.html", item.getURL());
+    }
+
+    @Test
+    public void testMissingCategoryPropagatesTransportErrorsBeforeReturning() {
+        Error error = error(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
+        AbstractCategoryRetriever retriever = categoryRetriever(null, Collections.singletonList(error), true);
+
+        Pair<CategoryInterface, SearchResultsSet> result = serviceUnderTest.performSearch(searchOptions, resource,
+            productPage, request, null, retriever);
+
+        assertThat(result.getLeft()).isNull();
+        assertThat(result.getRight().hasErrors()).isTrue();
+        assertThat(result.getRight().getErrors()).containsExactly(error);
+        Mockito.verifyZeroInteractions(magentoGraphqlClient);
+        Mockito.verifyZeroInteractions(searchFilterService);
+    }
+
+    @Test
+    public void testMissingCategoryPropagatesGraphqlErrors() {
+        Error error = error("graphql-input");
+        AbstractCategoryRetriever retriever = categoryRetriever(null, Collections.singletonList(error), true);
+        SearchResultsSet result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,
+            null, retriever).getRight();
+        assertThat(result.getErrors()).containsExactly(error);
+    }
+
+    @Test
+    public void testMissingCategoryWithoutErrorsIsNotFailure() {
+        AbstractCategoryRetriever retriever = categoryRetriever(null, Collections.emptyList(), true);
+        SearchResultsSet result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,
+            null, retriever).getRight();
+        assertThat(result.hasErrors()).isFalse();
+    }
+
+    @Test
+    public void testUninitializedCustomCategoryErrorsAreSafe() {
+        AbstractCategoryRetriever retriever = categoryRetriever(null, null, false);
+        SearchResultsSet result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,
+            null, retriever).getRight();
+        assertThat(result.hasErrors()).isFalse();
+    }
+
+    @Test
+    public void testNullCustomCategoryErrorsAreSafe() {
+        AbstractCategoryRetriever retriever = categoryRetriever(null, null, true);
+        SearchResultsSet result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,
+            null, retriever).getRight();
+        assertThat(result.getErrors()).isEmpty();
+    }
+
+    @Test
+    public void testCategoryUidLookupErrorsArePropagated() {
+        Error error = error(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
+        GraphqlResponse<Query, Error> response = new GraphqlResponse<>();
+        response.setErrors(Collections.singletonList(error));
+        when(magentoGraphqlClient.execute(any())).thenReturn(response);
+        searchOptions.setCategoryUid("missing");
+
+        SearchResultsSet result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
+
+        assertThat(result.getErrors()).containsExactly(error);
+        verify(magentoGraphqlClient, times(1)).execute(any());
+    }
+
+    @Test
+    public void testCategoryIdErrorsMergeWithMetadataAndProductErrors() {
+        Error categoryError = error(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
+        Error metadataError = error("metadata-error");
+        Error productError = error("graphql-input");
+        GraphqlResponse<Query, Error> categoryResponse = new GraphqlResponse<>();
+        categoryResponse.setErrors(Collections.singletonList(categoryError));
+        GraphqlResponse<Query, Error> productsResponse = new GraphqlResponse<>();
+        productsResponse.setErrors(Collections.singletonList(productError));
+        when(magentoGraphqlClient.execute(any())).thenReturn(categoryResponse, productsResponse);
+        when(searchFilterService.retrieveCurrentlyAvailableCommerceFiltersInfo(any(), any()))
+            .thenReturn(Pair.of(Collections.emptyList(), Collections.singletonList(metadataError)));
+        searchOptions.getAttributeFilters().put("category_id", "42");
+
+        SearchResultsSet result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
+
+        assertThat(result.getErrors()).containsExactly(categoryError, metadataError, productError);
+        verify(magentoGraphqlClient, times(2)).execute(any());
+    }
+
+    @Test
+    public void testCategoryIdErrorsSurviveSuccessfulProductSearch() {
+        Error error = error(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
+        GraphqlResponse<Query, Error> categoryResponse = new GraphqlResponse<>();
+        categoryResponse.setErrors(Collections.singletonList(error));
+        GraphqlResponse<Query, Error> productsResponse = new GraphqlResponse<>();
+        productsResponse.setData(query);
+        when(magentoGraphqlClient.execute(any())).thenReturn(categoryResponse, productsResponse);
+        searchOptions.getAttributeFilters().put("category_id", "42");
+
+        SearchResultsSet result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
+
+        assertThat(result.getErrors()).containsExactly(error);
+        assertThat(result.getProductListItems()).hasSize(1);
+    }
+
+    @Test
+    public void testFoundCategoryErrorsMergeWithoutMutatingSourceList() {
+        Error categoryError = error("category-error");
+        Error metadataError = error("metadata-error");
+        AbstractCategoryRetriever retriever = categoryRetriever(categoryTree, Collections.singletonList(categoryError), true);
+        when(searchFilterService.retrieveCurrentlyAvailableCommerceFiltersInfo(any(), any()))
+            .thenReturn(Pair.of(Collections.emptyList(), Collections.singletonList(metadataError)));
+
+        SearchResultsSet result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request,
+            null, retriever).getRight();
+
+        assertThat(result.getErrors()).containsExactly(categoryError, metadataError);
+        assertThat(retriever.getErrors()).containsExactly(categoryError);
+        assertThat(result.getProductListItems()).hasSize(1);
+    }
+
+    private AbstractCategoryRetriever categoryRetriever(CategoryInterface value, List<Error> queryErrors, boolean initialized) {
+        return new CategoryUrlParameterRetriever(magentoGraphqlClient) {
+            @Override
+            public CategoryInterface fetchCategory() {
+                if (initialized) {
+                    errors = queryErrors;
+                }
+                return value;
+            }
+        };
+    }
+
+    private static Error error(String category) {
+        Error error = new Error();
+        error.setCategory(category);
+        error.setMessage("Query failed");
+        return error;
     }
 }
