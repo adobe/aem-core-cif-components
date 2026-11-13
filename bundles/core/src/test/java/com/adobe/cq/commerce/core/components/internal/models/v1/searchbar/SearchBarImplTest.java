@@ -16,15 +16,23 @@
 package com.adobe.cq.commerce.core.components.internal.models.v1.searchbar;
 
 import java.io.IOException;
+import java.util.Collections;
 
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.api.resource.ModifiableValueMap;
 import org.apache.sling.api.resource.Resource;
+import org.apache.sling.api.resource.ResourceResolver;
 import org.apache.sling.api.scripting.SlingBindings;
+import org.apache.sling.api.wrappers.SlingHttpServletRequestWrapper;
 import org.apache.sling.caconfig.ConfigurationBuilder;
+import org.apache.sling.models.factory.ModelFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventAdmin;
 
 import com.adobe.cq.commerce.core.components.models.searchbar.Searchbar;
 import com.adobe.cq.commerce.core.testing.Utils;
@@ -71,6 +79,69 @@ public class SearchBarImplTest {
     @Test
     public void testSearchResultPage() {
         Assert.assertEquals("/content/pageB.html", searchBar.getSearchResultsPageUrl());
+        Assert.assertEquals("/content/pageB.html", searchBar.getSearchResultsPageUrl());
+    }
+
+    @Test
+    public void testSearchResultPageWithMapping() {
+        addMapping("localhost.80");
+        Assert.assertEquals("/pageB.html", searchBar.getSearchResultsPageUrl());
+    }
+
+    @Test
+    public void testSearchResultPageWithMappingInDifferentDomain() {
+        addMapping("foobar.80");
+        Assert.assertEquals("/content/pageB.html", searchBar.getSearchResultsPageUrl());
+    }
+
+    @Test
+    public void testSearchResultPageWithNullMapping() {
+        ResourceResolver resolver = Mockito.spy(context.resourceResolver());
+        Mockito.doReturn(null).when(resolver).map(Mockito.any(SlingHttpServletRequest.class), Mockito.eq("/content/pageB"));
+        SlingHttpServletRequest request = new SlingHttpServletRequestWrapper(context.request()) {
+            @Override
+            public ResourceResolver getResourceResolver() {
+                return resolver;
+            }
+        };
+        Searchbar model = context.getService(ModelFactory.class).createModel(request, SearchbarImpl.class);
+
+        Assert.assertEquals("/content/pageB.html", model.getSearchResultsPageUrl());
+    }
+
+    @Test
+    public void testSearchResultPageFallsBackToCurrentPage() {
+        setupWithoutSearchResultsPage();
+        Assert.assertEquals("/content/fallback/pageA.html", searchBar.getSearchResultsPageUrl());
+        Assert.assertEquals("/content/fallback/pageA.html", searchBar.getSearchResultsPageUrl());
+    }
+
+    @Test
+    public void testSearchResultPageFallsBackToMappedCurrentPage() {
+        setupWithoutSearchResultsPage();
+        addMapping("localhost.80");
+        Assert.assertEquals("/fallback/pageA.html", searchBar.getSearchResultsPageUrl());
+    }
+
+    private void addMapping(String host) {
+        String mappingPath = "/etc/map/http/" + host;
+        context.create().resource(mappingPath, "sling:internalRedirect", new String[] { "/", "/content" });
+        // Refresh MapEntries because the mock repository does not send JCR events.
+        context.getService(EventAdmin.class).sendEvent(new Event(
+            "org/apache/sling/api/resource/Resource/ADDED",
+            Collections.singletonMap("path", mappingPath)));
+    }
+
+    private void setupWithoutSearchResultsPage() {
+        Page landingPage = context.create().page("/content/fallback");
+        landingPage.getContentResource().adaptTo(ModifiableValueMap.class).put("navRoot", true);
+        Page page = context.create().page("/content/fallback/pageA");
+        context.currentPage(page);
+        context.currentResource(page.getContentResource().getPath());
+        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
+        slingBindings.setResource(page.getContentResource());
+        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        searchBar = context.getService(ModelFactory.class).createModel(context.request(), SearchbarImpl.class);
     }
 
     @Test

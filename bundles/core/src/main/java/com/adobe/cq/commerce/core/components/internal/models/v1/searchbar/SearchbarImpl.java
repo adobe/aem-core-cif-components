@@ -41,6 +41,9 @@ public class SearchbarImpl extends DataLayerComponent implements Searchbar {
     private Page currentPage;
 
     @Self
+    private SlingHttpServletRequest request;
+
+    @Self
     private SiteStructure siteStructure;
 
     private Page searchResultsPage;
@@ -52,6 +55,12 @@ public class SearchbarImpl extends DataLayerComponent implements Searchbar {
             searchResultsPage = entry != null ? entry.getPage() : currentPage;
         }
 
-        return searchResultsPage.getPath() + ".html";
+        String pagePath = searchResultsPage.getPath();
+        String mappedPath = request.getResourceResolver().map(request, pagePath);
+        if (mappedPath == null || !mappedPath.startsWith("/")) {
+            mappedPath = pagePath;
+        }
+
+        return mappedPath + ".html";
     }
 }
