@@ -72,12 +72,11 @@ public class SearchBarImplTest {
 
         // Configure the component to create deep links to specific pages
         context.request().setAttribute(WCMMode.class.getName(), WCMMode.EDIT);
-
-        searchBar = context.request().adaptTo(SearchbarImpl.class);
     }
 
     @Test
     public void testSearchResultPage() {
+        searchBar = context.request().adaptTo(SearchbarImpl.class);
         Assert.assertEquals("/content/pageB.html", searchBar.getSearchResultsPageUrl());
         Assert.assertEquals("/content/pageB.html", searchBar.getSearchResultsPageUrl());
     }
@@ -85,12 +84,14 @@ public class SearchBarImplTest {
     @Test
     public void testSearchResultPageWithMapping() {
         addMapping("localhost.80");
+        searchBar = context.request().adaptTo(SearchbarImpl.class);
         Assert.assertEquals("/pageB.html", searchBar.getSearchResultsPageUrl());
     }
 
     @Test
     public void testSearchResultPageWithMappingInDifferentDomain() {
         addMapping("foobar.80");
+        searchBar = context.request().adaptTo(SearchbarImpl.class);
         Assert.assertEquals("/content/pageB.html", searchBar.getSearchResultsPageUrl());
     }
 
@@ -112,15 +113,15 @@ public class SearchBarImplTest {
     @Test
     public void testSearchResultPageFallsBackToCurrentPage() {
         setupWithoutSearchResultsPage();
-        Assert.assertEquals("/content/fallback/pageA.html", searchBar.getSearchResultsPageUrl());
-        Assert.assertEquals("/content/fallback/pageA.html", searchBar.getSearchResultsPageUrl());
+        Assert.assertEquals("/content/pageA.html", searchBar.getSearchResultsPageUrl());
+        Assert.assertEquals("/content/pageA.html", searchBar.getSearchResultsPageUrl());
     }
 
     @Test
     public void testSearchResultPageFallsBackToMappedCurrentPage() {
         setupWithoutSearchResultsPage();
         addMapping("localhost.80");
-        Assert.assertEquals("/fallback/pageA.html", searchBar.getSearchResultsPageUrl());
+        Assert.assertEquals("/pageA.html", searchBar.getSearchResultsPageUrl());
     }
 
     private void addMapping(String host) {
@@ -133,19 +134,14 @@ public class SearchBarImplTest {
     }
 
     private void setupWithoutSearchResultsPage() {
-        Page landingPage = context.create().page("/content/fallback");
-        landingPage.getContentResource().adaptTo(ModifiableValueMap.class).put("navRoot", true);
-        Page page = context.create().page("/content/fallback/pageA");
-        context.currentPage(page);
-        context.currentResource(page.getContentResource().getPath());
-        SlingBindings slingBindings = (SlingBindings) context.request().getAttribute(SlingBindings.class.getName());
-        slingBindings.setResource(page.getContentResource());
-        slingBindings.put(WCMBindingsConstants.NAME_CURRENT_PAGE, page);
+        context.resourceResolver().getResource("/content/jcr:content").adaptTo(ModifiableValueMap.class)
+            .remove("cq:cifSearchResultsPage");
         searchBar = context.getService(ModelFactory.class).createModel(context.request(), SearchbarImpl.class);
     }
 
     @Test
     public void testJsonRender() throws IOException {
+        searchBar = context.request().adaptTo(SearchbarImpl.class);
         ObjectMapper mapper = new ObjectMapper();
         String expected = Utils.getResource("results/result-datalayer-searchbar-component.json");
         String jsonResult = searchBar.getData().getJson();
