@@ -348,12 +348,21 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
             return response;
         } catch (RuntimeException ex) {
-            LOGGER.error("Failed to execute query: {}", query, ex);
+            int index = ExceptionUtils.indexOfType(ex, GraphqlRequestException.class);
+            GraphqlRequestException requestException = index >= 0
+                ? (GraphqlRequestException) ExceptionUtils.getThrowableList(ex).get(index)
+                : null;
+            if (requestException != null) {
+                LOGGER.error("Failed to execute query for client '{}': {} Query: {}", singleLine(graphqlClient.getIdentifier()),
+                    singleLine(summarizeException(requestException)), StringUtils.abbreviate(singleLine(query), 200));
+                LOGGER.debug("Failed to execute query: {}", query, ex);
+            } else {
+                LOGGER.error("Failed to execute query: {}", query, ex);
+            }
 
             // Add duration from GraphqlRequestException if available, also when the client cache wraps it
-            int index = ExceptionUtils.indexOfType(ex, GraphqlRequestException.class);
-            if (existingDuration != null && index >= 0) {
-                existingDuration.addAndGet(((GraphqlRequestException) ExceptionUtils.getThrowableList(ex).get(index)).getDuration());
+            if (existingDuration != null && requestException != null) {
+                existingDuration.addAndGet(requestException.getDuration());
             }
 
             GraphqlResponse<Query, Error> response = newErrorResponse(ex);
@@ -550,7 +559,17 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
     private static GraphqlResponse<Query, Error> newErrorResponse(Throwable throwable) {
         GraphqlResponse<Query, Error> response = new GraphqlResponse<>();
         Error error = new Error();
+        error.setMessage(summarizeException(throwable));
+        error.setCategory(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
+        response.setErrors(Collections.singletonList(error));
+        return response;
+    }
 
+    private static String singleLine(String value) {
+        return StringUtils.replaceChars(value, "\r\n", "  ");
+    }
+
+    private static String summarizeException(Throwable throwable) {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("[%s: \"%s\"]", throwable.getClass().getName(), throwable.getMessage()));
         while (throwable.getCause() != null) {
@@ -558,10 +577,7 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
             sb.append(String.format(" Caused by: [%s: \"%s\"]", throwable.getClass().getName(), throwable.getMessage()));
         }
 
-        error.setMessage(sb.toString());
-        error.setCategory(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
-        response.setErrors(Collections.singletonList(error));
-        return response;
+        return sb.toString();
     }
 
     private static String readFallBackConfiguration(Resource resource, String propertyName) {

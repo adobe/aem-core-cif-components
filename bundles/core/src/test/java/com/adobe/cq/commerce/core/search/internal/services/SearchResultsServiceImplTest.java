@@ -40,7 +40,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.CategoryUrlParameterRetriever;
 import com.adobe.cq.commerce.core.components.internal.services.urlformats.ProductPageWithCategoryAndUrlKey;
@@ -484,6 +489,53 @@ public class SearchResultsServiceImplTest {
         assertThat(searchResultsSet.getTotalResults()).isEqualTo(0);
         assertThat(searchResultsSet.getAppliedQueryParameters()).isEmpty();
         assertThat(searchResultsSet.getProductListItems()).isEmpty();
+    }
+
+    @Test
+    public void testResponseErrorsLoggedAtDebug() {
+        Error error = error("graphql-input");
+        GraphqlResponse<Query, Error> response = new GraphqlResponse<>();
+        response.setErrors(Collections.singletonList(error));
+        when(magentoGraphqlClient.execute(any())).thenReturn(response);
+        Logger logger = (Logger) LoggerFactory.getLogger(SearchResultsServiceImpl.class);
+        Level originalLevel = logger.getLevel();
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        logger.addAppender(appender);
+        logger.setLevel(Level.DEBUG);
+        try {
+            SearchResultsSet result = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
+
+            assertThat(result.getErrors()).containsExactly(error);
+            assertThat(result.hasErrors()).isTrue();
+            assertThat(appender.list.stream().filter(event -> event.getLevel() == Level.ERROR).count()).isZero();
+            assertThat(appender.list.stream().filter(event -> event.getLevel() == Level.DEBUG
+                && event.getFormattedMessage().equals("An error has occurred: Query failed (graphql-input)")).count()).isEqualTo(1);
+        } finally {
+            logger.detachAppender(appender);
+            appender.stop();
+            logger.setLevel(originalLevel);
+        }
+    }
+
+    @Test
+    public void testEmptyFiltersPreserveHasErrors() {
+        Error error = error(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
+        when(searchFilterService.retrieveCurrentlyAvailableCommerceFiltersInfo(any(), any()))
+            .thenReturn(Pair.of(Collections.emptyList(), Collections.singletonList(error)));
+
+        SearchResultsSet failed = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
+
+        assertThat(failed.getErrors()).containsExactly(error);
+        assertThat(failed.hasErrors()).isTrue();
+
+        when(searchFilterService.retrieveCurrentlyAvailableCommerceFiltersInfo(any(), any()))
+            .thenReturn(Pair.of(Collections.emptyList(), Collections.emptyList()));
+
+        SearchResultsSet empty = serviceUnderTest.performSearch(searchOptions, resource, productPage, request);
+
+        assertThat(empty.getErrors()).isEmpty();
+        assertThat(empty.hasErrors()).isFalse();
     }
 
     @Test
