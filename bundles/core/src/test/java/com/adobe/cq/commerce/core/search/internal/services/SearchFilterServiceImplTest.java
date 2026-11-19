@@ -31,6 +31,7 @@ import org.apache.sling.api.resource.Resource;
 import org.apache.sling.api.resource.ValueMap;
 import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.testing.mock.osgi.MockOsgi;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,7 +39,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.adobe.cq.commerce.core.MockHttpClientBuilderFactory;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
 import com.adobe.cq.commerce.core.search.models.FilterAttributeMetadata;
@@ -48,6 +54,8 @@ import com.adobe.cq.commerce.graphql.client.GraphqlClient;
 import com.adobe.cq.commerce.graphql.client.GraphqlResponse;
 import com.adobe.cq.commerce.graphql.client.impl.GraphqlClientImpl;
 import com.adobe.cq.commerce.magento.graphql.Query;
+import com.adobe.cq.commerce.magento.graphql.__InputValue;
+import com.adobe.cq.commerce.magento.graphql.__Type;
 import com.adobe.cq.commerce.magento.graphql.gson.Error;
 import com.day.cq.wcm.api.Page;
 import com.google.common.base.Function;
@@ -85,6 +93,9 @@ public class SearchFilterServiceImplTest {
     Page page;
     Resource pageResource;
     GraphqlClient graphqlClient;
+    private Logger logger;
+    private Level originalLevel;
+    private ListAppender<ILoggingEvent> appender;
 
     @Before
     public void setup() throws IOException {
@@ -104,6 +115,20 @@ public class SearchFilterServiceImplTest {
         page = Mockito.spy(context.currentPage(PAGE));
         pageResource = Mockito.spy(page.adaptTo(Resource.class));
         when(page.adaptTo(Resource.class)).thenReturn(pageResource);
+
+        logger = (Logger) LoggerFactory.getLogger(SearchFilterServiceImpl.class);
+        originalLevel = logger.getLevel();
+        logger.setLevel(Level.DEBUG);
+        appender = new ListAppender<>();
+        appender.start();
+        logger.addAppender(appender);
+    }
+
+    @After
+    public void tearDown() {
+        logger.detachAppender(appender);
+        appender.stop();
+        logger.setLevel(originalLevel);
     }
 
     @Test
@@ -172,6 +197,7 @@ public class SearchFilterServiceImplTest {
         final List<FilterAttributeMetadata> filterAttributeMetadata = searchFilterServiceUnderTest
             .retrieveCurrentlyAvailableCommerceFilters(page);
         assertThat(filterAttributeMetadata).hasSize(0);
+        verify(graphqlClient).execute(any(), any(), any(), any());
     }
 
     @Test
@@ -220,6 +246,68 @@ public class SearchFilterServiceImplTest {
         final Pair<List<FilterAttributeMetadata>, List<Error>> filterAttributeMetadata = searchFilterServiceUnderTest
             .retrieveCurrentlyAvailableCommerceFiltersInfo(request, page);
         assertThat(filterAttributeMetadata.getLeft()).hasSize(0);
-        assertThat(filterAttributeMetadata.getRight()).hasSize(2);
+        assertThat(filterAttributeMetadata.getRight()).containsExactly(error);
+        verify(graphqlClient).execute(any(), any(), any(), any());
+        assertResponseErrorsLoggedAtDebug(1);
+    }
+
+    @Test
+    public void testEmptyFiltersSkipMetadataEvenWithEnforcedPost() {
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        context.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
+        MockOsgi.deactivate(searchFilterServiceUnderTest, context.bundleContext());
+        MockOsgi.activate(searchFilterServiceUnderTest, context.bundleContext(), "enforcePost", Boolean.TRUE);
+        Query data = Mockito.mock(Query.class);
+        __Type type = Mockito.mock(__Type.class);
+        when(data.__getType()).thenReturn(type);
+        when(type.getInputFields()).thenReturn(Collections.emptyList());
+        GraphqlResponse<Object, Object> response = new GraphqlResponse<>();
+        response.setData(data);
+        when(graphqlClient.execute(any(), any(), any(), any())).thenReturn(response);
+
+        Pair<List<FilterAttributeMetadata>, List<Error>> result = searchFilterServiceUnderTest
+            .retrieveCurrentlyAvailableCommerceFiltersInfo(context.request(), page);
+
+        assertThat(result.getLeft()).isEmpty();
+        assertThat(result.getRight()).isEmpty();
+        verify(graphqlClient).execute(any(), any(), any(), any());
+        assertResponseErrorsLoggedAtDebug(0);
+    }
+
+    @Test
+    public void testMetadataErrorsLoggedAtDebug() {
+        GraphqlClient graphqlClient = Mockito.mock(GraphqlClient.class);
+        context.registerAdapter(Resource.class, GraphqlClient.class, graphqlClient);
+        Query data = Mockito.mock(Query.class);
+        __Type type = Mockito.mock(__Type.class);
+        __InputValue filter = Mockito.mock(__InputValue.class);
+        when(data.__getType()).thenReturn(type);
+        when(type.getInputFields()).thenReturn(Collections.singletonList(filter));
+        when(filter.getName()).thenReturn("color");
+        when(filter.getType()).thenReturn(type);
+        when(type.getName()).thenReturn("FilterEqualTypeInput");
+        GraphqlResponse<Query, Error> introspection = new GraphqlResponse<>();
+        introspection.setData(data);
+        GraphqlResponse<Query, Error> metadata = new GraphqlResponse<>();
+        Error error = new Error();
+        error.setMessage("Metadata unavailable");
+        error.setCategory("graphql-input");
+        metadata.setErrors(Collections.singletonList(error));
+        when(graphqlClient.<Query, Error>execute(any(), Mockito.eq(Query.class), Mockito.eq(Error.class), any()))
+            .thenReturn(introspection, metadata);
+
+        Pair<List<FilterAttributeMetadata>, List<Error>> result = searchFilterServiceUnderTest
+            .retrieveCurrentlyAvailableCommerceFiltersInfo(context.request(), page);
+
+        assertThat(result.getRight()).containsExactly(error);
+        verify(graphqlClient, Mockito.times(2)).execute(any(), any(), any(), any());
+        assertResponseErrorsLoggedAtDebug(1);
+    }
+
+    private void assertResponseErrorsLoggedAtDebug(long count) {
+        assertThat(appender.list.stream().filter(event -> event.getLevel() == Level.ERROR).count()).isZero();
+        assertThat(appender.list.stream()
+            .filter(event -> event.getLevel() == Level.DEBUG && event.getFormattedMessage().startsWith("An error has occurred: "))
+            .count()).isEqualTo(count);
     }
 }

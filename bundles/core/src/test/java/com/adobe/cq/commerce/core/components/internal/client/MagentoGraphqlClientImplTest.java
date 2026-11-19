@@ -45,6 +45,7 @@ import org.apache.sling.api.wrappers.ValueMapDecorator;
 import org.apache.sling.caconfig.ConfigurationBuilder;
 import org.apache.sling.serviceusermapping.ServiceUserMapped;
 import org.apache.sling.testing.mock.sling.servlet.MockSlingHttpServletRequest;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,7 +54,12 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.AtMost;
 import org.mockito.stubbing.Stubber;
+import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.adobe.cq.commerce.core.components.client.MagentoGraphqlClient;
 import com.adobe.cq.commerce.core.components.internal.services.ComponentsConfigurationAdapterFactory;
 import com.adobe.cq.commerce.core.components.services.ComponentsConfiguration;
@@ -116,6 +122,9 @@ public class MagentoGraphqlClientImplTest {
         + "/jcr:content/root/responsivegrid/productteaser-simple";
 
     private GraphqlClient graphqlClient;
+    private Logger logger;
+    private Level originalLevel;
+    private ListAppender<ILoggingEvent> appender;
 
     @Rule
     public final AemContext context = TestContext.newAemContext("/context/jcr-content.json");
@@ -127,6 +136,20 @@ public class MagentoGraphqlClientImplTest {
 
         context.registerAdapter(Resource.class, GraphqlClient.class, (Function<Resource, GraphqlClient>) input -> StringUtils.isNotEmpty(
             input.getValueMap().get("cq:graphqlClient", String.class)) ? graphqlClient : null);
+
+        logger = (Logger) LoggerFactory.getLogger(MagentoGraphqlClient.class);
+        originalLevel = logger.getLevel();
+        logger.setLevel(Level.DEBUG);
+        appender = new ListAppender<>();
+        appender.start();
+        logger.addAppender(appender);
+    }
+
+    @After
+    public void tearDown() {
+        logger.detachAppender(appender);
+        appender.stop();
+        logger.setLevel(originalLevel);
     }
 
     private void testMagentoStoreProperty(Resource resource, boolean withStoreHeader) {
@@ -812,6 +835,99 @@ public class MagentoGraphqlClientImplTest {
     }
 
     @Test
+    public void testDirectRequestFailureLogging() {
+        GraphqlRequestException failure = new GraphqlRequestException("Service unavailable: 503", 100L);
+        String summary = "[com.adobe.cq.commerce.graphql.client.GraphqlRequestException: \"Service unavailable: 503\"]";
+        assertRequestFailureLogging(failure, summary, summary);
+    }
+
+    @Test
+    public void testWrappedRequestFailureLogging() {
+        GraphqlRequestException requestFailure = transportFailure(new SocketTimeoutException("Read timed out"));
+        RuntimeException failure = new UncheckedExecutionException(requestFailure);
+        String summary = "[com.adobe.cq.commerce.graphql.client.GraphqlRequestException: \"Failed to send request\"]"
+            + " Caused by: [java.net.SocketTimeoutException: \"Read timed out\"]";
+        String responseMessage = "[com.google.common.util.concurrent.UncheckedExecutionException: \""
+            + requestFailure + "\"] Caused by: " + summary;
+        assertRequestFailureLogging(failure, summary, responseMessage);
+    }
+
+    @Test
+    public void testRequestFailureSubclassLogging() {
+        GraphqlRequestException failure = new GraphqlRequestException("Circuit breaker open", 100L) {};
+        String summary = "[" + failure.getClass().getName() + ": \"Circuit breaker open\"]";
+        assertRequestFailureLogging(new UncheckedExecutionException(failure), summary,
+            "[com.google.common.util.concurrent.UncheckedExecutionException: \"" + failure + "\"] Caused by: " + summary);
+    }
+
+    @Test
+    public void testMultilineRequestFailureLogging() {
+        GraphqlRequestException failure = new GraphqlRequestException("Failed\r\nto send request", 100L,
+            new SocketTimeoutException("Read\ntimed\rout"));
+        String responseMessage = "[com.adobe.cq.commerce.graphql.client.GraphqlRequestException: \"Failed\r\nto send request\"]"
+            + " Caused by: [java.net.SocketTimeoutException: \"Read\ntimed\rout\"]";
+        String summary = "[com.adobe.cq.commerce.graphql.client.GraphqlRequestException: \"Failed  to send request\"]"
+            + " Caused by: [java.net.SocketTimeoutException: \"Read timed out\"]";
+        String query = "{\r\nproducts(search:\"" + StringUtils.repeat("x", 250) + "\"){\nitems{sku}\r}}";
+
+        assertRequestFailureLogging(failure, summary, responseMessage, query);
+    }
+
+    @Test
+    public void testUnexpectedFailureKeepsFullErrorLogging() {
+        MagentoGraphqlClient client = createTestClient();
+        RuntimeException failure = new IllegalStateException("Unexpected failure");
+        doThrow(failure).when(graphqlClient).execute(any(), any(), any(), any());
+        String query = "{products(search:\"" + StringUtils.repeat("x", 250) + "\"){items{sku}}}";
+
+        client.execute(query);
+
+        List<ILoggingEvent> errors = appender.list.stream().filter(event -> event.getLevel() == Level.ERROR)
+            .collect(Collectors.toList());
+        assertEquals(1, errors.size());
+        assertEquals("Failed to execute query: " + query, errors.get(0).getFormattedMessage());
+        assertSame(failure, ((ch.qos.logback.classic.spi.ThrowableProxy) errors.get(0).getThrowableProxy()).getThrowable());
+    }
+
+    private void assertRequestFailureLogging(RuntimeException failure, String summary, String responseMessage) {
+        assertRequestFailureLogging(failure, summary, responseMessage,
+            "{products(search:\"" + StringUtils.repeat("x", 250) + "\"){items{sku}}}");
+    }
+
+    private void assertRequestFailureLogging(RuntimeException failure, String summary, String responseMessage, String query) {
+        when(graphqlClient.getIdentifier()).thenReturn("test-client");
+        MagentoGraphqlClient client = createTestClient();
+        doThrow(failure).when(graphqlClient).execute(any(), any(), any(), any());
+
+        GraphqlResponse<Query, Error> response = client.execute(query);
+
+        List<ILoggingEvent> errors = appender.list.stream().filter(event -> event.getLevel() == Level.ERROR)
+            .collect(Collectors.toList());
+        assertEquals(1, errors.size());
+        ILoggingEvent error = errors.get(0);
+        String message = error.getFormattedMessage();
+        assertEquals("Failed to execute query for client 'test-client': " + summary + " Query: "
+            + query.replace('\r', ' ').replace('\n', ' ').substring(0, 197) + "...", message);
+        assertFalse(message.contains("\r"));
+        assertFalse(message.contains("\n"));
+        assertEquals(200, message.substring(message.indexOf(" Query: ") + " Query: ".length()).length());
+        assertFalse(message.contains(query));
+        assertFalse(message.contains("UncheckedExecutionException"));
+        assertNull(error.getThrowableProxy());
+        List<ILoggingEvent> debug = appender.list.stream()
+            .filter(event -> event.getLevel() == Level.DEBUG && event.getFormattedMessage().startsWith("Failed to execute query"))
+            .collect(Collectors.toList());
+        assertEquals(1, debug.size());
+        assertEquals("Failed to execute query: " + query, debug.get(0).getFormattedMessage());
+        assertSame(failure, ((ch.qos.logback.classic.spi.ThrowableProxy) debug.get(0).getThrowableProxy()).getThrowable());
+        assertNull(response.getData());
+        assertEquals(1, response.getErrors().size());
+        assertEquals(responseMessage, response.getErrors().get(0).getMessage());
+        assertEquals(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY, response.getErrors().get(0).getCategory());
+        assertDurationAccumulation(100L, "Request failure duration should still be added");
+    }
+
+    @Test
     public void checkGraphqlDurationBeenSet() {
         MagentoGraphqlClient client = createTestClient();
         mockSuccessfulResponse(100L);
@@ -953,11 +1069,17 @@ public class MagentoGraphqlClientImplTest {
         MagentoGraphqlClient client = createTestClient();
 
         GraphqlResponse<?, ?> first = client.execute("{dummy}");
+        appender.list.clear();
         assertSame(first, client.execute("{dummy}"));
         assertSame(first, client.execute("{dummy}"));
         assertSame(first, createTestClient().execute("{dummy}"));
 
         verify(graphqlClient, times(1)).execute(any(), any(), any(), any());
+        assertEquals(3, appender.list.stream()
+            .filter(event -> event.getLevel() == Level.DEBUG && event.getFormattedMessage().equals(
+                "Query already failed in this request, returning the cached error without calling the backend: {dummy}"))
+            .count());
+        assertTrue(appender.list.stream().noneMatch(event -> event.getLevel() == Level.ERROR));
     }
 
     /**
