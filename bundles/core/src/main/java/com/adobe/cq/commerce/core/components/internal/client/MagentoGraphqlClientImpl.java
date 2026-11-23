@@ -87,6 +87,7 @@ import com.day.cq.wcm.api.PageManager;
 public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MagentoGraphqlClient.class);
+    private static final Logger FAILURE_LOGGER = LoggerFactory.getLogger(MagentoGraphqlClient.class.getName() + ".failures");
     private static final Set<String> DENIED_HEADERS = DeniedHttpHeaders.DENYLIST.stream()
         .map(headerName -> headerName.toLowerCase(Locale.ROOT))
         .collect(Collectors.toSet());
@@ -353,9 +354,10 @@ public class MagentoGraphqlClientImpl implements MagentoGraphqlClient {
                 ? (GraphqlRequestException) ExceptionUtils.getThrowableList(ex).get(index)
                 : null;
             if (requestException != null) {
-                LOGGER.error("Failed to execute query for client '{}': {} Query: {}", singleLine(graphqlClient.getIdentifier()),
-                    singleLine(summarizeException(requestException)), StringUtils.abbreviate(singleLine(query), 200));
-                LOGGER.debug("Failed to execute query: {}", query, ex);
+                String loggedQuery = isMutation(query) ? "<mutation omitted>" : StringUtils.abbreviate(singleLine(query), 200);
+                LOGGER.error("Failed to execute query: {} (client '{}', cause: {})", loggedQuery,
+                    singleLine(graphqlClient.getIdentifier()), singleLine(summarizeException(requestException)));
+                FAILURE_LOGGER.debug("Failed to execute query: {}", query, ex);
             } else {
                 LOGGER.error("Failed to execute query: {}", query, ex);
             }

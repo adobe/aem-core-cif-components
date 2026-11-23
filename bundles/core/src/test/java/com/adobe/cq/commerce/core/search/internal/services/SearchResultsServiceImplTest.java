@@ -519,7 +519,7 @@ public class SearchResultsServiceImplTest {
     }
 
     @Test
-    public void testEmptyFiltersPreserveHasErrors() {
+    public void testFilterServiceErrorsArePropagatedToSearchResults() {
         Error error = error(MagentoGraphqlClient.RUNTIME_ERROR_CATEGORY);
         when(searchFilterService.retrieveCurrentlyAvailableCommerceFiltersInfo(any(), any()))
             .thenReturn(Pair.of(Collections.emptyList(), Collections.singletonList(error)));
