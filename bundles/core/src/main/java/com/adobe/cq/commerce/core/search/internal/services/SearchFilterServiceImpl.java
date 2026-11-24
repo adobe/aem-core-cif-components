@@ -141,6 +141,10 @@ public class SearchFilterServiceImpl implements SearchFilterService {
             return Pair.of(Collections.emptyList(), Collections.emptyList());
         }
 
+        if (availableFilters.isEmpty()) {
+            return Pair.of(Collections.emptyList(), Collections.emptyList());
+        }
+
         List<AttributeInput> attributeInputs = availableFilters.stream().map(inputField -> {
             AttributeInput attributeInput = new AttributeInput();
             attributeInput.setAttributeCode(inputField.getName());
@@ -162,7 +166,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         // If there are errors we'll log them and return a safe but empty list
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
             response.getErrors()
-                .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
+                .forEach(err -> LOGGER.debug("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
             return Pair.of(Collections.emptyList(), response.getErrors());
         }
 
@@ -198,7 +202,7 @@ public class SearchFilterServiceImpl implements SearchFilterService {
         // If there are errors in the response we'll log them out and return a safe but empty value
         if (CollectionUtils.isNotEmpty(response.getErrors())) {
             response.getErrors()
-                .forEach(err -> LOGGER.error("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
+                .forEach(err -> LOGGER.debug("An error has occurred: {} ({})", err.getMessage(), err.getCategory()));
             return Pair.of(Collections.emptyList(), response.getErrors());
         }
 
