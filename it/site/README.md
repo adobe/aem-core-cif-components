@@ -50,7 +50,7 @@ Confirm `com.adobe.commerce.cif.core-cif-components-core` shows **Active** at `/
 
 ```bash
 # from it/site/
-mvn clean install -PautoInstallSinglePackage
+mvn clean install -PautoInstallSinglePackage -Dskip-classic
 ```
 
 This installs `ui.apps`, `ui.content`, and `ui.config` for the test site via the `all` container package.
